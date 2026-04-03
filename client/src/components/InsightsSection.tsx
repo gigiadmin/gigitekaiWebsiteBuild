@@ -66,7 +66,7 @@ export default function InsightsSection() {
             </h2>
           </div>
           <a
-            href="#blog"
+            href="/blog"
             className="btn-cyan text-sm whitespace-nowrap flex-shrink-0"
           >
             View All Insights <ArrowRight size={16} />
@@ -114,7 +114,7 @@ export default function InsightsSection() {
                     {post.date}
                   </div>
                   <a
-                    href="#blog"
+                    href={`/blog/${i + 1}`}
                     className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >

@@ -120,7 +120,7 @@ export default function FAQSection() {
             <p className="text-gray-500 text-base leading-relaxed mb-6">
               Have more questions? Our team is ready to discuss your specific cloud and AI needs.
             </p>
-            <a href="#contact" className="btn-cyan text-sm">
+            <a href="/#contact" className="btn-cyan text-sm">
               Talk to an Expert
             </a>
           </div>

@@ -36,8 +36,8 @@ export default function Navbar() {
             🚀 GigitekAI — Powering the Next Generation of Enterprise Technology
           </span>
           <div className="flex items-center gap-6">
-            <a href="#blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
-            <a href="#about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
+            <a href="/blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
+            <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="#careers" className="hover:text-[#00D4FF] transition-colors">Careers</a>
             <a href="tel:+18005551234" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
               <Phone size={12} />
@@ -57,7 +57,7 @@ export default function Navbar() {
       >
         <div className="container flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 group">
+          <a href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-md bg-[#00D4FF] flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" fill="#0A0E1A" />
@@ -103,8 +103,8 @@ export default function Navbar() {
 
             {[
               { label: "Industries", href: "#industries" },
-              { label: "About Us", href: "#about" },
-              { label: "Insights", href: "#insights" },
+              { label: "About Us", href: "/about" },
+              { label: "Insights", href: "/blog" },
             ].map((item) => (
               <a
                 key={item.label}
@@ -153,14 +153,18 @@ export default function Navbar() {
               </a>
             ))}
             <div className="border-t border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
-              {["Industries", "About Us", "Insights"].map((label) => (
+              {[
+                { label: "Industries", href: "#industries" },
+                { label: "About Us", href: "/about" },
+                { label: "Insights", href: "/blog" },
+              ].map((item) => (
                 <a
-                  key={label}
-                  href={`#${label.toLowerCase().replace(" ", "-")}`}
+                  key={item.label}
+                  href={item.href}
                   className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
                   onClick={() => setMobileOpen(false)}
                 >
-                  {label}
+                  {item.label}
                 </a>
               ))}
             </div>
