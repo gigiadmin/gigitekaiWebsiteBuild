@@ -1,25 +1,44 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+/*
+  GigitekAI Home Page — Assembles all sections
+  Design: Cyberpunk Minimalism meets Enterprise Precision
+  Colors: Deep navy-black (#0A0E1A) + Electric cyan (#00D4FF)
+  Fonts: Space Grotesk (display) + DM Sans (body)
+*/
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
- */
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import ServicesSection from "@/components/ServicesSection";
+import TrustedBySection from "@/components/TrustedBySection";
+import BenefitsSection from "@/components/BenefitsSection";
+import WhoWeServeSection from "@/components/WhoWeServeSection";
+import StatsSection from "@/components/StatsSection";
+import TestimonialSection from "@/components/TestimonialSection";
+import IndustriesSection from "@/components/IndustriesSection";
+import InsightsSection from "@/components/InsightsSection";
+import FAQSection from "@/components/FAQSection";
+import CTASection from "@/components/CTASection";
+import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
+
 export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
-
   return (
     <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
+      <Navbar />
+      <main className="flex-1">
+        <HeroSection />
+        <ServicesSection />
+        <TrustedBySection />
+        <BenefitsSection />
+        <WhoWeServeSection />
+        <StatsSection />
+        <TestimonialSection />
+        <IndustriesSection />
+        <InsightsSection />
+        <FAQSection />
+        <CTASection />
       </main>
+      <Footer />
+      <ScrollToTop />
     </div>
   );
 }

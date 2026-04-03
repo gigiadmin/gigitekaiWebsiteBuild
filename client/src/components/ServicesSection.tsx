@@ -1,0 +1,174 @@
+/*
+  GigitekAI Services Section — Technology Expertise
+  White background section with service cards
+  Mirrors appliedtech.us "Technology Expertise" section
+*/
+
+import { useEffect, useRef, useState } from "react";
+import { Cloud, Brain, Shield, TrendingUp, Database, Cpu, ArrowRight } from "lucide-react";
+
+const CLOUD_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-cloud-services-RDPBQDkRZRbpsWy2UNcbqf.webp";
+const AI_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-ai-solutions-BoVHfmFw3tdkqwMF7iT2YX.webp";
+
+const services = [
+  {
+    icon: Cloud,
+    title: "Cloud Infrastructure",
+    description: "Migrate, modernize, and manage your cloud environment on AWS, Azure, or Google Cloud for peak performance and cost efficiency.",
+    href: "#cloud",
+  },
+  {
+    icon: Brain,
+    title: "AI & Machine Learning",
+    description: "Deploy intelligent automation, predictive analytics, and custom AI models that drive measurable business outcomes.",
+    href: "#ai",
+  },
+  {
+    icon: Shield,
+    title: "Cybersecurity",
+    description: "Protect your data and operations with enterprise-grade security frameworks, threat detection, and compliance management.",
+    href: "#security",
+  },
+  {
+    icon: TrendingUp,
+    title: "IT Strategy & Growth",
+    description: "Align technology investments with business goals through proactive planning, roadmapping, and vCIO advisory services.",
+    href: "#strategy",
+  },
+  {
+    icon: Database,
+    title: "Data & Analytics",
+    description: "Transform raw data into actionable intelligence with modern data warehousing, BI dashboards, and AI-powered insights.",
+    href: "#data",
+  },
+  {
+    icon: Cpu,
+    title: "Managed IT Services",
+    description: "24/7 monitoring, helpdesk support, and proactive maintenance so your team can focus on what matters most.",
+    href: "#managed",
+  },
+];
+
+function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const Icon = service.icon;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`group bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+      style={{ transitionDelay: `${index * 80}ms` }}
+    >
+      <div className="w-12 h-12 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-4 group-hover:bg-[#00D4FF]/15 transition-colors">
+        <Icon size={22} className="text-[#00D4FF]" />
+      </div>
+      <h3 className="text-lg font-bold text-gray-900 mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        {service.title}
+      </h3>
+      <p className="text-gray-600 text-sm leading-relaxed mb-4">{service.description}</p>
+      <a
+        href={service.href}
+        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
+        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+      >
+        Learn more <ArrowRight size={14} />
+      </a>
+    </div>
+  );
+}
+
+export default function ServicesSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="services" className="py-20 bg-white">
+      <div className="container">
+        {/* Header */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+          <div ref={ref}>
+            <div className={`section-label transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+              Technology Expertise
+            </div>
+            <h2
+              className={`text-4xl md:text-5xl font-bold text-gray-900 leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              Cloud & AI Solutions for Every Business Need
+            </h2>
+          </div>
+          <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <p className="text-gray-600 text-lg leading-relaxed mb-6">
+              Technology is the engine of modern business. GigitekAI provides the expertise, infrastructure, and AI-driven intelligence your organization needs to accelerate growth and outperform the competition.
+            </p>
+            <a href="#contact" className="btn-cyan text-sm">
+              Explore All Capabilities <ArrowRight size={16} />
+            </a>
+          </div>
+        </div>
+
+        {/* Service Cards Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          {services.map((service, i) => (
+            <ServiceCard key={service.title} service={service} index={i} />
+          ))}
+        </div>
+
+        {/* Visual showcase */}
+        <div className="grid md:grid-cols-2 gap-6 rounded-2xl overflow-hidden">
+          <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
+            <img
+              src={CLOUD_IMG}
+              alt="Cloud Infrastructure"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
+              <div>
+                <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Cloud Infrastructure</p>
+                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Scalable. Resilient. Always On.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
+            <img
+              src={AI_IMG}
+              alt="AI Solutions"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
+              <div>
+                <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Artificial Intelligence</p>
+                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Intelligent. Adaptive. Transformative.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
