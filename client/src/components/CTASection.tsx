@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -39,8 +40,17 @@ export default function CTASection() {
       });
       setSubmitted(true);
       setForm({ name: "", email: "", company: "", message: "" });
+      toast.success("Assessment request submitted!", {
+        description: "Our team will contact you within 1 business day.",
+        duration: 5000,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit form. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to submit form. Please try again.";
+      setError(errorMessage);
+      toast.error("Submission failed", {
+        description: errorMessage,
+        duration: 5000,
+      });
     }
   };
 

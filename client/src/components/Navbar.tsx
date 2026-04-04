@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown, Phone } from "lucide-react";
+import { toast } from "sonner";
 
 const services = [
   { label: "Cloud Infrastructure", href: "#services" },
@@ -119,15 +120,21 @@ export default function Navbar() {
 
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            <a
-              href="#contact"
+            <button
+              onClick={() => {
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                toast.info('Scroll to contact form', {
+                  description: 'Fill out the form to request your free assessment.',
+                  duration: 3000,
+                });
+              }}
               className="btn-cyan text-sm"
             >
               Get in Touch
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </a>
+            </button>
           </div>
 
           {/* Mobile hamburger */}
