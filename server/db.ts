@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -117,7 +117,9 @@ export async function createTicket(ticket: InsertTicket) {
   try {
     const result = await db.insert(tickets).values(ticket);
     console.log("[Database] Ticket created successfully");
-    return result;
+    // Get the inserted ticket to return with ID
+    const insertedTickets = await db.select().from(tickets).where(eq(tickets.userId, ticket.userId)).orderBy(desc(tickets.createdAt)).limit(1);
+    return insertedTickets[0] || null;
   } catch (error) {
     console.error("[Database] Failed to create ticket:", error);
     throw error;

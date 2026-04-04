@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
+import { notifyOwner } from "../_core/notification";
 import { 
   searchKnowledgeBase, 
   createChatSession, 
@@ -187,8 +188,6 @@ export const aibotRouter = router({
         .join("\n");
 
       // Create help desk ticket
-      // Note: This requires a user to be created for the session
-      // For now, we'll create a ticket with minimal user info
       const ticketResult = await createTicket({
         userId: 1, // System user for bot escalations
         title: `Chat Escalation: ${reason.substring(0, 100)}`,
@@ -198,12 +197,24 @@ export const aibotRouter = router({
         status: "open" as any,
       });
 
-      // Update chat session status
-      await updateChatSessionStatus(sessionId, "escalated", 1); // Assuming ticket ID is 1 for now
+      const ticketId = ticketResult?.id || 1;
+
+      // Update chat session status with actual ticket ID
+      await updateChatSessionStatus(sessionId, "escalated", ticketId);
+
+      // Send notification to owner
+      try {
+        await notifyOwner({
+          title: `New Support Ticket from Chat: ${session.visitorName || "Anonymous"}`,
+          content: `Priority: ${priority}\nReason: ${reason}\nCustomer Email: ${session.visitorEmail || "Not provided"}\nCompany: ${session.visitorCompany || "Not provided"}\n\nTicket #${ticketId}\n\nChat Transcript:\n${transcript}`,
+        });
+      } catch (error) {
+        console.error("[AIBot] Failed to send notification:", error);
+      }
 
       return {
         success: true,
-        ticketId: 1,
+        ticketId,
         message: "Your issue has been escalated to our support team. A specialist will contact you shortly.",
       };
     }),
@@ -235,6 +246,16 @@ export const aibotRouter = router({
         interest,
         conversationSummary,
       });
+
+      // Send notification to owner about new lead
+      try {
+        await notifyOwner({
+          title: `New Lead from Chat: ${name}`,
+          content: `Email: ${email}\nCompany: ${company || "Not provided"}\nInterest: ${interest || "Not specified"}\n\nConversation Summary:\n${conversationSummary}`,
+        });
+      } catch (error) {
+        console.error("[AIBot] Failed to send lead notification:", error);
+      }
 
       return { success: true, message: "Thank you! We'll follow up with you shortly." };
     }),
