@@ -106,6 +106,7 @@ export default function Navbar() {
               { label: "Industries", href: "#industries" },
               { label: "About Us", href: "/about" },
               { label: "Insights", href: "/blog" },
+              { label: "Help Desk", href: "/helpdesk" },
             ].map((item) => (
               <a
                 key={item.label}
@@ -164,6 +165,7 @@ export default function Navbar() {
                 { label: "Industries", href: "#industries" },
                 { label: "About Us", href: "/about" },
                 { label: "Insights", href: "/blog" },
+                { label: "Help Desk", href: "/helpdesk" },
               ].map((item) => (
                 <a
                   key={item.label}
