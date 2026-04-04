@@ -13,6 +13,7 @@ import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
+import AIChatWidget from "./components/AIChatWidget";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -39,6 +40,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <AIChatWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

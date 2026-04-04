@@ -67,3 +67,65 @@ export const ticketReplies = mysqlTable("ticketReplies", {
 
 export type TicketReply = typeof ticketReplies.$inferSelect;
 export type InsertTicketReply = typeof ticketReplies.$inferInsert;
+
+// AI Support Bot - Knowledge Base
+export const knowledgeBase = mysqlTable("knowledgeBase", {
+  id: int("id").autoincrement().primaryKey(),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "Microsoft 365", "Managed IT", "Troubleshooting", "Pricing", "Onboarding", "Sales"
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  keywords: text("keywords").notNull(), // comma-separated for search
+  priority: int("priority").default(1).notNull(), // higher = more relevant
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type KnowledgeBase = typeof knowledgeBase.$inferSelect;
+export type InsertKnowledgeBase = typeof knowledgeBase.$inferInsert;
+
+// AI Support Bot - Chat Sessions
+export const chatSessions = mysqlTable("chatSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull().unique(), // UUID for browser session
+  visitorName: varchar("visitorName", { length: 255 }),
+  visitorEmail: varchar("visitorEmail", { length: 320 }),
+  visitorCompany: varchar("visitorCompany", { length: 255 }),
+  visitorInterest: varchar("visitorInterest", { length: 100 }), // e.g., "Microsoft 365", "Pricing", "Support"
+  escalatedToTicketId: int("escalatedToTicketId"), // if escalated to help desk
+  status: mysqlEnum("status", ["active", "escalated", "closed"]).default("active").notNull(),
+  messageCount: int("messageCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  closedAt: timestamp("closedAt"),
+});
+
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = typeof chatSessions.$inferInsert;
+
+// AI Support Bot - Chat Messages
+export const chatMessages = mysqlTable("chatMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  message: text("message").notNull(),
+  metadata: text("metadata"), // JSON: confidence, sources, escalation_reason, etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+// Lead Capture from Chat
+export const chatLeads = mysqlTable("chatLeads", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  interest: varchar("interest", { length: 100 }),
+  conversationSummary: text("conversationSummary"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatLead = typeof chatLeads.$inferSelect;
+export type InsertChatLead = typeof chatLeads.$inferInsert;

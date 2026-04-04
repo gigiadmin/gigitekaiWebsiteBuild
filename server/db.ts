@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -218,6 +218,149 @@ export async function getAllTickets() {
     return result;
   } catch (error) {
     console.error("[Database] Failed to get all tickets:", error);
+    throw error;
+  }
+}
+
+// AI Support Bot Queries
+export async function getKnowledgeBase(category?: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get knowledge base: database not available");
+    return [];
+  }
+
+  try {
+    let query: any = db.select().from(knowledgeBase);
+    if (category) {
+      query = query.where(eq(knowledgeBase.category, category));
+    }
+    const result = await query;
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get knowledge base:", error);
+    return [];
+  }
+}
+
+export async function searchKnowledgeBase(keywords: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot search knowledge base: database not available");
+    return [];
+  }
+
+  try {
+    // Simple keyword search - can be enhanced with full-text search
+    const result = await db.select().from(knowledgeBase);
+    const filtered = result.filter(item => 
+      item.keywords.toLowerCase().includes(keywords.toLowerCase()) ||
+      item.title.toLowerCase().includes(keywords.toLowerCase()) ||
+      item.content.toLowerCase().includes(keywords.toLowerCase())
+    );
+    return filtered.sort((a, b) => b.priority - a.priority);
+  } catch (error) {
+    console.error("[Database] Failed to search knowledge base:", error);
+    return [];
+  }
+}
+
+export async function createChatSession(session: any) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create chat session: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(chatSessions).values(session);
+    console.log("[Database] Chat session created successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to create chat session:", error);
+    throw error;
+  }
+}
+
+export async function getChatSession(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get chat session: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(chatSessions).where(eq(chatSessions.sessionId, sessionId)).limit(1);
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get chat session:", error);
+    return null;
+  }
+}
+
+export async function saveChatMessage(message: any) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save chat message: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(chatMessages).values(message);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save chat message:", error);
+    throw error;
+  }
+}
+
+export async function getChatMessages(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get chat messages: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(chatMessages).where(eq(chatMessages.sessionId, sessionId));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get chat messages:", error);
+    return [];
+  }
+}
+
+export async function saveChatLead(lead: any) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save chat lead: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(chatLeads).values(lead);
+    console.log("[Database] Chat lead saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save chat lead:", error);
+    throw error;
+  }
+}
+
+export async function updateChatSessionStatus(sessionId: string, status: string, ticketId?: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update chat session: database not available");
+    return null;
+  }
+
+  try {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (ticketId) updateData.escalatedToTicketId = ticketId;
+    const result = await db.update(chatSessions).set(updateData).where(eq(chatSessions.sessionId, sessionId));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update chat session:", error);
     throw error;
   }
 }
