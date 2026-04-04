@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -136,6 +136,11 @@ export default function AIChatWidget() {
     }
   };
 
+  const handleClose = () => {
+    setIsOpen(false);
+    setShowLeadForm(false);
+  };
+
   return (
     <>
       {/* Chat Widget Button */}
@@ -147,16 +152,26 @@ export default function AIChatWidget() {
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* Chat Window */}
+      {/* Chat Window - Mobile Responsive */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-40 w-96 max-w-[calc(100vw-2rem)] bg-[#0F1629] border border-[rgba(0,212,255,0.2)] rounded-lg shadow-2xl shadow-black/50 flex flex-col max-h-[600px]">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#00D4FF]/20 to-[#00D4FF]/10 border-b border-[rgba(0,212,255,0.2)] p-4 rounded-t-lg">
-            <h3 className="text-white font-semibold flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse" />
-              GigitekAI Support
-            </h3>
-            <p className="text-xs text-gray-400 mt-1">Ask about Microsoft 365, cloud services, or pricing</p>
+        <div className="fixed inset-0 z-40 md:inset-auto md:bottom-24 md:right-6 md:w-96 bg-[#0F1629] md:border md:border-[rgba(0,212,255,0.2)] md:rounded-lg shadow-2xl shadow-black/50 flex flex-col md:max-h-[600px] h-full md:h-auto">
+          {/* Header with Close Button */}
+          <div className="bg-gradient-to-r from-[#00D4FF]/20 to-[#00D4FF]/10 border-b border-[rgba(0,212,255,0.2)] p-4 rounded-t-lg md:rounded-t-lg flex items-center justify-between">
+            <div>
+              <h3 className="text-white font-semibold flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse" />
+                GigitekAI Support
+              </h3>
+              <p className="text-xs text-gray-400 mt-1">Ask about Microsoft 365, cloud services, or pricing</p>
+            </div>
+            {/* Close Button */}
+            <button
+              onClick={handleClose}
+              className="ml-2 p-1 hover:bg-[rgba(0,212,255,0.1)] rounded transition-colors"
+              title="Close chat"
+            >
+              <X size={20} className="text-white" />
+            </button>
           </div>
 
           {/* Messages */}
