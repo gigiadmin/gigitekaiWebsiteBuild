@@ -34,8 +34,6 @@ export default function UserChatWidget() {
   const { data: userSessions } = trpc.chat.getUserSessions.useQuery(undefined, {
     enabled: isAuthenticated && user?.role !== "admin",
   });
-  const getMessagesMutation = trpc.chat.getMessages.useMutation();
-  const getMessages = getMessagesMutation.mutateAsync;
 
   // Only show for authenticated users (not admins)
   if (!isAuthenticated || user?.role === "admin") {
@@ -196,16 +194,18 @@ export default function UserChatWidget() {
       setIsLoadingHistory(true);
       
       try {
-        const messages = await getMessages({ sessionId: activeSession.id });
-        setChatMessages(
-          messages.map((m: any) => ({
-            senderId: m.senderId,
-            senderRole: m.senderRole,
-            message: m.message,
-            timestamp: new Date(m.createdAt),
-            isRead: m.isRead,
-          }))
-        );
+        const { data: messages } = await trpc.chat.getMessages.useQuery({ sessionId: activeSession.id });
+        if (messages) {
+          setChatMessages(
+            messages.map((m: any) => ({
+              senderId: m.senderId,
+              senderRole: m.senderRole,
+              message: m.message,
+              timestamp: new Date(m.createdAt),
+              isRead: m.isRead,
+            }))
+          );
+        }
       } catch (error) {
         console.error("Error loading chat history:", error);
       } finally {

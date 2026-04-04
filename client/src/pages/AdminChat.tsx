@@ -50,8 +50,6 @@ export default function AdminChat() {
   const { data: adminSessions } = trpc.chat.getAdminSessions.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
   });
-  const getMessagesMutation = trpc.chat.getMessages.useMutation();
-  const getMessages = getMessagesMutation.mutateAsync;
 
   // Redirect if not admin
   useEffect(() => {
@@ -187,17 +185,24 @@ export default function AdminChat() {
       const userSession = adminSessions?.find((s: any) => s.userId === userId);
       if (userSession) {
         setSessionId(userSession.id);
-        // Load message history
-        const messages = await getMessages({ sessionId: userSession.id });
-        setChatMessages(
-          messages.map((m: any) => ({
-            senderId: m.senderId,
-            senderRole: m.senderRole,
-            message: m.message,
-            timestamp: new Date(m.createdAt),
-            isRead: m.isRead,
-          }))
-        );
+        // Load message history via tRPC
+        try {
+          const { data: messages } = await trpc.chat.getMessages.useQuery({ sessionId: userSession.id });
+          if (messages) {
+            setChatMessages(
+              messages.map((m: any) => ({
+                senderId: m.senderId,
+                senderRole: m.senderRole,
+                message: m.message,
+                timestamp: new Date(m.createdAt),
+                isRead: m.isRead,
+              }))
+            );
+          }
+        } catch (err) {
+          console.error("Error fetching messages:", err);
+          setChatMessages([]);
+        }
       }
     } catch (error) {
       console.error("Error loading chat history:", error);
@@ -219,7 +224,7 @@ export default function AdminChat() {
     );
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!messageInput.trim() || !selectedUserId || !wsRef.current || !sessionId) return;
 
     // Send message via WebSocket
@@ -245,6 +250,14 @@ export default function AdminChat() {
     ]);
 
     setMessageInput("");
+    
+    // Mark messages as read
+    try {
+      const markAsReadMutation = trpc.chat.markAsRead.useMutation();
+      await markAsReadMutation.mutateAsync({ sessionId });
+    } catch (err) {
+      console.error("Error marking messages as read:", err);
+    }
   };
 
   const handleLogout = async () => {
