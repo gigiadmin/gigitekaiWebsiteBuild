@@ -29,6 +29,13 @@
       "when": 1775340102652,
       "tag": "0003_optimal_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1775342234915,
+      "tag": "0004_wise_grandmaster",
+      "breakpoints": true
     }
   ]
 }

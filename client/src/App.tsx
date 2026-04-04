@@ -13,7 +13,9 @@ import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
+import AdminChat from "./pages/AdminChat";
 import AIChatWidget from "./components/AIChatWidget";
+import UserChatWidget from "./components/UserChatWidget";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -27,6 +29,7 @@ function Router() {
       <Route path={"/helpdesk/tickets/new"} component={CreateTicket} />
       <Route path={"/helpdesk/tickets/:ticketId"} component={TicketDetail} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
+      <Route path={"/admin/chat"} component={AdminChat} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -41,6 +44,7 @@ function App() {
           <Toaster />
           <Router />
           <AIChatWidget />
+          <UserChatWidget />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

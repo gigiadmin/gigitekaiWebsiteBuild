@@ -7,6 +7,7 @@ import { notifyOwner } from "./_core/notification";
 import { saveContactSubmission } from "./db";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
+import { chatRouter } from "./routers/chat";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -24,6 +25,7 @@ export const appRouter = router({
 
   helpdesk: helpdeskRouter,
   aibot: aibotRouter,
+  chat: chatRouter,
 
   contact: router({
     submit: publicProcedure

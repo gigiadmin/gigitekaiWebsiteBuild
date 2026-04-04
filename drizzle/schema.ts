@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -129,3 +129,43 @@ export const chatLeads = mysqlTable("chatLeads", {
 
 export type ChatLead = typeof chatLeads.$inferSelect;
 export type InsertChatLead = typeof chatLeads.$inferInsert;
+
+// Real-Time Chat - Admin to User Communication
+export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  adminId: int("adminId"),
+  status: mysqlEnum("status", ["active", "closed", "archived"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  closedAt: timestamp("closedAt"),
+});
+
+export type RealtimeChatSession = typeof realtimeChatSessions.$inferSelect;
+export type InsertRealtimeChatSession = typeof realtimeChatSessions.$inferInsert;
+
+// Real-Time Chat Messages
+export const realtimeChatMessages = mysqlTable("realtimeChatMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("sessionId").notNull(),
+  senderId: int("senderId").notNull(),
+  senderRole: mysqlEnum("senderRole", ["user", "admin"]).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RealtimeChatMessage = typeof realtimeChatMessages.$inferSelect;
+export type InsertRealtimeChatMessage = typeof realtimeChatMessages.$inferInsert;
+
+// User Online Status
+export const userSessions = mysqlTable("userSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  isOnline: boolean("isOnline").default(false).notNull(),
+  lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = typeof userSessions.$inferInsert;
