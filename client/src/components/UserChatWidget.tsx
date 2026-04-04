@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Send, X, MessageCircle, AlertCircle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 interface ChatMessage {
   id?: number;
@@ -23,8 +24,18 @@ export default function UserChatWidget() {
   const [messageInput, setMessageInput] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [sessionId, setSessionId] = useState<number | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [typingAdminId, setTypingAdminId] = useState<number | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // tRPC queries
+  const { data: userSessions } = trpc.chat.getUserSessions.useQuery(undefined, {
+    enabled: isAuthenticated && user?.role !== "admin",
+  });
+  const getMessagesMutation = trpc.chat.getMessages.useMutation();
+  const getMessages = getMessagesMutation.mutateAsync;
 
   // Only show for authenticated users (not admins)
   if (!isAuthenticated || user?.role === "admin") {
@@ -103,7 +114,17 @@ export default function UserChatWidget() {
         break;
 
       case "typing":
-        // Could show typing indicator here
+        if (msg.userId !== user?.id) {
+          setTypingAdminId(msg.userId);
+          // Clear previous timeout
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+          // Clear typing indicator after 3 seconds
+          typingTimeoutRef.current = setTimeout(() => {
+            setTypingAdminId(null);
+          }, 3000);
+        }
         break;
 
       case "messages_read":
@@ -123,6 +144,18 @@ export default function UserChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [chatMessages]);
+
+  const handleTyping = () => {
+    if (!wsRef.current || !sessionId) return;
+    
+    wsRef.current.send(
+      JSON.stringify({
+        type: "typing",
+        userId: user?.id,
+        sessionId: sessionId,
+      })
+    );
+  };
 
   const handleSendMessage = () => {
     if (!messageInput.trim() || !wsRef.current || !sessionId) return;
@@ -152,9 +185,33 @@ export default function UserChatWidget() {
     setMessageInput("");
   };
 
-  const handleOpenChat = () => {
+  const handleOpenChat = async () => {
     setIsOpen(true);
     setUnreadCount(0);
+    
+    // Load message history if session exists
+    if (userSessions && userSessions.length > 0 && !sessionId) {
+      const activeSession = userSessions[0];
+      setSessionId(activeSession.id);
+      setIsLoadingHistory(true);
+      
+      try {
+        const messages = await getMessages({ sessionId: activeSession.id });
+        setChatMessages(
+          messages.map((m: any) => ({
+            senderId: m.senderId,
+            senderRole: m.senderRole,
+            message: m.message,
+            timestamp: new Date(m.createdAt),
+            isRead: m.isRead,
+          }))
+        );
+      } catch (error) {
+        console.error("Error loading chat history:", error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
   };
 
   return (
@@ -201,13 +258,18 @@ export default function UserChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {chatMessages.length === 0 ? (
+            {isLoadingHistory ? (
+              <div className="text-center text-gray-400 py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#00D4FF] mx-auto mb-2"></div>
+                <p className="text-sm">Loading chat history...</p>
+              </div>
+            ) : chatMessages.length === 0 ? (
               <div className="text-center text-gray-400 py-8">
                 <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Waiting for admin to connect...</p>
               </div>
             ) : (
-              chatMessages.map((msg, idx) => (
+              chatMessages.length > 0 && chatMessages.map((msg, idx) => (
                 <div
                   key={idx}
                   className={`flex ${
@@ -231,6 +293,17 @@ export default function UserChatWidget() {
                 </div>
               ))
             )}
+            {typingAdminId && (
+              <div className="flex justify-start">
+                <div className="bg-[#0A0E1A] border border-[#00D4FF]/20 text-gray-200 px-3 py-2 rounded-lg">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -240,7 +313,10 @@ export default function UserChatWidget() {
               type="text"
               placeholder="Type message..."
               value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
+              onChange={(e) => {
+                setMessageInput(e.target.value);
+                handleTyping();
+              }}
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
                   handleSendMessage();

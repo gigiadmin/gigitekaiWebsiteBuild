@@ -1,4 +1,5 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
 
 /**
  * Core user table backing auth flow.
@@ -55,6 +56,11 @@ export const tickets = mysqlTable("tickets", {
 
 export type Ticket = typeof tickets.$inferSelect;
 export type InsertTicket = typeof tickets.$inferInsert;
+
+// Relation: Tickets to chat sessions
+export const ticketsRelations = relations(tickets, ({ many }) => ({
+  chatSessions: many(realtimeChatSessions),
+}));
 
 export const ticketReplies = mysqlTable("ticketReplies", {
   id: int("id").autoincrement().primaryKey(),
@@ -135,6 +141,7 @@ export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   adminId: int("adminId"),
+  ticketId: int("ticketId"), // Link to help desk ticket
   status: mysqlEnum("status", ["active", "closed", "archived"]).default("active").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -143,6 +150,14 @@ export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
 
 export type RealtimeChatSession = typeof realtimeChatSessions.$inferSelect;
 export type InsertRealtimeChatSession = typeof realtimeChatSessions.$inferInsert;
+
+// Relation: Chat sessions to tickets
+export const chatSessionsRelations = relations(realtimeChatSessions, ({ one }) => ({
+  ticket: one(tickets, {
+    fields: [realtimeChatSessions.ticketId],
+    references: [tickets.id],
+  }),
+}));
 
 // Real-Time Chat Messages
 export const realtimeChatMessages = mysqlTable("realtimeChatMessages", {

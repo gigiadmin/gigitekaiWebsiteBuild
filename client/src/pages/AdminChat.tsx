@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Send, LogOut, MessageCircle, User, Clock } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 interface OnlineUser {
   userId: number;
@@ -38,8 +39,19 @@ export default function AdminChat() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [sessionId, setSessionId] = useState<number | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [typingUserId, setTypingUserId] = useState<number | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // tRPC queries
+  const { data: adminSessions } = trpc.chat.getAdminSessions.useQuery(undefined, {
+    enabled: isAuthenticated && user?.role === "admin",
+  });
+  const getMessagesMutation = trpc.chat.getMessages.useMutation();
+  const getMessages = getMessagesMutation.mutateAsync;
 
   // Redirect if not admin
   useEffect(() => {
@@ -135,7 +147,17 @@ export default function AdminChat() {
         break;
 
       case "typing":
-        // Could show typing indicator here
+        if (msg.userId !== user?.id) {
+          setTypingUserId(msg.userId);
+          // Clear previous timeout
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+          // Clear typing indicator after 3 seconds
+          typingTimeoutRef.current = setTimeout(() => {
+            setTypingUserId(null);
+          }, 3000);
+        }
         break;
 
       case "messages_read":
@@ -156,21 +178,56 @@ export default function AdminChat() {
     scrollToBottom();
   }, [chatMessages]);
 
-  const handleSelectUser = (userId: number) => {
+  const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
-    setChatMessages([]); // Clear messages when switching users
-    // In a real app, you'd load previous messages here
+    setIsLoadingHistory(true);
+    
+    try {
+      // Find or create session for this user
+      const userSession = adminSessions?.find((s: any) => s.userId === userId);
+      if (userSession) {
+        setSessionId(userSession.id);
+        // Load message history
+        const messages = await getMessages({ sessionId: userSession.id });
+        setChatMessages(
+          messages.map((m: any) => ({
+            senderId: m.senderId,
+            senderRole: m.senderRole,
+            message: m.message,
+            timestamp: new Date(m.createdAt),
+            isRead: m.isRead,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+      toast.error("Failed to load chat history");
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const handleTyping = () => {
+    if (!selectedUserId || !wsRef.current) return;
+    
+    wsRef.current.send(
+      JSON.stringify({
+        type: "typing",
+        userId: user?.id,
+        sessionId: sessionId,
+      })
+    );
   };
 
   const handleSendMessage = () => {
-    if (!messageInput.trim() || !selectedUserId || !wsRef.current) return;
+    if (!messageInput.trim() || !selectedUserId || !wsRef.current || !sessionId) return;
 
     // Send message via WebSocket
     wsRef.current.send(
       JSON.stringify({
         type: "message",
         userId: user?.id,
-        sessionId: selectedUserId, // Using userId as sessionId for now
+        sessionId: sessionId,
         message: messageInput,
         senderRole: "admin",
       })
@@ -281,7 +338,12 @@ export default function AdminChat() {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto mb-4 space-y-3">
-                  {chatMessages.length === 0 ? (
+                  {isLoadingHistory ? (
+                    <div className="text-center text-gray-400 py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00D4FF] mx-auto mb-2"></div>
+                      <p>Loading chat history...</p>
+                    </div>
+                  ) : chatMessages.length === 0 ? (
                     <div className="text-center text-gray-400 py-8">
                       <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>No messages yet. Start the conversation!</p>
@@ -311,6 +373,17 @@ export default function AdminChat() {
                       </div>
                     ))
                   )}
+                  {typingUserId && typingUserId !== user?.id && (
+                    <div className="flex justify-start">
+                      <div className="bg-[#0A0E1A] border border-[#00D4FF]/20 text-gray-200 px-4 py-2 rounded-lg">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                          <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
 
@@ -320,7 +393,10 @@ export default function AdminChat() {
                     type="text"
                     placeholder="Type your message..."
                     value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
+                    onChange={(e) => {
+                      setMessageInput(e.target.value);
+                      handleTyping();
+                    }}
                     onKeyPress={(e) => {
                       if (e.key === "Enter") {
                         handleSendMessage();

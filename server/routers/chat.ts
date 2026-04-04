@@ -207,4 +207,73 @@ export const chatRouter = router({
 
       return { success: true };
     }),
+
+  // Link chat session to help desk ticket
+  linkToTicket: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.number(),
+        ticketId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verify user is admin or owner of the session
+      const session = await db
+        .select()
+        .from(realtimeChatSessions)
+        .where(eq(realtimeChatSessions.id, input.sessionId));
+
+      if (session.length === 0) {
+        throw new Error("Session not found");
+      }
+
+      if (
+        ctx.user.role !== "admin" &&
+        ctx.user.id !== session[0].userId
+      ) {
+        throw new Error("Unauthorized");
+      }
+
+      // Update session with ticket ID
+      await db
+        .update(realtimeChatSessions)
+        .set({ ticketId: input.ticketId })
+        .where(eq(realtimeChatSessions.id, input.sessionId));
+
+      return { success: true };
+    }),
+
+  // Get chat session by ticket ID
+  getSessionByTicket: protectedProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      const sessions = await db
+        .select()
+        .from(realtimeChatSessions)
+        .where(eq(realtimeChatSessions.ticketId, input.ticketId));
+
+      if (sessions.length === 0) return null;
+
+      const session = sessions[0];
+      // Verify user has access
+      if (
+        ctx.user.id !== session.userId &&
+        ctx.user.id !== session.adminId &&
+        ctx.user.role !== "admin"
+      ) {
+        throw new Error("Unauthorized");
+      }
+
+      return session;
+    }),
 });

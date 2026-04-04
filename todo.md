@@ -21,12 +21,20 @@
 - [x] Online user tracking via userSessions table
 - [x] Chat router with tRPC endpoints (getOnlineUsers, getOrCreateSession, getMessages, closeSession, etc.)
 - [x] Comprehensive vitest tests for chat router (10 tests, all passing)
-- [ ] Integration of chat sessions with help desk tickets
-- [ ] Message persistence and history loading
-- [ ] Typing indicators
-- [ ] Read receipts UI improvements
-- [ ] Admin notification when user comes online
-- [ ] User notification when admin joins chat
+- [x] Integration of chat sessions with help desk tickets (linkToTicket, getSessionByTicket endpoints)
+- [x] Message persistence and history loading (admin and user can load chat history)
+- [x] Typing indicators (animated bouncing dots with 3-second auto-clear)
+- [x] Read receipts UI improvements (messages marked as read)
+- [x] Admin notification when user comes online (Manus notification API integration)
+- [x] User notification when admin joins chat (WebSocket broadcast)
+
+## Next Priority Items
+- [x] Test real-time chat functionality in browser
+- [ ] Publish website to gigitekai.com domain
+- [x] Integration of chat sessions with help desk tickets
+- [x] Message persistence and history loading
+- [x] Typing indicators
+- [x] Read receipts UI improvements
 
 ## Future Enhancements
 - [ ] Video/audio call integration

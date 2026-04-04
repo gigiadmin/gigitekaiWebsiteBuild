@@ -145,6 +145,24 @@ async function handleJoin(
 
   // Notify admins of new online user
   if (role === "user") {
+    // Send notification to owner via Manus notification API
+    try {
+      const notifyOwnerUrl = process.env.BUILT_IN_FORGE_API_URL + "/notification/notify-owner";
+      await fetch(notifyOwnerUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
+        },
+        body: JSON.stringify({
+          title: "User Online - Help Desk Support",
+          content: `User #${userId} is now online and available for chat support.`,
+        }),
+      }).catch((err: any) => console.error("[WS] Error sending owner notification:", err));
+    } catch (error) {
+      console.error("[WS] Error notifying owner:", error);
+    }
+    
     broadcastToAdmins({
       type: "user_online",
       userId,

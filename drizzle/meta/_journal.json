@@ -36,6 +36,13 @@
       "when": 1775342234915,
       "tag": "0004_wise_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1775343352971,
+      "tag": "0005_fat_champions",
+      "breakpoints": true
     }
   ]
 }

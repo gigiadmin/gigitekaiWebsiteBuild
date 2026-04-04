@@ -1,0 +1,1 @@
+ALTER TABLE `realtimeChatSessions` ADD `ticketId` int;
