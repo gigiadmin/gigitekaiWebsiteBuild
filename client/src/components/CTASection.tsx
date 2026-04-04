@@ -5,13 +5,17 @@
 */
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Mail, Phone, MapPin } from "lucide-react";
+import { ArrowRight, Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 export default function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [error, setError] = useState<string | null>(null);
+
+  const submitMutation = trpc.contact.submit.useMutation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -22,9 +26,22 @@ export default function CTASection() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      await submitMutation.mutateAsync({
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        message: form.message,
+      });
+      setSubmitted(true);
+      setForm({ name: "", email: "", company: "", message: "" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to submit form. Please try again.");
+    }
   };
 
   return (
@@ -120,6 +137,12 @@ export default function CTASection() {
                   Tell us about your business and we'll design a tailored cloud and AI strategy.
                 </p>
 
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs text-gray-400 mb-1.5 font-medium">Full Name *</label>
@@ -130,6 +153,7 @@ export default function CTASection() {
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                       placeholder="John Smith"
+                      disabled={submitMutation.isPending}
                     />
                   </div>
                   <div>
@@ -141,6 +165,7 @@ export default function CTASection() {
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                       placeholder="john@company.com"
+                      disabled={submitMutation.isPending}
                     />
                   </div>
                 </div>
@@ -153,6 +178,7 @@ export default function CTASection() {
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
                     className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                     placeholder="Your Company"
+                    disabled={submitMutation.isPending}
                   />
                 </div>
 
@@ -164,15 +190,26 @@ export default function CTASection() {
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors resize-none"
                     placeholder="Tell us about your cloud and AI goals..."
+                    disabled={submitMutation.isPending}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="btn-cyan w-full justify-center text-base py-3.5"
+                  disabled={submitMutation.isPending}
+                  className="btn-cyan w-full justify-center text-base py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Request Free Assessment
-                  <ArrowRight size={18} />
+                  {submitMutation.isPending ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Request Free Assessment
+                      <ArrowRight size={18} />
+                    </>
+                  )}
                 </button>
 
                 <p className="text-gray-600 text-xs text-center">
