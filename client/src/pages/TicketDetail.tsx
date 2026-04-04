@@ -11,10 +11,17 @@ export default function TicketDetail() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const [replyText, setReplyText] = useState("");
 
-  const { data: ticketData, isLoading } = trpc.helpdesk.getTicket.useQuery(
+  const { data: ticketData, isLoading, error } = trpc.helpdesk.getTicket.useQuery(
     { ticketId: parseInt(ticketId || "0") },
-    { enabled: isAuthenticated && !!ticketId }
+    { enabled: isAuthenticated && !!ticketId && ticketId !== "0" }
   );
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error loading ticket:", error);
+      toast.error("Failed to load ticket details");
+    }
+  }, [error]);
 
   const addReplyMutation = trpc.helpdesk.addReply.useMutation({
     onSuccess: () => {
@@ -33,6 +40,12 @@ export default function TicketDetail() {
       navigate("/helpdesk");
     }
   }, [isAuthenticated, loading, navigate]);
+
+  useEffect(() => {
+    if (ticketData) {
+      console.log("Ticket data loaded:", ticketData);
+    }
+  }, [ticketData]);
 
   const handleAddReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +89,7 @@ export default function TicketDetail() {
     }
   };
 
-  if (loading || isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
         <div className="text-center">
@@ -87,7 +100,18 @@ export default function TicketDetail() {
     );
   }
 
-  if (!ticketData) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading ticket details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ticketData || !ticketData.ticket) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
         <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
@@ -103,7 +127,7 @@ export default function TicketDetail() {
           </div>
         </nav>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <p className="text-gray-400">Ticket not found</p>
+          <p className="text-gray-400">Ticket not found or failed to load</p>
         </div>
       </div>
     );
