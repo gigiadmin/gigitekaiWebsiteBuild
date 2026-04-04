@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -87,6 +87,23 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function saveContactSubmission(submission: InsertContactSubmission) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save contact submission: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(contactSubmissions).values(submission);
+    console.log("[Database] Contact submission saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save contact submission:", error);
+    throw error;
+  }
 }
 
 // TODO: add feature queries here as your schema grows.
