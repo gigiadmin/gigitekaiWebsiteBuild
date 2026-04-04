@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -106,4 +106,118 @@ export async function saveContactSubmission(submission: InsertContactSubmission)
   }
 }
 
-// TODO: add feature queries here as your schema grows.
+// Help Desk Queries
+export async function createTicket(ticket: InsertTicket) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create ticket: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(tickets).values(ticket);
+    console.log("[Database] Ticket created successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to create ticket:", error);
+    throw error;
+  }
+}
+
+export async function getTicketsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get tickets: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(tickets).where(eq(tickets.userId, userId));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get tickets:", error);
+    throw error;
+  }
+}
+
+export async function getTicketById(ticketId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get ticket: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get ticket:", error);
+    throw error;
+  }
+}
+
+export async function updateTicketStatus(ticketId: number, status: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update ticket: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.update(tickets).set({ status: status as any, updatedAt: new Date() }).where(eq(tickets.id, ticketId));
+    console.log("[Database] Ticket status updated successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update ticket status:", error);
+    throw error;
+  }
+}
+
+export async function addTicketReply(reply: InsertTicketReply) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot add reply: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(ticketReplies).values(reply);
+    console.log("[Database] Ticket reply added successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to add reply:", error);
+    throw error;
+  }
+}
+
+export async function getTicketReplies(ticketId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get replies: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(ticketReplies).where(eq(ticketReplies.ticketId, ticketId));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get replies:", error);
+    throw error;
+  }
+}
+
+export async function getAllTickets() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get all tickets: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(tickets);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get all tickets:", error);
+    throw error;
+  }
+}

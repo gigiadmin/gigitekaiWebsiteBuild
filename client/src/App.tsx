@@ -8,6 +8,11 @@ import Home from "./pages/Home";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import About from "./pages/About";
+import HelpDesk from "./pages/HelpDesk";
+import HelpdeskDashboard from "./pages/HelpdeskDashboard";
+import CreateTicket from "./pages/CreateTicket";
+import TicketDetail from "./pages/TicketDetail";
+import AdminPanel from "./pages/AdminPanel";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -16,6 +21,11 @@ function Router() {
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:id"} component={BlogDetail} />
       <Route path={"/about"} component={About} />
+      <Route path={"/helpdesk"} component={HelpDesk} />
+      <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
+      <Route path={"/helpdesk/tickets/new"} component={CreateTicket} />
+      <Route path={"/helpdesk/tickets/:ticketId"} component={TicketDetail} />
+      <Route path={"/admin/helpdesk"} component={AdminPanel} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

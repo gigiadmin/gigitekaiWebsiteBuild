@@ -15,6 +15,13 @@
       "when": 1775332428200,
       "tag": "0001_big_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775337383846,
+      "tag": "0002_condemned_mephistopheles",
+      "breakpoints": true
     }
   ]
 }
