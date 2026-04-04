@@ -14,19 +14,19 @@ const services = [
   {
     icon: Cloud,
     title: "Cloud Infrastructure",
-    description: "Migrate, modernize, and manage your cloud environment on AWS, Azure, or Google Cloud for peak performance and cost efficiency.",
+    description: "Enterprise cloud migration and management services on AWS, Azure, and Google Cloud. Our cloud infrastructure solutions deliver scalable, resilient cloud computing with cost optimization and 24/7 support.",
     href: "#cloud",
   },
   {
     icon: Brain,
     title: "AI & Machine Learning",
-    description: "Deploy intelligent automation, predictive analytics, and custom AI models that drive measurable business outcomes.",
+    description: "AI implementation and machine learning solutions including predictive analytics, business automation, and custom AI models. Transform your business with AI-powered intelligence and intelligent automation.",
     href: "#ai",
   },
   {
     icon: Shield,
     title: "Cybersecurity",
-    description: "Protect your data and operations with enterprise-grade security frameworks, threat detection, and compliance management.",
+    description: "Enterprise cybersecurity solutions with cloud security services, threat detection, compliance management, and data protection frameworks for secure cloud infrastructure.",
     href: "#security",
   },
   {
@@ -38,13 +38,13 @@ const services = [
   {
     icon: Database,
     title: "Data & Analytics",
-    description: "Transform raw data into actionable intelligence with modern data warehousing, BI dashboards, and AI-powered insights.",
+    description: "Data analytics and business intelligence solutions with modern data warehousing, predictive analytics, and AI-powered insights for enterprise decision-making.",
     href: "#data",
   },
   {
     icon: Cpu,
     title: "Managed IT Services",
-    description: "24/7 monitoring, helpdesk support, and proactive maintenance so your team can focus on what matters most.",
+    description: "Managed IT services and enterprise IT solutions with 24/7 monitoring, helpdesk support, and proactive maintenance for your cloud infrastructure and business systems.",
     href: "#managed",
   },
 ];
@@ -115,12 +115,12 @@ export default function ServicesSection() {
               className={`text-4xl md:text-5xl font-bold text-gray-900 leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Cloud & AI Solutions for Every Business Need
+              Enterprise Cloud Infrastructure & AI Solutions
             </h2>
           </div>
           <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <p className="text-gray-600 text-lg leading-relaxed mb-6">
-              Technology is the engine of modern business. GigitekAI provides the expertise, infrastructure, and AI-driven intelligence your organization needs to accelerate growth and outperform the competition.
+              GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
             <a href="#contact" className="btn-cyan text-sm">
               Explore All Capabilities <ArrowRight size={16} />
@@ -140,7 +140,7 @@ export default function ServicesSection() {
           <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
             <img
               src={CLOUD_IMG}
-              alt="Cloud Infrastructure"
+              alt="Cloud Infrastructure - AWS, Azure, Google Cloud services for enterprise digital transformation"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
@@ -155,7 +155,7 @@ export default function ServicesSection() {
           <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
             <img
               src={AI_IMG}
-              alt="AI Solutions"
+              alt="AI Solutions - Machine Learning, Artificial Intelligence, and predictive analytics for business automation"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">

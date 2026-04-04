@@ -90,7 +90,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            GigitekAI delivers enterprise-grade cloud infrastructure and artificial intelligence solutions that transform how businesses operate, scale, and compete in the digital era.
+            GigitekAI delivers enterprise-grade cloud infrastructure and artificial intelligence solutions that transform how businesses operate, scale, and compete in the digital era. Our cloud computing expertise spans AWS, Azure, and Google Cloud, with advanced machine learning and business automation capabilities.
           </p>
 
           {/* CTA Buttons */}
