@@ -56,3 +56,7 @@
   - Separated loading states for auth and ticket data
   - Added error toast notifications
   - All 48 tests passing
+
+## Critical Issues
+- [ ] Fix JavaScript runtime error on live site (index-BRG1kx40.js errors)
+- [ ] Clean build and redeploy to production
