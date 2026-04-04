@@ -8,11 +8,9 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
-import TrustedBySection from "@/components/TrustedBySection";
 import BenefitsSection from "@/components/BenefitsSection";
 import WhoWeServeSection from "@/components/WhoWeServeSection";
 import StatsSection from "@/components/StatsSection";
-import TestimonialSection from "@/components/TestimonialSection";
 import IndustriesSection from "@/components/IndustriesSection";
 import InsightsSection from "@/components/InsightsSection";
 import FAQSection from "@/components/FAQSection";
@@ -27,11 +25,9 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <ServicesSection />
-        <TrustedBySection />
         <BenefitsSection />
         <WhoWeServeSection />
         <StatsSection />
-        <TestimonialSection />
         <IndustriesSection />
         <InsightsSection />
         <FAQSection />
