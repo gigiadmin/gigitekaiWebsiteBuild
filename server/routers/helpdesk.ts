@@ -3,6 +3,7 @@ import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import { sendSMS } from "../_core/sms";
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -31,6 +32,18 @@ export const helpdeskRouter = router({
           title: `New Help Desk Ticket: ${input.title}`,
           content: `From: ${ctx.user.name} (${ctx.user.email})\n\nCategory: ${input.category}\nPriority: ${input.priority}\n\n${input.description}`,
         });
+
+        // Send SMS for critical tickets
+        if (input.priority === "critical") {
+          try {
+            await sendSMS({
+              to: "609-676-4483",
+              message: `CRITICAL TICKET #${ticket}\n${input.title}\nFrom: ${ctx.user.name}\nCategory: ${input.category}`,
+            });
+          } catch (smsError) {
+            console.warn("[Helpdesk] Failed to send critical ticket SMS:", smsError);
+          }
+        }
 
         return { success: true, ticketId: ticket };
       } catch (error) {
@@ -184,6 +197,7 @@ export const helpdeskRouter = router({
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
       <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+      <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(user.email)}" style="color: #999; text-decoration: none;">Unsubscribe from ticket notifications</a></p>
     </div>
   </div>
 </body>

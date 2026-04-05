@@ -375,6 +375,7 @@ export const aibotRouter = router({
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
       <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+      <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: none;">Unsubscribe from lead follow-ups</a></p>
     </div>
   </div>
 </body>
