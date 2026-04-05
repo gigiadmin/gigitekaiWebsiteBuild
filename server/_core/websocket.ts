@@ -5,7 +5,7 @@ import { realtimeChatMessages, realtimeChatSessions, userSessions } from "../../
 import { eq, and } from "drizzle-orm";
 
 interface WebSocketMessage {
-  type: "join" | "message" | "typing" | "read" | "disconnect";
+  type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification";
   userId?: number;
   sessionId?: number;
   message?: string;
@@ -128,6 +128,41 @@ async function handleMessage(
       // Update sender's sessionId for read receipt broadcasts
       updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
       await handleReadReceipt(msg.sessionId, msg.userId);
+      break;
+
+    case "file_notification":
+      // Broadcast file message to other participants without saving to DB
+      // (already persisted by the uploadAttachment mutation)
+      if (!msg.userId || !msg.sessionId || !msg.message) return;
+      updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
+      broadcastToSession(msg.sessionId, {
+        type: "message",
+        senderId: msg.userId,
+        senderRole: msg.senderRole || "user",
+        message: msg.message,
+        sessionId: msg.sessionId,
+        timestamp: new Date(),
+      });
+      // Also notify the other party directly
+      if (msg.senderRole === "admin") {
+        const db = await getDb();
+        if (db) {
+          const sessions = await db
+            .select()
+            .from(realtimeChatSessions)
+            .where(eq(realtimeChatSessions.id, msg.sessionId));
+          if (sessions.length > 0) {
+            broadcastToUser(sessions[0].userId, {
+              type: "message",
+              senderId: msg.userId,
+              senderRole: "admin",
+              message: msg.message,
+              sessionId: msg.sessionId,
+              timestamp: new Date(),
+            });
+          }
+        }
+      }
       break;
   }
 }

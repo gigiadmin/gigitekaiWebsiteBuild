@@ -41,12 +41,12 @@
 
 ## Future Enhancements
 - [ ] Video/audio call integration
-- [ ] File sharing in chat
-- [ ] Chat transcripts and export
-- [ ] Chat analytics and metrics
-- [ ] Chatbot integration with real-time chat handoff
+- [x] File sharing in chat (completed April 2026)
+- [x] Chat transcripts and export (completed April 2026)
+- [x] Chat analytics and metrics (completed April 2026)
+- [x] Chatbot integration with real-time chat handoff (completed April 2026)
 - [ ] Multi-language support
-- [ ] Dark/light theme toggle
+- [x] Dark/light theme toggle (completed April 2026)
 - [ ] Mobile app version
 
 ## Bug Fixes

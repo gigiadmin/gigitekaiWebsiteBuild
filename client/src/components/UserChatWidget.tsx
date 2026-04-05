@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Send, X, MessageCircle, AlertCircle, Paperclip, FileIcon, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { HANDOFF_EVENT } from "@/App";
 
 interface ChatMessage {
   id?: number;
@@ -135,7 +136,8 @@ function UserChatWidgetInner({ user }: { user: any }) {
   const handleWebSocketMessage = (msg: any) => {
     switch (msg.type) {
       case "message":
-        if (msg.senderRole === "admin") {
+        // Only show messages from the other party (admin), skip own messages
+        if (msg.senderId !== user?.id) {
           setChatMessages((prev) => [
             ...prev,
             {
@@ -262,11 +264,11 @@ function UserChatWidgetInner({ user }: { user: any }) {
           },
         ]);
 
-        // Also broadcast via WebSocket
+        // Broadcast via WebSocket for real-time notification only (not persisted again)
         if (wsRef.current) {
           wsRef.current.send(
             JSON.stringify({
-              type: "message",
+              type: "file_notification",
               userId: user?.id,
               sessionId: sessionId,
               message: fileMsg,
@@ -319,6 +321,27 @@ function UserChatWidgetInner({ user }: { user: any }) {
       setSessionId(activeSession.id);
     }
   };
+
+  // Listen for handoff events from AI chatbot
+  useEffect(() => {
+    const handleHandoff = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const handoffSessionId = customEvent.detail?.sessionId;
+      if (handoffSessionId) {
+        setSessionId(handoffSessionId);
+      }
+      setIsOpen(true);
+      setUnreadCount(0);
+      toast.success("Live chat connected", {
+        description: "You're now chatting with our support team.",
+      });
+    };
+
+    window.addEventListener(HANDOFF_EVENT, handleHandoff);
+    return () => {
+      window.removeEventListener(HANDOFF_EVENT, handleHandoff);
+    };
+  }, []);
 
   const renderMessage = (msg: ChatMessage) => {
     const fileData = tryParseFileMessage(msg.message);

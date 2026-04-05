@@ -40,6 +40,9 @@ function Router() {
   );
 }
 
+// Global event for AI-to-live-chat handoff coordination
+export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
+
 function App() {
   return (
     <ErrorBoundary>

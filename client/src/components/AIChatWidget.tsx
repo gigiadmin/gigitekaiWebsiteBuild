@@ -21,6 +21,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
+import { HANDOFF_EVENT } from "@/App";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ChatMessage {
@@ -208,17 +209,29 @@ export default function AIChatWidget() {
           });
           setHandoffComplete(true);
           toast.success("Connected to live support", {
-            description: "You've been transferred to our admin team. Check the live chat widget.",
+            description: "You've been transferred to our admin team.",
           });
           // Add system message to AI chat
           setMessages((prev) => [
             ...prev,
             {
               role: "assistant",
-              message: "You've been connected to our live support team. Please use the **Live Chat** widget (bottom-right corner) to continue your conversation with our admin team. They have your conversation context.",
+              message: "You've been connected to our live support team. The **Live Chat** will open automatically. Our admin team has your conversation context.",
               timestamp: Date.now(),
             },
           ]);
+
+          // Dispatch handoff event to auto-open UserChatWidget
+          window.dispatchEvent(
+            new CustomEvent(HANDOFF_EVENT, {
+              detail: { sessionId: handoffResult.realtimeSessionId },
+            })
+          );
+
+          // Auto-close AI chat after a brief delay
+          setTimeout(() => {
+            setIsOpen(false);
+          }, 2000);
           return;
         } catch (handoffErr) {
           console.error("Handoff failed, falling back to lead form:", handoffErr);

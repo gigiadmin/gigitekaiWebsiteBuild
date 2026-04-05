@@ -355,10 +355,11 @@ export default function AdminChat() {
           },
         ]);
 
+        // Broadcast via WebSocket for real-time notification only (not persisted again)
         if (wsRef.current) {
           wsRef.current.send(
             JSON.stringify({
-              type: "message",
+              type: "file_notification",
               userId: user?.id,
               sessionId: sessionId,
               message: fileMsg,
