@@ -12,36 +12,42 @@ const AI_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc
 
 const services = [
   {
+    id: "cloud",
     icon: Cloud,
     title: "Cloud Infrastructure",
     description: "Enterprise cloud migration and management services on AWS, Azure, and Google Cloud. Our cloud infrastructure solutions deliver scalable, resilient cloud computing with cost optimization and 24/7 support.",
     href: "#cloud",
   },
   {
+    id: "ai",
     icon: Brain,
     title: "AI & Machine Learning",
     description: "AI implementation and machine learning solutions including predictive analytics, business automation, and custom AI models. Transform your business with AI-powered intelligence and intelligent automation.",
     href: "#ai",
   },
   {
+    id: "security",
     icon: Shield,
     title: "Cybersecurity",
     description: "Enterprise cybersecurity solutions with cloud security services, threat detection, compliance management, and data protection frameworks for secure cloud infrastructure.",
     href: "#security",
   },
   {
+    id: "strategy",
     icon: TrendingUp,
     title: "IT Strategy & Growth",
     description: "Align technology investments with business goals through proactive planning, roadmapping, and vCIO advisory services.",
     href: "#strategy",
   },
   {
+    id: "data",
     icon: Database,
     title: "Data & Analytics",
     description: "Data analytics and business intelligence solutions with modern data warehousing, predictive analytics, and AI-powered insights for enterprise decision-making.",
     href: "#data",
   },
   {
+    id: "managed",
     icon: Cpu,
     title: "Managed IT Services",
     description: "Managed IT services and enterprise IT solutions with 24/7 monitoring, helpdesk support, and proactive maintenance for your cloud infrastructure and business systems.",
@@ -65,8 +71,9 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
 
   return (
     <div
+      id={service.id}
       ref={ref}
-      className={`group bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 ${
+      className={`group bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 scroll-mt-24 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}

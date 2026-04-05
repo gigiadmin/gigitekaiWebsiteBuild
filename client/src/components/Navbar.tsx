@@ -10,11 +10,11 @@ import { Menu, X, ChevronDown, Phone, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 
 const services = [
-  { label: "Cloud Infrastructure", href: "#services" },
-  { label: "AI & Machine Learning", href: "#services" },
-  { label: "Managed IT Services", href: "#services" },
-  { label: "Cybersecurity", href: "#services" },
-  { label: "Data Analytics", href: "#services" },
+  { label: "Cloud Infrastructure", href: "#cloud" },
+  { label: "AI & Machine Learning", href: "#ai" },
+  { label: "Managed IT Services", href: "#managed" },
+  { label: "Cybersecurity", href: "#security" },
+  { label: "Data Analytics", href: "#data" },
 ];
 
 export default function Navbar() {

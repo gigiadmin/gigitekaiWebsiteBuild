@@ -191,3 +191,9 @@
   - Made close button larger (p-2.5) with visible bg-white/10 background on mobile
   - Added aria-label for accessibility
   - Button is now prominent and easy to tap on mobile
+
+## Navigation Fixes
+- [x] Fix mobile nav service links to scroll to individual service descriptions
+  - Added unique IDs to each service card (cloud, ai, security, strategy, data, managed)
+  - Updated Navbar links to point to individual IDs
+  - Added scroll-mt-24 for proper scroll offset with sticky nav
