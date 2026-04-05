@@ -252,3 +252,5 @@
   - InsightsSection, FAQSection, CTASection, Footer
   - Updated scrollbar track color for light mode
   - Note: Helpdesk pages, ServiceDetail, Careers remain dark-only (brand consistency)
+- [x] Fix test suite creating real tickets in production database - added vi.mock for DB module in all test files
+- [x] Delete all test tickets from database (40 test tickets deleted)

@@ -2,6 +2,66 @@ import { describe, expect, it, vi } from "vitest";
 import { aibotRouter } from "./routers/aibot";
 import type { TrpcContext } from "./_core/context";
 
+// Mock the database module to prevent real DB writes
+vi.mock("./db", () => {
+  const sessions = new Map<string, any>();
+  const messages = new Map<string, any[]>();
+
+  return {
+    searchKnowledgeBase: vi.fn(async () => []),
+    createChatSession: vi.fn(async (session: any) => {
+      sessions.set(session.sessionId, {
+        ...session,
+        id: Math.floor(Math.random() * 10000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: "active",
+      });
+      return sessions.get(session.sessionId);
+    }),
+    getChatSession: vi.fn(async (sessionId: string) => {
+      return sessions.get(sessionId) || null;
+    }),
+    saveChatMessage: vi.fn(async (msg: any) => {
+      const sessionMsgs = messages.get(msg.sessionId) || [];
+      sessionMsgs.push({ ...msg, id: Math.floor(Math.random() * 10000), createdAt: new Date() });
+      messages.set(msg.sessionId, sessionMsgs);
+      return msg;
+    }),
+    getChatMessages: vi.fn(async (sessionId: string) => {
+      return messages.get(sessionId) || [];
+    }),
+    saveChatLead: vi.fn(async (lead: any) => ({ id: 1, ...lead })),
+    updateChatSessionStatus: vi.fn(async () => {}),
+    createTicket: vi.fn(async (ticket: any) => ({
+      id: Math.floor(Math.random() * 10000),
+      ...ticket,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })),
+    getDb: vi.fn(async () => null),
+    upsertUser: vi.fn(async () => {}),
+    getUserByOpenId: vi.fn(async () => null),
+    saveContactSubmission: vi.fn(async () => ({ id: 1 })),
+  };
+});
+
+// Mock the notification module
+vi.mock("./_core/notification", () => ({
+  notifyOwner: vi.fn().mockResolvedValue(true),
+}));
+
+// Mock the LLM module
+vi.mock("./_core/llm", () => ({
+  invokeLLM: vi.fn(async () => ({
+    choices: [{
+      message: {
+        content: "I'd be happy to help you with that. Could you provide more details about your issue?",
+      },
+    }],
+  })),
+}));
+
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createPublicContext(): TrpcContext {
@@ -68,14 +128,12 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Try to send empty message
       await caller.sendMessage({
         sessionId: "test-session",
         message: "",
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      // Zod validation error for empty string
       expect(error).toBeDefined();
     }
   });
@@ -85,7 +143,6 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Try to escalate with invalid priority
       await caller.escalateToHelpDesk({
         sessionId: "test-session",
         reason: "Complex issue",
@@ -93,7 +150,6 @@ describe("aibot router", () => {
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      // Zod validation error for invalid enum value
       expect(error).toBeDefined();
     }
   });
@@ -103,7 +159,6 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Try to capture lead with invalid email
       await caller.captureLead({
         sessionId: "test-session",
         name: "John Doe",
@@ -112,7 +167,6 @@ describe("aibot router", () => {
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      // Zod validation error for invalid email format
       expect(error).toBeDefined();
     }
   });
@@ -122,7 +176,6 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Try to capture lead without name
       await caller.captureLead({
         sessionId: "test-session",
         name: "",
@@ -130,7 +183,6 @@ describe("aibot router", () => {
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      // Zod validation error for empty string
       expect(error).toBeDefined();
     }
   });
@@ -143,27 +195,23 @@ describe("aibot router", () => {
 
     for (const priority of priorities) {
       try {
-        // This will fail due to missing session, but validates input schema
         await caller.escalateToHelpDesk({
           sessionId: "test-session",
           reason: "Test escalation",
           priority: priority as any,
         });
-        expect.fail("Should have thrown error");
+        // May succeed with mocked DB
       } catch (error: any) {
-        // Expected to fail, validation passed
+        // Expected - session may not exist in mock
         expect(error).toBeDefined();
       }
     }
   });
 
   it("system prompt contains key guidelines", async () => {
-    // This test verifies the system prompt is properly configured
     const ctx = createPublicContext();
     const caller = aibotRouter.createCaller(ctx);
 
-    // The system prompt should be embedded in the router
-    // We verify this by checking that the router can be created
     expect(caller).toBeDefined();
     expect(caller.sendMessage).toBeDefined();
   });
@@ -190,14 +238,11 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Try to capture lead without company (optional field)
       await caller.captureLead({
         sessionId: "test-session",
         name: "John Doe",
         email: "john@example.com",
       });
-      // This should fail, but validation passed
-      expect.fail("Should have thrown error");
     } catch (error: any) {
       expect(error).toBeDefined();
     }
@@ -208,7 +253,6 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Capture lead with all consent fields
       await caller.captureLead({
         sessionId: "test-session",
         name: "Jane Doe",
@@ -219,12 +263,8 @@ describe("aibot router", () => {
         consentPhone: true,
         consentText: false,
       });
-      // Will fail at DB level but input validation passes
-      expect.fail("Should have thrown error");
     } catch (error: any) {
-      // Error should be from DB, not from Zod validation
       expect(error).toBeDefined();
-      // Should NOT be a ZodError (input is valid)
       expect(error.code).not.toBe("BAD_REQUEST");
     }
   });
@@ -234,15 +274,12 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Capture lead without consent fields - should default to false
       await caller.captureLead({
         sessionId: "test-session",
         name: "Bob Smith",
         email: "bob@example.com",
       });
-      expect.fail("Should have thrown error");
     } catch (error: any) {
-      // Error should be from DB, not from Zod validation
       expect(error).toBeDefined();
       expect(error.code).not.toBe("BAD_REQUEST");
     }
@@ -253,7 +290,6 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
 
     try {
-      // Capture lead with phone number
       await caller.captureLead({
         sessionId: "test-session",
         name: "Alice",
@@ -261,7 +297,6 @@ describe("aibot router", () => {
         phone: "555-0100",
         consentPhone: true,
       });
-      expect.fail("Should have thrown error");
     } catch (error: any) {
       expect(error).toBeDefined();
       expect(error.code).not.toBe("BAD_REQUEST");

@@ -1,6 +1,48 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+
+// Mock the database module to prevent real DB writes
+vi.mock("./db", () => {
+  let ticketIdCounter = 1000;
+  const mockTickets: any[] = [];
+
+  return {
+    createTicket: vi.fn(async (ticket: any) => {
+      const newTicket = {
+        id: ticketIdCounter++,
+        ...ticket,
+        ticketNumber: `TKT-${ticketIdCounter}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockTickets.push(newTicket);
+      return newTicket;
+    }),
+    getTicketsByUserId: vi.fn(async (userId: number) => {
+      return mockTickets.filter((t) => t.userId === userId);
+    }),
+    getTicketById: vi.fn(async (ticketId: number) => {
+      return mockTickets.find((t) => t.id === ticketId) || null;
+    }),
+    updateTicketStatus: vi.fn(async (ticketId: number, status: string) => {
+      const ticket = mockTickets.find((t) => t.id === ticketId);
+      if (ticket) ticket.status = status;
+      return ticket;
+    }),
+    addTicketReply: vi.fn(async () => ({ id: 1 })),
+    getTicketReplies: vi.fn(async () => []),
+    getAllTickets: vi.fn(async () => mockTickets),
+    upsertUser: vi.fn(async () => {}),
+    getUserByOpenId: vi.fn(async () => null),
+    getDb: vi.fn(async () => null),
+  };
+});
+
+// Mock the notification module
+vi.mock("./_core/notification", () => ({
+  notifyOwner: vi.fn(async () => true),
+}));
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
@@ -117,7 +159,7 @@ describe("helpdesk", () => {
       const { ctx } = createAuthContext();
       const caller = appRouter.createCaller(ctx);
 
-      // Create a ticket first
+      // Create a ticket first (mocked)
       await caller.helpdesk.createTicket({
         title: "Test Ticket",
         description: "This is a detailed description of the issue",
@@ -151,14 +193,13 @@ describe("helpdesk", () => {
       const { ctx } = createAuthContext("admin");
       const caller = appRouter.createCaller(ctx);
 
-      // This will fail if ticket doesn't exist, but that's expected
+      // Admin should not get auth error
       try {
         await caller.helpdesk.updateStatus({
           ticketId: 1,
           status: "in_progress",
         });
       } catch (error: any) {
-        // Expected to fail due to database, but not auth error
         expect(error.message).not.toContain("Only admins");
       }
     });
@@ -174,7 +215,6 @@ describe("helpdesk", () => {
             status: status as any,
           });
         } catch (error: any) {
-          // Expected to fail due to database, but not validation error
           expect(error.message).not.toContain("status");
         }
       }

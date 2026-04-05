@@ -2,6 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
+// Mock the database module to prevent real DB writes
+vi.mock("./db", () => ({
+  saveContactSubmission: vi.fn(async () => ({ id: 1 })),
+  getDb: vi.fn(async () => null),
+  upsertUser: vi.fn(async () => {}),
+  getUserByOpenId: vi.fn(async () => null),
+}));
+
 // Mock the notifyOwner function
 vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),

@@ -1,6 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 
+// Mock the database module to prevent real DB writes
+vi.mock("./db", () => ({
+  saveContactSubmission: vi.fn(async () => ({ id: 1 })),
+  getDb: vi.fn(async () => null),
+  upsertUser: vi.fn(async () => {}),
+  getUserByOpenId: vi.fn(async () => null),
+}));
+
+// Mock the notification module
+vi.mock("./_core/notification", () => ({
+  notifyOwner: vi.fn().mockResolvedValue(true),
+}));
+
 describe("contact.submit with email", () => {
   it("should accept valid contact form submission", async () => {
     const caller = appRouter.createCaller({
