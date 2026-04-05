@@ -78,6 +78,22 @@ export function setupWebSocket(server: Server) {
   return wss;
 }
 
+function updateClientSessionId(
+  ws: WebSocket,
+  userId: number,
+  sessionId: number,
+  clients: Map<string, ClientConnection>
+) {
+  const entriesArray = Array.from(clients.entries());
+  for (const [key, client] of entriesArray) {
+    if (client.ws === ws && client.userId === userId) {
+      client.sessionId = sessionId;
+      clients.set(key, client);
+      break;
+    }
+  }
+}
+
 async function handleMessage(
   ws: WebSocket,
   msg: WebSocketMessage,
@@ -92,11 +108,15 @@ async function handleMessage(
 
     case "message":
       if (!msg.userId || !msg.sessionId || !msg.message) return;
+      // Update the sender's client sessionId so broadcastToSession works
+      updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
       await handleChatMessage(msg.userId, msg.sessionId, msg.message, msg.senderRole || "user", clients);
       break;
 
     case "typing":
       if (!msg.userId || !msg.sessionId) return;
+      // Update sender's sessionId for typing broadcasts
+      updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
       broadcastToSession(msg.sessionId, {
         type: "typing",
         userId: msg.userId,
@@ -105,6 +125,8 @@ async function handleMessage(
 
     case "read":
       if (!msg.userId || !msg.sessionId) return;
+      // Update sender's sessionId for read receipt broadcasts
+      updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
       await handleReadReceipt(msg.sessionId, msg.userId);
       break;
   }
@@ -122,6 +144,7 @@ async function handleJoin(
     ws,
     userId,
     role,
+    sessionId: undefined,
   });
 
   // Update user session status

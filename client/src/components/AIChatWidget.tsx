@@ -52,6 +52,24 @@ export default function AIChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const sendQuickMessage = async (quickMessage: string) => {
+    if (!sessionId) return;
+    setMessages(prev => [...prev, { role: "user", message: quickMessage }]);
+    setIsLoading(true);
+    try {
+      const response = await sendMessage.mutateAsync({
+        sessionId,
+        message: quickMessage,
+      });
+      setMessages(prev => [...prev, { role: "assistant", message: response.message }]);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !sessionId) return;
 
@@ -181,19 +199,13 @@ export default function AIChatWidget() {
                 <p className="mb-3">👋 Hi! How can we help you today?</p>
                 <div className="space-y-2">
                   <button
-                    onClick={() => {
-                      setMessages(prev => [...prev, { role: "user", message: "Tell me about Microsoft 365" }]);
-                      setInputValue("Tell me about Microsoft 365");
-                    }}
+                    onClick={() => sendQuickMessage("Tell me about Microsoft 365")}
                     className="w-full px-3 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[rgba(0,212,255,0.2)] rounded text-xs text-[#00D4FF] transition-colors"
                   >
                     Microsoft 365 Info
                   </button>
                   <button
-                    onClick={() => {
-                      setMessages(prev => [...prev, { role: "user", message: "What pricing do you offer?" }]);
-                      setInputValue("What pricing do you offer?");
-                    }}
+                    onClick={() => sendQuickMessage("What pricing do you offer?")}
                     className="w-full px-3 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[rgba(0,212,255,0.2)] rounded text-xs text-[#00D4FF] transition-colors"
                   >
                     Pricing & Plans
@@ -278,7 +290,7 @@ export default function AIChatWidget() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Ask a question..."
                 disabled={isLoading}
                 className="flex-1 px-3 py-2 bg-[#1A2A3A] border border-[rgba(0,212,255,0.2)] rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] disabled:opacity-50"

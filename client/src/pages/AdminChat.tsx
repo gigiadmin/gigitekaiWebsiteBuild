@@ -414,7 +414,7 @@ export default function AdminChat() {
                       setMessageInput(e.target.value);
                       handleTyping();
                     }}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleSendMessage();
                       }

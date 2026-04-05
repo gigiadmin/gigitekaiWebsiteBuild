@@ -16,14 +16,25 @@ interface ChatMessage {
   isRead?: boolean;
 }
 
+/**
+ * Outer wrapper that handles the auth check BEFORE any hooks are called.
+ * This avoids React's "hooks after early return" violation.
+ */
 export default function UserChatWidget() {
   const { user, isAuthenticated } = useAuth();
 
-  // Only show for authenticated users (not admins)
+  // Only show for authenticated non-admin users
   if (!isAuthenticated || user?.role === "admin") {
     return null;
   }
 
+  return <UserChatWidgetInner user={user} />;
+}
+
+/**
+ * Inner component that safely uses all hooks unconditionally.
+ */
+function UserChatWidgetInner({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -35,10 +46,10 @@ export default function UserChatWidget() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   // tRPC queries
   const { data: userSessions } = trpc.chat.getUserSessions.useQuery(undefined, {
-    enabled: isAuthenticated,
+    enabled: true,
   });
 
   const { data: messagesData, isLoading: isLoadingMessages } = trpc.chat.getMessages.useQuery(
@@ -58,7 +69,6 @@ export default function UserChatWidget() {
     ws.onopen = () => {
       console.log("[UserChat] WebSocket connected");
       setIsConnected(true);
-      // Send join message
       ws.send(
         JSON.stringify({
           type: "join",
@@ -94,7 +104,7 @@ export default function UserChatWidget() {
         ws.close();
       }
     };
-  }, [isAuthenticated, user]);
+  }, [user?.id]);
 
   const handleWebSocketMessage = (msg: any) => {
     switch (msg.type) {
@@ -120,11 +130,9 @@ export default function UserChatWidget() {
       case "typing":
         if (msg.userId !== user?.id) {
           setTypingAdminId(msg.userId);
-          // Clear previous timeout
           if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
           }
-          // Clear typing indicator after 3 seconds
           typingTimeoutRef.current = setTimeout(() => {
             setTypingAdminId(null);
           }, 3000);
@@ -151,7 +159,7 @@ export default function UserChatWidget() {
 
   const handleTyping = () => {
     if (!wsRef.current || !sessionId) return;
-    
+
     wsRef.current.send(
       JSON.stringify({
         type: "typing",
@@ -164,7 +172,6 @@ export default function UserChatWidget() {
   const handleSendMessage = () => {
     if (!messageInput.trim() || !wsRef.current || !sessionId) return;
 
-    // Send message via WebSocket
     wsRef.current.send(
       JSON.stringify({
         type: "message",
@@ -175,7 +182,6 @@ export default function UserChatWidget() {
       })
     );
 
-    // Add message to local state
     setChatMessages((prev) => [
       ...prev,
       {
@@ -211,7 +217,7 @@ export default function UserChatWidget() {
   const handleOpenChat = () => {
     setIsOpen(true);
     setUnreadCount(0);
-    
+
     // Load message history if session exists
     if (userSessions && userSessions.length > 0 && !sessionId) {
       const activeSession = userSessions[0];
@@ -274,7 +280,7 @@ export default function UserChatWidget() {
                 <p className="text-sm">Waiting for admin to connect...</p>
               </div>
             ) : (
-              chatMessages.length > 0 && chatMessages.map((msg, idx) => (
+              chatMessages.map((msg, idx) => (
                 <div
                   key={idx}
                   className={`flex ${
@@ -322,7 +328,7 @@ export default function UserChatWidget() {
                 setMessageInput(e.target.value);
                 handleTyping();
               }}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSendMessage();
                 }

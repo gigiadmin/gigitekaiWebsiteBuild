@@ -23,12 +23,14 @@ export default function TicketDetail() {
     }
   }, [error]);
 
+  const utils = trpc.useUtils();
+
   const addReplyMutation = trpc.helpdesk.addReply.useMutation({
     onSuccess: () => {
       toast.success("Reply added successfully!");
       setReplyText("");
-      // Refetch ticket data
-      window.location.reload();
+      // Refetch ticket data via tRPC cache invalidation
+      utils.helpdesk.getTicket.invalidate({ ticketId: parseInt(ticketId || "0") });
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to add reply");
@@ -41,11 +43,7 @@ export default function TicketDetail() {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  useEffect(() => {
-    if (ticketData) {
-      console.log("Ticket data loaded:", ticketData);
-    }
-  }, [ticketData]);
+  // Ticket data loaded effect removed (was debug logging)
 
   const handleAddReply = (e: React.FormEvent) => {
     e.preventDefault();
