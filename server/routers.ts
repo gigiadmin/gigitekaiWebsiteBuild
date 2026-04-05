@@ -5,7 +5,9 @@ import { publicProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
-import { saveContactSubmission, getAllUsers, approveUser, revokeUser } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb } from "./db";
+import { users } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
 import { chatRouter } from "./routers/chat";
@@ -278,6 +280,22 @@ Submitted from GigitekAI website contact form.
           return { success: result };
         } catch (error) {
           console.error("Failed to revoke user:", error);
+          throw error;
+        }
+      }),
+    updateRole: adminProcedure
+      .input(z.object({ userId: z.number(), role: z.enum(["user", "admin", "technician"]) }))
+      .mutation(async ({ input }) => {
+        try {
+          const db = await getDb();
+          if (!db) throw new Error("Database connection failed");
+          await db
+            .update(users)
+            .set({ role: input.role })
+            .where(eq(users.id, input.userId));
+          return { success: true };
+        } catch (error) {
+          console.error("Failed to update user role:", error);
           throw error;
         }
       }),

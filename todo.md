@@ -332,3 +332,11 @@
 - [x] Create admin notification center page showing all alerts (/admin/notifications)
 - [x] Add notification bell icon to navbar with link to notification center
 - [x] All 146 tests passing
+
+
+## User Management - Admin & Technician Roles (April 2026)
+- [x] Add technician role to user schema (migrated to database)
+- [x] Create backend endpoints for listing users and updating roles (updateRole endpoint added)
+- [x] Create user management page component (integrated into AdminPanel users tab)
+- [x] Add user management tab to admin dashboard (role selector dropdown added to approved users)
+- [x] All 146 tests passing

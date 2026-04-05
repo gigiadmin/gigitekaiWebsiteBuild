@@ -61,6 +61,14 @@ export default function AdminPanel() {
     onError: (error: any) => toast.error(error.message || "Failed to revoke user"),
   });
 
+  const updateRoleMutation = trpc.users.updateRole.useMutation({
+    onSuccess: () => {
+      toast.success("User role updated!");
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to update user role"),
+  });
+
   const updateStatusMutation = trpc.helpdesk.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Ticket status updated!");
@@ -407,16 +415,28 @@ export default function AdminPanel() {
                             <p className="text-gray-500 text-xs">Approved | Last sign-in: {u.lastSignedIn ? new Date(u.lastSignedIn).toLocaleDateString() : "Never"}</p>
                           </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => revokeMutation.mutate({ userId: u.id })}
-                          disabled={revokeMutation.isPending}
-                          className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                        >
-                          <UserX className="w-4 h-4 mr-1" />
-                          Revoke
-                        </Button>
+                        <div className="flex gap-2 shrink-0">
+                          <select
+                            value={u.role}
+                            onChange={(e) => updateRoleMutation.mutate({ userId: u.id, role: e.target.value as any })}
+                            disabled={updateRoleMutation.isPending}
+                            className="bg-[#0A0E1A] border border-gray-700 rounded-lg px-3 py-1.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none h-9 min-w-[120px]"
+                          >
+                            <option value="user">User</option>
+                            <option value="technician">Technician</option>
+                            <option value="admin">Admin</option>
+                          </select>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => revokeMutation.mutate({ userId: u.id })}
+                            disabled={revokeMutation.isPending}
+                            className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                          >
+                            <UserX className="w-4 h-4 mr-1" />
+                            Revoke
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     {allUsers.filter((u: any) => u.approved && u.role !== "admin").length === 0 && (
