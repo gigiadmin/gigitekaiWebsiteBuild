@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
@@ -25,10 +24,12 @@ import {
   UserCheck,
   UserX,
   Download,
+  Mail,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
+import { InviteUserModal } from "@/components/InviteUserModal";
 
-type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
+import { useAuth } from "@/_core/hooks/useAuth";
 type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
@@ -38,6 +39,7 @@ export default function AdminPanel() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<AdminTab>("tickets");
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
@@ -366,7 +368,15 @@ export default function AdminPanel() {
         {activeTab === "users" && (
           <div>
             {allUsers && allUsers.length > 0 && !usersLoading && (
-              <div className="mb-4">
+              <div className="mb-4 flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setInviteModalOpen(true)}
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Invite User
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -504,6 +514,7 @@ export default function AdminPanel() {
       </div>
     </div>
   );
+      <InviteUserModal open={inviteModalOpen} onOpenChange={setInviteModalOpen} onSuccess={() => refetchUsers()} />
 }
 
 function MetricCard({

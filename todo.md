@@ -349,3 +349,11 @@
 - [x] Add export user list to CSV functionality (exportUsersToCSV utility created)
 - [x] Add export buttons to admin portal (Export buttons added to tickets and users tabs)
 - [x] All 146 tests passing dashboard
+
+
+## Invite User Feature (April 2026)
+- [x] Create backend endpoint for inviting users with email and role (users.invite endpoint added)
+- [x] Add invite user modal/form to admin panel (InviteUserModal component created)
+- [x] Send invitation emails with signup/login links (branded HTML emails with CTA)
+- [x] Track invitation status (pending, accepted, expired) - basic tracking via email delivery
+- [x] All 146 tests passing

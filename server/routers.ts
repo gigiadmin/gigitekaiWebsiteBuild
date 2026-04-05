@@ -299,7 +299,62 @@ Submitted from GigitekAI website contact form.
           throw error;
         }
       }),
+    invite: adminProcedure
+      .input(z.object({ email: z.string().email(), role: z.enum(["admin", "technician"]), name: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        try {
+          const signupUrl = "https://gigitekai.com/helpdesk";
+          const emailBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #0A0E1A 0%, #0F1A30 100%); color: #00D4FF; padding: 24px; text-align: center; border-bottom: 2px solid #00D4FF; }
+    .header h2 { margin: 0; font-size: 22px; }
+    .content { padding: 24px; }
+    .role-badge { display: inline-block; background: #00D4FF; color: #0A0E1A; padding: 8px 16px; border-radius: 4px; font-weight: 600; margin-top: 12px; font-size: 14px; }
+    .cta-button { display: inline-block; background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%); color: #0A0E1A; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 16px; }
+    .footer { background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>You're Invited to GigitekAI! 🚀</h2>
+    </div>
+    <div class="content">
+      <p>Hi ${input.name || "there"},</p>
+      <p>You've been invited to join the GigitekAI team as a <strong>${input.role === "admin" ? "Administrator" : "Technician"}</strong>.</p>
+      <p>Click the button below to sign up and get started:</p>
+      <a href="${signupUrl}" class="cta-button">Accept Invitation & Sign Up</a>
+      <p style="margin-top: 20px; font-size: 12px; color: #666;">This invitation is for: <strong>${input.email}</strong></p>
+      <p style="font-size: 12px; color: #666;">Role: <span class="role-badge">${input.role === "admin" ? "Administrator" : "Technician"}</span></p>
+    </div>
+    <div class="footer">
+      <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
+      <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+    </div>
+  </div>
+</body>
+</html>
+          `;
+          
+          await sendEmail({
+            to: input.email,
+            subject: `You're Invited to Join GigitekAI as a ${input.role === "admin" ? "Administrator" : "Technician"}`,
+            html: emailBody,
+          });
+          
+          return { success: true, message: `Invitation sent to ${input.email}` };
+        } catch (error) {
+          console.error("Failed to send invitation:", error);
+          throw error;
+        }
+      }),
   }),
-});
+})
 
 export type AppRouter = typeof appRouter;
