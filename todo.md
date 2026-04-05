@@ -122,3 +122,8 @@
   - Added missing useAuth import to AdminPanel.tsx
   - AdminPanel component now loads correctly
   - All 103 tests passing
+- [x] Fix admin chat route - /admin/chat returns 404
+  - Fixed database schema relations ordering issue
+  - AdminChat component now loads correctly
+  - Route working on production (gigitekai.com)
+  - All 103 tests passing
