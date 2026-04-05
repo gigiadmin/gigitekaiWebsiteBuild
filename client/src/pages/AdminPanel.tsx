@@ -24,7 +24,9 @@ import {
   ShieldX,
   UserCheck,
   UserX,
+  Download,
 } from "lucide-react";
+import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 
 type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
 type AdminTab = "tickets" | "users";
@@ -221,6 +223,17 @@ export default function AdminPanel() {
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
+          {allTickets && allTickets.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => exportTicketsToCSV(allTickets)}
+              className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 whitespace-nowrap"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          )}
         </div>
 
         {/* Tickets Table */}
@@ -352,6 +365,19 @@ export default function AdminPanel() {
 
         {activeTab === "users" && (
           <div>
+            {allUsers && allUsers.length > 0 && !usersLoading && (
+              <div className="mb-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => exportUsersToCSV(allUsers)}
+                  className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Users
+                </Button>
+              </div>
+            )}
             {usersLoading ? (
               <div className="text-center py-16">
                 <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin mx-auto mb-4" />

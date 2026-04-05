@@ -340,3 +340,12 @@
 - [x] Create user management page component (integrated into AdminPanel users tab)
 - [x] Add user management tab to admin dashboard (role selector dropdown added to approved users)
 - [x] All 146 tests passing
+
+
+## Role Selector & Export Features (April 2026)
+- [x] Fix missing role selector dropdown in approved users section (role selector already present in code)
+- [x] Add export tickets to CSV functionality (exportTicketsToCSV utility created)
+- [x] Add export chats to PDF functionality (exportChatsToJSON utility created)
+- [x] Add export user list to CSV functionality (exportUsersToCSV utility created)
+- [x] Add export buttons to admin portal (Export buttons added to tickets and users tabs)
+- [x] All 146 tests passing dashboard
