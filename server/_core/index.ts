@@ -8,6 +8,8 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupWebSocket } from "./websocket";
+import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
+import { securityHeaders } from "./securityHeaders";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +38,16 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // ── Security Middleware ──────────────────────────────────────────────────
+  app.use(securityHeaders);
+
+  // ── Rate Limiting ───────────────────────────────────────────────────────
+  // Auth endpoints: 10 attempts per 15 min
+  app.use("/api/oauth", authLimiter);
+  // General API: 100 req/min
+  app.use("/api/trpc", apiLimiter);
+
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API

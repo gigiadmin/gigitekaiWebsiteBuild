@@ -152,6 +152,28 @@ export default function CTASection() {
                   </div>
                 )}
 
+                {/* Honeypot fields - hidden from real users, bots fill them */}
+                <div className="absolute -left-[9999px]" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    autoComplete="off"
+                    tabIndex={-1}
+                    onChange={(e) => setForm({ ...form, website: e.target.value } as any)}
+                  />
+                  <label htmlFor="phone2">Phone</label>
+                  <input
+                    type="text"
+                    id="phone2"
+                    name="phone2"
+                    autoComplete="off"
+                    tabIndex={-1}
+                    onChange={(e) => setForm({ ...form, phone2: e.target.value } as any)}
+                  />
+                </div>
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Full Name *</label>

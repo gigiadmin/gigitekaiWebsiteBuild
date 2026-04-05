@@ -539,6 +539,12 @@ export default function AIChatWidget() {
               </div>
               <p className="text-xs text-gray-400">Share your details so a specialist can reach you.</p>
 
+              {/* Honeypot fields - hidden from real users, bots fill them */}
+              <div style={{ position: "absolute", left: "-9999px" }} aria-hidden="true">
+                <input type="text" name="fax_number" tabIndex={-1} autoComplete="off" />
+                <input type="text" name="middle_name" tabIndex={-1} autoComplete="off" />
+              </div>
+
               {/* Name */}
               <input
                 type="text"

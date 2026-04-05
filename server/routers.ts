@@ -35,10 +35,32 @@ export const appRouter = router({
           email: z.string().email("Valid email is required"),
           company: z.string().optional(),
           message: z.string().min(1, "Message is required"),
+          // Honeypot fields - bots fill these, real users don't see them
+          website: z.string().optional(), // hidden field
+          phone2: z.string().optional(),  // hidden field
         })
       )
       .mutation(async ({ input }) => {
         try {
+          // ── Bot Detection: Honeypot check ──────────────────────────────
+          if (input.website || input.phone2) {
+            // Bot detected - silently accept but don't process
+            console.log("[Security] Bot submission blocked via honeypot");
+
+            // Notify admin of bot attempt
+            try {
+              await notifyOwner({
+                title: "Security Alert: Bot Submission Blocked",
+                content: `**Honeypot triggered on contact form**\n\n- **Filled fields:** ${input.website ? "website" : ""} ${input.phone2 ? "phone2" : ""}\n- **Claimed name:** ${input.name}\n- **Claimed email:** ${input.email}\n- **Time:** ${new Date().toISOString()}\n\nThis submission was automatically blocked.`,
+              });
+            } catch (_) { /* notification failure is non-critical */ }
+
+            return {
+              success: true,
+              message: "Thank you! Your message has been received. We'll get back to you within 1 business day.",
+            };
+          }
+
           // Save submission to database
           await saveContactSubmission({
             name: input.name,

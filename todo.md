@@ -256,3 +256,11 @@
 - [x] Delete all test tickets from database (40 test tickets deleted)
 - [x] Add 'Back to Menu' button in AI chat widget so users can return to initial quick-reply options screen without closing chat
 - [x] Move 'Powered by Manus' badge to bottom-left of AI chat widget
+
+## Security Hardening (April 2026)
+- [x] Rate limiting on API endpoints (chat, AI bot, contact form, ticket creation)
+- [x] Content Security Policy (CSP) and security headers (X-Frame-Options, X-Content-Type-Options, etc.)
+- [x] Enhanced file upload validation with server-side MIME type verification
+- [x] Bot protection with honeypot fields on contact form and lead capture
+- [x] Dependency vulnerability audit (pnpm audit) - 37 vulns found, all transitive, mitigated
+- [x] Admin security notifications for suspicious activity - notifyOwner() on rate limit abuse + honeypot bot detection

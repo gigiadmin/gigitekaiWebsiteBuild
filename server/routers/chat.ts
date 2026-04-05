@@ -7,6 +7,38 @@ import { getOnlineUsers } from "../_core/websocket";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
 
+// ── Magic bytes validation for file upload security ──────────────────────────
+function validateMagicBytes(bytes: Buffer, mimeType: string): boolean {
+  // Check first few bytes against known file signatures
+  const hex = bytes.toString("hex").toLowerCase();
+
+  const signatures: Record<string, string[]> = {
+    "image/jpeg": ["ffd8ff"],
+    "image/png": ["89504e47"],
+    "image/gif": ["47494638"],
+    "image/webp": ["52494646"], // RIFF header
+    "application/pdf": ["25504446"], // %PDF
+    "application/zip": ["504b0304", "504b0506", "504b0708"],
+    "application/x-zip-compressed": ["504b0304", "504b0506", "504b0708"],
+    // Office Open XML (docx/xlsx/pptx) are ZIP-based
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["504b0304"],
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["504b0304"],
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": ["504b0304"],
+    // Legacy Office formats
+    "application/msword": ["d0cf11e0"],
+    "application/vnd.ms-excel": ["d0cf11e0"],
+    "application/vnd.ms-powerpoint": ["d0cf11e0"],
+  };
+
+  const expected = signatures[mimeType];
+  if (!expected) {
+    // For text types (txt, csv, svg) and unknown types, skip magic byte check
+    return true;
+  }
+
+  return expected.some((sig) => hex.startsWith(sig));
+}
+
 export const chatRouter = router({
   // Get online users (for admin)
   getOnlineUsers: protectedProcedure.query(async () => {
@@ -569,7 +601,7 @@ export const chatRouter = router({
     .input(
       z.object({
         sessionId: z.number(),
-        fileName: z.string(),
+        fileName: z.string().max(255),
         fileData: z.string(), // base64 encoded
         mimeType: z.string(),
       })
@@ -577,6 +609,57 @@ export const chatRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // ── Security: Validate MIME type ──────────────────────────────────
+      const ALLOWED_MIME_TYPES = new Set([
+        // Images
+        "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+        // Documents
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        // Text
+        "text/plain", "text/csv",
+        // Archives
+        "application/zip", "application/x-zip-compressed",
+      ]);
+
+      if (!ALLOWED_MIME_TYPES.has(input.mimeType)) {
+        throw new Error(`File type '${input.mimeType}' is not allowed. Supported: images, PDFs, Office documents, text, CSV, and ZIP files.`);
+      }
+
+      // ── Security: Validate file extension matches MIME type ───────────
+      const MIME_TO_EXT: Record<string, string[]> = {
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "image/gif": [".gif"],
+        "image/webp": [".webp"],
+        "image/svg+xml": [".svg"],
+        "application/pdf": [".pdf"],
+        "application/msword": [".doc"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+        "application/vnd.ms-excel": [".xls"],
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "application/vnd.ms-powerpoint": [".ppt"],
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+        "text/plain": [".txt", ".log", ".md"],
+        "text/csv": [".csv"],
+        "application/zip": [".zip"],
+        "application/x-zip-compressed": [".zip"],
+      };
+
+      const fileExt = "." + input.fileName.split(".").pop()?.toLowerCase();
+      const allowedExts = MIME_TO_EXT[input.mimeType];
+      if (allowedExts && !allowedExts.includes(fileExt)) {
+        throw new Error(`File extension '${fileExt}' does not match the declared type '${input.mimeType}'.`);
+      }
+
+      // ── Security: Sanitize filename ───────────────────────────────────
+      const sanitizedFileName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
 
       // Verify access to session
       const session = await db
@@ -594,9 +677,21 @@ export const chatRouter = router({
         throw new Error("Unauthorized");
       }
 
-      // Decode base64 and upload to S3
+      // Decode base64 and validate size
       const buffer = Buffer.from(input.fileData, "base64");
-      const fileKey = `chat-attachments/${input.sessionId}/${nanoid()}-${input.fileName}`;
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      if (buffer.length > MAX_FILE_SIZE) {
+        throw new Error(`File size (${(buffer.length / 1024 / 1024).toFixed(1)}MB) exceeds the 10MB limit.`);
+      }
+
+      // ── Security: Verify magic bytes match declared MIME type ─────────
+      const magicBytes = buffer.slice(0, 8);
+      const isValidMagic = validateMagicBytes(magicBytes, input.mimeType);
+      if (!isValidMagic) {
+        throw new Error("File content does not match the declared file type. Upload rejected for security.");
+      }
+
+      const fileKey = `chat-attachments/${input.sessionId}/${nanoid()}-${sanitizedFileName}`;
 
       const { url } = await storagePut(fileKey, buffer, input.mimeType);
 
