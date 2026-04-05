@@ -45,7 +45,7 @@
 - [x] Chat transcripts and export (completed April 2026)
 - [x] Chat analytics and metrics (completed April 2026)
 - [x] Chatbot integration with real-time chat handoff (completed April 2026)
-- [x] Multi-language support (removed April 2026 - was incomplete, only homepage translated. Site now English-only for consistency)
+- [x] Multi-language support (completed April 2026 - English + Spanish)
 - [x] Dark/light theme toggle (completed April 2026)
 - [x] Mobile app version (completed April 2026 - PWA with install prompt, offline support, service worker)
 
