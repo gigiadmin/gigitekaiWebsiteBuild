@@ -25,7 +25,7 @@ describe("aibot router", () => {
     const result = await caller.getOrCreateSession({});
 
     expect(result.sessionId).toBeDefined();
-    expect(result.sessionId).toMatch(/^[a-zA-Z0-9-]+$/);
+    expect(result.sessionId).toMatch(/^[a-zA-Z0-9_-]+$/);
     expect(result.session).toBeDefined();
   });
 
@@ -200,6 +200,71 @@ describe("aibot router", () => {
       expect.fail("Should have thrown error");
     } catch (error: any) {
       expect(error).toBeDefined();
+    }
+  });
+
+  it("accepts consent fields in lead capture input", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    try {
+      // Capture lead with all consent fields
+      await caller.captureLead({
+        sessionId: "test-session",
+        name: "Jane Doe",
+        email: "jane@example.com",
+        phone: "+1-555-123-4567",
+        company: "Tech Corp",
+        consentEmail: true,
+        consentPhone: true,
+        consentText: false,
+      });
+      // Will fail at DB level but input validation passes
+      expect.fail("Should have thrown error");
+    } catch (error: any) {
+      // Error should be from DB, not from Zod validation
+      expect(error).toBeDefined();
+      // Should NOT be a ZodError (input is valid)
+      expect(error.code).not.toBe("BAD_REQUEST");
+    }
+  });
+
+  it("defaults consent fields to false when not provided", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    try {
+      // Capture lead without consent fields - should default to false
+      await caller.captureLead({
+        sessionId: "test-session",
+        name: "Bob Smith",
+        email: "bob@example.com",
+      });
+      expect.fail("Should have thrown error");
+    } catch (error: any) {
+      // Error should be from DB, not from Zod validation
+      expect(error).toBeDefined();
+      expect(error.code).not.toBe("BAD_REQUEST");
+    }
+  });
+
+  it("accepts phone as optional in lead capture", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    try {
+      // Capture lead with phone number
+      await caller.captureLead({
+        sessionId: "test-session",
+        name: "Alice",
+        email: "alice@example.com",
+        phone: "555-0100",
+        consentPhone: true,
+      });
+      expect.fail("Should have thrown error");
+    } catch (error: any) {
+      expect(error).toBeDefined();
+      expect(error.code).not.toBe("BAD_REQUEST");
     }
   });
 });

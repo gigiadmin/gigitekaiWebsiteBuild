@@ -223,13 +223,17 @@ export const aibotRouter = router({
   captureLead: publicProcedure
     .input(z.object({
       sessionId: z.string(),
-      name: z.string(),
+      name: z.string().min(1),
       email: z.string().email(),
+      phone: z.string().optional(),
       company: z.string().optional(),
       interest: z.string().optional(),
+      consentEmail: z.boolean().default(false),
+      consentPhone: z.boolean().default(false),
+      consentText: z.boolean().default(false),
     }))
     .mutation(async ({ input }) => {
-      const { sessionId, name, email, company, interest } = input;
+      const { sessionId, name, email, phone, company, interest, consentEmail, consentPhone, consentText } = input;
 
       // Get chat history for summary
       const messages = await getChatMessages(sessionId);
@@ -242,16 +246,27 @@ export const aibotRouter = router({
         sessionId,
         name,
         email,
-        company,
-        interest,
+        phone: phone || null,
+        company: company || null,
+        interest: interest || null,
+        consentEmail,
+        consentPhone,
+        consentText,
         conversationSummary,
       });
+
+      // Build contact preferences summary for notification
+      const contactMethods = [
+        consentEmail ? "Email" : "",
+        consentPhone ? "Phone call" : "",
+        consentText ? "Text/SMS" : "",
+      ].filter(Boolean).join(", ");
 
       // Send notification to owner about new lead
       try {
         await notifyOwner({
           title: `New Lead from Chat: ${name}`,
-          content: `Email: ${email}\nCompany: ${company || "Not provided"}\nInterest: ${interest || "Not specified"}\n\nConversation Summary:\n${conversationSummary}`,
+          content: `Email: ${email}\nPhone: ${phone || "Not provided"}\nCompany: ${company || "Not provided"}\nContact Preferences: ${contactMethods || "None selected"}\nInterest: ${interest || "Not specified"}\n\nConversation Summary:\n${conversationSummary}`,
         });
       } catch (error) {
         console.error("[AIBot] Failed to send lead notification:", error);

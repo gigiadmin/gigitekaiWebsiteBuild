@@ -122,8 +122,12 @@ export const chatLeads = mysqlTable("chatLeads", {
   sessionId: varchar("sessionId", { length: 100 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
   company: varchar("company", { length: 255 }),
-  interest: varchar("interest", { length: 100 }),
+  interest: varchar("interest", { length: 255 }),
+  consentEmail: boolean("consentEmail").default(false).notNull(),
+  consentPhone: boolean("consentPhone").default(false).notNull(),
+  consentText: boolean("consentText").default(false).notNull(),
   conversationSummary: text("conversationSummary"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

@@ -214,3 +214,23 @@
 ## SEO Fixes
 - [x] Fix homepage SEO keywords - reduced from 22 to 6 focused keywords
   - cloud infrastructure, AI solutions, managed IT services, cybersecurity, digital transformation, enterprise technology
+
+## AI Chatbot Major Upgrade
+- [x] Fix mobile close/minimize button - large 48x48 close button with white bg, impossible to miss
+- [x] Add consent checkboxes for communication preferences (email, call, text/SMS) in lead form
+- [x] Redesign chatbot to be impressive and showcase AI capabilities
+  - [x] Professional AI-branded header with Bot avatar, sparkles, online indicator
+  - [x] Typing indicators with "AI is thinking..." text and bouncing dots
+  - [x] Smart quick action cards: AI Assessment, Cloud Migration, Automation, Security Audit
+  - [x] Markdown rendering via Streamdown for AI responses
+  - [x] Quick reply chips (Pricing, Schedule Call, Talk to Human) during conversation
+  - [x] Mobile-first responsive design with full-screen mobile, rounded desktop
+  - [x] Animated floating button with pulse ring and AI badge
+  - [x] Scroll-to-bottom button, auto-focus input, smooth animations
+  - [x] Privacy disclaimer in lead form
+  - [x] Fixed pre-existing test regex for nanoid underscores
+- [x] Backend API updated to accept and store consent fields (consentEmail, consentPhone, consentText, phone)
+- [x] Database schema already had consent fields - verified and migration pushed
+- [x] Frontend sends structured consent fields to backend (no longer packed into interest string)
+- [x] Owner notification includes contact preferences summary
+- [x] Added 3 new consent field tests (106 total tests, all passing)

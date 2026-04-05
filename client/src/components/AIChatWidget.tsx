@@ -1,21 +1,94 @@
-import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Bot,
+  User,
+  Sparkles,
+  ArrowRight,
+  Phone,
+  Mail,
+  MessageSquare,
+  Shield,
+  Zap,
+  Cloud,
+  Brain,
+  ChevronDown,
+  Minimize2,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { Streamdown } from "streamdown";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ChatMessage {
+  role: "user" | "assistant";
+  message: string;
+  timestamp?: number;
+}
+
+interface ConsentPrefs {
+  email: boolean;
+  phone: boolean;
+  text: boolean;
+}
+
+// ─── Quick Action Cards ───────────────────────────────────────────────────────
+const QUICK_ACTIONS = [
+  {
+    icon: Brain,
+    label: "AI Assessment",
+    message: "I'd like to learn about your AI readiness assessment and how AI can benefit my business.",
+    color: "from-purple-500/20 to-purple-600/20",
+    border: "border-purple-500/30",
+    iconColor: "text-purple-400",
+  },
+  {
+    icon: Cloud,
+    label: "Cloud Migration",
+    message: "Tell me about your cloud migration services and how you help businesses move to the cloud.",
+    color: "from-cyan-500/20 to-blue-600/20",
+    border: "border-cyan-500/30",
+    iconColor: "text-cyan-400",
+  },
+  {
+    icon: Zap,
+    label: "Automation",
+    message: "I'm interested in business process automation and modernization solutions.",
+    color: "from-amber-500/20 to-orange-600/20",
+    border: "border-amber-500/30",
+    iconColor: "text-amber-400",
+  },
+  {
+    icon: Shield,
+    label: "Security Audit",
+    message: "I need information about your cybersecurity assessment and enterprise security solutions.",
+    color: "from-emerald-500/20 to-green-600/20",
+    border: "border-emerald-500/30",
+    iconColor: "text-emerald-400",
+  },
+];
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
-  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; message: string }>>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
-  const [visitorInfo, setVisitorInfo] = useState({ name: "", email: "", company: "" });
+  const [visitorInfo, setVisitorInfo] = useState({ name: "", email: "", company: "", phone: "" });
+  const [consent, setConsent] = useState<ConsentPrefs>({ email: false, phone: false, text: false });
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize session
+  // tRPC hooks
   const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation();
-  const sendMessage = trpc.aibot.sendMessage.useMutation();
+  const sendMessageMutation = trpc.aibot.sendMessage.useMutation();
   const escalate = trpc.aibot.escalateToHelpDesk.useMutation();
   const captureLead = trpc.aibot.captureLead.useMutation();
   const { data: historyData } = trpc.aibot.getHistory.useQuery(
@@ -23,6 +96,7 @@ export default function AIChatWidget() {
     { enabled: !!sessionId }
   );
 
+  // Initialize session
   useEffect(() => {
     const initSession = async () => {
       try {
@@ -35,35 +109,54 @@ export default function AIChatWidget() {
         console.error("Failed to initialize chat session:", error);
       }
     };
-
     if (isOpen && !sessionId) {
       initSession();
     }
-  }, [isOpen, sessionId, getOrCreateSession]);
+  }, [isOpen, sessionId]);
 
+  // Load history
   useEffect(() => {
-    if (historyData?.messages) {
-      setMessages(historyData.messages);
+    if (historyData?.messages && historyData.messages.length > 0) {
+      setMessages(historyData.messages as ChatMessage[]);
+      setHasInteracted(true);
     }
   }, [historyData]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  // Scroll detection for "scroll down" button
+  const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    setShowScrollDown(!isNearBottom);
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // ─── Message Handlers ────────────────────────────────────────────────────────
 
   const sendQuickMessage = async (quickMessage: string) => {
     if (!sessionId) return;
-    setMessages(prev => [...prev, { role: "user", message: quickMessage }]);
+    setHasInteracted(true);
+    setMessages((prev) => [...prev, { role: "user", message: quickMessage, timestamp: Date.now() }]);
     setIsLoading(true);
     try {
-      const response = await sendMessage.mutateAsync({
-        sessionId,
-        message: quickMessage,
-      });
-      setMessages(prev => [...prev, { role: "assistant", message: response.message }]);
-    } catch (error) {
-      console.error("Failed to send message:", error);
+      const response = await sendMessageMutation.mutateAsync({ sessionId, message: quickMessage });
+      setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
+    } catch {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
@@ -71,35 +164,26 @@ export default function AIChatWidget() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !sessionId) return;
-
-    const userMessage = inputValue;
+    if (!inputValue.trim() || !sessionId || isLoading) return;
+    const userMessage = inputValue.trim();
     setInputValue("");
-    setMessages(prev => [...prev, { role: "user", message: userMessage }]);
+    setHasInteracted(true);
+    setMessages((prev) => [...prev, { role: "user", message: userMessage, timestamp: Date.now() }]);
     setIsLoading(true);
 
     try {
-      const response = await sendMessage.mutateAsync({
-        sessionId,
-        message: userMessage,
-      });
+      const response = await sendMessageMutation.mutateAsync({ sessionId, message: userMessage });
+      setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
 
-      setMessages(prev => [...prev, { role: "assistant", message: response.message }]);
-
-      // Check if escalation is needed
       if (response.shouldEscalate && response.messageCount && response.messageCount > 2) {
         setTimeout(() => {
           toast.info("Our support team is ready", {
             description: "Would you like to speak with a specialist?",
-            action: {
-              label: "Yes, escalate",
-              onClick: () => handleEscalate("User requested escalation"),
-            },
+            action: { label: "Yes, connect me", onClick: () => handleEscalate("User requested escalation") },
           });
         }, 1000);
       }
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    } catch {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
@@ -108,28 +192,22 @@ export default function AIChatWidget() {
 
   const handleEscalate = async (reason: string) => {
     if (!sessionId) return;
-
     try {
-      await escalate.mutateAsync({
-        sessionId,
-        reason,
-        priority: "medium",
-      });
-
-      toast.success("Escalated to support team", {
-        description: "A specialist will contact you shortly.",
-      });
-
+      await escalate.mutateAsync({ sessionId, reason, priority: "medium" });
+      toast.success("Escalated to support team", { description: "A specialist will contact you shortly." });
       setShowLeadForm(true);
-    } catch (error) {
-      console.error("Failed to escalate:", error);
+    } catch {
       toast.error("Failed to escalate. Please try again.");
     }
   };
 
   const handleCaptureLead = async () => {
     if (!visitorInfo.name || !visitorInfo.email || !sessionId) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in your name and email");
+      return;
+    }
+    if (!consent.email && !consent.phone && !consent.text) {
+      toast.error("Please select at least one contact preference");
       return;
     }
 
@@ -138,18 +216,18 @@ export default function AIChatWidget() {
         sessionId,
         name: visitorInfo.name,
         email: visitorInfo.email,
-        company: visitorInfo.company,
-        interest: "Support escalation",
+        phone: visitorInfo.phone || undefined,
+        company: visitorInfo.company || undefined,
+        consentEmail: consent.email,
+        consentPhone: consent.phone,
+        consentText: consent.text,
       });
 
-      toast.success("Thank you!", {
-        description: "We'll follow up with you shortly.",
-      });
-
+      toast.success("Thank you!", { description: "We'll follow up with you shortly via your preferred method." });
       setShowLeadForm(false);
-      setVisitorInfo({ name: "", email: "", company: "" });
-    } catch (error) {
-      console.error("Failed to capture lead:", error);
+      setVisitorInfo({ name: "", email: "", company: "", phone: "" });
+      setConsent({ email: false, phone: false, text: false });
+    } catch {
       toast.error("Failed to save information. Please try again.");
     }
   };
@@ -159,89 +237,184 @@ export default function AIChatWidget() {
     setShowLeadForm(false);
   };
 
+  // ─── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <>
-      {/* Chat Widget Button */}
+      {/* ── Floating Action Button ─────────────────────────────────────────── */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#00D4FF] text-[#0A0E1A] rounded-full shadow-lg shadow-[#00D4FF]/30 hover:shadow-xl hover:shadow-[#00D4FF]/50 transition-all flex items-center justify-center hover:scale-110"
-        title="Chat with GigitekAI Support"
+        className={`fixed bottom-6 right-6 z-50 group transition-all duration-300 ${
+          isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
+        }`}
+        title="Chat with GigitekAI"
+        aria-label="Open AI chat"
       >
-        {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+        {/* Pulse ring */}
+        <span className="absolute inset-0 rounded-full bg-[#00D4FF]/30 animate-ping" />
+        {/* Button */}
+        <span className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#00D4FF] to-[#0088AA] shadow-lg shadow-[#00D4FF]/40 group-hover:shadow-xl group-hover:shadow-[#00D4FF]/60 transition-shadow">
+          <MessageCircle size={26} className="text-[#0A0E1A]" />
+        </span>
+        {/* Badge */}
+        <span className="absolute -top-1 -right-1 flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-bold shadow-md">
+          AI
+        </span>
       </button>
 
-      {/* Chat Window - Mobile Responsive */}
+      {/* ── Chat Window ────────────────────────────────────────────────────── */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 md:inset-auto md:bottom-24 md:right-6 md:w-96 bg-[#0F1629] md:border md:border-[rgba(0,212,255,0.2)] md:rounded-lg shadow-2xl shadow-black/50 flex flex-col md:max-h-[600px] h-full md:h-auto">
-          {/* Header with Close Button */}
-          <div className="bg-gradient-to-r from-[#00D4FF]/20 to-[#00D4FF]/10 border-b border-[rgba(0,212,255,0.2)] p-4 md:rounded-t-lg flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-semibold flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse flex-shrink-0" />
-                GigitekAI Support
-              </h3>
-              <p className="text-xs text-gray-400 mt-1">Ask about Microsoft 365, cloud services, or pricing</p>
+        <div
+          className={`fixed z-50 flex flex-col
+            inset-0
+            md:inset-auto md:bottom-6 md:right-6 md:w-[420px] md:max-h-[680px] md:h-[680px]
+            md:rounded-2xl md:border md:border-[rgba(0,212,255,0.15)]
+            bg-[#0B1120] shadow-2xl shadow-black/60
+            transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
+        >
+          {/* ── Header ─────────────────────────────────────────────────────── */}
+          <div className="relative overflow-hidden bg-gradient-to-r from-[#0B1120] via-[#0F1A30] to-[#0B1120] border-b border-[rgba(0,212,255,0.15)] px-4 py-3 md:rounded-t-2xl flex-shrink-0">
+            {/* Animated gradient line at top */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#00D4FF] to-transparent animate-pulse" />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* AI Avatar */}
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.3)] flex items-center justify-center">
+                    <Bot size={22} className="text-[#00D4FF]" />
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0B1120]" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-sm flex items-center gap-1.5">
+                    GigitekAI Assistant
+                    <Sparkles size={14} className="text-[#00D4FF]" />
+                  </h3>
+                  <p className="text-[11px] text-gray-400">AI-powered support &bull; Always online</p>
+                </div>
+              </div>
+
+              {/* Close / Minimize Buttons */}
+              <div className="flex items-center gap-1">
+                {/* Minimize - desktop only */}
+                <button
+                  onClick={handleClose}
+                  className="hidden md:flex p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  title="Minimize"
+                  aria-label="Minimize chat"
+                >
+                  <Minimize2 size={18} className="text-gray-400" />
+                </button>
+                {/* Close - always visible, extra large on mobile */}
+                <button
+                  onClick={handleClose}
+                  className="flex items-center justify-center w-12 h-12 md:w-9 md:h-9 bg-white/10 md:bg-transparent hover:bg-red-500/20 rounded-xl md:rounded-lg transition-all"
+                  title="Close chat"
+                  aria-label="Close chat"
+                >
+                  <X size={28} className="text-white md:hidden" />
+                  <X size={18} className="text-gray-400 hidden md:block" />
+                </button>
+              </div>
             </div>
-            {/* Close Button - Large and prominent on mobile */}
-            <button
-              onClick={handleClose}
-              className="ml-3 p-2.5 md:p-1.5 bg-white/10 hover:bg-white/20 md:bg-transparent md:hover:bg-[rgba(0,212,255,0.1)] rounded-xl md:rounded-lg transition-colors flex-shrink-0"
-              title="Close chat"
-              aria-label="Close chat"
-            >
-              <X size={24} className="text-white md:w-5 md:h-5" />
-            </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-400 text-sm mt-4">
-                <p className="mb-3">👋 Hi! How can we help you today?</p>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => sendQuickMessage("Tell me about Microsoft 365")}
-                    className="w-full px-3 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[rgba(0,212,255,0.2)] rounded text-xs text-[#00D4FF] transition-colors"
-                  >
-                    Microsoft 365 Info
-                  </button>
-                  <button
-                    onClick={() => sendQuickMessage("What pricing do you offer?")}
-                    className="w-full px-3 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[rgba(0,212,255,0.2)] rounded text-xs text-[#00D4FF] transition-colors"
-                  >
-                    Pricing & Plans
-                  </button>
-                  <button
-                    onClick={() => handleEscalate("User wants to talk to support")}
-                    className="w-full px-3 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[rgba(0,212,255,0.2)] rounded text-xs text-[#00D4FF] transition-colors"
-                  >
-                    Talk to Support
-                  </button>
+          {/* ── Messages Area ──────────────────────────────────────────────── */}
+          <div
+            ref={messagesContainerRef}
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth"
+          >
+            {/* Welcome Screen */}
+            {!hasInteracted && messages.length === 0 && (
+              <div className="flex flex-col items-center text-center pt-4 pb-2">
+                {/* AI Logo */}
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.2)] flex items-center justify-center mb-4">
+                  <Bot size={32} className="text-[#00D4FF]" />
                 </div>
+                <h4 className="text-white font-semibold text-lg mb-1">Welcome to GigitekAI</h4>
+                <p className="text-gray-400 text-sm mb-6 max-w-[280px]">
+                  Your AI-powered technology partner. How can I help you today?
+                </p>
+
+                {/* Quick Action Cards */}
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {QUICK_ACTIONS.map((action) => (
+                    <button
+                      key={action.label}
+                      onClick={() => sendQuickMessage(action.message)}
+                      className={`group flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-br ${action.color} border ${action.border} hover:scale-[1.03] active:scale-[0.98] transition-all duration-200`}
+                    >
+                      <action.icon size={20} className={action.iconColor} />
+                      <span className="text-xs text-gray-300 font-medium">{action.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Talk to human */}
+                <button
+                  onClick={() => handleEscalate("User wants to talk to support")}
+                  className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/5 transition-colors"
+                >
+                  <ArrowRight size={14} />
+                  Talk to a specialist instead
+                </button>
               </div>
             )}
 
+            {/* Chat Messages */}
             {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                key={idx}
+                className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+              >
+                {/* Avatar */}
+                <div className="flex-shrink-0 mt-0.5">
+                  {msg.role === "assistant" ? (
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.2)] flex items-center justify-center">
+                      <Bot size={14} className="text-[#00D4FF]" />
+                    </div>
+                  ) : (
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center">
+                      <User size={14} className="text-cyan-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Message Bubble */}
                 <div
-                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                  className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                     msg.role === "user"
-                      ? "bg-[#00D4FF] text-[#0A0E1A] rounded-br-none"
-                      : "bg-[#1A2A3A] text-gray-200 rounded-bl-none border border-[rgba(0,212,255,0.1)]"
+                      ? "bg-gradient-to-br from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-tr-md"
+                      : "bg-[#151D30] text-gray-200 rounded-tl-md border border-[rgba(0,212,255,0.08)]"
                   }`}
                 >
-                  {msg.message}
+                  {msg.role === "assistant" ? (
+                    <Streamdown>{msg.message}</Streamdown>
+                  ) : (
+                    msg.message
+                  )}
                 </div>
               </div>
             ))}
 
+            {/* Typing Indicator */}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-[#1A2A3A] text-gray-200 px-3 py-2 rounded-lg rounded-bl-none border border-[rgba(0,212,255,0.1)]">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
-                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0.4s" }} />
+              <div className="flex gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.2)] flex items-center justify-center">
+                    <Bot size={14} className="text-[#00D4FF]" />
+                  </div>
+                </div>
+                <div className="bg-[#151D30] border border-[rgba(0,212,255,0.08)] px-4 py-3 rounded-2xl rounded-tl-md">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                    <span className="text-[11px] text-gray-500 ml-1">AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -250,59 +423,177 @@ export default function AIChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Lead Form */}
+          {/* Scroll-to-bottom button */}
+          {showScrollDown && (
+            <button
+              onClick={scrollToBottom}
+              className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 w-8 h-8 rounded-full bg-[#00D4FF]/20 border border-[#00D4FF]/30 flex items-center justify-center hover:bg-[#00D4FF]/30 transition-colors animate-bounce"
+            >
+              <ChevronDown size={16} className="text-[#00D4FF]" />
+            </button>
+          )}
+
+          {/* ── Lead Form with Consent ─────────────────────────────────────── */}
           {showLeadForm && (
-            <div className="border-t border-[rgba(0,212,255,0.2)] p-3 space-y-2">
-              <p className="text-xs text-gray-300">Before we connect you with a specialist:</p>
+            <div className="border-t border-[rgba(0,212,255,0.15)] p-4 space-y-3 bg-[#0D1525] flex-shrink-0">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles size={14} className="text-[#00D4FF]" />
+                <p className="text-sm text-white font-medium">Connect with our team</p>
+              </div>
+              <p className="text-xs text-gray-400">Share your details so a specialist can reach you.</p>
+
+              {/* Name */}
               <input
                 type="text"
-                placeholder="Your name"
+                placeholder="Your name *"
                 value={visitorInfo.name}
-                onChange={(e) => setVisitorInfo(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-2 py-1 bg-[#1A2A3A] border border-[rgba(0,212,255,0.2)] rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                onChange={(e) => setVisitorInfo((prev) => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
+              {/* Email */}
               <input
                 type="email"
-                placeholder="Your email"
+                placeholder="Email address *"
                 value={visitorInfo.email}
-                onChange={(e) => setVisitorInfo(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full px-2 py-1 bg-[#1A2A3A] border border-[rgba(0,212,255,0.2)] rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                onChange={(e) => setVisitorInfo((prev) => ({ ...prev, email: e.target.value }))}
+                className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
+              {/* Phone */}
+              <input
+                type="tel"
+                placeholder="Phone number"
+                value={visitorInfo.phone}
+                onChange={(e) => setVisitorInfo((prev) => ({ ...prev, phone: e.target.value }))}
+                className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
+              />
+              {/* Company */}
               <input
                 type="text"
-                placeholder="Company (optional)"
+                placeholder="Company name"
                 value={visitorInfo.company}
-                onChange={(e) => setVisitorInfo(prev => ({ ...prev, company: e.target.value }))}
-                className="w-full px-2 py-1 bg-[#1A2A3A] border border-[rgba(0,212,255,0.2)] rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                onChange={(e) => setVisitorInfo((prev) => ({ ...prev, company: e.target.value }))}
+                className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
-              <button
-                onClick={handleCaptureLead}
-                className="w-full px-2 py-1 bg-[#00D4FF] text-[#0A0E1A] rounded text-xs font-semibold hover:bg-[#00D4FF]/90 transition-colors"
-              >
-                Connect with Support
-              </button>
+
+              {/* ── Consent Checkboxes ─────────────────────────────────────── */}
+              <div className="space-y-2 pt-1">
+                <p className="text-xs text-gray-400 font-medium">How may we contact you? *</p>
+
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consent.email}
+                    onChange={(e) => setConsent((prev) => ({ ...prev, email: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-600 bg-[#151D30] text-[#00D4FF] focus:ring-[#00D4FF]/30 focus:ring-offset-0 cursor-pointer accent-[#00D4FF]"
+                  />
+                  <Mail size={14} className="text-gray-400 group-hover:text-[#00D4FF] transition-colors" />
+                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+                    Email me
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consent.phone}
+                    onChange={(e) => setConsent((prev) => ({ ...prev, phone: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-600 bg-[#151D30] text-[#00D4FF] focus:ring-[#00D4FF]/30 focus:ring-offset-0 cursor-pointer accent-[#00D4FF]"
+                  />
+                  <Phone size={14} className="text-gray-400 group-hover:text-[#00D4FF] transition-colors" />
+                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+                    Call me
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consent.text}
+                    onChange={(e) => setConsent((prev) => ({ ...prev, text: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-600 bg-[#151D30] text-[#00D4FF] focus:ring-[#00D4FF]/30 focus:ring-offset-0 cursor-pointer accent-[#00D4FF]"
+                  />
+                  <MessageSquare size={14} className="text-gray-400 group-hover:text-[#00D4FF] transition-colors" />
+                  <span className="text-xs text-gray-300 group-hover:text-white transition-colors">
+                    Text / SMS me
+                  </span>
+                </label>
+              </div>
+
+              <p className="text-[10px] text-gray-500 leading-relaxed">
+                By submitting, you agree to be contacted via your selected methods regarding your inquiry.
+                We respect your privacy and will not share your information.
+              </p>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => setShowLeadForm(false)}
+                  className="flex-1 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 border border-gray-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCaptureLead}
+                  className="flex-1 px-3 py-2 bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-lg text-xs font-semibold hover:shadow-lg hover:shadow-[#00D4FF]/20 transition-all"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Input */}
+          {/* ── Input Area ─────────────────────────────────────────────────── */}
           {!showLeadForm && (
-            <div className="border-t border-[rgba(0,212,255,0.2)] p-3 flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Ask a question..."
-                disabled={isLoading}
-                className="flex-1 px-3 py-2 bg-[#1A2A3A] border border-[rgba(0,212,255,0.2)] rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] disabled:opacity-50"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={isLoading || !inputValue.trim()}
-                className="px-3 py-2 bg-[#00D4FF] text-[#0A0E1A] rounded hover:bg-[#00D4FF]/90 disabled:opacity-50 transition-colors"
-              >
-                <Send size={16} />
-              </button>
+            <div className="border-t border-[rgba(0,212,255,0.1)] p-3 bg-[#0D1525] md:rounded-b-2xl flex-shrink-0">
+              {/* Quick reply chips when conversation is active */}
+              {hasInteracted && messages.length > 0 && !isLoading && (
+                <div className="flex gap-1.5 mb-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <button
+                    onClick={() => sendQuickMessage("Tell me about your pricing")}
+                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                  >
+                    Pricing
+                  </button>
+                  <button
+                    onClick={() => sendQuickMessage("I'd like to schedule a consultation")}
+                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                  >
+                    Schedule Call
+                  </button>
+                  <button
+                    onClick={() => handleEscalate("User wants to talk to support")}
+                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                  >
+                    Talk to Human
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
+                  placeholder="Ask anything about our services..."
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.12)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/40 focus:ring-1 focus:ring-[#00D4FF]/20 disabled:opacity-50 transition-all"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isLoading || !inputValue.trim()}
+                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] hover:shadow-lg hover:shadow-[#00D4FF]/30 disabled:opacity-30 disabled:shadow-none transition-all"
+                >
+                  <Send size={16} />
+                </button>
+              </div>
+
+              {/* Powered by badge */}
+              <div className="flex items-center justify-center gap-1 mt-2">
+                <span className="text-[10px] text-gray-600">Powered by</span>
+                <span className="text-[10px] text-gray-500 font-semibold">GigitekAI</span>
+                <Sparkles size={10} className="text-gray-600" />
+              </div>
             </div>
           )}
         </div>

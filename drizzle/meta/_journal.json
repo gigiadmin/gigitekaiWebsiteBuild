@@ -43,6 +43,13 @@
       "when": 1775343352971,
       "tag": "0005_fat_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1775362791306,
+      "tag": "0006_shallow_snowbird",
+      "breakpoints": true
     }
   ]
 }
