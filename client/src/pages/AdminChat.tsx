@@ -176,39 +176,42 @@ export default function AdminChat() {
     scrollToBottom();
   }, [chatMessages]);
 
-  const handleSelectUser = async (userId: number) => {
+  // Load chat messages for selected session
+  const { data: messagesData, isLoading: isLoadingMessages } = trpc.chat.getMessages.useQuery(
+    { sessionId: sessionId || 0 },
+    { enabled: !!sessionId }
+  );
+
+  useEffect(() => {
+    if (messagesData) {
+      setChatMessages(
+        messagesData.map((m: any) => ({
+          senderId: m.senderId,
+          senderRole: m.senderRole,
+          message: m.message,
+          timestamp: new Date(m.createdAt),
+          isRead: m.isRead,
+        }))
+      );
+    }
+  }, [messagesData]);
+
+  useEffect(() => {
+    setIsLoadingHistory(isLoadingMessages);
+  }, [isLoadingMessages]);
+
+  const handleSelectUser = (userId: number) => {
     setSelectedUserId(userId);
-    setIsLoadingHistory(true);
     
     try {
       // Find or create session for this user
       const userSession = adminSessions?.find((s: any) => s.userId === userId);
       if (userSession) {
         setSessionId(userSession.id);
-        // Load message history via tRPC
-        try {
-          const { data: messages } = await trpc.chat.getMessages.useQuery({ sessionId: userSession.id });
-          if (messages) {
-            setChatMessages(
-              messages.map((m: any) => ({
-                senderId: m.senderId,
-                senderRole: m.senderRole,
-                message: m.message,
-                timestamp: new Date(m.createdAt),
-                isRead: m.isRead,
-              }))
-            );
-          }
-        } catch (err) {
-          console.error("Error fetching messages:", err);
-          setChatMessages([]);
-        }
       }
     } catch (error) {
-      console.error("Error loading chat history:", error);
-      toast.error("Failed to load chat history");
-    } finally {
-      setIsLoadingHistory(false);
+      console.error("Error selecting user:", error);
+      toast.error("Failed to select user");
     }
   };
 

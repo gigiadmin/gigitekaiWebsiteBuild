@@ -127,3 +127,8 @@
   - AdminChat component now loads correctly
   - Route working on production (gigitekai.com)
   - All 103 tests passing
+- [x] Fix chat history not loading in admin chat
+  - Fixed incorrect useQuery hook usage in handleSelectUser
+  - Refactored to use useQuery at component level (proper React pattern)
+  - Messages now load automatically when session is selected
+  - All 103 tests passing, build successful
