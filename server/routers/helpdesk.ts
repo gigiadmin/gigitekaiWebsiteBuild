@@ -2,6 +2,7 @@ import { z } from "zod";
 import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { sendEmail } from "../_core/email";
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -125,7 +126,81 @@ export const helpdeskRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
+        // Get ticket details before updating
+        const ticket = await getTicketById(input.ticketId);
+        if (!ticket) {
+          throw new Error("Ticket not found");
+        }
+
+        // Update ticket status
         await updateTicketStatus(input.ticketId, input.status);
+
+        // Send email notification to customer
+        try {
+          const { users } = await import("../../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          const db = await import("../db").then(m => m.getDb());
+          
+          if (db) {
+            const userResult = await db.select().from(users).where(eq(users.id, ticket.userId)).limit(1);
+            const user = userResult.length > 0 ? userResult[0] : null;
+
+            if (user && user.email) {
+              const statusLabel = input.status.charAt(0).toUpperCase() + input.status.slice(1).replace(/_/g, " ");
+              const emailBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #0A0E1A 0%, #0F1A30 100%); color: #00D4FF; padding: 24px; text-align: center; border-bottom: 2px solid #00D4FF; }
+    .header h2 { margin: 0; font-size: 22px; }
+    .content { padding: 24px; }
+    .ticket-info { background: #f9f9f9; border-left: 4px solid #00D4FF; padding: 16px; border-radius: 4px; margin-bottom: 20px; }
+    .ticket-info p { margin: 8px 0; color: #555; }
+    .status-badge { display: inline-block; background: #00D4FF; color: #0A0E1A; padding: 8px 16px; border-radius: 4px; font-weight: 600; margin-top: 12px; }
+    .footer { background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Ticket Status Update</h2>
+    </div>
+    <div class="content">
+      <p>Hi ${user.name || "there"},</p>
+      <p>Your support ticket has been updated. Here are the details:</p>
+      <div class="ticket-info">
+        <p><strong>Ticket #${ticket.id}</strong></p>
+        <p><strong>Title:</strong> ${ticket.title}</p>
+        <p><strong>Previous Status:</strong> ${ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace(/_/g, " ")}</p>
+        <p><strong>New Status:</strong> <span class="status-badge">${statusLabel}</span></p>
+      </div>
+      <p>If you have any questions or need further assistance, please don't hesitate to reply to this email or visit our support center.</p>
+      <p>Thank you for your patience!</p>
+    </div>
+    <div class="footer">
+      <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
+      <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+    </div>
+  </div>
+</body>
+</html>
+              `;
+
+              await sendEmail({
+                to: user.email,
+                subject: `Ticket #${ticket.id} Status Update: ${statusLabel}`,
+                html: emailBody,
+              });
+            }
+          }
+        } catch (emailError) {
+          console.warn("[Helpdesk] Failed to send ticket status email:", emailError);
+        }
+
         return { success: true };
       } catch (error) {
         console.error("Failed to update ticket status:", error);

@@ -306,3 +306,12 @@
 - [x] Include reply-to link or instructions in lead email
 - [x] Write tests for lead email notification (5 new tests added)
 - [x] Verify email delivery to support@gigitek.com
+
+
+## Email Notifications - Ticket Status & Account Approval (April 2026)
+- [x] Add ticket status change email notifications to customers
+- [x] Add account approval/rejection email notifications to users
+- [x] Add reply-to email address to lead capture emails
+- [x] Write tests for ticket status emails
+- [x] Write tests for account approval/rejection emails
+- [x] Write tests for reply-to functionality

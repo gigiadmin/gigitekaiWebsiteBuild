@@ -385,6 +385,7 @@ export const aibotRouter = router({
           to: "support@gigitek.com",
           subject: `New Lead: ${name} (${company || "No company"})`,
           html: emailBody,
+          replyTo: email,
         });
 
         if (!emailSent) {
