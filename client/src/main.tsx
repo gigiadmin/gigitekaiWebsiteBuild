@@ -7,7 +7,7 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-import "./i18n"; // Initialize i18n translations
+// i18n removed - using English only
 import { registerServiceWorker } from "@/hooks/usePWA";
 
 // Register PWA service worker
