@@ -17,6 +17,10 @@ import {
   Brain,
   ChevronDown,
   Minimize2,
+  Home,
+  Bug,
+  TicketCheck,
+  HelpCircle,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -70,6 +74,30 @@ const QUICK_ACTIONS = [
     border: "border-emerald-500/30",
     iconColor: "text-emerald-400",
   },
+  {
+    icon: Bug,
+    label: "Report a Bug",
+    message: "I'd like to report a bug or technical issue I'm experiencing.",
+    color: "from-red-500/20 to-rose-600/20",
+    border: "border-red-500/30",
+    iconColor: "text-red-400",
+  },
+  {
+    icon: TicketCheck,
+    label: "Submit Ticket",
+    message: "I need to submit a support ticket for an issue that needs attention.",
+    color: "from-blue-500/20 to-indigo-600/20",
+    border: "border-blue-500/30",
+    iconColor: "text-blue-400",
+  },
+  {
+    icon: HelpCircle,
+    label: "General Help",
+    message: "I have a general question about your services and need some guidance.",
+    color: "from-teal-500/20 to-cyan-600/20",
+    border: "border-teal-500/30",
+    iconColor: "text-teal-400",
+  },
 ];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -83,6 +111,7 @@ export default function AIChatWidget() {
   const [visitorInfo, setVisitorInfo] = useState({ name: "", email: "", company: "", phone: "" });
   const [consent, setConsent] = useState<ConsentPrefs>({ email: false, phone: false, text: false });
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -276,9 +305,19 @@ export default function AIChatWidget() {
     }
   };
 
+  const handleBackToMenu = () => {
+    setShowMenu(true);
+    setShowLeadForm(false);
+    // Scroll to top of messages area
+    setTimeout(() => {
+      messagesContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
   const handleClose = () => {
     setIsOpen(false);
     setShowLeadForm(false);
+    setShowMenu(false);
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────────
@@ -370,8 +409,8 @@ export default function AIChatWidget() {
             onScroll={handleScroll}
             className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth"
           >
-            {/* Welcome Screen */}
-            {!hasInteracted && messages.length === 0 && (
+            {/* Welcome / Menu Screen */}
+            {((!hasInteracted && messages.length === 0) || showMenu) && (
               <div className="flex flex-col items-center text-center pt-4 pb-2">
                 {/* AI Logo */}
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.2)] flex items-center justify-center mb-4">
@@ -387,7 +426,7 @@ export default function AIChatWidget() {
                   {QUICK_ACTIONS.map((action) => (
                     <button
                       key={action.label}
-                      onClick={() => sendQuickMessage(action.message)}
+                      onClick={() => { setShowMenu(false); sendQuickMessage(action.message); }}
                       className={`group flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-br ${action.color} border ${action.border} hover:scale-[1.03] active:scale-[0.98] transition-all duration-200`}
                     >
                       <action.icon size={20} className={action.iconColor} />
@@ -398,12 +437,26 @@ export default function AIChatWidget() {
 
                 {/* Talk to human */}
                 <button
-                  onClick={() => handleEscalate("User wants to talk to support")}
+                  onClick={() => { setShowMenu(false); handleEscalate("User wants to talk to support"); }}
                   className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/5 transition-colors"
                 >
                   <ArrowRight size={14} />
                   Talk to a specialist instead
                 </button>
+
+                {/* Back to conversation button - only show when returning to menu */}
+                {showMenu && messages.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+                    }}
+                    className="mt-1 flex items-center gap-2 px-4 py-2 rounded-lg text-xs text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors font-medium"
+                  >
+                    <ChevronDown size={14} />
+                    Back to conversation
+                  </button>
+                )}
               </div>
             )}
 
@@ -589,8 +642,16 @@ export default function AIChatWidget() {
           {!showLeadForm && (
             <div className="border-t border-[rgba(0,212,255,0.1)] p-3 bg-[#0D1525] md:rounded-b-2xl flex-shrink-0">
               {/* Quick reply chips when conversation is active */}
-              {hasInteracted && messages.length > 0 && !isLoading && (
+              {hasInteracted && messages.length > 0 && !isLoading && !showMenu && (
                 <div className="flex gap-1.5 mb-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <button
+                    onClick={handleBackToMenu}
+                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-gradient-to-r from-[#00D4FF]/10 to-purple-500/10 text-[#00D4FF] border border-[#00D4FF]/25 hover:border-[#00D4FF]/50 hover:bg-[#00D4FF]/15 transition-colors font-medium flex items-center gap-1"
+                    title="Back to main menu"
+                  >
+                    <Home size={11} />
+                    Menu
+                  </button>
                   <button
                     onClick={() => sendQuickMessage("Tell me about your pricing")}
                     className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
