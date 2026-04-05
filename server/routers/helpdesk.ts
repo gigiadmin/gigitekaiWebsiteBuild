@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets } from "../db";
 import { notifyOwner } from "../_core/notification";
 
 export const helpdeskRouter = router({
-  // Create a new ticket
-  createTicket: protectedProcedure
+  // Create a new ticket (requires approved user)
+  createTicket: approvedProcedure
     .input(
       z.object({
         title: z.string().min(5, "Title must be at least 5 characters"),
@@ -38,8 +38,8 @@ export const helpdeskRouter = router({
       }
     }),
 
-  // Get user's tickets
-  getMyTickets: protectedProcedure.query(async ({ ctx }) => {
+  // Get user's tickets (requires approved user)
+  getMyTickets: approvedProcedure.query(async ({ ctx }) => {
     try {
       const userTickets = await getTicketsByUserId(ctx.user.id);
       return userTickets;
@@ -49,8 +49,8 @@ export const helpdeskRouter = router({
     }
   }),
 
-  // Get ticket details
-  getTicket: protectedProcedure
+  // Get ticket details (requires approved user)
+  getTicket: approvedProcedure
     .input(z.object({ ticketId: z.number() }))
     .query(async ({ input, ctx }) => {
       try {
@@ -72,8 +72,8 @@ export const helpdeskRouter = router({
       }
     }),
 
-  // Add reply to ticket
-  addReply: protectedProcedure
+  // Add reply to ticket (requires approved user)
+  addReply: approvedProcedure
     .input(
       z.object({
         ticketId: z.number(),
@@ -116,20 +116,15 @@ export const helpdeskRouter = router({
     }),
 
   // Update ticket status (admin only)
-  updateStatus: protectedProcedure
+  updateStatus: adminProcedure
     .input(
       z.object({
         ticketId: z.number(),
         status: z.enum(["open", "in_progress", "resolved", "closed"]),
       })
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       try {
-        // Check if user is admin
-        if (ctx.user.role !== "admin") {
-          throw new Error("Only admins can update ticket status");
-        }
-
         await updateTicketStatus(input.ticketId, input.status);
         return { success: true };
       } catch (error) {
@@ -139,12 +134,8 @@ export const helpdeskRouter = router({
     }),
 
   // Get all tickets (admin only)
-  getAllTickets: protectedProcedure.query(async ({ ctx }) => {
+  getAllTickets: adminProcedure.query(async () => {
     try {
-      if (ctx.user.role !== "admin") {
-        throw new Error("Only admins can view all tickets");
-      }
-
       const allTickets = await getAllTickets();
       return allTickets;
     } catch (error) {

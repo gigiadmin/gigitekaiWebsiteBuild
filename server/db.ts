@@ -60,6 +60,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.role = 'admin';
     }
 
+    // Auto-approve admin users and the site owner
+    if (values.role === 'admin' || user.openId === ENV.ownerOpenId) {
+      values.approved = true;
+      updateSet.approved = true;
+    }
+
     if (!values.lastSignedIn) {
       values.lastSignedIn = new Date();
     }
@@ -68,9 +74,24 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
+    // Check if this is a new user (for notification)
+    const existingUser = await db.select().from(users).where(eq(users.openId, user.openId)).limit(1);
+    const isNewUser = existingUser.length === 0;
+
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
+
+    // Notify admin when a new non-admin user signs up
+    if (isNewUser && values.role !== 'admin') {
+      try {
+        const { notifyOwner } = await import("./_core/notification");
+        await notifyOwner({
+          title: "New User Signup - Approval Required",
+          content: `**A new user has signed up and is awaiting approval.**\n\n- **Name:** ${user.name || "Unknown"}\n- **Email:** ${user.email || "Not provided"}\n- **Login Method:** ${user.loginMethod || "Unknown"}\n- **Time:** ${new Date().toISOString()}\n\nGo to the Admin panel to approve or deny access.`,
+        });
+      } catch (_) { /* notification failure is non-critical */ }
+    }
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -363,6 +384,46 @@ export async function updateChatSessionStatus(sessionId: string, status: string,
     return result;
   } catch (error) {
     console.error("[Database] Failed to update chat session:", error);
+    throw error;
+  }
+}
+
+// ─── User Management (Admin) ──────────────────────────────────────────────────
+
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    return await db.select().from(users).orderBy(users.createdAt);
+  } catch (error) {
+    console.error("[Database] Failed to get all users:", error);
+    throw error;
+  }
+}
+
+export async function approveUser(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.update(users).set({ approved: true }).where(eq(users.id, userId));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to approve user:", error);
+    throw error;
+  }
+}
+
+export async function revokeUser(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.update(users).set({ approved: false }).where(eq(users.id, userId));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to revoke user:", error);
     throw error;
   }
 }

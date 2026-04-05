@@ -39,6 +39,7 @@ export default function HelpdeskDashboard() {
     }
   }, [isAuthenticated, loading, navigate]);
 
+
   // Filtered tickets
   const filteredTickets = useMemo(() => {
     if (!tickets) return [];

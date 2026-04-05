@@ -50,6 +50,13 @@
       "when": 1775362791306,
       "tag": "0006_shallow_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1775400805184,
+      "tag": "0007_remarkable_xavin",
+      "breakpoints": true
     }
   ]
 }

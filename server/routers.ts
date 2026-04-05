@@ -1,10 +1,10 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
-import { saveContactSubmission } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser } from "./db";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
 import { chatRouter } from "./routers/chat";
@@ -104,12 +104,25 @@ Submitted from GigitekAI website contact form.
       }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // User management (admin only)
+  users: router({
+    getAll: adminProcedure.query(async () => {
+      const allUsers = await getAllUsers();
+      return allUsers;
+    }),
+    approve: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input }) => {
+        const result = await approveUser(input.userId);
+        return { success: result };
+      }),
+    revoke: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input }) => {
+        const result = await revokeUser(input.userId);
+        return { success: result };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

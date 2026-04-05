@@ -20,9 +20,14 @@ import {
   TrendingUp,
   Users,
   Zap,
+  ShieldCheck,
+  ShieldX,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 
 type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
+type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
   const { user, isAuthenticated, loading, logout } = useAuth();
@@ -30,9 +35,30 @@ export default function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<AdminTab>("tickets");
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
+  });
+
+  const { data: allUsers, isLoading: usersLoading, refetch: refetchUsers } = trpc.users.getAll.useQuery(undefined, {
+    enabled: isAuthenticated && user?.role === "admin" && activeTab === "users",
+  });
+
+  const approveMutation = trpc.users.approve.useMutation({
+    onSuccess: () => {
+      toast.success("User approved! They can now access the Support Center.");
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to approve user"),
+  });
+
+  const revokeMutation = trpc.users.revoke.useMutation({
+    onSuccess: () => {
+      toast.success("User access revoked.");
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to revoke user"),
   });
 
   const updateStatusMutation = trpc.helpdesk.updateStatus.useMutation({
@@ -119,9 +145,41 @@ export default function AdminPanel() {
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Support Administration
           </h1>
-          <p className="text-gray-400 text-sm">Manage all customer support tickets and communications</p>
+          <p className="text-gray-400 text-sm">Manage all customer support tickets and user access</p>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex gap-1 mb-6 bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-1 w-fit">
+          <button
+            onClick={() => setActiveTab("tickets")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "tickets"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Ticket className="w-4 h-4" />
+            Tickets
+          </button>
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "users"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            User Access
+            {allUsers && allUsers.filter((u: any) => !u.approved && u.role !== "admin").length > 0 && (
+              <span className="bg-amber-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {activeTab === "tickets" && <>
         {/* Metrics Dashboard */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           <MetricCard label="Total Tickets" value={stats.total} icon={<Ticket className="w-5 h-5" />} color="text-white" onClick={() => setStatusFilter("all")} active={statusFilter === "all"} />
@@ -280,6 +338,121 @@ export default function AdminPanel() {
               No tickets yet
             </h3>
             <p className="text-gray-400 text-sm">Tickets will appear here once users submit support requests.</p>
+          </div>
+        )}
+        </>}
+
+        {activeTab === "users" && (
+          <div>
+            {usersLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin mx-auto mb-4" />
+                <p className="text-gray-400">Loading users...</p>
+              </div>
+            ) : allUsers && allUsers.length > 0 ? (
+              <div className="space-y-4">
+                {/* Pending Users */}
+                {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-amber-400 mb-3 flex items-center gap-2">
+                      <Clock className="w-5 h-5" />
+                      Pending Approval ({allUsers.filter((u: any) => !u.approved && u.role !== "admin").length})
+                    </h3>
+                    <div className="space-y-2">
+                      {allUsers.filter((u: any) => !u.approved && u.role !== "admin").map((u: any) => (
+                        <div key={u.id} className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">
+                              {u.name?.charAt(0)?.toUpperCase() || "?"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-white font-medium truncate">{u.name || "Unknown"}</p>
+                              <p className="text-gray-400 text-sm truncate">{u.email || "No email"}</p>
+                              <p className="text-gray-500 text-xs">Signed up: {new Date(u.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button
+                              size="sm"
+                              onClick={() => approveMutation.mutate({ userId: u.id })}
+                              disabled={approveMutation.isPending}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            >
+                              <UserCheck className="w-4 h-4 mr-1" />
+                              Approve
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Approved Users */}
+                <div>
+                  <h3 className="text-lg font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5" />
+                    Approved Users ({allUsers.filter((u: any) => u.approved && u.role !== "admin").length})
+                  </h3>
+                  <div className="space-y-2">
+                    {allUsers.filter((u: any) => u.approved && u.role !== "admin").map((u: any) => (
+                      <div key={u.id} className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
+                            {u.name?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-white font-medium truncate">{u.name || "Unknown"}</p>
+                            <p className="text-gray-400 text-sm truncate">{u.email || "No email"}</p>
+                            <p className="text-gray-500 text-xs">Approved | Last sign-in: {u.lastSignedIn ? new Date(u.lastSignedIn).toLocaleDateString() : "Never"}</p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => revokeMutation.mutate({ userId: u.id })}
+                          disabled={revokeMutation.isPending}
+                          className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                        >
+                          <UserX className="w-4 h-4 mr-1" />
+                          Revoke
+                        </Button>
+                      </div>
+                    ))}
+                    {allUsers.filter((u: any) => u.approved && u.role !== "admin").length === 0 && (
+                      <p className="text-gray-500 text-sm py-4 text-center">No approved users yet.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Admin Users */}
+                <div>
+                  <h3 className="text-lg font-semibold text-[#00D4FF] mb-3 flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5" />
+                    Administrators ({allUsers.filter((u: any) => u.role === "admin").length})
+                  </h3>
+                  <div className="space-y-2">
+                    {allUsers.filter((u: any) => u.role === "admin").map((u: any) => (
+                      <div key={u.id} className="bg-[#141B2D]/60 border border-[#00D4FF]/10 rounded-xl p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#00D4FF]/10 flex items-center justify-center text-[#00D4FF] font-bold text-sm shrink-0">
+                          {u.name?.charAt(0)?.toUpperCase() || "?"}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white font-medium truncate">{u.name || "Unknown"} <span className="text-xs text-[#00D4FF] bg-[#00D4FF]/10 px-2 py-0.5 rounded-full ml-2">ADMIN</span></p>
+                          <p className="text-gray-400 text-sm truncate">{u.email || "No email"}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-16 text-center">
+                <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-white font-bold text-xl mb-2">No users yet</h3>
+                <p className="text-gray-400 text-sm">Users will appear here once they sign in to the Support Center.</p>
+              </div>
+            )}
           </div>
         )}
       </div>

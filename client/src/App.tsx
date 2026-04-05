@@ -18,6 +18,7 @@ import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
+import ApprovalGuard from "./components/ApprovalGuard";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -29,9 +30,9 @@ function Router() {
       <Route path={"/careers"} component={Careers} />
       <Route path={"/services/:slug"} component={ServiceDetail} />
       <Route path={"/helpdesk"} component={HelpDesk} />
-      <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
-      <Route path={"/helpdesk/tickets/new"} component={CreateTicket} />
-      <Route path={"/helpdesk/tickets/:ticketId"} component={TicketDetail} />
+      <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
+      <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
+      <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
       <Route path={"/admin/chat"} component={AdminChat} />
       <Route path={"/404"} component={NotFound} />

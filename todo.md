@@ -264,3 +264,10 @@
 - [x] Bot protection with honeypot fields on contact form and lead capture
 - [x] Dependency vulnerability audit (pnpm audit) - 37 vulns found, all transitive, mitigated
 - [x] Admin security notifications for suspicious activity - notifyOwner() on rate limit abuse + honeypot bot detection
+
+## Invite-Only Helpdesk Access (April 2026)
+- [x] Add 'approved' field to users table in database schema (default false, admin auto-approved)
+- [x] Protect helpdesk routes - only approved users can access dashboard and create tickets
+- [x] Build 'Access Pending' screen for unapproved users
+- [x] Build admin user management panel to approve/deny/revoke user access
+- [x] Send admin notification when new user signs up requesting access
