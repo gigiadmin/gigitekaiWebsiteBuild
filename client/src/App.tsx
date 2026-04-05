@@ -14,6 +14,7 @@ import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
 import AdminChat from "./pages/AdminChat";
+import Careers from "./pages/Careers";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:id"} component={BlogDetail} />
       <Route path={"/about"} component={About} />
+      <Route path={"/careers"} component={Careers} />
       <Route path={"/helpdesk"} component={HelpDesk} />
       <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
       <Route path={"/helpdesk/tickets/new"} component={CreateTicket} />

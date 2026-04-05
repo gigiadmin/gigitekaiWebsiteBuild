@@ -39,7 +39,7 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
             <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
-            <a href="#careers" className="hover:text-[#00D4FF] transition-colors">Careers</a>
+            <a href="/careers" className="hover:text-[#00D4FF] transition-colors">Careers</a>
             <a href="tel:+18005551234" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
               <Phone size={12} />
               1-800-GIGIT-AI

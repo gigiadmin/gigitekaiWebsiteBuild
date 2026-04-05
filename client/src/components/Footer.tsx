@@ -93,16 +93,23 @@ export default function Footer() {
                 {category}
               </h4>
               <ul className="space-y-2.5">
-                {links.map((link) => (
+                {links.map((link) => {
+                  let href = "#";
+                  if (link === "About Us") href = "/about";
+                  if (link === "Careers") href = "/careers";
+                  if (link === "Contact Us") href = "/#contact";
+                  if (link === "Insights Blog") href = "/blog";
+                  return (
                   <li key={link}>
                     <a
-                      href="#"
+                      href={href}
                       className="text-gray-500 text-sm hover:text-[#00D4FF] transition-colors"
                     >
                       {link}
                     </a>
                   </li>
-                ))}
+                );
+                })}
               </ul>
             </div>
           ))}
