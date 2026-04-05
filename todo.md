@@ -115,3 +115,10 @@
   - [x] Get in Touch (contact) link - scrolls to #contact
   - All menu items now use smooth scroll behavior
   - All 103 tests passing
+
+
+## Current Issues
+- [x] Fix admin helpdesk route - /admin/helpdesk returns 404
+  - Added missing useAuth import to AdminPanel.tsx
+  - AdminPanel component now loads correctly
+  - All 103 tests passing

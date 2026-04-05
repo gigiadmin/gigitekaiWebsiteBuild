@@ -57,11 +57,6 @@ export const tickets = mysqlTable("tickets", {
 export type Ticket = typeof tickets.$inferSelect;
 export type InsertTicket = typeof tickets.$inferInsert;
 
-// Relation: Tickets to chat sessions
-export const ticketsRelations = relations(tickets, ({ many }) => ({
-  chatSessions: many(realtimeChatSessions),
-}));
-
 export const ticketReplies = mysqlTable("ticketReplies", {
   id: int("id").autoincrement().primaryKey(),
   ticketId: int("ticketId").notNull(),
@@ -157,6 +152,11 @@ export const chatSessionsRelations = relations(realtimeChatSessions, ({ one }) =
     fields: [realtimeChatSessions.ticketId],
     references: [tickets.id],
   }),
+}));
+
+// Relation: Tickets to chat sessions
+export const ticketsRelations = relations(tickets, ({ many }) => ({
+  chatSessions: many(realtimeChatSessions),
 }));
 
 // Real-Time Chat Messages
