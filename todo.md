@@ -332,3 +332,13 @@
 - [x] Create admin notification center page showing all alerts (/admin/notifications)
 - [x] Add notification bell icon to navbar with link to notification center
 - [x] All 146 tests passing
+
+
+## Unified Admin Portal (April 2026)
+- [x] Create unified admin portal with tabbed navigation (Chat, Helpdesk, Notifications)
+- [x] Migrate Admin Chat into tab
+- [x] Migrate Admin Helpdesk into tab
+- [x] Migrate Admin Notifications into tab
+- [x] Update routing to redirect old URLs to unified portal
+- [x] Update navbar admin links to point to unified portal
+- [x] All 146 tests passing
