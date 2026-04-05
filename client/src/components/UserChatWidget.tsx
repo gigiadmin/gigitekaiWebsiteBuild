@@ -35,6 +35,11 @@ export default function UserChatWidget() {
     enabled: isAuthenticated && user?.role !== "admin",
   });
 
+  const { data: messagesData, isLoading: isLoadingMessages } = trpc.chat.getMessages.useQuery(
+    { sessionId: sessionId || 0 },
+    { enabled: !!sessionId }
+  );
+
   // Only show for authenticated users (not admins)
   if (!isAuthenticated || user?.role === "admin") {
     return null;
@@ -183,7 +188,26 @@ export default function UserChatWidget() {
     setMessageInput("");
   };
 
-  const handleOpenChat = async () => {
+  // Load messages when sessionId changes
+  useEffect(() => {
+    if (messagesData) {
+      setChatMessages(
+        messagesData.map((m: any) => ({
+          senderId: m.senderId,
+          senderRole: m.senderRole,
+          message: m.message,
+          timestamp: new Date(m.createdAt),
+          isRead: m.isRead,
+        }))
+      );
+    }
+  }, [messagesData]);
+
+  useEffect(() => {
+    setIsLoadingHistory(isLoadingMessages);
+  }, [isLoadingMessages]);
+
+  const handleOpenChat = () => {
     setIsOpen(true);
     setUnreadCount(0);
     
@@ -191,26 +215,6 @@ export default function UserChatWidget() {
     if (userSessions && userSessions.length > 0 && !sessionId) {
       const activeSession = userSessions[0];
       setSessionId(activeSession.id);
-      setIsLoadingHistory(true);
-      
-      try {
-        const { data: messages } = await trpc.chat.getMessages.useQuery({ sessionId: activeSession.id });
-        if (messages) {
-          setChatMessages(
-            messages.map((m: any) => ({
-              senderId: m.senderId,
-              senderRole: m.senderRole,
-              message: m.message,
-              timestamp: new Date(m.createdAt),
-              isRead: m.isRead,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Error loading chat history:", error);
-      } finally {
-        setIsLoadingHistory(false);
-      }
     }
   };
 

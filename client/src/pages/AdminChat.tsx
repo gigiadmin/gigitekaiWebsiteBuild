@@ -51,6 +51,8 @@ export default function AdminChat() {
     enabled: isAuthenticated && user?.role === "admin",
   });
 
+  const markAsReadMutation = trpc.chat.markAsRead.useMutation();
+
   // Redirect if not admin
   useEffect(() => {
     if (!loading && (!isAuthenticated || user?.role !== "admin")) {
@@ -256,7 +258,6 @@ export default function AdminChat() {
     
     // Mark messages as read
     try {
-      const markAsReadMutation = trpc.chat.markAsRead.useMutation();
       await markAsReadMutation.mutateAsync({ sessionId });
     } catch (err) {
       console.error("Error marking messages as read:", err);

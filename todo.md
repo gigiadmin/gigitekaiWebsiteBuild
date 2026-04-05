@@ -132,3 +132,9 @@
   - Refactored to use useQuery at component level (proper React pattern)
   - Messages now load automatically when session is selected
   - All 103 tests passing, build successful
+- [x] Fix runtime error on preview environment
+  - Fixed invalid React hook calls in AdminChat.tsx and UserChatWidget.tsx
+  - Moved markAsRead mutation to component top-level in AdminChat
+  - Moved getMessages query to component top-level in UserChatWidget
+  - Removed async/await from event handlers
+  - All 103 tests passing, build successful
