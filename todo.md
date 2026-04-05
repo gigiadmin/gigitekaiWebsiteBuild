@@ -137,4 +137,5 @@
   - Moved markAsRead mutation to component top-level in AdminChat
   - Moved getMessages query to component top-level in UserChatWidget
   - Removed async/await from event handlers
+  - Fixed React hook rules violation: moved early return before hooks in UserChatWidget
   - All 103 tests passing, build successful

@@ -18,6 +18,12 @@ interface ChatMessage {
 
 export default function UserChatWidget() {
   const { user, isAuthenticated } = useAuth();
+
+  // Only show for authenticated users (not admins)
+  if (!isAuthenticated || user?.role === "admin") {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -32,7 +38,7 @@ export default function UserChatWidget() {
   
   // tRPC queries
   const { data: userSessions } = trpc.chat.getUserSessions.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role !== "admin",
+    enabled: isAuthenticated,
   });
 
   const { data: messagesData, isLoading: isLoadingMessages } = trpc.chat.getMessages.useQuery(
@@ -40,14 +46,9 @@ export default function UserChatWidget() {
     { enabled: !!sessionId }
   );
 
-  // Only show for authenticated users (not admins)
-  if (!isAuthenticated || user?.role === "admin") {
-    return null;
-  }
-
   // Initialize WebSocket connection
   useEffect(() => {
-    if (!isAuthenticated || !user?.id) return;
+    if (!user?.id) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/api/ws`;
