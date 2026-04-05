@@ -41,11 +41,13 @@ const footerLinks = {
 };
 
 const socials = [
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Linkedin, href: "https://www.linkedin.com/company/gigitekai", label: "LinkedIn" },
+  { icon: Twitter, href: "https://twitter.com/gigitekai", label: "Twitter" },
+  { icon: Facebook, href: "https://www.facebook.com/gigitekai", label: "Facebook" },
+  { icon: Youtube, href: "https://www.youtube.com/@gigitekai", label: "YouTube" },
 ];
+
+// Note: Update these URLs with actual GigitekAI social media profiles when available
 
 export default function Footer() {
   return (
