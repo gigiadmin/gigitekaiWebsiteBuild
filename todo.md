@@ -255,3 +255,4 @@
 - [x] Fix test suite creating real tickets in production database - added vi.mock for DB module in all test files
 - [x] Delete all test tickets from database (40 test tickets deleted)
 - [x] Add 'Back to Menu' button in AI chat widget so users can return to initial quick-reply options screen without closing chat
+- [x] Move 'Powered by Manus' badge to bottom-left of AI chat widget

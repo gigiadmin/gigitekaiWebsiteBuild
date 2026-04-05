@@ -699,7 +699,7 @@ export default function AIChatWidget() {
               </div>
 
               {/* Powered by badge */}
-              <div className="flex items-center justify-center gap-1 mt-2">
+              <div className="flex items-center justify-start gap-1 mt-2">
                 <span className="text-[10px] text-gray-600">Powered by</span>
                 <span className="text-[10px] text-gray-500 font-semibold">GigitekAI</span>
                 <Sparkles size={10} className="text-gray-600" />
