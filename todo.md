@@ -100,3 +100,18 @@
   - Logout flow with redirect implemented
   - Protected routes and user context working
   - 18 new tests added and passing
+
+
+## Current Issues to Fix
+- [x] Fix mobile menu anchor links not scrolling to correct sections
+  - [x] Cloud Infrastructure link - scrolls to #services
+  - [x] AI & Machine Learning link - scrolls to #services
+  - [x] Managed IT Services link - scrolls to #services
+  - [x] Cybersecurity link - scrolls to #services
+  - [x] Data Analytics link - scrolls to #services
+  - [x] Industries link - scrolls to #industries
+  - [x] About Us link - navigates to /about
+  - [x] Insights link - navigates to /blog
+  - [x] Get in Touch (contact) link - scrolls to #contact
+  - All menu items now use smooth scroll behavior
+  - All 103 tests passing

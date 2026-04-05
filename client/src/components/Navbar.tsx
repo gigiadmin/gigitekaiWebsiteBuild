@@ -155,7 +155,15 @@ export default function Navbar() {
                 key={s.label}
                 href={s.href}
                 className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
-                onClick={() => setMobileOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const id = s.href.replace('#', '');
+                  const element = document.getElementById(id);
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  setMobileOpen(false);
+                }}
               >
                 {s.label}
               </a>
@@ -171,14 +179,35 @@ export default function Navbar() {
                   key={item.label}
                   href={item.href}
                   className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    if (item.href.startsWith('#')) {
+                      e.preventDefault();
+                      const id = item.href.replace('#', '');
+                      const element = document.getElementById(id);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                    setMobileOpen(false);
+                  }}
                 >
                   {item.label}
                 </a>
               ))}
             </div>
             <div className="pt-2">
-              <a href="#contact" className="btn-cyan w-full justify-center text-sm" onClick={() => setMobileOpen(false)}>
+              <a
+                href="#contact"
+                className="btn-cyan w-full justify-center text-sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const element = document.getElementById('contact');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  setMobileOpen(false);
+                }}
+              >
                 Get in Touch
               </a>
             </div>
