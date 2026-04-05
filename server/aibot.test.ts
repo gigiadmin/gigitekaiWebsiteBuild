@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { aibotRouter } from "./routers/aibot";
 import type { TrpcContext } from "./_core/context";
 
@@ -429,5 +429,131 @@ describe("aibot transcript export & email", () => {
     });
 
     expect(result.success).toBe(true);
+  });
+});
+
+
+describe("aibot lead capture email notifications", () => {
+  beforeEach(() => {
+    mockSendEmail.mockClear();
+  });
+
+  it("captureLead sends email notification to admin", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({ visitorName: "Lead Capture Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "I'm interested in your services" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    const result = await caller.captureLead({
+      sessionId: session.sessionId,
+      name: "John Lead",
+      email: "john@example.com",
+      company: "Tech Corp",
+      interest: "Cloud Migration",
+      consentEmail: true,
+      consentPhone: true,
+      consentText: false,
+    });
+
+    expect(result.success).toBe(true);
+    expect(mockSendEmail).toHaveBeenCalled();
+
+    // Verify email was sent to support@gigitek.com
+    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
+    expect(lastCall[0].to).toBe("support@gigitek.com");
+    expect(lastCall[0].subject).toContain("New Lead");
+    expect(lastCall[0].subject).toContain("John Lead");
+    expect(lastCall[0].html).toContain("john@example.com");
+    expect(lastCall[0].html).toContain("Tech Corp");
+    expect(lastCall[0].html).toContain("Cloud Migration");
+  });
+
+  it("captureLead email includes contact preferences", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({ visitorName: "Preferences Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Test message" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    await caller.captureLead({
+      sessionId: session.sessionId,
+      name: "Jane Doe",
+      email: "jane@example.com",
+      consentEmail: true,
+      consentPhone: false,
+      consentText: true,
+    });
+
+    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
+    expect(lastCall[0].html).toContain("Email");
+    expect(lastCall[0].html).toContain("Text/SMS");
+  });
+
+  it("captureLead email includes conversation summary", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({ visitorName: "Summary Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Tell me about your helpdesk services" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "What's the pricing?" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    await caller.captureLead({
+      sessionId: session.sessionId,
+      name: "Bob Smith",
+      email: "bob@example.com",
+    });
+
+    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
+    expect(lastCall[0].html).toContain("Recent Conversation");
+    expect(lastCall[0].html).toContain("helpdesk");
+  });
+
+  it("captureLead email handles missing optional fields gracefully", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({});
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Simple question" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    const result = await caller.captureLead({
+      sessionId: session.sessionId,
+      name: "Minimal Lead",
+      email: "minimal@example.com",
+    });
+
+    expect(result.success).toBe(true);
+    expect(mockSendEmail).toHaveBeenCalled();
+
+    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
+    expect(lastCall[0].subject).toContain("No company");
+  });
+
+  it("captureLead continues even if email fails", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({});
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Test" });
+
+    mockSendEmail.mockResolvedValueOnce(false);
+
+    const result = await caller.captureLead({
+      sessionId: session.sessionId,
+      name: "Resilient Lead",
+      email: "resilient@example.com",
+    });
+
+    // Should still return success even if email fails
+    expect(result.success).toBe(true);
+    expect(result.message).toContain("Thank you");
   });
 });

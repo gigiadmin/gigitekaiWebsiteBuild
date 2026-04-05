@@ -298,3 +298,11 @@
 - [x] Add "Email Chat" button to AI chatbot - emails conversation transcript to user's email
 - [x] Backend endpoint for formatting and emailing chat transcripts
 - [x] Tests for save and email chat functionality
+
+
+## Email Notification System - Lead Capture Alerts (April 2026)
+- [x] Add email notification to admin when leads are captured from AI chatbot
+- [x] Format lead email with visitor info, company, consent preferences
+- [x] Include reply-to link or instructions in lead email
+- [x] Write tests for lead email notification (5 new tests added)
+- [x] Verify email delivery to support@gigitek.com

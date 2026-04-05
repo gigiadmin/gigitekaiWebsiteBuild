@@ -310,14 +310,88 @@ export const aibotRouter = router({
         consentText ? "Text/SMS" : "",
       ].filter(Boolean).join(", ");
 
-      // Send notification to owner about new lead
+      // Send notification to owner about new lead (dashboard)
       try {
         await notifyOwner({
           title: `New Lead from Chat: ${name}`,
           content: `Email: ${email}\nPhone: ${phone || "Not provided"}\nCompany: ${company || "Not provided"}\nContact Preferences: ${contactMethods || "None selected"}\nInterest: ${interest || "Not specified"}\n\nConversation Summary:\n${conversationSummary}`,
         });
       } catch (error) {
-        console.error("[AIBot] Failed to send lead notification:", error);
+        console.error("[AIBot] Failed to send lead dashboard notification:", error);
+      }
+
+      // Send email notification to admin
+      try {
+        const emailBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #0A0E1A 0%, #0F1A30 100%); color: #00D4FF; padding: 24px; text-align: center; border-bottom: 2px solid #00D4FF; }
+    .header h2 { margin: 0; font-size: 24px; }
+    .content { padding: 24px; }
+    .field { margin-bottom: 16px; }
+    .field-label { font-weight: 600; color: #333; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field-value { color: #666; font-size: 14px; margin-top: 4px; }
+    .divider { border-top: 1px solid #e0e0e0; margin: 20px 0; }
+    .summary { background: #f9f9f9; border-left: 4px solid #00D4FF; padding: 12px; border-radius: 4px; font-size: 13px; color: #555; line-height: 1.6; }
+    .footer { background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+    .cta-button { display: inline-block; background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%); color: #0A0E1A; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>🎯 New Lead from AI Chat</h2>
+    </div>
+    <div class="content">
+      <div class="field">
+        <div class="field-label">Name</div>
+        <div class="field-value">${name}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Email</div>
+        <div class="field-value"><a href="mailto:${email}" style="color: #00D4FF; text-decoration: none;">${email}</a></div>
+      </div>
+      ${phone ? `<div class="field"><div class="field-label">Phone</div><div class="field-value"><a href="tel:${phone}" style="color: #00D4FF; text-decoration: none;">${phone}</a></div></div>` : ''}
+      ${company ? `<div class="field"><div class="field-label">Company</div><div class="field-value">${company}</div></div>` : ''}
+      ${interest ? `<div class="field"><div class="field-label">Interest</div><div class="field-value">${interest}</div></div>` : ''}
+      <div class="field">
+        <div class="field-label">Contact Preferences</div>
+        <div class="field-value">${contactMethods || "No preferences selected"}</div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <div class="field-label">Recent Conversation</div>
+        <div class="summary">${conversationSummary.replace(/\n/g, '<br/>')}</div>
+      </div>
+      <div style="text-align: center;">
+        <a href="https://gigitekai.com" class="cta-button">View Lead in Dashboard</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
+      <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+    </div>
+  </div>
+</body>
+</html>
+        `;
+
+        const emailSent = await sendEmail({
+          to: "support@gigitek.com",
+          subject: `New Lead: ${name} (${company || "No company"})`,
+          html: emailBody,
+        });
+
+        if (!emailSent) {
+          console.warn("[AIBot] Lead email notification failed to send");
+        }
+      } catch (error) {
+        console.error("[AIBot] Failed to send lead email:", error);
       }
 
       return { success: true, message: "Thank you! We'll follow up with you shortly." };
