@@ -170,11 +170,13 @@ export default function Navbar() {
                 onClick={(e) => {
                   e.preventDefault();
                   const id = s.href.replace('#', '');
-                  const element = document.getElementById(id);
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
                   setMobileOpen(false);
+                  setTimeout(() => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
                 }}
               >
                 {s.label}
@@ -194,12 +196,16 @@ export default function Navbar() {
                     if (item.href.startsWith('#')) {
                       e.preventDefault();
                       const id = item.href.replace('#', '');
-                      const element = document.getElementById(id);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth' });
-                      }
+                      setMobileOpen(false);
+                      setTimeout(() => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 100);
+                    } else {
+                      setMobileOpen(false);
                     }
-                    setMobileOpen(false);
                   }}
                 >
                   {item.label}
@@ -223,11 +229,13 @@ export default function Navbar() {
                 className="btn-cyan w-full justify-center text-sm"
                 onClick={(e) => {
                   e.preventDefault();
-                  const element = document.getElementById('contact');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  }
                   setMobileOpen(false);
+                  setTimeout(() => {
+                    const element = document.getElementById('contact');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }, 100);
                 }}
               >
                 Get in Touch
