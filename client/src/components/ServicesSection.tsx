@@ -1,7 +1,6 @@
 /*
-  GigitekAI Services Section — Technology Expertise
-  White background section with service cards
-  Mirrors appliedtech.us "Technology Expertise" section
+  GigitekAI Services Section — Theme-aware
+  Service cards with technology expertise
 */
 
 import { useEffect, useRef, useState } from "react";
@@ -73,7 +72,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
     <div
       id={service.id}
       ref={ref}
-      className={`group bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 scroll-mt-24 ${
+      className={`group bg-white dark:bg-[#141B2D] rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 scroll-mt-24 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
@@ -81,10 +80,10 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
       <div className="w-12 h-12 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-4 group-hover:bg-[#00D4FF]/15 transition-colors">
         <Icon size={22} className="text-[#00D4FF]" />
       </div>
-      <h3 className="text-lg font-bold text-gray-900 mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         {service.title}
       </h3>
-      <p className="text-gray-600 text-sm leading-relaxed mb-4">{service.description}</p>
+      <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">{service.description}</p>
       <a
         href={service.href}
         className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
@@ -110,7 +109,7 @@ export default function ServicesSection() {
   }, []);
 
   return (
-    <section id="services" className="py-20 bg-white">
+    <section id="services" className="py-20 bg-white dark:bg-[#0F1629]">
       <div className="container">
         {/* Header */}
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
@@ -119,14 +118,14 @@ export default function ServicesSection() {
               Technology Expertise
             </div>
             <h2
-              className={`text-4xl md:text-5xl font-bold text-gray-900 leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Enterprise Cloud Infrastructure & AI Solutions
             </h2>
           </div>
           <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <p className="text-gray-600 text-lg leading-relaxed mb-6">
+            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
               GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
             <a href="#contact" className="btn-cyan text-sm">

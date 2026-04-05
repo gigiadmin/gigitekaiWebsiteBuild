@@ -57,8 +57,7 @@ export default function CTASection() {
   return (
     <section
       id="contact"
-      className="py-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #050810 0%, #0A0E1A 50%, #0F1629 100%)" }}
+      className="py-20 relative overflow-hidden bg-white dark:bg-[#0A0E1A]"
       ref={ref}
     >
       {/* Grid overlay */}
@@ -83,12 +82,12 @@ export default function CTASection() {
           >
             <div className="section-label">Get in Touch</div>
             <h2
-              className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6"
+              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Ready to Accelerate Your Business with Cloud & AI?
             </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10">
               Maximize your business potential with enterprise cloud infrastructure and AI solutions. Start with a complimentary Cloud & AI Readiness Assessment — no obligation, no pressure.
             </p>
 
@@ -102,7 +101,7 @@ export default function CTASection() {
                 <a
                   key={label}
                   href={href}
-                  className="flex items-center gap-3 text-gray-300 hover:text-[#00D4FF] transition-colors group"
+                  className="flex items-center gap-3 text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors group"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center group-hover:bg-[#00D4FF]/20 transition-colors">
                     <Icon size={16} className="text-[#00D4FF]" />
@@ -120,30 +119,30 @@ export default function CTASection() {
             }`}
           >
             {submitted ? (
-              <div className="cyan-glow-card rounded-2xl p-10 text-center">
+              <div className="bg-gray-50 dark:bg-[#141B2D] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] rounded-2xl p-10 text-center">
                 <div className="text-5xl mb-4">✅</div>
                 <h3
-                  className="text-white text-2xl font-bold mb-2"
+                  className="text-gray-900 dark:text-white text-2xl font-bold mb-2"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   Message Received!
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-600 dark:text-gray-400">
                   Our team will reach out within 1 business day to schedule your complimentary Cloud & AI Readiness Assessment.
                 </p>
               </div>
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="cyan-glow-card rounded-2xl p-8 space-y-5"
+                className="bg-gray-50 dark:bg-[#141B2D] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] rounded-2xl p-8 space-y-5"
               >
                 <h3
-                  className="text-white text-xl font-bold mb-2"
+                  className="text-gray-900 dark:text-white text-xl font-bold mb-2"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   Get Your Free Assessment
                 </h3>
-                <p className="text-gray-400 text-sm mb-6">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                   Tell us about your business and we'll design a tailored cloud and AI strategy.
                 </p>
 
@@ -155,25 +154,25 @@ export default function CTASection() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Full Name *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Full Name *</label>
                     <input
                       type="text"
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                      className="w-full bg-white dark:bg-[#0A0E1A] border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                       placeholder="John Smith"
                       disabled={submitMutation.isPending}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1.5 font-medium">Work Email *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Work Email *</label>
                     <input
                       type="email"
                       required
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                      className="w-full bg-white dark:bg-[#0A0E1A] border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                       placeholder="john@company.com"
                       disabled={submitMutation.isPending}
                     />
@@ -181,24 +180,24 @@ export default function CTASection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5 font-medium">Company Name</label>
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Company Name</label>
                   <input
                     type="text"
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                    className="w-full bg-white dark:bg-[#0A0E1A] border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors"
                     placeholder="Your Company"
                     disabled={submitMutation.isPending}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1.5 font-medium">How can we help?</label>
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">How can we help?</label>
                   <textarea
                     rows={4}
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors resize-none"
+                    className="w-full bg-white dark:bg-[#0A0E1A] border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-lg px-4 py-3 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-[#00D4FF] transition-colors resize-none"
                     placeholder="Tell us about your cloud and AI goals..."
                     disabled={submitMutation.isPending}
                   />

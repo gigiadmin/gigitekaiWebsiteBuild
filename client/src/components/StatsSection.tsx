@@ -73,7 +73,7 @@ export default function StatsSection() {
   }, []);
 
   return (
-    <section className="py-20 bg-white" ref={ref}>
+    <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
       <div className="container">
         {/* Header */}
         <div
@@ -82,12 +82,12 @@ export default function StatsSection() {
           }`}
         >
           <h2
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             You Deserve Expert Cloud & AI Strategy
           </h2>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto">
             Numbers that reflect our commitment to delivering measurable results for every client we serve.
           </p>
         </div>
@@ -97,19 +97,19 @@ export default function StatsSection() {
           {stats.map((stat, i) => (
             <div
               key={stat.label}
-              className={`bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg transition-all duration-300 ${
+              className={`bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg transition-all duration-300 ${
                 visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
               style={{ transitionDelay: `${i * 100}ms` }}
             >
               <div
-                className="text-5xl font-bold text-gray-900 mb-2"
+                className="text-5xl font-bold text-gray-900 dark:text-white mb-2"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <AnimatedCounter target={stat.value} suffix={stat.suffix} />
               </div>
               <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
-              <p className="text-gray-500 text-sm leading-relaxed">{stat.label}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -123,7 +123,7 @@ export default function StatsSection() {
           >
             <div className="section-label justify-center">How It Works</div>
             <h2
-              className="text-4xl font-bold text-gray-900 mt-2"
+              className="text-4xl font-bold text-gray-900 dark:text-white mt-2"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Discover New Capabilities with GigitekAI
@@ -141,7 +141,7 @@ export default function StatsSection() {
             ].map((step, i) => (
               <div
                 key={step.num}
-                className={`flex gap-4 p-6 rounded-xl border border-gray-100 hover:border-[#00D4FF]/30 hover:bg-gray-50 transition-all duration-300 ${
+                className={`flex gap-4 p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${400 + i * 80}ms` }}
@@ -154,12 +154,12 @@ export default function StatsSection() {
                 </div>
                 <div>
                   <h3
-                    className="text-gray-900 font-bold mb-2"
+                    className="text-gray-900 dark:text-white font-bold mb-2"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
                     {step.title}
                   </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}

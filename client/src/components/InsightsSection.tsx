@@ -48,7 +48,7 @@ export default function InsightsSection() {
   }, []);
 
   return (
-    <section id="insights" className="py-20 bg-gray-50" ref={ref}>
+    <section id="insights" className="py-20 bg-gray-50 dark:bg-[#0F1629]" ref={ref}>
       <div className="container">
         {/* Header */}
         <div
@@ -59,7 +59,7 @@ export default function InsightsSection() {
           <div>
             <div className="section-label">The Insights Hub</div>
             <h2
-              className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight"
+              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Stay Ahead with the Latest in Cloud & AI
@@ -78,7 +78,7 @@ export default function InsightsSection() {
           {posts.map((post, i) => (
             <article
               key={post.title}
-              className={`bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-xl transition-all duration-300 group cursor-pointer ${
+              className={`bg-white dark:bg-[#141B2D] rounded-2xl overflow-hidden border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-xl transition-all duration-300 group cursor-pointer ${
                 visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
               style={{ transitionDelay: `${200 + i * 100}ms` }}
@@ -98,13 +98,13 @@ export default function InsightsSection() {
                 </div>
 
                 <h3
-                  className="text-gray-900 font-bold text-lg leading-snug mb-3 group-hover:text-[#00D4FF] transition-colors"
+                  className="text-gray-900 dark:text-white font-bold text-lg leading-snug mb-3 group-hover:text-[#00D4FF] transition-colors"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {post.title}
                 </h3>
 
-                <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6">
                   {post.excerpt}
                 </p>
 

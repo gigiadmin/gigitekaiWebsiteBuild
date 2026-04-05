@@ -51,7 +51,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#050810] border-t border-[rgba(0,212,255,0.1)]">
+    <footer className="bg-gray-100 dark:bg-[#050810] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)]">
       {/* Main footer */}
       <div className="container py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
@@ -64,7 +64,7 @@ export default function Footer() {
                   <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#00D4FF" />
                 </svg>
               </div>
-              <span className="font-bold text-xl text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <span className="font-bold text-xl text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 Gigitek<span className="text-[#00D4FF]">AI</span>
               </span>
             </a>
@@ -77,7 +77,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 hover:bg-[#00D4FF]/10 transition-all"
+                  className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 hover:bg-[#00D4FF]/10 transition-all"
                 >
                   <Icon size={16} />
                 </a>
@@ -89,7 +89,7 @@ export default function Footer() {
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h4
-                className="text-white font-bold text-sm mb-4"
+                className="text-gray-900 dark:text-white font-bold text-sm mb-4"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {category}
@@ -119,7 +119,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[rgba(0,212,255,0.08)]">
+      <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.08)]">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-xs">
             © {new Date().getFullYear()} GigitekAI. All rights reserved.

@@ -244,3 +244,11 @@
 - [x] Chat analytics and metrics - dashboard showing chat volume, response times, lead conversion
 - [x] Chatbot-to-real-time-chat handoff - seamless escalation from AI bot to admin live chat
 - [x] File sharing in chat - S3 upload integration for sending files in real-time chat
+
+## Bug Fixes (April 2026)
+- [x] Fix dark/light theme toggle not working - refactored all homepage sections to use dark: variant classes
+  - Navbar, HeroSection, ServicesSection, BenefitsSection, WhoWeServeSection
+  - StatsSection, TestimonialSection, TrustedBySection, IndustriesSection
+  - InsightsSection, FAQSection, CTASection, Footer
+  - Updated scrollbar track color for light mode
+  - Note: Helpdesk pages, ServiceDetail, Careers remain dark-only (brand consistency)

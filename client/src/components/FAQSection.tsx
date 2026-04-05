@@ -58,7 +58,7 @@ function FAQItem({ faq, index }: { faq: typeof faqs[0]; index: number }) {
   return (
     <div
       ref={ref}
-      className={`border-b border-gray-100 transition-all duration-500 ${
+      className={`border-b border-gray-100 dark:border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
@@ -68,7 +68,7 @@ function FAQItem({ faq, index }: { faq: typeof faqs[0]; index: number }) {
         onClick={() => setOpen(!open)}
       >
         <span
-          className="text-gray-900 font-semibold text-base group-hover:text-[#00D4FF] transition-colors pr-4"
+          className="text-gray-900 dark:text-white font-semibold text-base group-hover:text-[#00D4FF] transition-colors pr-4"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           {faq.q}
@@ -79,7 +79,7 @@ function FAQItem({ faq, index }: { faq: typeof faqs[0]; index: number }) {
         />
       </button>
       {open && (
-        <div className="pb-5 text-gray-600 text-sm leading-relaxed fade-in-up">
+        <div className="pb-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed fade-in-up">
           {faq.a}
         </div>
       )}
@@ -101,7 +101,7 @@ export default function FAQSection() {
   }, []);
 
   return (
-    <section className="py-20 bg-white" ref={ref}>
+    <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-16">
           {/* Left */}
@@ -112,12 +112,12 @@ export default function FAQSection() {
           >
             <div className="section-label">FAQ</div>
             <h2
-              className="text-4xl font-bold text-gray-900 mb-4"
+              className="text-4xl font-bold text-gray-900 dark:text-white mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-500 text-base leading-relaxed mb-6">
+            <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-6">
               Have more questions? Our team is ready to discuss your specific cloud and AI needs.
             </p>
             <a href="/#contact" className="btn-cyan text-sm">

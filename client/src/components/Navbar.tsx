@@ -1,6 +1,6 @@
 /*
-  GigitekAI Navbar — Cyberpunk Minimalism meets Enterprise Precision
-  Two-tier navigation: top utility bar (dark) + main nav (white/glass on scroll)
+  GigitekAI Navbar — Theme-aware navigation
+  Two-tier navigation: top utility bar + main nav
   Accent: Electric cyan (#00D4FF)
   Font: Space Grotesk
 */
@@ -33,7 +33,7 @@ export default function Navbar() {
   return (
     <>
       {/* Top utility bar */}
-      <div className="w-full bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-400 py-2 hidden md:block">
+      <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-500 dark:text-gray-400 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
           <span className="text-[#00D4FF] font-medium">
             GigitekAI — Powering the Next Generation of Enterprise Technology
@@ -54,8 +54,8 @@ export default function Navbar() {
       <nav
         className={`w-full sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-[#0A0E1A]/95 backdrop-blur-md shadow-lg shadow-black/30 border-b border-[rgba(0,212,255,0.1)]"
-            : "bg-[#0A0E1A]"
+            ? "bg-white/95 dark:bg-[#0A0E1A]/95 backdrop-blur-md shadow-lg shadow-black/10 dark:shadow-black/30 border-b border-gray-200 dark:border-[rgba(0,212,255,0.1)]"
+            : "bg-white dark:bg-[#0A0E1A]"
         }`}
       >
         <div className="container flex items-center justify-between h-16">
@@ -67,7 +67,7 @@ export default function Navbar() {
                 <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#00D4FF" />
               </svg>
             </div>
-            <span className="font-bold text-xl text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span className="font-bold text-xl text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Gigitek<span className="text-[#00D4FF]">AI</span>
             </span>
           </a>
@@ -77,7 +77,7 @@ export default function Navbar() {
             {/* Services dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
@@ -87,7 +87,7 @@ export default function Navbar() {
               </button>
               {servicesOpen && (
                 <div
-                  className="absolute top-full left-0 mt-1 w-56 bg-[#0F1629] border border-[rgba(0,212,255,0.15)] rounded-lg shadow-xl shadow-black/40 py-2 z-50"
+                  className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-[#0F1629] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] rounded-lg shadow-xl shadow-black/10 dark:shadow-black/40 py-2 z-50"
                   onMouseEnter={() => setServicesOpen(true)}
                   onMouseLeave={() => setServicesOpen(false)}
                 >
@@ -95,7 +95,7 @@ export default function Navbar() {
                     <a
                       key={s.label}
                       href={s.href}
-                      className="block px-4 py-2.5 text-sm text-gray-300 hover:text-[#00D4FF] hover:bg-[rgba(0,212,255,0.05)] transition-colors"
+                      className="block px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] hover:bg-gray-50 dark:hover:bg-[rgba(0,212,255,0.05)] transition-colors"
                     >
                       {s.label}
                     </a>
@@ -112,7 +112,7 @@ export default function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
+                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {item.label}
@@ -139,7 +139,7 @@ export default function Navbar() {
             {toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
+                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
                 title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 aria-label="Toggle theme"
               >
@@ -165,7 +165,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden text-white p-2"
+            className="lg:hidden text-gray-900 dark:text-white p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -174,12 +174,12 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="lg:hidden bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2">
+          <div className="lg:hidden bg-gray-50 dark:bg-[#0F1629] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2">
             {services.map((s) => (
               <a
                 key={s.label}
                 href={s.href}
-                className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
+                className="block py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
                   const id = s.href.replace('#', '');
@@ -195,7 +195,7 @@ export default function Navbar() {
                 {s.label}
               </a>
             ))}
-            <div className="border-t border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
+            <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
               {[
                 { label: "Industries", href: "#industries" },
                 { label: "About Us", href: "/about" },
@@ -204,7 +204,7 @@ export default function Navbar() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
+                  className="block py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors"
                   onClick={(e) => {
                     if (item.href.startsWith('#')) {
                       e.preventDefault();
@@ -240,7 +240,7 @@ export default function Navbar() {
               {toggleTheme && (
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
+                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>

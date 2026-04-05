@@ -1,6 +1,6 @@
 /*
-  GigitekAI Hero Section — Cyberpunk Minimalism meets Enterprise Precision
-  Full-width dark background with particle network image
+  GigitekAI Hero Section — Theme-aware
+  Full-width background with particle network image
   Left-anchored headline, CTA buttons, trust badges
 */
 
@@ -26,10 +26,9 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden"
+      className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-gray-50 dark:bg-[#0A0E1A]"
       style={{
         background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
-        backgroundColor: "#0A0E1A",
       }}
     >
       {/* Animated grid overlay */}

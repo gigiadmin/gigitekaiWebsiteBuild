@@ -32,7 +32,7 @@ export default function IndustriesSection() {
   }, []);
 
   return (
-    <section id="industries" className="py-20 bg-white" ref={ref}>
+    <section id="industries" className="py-20 bg-white dark:bg-[#0F1629]" ref={ref}>
       <div className="container">
         {/* Header */}
         <div
@@ -42,12 +42,12 @@ export default function IndustriesSection() {
         >
           <div className="section-label">Focus Industries</div>
           <h2
-            className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4"
+            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-4"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Cloud & AI Solutions Designed for Your Industry
           </h2>
-          <p className="text-gray-600 text-lg leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
             With deep sector expertise across regulated and high-growth industries, GigitekAI delivers technology strategies that align with your specific compliance requirements, operational challenges, and growth objectives.
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function IndustriesSection() {
             return (
               <div
                 key={industry.name}
-                className={`group p-6 rounded-xl border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg hover:bg-gray-50 transition-all duration-300 cursor-pointer ${
+                className={`group p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 cursor-pointer ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 60}ms` }}
@@ -68,12 +68,12 @@ export default function IndustriesSection() {
                   <Icon size={18} className="text-[#00D4FF]" />
                 </div>
                 <h3
-                  className="text-gray-900 font-bold text-sm mb-2 group-hover:text-[#00D4FF] transition-colors"
+                  className="text-gray-900 dark:text-white font-bold text-sm mb-2 group-hover:text-[#00D4FF] transition-colors"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {industry.name}
                 </h3>
-                <p className="text-gray-500 text-xs leading-relaxed">{industry.desc}</p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed">{industry.desc}</p>
               </div>
             );
           })}

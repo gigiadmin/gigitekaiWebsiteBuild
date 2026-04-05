@@ -52,8 +52,7 @@ export default function TestimonialSection() {
 
   return (
     <section
-      className="py-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #0A0E1A 0%, #0F1629 100%)" }}
+      className="py-20 relative overflow-hidden bg-gray-100 dark:bg-[#0A0E1A]"
       ref={ref}
     >
       {/* Background accent */}
@@ -80,7 +79,7 @@ export default function TestimonialSection() {
           {/* Quote text */}
           <blockquote
             key={active}
-            className="text-xl md:text-2xl text-white font-medium leading-relaxed mb-8 fade-in-up"
+            className="text-xl md:text-2xl text-gray-900 dark:text-white font-medium leading-relaxed mb-8 fade-in-up"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             "{t.quote}"
@@ -92,10 +91,10 @@ export default function TestimonialSection() {
               {t.initials}
             </div>
             <div className="text-left">
-              <p className="text-white font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <p className="text-gray-900 dark:text-white font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {t.name}
               </p>
-              <p className="text-gray-400 text-sm">{t.title}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{t.title}</p>
             </div>
           </div>
 

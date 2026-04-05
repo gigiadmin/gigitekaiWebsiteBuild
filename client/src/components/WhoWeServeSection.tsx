@@ -42,7 +42,7 @@ export default function WhoWeServeSection() {
   }, []);
 
   return (
-    <section className="py-20 bg-[#0F1629]" ref={ref}>
+    <section className="py-20 bg-gray-50 dark:bg-[#0F1629]" ref={ref}>
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-12 items-start">
           {/* Left text */}
@@ -53,12 +53,12 @@ export default function WhoWeServeSection() {
           >
             <div className="section-label">Solutions Built for You</div>
             <h2
-              className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6"
+              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               GigitekAI Makes Your Business Stronger
             </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-6">
+            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
               Whether you're a startup scaling fast, an enterprise modernizing legacy systems, or a regulated business navigating compliance — we have the cloud and AI expertise to match your exact needs.
             </p>
             <a href="#contact" className="btn-outline-cyan text-sm">
@@ -73,7 +73,7 @@ export default function WhoWeServeSection() {
               return (
                 <div
                   key={option.title}
-                  className={`cyan-glow-card rounded-xl p-6 group cursor-pointer transition-all duration-500 ${
+                  className={`bg-white dark:bg-[#141B2D] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(0,212,255,0.1)] rounded-xl p-6 group cursor-pointer transition-all duration-500 ${
                     visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
                   }`}
                   style={{ transitionDelay: `${200 + i * 100}ms` }}
@@ -84,12 +84,12 @@ export default function WhoWeServeSection() {
                     </div>
                     <div className="flex-1">
                       <h3
-                        className="text-white font-bold text-lg mb-2 group-hover:text-[#00D4FF] transition-colors"
+                        className="text-gray-900 dark:text-white font-bold text-lg mb-2 group-hover:text-[#00D4FF] transition-colors"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
                         {option.title}
                       </h3>
-                      <p className="text-gray-400 text-sm leading-relaxed mb-3">
+                      <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-3">
                         {option.description}
                       </p>
                       <a
