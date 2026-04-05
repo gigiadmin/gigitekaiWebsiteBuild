@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   MessageCircle,
   X,
@@ -95,6 +96,9 @@ export default function AIChatWidget() {
     { sessionId: sessionId || "" },
     { enabled: !!sessionId }
   );
+  const handoffMutation = trpc.chat.handoffFromBot.useMutation();
+  const { user: authUser, isAuthenticated } = useAuth();
+  const [handoffComplete, setHandoffComplete] = useState(false);
 
   // Initialize session
   useEffect(() => {
@@ -194,6 +198,33 @@ export default function AIChatWidget() {
     if (!sessionId) return;
     try {
       await escalate.mutateAsync({ sessionId, reason, priority: "medium" });
+
+      // If user is authenticated, attempt live chat handoff
+      if (isAuthenticated && authUser) {
+        try {
+          const handoffResult = await handoffMutation.mutateAsync({
+            aiSessionId: sessionId,
+            summary: `[Handoff] Reason: ${reason}. User ${authUser.name || authUser.email || ""} transferred from AI assistant.`,
+          });
+          setHandoffComplete(true);
+          toast.success("Connected to live support", {
+            description: "You've been transferred to our admin team. Check the live chat widget.",
+          });
+          // Add system message to AI chat
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              message: "You've been connected to our live support team. Please use the **Live Chat** widget (bottom-right corner) to continue your conversation with our admin team. They have your conversation context.",
+              timestamp: Date.now(),
+            },
+          ]);
+          return;
+        } catch (handoffErr) {
+          console.error("Handoff failed, falling back to lead form:", handoffErr);
+        }
+      }
+
       toast.success("Escalated to support team", { description: "A specialist will contact you shortly." });
       setShowLeadForm(true);
     } catch {

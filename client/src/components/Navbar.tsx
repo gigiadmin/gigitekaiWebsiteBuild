@@ -6,8 +6,9 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const services = [
   { label: "Cloud Infrastructure", href: "#cloud" },
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -131,8 +133,19 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* CTA */}
+          {/* CTA + Theme Toggle */}
           <div className="hidden lg:flex items-center gap-3">
+            {/* Theme Toggle */}
+            {toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            )}
             <button
               onClick={() => {
                 document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -222,6 +235,17 @@ export default function Navbar() {
                 <span>Support Center</span>
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </a>
+
+              {/* Mobile Theme Toggle */}
+              {toggleTheme && (
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
+                >
+                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                  <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                </button>
+              )}
             </div>
             <div className="pt-2">
               <a

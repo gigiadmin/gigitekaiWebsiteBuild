@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Send, X, MessageCircle, AlertCircle } from "lucide-react";
+import { Send, X, MessageCircle, AlertCircle, Paperclip, FileIcon, Image as ImageIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 interface ChatMessage {
@@ -16,9 +16,34 @@ interface ChatMessage {
   isRead?: boolean;
 }
 
+interface FileAttachment {
+  type: "file";
+  fileName: string;
+  fileUrl: string;
+  mimeType: string;
+  fileSize: number;
+}
+
+function tryParseFileMessage(message: string): FileAttachment | null {
+  try {
+    const parsed = JSON.parse(message);
+    if (parsed.type === "file" && parsed.fileUrl) {
+      return parsed as FileAttachment;
+    }
+  } catch {
+    // Not a file message
+  }
+  return null;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 /**
  * Outer wrapper that handles the auth check BEFORE any hooks are called.
- * This avoids React's "hooks after early return" violation.
  */
 export default function UserChatWidget() {
   const { user, isAuthenticated } = useAuth();
@@ -43,9 +68,11 @@ function UserChatWidgetInner({ user }: { user: any }) {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [typingAdminId, setTypingAdminId] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // tRPC queries
   const { data: userSessions } = trpc.chat.getUserSessions.useQuery(undefined, {
@@ -57,6 +84,8 @@ function UserChatWidgetInner({ user }: { user: any }) {
     { enabled: !!sessionId }
   );
 
+  const uploadAttachment = trpc.chat.uploadAttachment.useMutation();
+
   // Initialize WebSocket connection
   useEffect(() => {
     if (!user?.id) return;
@@ -67,7 +96,6 @@ function UserChatWidgetInner({ user }: { user: any }) {
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log("[UserChat] WebSocket connected");
       setIsConnected(true);
       ws.send(
         JSON.stringify({
@@ -87,13 +115,11 @@ function UserChatWidgetInner({ user }: { user: any }) {
       }
     };
 
-    ws.onerror = (error) => {
-      console.error("[UserChat] WebSocket error:", error);
+    ws.onerror = () => {
       toast.error("Connection error");
     };
 
     ws.onclose = () => {
-      console.log("[UserChat] WebSocket disconnected");
       setIsConnected(false);
     };
 
@@ -195,6 +221,75 @@ function UserChatWidgetInner({ user }: { user: any }) {
     setMessageInput("");
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !sessionId) return;
+
+    // Max 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large", { description: "Maximum file size is 10MB" });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(",")[1];
+        const result = await uploadAttachment.mutateAsync({
+          sessionId,
+          fileName: file.name,
+          fileData: base64,
+          mimeType: file.type,
+        });
+
+        // Add file message to local state
+        const fileMsg = JSON.stringify({
+          type: "file",
+          fileName: result.fileName,
+          fileUrl: result.fileUrl,
+          mimeType: file.type,
+          fileSize: file.size,
+        });
+
+        setChatMessages((prev) => [
+          ...prev,
+          {
+            senderId: user?.id || 0,
+            senderRole: "user",
+            message: fileMsg,
+            timestamp: new Date(),
+          },
+        ]);
+
+        // Also broadcast via WebSocket
+        if (wsRef.current) {
+          wsRef.current.send(
+            JSON.stringify({
+              type: "message",
+              userId: user?.id,
+              sessionId: sessionId,
+              message: fileMsg,
+              senderRole: "user",
+            })
+          );
+        }
+
+        toast.success("File sent");
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      toast.error("Failed to upload file");
+      setIsUploading(false);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   // Load messages when sessionId changes
   useEffect(() => {
     if (messagesData) {
@@ -225,6 +320,43 @@ function UserChatWidgetInner({ user }: { user: any }) {
     }
   };
 
+  const renderMessage = (msg: ChatMessage) => {
+    const fileData = tryParseFileMessage(msg.message);
+
+    if (fileData) {
+      const isImage = fileData.mimeType.startsWith("image/");
+      return (
+        <a
+          href={fileData.fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          {isImage ? (
+            <div className="space-y-1">
+              <img
+                src={fileData.fileUrl}
+                alt={fileData.fileName}
+                className="max-w-[200px] rounded-lg"
+              />
+              <p className="text-xs text-gray-400">{fileData.fileName}</p>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+              <FileIcon className="w-5 h-5 text-[#00D4FF] flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm truncate">{fileData.fileName}</p>
+                <p className="text-xs text-gray-400">{formatFileSize(fileData.fileSize)}</p>
+              </div>
+            </div>
+          )}
+        </a>
+      );
+    }
+
+    return <p>{msg.message}</p>;
+  };
+
   return (
     <>
       {/* Chat Widget Button */}
@@ -247,9 +379,9 @@ function UserChatWidgetInner({ user }: { user: any }) {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 z-50 w-96 bg-[#141B2D] border-[#00D4FF]/30 flex flex-col h-96 shadow-2xl">
+        <Card className="fixed z-50 inset-4 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-96 bg-[#141B2D] border-[#00D4FF]/30 flex flex-col sm:h-[28rem] shadow-2xl">
           {/* Header */}
-          <div className="flex justify-between items-center p-4 border-b border-[#00D4FF]/20">
+          <div className="flex justify-between items-center p-4 border-b border-[#00D4FF]/20 flex-shrink-0">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-[#00D4FF]" />
               <h3 className="font-bold text-white">Admin Support</h3>
@@ -261,9 +393,10 @@ function UserChatWidgetInner({ user }: { user: any }) {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/10 sm:bg-transparent hover:bg-red-500/20 rounded-lg transition-all"
+              aria-label="Close chat"
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
             </button>
           </div>
 
@@ -288,13 +421,13 @@ function UserChatWidgetInner({ user }: { user: any }) {
                   }`}
                 >
                   <div
-                    className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                    className={`max-w-[75%] px-3 py-2 rounded-lg text-sm ${
                       msg.senderRole === "user"
                         ? "bg-[#00D4FF]/20 border border-[#00D4FF]/50 text-white"
                         : "bg-[#0A0E1A] border border-[#00D4FF]/20 text-gray-200"
                     }`}
                   >
-                    <p>{msg.message}</p>
+                    {renderMessage(msg)}
                     {msg.timestamp && (
                       <p className="text-xs text-gray-400 mt-1">
                         {msg.timestamp.toLocaleTimeString()}
@@ -319,7 +452,28 @@ function UserChatWidgetInner({ user }: { user: any }) {
           </div>
 
           {/* Input */}
-          <div className="flex gap-2 p-4 border-t border-[#00D4FF]/20">
+          <div className="flex items-center gap-2 p-4 border-t border-[#00D4FF]/20 flex-shrink-0">
+            {/* File attachment */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={handleFileSelect}
+              accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={!sessionId || isUploading}
+              className="flex-shrink-0 p-2 text-gray-400 hover:text-[#00D4FF] disabled:opacity-30 transition-colors"
+              title="Attach file"
+            >
+              {isUploading ? (
+                <div className="w-4 h-4 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Paperclip className="w-4 h-4" />
+              )}
+            </button>
+
             <Input
               type="text"
               placeholder="Type message..."
@@ -338,7 +492,7 @@ function UserChatWidgetInner({ user }: { user: any }) {
             <Button
               onClick={handleSendMessage}
               disabled={!messageInput.trim() || !isConnected}
-              className="bg-[#00D4FF] hover:bg-[#00D4FF]/80 text-black font-bold p-2"
+              className="bg-[#00D4FF] hover:bg-[#00D4FF]/80 text-black font-bold p-2 flex-shrink-0"
               size="sm"
             >
               <Send className="w-4 h-4" />

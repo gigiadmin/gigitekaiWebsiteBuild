@@ -237,3 +237,10 @@
 
 ## Database Cleanup Round 2
 - [x] Remove all 80 test tickets from the database (new batch appeared after previous cleanup)
+
+## New Feature Implementation (April 2026)
+- [x] Dark/light theme toggle - add theme switcher accessible from navbar
+- [x] Chat transcripts and export - export chat history as PDF/text from admin panel
+- [x] Chat analytics and metrics - dashboard showing chat volume, response times, lead conversion
+- [x] Chatbot-to-real-time-chat handoff - seamless escalation from AI bot to admin live chat
+- [x] File sharing in chat - S3 upload integration for sending files in real-time chat
