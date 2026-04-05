@@ -90,6 +90,31 @@ Submitted from GigitekAI website contact form.
             content: notificationContent,
           });
 
+          // Send email to support team
+          try {
+            await sendEmail({
+              to: "support@gigitek.com",
+              subject: `New Contact Form Submission: ${input.name}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #00D4FF;">New Contact Form Submission</h2>
+                  <p><strong>Name:</strong> ${input.name}</p>
+                  <p><strong>Email:</strong> <a href="mailto:${input.email}">${input.email}</a></p>
+                  <p><strong>Company:</strong> ${input.company || "Not provided"}</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <h3>Message:</h3>
+                  <p>${input.message.replace(/\n/g, "<br>")}</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #999;">Submitted from GigitekAI website contact form</p>
+                </div>
+              `,
+              replyTo: input.email,
+            });
+          } catch (emailError) {
+            console.error("[Contact Form] Failed to send email notification:", emailError);
+            // Don't fail the submission if email fails
+          }
+
           return {
             success: true,
             message: "Thank you! Your message has been received. We'll get back to you within 1 business day.",

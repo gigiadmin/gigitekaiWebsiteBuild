@@ -6,7 +6,7 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "react-i18next";
@@ -136,8 +136,19 @@ export default function Navbar() {
             </a>
           </div>
 
-          {/* CTA + Language + Theme Toggle */}
+          {/* CTA + Notifications + Theme Toggle */}
           <div className="hidden lg:flex items-center gap-2">
+            {/* Notifications Bell */}
+            <a
+              href="/admin/notifications"
+              className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all relative"
+              title="View notifications"
+              aria-label="Notifications"
+            >
+              <Bell size={18} />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            </a>
+
             {/* Language Switcher */}
             <LanguageSwitcher />
 
