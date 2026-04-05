@@ -1,0 +1,83 @@
+import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { AlertCircle, MessageSquare, Ticket, Bell } from "lucide-react";
+import AdminChat from "./AdminChat";
+import AdminPanel from "./AdminPanel";
+import AdminNotifications from "./AdminNotifications";
+
+type TabType = "chat" | "helpdesk" | "notifications";
+
+export default function AdminDashboard() {
+  const { user, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabType>("chat");
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin mb-4">
+            <MessageSquare className="w-8 h-8 text-[#00D4FF]" />
+          </div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="bg-[#1A1F2E] border border-[rgba(0,212,255,0.1)] p-8 text-center max-w-md rounded-lg">
+          <AlertCircle className="w-12 h-12 text-[#00D4FF] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+          <p className="text-gray-400">Admin access required</p>
+        </div>
+      </div>
+    );
+  }
+
+  const tabs = [
+    { id: "chat" as TabType, label: "Live Chat", icon: <MessageSquare className="w-5 h-5" /> },
+    { id: "helpdesk" as TabType, label: "Helpdesk", icon: <Ticket className="w-5 h-5" /> },
+    { id: "notifications" as TabType, label: "Notifications", icon: <Bell className="w-5 h-5" /> },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0A0E1A] text-white">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-[#0A0E1A]/95 backdrop-blur border-b border-[rgba(0,212,255,0.1)]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between py-4 mb-4">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <span className="text-sm text-gray-400">Welcome, {user.name}</span>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 border-b border-[rgba(0,212,255,0.1)]">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-all ${
+                  activeTab === tab.id
+                    ? "border-[#00D4FF] text-[#00D4FF]"
+                    : "border-transparent text-gray-400 hover:text-gray-300"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {activeTab === "chat" && <AdminChat />}
+        {activeTab === "helpdesk" && <AdminPanel />}
+        {activeTab === "notifications" && <AdminNotifications />}
+      </div>
+    </div>
+  );
+}

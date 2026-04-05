@@ -15,6 +15,7 @@ import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
 import AdminChat from "./pages/AdminChat";
 import AdminNotifications from "./pages/AdminNotifications";
+import AdminDashboard from "./pages/AdminDashboard";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AIChatWidget from "./components/AIChatWidget";
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
+      <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
       <Route path={"/admin/chat"} component={AdminChat} />
       <Route path={"/admin/notifications"} component={AdminNotifications} />
