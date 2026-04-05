@@ -4,6 +4,20 @@ import { trpc } from "@/lib/trpc";
 import { useLocation, useParams } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import HelpdeskNav from "@/components/HelpdeskNav";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  CircleDot,
+  Clock,
+  Loader2,
+  MessageSquare,
+  Send,
+  Shield,
+  Tag,
+  User,
+  Zap,
+} from "lucide-react";
 
 export default function TicketDetail() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -18,7 +32,6 @@ export default function TicketDetail() {
 
   useEffect(() => {
     if (error) {
-      console.error("Error loading ticket:", error);
       toast.error("Failed to load ticket details");
     }
   }, [error]);
@@ -27,13 +40,12 @@ export default function TicketDetail() {
 
   const addReplyMutation = trpc.helpdesk.addReply.useMutation({
     onSuccess: () => {
-      toast.success("Reply added successfully!");
+      toast.success("Reply sent!");
       setReplyText("");
-      // Refetch ticket data via tRPC cache invalidation
       utils.helpdesk.getTicket.invalidate({ ticketId: parseInt(ticketId || "0") });
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to add reply");
+      toast.error(error.message || "Failed to send reply");
     },
   });
 
@@ -42,8 +54,6 @@ export default function TicketDetail() {
       navigate("/helpdesk");
     }
   }, [isAuthenticated, loading, navigate]);
-
-  // Ticket data loaded effect removed (was debug logging)
 
   const handleAddReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,202 +67,256 @@ export default function TicketDetail() {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "open":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "in_progress":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-      case "resolved":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "closed":
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-      default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-    }
+  const getStatusConfig = (status: string) => {
+    const configs: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode; label: string }> = {
+      open: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20", icon: <CircleDot className="w-3.5 h-3.5" />, label: "Open" },
+      in_progress: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20", icon: <Loader2 className="w-3.5 h-3.5" />, label: "In Progress" },
+      resolved: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", icon: <CheckCircle2 className="w-3.5 h-3.5" />, label: "Resolved" },
+      closed: { bg: "bg-gray-500/10", text: "text-gray-400", border: "border-gray-500/20", icon: <CheckCircle2 className="w-3.5 h-3.5" />, label: "Closed" },
+    };
+    return configs[status] || configs.closed;
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "low":
-        return "text-green-400";
-      case "medium":
-        return "text-yellow-400";
-      case "high":
-        return "text-orange-400";
-      case "critical":
-        return "text-red-400";
-      default:
-        return "text-gray-400";
-    }
+  const getPriorityConfig = (priority: string) => {
+    const configs: Record<string, { dot: string; text: string; label: string }> = {
+      low: { dot: "bg-green-500", text: "text-green-400", label: "Low" },
+      medium: { dot: "bg-yellow-500", text: "text-yellow-400", label: "Medium" },
+      high: { dot: "bg-orange-500", text: "text-orange-400", label: "High" },
+      critical: { dot: "bg-red-500", text: "text-red-400", label: "Critical" },
+    };
+    return configs[priority] || configs.medium;
   };
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading ticket...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading ticket details...</p>
-        </div>
+        <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin" />
       </div>
     );
   }
 
   if (!ticketData || !ticketData.ticket) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
-        <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/helpdesk/dashboard")}
-              className="border-gray-700 text-gray-400 hover:text-white"
-            >
-              ← Back to Dashboard
-            </Button>
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
+        <HelpdeskNav />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="w-16 h-16 bg-gray-800/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <MessageSquare className="w-8 h-8 text-gray-600" />
           </div>
-        </nav>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <p className="text-gray-400">Ticket not found or failed to load</p>
+          <h2 className="text-white font-bold text-xl mb-2">Ticket not found</h2>
+          <p className="text-gray-400 text-sm mb-6">This ticket may have been removed or you don't have access.</p>
+          <Button
+            onClick={() => navigate("/helpdesk/dashboard")}
+            className="bg-[#00D4FF] hover:bg-[#00B8CC] text-[#0A0E1A] font-bold rounded-xl"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );
   }
 
   const { ticket, replies } = ticketData;
+  const statusConfig = getStatusConfig(ticket.status);
+  const priorityConfig = getPriorityConfig(ticket.priority);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
-      {/* Navigation */}
-      <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#00D4FF] rounded-lg flex items-center justify-center">
-              <span className="text-[#0A0E1A] font-bold text-sm">?</span>
-            </div>
-            <span className="text-white font-bold">Help Desk</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/helpdesk/dashboard")}
-            className="border-gray-700 text-gray-400 hover:text-white"
-          >
-            ← Back to Dashboard
-          </Button>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
+      <HelpdeskNav />
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Ticket Header */}
-        <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6 mb-6">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-2">#{ticket.id} - {ticket.title}</h1>
-              <p className="text-gray-400">Created {new Date(ticket.createdAt).toLocaleDateString()}</p>
+        {/* Back button */}
+        <button
+          onClick={() => navigate("/helpdesk/dashboard")}
+          className="flex items-center gap-1.5 text-gray-400 hover:text-[#00D4FF] text-sm mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </button>
+
+        {/* Ticket Header Card */}
+        <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-5">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-gray-500 text-xs font-mono">TICKET #{ticket.id}</span>
+              </div>
+              <h1 className="text-xl md:text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                {ticket.title}
+              </h1>
             </div>
-            <div className="text-right">
-              <span className={`px-3 py-1 rounded-full text-sm font-semibold border ${getStatusColor(ticket.status)}`}>
-                {ticket.status.replace("_", " ").toUpperCase()}
-              </span>
-            </div>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+              {statusConfig.icon}
+              {statusConfig.label}
+            </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-700">
-            <div>
-              <p className="text-gray-500 text-sm">Priority</p>
-              <p className={`font-semibold ${getPriorityColor(ticket.priority)}`}>
-                {ticket.priority.toUpperCase()}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">Category</p>
-              <p className="text-white font-semibold">
-                {ticket.category.replace("_", " ").toUpperCase()}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">Last Updated</p>
-              <p className="text-white font-semibold">
-                {new Date(ticket.updatedAt).toLocaleDateString()}
-              </p>
-            </div>
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-5 border-t border-gray-800/60">
+            <MetaItem
+              icon={<Zap className="w-4 h-4" />}
+              label="Priority"
+              value={
+                <span className={`flex items-center gap-1.5 font-semibold ${priorityConfig.text}`}>
+                  <span className={`w-2 h-2 rounded-full ${priorityConfig.dot}`}></span>
+                  {priorityConfig.label}
+                </span>
+              }
+            />
+            <MetaItem
+              icon={<Tag className="w-4 h-4" />}
+              label="Category"
+              value={<span className="text-white font-medium capitalize">{ticket.category.replace(/_/g, " ")}</span>}
+            />
+            <MetaItem
+              icon={<Clock className="w-4 h-4" />}
+              label="Created"
+              value={<span className="text-white font-medium">{new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
+            />
+            <MetaItem
+              icon={<Clock className="w-4 h-4" />}
+              label="Last Updated"
+              value={<span className="text-white font-medium">{new Date(ticket.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
+            />
           </div>
         </div>
 
         {/* Description */}
-        <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-white font-semibold mb-4">Description</h2>
-          <p className="text-gray-300 whitespace-pre-wrap">{ticket.description}</p>
+        <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6 mb-6">
+          <h2 className="text-white font-bold text-sm mb-3 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <MessageSquare className="w-4 h-4 text-[#00D4FF]" />
+            Description
+          </h2>
+          <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
         </div>
 
-        {/* Conversation */}
-        <div className="space-y-4 mb-6">
-          <h2 className="text-white font-semibold">Conversation</h2>
+        {/* Conversation Thread */}
+        <div className="mb-6">
+          <h2 className="text-white font-bold text-sm mb-4 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <MessageSquare className="w-4 h-4 text-[#00D4FF]" />
+            Conversation
+            {replies && replies.length > 0 && (
+              <span className="text-xs text-gray-500 font-normal ml-1">({replies.length} {replies.length === 1 ? "reply" : "replies"})</span>
+            )}
+          </h2>
+
           {replies && replies.length > 0 ? (
-            replies.map((reply: any) => (
-              <div
-                key={reply.id}
-                className={`border rounded-lg p-4 ${
-                  reply.isStaffReply
-                    ? "bg-[#1a2332] border-[#00D4FF]/30"
-                    : "bg-[#141B2D] border-gray-800"
-                }`}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <p className="text-white font-semibold">
-                    {reply.isStaffReply ? "🔧 Support Team" : "You"}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    {new Date(reply.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                <p className="text-gray-300 whitespace-pre-wrap">{reply.message}</p>
-              </div>
-            ))
+            <div className="space-y-4">
+              {replies.map((reply: any) => {
+                const isStaff = reply.isStaffReply;
+                return (
+                  <div
+                    key={reply.id}
+                    className={`rounded-xl p-5 border ${
+                      isStaff
+                        ? "bg-[#0D1B2A] border-[#00D4FF]/15"
+                        : "bg-[#141B2D]/60 border-gray-800/40"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isStaff
+                          ? "bg-gradient-to-br from-[#00D4FF] to-[#0088AA]"
+                          : "bg-gray-700"
+                      }`}>
+                        {isStaff ? (
+                          <Shield className="w-4 h-4 text-[#0A0E1A]" />
+                        ) : (
+                          <User className="w-4 h-4 text-gray-300" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-semibold text-sm ${isStaff ? "text-[#00D4FF]" : "text-white"}`}>
+                              {isStaff ? "GigitekAI Support" : "You"}
+                            </span>
+                            {isStaff && (
+                              <span className="px-1.5 py-0.5 bg-[#00D4FF]/10 text-[#00D4FF] text-[10px] font-bold rounded uppercase tracking-wider">
+                                Staff
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {new Date(reply.createdAt).toLocaleString("en-US", {
+                              month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">{reply.message}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-4 text-center">
-              <p className="text-gray-400">No replies yet. Support team will respond soon.</p>
+            <div className="bg-[#141B2D]/40 border border-gray-800/30 rounded-xl p-8 text-center">
+              <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-400 text-sm">No replies yet</p>
+              <p className="text-gray-500 text-xs mt-1">Our support team will respond shortly.</p>
             </div>
           )}
         </div>
 
         {/* Reply Form */}
-        {ticket.status !== "closed" && (
-          <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6">
-            <h2 className="text-white font-semibold mb-4">Add Reply</h2>
+        {ticket.status !== "closed" ? (
+          <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6">
+            <h2 className="text-white font-bold text-sm mb-3 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <Send className="w-4 h-4 text-[#00D4FF]" />
+              Reply
+            </h2>
             <form onSubmit={handleAddReply} className="space-y-4">
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your reply here..."
+                placeholder="Type your reply..."
                 rows={4}
-                className="w-full bg-[#0A0E1A] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-[#00D4FF] focus:outline-none transition resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    handleAddReply(e);
+                  }
+                }}
+                className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
               />
-              <Button
-                type="submit"
-                disabled={addReplyMutation.isPending || !replyText.trim()}
-                className="bg-[#00D4FF] hover:bg-[#00B8CC] text-[#0A0E1A] font-semibold"
-              >
-                {addReplyMutation.isPending ? "Sending..." : "Send Reply"}
-              </Button>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-600">Press Ctrl+Enter to send</p>
+                <Button
+                  type="submit"
+                  disabled={addReplyMutation.isPending || !replyText.trim()}
+                  className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl shadow-lg shadow-[#00D4FF]/15"
+                >
+                  {addReplyMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  {addReplyMutation.isPending ? "Sending..." : "Send Reply"}
+                </Button>
+              </div>
             </form>
+          </div>
+        ) : (
+          <div className="bg-[#141B2D]/40 border border-gray-800/30 rounded-xl p-6 text-center">
+            <CheckCircle2 className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-400 text-sm font-medium">This ticket is closed</p>
+            <p className="text-gray-500 text-xs mt-1">Create a new ticket if you need further assistance.</p>
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-1">
+        {icon}
+        {label}
+      </div>
+      {value}
     </div>
   );
 }

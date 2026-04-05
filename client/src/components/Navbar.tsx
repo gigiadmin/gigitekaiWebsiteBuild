@@ -6,7 +6,7 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 
 const services = [
@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="w-full bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-400 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
           <span className="text-[#00D4FF] font-medium">
-            🚀 GigitekAI — Powering the Next Generation of Enterprise Technology
+            GigitekAI — Powering the Next Generation of Enterprise Technology
           </span>
           <div className="flex items-center gap-6">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
@@ -106,7 +106,6 @@ export default function Navbar() {
               { label: "Industries", href: "#industries" },
               { label: "About Us", href: "/about" },
               { label: "Insights", href: "/blog" },
-              { label: "Help Desk", href: "/helpdesk" },
             ].map((item) => (
               <a
                 key={item.label}
@@ -117,6 +116,19 @@ export default function Navbar() {
                 {item.label}
               </a>
             ))}
+
+            {/* Standout Help Desk Link */}
+            <a
+              href="/helpdesk"
+              className="helpdesk-nav-link flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ml-1"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              <div className="relative">
+                <LifeBuoy size={18} className="text-[#00D4FF]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              </div>
+              <span>Support</span>
+            </a>
           </div>
 
           {/* CTA */}
@@ -173,7 +185,6 @@ export default function Navbar() {
                 { label: "Industries", href: "#industries" },
                 { label: "About Us", href: "/about" },
                 { label: "Insights", href: "/blog" },
-                { label: "Help Desk", href: "/helpdesk" },
               ].map((item) => (
                 <a
                   key={item.label}
@@ -194,6 +205,17 @@ export default function Navbar() {
                   {item.label}
                 </a>
               ))}
+
+              {/* Mobile Help Desk - Standout */}
+              <a
+                href="/helpdesk"
+                className="flex items-center gap-2 py-2.5 px-3 text-sm font-bold text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-lg mt-2"
+                onClick={() => setMobileOpen(false)}
+              >
+                <LifeBuoy size={18} />
+                <span>Support Center</span>
+                <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              </a>
             </div>
             <div className="pt-2">
               <a

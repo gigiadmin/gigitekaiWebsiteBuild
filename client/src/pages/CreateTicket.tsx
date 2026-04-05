@@ -4,6 +4,34 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import HelpdeskNav from "@/components/HelpdeskNav";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
+  FileText,
+  Info,
+  Loader2,
+  Send,
+  Tag,
+  Zap,
+} from "lucide-react";
+
+const categories = [
+  { value: "general_support", label: "General Support", description: "General questions and assistance", icon: "💬" },
+  { value: "bug_report", label: "Bug Report", description: "Report a software issue or defect", icon: "🐛" },
+  { value: "feature_request", label: "Feature Request", description: "Suggest a new feature or improvement", icon: "💡" },
+  { value: "billing", label: "Billing", description: "Billing, invoices, and payment inquiries", icon: "💳" },
+];
+
+const priorities = [
+  { value: "low", label: "Low", description: "Non-urgent, general inquiry", color: "text-green-400", dot: "bg-green-500", border: "border-green-500/20 hover:border-green-500/40" },
+  { value: "medium", label: "Medium", description: "Standard request, normal response time", color: "text-yellow-400", dot: "bg-yellow-500", border: "border-yellow-500/20 hover:border-yellow-500/40" },
+  { value: "high", label: "High", description: "Urgent, impacts productivity", color: "text-orange-400", dot: "bg-orange-500", border: "border-orange-500/20 hover:border-orange-500/40" },
+  { value: "critical", label: "Critical", description: "System down, immediate attention needed", color: "text-red-400", dot: "bg-red-500", border: "border-red-500/20 hover:border-red-500/40" },
+];
 
 export default function CreateTicket() {
   const { isAuthenticated, loading } = useAuth();
@@ -17,7 +45,9 @@ export default function CreateTicket() {
 
   const createTicketMutation = trpc.helpdesk.createTicket.useMutation({
     onSuccess: () => {
-      toast.success("Ticket created successfully!");
+      toast.success("Ticket created successfully!", {
+        description: "Our support team will review your request shortly.",
+      });
       navigate("/helpdesk/dashboard");
     },
     onError: (error: any) => {
@@ -33,134 +63,179 @@ export default function CreateTicket() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.title.length < 5) {
+      toast.error("Title must be at least 5 characters");
+      return;
+    }
+    if (formData.description.length < 10) {
+      toast.error("Description must be at least 10 characters");
+      return;
+    }
     createTicketMutation.mutate(formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
-        </div>
+        <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
-      {/* Navigation */}
-      <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#00D4FF] rounded-lg flex items-center justify-center">
-              <span className="text-[#0A0E1A] font-bold text-sm">?</span>
-            </div>
-            <span className="text-white font-bold">Help Desk</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
+      <HelpdeskNav />
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <button
             onClick={() => navigate("/helpdesk/dashboard")}
-            className="border-gray-700 text-gray-400 hover:text-white"
+            className="flex items-center gap-1.5 text-gray-400 hover:text-[#00D4FF] text-sm mb-4 transition-colors"
           >
-            ← Back to Dashboard
-          </Button>
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
+          </button>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Create Support Ticket
+          </h1>
+          <p className="text-gray-400 text-sm">
+            Describe your issue in detail so our team can assist you effectively.
+          </p>
         </div>
-      </nav>
 
-      {/* Form */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Create New Ticket</h1>
-        <p className="text-gray-400 mb-8">Describe your issue and we'll help you resolve it</p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Category Selection */}
+          <div>
+            <label className="block text-white font-semibold text-sm mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <Tag className="w-4 h-4 inline mr-2 text-[#00D4FF]" />
+              Category
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, category: cat.value as any }))}
+                  className={`text-left p-4 rounded-xl border transition-all ${
+                    formData.category === cat.value
+                      ? "bg-[#00D4FF]/10 border-[#00D4FF]/40 shadow-lg shadow-[#00D4FF]/5"
+                      : "bg-[#141B2D]/60 border-gray-800/60 hover:border-gray-700"
+                  }`}
+                >
+                  <span className="text-xl mb-2 block">{cat.icon}</span>
+                  <p className={`font-semibold text-sm ${formData.category === cat.value ? "text-[#00D4FF]" : "text-white"}`}>
+                    {cat.label}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">{cat.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit} className="bg-[#141B2D] border border-gray-800 rounded-lg p-8 space-y-6">
           {/* Title */}
           <div>
-            <label className="block text-white font-semibold mb-2">Title *</label>
+            <label className="block text-white font-semibold text-sm mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <FileText className="w-4 h-4 inline mr-2 text-[#00D4FF]" />
+              Subject
+            </label>
             <input
               type="text"
               name="title"
               value={formData.title}
-              onChange={handleChange}
-              placeholder="Brief summary of your issue"
+              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="Brief summary of your issue (e.g., 'Unable to access cloud dashboard')"
               required
               minLength={5}
-              className="w-full bg-[#0A0E1A] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-[#00D4FF] focus:outline-none transition"
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
             />
-            <p className="text-gray-500 text-xs mt-1">Minimum 5 characters</p>
+            <p className="text-gray-600 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 5)</p>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-white font-semibold mb-2">Description *</label>
+            <label className="block text-white font-semibold text-sm mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <Info className="w-4 h-4 inline mr-2 text-[#00D4FF]" />
+              Description
+            </label>
             <textarea
               name="description"
               value={formData.description}
-              onChange={handleChange}
-              placeholder="Provide detailed information about your issue"
+              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              placeholder="Please provide detailed information about your issue:&#10;&#10;1. What were you trying to do?&#10;2. What happened instead?&#10;3. Any error messages you saw?&#10;4. Steps to reproduce the issue"
               required
               minLength={10}
-              rows={6}
-              className="w-full bg-[#0A0E1A] border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-[#00D4FF] focus:outline-none transition resize-none"
+              rows={8}
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
             />
-            <p className="text-gray-500 text-xs mt-1">Minimum 10 characters</p>
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-white font-semibold mb-2">Category *</label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full bg-[#0A0E1A] border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-[#00D4FF] focus:outline-none transition"
-            >
-              <option value="general_support">General Support</option>
-              <option value="bug_report">Bug Report</option>
-              <option value="feature_request">Feature Request</option>
-              <option value="billing">Billing</option>
-            </select>
+            <p className="text-gray-600 text-xs mt-1.5">{formData.description.length} characters (minimum 10)</p>
           </div>
 
           {/* Priority */}
           <div>
-            <label className="block text-white font-semibold mb-2">Priority *</label>
-            <select
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-              className="w-full bg-[#0A0E1A] border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-[#00D4FF] focus:outline-none transition"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
+            <label className="block text-white font-semibold text-sm mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <Zap className="w-4 h-4 inline mr-2 text-[#00D4FF]" />
+              Priority Level
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {priorities.map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, priority: p.value as any }))}
+                  className={`text-left p-3 rounded-xl border transition-all ${
+                    formData.priority === p.value
+                      ? `bg-[#141B2D] ${p.border.split(" ")[0]} border-2 shadow-lg`
+                      : `bg-[#141B2D]/60 border-gray-800/60 hover:border-gray-700`
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-2.5 h-2.5 rounded-full ${p.dot}`}></span>
+                    <span className={`font-semibold text-sm ${formData.priority === p.value ? p.color : "text-gray-300"}`}>
+                      {p.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">{p.description}</p>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-4 pt-4">
+          {/* Info Banner */}
+          <div className="flex items-start gap-3 p-4 bg-[#00D4FF]/5 border border-[#00D4FF]/15 rounded-xl">
+            <Info className="w-5 h-5 text-[#00D4FF] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-gray-300 font-medium">What happens next?</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Our support team will review your ticket and respond within 2 business hours for standard requests. Critical issues receive priority attention.
+              </p>
+            </div>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-3 pt-2">
             <Button
               type="submit"
               disabled={createTicketMutation.isPending}
-              className="flex-1 bg-[#00D4FF] hover:bg-[#00B8CC] text-[#0A0E1A] font-semibold"
+              className="flex-1 bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl py-6 shadow-lg shadow-[#00D4FF]/15 hover:shadow-[#00D4FF]/30 transition-all"
             >
-              {createTicketMutation.isPending ? "Creating..." : "Create Ticket"}
+              {createTicketMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Submit Ticket
+                </>
+              )}
             </Button>
             <Button
               type="button"
               onClick={() => navigate("/helpdesk/dashboard")}
               variant="outline"
-              className="flex-1 border-gray-700 text-gray-400 hover:text-white"
+              className="border-gray-700 text-gray-400 hover:text-white rounded-xl py-6 px-6"
             >
               Cancel
             </Button>

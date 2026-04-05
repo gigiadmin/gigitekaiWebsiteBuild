@@ -2,14 +2,34 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
+import HelpdeskNav from "@/components/HelpdeskNav";
+import {
+  AlertCircle,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
+  Clock,
+  Eye,
+  Filter,
+  Loader2,
+  Search,
+  Ticket,
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react";
+
+type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
 
 export default function AdminPanel() {
   const { user, isAuthenticated, loading, logout } = useAuth();
   const [, navigate] = useLocation();
-  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [newStatus, setNewStatus] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
@@ -18,7 +38,6 @@ export default function AdminPanel() {
   const updateStatusMutation = trpc.helpdesk.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Ticket status updated!");
-      setSelectedTicketId(null);
       refetch();
     },
     onError: (error: any) => {
@@ -32,195 +51,261 @@ export default function AdminPanel() {
     }
   }, [isAuthenticated, loading, user, navigate]);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/helpdesk");
-  };
+  // Filtered tickets
+  const filteredTickets = useMemo(() => {
+    if (!allTickets) return [];
+    return allTickets.filter((t: any) => {
+      const matchesSearch = searchQuery === "" ||
+        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        `#${t.id}`.includes(searchQuery);
+      const matchesStatus = statusFilter === "all" || t.status === statusFilter;
+      const matchesPriority = priorityFilter === "all" || t.priority === priorityFilter;
+      return matchesSearch && matchesStatus && matchesPriority;
+    });
+  }, [allTickets, searchQuery, statusFilter, priorityFilter]);
+
+  // Stats
+  const stats = useMemo(() => {
+    if (!allTickets) return { total: 0, open: 0, inProgress: 0, resolved: 0, closed: 0, critical: 0 };
+    return {
+      total: allTickets.length,
+      open: allTickets.filter((t: any) => t.status === "open").length,
+      inProgress: allTickets.filter((t: any) => t.status === "in_progress").length,
+      resolved: allTickets.filter((t: any) => t.status === "resolved").length,
+      closed: allTickets.filter((t: any) => t.status === "closed").length,
+      critical: allTickets.filter((t: any) => t.priority === "critical" && t.status !== "closed").length,
+    };
+  }, [allTickets]);
 
   const handleUpdateStatus = (ticketId: number, status: string) => {
     updateStatusMutation.mutate({ ticketId, status: status as any });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "open":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "in_progress":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-      case "resolved":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "closed":
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-      default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-    }
+  const getStatusConfig = (status: string) => {
+    const configs: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode; label: string }> = {
+      open: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20", icon: <CircleDot className="w-3 h-3" />, label: "Open" },
+      in_progress: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20", icon: <Loader2 className="w-3 h-3" />, label: "In Progress" },
+      resolved: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", icon: <CheckCircle2 className="w-3 h-3" />, label: "Resolved" },
+      closed: { bg: "bg-gray-500/10", text: "text-gray-400", border: "border-gray-500/20", icon: <CheckCircle2 className="w-3 h-3" />, label: "Closed" },
+    };
+    return configs[status] || configs.closed;
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "low":
-        return "text-green-400";
-      case "medium":
-        return "text-yellow-400";
-      case "high":
-        return "text-orange-400";
-      case "critical":
-        return "text-red-400";
-      default:
-        return "text-gray-400";
-    }
+  const getPriorityConfig = (priority: string) => {
+    const configs: Record<string, { dot: string; text: string; label: string }> = {
+      low: { dot: "bg-green-500", text: "text-green-400", label: "Low" },
+      medium: { dot: "bg-yellow-500", text: "text-yellow-400", label: "Medium" },
+      high: { dot: "bg-orange-500", text: "text-orange-400", label: "High" },
+      critical: { dot: "bg-red-500", text: "text-red-400", label: "Critical" },
+    };
+    return configs[priority] || configs.medium;
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
-        </div>
+        <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
-      {/* Navigation */}
-      <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#00D4FF] rounded-lg flex items-center justify-center">
-              <span className="text-[#0A0E1A] font-bold text-sm">⚙️</span>
-            </div>
-            <span className="text-white font-bold">Admin Panel</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-400">{user?.name} (Admin)</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="border-gray-700 text-gray-400 hover:text-white"
-            >
-              Logout
-            </Button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
+      <HelpdeskNav isAdmin />
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+        {/* Admin Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">All Support Tickets</h1>
-          <p className="text-gray-400">Manage and respond to customer support tickets</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Support Administration
+          </h1>
+          <p className="text-gray-400 text-sm">Manage all customer support tickets and communications</p>
+        </div>
+
+        {/* Metrics Dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          <MetricCard label="Total Tickets" value={stats.total} icon={<Ticket className="w-5 h-5" />} color="text-white" onClick={() => setStatusFilter("all")} active={statusFilter === "all"} />
+          <MetricCard label="Open" value={stats.open} icon={<CircleDot className="w-5 h-5" />} color="text-blue-400" onClick={() => setStatusFilter("open")} active={statusFilter === "open"} />
+          <MetricCard label="In Progress" value={stats.inProgress} icon={<Clock className="w-5 h-5" />} color="text-amber-400" onClick={() => setStatusFilter("in_progress")} active={statusFilter === "in_progress"} />
+          <MetricCard label="Resolved" value={stats.resolved} icon={<CheckCircle2 className="w-5 h-5" />} color="text-emerald-400" onClick={() => setStatusFilter("resolved")} active={statusFilter === "resolved"} />
+          <MetricCard label="Closed" value={stats.closed} icon={<AlertCircle className="w-5 h-5" />} color="text-gray-400" onClick={() => setStatusFilter("closed")} active={statusFilter === "closed"} />
+          <MetricCard label="Critical" value={stats.critical} icon={<Zap className="w-5 h-5" />} color="text-red-400" highlight onClick={() => { setStatusFilter("all"); setPriorityFilter("critical"); }} active={priorityFilter === "critical"} />
+        </div>
+
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search by ticket ID or title..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+            />
+          </div>
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
+          >
+            <option value="all">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
         </div>
 
         {/* Tickets Table */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00D4FF] mx-auto mb-4"></div>
+          <div className="text-center py-16">
+            <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin mx-auto mb-4" />
             <p className="text-gray-400">Loading tickets...</p>
           </div>
+        ) : filteredTickets.length > 0 ? (
+          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden">
+            {/* Table Header */}
+            <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_160px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider">
+              <span>ID</span>
+              <span>Title</span>
+              <span>Status</span>
+              <span>Priority</span>
+              <span>Category</span>
+              <span>Created</span>
+              <span>Actions</span>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-gray-800/40">
+              {filteredTickets.map((ticket: any) => {
+                const statusConfig = getStatusConfig(ticket.status);
+                const priorityConfig = getPriorityConfig(ticket.priority);
+                return (
+                  <div
+                    key={ticket.id}
+                    className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_160px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center"
+                  >
+                    {/* ID */}
+                    <span className="text-gray-500 text-sm font-mono">#{ticket.id}</span>
+
+                    {/* Title */}
+                    <div className="min-w-0 my-2 md:my-0">
+                      <p className="text-white text-sm font-medium truncate group-hover:text-[#00D4FF] transition-colors">
+                        {ticket.title}
+                      </p>
+                    </div>
+
+                    {/* Status */}
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border w-fit ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                      {statusConfig.icon}
+                      {statusConfig.label}
+                    </span>
+
+                    {/* Priority */}
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${priorityConfig.text}`}>
+                      <span className={`w-2 h-2 rounded-full ${priorityConfig.dot}`}></span>
+                      {priorityConfig.label}
+                    </span>
+
+                    {/* Category */}
+                    <span className="text-xs text-gray-500 capitalize">
+                      {ticket.category.replace(/_/g, " ")}
+                    </span>
+
+                    {/* Created */}
+                    <span className="text-xs text-gray-500">
+                      {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 mt-2 md:mt-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2.5 rounded-lg"
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        View
+                      </Button>
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
+                        className="bg-[#0A0E1A] border border-gray-700 rounded-lg px-2 py-1 text-white text-xs focus:border-[#00D4FF]/50 focus:outline-none h-7 min-w-[100px]"
+                      >
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Table Footer */}
+            <div className="px-5 py-3 border-t border-gray-800/60 flex items-center justify-between">
+              <span className="text-xs text-gray-500">
+                Showing {filteredTickets.length} of {allTickets?.length || 0} tickets
+              </span>
+              {(searchQuery || statusFilter !== "all" || priorityFilter !== "all") && (
+                <button
+                  onClick={() => { setSearchQuery(""); setStatusFilter("all"); setPriorityFilter("all"); }}
+                  className="text-xs text-[#00D4FF] hover:underline"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          </div>
         ) : allTickets && allTickets.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-800">
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">ID</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Title</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Status</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Priority</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Category</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Created</th>
-                  <th className="px-4 py-3 text-left text-gray-400 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allTickets.map((ticket: any) => (
-                  <tr key={ticket.id} className="border-b border-gray-800 hover:bg-[#141B2D]/50 transition">
-                    <td className="px-4 py-3 text-white font-semibold">#{ticket.id}</td>
-                    <td className="px-4 py-3 text-white max-w-xs truncate">{ticket.title}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold border ${getStatusColor(ticket.status)}`}>
-                        {ticket.status.replace("_", " ").toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`font-semibold text-sm ${getPriorityColor(ticket.priority)}`}>
-                        {ticket.priority.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-400 text-sm">
-                      {ticket.category.replace("_", " ").toUpperCase()}
-                    </td>
-                    <td className="px-4 py-3 text-gray-400 text-sm">
-                      {new Date(ticket.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                          className="border-gray-700 text-gray-400 hover:text-white text-xs"
-                        >
-                          View
-                        </Button>
-                        <select
-                          value={selectedTicketId === ticket.id ? newStatus : ticket.status}
-                          onChange={(e) => {
-                            setSelectedTicketId(ticket.id);
-                            setNewStatus(e.target.value);
-                            handleUpdateStatus(ticket.id, e.target.value);
-                          }}
-                          className="bg-[#0A0E1A] border border-gray-700 rounded px-2 py-1 text-white text-xs focus:border-[#00D4FF] focus:outline-none"
-                        >
-                          <option value="open">Open</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="resolved">Resolved</option>
-                          <option value="closed">Closed</option>
-                        </select>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-12 text-center">
+            <Search className="w-10 h-10 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-white font-semibold text-lg mb-2">No matching tickets</h3>
+            <p className="text-gray-400 text-sm mb-4">Try adjusting your search or filters</p>
+            <Button
+              variant="outline"
+              onClick={() => { setSearchQuery(""); setStatusFilter("all"); setPriorityFilter("all"); }}
+              className="border-gray-700 text-gray-400 hover:text-white"
+            >
+              Clear Filters
+            </Button>
           </div>
         ) : (
-          <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-12 text-center">
-            <p className="text-gray-400">No tickets found</p>
-          </div>
-        )}
-
-        {/* Stats */}
-        {allTickets && (
-          <div className="grid grid-cols-4 gap-4 mt-8">
-            <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Total Tickets</p>
-              <p className="text-2xl font-bold text-white">{allTickets.length}</p>
-            </div>
-            <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Open</p>
-              <p className="text-2xl font-bold text-blue-400">
-                {allTickets.filter((t: any) => t.status === "open").length}
-              </p>
-            </div>
-            <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">In Progress</p>
-              <p className="text-2xl font-bold text-yellow-400">
-                {allTickets.filter((t: any) => t.status === "in_progress").length}
-              </p>
-            </div>
-            <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-4">
-              <p className="text-gray-400 text-sm">Resolved</p>
-              <p className="text-2xl font-bold text-green-400">
-                {allTickets.filter((t: any) => t.status === "resolved").length}
-              </p>
-            </div>
+          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-16 text-center">
+            <Ticket className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-white font-bold text-xl mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              No tickets yet
+            </h3>
+            <p className="text-gray-400 text-sm">Tickets will appear here once users submit support requests.</p>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function MetricCard({
+  label, value, icon, color, onClick, active, highlight = false
+}: {
+  label: string; value: number; icon: React.ReactNode; color: string; onClick: () => void; active: boolean; highlight?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`text-left p-4 rounded-xl border transition-all ${
+        active
+          ? `bg-[#141B2D] border-[#00D4FF]/30 shadow-lg shadow-[#00D4FF]/5`
+          : highlight && value > 0
+            ? "bg-red-500/5 border-red-500/15 hover:border-red-500/30"
+            : "bg-[#141B2D]/40 border-gray-800/40 hover:border-gray-700"
+      }`}
+    >
+      <div className={`${color} mb-2`}>{icon}</div>
+      <p className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{value}</p>
+      <p className="text-xs text-gray-400 mt-0.5">{label}</p>
+    </button>
   );
 }

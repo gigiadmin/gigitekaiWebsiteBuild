@@ -3,6 +3,18 @@ import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import {
+  LifeBuoy,
+  Ticket,
+  Clock,
+  MessageSquare,
+  Shield,
+  Zap,
+  ArrowRight,
+  CheckCircle2,
+  Home,
+  Headphones,
+} from "lucide-react";
 
 export default function HelpDesk() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -26,77 +38,110 @@ export default function HelpDesk() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
       {/* Navigation */}
-      <nav className="border-b border-gray-800 bg-[#0A0E1A]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#00D4FF] rounded-lg flex items-center justify-center">
-              <span className="text-[#0A0E1A] font-bold text-sm">?</span>
-            </div>
-            <span className="text-white font-bold">GigitekAI Help Desk</span>
+      <nav className="border-b border-[rgba(0,212,255,0.15)] bg-[#0A0E1A]/95 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <a href="/helpdesk" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#00D4FF] to-[#0088AA] rounded-xl flex items-center justify-center shadow-lg shadow-[#00D4FF]/20">
+                <LifeBuoy className="w-5 h-5 text-[#0A0E1A]" strokeWidth={2.5} />
+              </div>
+              <div>
+                <span className="text-white font-bold text-lg block leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Support Center
+                </span>
+                <span className="text-[#00D4FF] text-xs font-medium">GigitekAI</span>
+              </div>
+            </a>
+            <a
+              href="/"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-all"
+            >
+              <Home className="w-3.5 h-3.5" />
+              GigitekAI.com
+            </a>
           </div>
-          <a href="/" className="text-gray-400 hover:text-white transition">Back to Site</a>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Help Desk Support
-          </h1>
-          <p className="text-xl text-gray-400 mb-8">
-            Get help from our support team. Create tickets, track your requests, and get quick resolutions.
-          </p>
-        </div>
+      <div className="relative overflow-hidden">
+        {/* Background grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(0,212,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.3) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
+        }}></div>
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6 hover:border-[#00D4FF] transition">
-            <div className="w-12 h-12 bg-[#00D4FF]/10 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-[#00D4FF] text-xl">📋</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-full text-[#00D4FF] text-sm font-medium mb-6">
+              <Headphones className="w-4 h-4" />
+              Enterprise-Grade Support
             </div>
-            <h3 className="text-white font-semibold mb-2">Create Tickets</h3>
-            <p className="text-gray-400 text-sm">
-              Submit support requests with priority levels and categories for faster resolution.
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              How Can We <span className="text-[#00D4FF]">Help</span> You?
+            </h1>
+            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Our dedicated support team is here to ensure your technology infrastructure runs seamlessly. Create tickets, track progress, and get expert resolution.
             </p>
+            <a href={getLoginUrl()}>
+              <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-all">
+                Sign In to Support Center
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </a>
           </div>
 
-          <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6 hover:border-[#00D4FF] transition">
-            <div className="w-12 h-12 bg-[#00D4FF]/10 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-[#00D4FF] text-xl">👁️</span>
-            </div>
-            <h3 className="text-white font-semibold mb-2">Track Progress</h3>
-            <p className="text-gray-400 text-sm">
-              Monitor your ticket status in real-time and see updates from our support team.
-            </p>
+          {/* Feature Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-16">
+            <FeatureCard
+              icon={<Ticket className="w-6 h-6" />}
+              title="Ticket Management"
+              description="Create, track, and manage support tickets with priority levels, categories, and SLA tracking."
+            />
+            <FeatureCard
+              icon={<Clock className="w-6 h-6" />}
+              title="Real-Time Updates"
+              description="Get instant notifications on ticket status changes and responses from our support engineers."
+            />
+            <FeatureCard
+              icon={<MessageSquare className="w-6 h-6" />}
+              title="Direct Communication"
+              description="Engage in threaded conversations with our support team for faster issue resolution."
+            />
           </div>
 
-          <div className="bg-[#141B2D] border border-gray-800 rounded-lg p-6 hover:border-[#00D4FF] transition">
-            <div className="w-12 h-12 bg-[#00D4FF]/10 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-[#00D4FF] text-xl">💬</span>
-            </div>
-            <h3 className="text-white font-semibold mb-2">Direct Communication</h3>
-            <p className="text-gray-400 text-sm">
-              Communicate directly with our support team through ticket replies and updates.
-            </p>
+          {/* Trust Indicators */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <TrustBadge icon={<Shield className="w-5 h-5" />} label="SOC 2 Compliant" />
+            <TrustBadge icon={<Zap className="w-5 h-5" />} label="< 2hr Response" />
+            <TrustBadge icon={<CheckCircle2 className="w-5 h-5" />} label="99.9% Uptime" />
+            <TrustBadge icon={<Headphones className="w-5 h-5" />} label="24/7 Support" />
           </div>
-        </div>
-
-        {/* CTA */}
-        <div className="bg-[#141B2D] border border-[#00D4FF]/30 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Ready to get support?</h2>
-          <p className="text-gray-400 mb-6">
-            Sign in with your account to access the help desk and create your first ticket.
-          </p>
-          <a href={getLoginUrl()}>
-            <Button size="lg" className="bg-[#00D4FF] hover:bg-[#00B8CC] text-[#0A0E1A] font-semibold">
-              Sign In to Help Desk
-            </Button>
-          </a>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-6 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
+      <div className="w-12 h-12 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-4 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
+        {icon}
+      </div>
+      <h3 className="text-white font-bold text-lg mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{title}</h3>
+      <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function TrustBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-2 px-4 py-3 bg-[#141B2D]/60 border border-gray-800/50 rounded-lg">
+      <span className="text-[#00D4FF]">{icon}</span>
+      <span className="text-gray-300 text-sm font-medium">{label}</span>
     </div>
   );
 }

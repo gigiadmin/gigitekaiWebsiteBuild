@@ -393,3 +393,17 @@
   font-weight: 600;
   font-family: 'Space Grotesk', sans-serif;
 }
+
+/* Standout Help Desk Nav Link */
+.helpdesk-nav-link {
+  color: #00D4FF;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+}
+
+.helpdesk-nav-link:hover {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.2), inset 0 0 8px rgba(0, 212, 255, 0.05);
+  transform: translateY(-1px);
+}
