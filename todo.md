@@ -234,3 +234,6 @@
 - [x] Frontend sends structured consent fields to backend (no longer packed into interest string)
 - [x] Owner notification includes contact preferences summary
 - [x] Added 3 new consent field tests (106 total tests, all passing)
+
+## Database Cleanup Round 2
+- [x] Remove all 80 test tickets from the database (new batch appeared after previous cleanup)
