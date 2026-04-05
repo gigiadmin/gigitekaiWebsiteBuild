@@ -138,12 +138,12 @@ export default function Navbar() {
 
           {/* CTA + Notifications + Theme Toggle */}
           <div className="hidden lg:flex items-center gap-2">
-            {/* Admin Portal Bell */}
+            {/* Notifications Bell */}
             <a
-              href="/admin"
+              href="/admin/notifications"
               className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all relative"
-              title="Admin Portal"
-              aria-label="Admin Portal"
+              title="View notifications"
+              aria-label="Notifications"
             >
               <Bell size={18} />
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>

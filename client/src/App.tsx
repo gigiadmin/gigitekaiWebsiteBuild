@@ -12,7 +12,9 @@ import HelpDesk from "./pages/HelpDesk";
 import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
-import AdminPortal from "./pages/AdminPortal";
+import AdminPanel from "./pages/AdminPanel";
+import AdminChat from "./pages/AdminChat";
+import AdminNotifications from "./pages/AdminNotifications";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AIChatWidget from "./components/AIChatWidget";
@@ -33,10 +35,9 @@ function Router() {
       <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
-      <Route path={"/admin"} component={AdminPortal} />
-      <Route path={"/admin/helpdesk"} component={AdminPortal} />
-      <Route path={"/admin/chat"} component={AdminPortal} />
-      <Route path={"/admin/notifications"} component={AdminPortal} />
+      <Route path={"/admin/helpdesk"} component={AdminPanel} />
+      <Route path={"/admin/chat"} component={AdminChat} />
+      <Route path={"/admin/notifications"} component={AdminNotifications} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
