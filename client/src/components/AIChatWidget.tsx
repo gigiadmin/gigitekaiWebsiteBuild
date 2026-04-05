@@ -641,35 +641,40 @@ export default function AIChatWidget() {
           {/* ── Input Area ─────────────────────────────────────────────────── */}
           {!showLeadForm && (
             <div className="border-t border-[rgba(0,212,255,0.1)] p-3 bg-[#0D1525] md:rounded-b-2xl flex-shrink-0">
-              {/* Quick reply chips when conversation is active */}
+              {/* Back to Menu - prominent standalone button */}
               {hasInteracted && messages.length > 0 && !isLoading && !showMenu && (
-                <div className="flex gap-1.5 mb-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="mb-2 space-y-2">
+                  {/* Large Menu Button */}
                   <button
                     onClick={handleBackToMenu}
-                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-gradient-to-r from-[#00D4FF]/10 to-purple-500/10 text-[#00D4FF] border border-[#00D4FF]/25 hover:border-[#00D4FF]/50 hover:bg-[#00D4FF]/15 transition-colors font-medium flex items-center gap-1"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#00D4FF]/15 to-purple-500/15 border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:from-[#00D4FF]/25 hover:to-purple-500/25 active:scale-[0.98] transition-all duration-200"
                     title="Back to main menu"
                   >
-                    <Home size={11} />
-                    Menu
+                    <Home size={16} className="text-[#00D4FF]" />
+                    <span className="text-sm font-semibold text-[#00D4FF]">Back to Menu</span>
                   </button>
-                  <button
-                    onClick={() => sendQuickMessage("Tell me about your pricing")}
-                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
-                  >
-                    Pricing
-                  </button>
-                  <button
-                    onClick={() => sendQuickMessage("I'd like to schedule a consultation")}
-                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
-                  >
-                    Schedule Call
-                  </button>
-                  <button
-                    onClick={() => handleEscalate("User wants to talk to support")}
-                    className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
-                  >
-                    Talk to Human
-                  </button>
+
+                  {/* Quick reply chips */}
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+                    <button
+                      onClick={() => sendQuickMessage("Tell me about your pricing")}
+                      className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                    >
+                      Pricing
+                    </button>
+                    <button
+                      onClick={() => sendQuickMessage("I'd like to schedule a consultation")}
+                      className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                    >
+                      Schedule Call
+                    </button>
+                    <button
+                      onClick={() => handleEscalate("User wants to talk to support")}
+                      className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                    >
+                      Talk to Human
+                    </button>
+                  </div>
                 </div>
               )}
 
