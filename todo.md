@@ -292,3 +292,9 @@
 - [x] PWAInstallBanner component with install/dismiss UI
 - [x] Apple-specific meta tags (apple-mobile-web-app-capable, apple-touch-icon)
 - [x] theme-color meta tag matching brand color (#0A0E1A)
+
+## AI Chatbot Save/Email Chat Feature (April 2026)
+- [x] Add "Save Chat" button to AI chatbot - downloads conversation as text file
+- [x] Add "Email Chat" button to AI chatbot - emails conversation transcript to user's email
+- [x] Backend endpoint for formatting and emailing chat transcripts
+- [x] Tests for save and email chat functionality

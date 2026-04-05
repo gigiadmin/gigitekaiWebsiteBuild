@@ -51,6 +51,12 @@ vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
+// Mock the email module
+const mockSendEmail = vi.fn().mockResolvedValue(true);
+vi.mock("./_core/email", () => ({
+  sendEmail: (...args: any[]) => mockSendEmail(...args),
+}));
+
 // Mock the LLM module
 vi.mock("./_core/llm", () => ({
   invokeLLM: vi.fn(async () => ({
@@ -301,5 +307,127 @@ describe("aibot router", () => {
       expect(error).toBeDefined();
       expect(error.code).not.toBe("BAD_REQUEST");
     }
+  });
+});
+
+describe("aibot transcript export & email", () => {
+  it("exportTranscript returns empty for session with no messages", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const result = await caller.exportTranscript({ sessionId: "nonexistent-session" });
+    expect(result.transcript).toBe("");
+    expect(result.messageCount).toBe(0);
+  });
+
+  it("exportTranscript returns formatted transcript after messages", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create a session and send a message so there are messages in the mock store
+    const session = await caller.getOrCreateSession({ visitorName: "Export Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "What services do you offer?" });
+
+    const result = await caller.exportTranscript({ sessionId: session.sessionId });
+    expect(result.messageCount).toBeGreaterThanOrEqual(2); // user + assistant
+    expect(result.transcript).toContain("GigitekAI Chat Transcript");
+    expect(result.transcript).toContain("What services do you offer?");
+    expect(result.transcript).toContain("GigitekAI Assistant");
+    expect(result.transcript).toContain("gigitekai.com");
+  });
+
+  it("emailTranscript rejects invalid email", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    try {
+      await caller.emailTranscript({
+        sessionId: "test-session",
+        email: "not-an-email",
+      });
+      expect.fail("Should have thrown validation error");
+    } catch (error: any) {
+      expect(error).toBeDefined();
+    }
+  });
+
+  it("emailTranscript throws when session has no messages", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    try {
+      await caller.emailTranscript({
+        sessionId: "empty-session-for-email",
+        email: "user@example.com",
+      });
+      expect.fail("Should have thrown error for empty session");
+    } catch (error: any) {
+      expect(error.message).toContain("No messages to send");
+    }
+  });
+
+  it("emailTranscript sends email successfully with messages", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create a session and add messages
+    const session = await caller.getOrCreateSession({ visitorName: "Email Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Tell me about cloud migration" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    const result = await caller.emailTranscript({
+      sessionId: session.sessionId,
+      email: "user@example.com",
+      name: "Email Tester",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.message).toContain("user@example.com");
+    expect(mockSendEmail).toHaveBeenCalled();
+
+    // Verify the email payload
+    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
+    expect(lastCall[0].to).toBe("user@example.com");
+    expect(lastCall[0].subject).toContain("GigitekAI Chat Transcript");
+    expect(lastCall[0].html).toContain("GigitekAI");
+  });
+
+  it("emailTranscript throws when email service fails", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create a session and add messages
+    const session = await caller.getOrCreateSession({ visitorName: "Fail Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Test message" });
+
+    mockSendEmail.mockResolvedValueOnce(false);
+
+    try {
+      await caller.emailTranscript({
+        sessionId: session.sessionId,
+        email: "user@example.com",
+      });
+      expect.fail("Should have thrown error when email fails");
+    } catch (error: any) {
+      expect(error.message).toContain("Failed to send email");
+    }
+  });
+
+  it("emailTranscript works without optional name", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    const session = await caller.getOrCreateSession({ visitorName: "No Name Tester" });
+    await caller.sendMessage({ sessionId: session.sessionId, message: "Quick question" });
+
+    mockSendEmail.mockResolvedValueOnce(true);
+
+    const result = await caller.emailTranscript({
+      sessionId: session.sessionId,
+      email: "noname@example.com",
+    });
+
+    expect(result.success).toBe(true);
   });
 });

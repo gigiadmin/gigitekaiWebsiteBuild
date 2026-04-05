@@ -21,6 +21,10 @@ import {
   Bug,
   TicketCheck,
   HelpCircle,
+  Download,
+  MoreVertical,
+  Check,
+  Loader2,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -113,15 +117,21 @@ export default function AIChatWidget() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const actionsMenuRef = useRef<HTMLDivElement>(null);
 
   // tRPC hooks
   const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation();
   const sendMessageMutation = trpc.aibot.sendMessage.useMutation();
   const escalate = trpc.aibot.escalateToHelpDesk.useMutation();
   const captureLead = trpc.aibot.captureLead.useMutation();
+  const emailTranscriptMutation = trpc.aibot.emailTranscript.useMutation();
   const { data: historyData } = trpc.aibot.getHistory.useQuery(
     { sessionId: sessionId || "" },
     { enabled: !!sessionId }
@@ -318,6 +328,83 @@ export default function AIChatWidget() {
     setIsOpen(false);
     setShowLeadForm(false);
     setShowMenu(false);
+    setShowActionsMenu(false);
+    setShowEmailForm(false);
+  };
+
+  // Close actions menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(e.target as Node)) {
+        setShowActionsMenu(false);
+      }
+    };
+    if (showActionsMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showActionsMenu]);
+
+  // ─── Save / Email Chat Handlers ─────────────────────────────────────────────
+
+  const handleSaveChat = () => {
+    if (messages.length === 0) {
+      toast.error("No messages to save");
+      return;
+    }
+    const now = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const header = `GigitekAI Chat Transcript\nDate: ${now}\n${"─".repeat(50)}\n\n`;
+    const body = messages.map((m) => {
+      const sender = m.role === "user" ? "You" : "GigitekAI Assistant";
+      return `${sender}:\n${m.message}\n`;
+    }).join("\n");
+    const footer = `\n${"─".repeat(50)}\nSaved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • support@gigitek.com • 609-676-4483`;
+    const text = header + body + footer;
+
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `GigitekAI-Chat-${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Chat saved!", { description: "Transcript downloaded to your device." });
+    setShowActionsMenu(false);
+  };
+
+  const handleEmailChat = async () => {
+    if (!emailInput.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailInput.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    if (messages.length === 0 || !sessionId) {
+      toast.error("No messages to email");
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      await emailTranscriptMutation.mutateAsync({
+        sessionId,
+        email: emailInput.trim(),
+        name: visitorInfo.name || undefined,
+      });
+      toast.success("Transcript sent!", { description: `Check your inbox at ${emailInput.trim()}` });
+      setShowEmailForm(false);
+      setEmailInput("");
+      setShowActionsMenu(false);
+    } catch {
+      toast.error("Failed to send email", { description: "Please try again or save the chat instead." });
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────────
@@ -378,8 +465,42 @@ export default function AIChatWidget() {
                 </div>
               </div>
 
-              {/* Close / Minimize Buttons */}
+              {/* Actions / Close Buttons */}
               <div className="flex items-center gap-1">
+                {/* Actions menu (three-dot) - only show when there are messages */}
+                {hasInteracted && messages.length > 0 && (
+                  <div className="relative" ref={actionsMenuRef}>
+                    <button
+                      onClick={() => setShowActionsMenu(!showActionsMenu)}
+                      className="flex items-center justify-center w-9 h-9 hover:bg-white/10 rounded-lg transition-colors"
+                      title="Chat options"
+                      aria-label="Chat options"
+                    >
+                      <MoreVertical size={18} className="text-gray-400" />
+                    </button>
+
+                    {/* Dropdown menu */}
+                    {showActionsMenu && (
+                      <div className="absolute right-0 top-full mt-1 w-52 bg-[#151D30] border border-[rgba(0,212,255,0.2)] rounded-xl shadow-xl shadow-black/40 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <button
+                          onClick={handleSaveChat}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#00D4FF]/10 hover:text-white transition-colors"
+                        >
+                          <Download size={16} className="text-[#00D4FF]" />
+                          Save Chat
+                        </button>
+                        <div className="h-px bg-[rgba(0,212,255,0.1)]" />
+                        <button
+                          onClick={() => { setShowEmailForm(true); setShowActionsMenu(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#00D4FF]/10 hover:text-white transition-colors"
+                        >
+                          <Mail size={16} className="text-[#00D4FF]" />
+                          Email Chat
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Minimize - desktop only */}
                 <button
                   onClick={handleClose}
@@ -528,6 +649,49 @@ export default function AIChatWidget() {
             >
               <ChevronDown size={16} className="text-[#00D4FF]" />
             </button>
+          )}
+
+          {/* ── Email Chat Form ─────────────────────────────────────────── */}
+          {showEmailForm && (
+            <div className="border-t border-[rgba(0,212,255,0.15)] p-4 bg-[#0D1525] flex-shrink-0 animate-in fade-in slide-in-from-bottom-2 duration-200">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Mail size={16} className="text-[#00D4FF]" />
+                  <p className="text-sm text-white font-medium">Email this conversation</p>
+                </div>
+                <button
+                  onClick={() => { setShowEmailForm(false); setEmailInput(""); }}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                  aria-label="Close email form"
+                >
+                  <X size={16} className="text-gray-400" />
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mb-3">We'll send a formatted copy of this chat to your inbox.</p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleEmailChat()}
+                  placeholder="your@email.com"
+                  disabled={isSendingEmail}
+                  className="flex-1 px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 disabled:opacity-50 transition-all"
+                  autoFocus
+                />
+                <button
+                  onClick={handleEmailChat}
+                  disabled={isSendingEmail || !emailInput.trim()}
+                  className="flex-shrink-0 px-4 py-2.5 bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-[#00D4FF]/20 disabled:opacity-40 disabled:shadow-none transition-all flex items-center gap-2"
+                >
+                  {isSendingEmail ? (
+                    <><Loader2 size={14} className="animate-spin" /> Sending...</>
+                  ) : (
+                    <><Check size={14} /> Send</>
+                  )}
+                </button>
+              </div>
+            </div>
           )}
 
           {/* ── Lead Form with Consent ─────────────────────────────────────── */}

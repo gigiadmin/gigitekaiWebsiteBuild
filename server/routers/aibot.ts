@@ -2,6 +2,7 @@ import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
+import { sendEmail } from "../_core/email";
 import { 
   searchKnowledgeBase, 
   createChatSession, 
@@ -13,6 +14,53 @@ import {
   createTicket
 } from "../db";
 import { nanoid } from "nanoid";
+
+// Helper to format chat messages into a clean transcript
+function formatTranscript(messages: Array<{ role: string; message: string; createdAt?: Date | string | null }>, format: "text" | "html" = "text"): string {
+  const now = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  if (format === "html") {
+    const rows = messages.map((m) => {
+      const sender = m.role === "user" ? "You" : "GigitekAI Assistant";
+      const bgColor = m.role === "user" ? "#0d2847" : "#151D30";
+      const labelColor = m.role === "user" ? "#00D4FF" : "#a78bfa";
+      // Escape HTML and convert markdown bold to <strong>
+      const escaped = m.message
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br/>")
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      return `<div style="background:${bgColor};border-radius:12px;padding:12px 16px;margin-bottom:8px;">
+        <div style="color:${labelColor};font-weight:600;font-size:13px;margin-bottom:4px;">${sender}</div>
+        <div style="color:#e2e8f0;font-size:14px;line-height:1.6;">${escaped}</div>
+      </div>`;
+    }).join("");
+
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body style="margin:0;padding:0;background:#0A0E1A;font-family:'Segoe UI',Arial,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;padding:24px;">
+        <div style="text-align:center;padding:20px 0;border-bottom:1px solid rgba(0,212,255,0.2);margin-bottom:20px;">
+          <h1 style="color:#00D4FF;font-size:22px;margin:0;">GigitekAI</h1>
+          <p style="color:#94a3b8;font-size:13px;margin:4px 0 0;">Chat Transcript &bull; ${now}</p>
+        </div>
+        ${rows}
+        <div style="text-align:center;padding:20px 0;border-top:1px solid rgba(0,212,255,0.2);margin-top:16px;">
+          <p style="color:#64748b;font-size:12px;margin:0;">This transcript was sent from <a href="https://gigitekai.com" style="color:#00D4FF;text-decoration:none;">gigitekai.com</a></p>
+          <p style="color:#64748b;font-size:11px;margin:4px 0 0;">GigitekAI &bull; Cloud & AI Solutions &bull; support@gigitek.com &bull; 609-676-4483</p>
+        </div>
+      </div>
+    </body></html>`;
+  }
+
+  // Plain text format
+  const header = `GigitekAI Chat Transcript\nDate: ${now}\n${"-".repeat(50)}\n\n`;
+  const body = messages.map((m) => {
+    const sender = m.role === "user" ? "You" : "GigitekAI Assistant";
+    return `${sender}:\n${m.message}\n`;
+  }).join("\n");
+  const footer = `\n${"-".repeat(50)}\nThis transcript was saved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • support@gigitek.com • 609-676-4483`;
+  return header + body + footer;
+}
 
 // System prompt for the AI bot
 const SYSTEM_PROMPT = `You are GigitekAI's professional support agent. You specialize in Microsoft 365 services (Exchange Online, SharePoint, OneDrive, Teams, Entra ID), managed IT services, and cloud infrastructure solutions.
@@ -273,6 +321,53 @@ export const aibotRouter = router({
       }
 
       return { success: true, message: "Thank you! We'll follow up with you shortly." };
+    }),
+
+  // Export chat transcript as text
+  exportTranscript: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ input }) => {
+      const messages = await getChatMessages(input.sessionId);
+      if (!messages || messages.length === 0) {
+        return { transcript: "", messageCount: 0 };
+      }
+      const transcript = formatTranscript(messages, "text");
+      return { transcript, messageCount: messages.length };
+    }),
+
+  // Email chat transcript to user
+  emailTranscript: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+      email: z.string().email(),
+      name: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { sessionId, email, name } = input;
+      const messages = await getChatMessages(sessionId);
+      if (!messages || messages.length === 0) {
+        throw new Error("No messages to send");
+      }
+
+      const htmlContent = formatTranscript(messages, "html");
+      const greeting = name ? `Hi ${name},` : "Hi,";
+
+      const fullHtml = htmlContent.replace(
+        '<div style="text-align:center;padding:20px 0;border-bottom:1px solid rgba(0,212,255,0.2);margin-bottom:20px;">',
+        `<div style="padding:12px 16px;background:#0d2847;border-radius:12px;margin-bottom:16px;"><p style="color:#e2e8f0;font-size:14px;margin:0;">${greeting} Here is a copy of your conversation with our AI assistant. If you need further help, feel free to reply to this email or visit <a href=\"https://gigitekai.com\" style=\"color:#00D4FF;\">gigitekai.com</a>.</p></div><div style="text-align:center;padding:20px 0;border-bottom:1px solid rgba(0,212,255,0.2);margin-bottom:20px;">`
+      );
+
+      const success = await sendEmail({
+        to: email,
+        subject: "Your GigitekAI Chat Transcript",
+        html: fullHtml,
+      });
+
+      if (!success) {
+        throw new Error("Failed to send email. Please try again.");
+      }
+
+      return { success: true, message: `Transcript sent to ${email}` };
     }),
 
   // Get quick reply options
