@@ -320,9 +320,9 @@
 ## Advanced Notifications - SMS, Digest & Unsubscribe (April 2026)
 - [x] Set up Twilio SMS integration with environment variables
 - [x] Add SMS notifications for critical priority tickets
-- [ ] Implement daily email digest for admins (leads, tickets, approvals) - future enhancement
+- [ ] DEFERRED: Implement daily email digest for admins (leads, tickets, approvals) - future enhancement
 - [x] Add unsubscribe links to all customer emails (ticket updates, approvals, lead follow-ups)
-- [ ] Create email preference management system - future enhancement
+- [ ] DEFERRED: Create email preference management system - future enhancement
 - [x] Verified SMS and unsubscribe features work correctly
 
 
