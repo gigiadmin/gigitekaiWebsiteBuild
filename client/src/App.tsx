@@ -18,6 +18,7 @@ import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
+import PWAInstallBanner from "./components/PWAInstallBanner";
 import ApprovalGuard from "./components/ApprovalGuard";
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -53,6 +54,7 @@ function App() {
           <Router />
           <AIChatWidget />
           <UserChatWidget />
+          <PWAInstallBanner />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -1,0 +1,176 @@
+{
+  "nav": {
+    "services": "Servicios",
+    "industries": "Industrias",
+    "aboutUs": "Nosotros",
+    "insights": "Artículos",
+    "support": "Soporte",
+    "getInTouch": "Contáctenos",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro",
+    "blog": "Blog",
+    "careers": "Carreras",
+    "cloud": "Infraestructura en la Nube",
+    "ai": "IA y Aprendizaje Automático",
+    "managed": "Servicios de TI Gestionados",
+    "cybersecurity": "Ciberseguridad",
+    "data": "Análisis de Datos",
+    "tagline": "GigitekAI — Impulsando la Próxima Generación de Tecnología Empresarial"
+  },
+  "hero": {
+    "badge": "Soluciones de Nube e IA de Nueva Generación",
+    "title1": "Soluciones",
+    "title2": "Inteligentes de",
+    "title3": "Nube e IA",
+    "subtitle": "Diseñamos infraestructura en la nube de nivel empresarial y sistemas de IA que transforman la forma en que las empresas operan, innovan y escalan.",
+    "cta1": "Inicie Su Transformación",
+    "cta2": "Ver Nuestras Soluciones",
+    "stat1Label": "Disponibilidad",
+    "stat2Label": "Reducción de Costos",
+    "stat3Label": "Despliegue Rápido"
+  },
+  "services": {
+    "sectionLabel": "QUÉ HACEMOS",
+    "title": "Soluciones Empresariales",
+    "subtitle": "Servicios tecnológicos integrales diseñados para acelerar su transformación digital y generar resultados comerciales medibles.",
+    "learnMore": "Más información",
+    "cloud": {
+      "title": "Infraestructura en la Nube",
+      "desc": "Arquitectura en la nube de nivel empresarial en AWS, Azure y GCP con SLA de 99.99% de disponibilidad y escalado automático."
+    },
+    "ai": {
+      "title": "IA y Aprendizaje Automático",
+      "desc": "Modelos de IA personalizados, pipelines de NLP y automatización inteligente que transforman datos en ventaja estratégica."
+    },
+    "security": {
+      "title": "Ciberseguridad",
+      "desc": "Marco de seguridad de confianza cero con monitoreo SOC 24/7, inteligencia de amenazas y automatización de cumplimiento."
+    },
+    "strategy": {
+      "title": "Estrategia Digital",
+      "desc": "Hojas de ruta tecnológicas alineadas con objetivos comerciales, desde migración a la nube hasta transformación digital completa."
+    },
+    "data": {
+      "title": "Análisis de Datos",
+      "desc": "Plataformas de análisis en tiempo real, almacenamiento de datos y paneles de BI que impulsan decisiones basadas en datos."
+    },
+    "managed": {
+      "title": "Servicios de TI Gestionados",
+      "desc": "Gestión de TI de extremo a extremo incluyendo mesa de ayuda, monitoreo, parches y optimización proactiva de infraestructura."
+    }
+  },
+  "benefits": {
+    "sectionLabel": "POR QUÉ GIGITEKAI",
+    "title": "La Ventaja GigitekAI",
+    "subtitle": "Combinamos experiencia técnica profunda con pensamiento estratégico para entregar soluciones que crean ventaja competitiva duradera.",
+    "item1Title": "Enfoque IA Primero",
+    "item1Desc": "Cada solución que construimos aprovecha la inteligencia artificial para automatizar, optimizar y predecir — dándole una ventaja incomparable.",
+    "item2Title": "Arquitectura Empresarial",
+    "item2Desc": "Construido sobre marcos probados (TOGAF, ITIL, Confianza Cero) con escalabilidad y seguridad diseñadas desde el primer día.",
+    "item3Title": "ROI Medible",
+    "item3Desc": "Cuantificamos cada compromiso con KPIs claros, benchmarks e informes para que vea exactamente lo que obtiene.",
+    "item4Title": "Operaciones 24/7",
+    "item4Desc": "Monitoreo las 24 horas, respuesta a incidentes y soporte con SLAs garantizados y gestión de cuenta dedicada."
+  },
+  "whoWeServe": {
+    "sectionLabel": "A QUIÉN SERVIMOS",
+    "title": "Construido para Organizaciones Ambiciosas",
+    "subtitle": "Desde startups de alto crecimiento hasta empresas Fortune 500, nos asociamos con organizaciones listas para aprovechar la tecnología como diferenciador estratégico."
+  },
+  "stats": {
+    "uptime": "SLA de Disponibilidad",
+    "costReduction": "Reducción de Costos Promedio",
+    "deployFaster": "Despliegue Más Rápido",
+    "clientSatisfaction": "Satisfacción del Cliente"
+  },
+  "industries": {
+    "sectionLabel": "INDUSTRIAS",
+    "title": "Experiencia en la Industria",
+    "subtitle": "Conocimiento profundo del dominio en sectores regulados y de alto crecimiento, entregando soluciones conformes y escalables."
+  },
+  "faq": {
+    "sectionLabel": "PREGUNTAS FRECUENTES",
+    "title": "Preguntas Frecuentes",
+    "subtitle": "Respuestas claras a preguntas comunes sobre nuestros servicios, proceso y lo que hace diferente a GigitekAI."
+  },
+  "cta": {
+    "sectionLabel": "COMENZAR",
+    "title": "¿Listo para Transformar Su Tecnología?",
+    "subtitle": "Programe una consulta gratuita con nuestros arquitectos y descubra cómo GigitekAI puede acelerar su transformación digital.",
+    "benefit1": "Evaluación tecnológica gratuita",
+    "benefit2": "Arquitectura de solución personalizada",
+    "benefit3": "Proyección de ROI en 48 horas",
+    "formTitle": "Solicite Su Evaluación Gratuita",
+    "formSubtitle": "Complete el formulario y nuestro equipo se comunicará dentro de 24 horas.",
+    "name": "Nombre Completo",
+    "email": "Correo Electrónico de Trabajo",
+    "company": "Nombre de la Empresa",
+    "message": "Cuéntenos sobre su proyecto...",
+    "submit": "Solicitar Evaluación",
+    "sending": "Enviando..."
+  },
+  "footer": {
+    "description": "Infraestructura en la nube de nivel empresarial, soluciones de IA y servicios gestionados que transforman la forma en que las empresas operan y escalan.",
+    "solutions": "Soluciones",
+    "company": "Empresa",
+    "contact": "Contacto",
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "security": "Seguridad"
+  },
+  "chat": {
+    "aiAssistant": "Asistente GigitekAI",
+    "aiSubtitle": "Soporte con IA • Siempre en línea",
+    "askPlaceholder": "Pregunte sobre nuestros servicios...",
+    "poweredBy": "Desarrollado por",
+    "menu": "Volver al Menú",
+    "backToConvo": "← Volver a la conversación",
+    "welcomeTitle": "Bienvenido a GigitekAI",
+    "welcomeSubtitle": "¿Cómo podemos ayudarle hoy? Elija un tema o pregunte lo que sea.",
+    "pricing": "Precios",
+    "scheduleCall": "Agendar Llamada",
+    "talkToHuman": "Hablar con Humano",
+    "leadTitle": "Conectemos con usted",
+    "leadSubtitle": "Comparta sus datos para que podamos darle seguimiento.",
+    "consentEmail": "Acepto recibir correos electrónicos",
+    "consentPhone": "Acepto recibir llamadas telefónicas",
+    "consentText": "Acepto recibir mensajes de texto",
+    "submitLead": "Enviar y Continuar Chat",
+    "skipLead": "Omitir por ahora"
+  },
+  "helpdesk": {
+    "title": "Centro de Soporte",
+    "subtitle": "Obtenga ayuda experta de nuestro equipo",
+    "signIn": "Inicie Sesión para Acceder al Soporte",
+    "welcome": "Bienvenido de vuelta",
+    "manageTickets": "Administre y rastree sus solicitudes de soporte",
+    "newTicket": "Nuevo Ticket",
+    "myTickets": "Mis Tickets",
+    "searchPlaceholder": "Buscar tickets por título o descripción...",
+    "total": "Total",
+    "open": "Abiertos",
+    "inProgress": "En Progreso",
+    "resolved": "Resueltos",
+    "closed": "Cerrados",
+    "accessPending": "Acceso Pendiente",
+    "accessPendingMsg": "Su cuenta está pendiente de aprobación. Un administrador revisará su solicitud de acceso en breve.",
+    "contactSupport": "Contacte support@gigitek.com para asistencia."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "noResults": "No se encontraron resultados",
+    "comingSoon": "Función próximamente"
+  }
+}

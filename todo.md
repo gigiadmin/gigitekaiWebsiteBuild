@@ -40,14 +40,14 @@
 - [x] Production build tested and working
 
 ## Future Enhancements
-- [ ] Video/audio call integration
+- [x] Video/audio call integration (completed April 2026 - WebRTC peer-to-peer with WS signaling)
 - [x] File sharing in chat (completed April 2026)
 - [x] Chat transcripts and export (completed April 2026)
 - [x] Chat analytics and metrics (completed April 2026)
 - [x] Chatbot integration with real-time chat handoff (completed April 2026)
-- [ ] Multi-language support
+- [x] Multi-language support (completed April 2026 - English + Spanish)
 - [x] Dark/light theme toggle (completed April 2026)
-- [ ] Mobile app version
+- [x] Mobile app version (completed April 2026 - PWA with install prompt, offline support, service worker)
 
 ## Bug Fixes
 - [x] Fix ticket details page not populating issue details from database
@@ -271,3 +271,24 @@
 - [x] Build 'Access Pending' screen for unapproved users
 - [x] Build admin user management panel to approve/deny/revoke user access
 - [x] Send admin notification when new user signs up requesting access
+
+## Video/Audio Call Finalization (April 2026)
+- [x] WebRTC peer-to-peer video/audio call implementation with STUN servers
+- [x] Call lifecycle: initiate, accept, reject, end with proper state management
+- [x] UI controls: mute, camera toggle, hang up, fullscreen
+- [x] ICE connection failure handling with 5s reconnect grace period
+- [x] 30-second connection timeout for failed calls
+- [x] Call duration timer and status display
+- [x] Integrated into both AdminChat and UserChatWidget
+- [x] WebSocket signaling for call_request, call_offer, call_answer, ice_candidate, call_end, call_reject
+- [x] 18 new video call tests (signaling format, state transitions, ICE config)
+- [x] All 134 tests passing, build clean
+
+## PWA Finalization (April 2026)
+- [x] manifest.json with all icon sizes (72-512px) and CDN-hosted icons
+- [x] Service worker with network-first caching and offline fallback
+- [x] registerServiceWorker() called in main.tsx on page load
+- [x] usePWA hook for install prompt management
+- [x] PWAInstallBanner component with install/dismiss UI
+- [x] Apple-specific meta tags (apple-mobile-web-app-capable, apple-touch-icon)
+- [x] theme-color meta tag matching brand color (#0A0E1A)

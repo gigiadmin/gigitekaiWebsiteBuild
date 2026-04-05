@@ -1,0 +1,176 @@
+{
+  "nav": {
+    "services": "Services",
+    "industries": "Industries",
+    "aboutUs": "About Us",
+    "insights": "Insights",
+    "support": "Support",
+    "getInTouch": "Get in Touch",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "blog": "Blog",
+    "careers": "Careers",
+    "cloud": "Cloud Infrastructure",
+    "ai": "AI & Machine Learning",
+    "managed": "Managed IT Services",
+    "cybersecurity": "Cybersecurity",
+    "data": "Data Analytics",
+    "tagline": "GigitekAI — Powering the Next Generation of Enterprise Technology"
+  },
+  "hero": {
+    "badge": "Next-Gen Cloud & AI Solutions",
+    "title1": "Intelligent",
+    "title2": "Cloud & AI",
+    "title3": "Solutions",
+    "subtitle": "We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale.",
+    "cta1": "Start Your Transformation",
+    "cta2": "View Our Solutions",
+    "stat1Label": "Cloud Uptime",
+    "stat2Label": "Cost Reduction",
+    "stat3Label": "Faster Deploy"
+  },
+  "services": {
+    "sectionLabel": "WHAT WE DO",
+    "title": "Enterprise Solutions",
+    "subtitle": "Comprehensive technology services designed to accelerate your digital transformation and drive measurable business outcomes.",
+    "learnMore": "Learn more",
+    "cloud": {
+      "title": "Cloud Infrastructure",
+      "desc": "Enterprise-grade cloud architecture on AWS, Azure, and GCP with 99.99% uptime SLA and automated scaling."
+    },
+    "ai": {
+      "title": "AI & Machine Learning",
+      "desc": "Custom AI models, NLP pipelines, and intelligent automation that transform raw data into strategic advantage."
+    },
+    "security": {
+      "title": "Cybersecurity",
+      "desc": "Zero-trust security framework with 24/7 SOC monitoring, threat intelligence, and compliance automation."
+    },
+    "strategy": {
+      "title": "Digital Strategy",
+      "desc": "Technology roadmaps aligned with business objectives, from cloud migration to full digital transformation."
+    },
+    "data": {
+      "title": "Data Analytics",
+      "desc": "Real-time analytics platforms, data warehousing, and BI dashboards that drive data-informed decisions."
+    },
+    "managed": {
+      "title": "Managed IT Services",
+      "desc": "End-to-end IT management including helpdesk, monitoring, patching, and proactive infrastructure optimization."
+    }
+  },
+  "benefits": {
+    "sectionLabel": "WHY GIGITEKAI",
+    "title": "The GigitekAI Advantage",
+    "subtitle": "We combine deep technical expertise with strategic thinking to deliver solutions that create lasting competitive advantage.",
+    "item1Title": "AI-First Approach",
+    "item1Desc": "Every solution we build leverages artificial intelligence to automate, optimize, and predict — giving you an unfair advantage.",
+    "item2Title": "Enterprise Architecture",
+    "item2Desc": "Built on proven frameworks (TOGAF, ITIL, Zero Trust) with scalability and security engineered from day one.",
+    "item3Title": "Measurable ROI",
+    "item3Desc": "We quantify every engagement with clear KPIs, benchmarks, and reporting so you see exactly what you're getting.",
+    "item4Title": "24/7 Operations",
+    "item4Desc": "Round-the-clock monitoring, incident response, and support with guaranteed SLAs and dedicated account management."
+  },
+  "whoWeServe": {
+    "sectionLabel": "WHO WE SERVE",
+    "title": "Built for Ambitious Organizations",
+    "subtitle": "From high-growth startups to Fortune 500 enterprises, we partner with organizations ready to leverage technology as a strategic differentiator."
+  },
+  "stats": {
+    "uptime": "Uptime SLA",
+    "costReduction": "Avg. Cost Reduction",
+    "deployFaster": "Faster Deployment",
+    "clientSatisfaction": "Client Satisfaction"
+  },
+  "industries": {
+    "sectionLabel": "INDUSTRIES",
+    "title": "Industry Expertise",
+    "subtitle": "Deep domain knowledge across regulated and high-growth sectors, delivering compliant, scalable solutions."
+  },
+  "faq": {
+    "sectionLabel": "FAQ",
+    "title": "Frequently Asked Questions",
+    "subtitle": "Clear answers to common questions about our services, process, and what makes GigitekAI different."
+  },
+  "cta": {
+    "sectionLabel": "GET STARTED",
+    "title": "Ready to Transform Your Technology?",
+    "subtitle": "Schedule a free consultation with our architects and discover how GigitekAI can accelerate your digital transformation.",
+    "benefit1": "Free technology assessment",
+    "benefit2": "Custom solution architecture",
+    "benefit3": "ROI projection within 48 hours",
+    "formTitle": "Request Your Free Assessment",
+    "formSubtitle": "Fill out the form and our team will reach out within 24 hours.",
+    "name": "Full Name",
+    "email": "Work Email",
+    "company": "Company Name",
+    "message": "Tell us about your project...",
+    "submit": "Request Assessment",
+    "sending": "Sending..."
+  },
+  "footer": {
+    "description": "Enterprise-grade cloud infrastructure, AI solutions, and managed services that transform how businesses operate and scale.",
+    "solutions": "Solutions",
+    "company": "Company",
+    "contact": "Contact",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "security": "Security"
+  },
+  "chat": {
+    "aiAssistant": "GigitekAI Assistant",
+    "aiSubtitle": "AI-powered support • Always online",
+    "askPlaceholder": "Ask anything about our services...",
+    "poweredBy": "Powered by",
+    "menu": "Back to Menu",
+    "backToConvo": "← Back to conversation",
+    "welcomeTitle": "Welcome to GigitekAI",
+    "welcomeSubtitle": "How can we help you today? Choose a topic or ask anything.",
+    "pricing": "Pricing",
+    "scheduleCall": "Schedule Call",
+    "talkToHuman": "Talk to Human",
+    "leadTitle": "Let's get you connected",
+    "leadSubtitle": "Share your details so we can follow up with you.",
+    "consentEmail": "I agree to receive emails",
+    "consentPhone": "I agree to receive phone calls",
+    "consentText": "I agree to receive text messages",
+    "submitLead": "Submit & Continue Chat",
+    "skipLead": "Skip for now"
+  },
+  "helpdesk": {
+    "title": "Support Center",
+    "subtitle": "Get expert help from our team",
+    "signIn": "Sign In to Access Support",
+    "welcome": "Welcome back",
+    "manageTickets": "Manage and track your support requests",
+    "newTicket": "New Ticket",
+    "myTickets": "My Tickets",
+    "searchPlaceholder": "Search tickets by title or description...",
+    "total": "Total",
+    "open": "Open",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "accessPending": "Access Pending",
+    "accessPendingMsg": "Your account is pending approval. An administrator will review your access request shortly.",
+    "contactSupport": "Contact support@gigitek.com for assistance."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "noResults": "No results found",
+    "comingSoon": "Feature coming soon"
+  }
+}

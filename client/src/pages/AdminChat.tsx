@@ -21,7 +21,10 @@ import {
   Home,
   Paperclip,
   FileIcon,
+  Phone,
+  Video,
 } from "lucide-react";
+import VideoCallModal from "@/components/VideoCallModal";
 import { trpc } from "@/lib/trpc";
 
 interface OnlineUser {
@@ -81,6 +84,9 @@ export default function AdminChat() {
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [analyticsDays, setAnalyticsDays] = useState(30);
   const [isUploading, setIsUploading] = useState(false);
+  const [callModalOpen, setCallModalOpen] = useState(false);
+  const [callType, setCallType] = useState<"audio" | "video">("audio");
+  const [incomingCall, setIncomingCall] = useState<{ callerId: number; callerName: string; callType: "audio" | "video" } | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -220,6 +226,15 @@ export default function AdminChat() {
             m.senderId === msg.userId ? { ...m, isRead: true } : m
           )
         );
+        break;
+
+      case "call_request":
+        setIncomingCall({
+          callerId: msg.callerId,
+          callerName: msg.callerName || `User #${msg.callerId}`,
+          callType: msg.callType || "audio",
+        });
+        setCallModalOpen(true);
         break;
     }
   };
@@ -547,17 +562,45 @@ export default function AdminChat() {
                         {new Date().toLocaleTimeString()}
                       </p>
                     </div>
-                    {sessionId && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleExportTranscript(sessionId)}
-                        className="flex items-center gap-1 text-xs"
-                      >
-                        <Download className="w-3 h-3" />
-                        Export
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {sessionId && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setCallType("audio");
+                              setCallModalOpen(true);
+                            }}
+                            className="flex items-center gap-1 text-xs border-green-500/40 text-green-400 hover:bg-green-500/10"
+                          >
+                            <Phone className="w-3 h-3" />
+                            Call
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setCallType("video");
+                              setCallModalOpen(true);
+                            }}
+                            className="flex items-center gap-1 text-xs border-blue-500/40 text-blue-400 hover:bg-blue-500/10"
+                          >
+                            <Video className="w-3 h-3" />
+                            Video
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleExportTranscript(sessionId)}
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <Download className="w-3 h-3" />
+                            Export
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* Messages */}
@@ -861,6 +904,24 @@ export default function AdminChat() {
           </div>
         )}
       </div>
+
+      {/* Video/Audio Call Modal */}
+      {callModalOpen && user && selectedUserId && sessionId && (
+        <VideoCallModal
+          isOpen={callModalOpen}
+          callType={incomingCall ? incomingCall.callType : callType}
+          callerName={incomingCall ? incomingCall.callerName : `User #${selectedUserId}`}
+          isIncoming={!!incomingCall}
+          ws={wsRef.current}
+          myUserId={user.id}
+          targetUserId={incomingCall ? incomingCall.callerId : selectedUserId}
+          sessionId={sessionId}
+          onClose={() => {
+            setCallModalOpen(false);
+            setIncomingCall(null);
+          }}
+        />
+      )}
     </div>
   );
 }

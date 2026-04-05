@@ -5,13 +5,20 @@ import { realtimeChatMessages, realtimeChatSessions, userSessions } from "../../
 import { eq, and } from "drizzle-orm";
 
 interface WebSocketMessage {
-  type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification";
+  type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification" | "call_offer" | "call_answer" | "ice_candidate" | "call_end" | "call_reject" | "call_request";
   userId?: number;
   sessionId?: number;
   message?: string;
   senderRole?: "user" | "admin";
   adminId?: number;
   role?: "user" | "admin";
+  // WebRTC signaling fields
+  targetUserId?: number;
+  offer?: any;
+  answer?: any;
+  candidate?: any;
+  callType?: "audio" | "video";
+  callerName?: string;
 }
 
 interface ClientConnection {
@@ -128,6 +135,66 @@ async function handleMessage(
       // Update sender's sessionId for read receipt broadcasts
       updateClientSessionId(ws, msg.userId, msg.sessionId, clients);
       await handleReadReceipt(msg.sessionId, msg.userId);
+      break;
+
+    case "call_request":
+      if (!msg.userId || !msg.targetUserId) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "call_request",
+        callerId: msg.userId,
+        callerName: msg.callerName || "Unknown",
+        callType: msg.callType || "audio",
+        sessionId: msg.sessionId,
+      });
+      break;
+
+    case "call_offer":
+      if (!msg.userId || !msg.targetUserId || !msg.offer) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "call_offer",
+        callerId: msg.userId,
+        offer: msg.offer,
+        callType: msg.callType || "audio",
+        sessionId: msg.sessionId,
+      });
+      break;
+
+    case "call_answer":
+      if (!msg.userId || !msg.targetUserId || !msg.answer) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "call_answer",
+        answererId: msg.userId,
+        answer: msg.answer,
+        sessionId: msg.sessionId,
+      });
+      break;
+
+    case "ice_candidate":
+      if (!msg.userId || !msg.targetUserId || !msg.candidate) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "ice_candidate",
+        senderId: msg.userId,
+        candidate: msg.candidate,
+        sessionId: msg.sessionId,
+      });
+      break;
+
+    case "call_end":
+      if (!msg.userId || !msg.targetUserId) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "call_end",
+        senderId: msg.userId,
+        sessionId: msg.sessionId,
+      });
+      break;
+
+    case "call_reject":
+      if (!msg.userId || !msg.targetUserId) return;
+      broadcastToUser(msg.targetUserId, {
+        type: "call_reject",
+        senderId: msg.userId,
+        sessionId: msg.sessionId,
+      });
       break;
 
     case "file_notification":

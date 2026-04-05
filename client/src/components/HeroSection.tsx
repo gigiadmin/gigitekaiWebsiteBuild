@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
@@ -18,10 +19,11 @@ const badges = [
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 100);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -59,7 +61,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Cloud & AI Technology Partner
+            {t("hero.badge")}
           </div>
 
           {/* Headline */}
@@ -69,9 +71,9 @@ export default function HeroSection() {
             }`}
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            AI-Powered Cloud
+            {t("hero.title1")}
             <br />
-            Solutions{" "}
+            {t("hero.title2")}{" "}
             <span
               style={{
                 background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
@@ -79,7 +81,7 @@ export default function HeroSection() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Built for Your Business
+              {t("hero.title3")}
             </span>
           </h1>
 
@@ -89,7 +91,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            GigitekAI delivers enterprise-grade cloud infrastructure and artificial intelligence solutions that transform how businesses operate, scale, and compete in the digital era. Our cloud computing expertise spans AWS, Azure, and Google Cloud, with advanced machine learning and business automation capabilities.
+            {t("hero.subtitle")}
           </p>
 
           {/* CTA Buttons */}
@@ -99,11 +101,11 @@ export default function HeroSection() {
             }`}
           >
             <a href="#contact" className="btn-cyan text-base px-6 py-3">
-              Partner With Us
+              {t("hero.cta1")}
               <ArrowRight size={18} />
             </a>
             <a href="#services" className="btn-outline-cyan text-base px-6 py-3">
-              Explore Our Services
+              {t("hero.cta2")}
             </a>
           </div>
 

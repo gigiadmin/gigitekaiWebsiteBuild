@@ -4,6 +4,7 @@
 */
 
 import { Linkedin, Twitter, Facebook, Youtube } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const footerLinks = {
   Services: [
@@ -50,6 +51,7 @@ const socials = [
 // Note: Update these URLs with actual GigitekAI social media profiles when available
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gray-100 dark:bg-[#050810] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)]">
       {/* Main footer */}
@@ -69,7 +71,7 @@ export default function Footer() {
               </span>
             </a>
             <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-xs">
-              Enterprise cloud infrastructure and artificial intelligence solutions that transform how businesses operate and compete.
+              {t("footer.description")}
             </p>
             <div className="flex items-center gap-3">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -122,7 +124,7 @@ export default function Footer() {
       <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.08)]">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-xs">
-            © {new Date().getFullYear()} GigitekAI. All rights reserved.
+            © {new Date().getFullYear()} GigitekAI. {t("footer.rights")}
           </p>
           <div className="flex items-center gap-6">
             {["Privacy Policy", "Terms of Service", "Accessibility", "Sitemap"].map((item) => (

@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Send, X, MessageCircle, AlertCircle, Paperclip, FileIcon, Image as ImageIcon } from "lucide-react";
+import { Send, X, MessageCircle, AlertCircle, Paperclip, FileIcon, Image as ImageIcon, Phone, Video } from "lucide-react";
+import VideoCallModal from "@/components/VideoCallModal";
 import { trpc } from "@/lib/trpc";
 import { HANDOFF_EVENT } from "@/App";
 
@@ -70,6 +71,9 @@ function UserChatWidgetInner({ user }: { user: any }) {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [typingAdminId, setTypingAdminId] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [callModalOpen, setCallModalOpen] = useState(false);
+  const [callType, setCallType] = useState<"audio" | "video">("audio");
+  const [incomingCall, setIncomingCall] = useState<{ callerId: number; callerName: string; callType: "audio" | "video" } | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -173,6 +177,15 @@ function UserChatWidgetInner({ user }: { user: any }) {
             m.senderId === msg.userId ? { ...m, isRead: true } : m
           )
         );
+        break;
+
+      case "call_request":
+        setIncomingCall({
+          callerId: msg.callerId,
+          callerName: msg.callerName || "Admin",
+          callType: msg.callType || "audio",
+        });
+        setCallModalOpen(true);
         break;
     }
   };
@@ -414,13 +427,35 @@ function UserChatWidgetInner({ user }: { user: any }) {
                 }`}
               ></div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/10 sm:bg-transparent hover:bg-red-500/20 rounded-lg transition-all"
-              aria-label="Close chat"
-            >
-              <X className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
-            </button>
+            <div className="flex items-center gap-1">
+              {sessionId && (
+                <>
+                  <button
+                    onClick={() => { setCallType("audio"); setCallModalOpen(true); }}
+                    className="flex items-center justify-center w-8 h-8 hover:bg-green-500/20 rounded-lg transition-all"
+                    aria-label="Audio call"
+                    title="Audio call"
+                  >
+                    <Phone className="w-4 h-4 text-green-400" />
+                  </button>
+                  <button
+                    onClick={() => { setCallType("video"); setCallModalOpen(true); }}
+                    className="flex items-center justify-center w-8 h-8 hover:bg-blue-500/20 rounded-lg transition-all"
+                    aria-label="Video call"
+                    title="Video call"
+                  >
+                    <Video className="w-4 h-4 text-blue-400" />
+                  </button>
+                </>
+              )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/10 sm:bg-transparent hover:bg-red-500/20 rounded-lg transition-all"
+                aria-label="Close chat"
+              >
+                <X className="w-6 h-6 sm:w-5 sm:h-5 text-white" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -522,6 +557,24 @@ function UserChatWidgetInner({ user }: { user: any }) {
             </Button>
           </div>
         </Card>
+      )}
+
+      {/* Video/Audio Call Modal */}
+      {callModalOpen && user && sessionId && (
+        <VideoCallModal
+          isOpen={callModalOpen}
+          callType={incomingCall ? incomingCall.callType : callType}
+          callerName={incomingCall ? incomingCall.callerName : "Admin Support"}
+          isIncoming={!!incomingCall}
+          ws={wsRef.current}
+          myUserId={user.id}
+          targetUserId={incomingCall ? incomingCall.callerId : 0}
+          sessionId={sessionId}
+          onClose={() => {
+            setCallModalOpen(false);
+            setIncomingCall(null);
+          }}
+        />
       )}
     </>
   );

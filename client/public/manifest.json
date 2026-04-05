@@ -1,0 +1,56 @@
+{
+  "name": "GigitekAI - Cloud & AI Solutions",
+  "short_name": "GigitekAI",
+  "description": "Enterprise cloud infrastructure and AI solutions that transform how businesses operate and compete.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0E1A",
+  "theme_color": "#0A0E1A",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["business", "technology"],
+  "icons": [
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-72_19b3738f.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-96_af08a433.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-128_4209674f.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-144_c752a1a2.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-152_ed79781b.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-192_a8893ff4.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-384_7b9bb6fe.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
