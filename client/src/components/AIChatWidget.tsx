@@ -174,21 +174,22 @@ export default function AIChatWidget() {
       {isOpen && (
         <div className="fixed inset-0 z-40 md:inset-auto md:bottom-24 md:right-6 md:w-96 bg-[#0F1629] md:border md:border-[rgba(0,212,255,0.2)] md:rounded-lg shadow-2xl shadow-black/50 flex flex-col md:max-h-[600px] h-full md:h-auto">
           {/* Header with Close Button */}
-          <div className="bg-gradient-to-r from-[#00D4FF]/20 to-[#00D4FF]/10 border-b border-[rgba(0,212,255,0.2)] p-4 rounded-t-lg md:rounded-t-lg flex items-center justify-between">
-            <div>
+          <div className="bg-gradient-to-r from-[#00D4FF]/20 to-[#00D4FF]/10 border-b border-[rgba(0,212,255,0.2)] p-4 md:rounded-t-lg flex items-center justify-between">
+            <div className="flex-1 min-w-0">
               <h3 className="text-white font-semibold flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse flex-shrink-0" />
                 GigitekAI Support
               </h3>
               <p className="text-xs text-gray-400 mt-1">Ask about Microsoft 365, cloud services, or pricing</p>
             </div>
-            {/* Close Button */}
+            {/* Close Button - Large and prominent on mobile */}
             <button
               onClick={handleClose}
-              className="ml-2 p-1 hover:bg-[rgba(0,212,255,0.1)] rounded transition-colors"
+              className="ml-3 p-2.5 md:p-1.5 bg-white/10 hover:bg-white/20 md:bg-transparent md:hover:bg-[rgba(0,212,255,0.1)] rounded-xl md:rounded-lg transition-colors flex-shrink-0"
               title="Close chat"
+              aria-label="Close chat"
             >
-              <X size={20} className="text-white" />
+              <X size={24} className="text-white md:w-5 md:h-5" />
             </button>
           </div>
 

@@ -185,3 +185,9 @@
   - Shared HelpdeskNav component
   - Consistent color system, typography, and spacing
   - All 103 tests passing, build successful
+
+## Mobile Chat Bug
+- [x] Fix AI chat widget missing close/minimize button on mobile view
+  - Made close button larger (p-2.5) with visible bg-white/10 background on mobile
+  - Added aria-label for accessibility
+  - Button is now prominent and easy to tap on mobile
