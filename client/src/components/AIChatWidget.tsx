@@ -358,7 +358,7 @@ export default function AIChatWidget() {
       const sender = m.role === "user" ? "You" : "GigitekAI Assistant";
       return `${sender}:\n${m.message}\n`;
     }).join("\n");
-    const footer = `\n${"─".repeat(50)}\nSaved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • support@gigitek.com • 609-676-4483`;
+    const footer = `\n${"─".repeat(50)}\nSaved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • Support@gigitekai.com • 1-609-676-4483`;
     const text = header + body + footer;
 
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });

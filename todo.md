@@ -356,3 +356,11 @@
 - [x] Removed InviteUserModal component from AdminPanel
 - [x] Removed invite button from Users tab
 - [x] All 146 tests still passing
+
+
+## Contact Information Update (April 2026)
+- [x] Update phone number to 1-609-676-4483 throughout website (updated in Navbar, CTASection, AIChatWidget, ApprovalGuard)
+- [x] Update email to Support@gigitekai.com throughout website (updated in CTASection, AIChatWidget, ApprovalGuard)
+- [x] Add service area: "Serving clients across North America and the South Pacific" (added to CTASection)
+- [x] All contact info updated and tested
+- [x] All 146 tests passing

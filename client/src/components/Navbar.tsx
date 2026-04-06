@@ -45,9 +45,9 @@ export default function Navbar() {
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">{t("nav.blog")}</a>
             <a href="/about" className="hover:text-[#00D4FF] transition-colors">{t("nav.aboutUs")}</a>
             <a href="/careers" className="hover:text-[#00D4FF] transition-colors">{t("nav.careers")}</a>
-            <a href="tel:+18005551234" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
+            <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
               <Phone size={12} />
-              1-800-GIGIT-AI
+              1-609-676-4483
             </a>
           </div>
         </div>

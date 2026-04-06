@@ -96,9 +96,9 @@ export default function CTASection() {
             {/* Contact info */}
             <div className="space-y-4">
               {[
-                { icon: Phone, label: "1-800-GIGIT-AI", href: "tel:+18004444824" },
-                { icon: Mail, label: "hello@gigitekai.com", href: "mailto:hello@gigitekai.com" },
-                { icon: MapPin, label: "Serving clients across North America", href: "#" },
+                { icon: Phone, label: "1-609-676-4483", href: "tel:+16096764483" },
+                { icon: Mail, label: "Support@gigitekai.com", href: "mailto:Support@gigitekai.com" },
+                { icon: MapPin, label: "Serving clients across North America and the South Pacific", href: "#" },
               ].map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}

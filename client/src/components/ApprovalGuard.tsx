@@ -59,11 +59,11 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
             <div className="bg-[rgba(0,212,255,0.05)] border border-[rgba(0,212,255,0.1)] rounded-lg p-4 mb-6 text-left">
               <p className="text-sm text-gray-300 font-medium mb-2">Need immediate access?</p>
               <div className="space-y-2">
-                <a href="mailto:support@gigitek.com" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
-                  <Mail className="w-4 h-4" /> support@gigitek.com
+                <a href="mailto:Support@gigitekai.com" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
+                  <Mail className="w-4 h-4" /> Support@gigitekai.com
                 </a>
-                <a href="tel:6096764483" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
-                  <Phone className="w-4 h-4" /> 609-676-4483
+                <a href="tel:+16096764483" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
+                  <Phone className="w-4 h-4" /> 1-609-676-4483
                 </a>
               </div>
             </div>
