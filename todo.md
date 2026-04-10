@@ -620,3 +620,6 @@
 ## Admin Portal UX Improvements (Apr 10, 2026)
 - [x] Add Helpdesk quick-link button to Admin Portal header for easy navigation to /helpdesk
 - [x] Guide Harry on creating a second admin account for backup access
+
+## Admin Guide Webpage (Apr 10, 2026)
+- [x] Create /admin-guide page from the admin account creation markdown guide with GigitekAI branding
