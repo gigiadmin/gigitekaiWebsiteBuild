@@ -4,7 +4,10 @@ import {
   getEmailDigestPreferences,
   updateEmailDigestPreferences,
   getDigestSummary,
+  getDb,
 } from "../db";
+import { emailDigestPreferences, users } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export const emailDigestRouter = router({
   // Get current user's digest preferences
@@ -27,7 +30,7 @@ export const emailDigestRouter = router({
     .input(
       z.object({
         enabled: z.boolean().optional(),
-        frequency: z.enum(["daily", "weekly"]).optional(),
+        frequency: z.enum(["daily", "weekly", "bi-weekly", "monthly"]).optional(),
         sendTime: z.string().regex(/^\d{2}:\d{2}$/).optional(), // HH:MM format
         includeLeads: z.boolean().optional(),
         includeTickets: z.boolean().optional(),
@@ -42,6 +45,37 @@ export const emailDigestRouter = router({
   // Get digest summary (for preview)
   getDigestSummary: protectedProcedure.query(async ({ ctx }) => {
     return await getDigestSummary(ctx.user.id);
+  }),
+
+  // Get all user digest preferences (admin only)
+  getAllUserPreferences: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== "admin") {
+      throw new Error("Only admins can view all user preferences");
+    }
+
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database connection failed");
+    }
+
+    const preferences = await db
+      .select({
+        id: emailDigestPreferences.id,
+        userId: emailDigestPreferences.userId,
+        userEmail: users.email,
+        userName: users.name,
+        enabled: emailDigestPreferences.enabled,
+        frequency: emailDigestPreferences.frequency,
+        sendTime: emailDigestPreferences.sendTime,
+        includeLeads: emailDigestPreferences.includeLeads,
+        includeTickets: emailDigestPreferences.includeTickets,
+        includeApprovals: emailDigestPreferences.includeApprovals,
+        lastSentAt: emailDigestPreferences.lastSentAt,
+      })
+      .from(emailDigestPreferences)
+      .innerJoin(users, eq(emailDigestPreferences.userId, users.id));
+
+    return preferences;
   }),
 
   // Test send digest (admin only)

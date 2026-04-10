@@ -464,3 +464,22 @@
   - [x] Create tRPC router for digest preferences (getPreferences, updatePreferences, getDigestSummary, testSend)
   - [x] Add digest scheduler integration to server startup
   - [x] All 146 tests passing
+
+
+## Admin Portal Consolidation (April 10, 2026)
+- [x] Add email digest frequency customization feature (daily, weekly, bi-weekly, monthly)
+  - Updated EmailDigestSettings component with frequency buttons (Daily, Weekly, Bi-Weekly, Monthly)
+  - Updated database schema to support frequency field
+  - Updated tRPC router to handle frequency preferences
+  - All 146 tests passing
+- [x] Create admin dashboard to manage all user email digest preferences
+  - Created AdminUserPreferences component to view and manage all users' digest settings
+  - Admin can see user email, digest status, frequency, send time, and content toggles
+  - Admin can update any user's preferences directly
+  - All 146 tests passing
+- [x] Build unified admin portal at /admin combining all admin pages (metrics, notifications, digest settings, user preferences)
+  - Created AdminPortal component with tabbed interface
+  - Integrated all admin pages: Metrics, Notifications, Email Digest Settings, User Preferences
+  - Added header with logout button and current user email
+  - Updated /admin route to use AdminPortal instead of AdminDashboard
+  - All 146 tests passing

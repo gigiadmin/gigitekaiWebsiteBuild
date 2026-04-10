@@ -42,7 +42,7 @@ export default function EmailDigestSettings() {
     await updateMutation.mutateAsync({ enabled });
   };
 
-  const handleFrequencyChange = async (frequency: "daily" | "weekly") => {
+  const handleFrequencyChange = async (frequency: "daily" | "weekly" | "bi-weekly" | "monthly") => {
     setIsSaving(true);
     await updateMutation.mutateAsync({ frequency });
   };
@@ -123,7 +123,7 @@ export default function EmailDigestSettings() {
             {/* Frequency */}
             <div>
               <Label className="text-base mb-3 block">Frequency</Label>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button
                   variant={preferences?.frequency === "daily" ? "default" : "outline"}
                   onClick={() => handleFrequencyChange("daily")}
@@ -137,6 +137,20 @@ export default function EmailDigestSettings() {
                   disabled={isSaving}
                 >
                   Weekly
+                </Button>
+                <Button
+                  variant={preferences?.frequency === "bi-weekly" ? "default" : "outline"}
+                  onClick={() => handleFrequencyChange("bi-weekly")}
+                  disabled={isSaving}
+                >
+                  Bi-Weekly
+                </Button>
+                <Button
+                  variant={preferences?.frequency === "monthly" ? "default" : "outline"}
+                  onClick={() => handleFrequencyChange("monthly")}
+                  disabled={isSaving}
+                >
+                  Monthly
                 </Button>
               </div>
             </div>

@@ -15,9 +15,10 @@ import TicketDetail from "./pages/TicketDetail";
 import AdminPanel from "./pages/AdminPanel";
 import AdminChat from "./pages/AdminChat";
 import AdminNotifications from "./pages/AdminNotifications";
-import AdminDashboard from "./pages/AdminDashboard";
 import AdminMetrics from "./pages/AdminMetrics";
 import EmailDigestSettings from "./pages/EmailDigestSettings";
+import AdminPortal from "./pages/AdminPortal";
+import AdminUserPreferences from "./pages/AdminUserPreferences";
 import TicketFeedback from "./pages/TicketFeedback";
 import UserProfile from "./pages/UserProfile";
 import Careers from "./pages/Careers";
@@ -27,6 +28,7 @@ import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallBanner from "./components/PWAInstallBanner";
 import ApprovalGuard from "./components/ApprovalGuard";
+
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -44,12 +46,13 @@ function Router() {
       <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/feedback">{() => <ApprovalGuard><TicketFeedback /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/profile">{() => <ApprovalGuard><UserProfile /></ApprovalGuard>}</Route>
-      <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin"} component={AdminPortal} />
       <Route path={"/admin/metrics"} component={AdminMetrics} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
       <Route path={"admin/chat"} component={AdminChat} />
       <Route path={"admin/notifications"} component={AdminNotifications} />
       <Route path={"admin/email-digest"} component={EmailDigestSettings} />
+      <Route path={"admin/user-preferences"} component={AdminUserPreferences} />
       <Route path={"404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

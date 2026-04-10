@@ -1,0 +1,1 @@
+ALTER TABLE `emailDigestPreferences` MODIFY COLUMN `frequency` enum('daily','weekly','bi-weekly','monthly') NOT NULL DEFAULT 'daily';

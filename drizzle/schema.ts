@@ -306,7 +306,7 @@ export const emailDigestPreferences = mysqlTable("emailDigestPreferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(), // Admin user ID
   enabled: boolean("enabled").default(true).notNull(), // Enable/disable digest
-  frequency: mysqlEnum("frequency", ["daily", "weekly"]).default("daily").notNull(), // Digest frequency
+  frequency: mysqlEnum("frequency", ["daily", "weekly", "bi-weekly", "monthly"]).default("daily").notNull(), // Digest frequency
   sendTime: varchar("sendTime", { length: 5 }).default("06:00").notNull(), // Time to send (HH:MM format, UTC)
   includeLeads: boolean("includeLeads").default(true).notNull(), // Include new leads
   includeTickets: boolean("includeTickets").default(true).notNull(), // Include ticket summary
