@@ -447,4 +447,5 @@
 - [x] Add logout button to admin/protected pages for account switching
   - Added logout button to AdminNotifications page (with "Log Out & Try Another Account" button when not admin)
   - Added logout button to AdminPanel header showing current user email
+  - Fixed logout to redirect to login page (getLoginUrl) after logout
   - Users can now easily switch between accounts
