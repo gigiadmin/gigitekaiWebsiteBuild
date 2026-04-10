@@ -1,23 +1,8 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Clock, CheckCircle, AlertCircle, MessageSquare } from "lucide-react";
-import { useLocation } from "wouter";
 
 export default function AdminMetrics() {
-  const { user, isAuthenticated, loading } = useAuth();
-  const [, setLocation] = useLocation();
-
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
-  if (!isAuthenticated || user?.role !== "admin") {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-500 mb-4">Admin access required</p>
-        <Button onClick={() => setLocation("/")}>Back to Home</Button>
-      </div>
-    );
-  }
 
   // Mock data for metrics
   const totalTickets = 156;

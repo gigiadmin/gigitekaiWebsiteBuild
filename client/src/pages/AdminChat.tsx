@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +70,9 @@ function formatFileSize(bytes: number): string {
 type Tab = "chat" | "analytics" | "transcripts";
 
 export default function AdminChat() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  const isAuthenticated = !!adminUser;
+  const user = adminUser ? { id: adminUser.id, email: adminUser.email, role: adminUser.role } : null;
   const [, navigate] = useLocation();
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -94,7 +95,7 @@ export default function AdminChat() {
 
   // tRPC queries
   const { data: adminSessions } = trpc.chat.getAdminSessions.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated,
   });
 
   const markAsReadMutation = trpc.chat.markAsRead.useMutation();
@@ -103,13 +104,13 @@ export default function AdminChat() {
   // Analytics query
   const { data: analytics, isLoading: analyticsLoading } = trpc.chat.getAnalytics.useQuery(
     { days: analyticsDays },
-    { enabled: isAuthenticated && user?.role === "admin" && activeTab === "analytics" }
+    { enabled: isAuthenticated && activeTab === "analytics" }
   );
 
   // All sessions for transcript list
   const { data: allSessions } = trpc.chat.getAllSessions.useQuery(
     { status: "all", limit: 50 },
-    { enabled: isAuthenticated && user?.role === "admin" && activeTab === "transcripts" }
+    { enabled: isAuthenticated && activeTab === "transcripts" }
   );
 
   // Transcript export for selected session
@@ -119,16 +120,16 @@ export default function AdminChat() {
     { enabled: !!transcriptSessionId }
   );
 
-  // Redirect if not admin
+  // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && (!isAuthenticated || user?.role !== "admin")) {
-      navigate("/helpdesk");
+    if (!loading && !isAuthenticated) {
+      navigate("/login");
     }
-  }, [isAuthenticated, loading, user, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
   // Initialize WebSocket connection
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== "admin" || !user?.id) return;
+    if (!isAuthenticated || !user?.id) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/api/ws`;
@@ -442,8 +443,7 @@ export default function AdminChat() {
   }, [transcriptData, transcriptSessionId]);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/helpdesk");
+    navigate("/login");
   };
 
   if (loading) {

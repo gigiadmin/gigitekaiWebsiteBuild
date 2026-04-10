@@ -28,13 +28,14 @@ import {
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 
-import { useAuth } from "@/_core/hooks/useAuth";
 import { InviteCustomerModal } from "@/components/InviteCustomerModal";
 
 type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  const isAuthenticated = !!adminUser;
+  const user = adminUser ? { id: adminUser.id, email: adminUser.email, role: adminUser.role } : null;
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -43,11 +44,11 @@ export default function AdminPanel() {
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated,
   });
 
   const { data: allUsers, isLoading: usersLoading, refetch: refetchUsers } = trpc.users.getAll.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role === "admin" && activeTab === "users",
+    enabled: isAuthenticated && activeTab === "users",
   });
 
   const approveMutation = trpc.users.approve.useMutation({
@@ -85,10 +86,10 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    if (!loading && (!isAuthenticated || user?.role !== "admin")) {
-      navigate("/helpdesk");
+    if (!loading && !isAuthenticated) {
+      navigate("/login");
     }
-  }, [isAuthenticated, loading, user, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
@@ -165,15 +166,7 @@ export default function AdminPanel() {
             <div className="text-sm text-gray-400">
               <span className="text-[#00D4FF]">{user?.email}</span>
             </div>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1A1F2E] border border-[rgba(0,212,255,0.3)] text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-all text-sm font-medium"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Log Out
-            </button>
+
           </div>
         </div>
 
