@@ -13,6 +13,7 @@ import { aibotRouter } from "./routers/aibot";
 import { chatRouter } from "./routers/chat";
 import { customerInvitesRouter } from "./routers/customer-invites";
 import { feedbackRouter } from "./routers/feedback";
+import { emailDigestRouter } from "./routers/emailDigest";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -33,6 +34,7 @@ export const appRouter = router({
   chat: chatRouter,
   customerInvites: customerInvitesRouter,
   feedback: feedbackRouter,
+  emailDigest: emailDigestRouter,
 
   contact: router({
     submit: publicProcedure

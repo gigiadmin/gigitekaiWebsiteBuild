@@ -92,6 +92,13 @@
       "when": 1775832396834,
       "tag": "0012_thankful_gressill",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1775838494629,
+      "tag": "0013_high_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

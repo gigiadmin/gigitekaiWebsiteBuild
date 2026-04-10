@@ -1,6 +1,6 @@
-import { eq, like, desc } from "drizzle-orm";
+import { eq, like, desc, gte, inArray, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory } from "../drizzle/schema";
 import crypto from "crypto";
 import { ENV } from './_core/env';
 
@@ -885,5 +885,149 @@ export async function deleteMessageById(messageId: number) {
   } catch (error) {
     console.error("[Database] Failed to delete message:", error);
     return false;
+  }
+}
+
+
+// Email Digest Functions
+export async function getEmailDigestPreferences(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get email digest preferences: database not available");
+    return null;
+  }
+  try {
+    const result = await db.select().from(emailDigestPreferences).where(eq(emailDigestPreferences.userId, userId)).limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get email digest preferences:", error);
+    return null;
+  }
+}
+
+export async function updateEmailDigestPreferences(
+  userId: number,
+  data: Partial<InsertEmailDigestPreferences>
+) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update email digest preferences: database not available");
+    return null;
+  }
+  try {
+    const result = await db
+      .update(emailDigestPreferences)
+      .set(data)
+      .where(eq(emailDigestPreferences.userId, userId));
+    console.log("[Database] Email digest preferences updated successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update email digest preferences:", error);
+    throw error;
+  }
+}
+
+export async function getAdminsForDigest() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get admins for digest: database not available");
+    return [];
+  }
+  try {
+    const result = await db
+      .select({
+        userId: emailDigestPreferences.userId,
+        email: users.email,
+        name: users.name,
+        sendTime: emailDigestPreferences.sendTime,
+      })
+      .from(emailDigestPreferences)
+      .innerJoin(users, eq(emailDigestPreferences.userId, users.id))
+      .where(eq(emailDigestPreferences.enabled, true));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get admins for digest:", error);
+    return [];
+  }
+}
+
+export async function getDigestSummary(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get digest summary: database not available");
+    return { leadsCount: 0, ticketsCount: 0, approvalsCount: 0 };
+  }
+  try {
+    // Get new leads from today
+    const leadsResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(chatLeads)
+      .where(
+        gte(chatLeads.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000))
+      );
+
+    // Get open/in-progress tickets
+    const ticketsResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(tickets)
+      .where(
+        inArray(tickets.status, ["open", "in_progress"])
+      );
+
+    // Get pending user approvals
+    const approvalsResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(users)
+      .where(eq(users.approved, false));
+
+    return {
+      leadsCount: leadsResult[0]?.count || 0,
+      ticketsCount: ticketsResult[0]?.count || 0,
+      approvalsCount: approvalsResult[0]?.count || 0,
+    };
+  } catch (error) {
+    console.error("[Database] Failed to get digest summary:", error);
+    return { leadsCount: 0, ticketsCount: 0, approvalsCount: 0 };
+  }
+}
+
+export async function recordDigestHistory(
+  userId: number,
+  data: InsertEmailDigestHistory
+) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot record digest history: database not available");
+    return null;
+  }
+  try {
+    const result = await db.insert(emailDigestHistory).values({
+      ...data,
+      userId,
+    });
+    console.log("[Database] Digest history recorded successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to record digest history:", error);
+    throw error;
+  }
+}
+
+export async function updateDigestPreferencesLastSent(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update last sent: database not available");
+    return null;
+  }
+  try {
+    const result = await db
+      .update(emailDigestPreferences)
+      .set({ lastSentAt: new Date() })
+      .where(eq(emailDigestPreferences.userId, userId));
+    console.log("[Database] Last sent timestamp updated successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to update last sent:", error);
+    throw error;
   }
 }

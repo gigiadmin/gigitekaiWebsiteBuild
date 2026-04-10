@@ -299,3 +299,38 @@ export const ticketFeedback = mysqlTable("ticketFeedback", {
 
 export type TicketFeedback = typeof ticketFeedback.$inferSelect;
 export type InsertTicketFeedback = typeof ticketFeedback.$inferInsert;
+
+
+// Email Digest Preferences - Admin preferences for daily email digest
+export const emailDigestPreferences = mysqlTable("emailDigestPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(), // Admin user ID
+  enabled: boolean("enabled").default(true).notNull(), // Enable/disable digest
+  frequency: mysqlEnum("frequency", ["daily", "weekly"]).default("daily").notNull(), // Digest frequency
+  sendTime: varchar("sendTime", { length: 5 }).default("06:00").notNull(), // Time to send (HH:MM format, UTC)
+  includeLeads: boolean("includeLeads").default(true).notNull(), // Include new leads
+  includeTickets: boolean("includeTickets").default(true).notNull(), // Include ticket summary
+  includeApprovals: boolean("includeApprovals").default(true).notNull(), // Include pending approvals
+  lastSentAt: timestamp("lastSentAt"), // Last time digest was sent
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailDigestPreferences = typeof emailDigestPreferences.$inferSelect;
+export type InsertEmailDigestPreferences = typeof emailDigestPreferences.$inferInsert;
+
+// Email Digest History - Track sent digests
+export const emailDigestHistory = mysqlTable("emailDigestHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // Admin user ID
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  leadsCount: int("leadsCount").default(0).notNull(),
+  ticketsCount: int("ticketsCount").default(0).notNull(),
+  approvalsCount: int("approvalsCount").default(0).notNull(),
+  status: mysqlEnum("status", ["sent", "failed", "pending"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"), // Error details if failed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailDigestHistory = typeof emailDigestHistory.$inferSelect;
+export type InsertEmailDigestHistory = typeof emailDigestHistory.$inferInsert;

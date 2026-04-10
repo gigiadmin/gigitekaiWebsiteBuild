@@ -320,7 +320,11 @@
 ## Advanced Notifications - SMS, Digest & Unsubscribe (April 2026)
 - [x] Set up Twilio SMS integration with environment variables
 - [x] Add SMS notifications for critical priority tickets
-- [ ] DEFERRED: Implement daily email digest for admins (leads, tickets, approvals) - future enhancement
+- [ ] Implement daily email digest for admins (leads, tickets, approvals)
+  - [x] Create emailDigestPreferences table in database
+  - [ ] Build email digest generation logic (leads, tickets, approvals summary)
+  - [ ] Create scheduled job for daily digest delivery (6 AM)
+  - [ ] Add email preference management UI for admins
 - [x] Add unsubscribe links to all customer emails (ticket updates, approvals, lead follow-ups)
 - [ ] DEFERRED: Create email preference management system - future enhancement
 - [x] Verified SMS and unsubscribe features work correctly
@@ -449,3 +453,14 @@
   - Added logout button to AdminPanel header showing current user email
   - Fixed logout to redirect to login page (getLoginUrl) after logout
   - Users can now easily switch between accounts
+
+
+## Email Digest Feature (April 10, 2026) - COMPLETE
+- [x] Implement daily email digest for admins (leads, tickets, approvals)
+  - [x] Create emailDigestPreferences table in database schema
+  - [x] Build email digest generation logic (generateEmailDigest function with HTML email template)
+  - [x] Create scheduled job for daily digest delivery (startDigestScheduler runs daily at 6 AM UTC)
+  - [x] Add email preference management UI for admins (EmailDigestSettings page at /admin/email-digest)
+  - [x] Create tRPC router for digest preferences (getPreferences, updatePreferences, getDigestSummary, testSend)
+  - [x] Add digest scheduler integration to server startup
+  - [x] All 146 tests passing

@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import { setupWebSocket } from "./websocket";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
 import { securityHeaders } from "./securityHeaders";
+import { startDigestScheduler } from "./digestScheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -74,6 +75,8 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    // Start email digest scheduler
+    startDigestScheduler();
   });
 }
 

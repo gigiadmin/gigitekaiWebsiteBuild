@@ -17,6 +17,7 @@ import AdminChat from "./pages/AdminChat";
 import AdminNotifications from "./pages/AdminNotifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminMetrics from "./pages/AdminMetrics";
+import EmailDigestSettings from "./pages/EmailDigestSettings";
 import TicketFeedback from "./pages/TicketFeedback";
 import UserProfile from "./pages/UserProfile";
 import Careers from "./pages/Careers";
@@ -46,9 +47,10 @@ function Router() {
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/admin/metrics"} component={AdminMetrics} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
-      <Route path={"/admin/chat"} component={AdminChat} />
-      <Route path={"/admin/notifications"} component={AdminNotifications} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path={"admin/chat"} component={AdminChat} />
+      <Route path={"admin/notifications"} component={AdminNotifications} />
+      <Route path={"admin/email-digest"} component={EmailDigestSettings} />
+      <Route path={"404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
