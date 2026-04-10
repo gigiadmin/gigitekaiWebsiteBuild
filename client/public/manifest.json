@@ -4,7 +4,7 @@
   "description": "Enterprise cloud infrastructure and AI solutions that transform how businesses operate and compete.",
   "start_url": "/admin",
   "display": "standalone",
-  "scope": "/admin",
+  "scope": "/",
   "background_color": "#0A0E1A",
   "theme_color": "#00D4FF",
   "orientation": "any",

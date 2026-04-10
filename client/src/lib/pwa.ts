@@ -35,7 +35,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 
   try {
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
-      scope: '/admin',
+      scope: '/',
     });
     console.log('[PWA] Service Worker registered:', registration);
 
