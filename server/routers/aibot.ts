@@ -22,6 +22,7 @@ import {
   getPendingAgentTakeoverRequests
 } from "../db";
 import { nanoid } from "nanoid";
+import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite } from "../db";
 
 // Helper to format chat messages into a clean transcript
 function formatTranscript(messages: Array<{ role: string; message: string; createdAt?: Date | string | null }>, format: "text" | "html" = "text"): string {
@@ -582,8 +583,6 @@ export const aibotRouter = router({
         return { success: false, message: "Failed to sync to Teams" };
       }
     }),
-
-// Note: Router closing bracket moved here to add new endpoints
 
   requestAgentTakeover: publicProcedure
     .input(z.object({

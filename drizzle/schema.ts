@@ -266,3 +266,21 @@ export const userSessions = mysqlTable("userSessions", {
 
 export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = typeof userSessions.$inferInsert;
+
+// Customer Invites - Admin invites customers to support portal
+export const customerInvites = mysqlTable("customerInvites", {
+  id: int("id").autoincrement().primaryKey(),
+  inviteToken: varchar("inviteToken", { length: 128 }).notNull().unique(), // Unique token for invite link
+  invitedEmail: varchar("invitedEmail", { length: 320 }).notNull(),
+  invitedName: varchar("invitedName", { length: 255 }),
+  invitedCompany: varchar("invitedCompany", { length: 255 }),
+  invitedBy: int("invitedBy").notNull(), // Admin ID who sent invite
+  status: mysqlEnum("status", ["pending", "accepted", "expired", "revoked"]).default("pending").notNull(),
+  acceptedBy: int("acceptedBy"), // User ID who accepted (after signup)
+  expiresAt: timestamp("expiresAt").notNull(), // Invite expires after 30 days
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  acceptedAt: timestamp("acceptedAt"),
+});
+
+export type CustomerInvite = typeof customerInvites.$inferSelect;
+export type InsertCustomerInvite = typeof customerInvites.$inferInsert;

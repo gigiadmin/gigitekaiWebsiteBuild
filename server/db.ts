@@ -1,6 +1,7 @@
 import { eq, like, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite } from "../drizzle/schema";
+import crypto from "crypto";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -656,5 +657,136 @@ export async function updateAgentTakeoverRequestStatus(id: number, status: "acce
   } catch (error) {
     console.error("[Database] Failed to update agent takeover request:", error);
     throw error;
+  }
+}
+
+
+// ===== Customer Invites =====
+
+export async function createCustomerInvite(
+  invitedEmail: string,
+  invitedName: string | undefined,
+  invitedCompany: string | undefined,
+  invitedBy: number
+) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create invite: database not available");
+    return null;
+  }
+
+  const inviteToken = crypto.randomUUID();
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days
+
+  try {
+    const result = await db.insert(customerInvites).values({
+      inviteToken,
+      invitedEmail,
+      invitedName: invitedName || null,
+      invitedCompany: invitedCompany || null,
+      invitedBy,
+      expiresAt,
+    });
+
+    console.log("[Database] Customer invite created successfully");
+    return { inviteToken, expiresAt };
+  } catch (error) {
+    console.error("[Database] Failed to create invite:", error);
+    throw error;
+  }
+}
+
+export async function getCustomerInviteByToken(token: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get invite: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(customerInvites).where(eq(customerInvites.inviteToken, token)).limit(1);
+    const invite = result.length > 0 ? result[0] : null;
+
+    if (!invite) return null;
+
+    // Check if expired
+    if (new Date() > invite.expiresAt) {
+      await db.update(customerInvites).set({ status: "expired" }).where(eq(customerInvites.id, invite.id));
+      return null;
+    }
+
+    if (invite.status !== "pending") {
+      return null;
+    }
+
+    return invite;
+  } catch (error) {
+    console.error("[Database] Failed to get invite:", error);
+    return null;
+  }
+}
+
+export async function acceptCustomerInvite(token: string, userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot accept invite: database not available");
+    return false;
+  }
+
+  try {
+    const invite = await getCustomerInviteByToken(token);
+    if (!invite) return false;
+
+    await db
+      .update(customerInvites)
+      .set({
+        status: "accepted",
+        acceptedBy: userId,
+        acceptedAt: new Date(),
+      })
+      .where(eq(customerInvites.id, invite.id));
+
+    console.log("[Database] Customer invite accepted successfully");
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to accept invite:", error);
+    throw error;
+  }
+}
+
+export async function revokeCustomerInvite(inviteId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot revoke invite: database not available");
+    return false;
+  }
+
+  try {
+    await db.update(customerInvites).set({ status: "revoked" }).where(eq(customerInvites.id, inviteId));
+    console.log("[Database] Customer invite revoked successfully");
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to revoke invite:", error);
+    throw error;
+  }
+}
+
+export async function listCustomerInvites(adminId?: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot list invites: database not available");
+    return [];
+  }
+
+  try {
+    const query = adminId
+      ? await db.select().from(customerInvites).where(eq(customerInvites.invitedBy, adminId)).orderBy(desc(customerInvites.createdAt))
+      : await db.select().from(customerInvites).orderBy(desc(customerInvites.createdAt));
+
+    return query;
+  } catch (error) {
+    console.error("[Database] Failed to list invites:", error);
+    return [];
   }
 }

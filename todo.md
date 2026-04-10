@@ -398,3 +398,11 @@
 - [x] Fix all support@gigitek.com to support@gigitekai.com throughout codebase (12 files updated)
 - [x] Create starter knowledge base SQL script with 13 entries (Microsoft 365, Managed IT, Cybersecurity, Troubleshooting, Sales/Onboarding)
 - [x] All 146 tests passing after email changes
+
+
+## Customer Invite System (April 2026)
+- [x] Add invite tracking table to database schema - customerInvites table created with token, status, expiry
+- [x] Create backend endpoints for sending and validating invites - 5 endpoints: sendCustomerInvite, getCustomerInvite, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite
+- [ ] Build invite UI in admin portal (modal form with email input) - TODO
+- [ ] Create invite landing page for customers to accept invite - TODO
+- [ ] Test invite flow end-to-end - TODO

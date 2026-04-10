@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
 import { chatRouter } from "./routers/chat";
+import { customerInvitesRouter } from "./routers/customer-invites";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -29,6 +30,7 @@ export const appRouter = router({
   helpdesk: helpdeskRouter,
   aibot: aibotRouter,
   chat: chatRouter,
+  customerInvites: customerInvitesRouter,
 
   contact: router({
     submit: publicProcedure
