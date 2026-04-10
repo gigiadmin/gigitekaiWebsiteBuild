@@ -3,7 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket } from "lucide-react";
+import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2 } from "lucide-react";
 
 // Import all admin pages
 import AdminMetrics from "./AdminMetrics";
@@ -12,6 +12,7 @@ import EmailDigestSettings from "./EmailDigestSettings";
 import AdminUserPreferences from "./AdminUserPreferences";
 import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
+import AdminAgents from "./AdminAgents";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { initializePWA } from "@/lib/pwa";
 
@@ -73,7 +74,7 @@ export default function AdminPortal() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-slate-900 border border-slate-700 overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-7 bg-slate-900 border border-slate-700 overflow-x-auto">
             <TabsTrigger 
               value="metrics"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
@@ -111,10 +112,17 @@ export default function AdminPortal() {
             </TabsTrigger>
             <TabsTrigger 
               value="helpdesk"
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+              className="flex items-center gap-2 data-[state=active]:text-cyan-400"
             >
-              <Ticket className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Tickets</span>
+              <Ticket className="w-4 h-4" />
+              Tickets
+            </TabsTrigger>
+            <TabsTrigger 
+              value="agents"
+              className="flex items-center gap-2 data-[state=active]:text-cyan-400"
+            >
+              <Users2 className="w-4 h-4" />
+              Agents
             </TabsTrigger>
           </TabsList>
 
@@ -146,6 +154,9 @@ export default function AdminPortal() {
           {/* Helpdesk Tab */}
           <TabsContent value="helpdesk" className="mt-6">
             <AdminPanel />
+          </TabsContent>
+          <TabsContent value="agents" className="mt-6">
+            <AdminAgents />
           </TabsContent>
         </Tabs>
       </div>
