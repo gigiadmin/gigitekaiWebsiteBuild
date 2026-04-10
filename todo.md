@@ -406,3 +406,10 @@
 - [x] Build invite UI in admin portal (modal form with email input) - InviteCustomerModal component
 - [x] Create invite landing page for customers to accept invite - AcceptInvite page with token validation
 - [x] Test invite flow end-to-end - All 146 tests passing
+
+
+## Suggested Follow-Up Features (April 2026)
+- [ ] Create reusable skill for chatbot and invite workflow (skill-creator) - IN PROGRESS
+- [x] Build admin metrics dashboard with ticket volume, resolution times, satisfaction ratings - AdminMetrics page at /admin/metrics with 6 metric cards, sentiment distribution, intent routing, satisfaction scores
+- [x] Implement customer feedback system to rate support after ticket closure - TicketFeedback page at /helpdesk/feedback with 1-5 star rating, recommendation, comments, database tracking
+- [x] Create user profile page showing ticket history and request status - UserProfile page at /helpdesk/profile with account info, ticket stats, feedback history, logout

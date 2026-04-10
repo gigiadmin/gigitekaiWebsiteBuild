@@ -1,6 +1,6 @@
 import { eq, like, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback } from "../drizzle/schema";
 import crypto from "crypto";
 import { ENV } from './_core/env';
 
@@ -787,6 +787,68 @@ export async function listCustomerInvites(adminId?: number) {
     return query;
   } catch (error) {
     console.error("[Database] Failed to list invites:", error);
+    return [];
+  }
+}
+
+// Ticket Feedback Functions
+export async function submitTicketFeedback(feedback: InsertTicketFeedback): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot submit feedback: database not available");
+    return false;
+  }
+  try {
+    await db.insert(ticketFeedback).values(feedback);
+    console.log("[Database] Ticket feedback submitted successfully");
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to submit feedback:", error);
+    throw error;
+  }
+}
+
+export async function getTicketFeedback(ticketId: number): Promise<TicketFeedback | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get feedback: database not available");
+    return null;
+  }
+  try {
+    const result = await db.select().from(ticketFeedback).where(eq(ticketFeedback.ticketId, ticketId));
+    return result[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get feedback:", error);
+    return null;
+  }
+}
+
+export async function getUserTicketFeedback(userId: number): Promise<TicketFeedback[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user feedback: database not available");
+    return [];
+  }
+  try {
+    const result = await db.select().from(ticketFeedback).where(eq(ticketFeedback.userId, userId)).orderBy(desc(ticketFeedback.createdAt));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get user feedback:", error);
+    return [];
+  }
+}
+
+export async function getAllTicketFeedback(): Promise<TicketFeedback[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get all feedback: database not available");
+    return [];
+  }
+  try {
+    const result = await db.select().from(ticketFeedback).orderBy(desc(ticketFeedback.createdAt));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get all feedback:", error);
     return [];
   }
 }

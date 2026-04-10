@@ -16,6 +16,9 @@ import AdminPanel from "./pages/AdminPanel";
 import AdminChat from "./pages/AdminChat";
 import AdminNotifications from "./pages/AdminNotifications";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminMetrics from "./pages/AdminMetrics";
+import TicketFeedback from "./pages/TicketFeedback";
+import UserProfile from "./pages/UserProfile";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AcceptInvite from "./pages/AcceptInvite";
@@ -38,7 +41,10 @@ function Router() {
       <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
+      <Route path="/helpdesk/feedback">{() => <ApprovalGuard><TicketFeedback /></ApprovalGuard>}</Route>
+      <Route path="/helpdesk/profile">{() => <ApprovalGuard><UserProfile /></ApprovalGuard>}</Route>
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin/metrics"} component={AdminMetrics} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
       <Route path={"/admin/chat"} component={AdminChat} />
       <Route path={"/admin/notifications"} component={AdminNotifications} />

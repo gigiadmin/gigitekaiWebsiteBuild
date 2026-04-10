@@ -284,3 +284,18 @@ export const customerInvites = mysqlTable("customerInvites", {
 
 export type CustomerInvite = typeof customerInvites.$inferSelect;
 export type InsertCustomerInvite = typeof customerInvites.$inferInsert;
+
+// Ticket Feedback - Customer feedback after ticket closure
+export const ticketFeedback = mysqlTable("ticketFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull(),
+  userId: int("userId").notNull(),
+  rating: mysqlEnum("rating", ["1", "2", "3", "4", "5"]).notNull(), // 1-5 star rating
+  comment: text("comment"), // Optional feedback comment
+  wouldRecommend: boolean("wouldRecommend"), // Would recommend our service?
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TicketFeedback = typeof ticketFeedback.$inferSelect;
+export type InsertTicketFeedback = typeof ticketFeedback.$inferInsert;
