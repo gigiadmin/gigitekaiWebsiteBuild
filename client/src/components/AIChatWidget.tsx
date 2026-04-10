@@ -133,6 +133,7 @@ export default function AIChatWidget() {
   const captureLead = trpc.aibot.captureLead.useMutation();
   const emailTranscriptMutation = trpc.aibot.emailTranscript.useMutation();
   const requestAgentTakeover = trpc.aibot.requestAgentTakeover.useMutation();
+  const clearChatHistoryMutation = trpc.aibot.clearChatHistory.useMutation();
   const { data: historyData } = trpc.aibot.getHistory.useQuery(
     { sessionId: sessionId || "" },
     { enabled: !!sessionId }
@@ -562,20 +563,11 @@ export default function AIChatWidget() {
                   <div className="mt-4 w-full space-y-2 border-t border-gray-700 pt-3">
                     <button
                       onClick={() => {
-                        // Call backend to permanently delete chat history
-                        setMessages([]);
                         setShowMenu(false);
                         toast.promise(
-                          (async () => {
-                            const result = await fetch('/api/trpc/aibot.clearChatHistory', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ sessionId: sessionId || 'unknown' }),
-                              credentials: 'include',
-                            }).then(r => r.json());
-                            if (!result.result?.data?.success) throw new Error('Failed to clear history');
-                            return result;
-                          })(),
+                          clearChatHistoryMutation.mutateAsync({ sessionId: sessionId || 'unknown' }).then(() => {
+                            setMessages([]);
+                          }),
                           {
                             loading: 'Clearing chat history...',
                             success: 'Chat history cleared permanently',

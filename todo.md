@@ -429,3 +429,8 @@
 - [x] Remove Spanish translator - i18n system removed from all components, replaced with English strings
 - [x] Hide 'Made with Manus' badge - badge hidden via Management UI settings
 - [x] Add compliant footer attribution - 'Built with Manus' link added to footer
+
+- [x] Fix clear chat history error - "Failed to clear chat history" message appears when clicking clear button
+  - Issue: Frontend was using raw fetch instead of tRPC client
+  - Solution: Replaced fetch call with tRPC mutation (clearChatHistoryMutation.mutateAsync)
+  - Result: Clear button now properly calls backend endpoint and deletes messages from database
