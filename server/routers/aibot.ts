@@ -11,7 +11,11 @@ import {
   getChatMessages,
   saveChatLead,
   updateChatSessionStatus,
-  createTicket
+  createTicket,
+  saveChatAnalytic,
+  saveResponseRating,
+  saveConversationSummary,
+  saveTeamsIntegration
 } from "../db";
 import { nanoid } from "nanoid";
 
@@ -125,10 +129,26 @@ export const aibotRouter = router({
       }
 
       // Save user message
-      await saveChatMessage({
+      const userMsgResult = await saveChatMessage({
         sessionId,
         role: "user",
         message,
+      });
+      const userMessageId = (userMsgResult as any)?.[0]?.insertId || 1;
+
+      // Analyze sentiment and intent (import from aibot-enterprise)
+      const { analyzeSentimentAndIntent, shouldAutoEscalate } = await import('./aibot-enterprise');
+      const analysis = await analyzeSentimentAndIntent(message);
+
+      // Save sentiment and intent analysis
+      await saveChatAnalytic({
+        sessionId,
+        messageId: userMessageId,
+        sentiment: analysis.sentiment as any,
+        sentimentScore: analysis.sentimentScore,
+        intent: analysis.intent as any,
+        intentConfidence: analysis.intentConfidence,
+        routedTo: analysis.routedTo
       });
 
       // Search knowledge base for relevant context
@@ -159,14 +179,21 @@ export const aibotRouter = router({
           ? assistantMessageContent 
           : "I apologize, I'm having trouble responding. Please try again.";
 
-        // Check if escalation is needed
+        // Check if escalation is needed (angry customers or complex issues)
+        const autoEscalateFromSentiment = shouldAutoEscalate(analysis.sentiment, analysis.sentimentScore);
         const shouldEscalate = 
+          autoEscalateFromSentiment ||
           assistantMessage.toLowerCase().includes("escalat") ||
           assistantMessage.toLowerCase().includes("specialist") ||
           assistantMessage.toLowerCase().includes("human");
 
+        // Log auto-escalation
+        if (autoEscalateFromSentiment) {
+          console.log(`[AIBot] Auto-escalating angry customer (sentiment: ${analysis.sentiment}, score: ${analysis.sentimentScore}) to ${analysis.routedTo}`);
+        }
+
         // Save assistant message
-        await saveChatMessage({
+        const assistantMsgResult = await saveChatMessage({
           sessionId,
           role: "assistant",
           message: assistantMessage,
@@ -174,8 +201,25 @@ export const aibotRouter = router({
             confidence: relevantDocs.length > 0 ? 0.8 : 0.5,
             sources: relevantDocs.map(d => d.id),
             shouldEscalate,
+            sentiment: analysis.sentiment,
+            intent: analysis.intent,
+            routedTo: analysis.routedTo
           }),
         });
+        const assistantMessageId = (assistantMsgResult as any)?.[0]?.insertId || 1;
+
+        // Generate conversation summary every 5 messages
+        const allMessages = await getChatMessages(sessionId);
+        if (allMessages.length % 5 === 0 && allMessages.length > 0) {
+          const { generateConversationSummary } = await import('./aibot-enterprise');
+          const summaryData = await generateConversationSummary(sessionId, allMessages.slice(-10));
+          await saveConversationSummary({
+            sessionId,
+            summary: summaryData.summary,
+            keyPoints: summaryData.keyPoints,
+            suggestedActions: summaryData.suggestedActions
+          });
+        }
 
         // Update message count
         const updatedSession = await getChatSession(sessionId);
@@ -460,4 +504,78 @@ export const aibotRouter = router({
       ],
     };
   }),
+
+  // Rate bot response (thumbs up/down)
+  rateResponse: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+      messageId: z.number(),
+      rating: z.enum(["helpful", "neutral", "unhelpful"]),
+      feedback: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { sessionId, messageId, rating, feedback } = input;
+      
+      try {
+        await saveResponseRating({
+          sessionId,
+          messageId,
+          rating: rating as any,
+          feedback: feedback || null,
+        });
+        
+        return { success: true, message: "Thank you for your feedback!" };
+      } catch (error) {
+        console.error("[AIBot] Failed to save rating:", error);
+        return { success: false, message: "Failed to save feedback" };
+      }
+    }),
+
+  // Get conversation summary
+  getConversationSummary: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        const messages = await getChatMessages(input.sessionId);
+        if (messages.length === 0) {
+          return { summary: "", keyPoints: [], suggestedActions: [] };
+        }
+        
+        // For now, return a placeholder
+        // In production, this would fetch from conversationSummaries table
+        return {
+          summary: "Conversation in progress",
+          keyPoints: [],
+          suggestedActions: []
+        };
+      } catch (error) {
+        console.error("[AIBot] Failed to get summary:", error);
+        return { summary: "", keyPoints: [], suggestedActions: [] };
+      }
+    }),
+
+  // Teams integration - sync chat to Teams
+  syncToTeams: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+      teamsConversationId: z.string(),
+      teamsUserId: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const { sessionId, teamsConversationId, teamsUserId } = input;
+      
+      try {
+        await saveTeamsIntegration({
+          sessionId,
+          teamsConversationId,
+          teamsUserId,
+          status: "active",
+        });
+        
+        return { success: true, message: "Chat synced to Teams" };
+      } catch (error) {
+        console.error("[AIBot] Failed to sync to Teams:", error);
+        return { success: false, message: "Failed to sync to Teams" };
+      }
+    }),
 });

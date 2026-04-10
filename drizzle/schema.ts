@@ -136,6 +136,63 @@ export const chatLeads = mysqlTable("chatLeads", {
 export type ChatLead = typeof chatLeads.$inferSelect;
 export type InsertChatLead = typeof chatLeads.$inferInsert;
 
+// Sentiment Analysis & Intent Detection
+export const chatAnalytics = mysqlTable("chatAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  messageId: int("messageId").notNull(), // Reference to chatMessages
+  sentiment: mysqlEnum("sentiment", ["positive", "neutral", "negative", "angry"]).default("neutral").notNull(),
+  sentimentScore: varchar("sentimentScore", { length: 10 }), // 0.0 to 1.0
+  intent: mysqlEnum("intent", ["sales", "support", "billing", "general", "complaint"]).default("general").notNull(),
+  intentConfidence: varchar("intentConfidence", { length: 10 }), // 0.0 to 1.0
+  routedTo: varchar("routedTo", { length: 255 }), // email address (sales@, support@, billing@)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatAnalytic = typeof chatAnalytics.$inferSelect;
+export type InsertChatAnalytic = typeof chatAnalytics.$inferInsert;
+
+// Response Ratings - User Feedback
+export const responseRatings = mysqlTable("responseRatings", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  messageId: int("messageId").notNull(), // Reference to chatMessages
+  rating: mysqlEnum("rating", ["helpful", "neutral", "unhelpful"]).notNull(),
+  feedback: text("feedback"), // Optional user comment
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ResponseRating = typeof responseRatings.$inferSelect;
+export type InsertResponseRating = typeof responseRatings.$inferInsert;
+
+// Conversation Summaries
+export const conversationSummaries = mysqlTable("conversationSummaries", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull().unique(),
+  summary: text("summary").notNull(), // AI-generated summary
+  keyPoints: text("keyPoints"), // JSON array of key points
+  suggestedActions: text("suggestedActions"), // JSON array of next steps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ConversationSummary = typeof conversationSummaries.$inferSelect;
+export type InsertConversationSummary = typeof conversationSummaries.$inferInsert;
+
+// Teams Integration - Message Log
+export const teamsIntegration = mysqlTable("teamsIntegration", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  teamsConversationId: varchar("teamsConversationId", { length: 255 }).notNull(),
+  teamsUserId: varchar("teamsUserId", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["active", "archived", "synced"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TeamsIntegration = typeof teamsIntegration.$inferSelect;
+export type InsertTeamsIntegration = typeof teamsIntegration.$inferInsert;
+
 // Real-Time Chat - Admin to User Communication
 export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
   id: int("id").autoincrement().primaryKey(),

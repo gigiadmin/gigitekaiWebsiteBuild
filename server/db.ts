@@ -1,6 +1,6 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, like, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -425,5 +425,144 @@ export async function revokeUser(userId: number) {
   } catch (error) {
     console.error("[Database] Failed to revoke user:", error);
     throw error;
+  }
+}
+
+
+// ─── Sentiment Analysis & Intent Detection ────────────────────────────────────
+
+export async function saveChatAnalytic(analytic: InsertChatAnalytic) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save chat analytic: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(chatAnalytics).values(analytic);
+    console.log("[Database] Chat analytic saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save chat analytic:", error);
+    throw error;
+  }
+}
+
+export async function getChatAnalytics(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get chat analytics: database not available");
+    return [];
+  }
+
+  try {
+    return await db.select().from(chatAnalytics).where(eq(chatAnalytics.sessionId, sessionId));
+  } catch (error) {
+    console.error("[Database] Failed to get chat analytics:", error);
+    return [];
+  }
+}
+
+// ─── Response Ratings ─────────────────────────────────────────────────────────
+
+export async function saveResponseRating(rating: InsertResponseRating) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save response rating: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(responseRatings).values(rating);
+    console.log("[Database] Response rating saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save response rating:", error);
+    throw error;
+  }
+}
+
+export async function getResponseRatings(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get response ratings: database not available");
+    return [];
+  }
+
+  try {
+    return await db.select().from(responseRatings).where(eq(responseRatings.sessionId, sessionId));
+  } catch (error) {
+    console.error("[Database] Failed to get response ratings:", error);
+    return [];
+  }
+}
+
+// ─── Conversation Summaries ───────────────────────────────────────────────────
+
+export async function saveConversationSummary(summary: InsertConversationSummary) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save conversation summary: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(conversationSummaries).values(summary);
+    console.log("[Database] Conversation summary saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save conversation summary:", error);
+    throw error;
+  }
+}
+
+export async function getConversationSummary(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get conversation summary: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(conversationSummaries).where(eq(conversationSummaries.sessionId, sessionId));
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get conversation summary:", error);
+    return null;
+  }
+}
+
+// ─── Teams Integration ────────────────────────────────────────────────────────
+
+export async function saveTeamsIntegration(integration: InsertTeamsIntegration) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save Teams integration: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(teamsIntegration).values(integration);
+    console.log("[Database] Teams integration saved successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to save Teams integration:", error);
+    throw error;
+  }
+}
+
+export async function getTeamsIntegration(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get Teams integration: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(teamsIntegration).where(eq(teamsIntegration.sessionId, sessionId));
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get Teams integration:", error);
+    return null;
   }
 }
