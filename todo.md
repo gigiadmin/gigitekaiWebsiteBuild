@@ -441,3 +441,10 @@
 - [x] Add feature to delete individual messages from chat history - Delete button appears on hover for each message
 - [x] Implement export chat history as text file - Download button generates .txt file with full transcript
 - [x] Create reusable skill for AI chatbot workflow with /skill-creator - Comprehensive skill at /home/ubuntu/skills/gigitekai-ai-chatbot with API reference and database schema
+
+
+## Account Management (April 10, 2026)
+- [x] Add logout button to admin/protected pages for account switching
+  - Added logout button to AdminNotifications page (with "Log Out & Try Another Account" button when not admin)
+  - Added logout button to AdminPanel header showing current user email
+  - Users can now easily switch between accounts

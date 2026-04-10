@@ -154,11 +154,27 @@ export default function AdminPanel() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Admin Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            Support Administration
-          </h1>
-          <p className="text-gray-400 text-sm">Manage all customer support tickets and user access</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Support Administration
+            </h1>
+            <p className="text-gray-400 text-sm">Manage all customer support tickets and user access</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-400">
+              <span className="text-[#00D4FF]">{user?.email}</span>
+            </div>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1A1F2E] border border-[rgba(0,212,255,0.3)] text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-all text-sm font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Log Out
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}

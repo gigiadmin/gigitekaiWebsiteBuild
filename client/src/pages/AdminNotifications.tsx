@@ -1,12 +1,12 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Bell, Mail, MessageSquare, AlertCircle, CheckCircle, Trash2 } from "lucide-react";
+import { Bell, Mail, MessageSquare, AlertCircle, CheckCircle, Trash2, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 
 export default function AdminNotifications() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [filter, setFilter] = useState<"all" | "contact" | "lead" | "ticket">("all");
   const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -37,6 +37,14 @@ export default function AdminNotifications() {
           <AlertCircle className="w-12 h-12 text-[#00D4FF] mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">Admin Access Required</h2>
           <p className="text-gray-400">You must be an admin to view notifications.</p>
+          <Button
+            onClick={logout}
+            variant="outline"
+            className="mt-6 border-[rgba(0,212,255,0.3)] text-[#00D4FF] hover:bg-[#00D4FF]/10"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Log Out & Try Another Account
+          </Button>
         </Card>
       </div>
     );
@@ -77,6 +85,22 @@ export default function AdminNotifications() {
             <div className="text-sm text-gray-400">
               {filteredNotifications.length} alert{filteredNotifications.length !== 1 ? "s" : ""}
             </div>
+          </div>
+
+          {/* User Info & Logout */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-gray-400">
+              Logged in as: <span className="text-[#00D4FF] font-medium">{user?.email}</span>
+            </div>
+            <Button
+              onClick={logout}
+              variant="outline"
+              size="sm"
+              className="border-[rgba(0,212,255,0.3)] text-[#00D4FF] hover:bg-[#00D4FF]/10"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Log Out
+            </Button>
           </div>
 
           {/* Filter Tabs */}
