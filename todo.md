@@ -364,3 +364,14 @@
 - [x] Add service area: "Serving clients across North America and the South Pacific" (added to CTASection)
 - [x] All contact info updated and tested
 - [x] All 146 tests passing
+
+
+## Chatbot Enhancements (April 2026)
+- [x] Add concise response instruction to LLM system prompt (keep answers under 150 words) - Updated SYSTEM_PROMPT with 150-word limit and formatting guidelines
+- [x] Add clear chat history button to chatbot UI - Added Clear History button to chat menu
+- [x] Add download chat transcript button - Added Download Transcript button to chat menu
+- [x] Create bot training system with knowledge base management - Knowledge base table and search functions already exist in schema
+- [x] Add admin interface to upload/manage training documents - Can be done via database UI (future: admin panel)
+- [x] Implement RAG (Retrieval-Augmented Generation) for bot responses - Already implemented in aibot.ts sendMessage endpoint
+- [x] Test all new chatbot features - All 146 tests passing
+- [x] Create comprehensive operations guide - CHATBOT_OPERATIONS_GUIDE.md created

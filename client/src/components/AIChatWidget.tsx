@@ -556,6 +556,40 @@ export default function AIChatWidget() {
                   ))}
                 </div>
 
+                {/* Chat Management Buttons */}
+                {messages.length > 0 && (
+                  <div className="mt-4 w-full space-y-2 border-t border-gray-700 pt-3">
+                    <button
+                      onClick={() => {
+                        setMessages([]);
+                        setShowMenu(false);
+                        toast.success("Chat history cleared");
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/5 border border-gray-700 hover:border-red-500/30 transition-colors"
+                    >
+                      <X size={14} />
+                      Clear History
+                    </button>
+                    <button
+                      onClick={() => {
+                        const transcript = messages.map(m => `${m.role === 'user' ? 'You' : 'GigitekAI'}: ${m.message}`).join('\n\n');
+                        const blob = new Blob([transcript], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `gigitekai-chat-${new Date().toISOString().split('T')[0]}.txt`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        toast.success("Transcript downloaded");
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/5 border border-gray-700 hover:border-[#00D4FF]/30 transition-colors"
+                    >
+                      <Download size={14} />
+                      Download Transcript
+                    </button>
+                  </div>
+                )}
+
                 {/* Talk to human */}
                 <button
                   onClick={() => { setShowMenu(false); handleEscalate("User wants to talk to support"); }}
