@@ -34,14 +34,14 @@ export function useAuth(options?: UseAuthOptions) {
       ) {
         // Already logged out
       } else {
-        throw error;
+        console.error('[logout] error:', error);
       }
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
-      // Redirect to login page after logout
+      // Redirect to home page after logout (not OAuth portal - avoids redirect URI errors)
       if (typeof window !== "undefined") {
-        window.location.href = getLoginUrl();
+        window.location.href = "/";
       }
     }
   }, [logoutMutation, utils]);
