@@ -388,17 +388,13 @@
 
 
 ## Human Agent Takeover Feature (April 2026)
-- [ ] Add requestAgentTakeover endpoint to aibot router
-- [ ] Create agentTakeover database table to track requests
-- [ ] Implement real-time notification to support team when agent requested
-- [ ] Update chatbot UI with "Talk to Agent" button
-- [ ] Implement automatic escalation to help desk ticket
-- [ ] Add agent status tracking (available/busy/offline)
-- [ ] Test agent takeover flow end-to-end
-
-
-## Human Agent Takeover Feature (April 2026)
 - [x] Add agent takeover endpoint and database tracking - agentTakeovers table created, requestAgentTakeover endpoint added
 - [x] Update chatbot UI to show agent request button - "Talk to a specialist" button added to chat menu
 - [x] Implement real-time agent notification and handoff - notifyOwner integration, automatic ticket creation
 - [x] Test all features - All 146 tests passing
+
+
+## Knowledge Base & Email Fix (April 2026)
+- [x] Fix all support@gigitek.com to support@gigitekai.com throughout codebase (12 files updated)
+- [x] Create starter knowledge base SQL script with 13 entries (Microsoft 365, Managed IT, Cybersecurity, Troubleshooting, Sales/Onboarding)
+- [x] All 146 tests passing after email changes

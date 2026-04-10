@@ -469,9 +469,9 @@ describe("aibot lead capture email notifications", () => {
     expect(result.success).toBe(true);
     expect(mockSendEmail).toHaveBeenCalled();
 
-    // Verify email was sent to support@gigitek.com
+    // Verify email was sent to support@gigitekai.com
     const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
-    expect(lastCall[0].to).toBe("support@gigitek.com");
+    expect(lastCall[0].to).toBe("support@gigitekai.com");
     expect(lastCall[0].subject).toContain("New Lead");
     expect(lastCall[0].subject).toContain("John Lead");
     expect(lastCall[0].html).toContain("john@example.com");

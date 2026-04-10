@@ -54,7 +54,7 @@ function formatTranscript(messages: Array<{ role: string; message: string; creat
         ${rows}
         <div style="text-align:center;padding:20px 0;border-top:1px solid rgba(0,212,255,0.2);margin-top:16px;">
           <p style="color:#64748b;font-size:12px;margin:0;">This transcript was sent from <a href="https://gigitekai.com" style="color:#00D4FF;text-decoration:none;">gigitekai.com</a></p>
-          <p style="color:#64748b;font-size:11px;margin:4px 0 0;">GigitekAI &bull; Cloud & AI Solutions &bull; support@gigitek.com &bull; 609-676-4483</p>
+          <p style="color:#64748b;font-size:11px;margin:4px 0 0;">GigitekAI &bull; Cloud & AI Solutions &bull; support@gigitekai.com &bull; 609-676-4483</p>
         </div>
       </div>
     </body></html>`;
@@ -66,7 +66,7 @@ function formatTranscript(messages: Array<{ role: string; message: string; creat
     const sender = m.role === "user" ? "You" : "GigitekAI Assistant";
     return `${sender}:\n${m.message}\n`;
   }).join("\n");
-  const footer = `\n${"-".repeat(50)}\nThis transcript was saved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • support@gigitek.com • 609-676-4483`;
+  const footer = `\n${"-".repeat(50)}\nThis transcript was saved from gigitekai.com\nGigitekAI • Cloud & AI Solutions • support@gigitekai.com • 609-676-4483`;
   return header + body + footer;
 }
 
@@ -424,7 +424,7 @@ export const aibotRouter = router({
     </div>
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
-      <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
       <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: none;">Unsubscribe from lead follow-ups</a></p>
     </div>
   </div>
@@ -433,7 +433,7 @@ export const aibotRouter = router({
         `;
 
         const emailSent = await sendEmail({
-          to: "support@gigitek.com",
+          to: "support@gigitekai.com",
           subject: `New Lead: ${name} (${company || "No company"})`,
           html: emailBody,
           replyTo: email,
