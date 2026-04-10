@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye } from "lucide-react";
+import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { getLoginUrl } from "@/const";
 
 // Import all admin pages
 import AdminMetrics from "./AdminMetrics";
@@ -16,21 +17,47 @@ import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminAgents from "./AdminAgents";
 import AdminAccountManagement from "./AdminAccountManagement";
-// PWA disabled due to OAuth conflicts - users can add to home screen via Safari Share menu
 
 export default function AdminPortal() {
-  const { data: adminUser, isLoading } = trpc.adminAuth.me.useQuery();
-  const logoutMutation = trpc.adminAuth.logout.useMutation();
+  // Primary: Manus OAuth (same session as /helpdesk)
+  const { user: oauthUser, loading: oauthLoading, logout: oauthLogout, isAuthenticated } = useAuth();
+
+  // Fallback: custom admin auth (for agents/viewers without Manus accounts)
+  const { data: customAdminUser, isLoading: customAdminLoading } = trpc.adminAuth.me.useQuery(
+    undefined,
+    { enabled: !oauthLoading && !isAuthenticated } // only check if OAuth didn't authenticate
+  );
+  const customLogoutMutation = trpc.adminAuth.logout.useMutation();
+
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("metrics");
 
-  const isAdmin = adminUser?.role === "admin";
-  const isAgent = adminUser?.role === "agent" || isAdmin;
-  const isViewer = adminUser?.role === "viewer";
+  const isLoading = oauthLoading || (!isAuthenticated && customAdminLoading);
+
+  // Determine the active user — OAuth takes priority
+  const activeUser = isAuthenticated && oauthUser
+    ? {
+        email: oauthUser.email ?? "",
+        name: oauthUser.name ?? "",
+        role: oauthUser.role === "admin" ? "admin" as const : "viewer" as const,
+        authType: "oauth" as const,
+      }
+    : customAdminUser
+    ? {
+        email: customAdminUser.email,
+        name: customAdminUser.name,
+        role: customAdminUser.role as "admin" | "agent" | "viewer",
+        authType: "custom" as const,
+      }
+    : null;
 
   const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    setLocation("/login");
+    if (activeUser?.authType === "oauth") {
+      await oauthLogout();
+    } else {
+      await customLogoutMutation.mutateAsync();
+      setLocation("/login");
+    }
   };
 
   if (isLoading) {
@@ -41,10 +68,38 @@ export default function AdminPortal() {
     );
   }
 
-  if (!adminUser) {
-    setLocation("/login");
+  // Not authenticated via either system — redirect to Manus OAuth login
+  if (!activeUser) {
+    window.location.href = getLoginUrl();
     return null;
   }
+
+  // OAuth user without admin role — show access denied
+  if (activeUser.authType === "oauth" && activeUser.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <Lock className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-70" />
+          <h1 className="text-2xl font-bold text-white mb-2">Admin Access Required</h1>
+          <p className="text-gray-400 mb-6">
+            Your account (<span className="text-cyan-400">{activeUser.email}</span>) does not have admin privileges.
+            Contact your administrator to request access.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => setLocation("/")} variant="outline" className="border-slate-600">
+              Back to Home
+            </Button>
+            <Button onClick={handleLogout} className="bg-cyan-600 hover:bg-cyan-700">
+              <LogOut className="w-4 h-4 mr-2" /> Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isAdmin = activeUser.role === "admin";
+  const isAgent = activeUser.role === "agent" || isAdmin;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -55,93 +110,101 @@ export default function AdminPortal() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-                {adminUser.role === "admin" && (
+                {activeUser.role === "admin" && (
                   <Badge className="bg-red-900/40 text-red-400 border border-red-800 flex items-center gap-1">
                     <Shield className="w-3 h-3" /> Admin
                   </Badge>
                 )}
-                {adminUser.role === "agent" && (
+                {activeUser.role === "agent" && (
                   <Badge className="bg-cyan-900/40 text-cyan-400 border border-cyan-800 flex items-center gap-1">
                     <Users className="w-3 h-3" /> Agent
                   </Badge>
                 )}
-                {adminUser.role === "viewer" && (
+                {activeUser.role === "viewer" && (
                   <Badge className="bg-gray-800 text-gray-400 border border-gray-700 flex items-center gap-1">
                     <Eye className="w-3 h-3" /> Viewer
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-gray-400 mt-1">Logged in as: {adminUser.email}</p>
+              <p className="text-sm text-gray-400 mt-1">Logged in as: {activeUser.email}</p>
             </div>
-            <Button 
-              onClick={handleLogout}
-              variant="outline"
-              className="border-slate-600 hover:bg-slate-800"
-              disabled={logoutMutation.isPending}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              {logoutMutation.isPending ? "Logging out..." : "Logout"}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setLocation("/")}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white hidden sm:flex"
+              >
+                Back to Home
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="border-slate-600 hover:bg-slate-800"
+                disabled={customLogoutMutation.isPending}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                {customLogoutMutation.isPending ? "Logging out..." : "Logout"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-
-
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex flex-wrap w-full bg-slate-900 border border-slate-700 overflow-x-auto gap-0.5 p-1 h-auto">
-            <TabsTrigger 
+            <TabsTrigger
               value="metrics"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Metrics</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="notifications"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <Bell className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="digest-settings"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <Mail className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">My Digest</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="user-preferences"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <Users className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="chat"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="helpdesk"
-              className="flex items-center gap-2 data-[state=active]:text-cyan-400"
+              className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <Ticket className="w-4 h-4" />
-              Tickets
+              <span className="hidden sm:inline">Tickets</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="agents"
               className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
               <Users2 className="w-4 h-4" />
               <span className="hidden sm:inline">Agents</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="account"
               className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
@@ -213,9 +276,9 @@ export default function AdminPortal() {
             )}
           </TabsContent>
 
-          {/* Account Management Tab — all roles (admins see full management) */}
+          {/* Account Management Tab — all roles */}
           <TabsContent value="account" className="mt-6">
-            <AdminAccountManagement currentRole={adminUser?.role ?? "viewer"} />
+            <AdminAccountManagement currentRole={activeUser.role} />
           </TabsContent>
         </Tabs>
       </div>

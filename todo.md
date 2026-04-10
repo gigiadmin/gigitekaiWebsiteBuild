@@ -611,3 +611,8 @@
 - [x] Verified login API returns success with JWT session cookie
   - Tested via curl: {"success":true,"admin":{"id":1,"email":"harry@gigitek.com","name":"Harry (Admin)","role":"admin"}}
   - All 168 tests passing
+
+## Admin Auth Unification (Apr 10, 2026)
+- [x] Investigate why /admin requires separate login while /helpdesk uses Manus OAuth seamlessly
+- [x] Unify /admin auth to use the same Manus OAuth session (role-based) — no separate login page
+- [x] Remove the custom /login page and adminCredentials table once unified (kept as fallback for non-OAuth staff)
