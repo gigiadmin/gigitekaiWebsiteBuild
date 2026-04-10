@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye, Lock } from "lucide-react";
+import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye, Lock, LifeBuoy, Home } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
 
@@ -130,12 +130,22 @@ export default function AdminPortal() {
             </div>
             <div className="flex items-center gap-3">
               <Button
+                onClick={() => setLocation("/helpdesk")}
+                variant="outline"
+                size="sm"
+                className="border-cyan-700 text-cyan-400 hover:bg-cyan-900/30 hover:text-cyan-300 hidden sm:flex items-center gap-1.5"
+              >
+                <LifeBuoy className="w-4 h-4" />
+                Helpdesk
+              </Button>
+              <Button
                 onClick={() => setLocation("/")}
                 variant="ghost"
                 size="sm"
                 className="text-gray-400 hover:text-white hidden sm:flex"
               >
-                Back to Home
+                <Home className="w-4 h-4 mr-1" />
+                Home
               </Button>
               <Button
                 onClick={handleLogout}

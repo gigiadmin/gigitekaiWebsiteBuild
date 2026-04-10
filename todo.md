@@ -616,3 +616,7 @@
 - [x] Investigate why /admin requires separate login while /helpdesk uses Manus OAuth seamlessly
 - [x] Unify /admin auth to use the same Manus OAuth session (role-based) — no separate login page
 - [x] Remove the custom /login page and adminCredentials table once unified (kept as fallback for non-OAuth staff)
+
+## Admin Portal UX Improvements (Apr 10, 2026)
+- [x] Add Helpdesk quick-link button to Admin Portal header for easy navigation to /helpdesk
+- [x] Guide Harry on creating a second admin account for backup access
