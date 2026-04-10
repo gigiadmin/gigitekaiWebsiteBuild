@@ -560,10 +560,30 @@
   - All 127 tests passing (1 pre-existing aibot JSON parse issue unrelated to this change)
 
 ## Admin Username/Password Login System (April 10, 2026)
-- [ ] Create adminCredentials table in database schema (email, hashedPassword, role, name, isActive)
-- [ ] Build bcrypt password hashing helpers
-- [ ] Create tRPC procedures: adminLogin, adminLogout, adminRegister, adminMe
-- [ ] Update /login page with email/password form (replace OAuth button)
-- [ ] Create AdminAuthGuard component to protect /admin routes
-- [ ] Add first admin account seeding (harry@gigitek.com)
-- [ ] Test login/logout flow end-to-end
+- [x] Create adminCredentials table in database schema (email, hashedPassword, role, name, isActive)
+  - Added adminCredentials table with email, name, hashedPassword, role (admin/agent/viewer), isActive, timestamps
+  - Database migration applied successfully
+- [x] Build bcrypt password hashing helpers
+  - Created server/admin-auth.ts with hashPassword, verifyPassword, signAdminToken, verifyAdminToken
+  - JWT session management with 7-day expiry, cookie helpers
+- [x] Create tRPC procedures: adminLogin, adminLogout, adminRegister, adminMe
+  - Created server/routers/admin-auth.ts with login, logout, me, register, listAccounts, updateAccount, deleteAccount
+  - Registered adminAuthRouter in main routers.ts
+- [x] Update /login page with email/password form (replace OAuth button)
+  - Replaced OAuth button with email/password form with error handling and loading states
+  - Auto-redirects to /admin if already authenticated
+- [x] Create AdminAuthGuard component to protect /admin routes
+  - Created AdminAuthGuard.tsx with role-based access control
+  - Redirects to /login if not authenticated
+- [x] Add first admin account seeding (harry@gigitek.com)
+  - Created scripts/create-admin.mjs
+  - Admin account created: harry@gigitek.com / GigitekAI2024!
+- [x] Test login/logout flow end-to-end
+  - Login tested in browser: credentials work, redirects to /admin after login
+  - All 153 tests passing
+
+## Account Management Features (April 10, 2026)
+- [ ] Change Password feature in admin portal settings tab
+- [ ] Create Agent Account flow (admin can create accounts for techs/agents)
+- [ ] Manage Accounts UI (list all accounts, edit roles, deactivate/reactivate)
+- [ ] Role-based access control enforcement (admin sees all tabs, agent sees limited tabs, viewer read-only)

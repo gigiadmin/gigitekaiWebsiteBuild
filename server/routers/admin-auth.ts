@@ -225,4 +225,71 @@ export const adminAuthRouter = router({
       await deleteAdminAccount(input.id);
       return { success: true };
     }),
+
+  // Change own password (any authenticated admin/agent)
+  changePassword: publicProcedure
+    .input(
+      z.object({
+        currentPassword: z.string().min(1),
+        newPassword: z.string().min(8, "Password must be at least 8 characters"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const req = (ctx as unknown as { req: Request }).req;
+      const admin = req ? await getAdminFromRequest(req) : null;
+      if (!admin) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
+      }
+
+      // Verify current password
+      const valid = await verifyPassword(input.currentPassword, admin.hashedPassword);
+      if (!valid) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Current password is incorrect" });
+      }
+
+      // Hash and update new password
+      const hashedPassword = await hashPassword(input.newPassword);
+      await updateAdminAccount(admin.id, { password: input.newPassword });
+      return { success: true };
+    }),
+
+  // Create a new agent account (admin only, no secret required)
+  createAccount: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        name: z.string().min(2),
+        password: z.string().min(8),
+        role: z.enum(["admin", "agent", "viewer"]).default("agent"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const req = (ctx as unknown as { req: Request }).req;
+      const admin = req ? await getAdminFromRequest(req) : null;
+      if (!admin || admin.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+
+      const existing = await findAdminByEmail(input.email);
+      if (existing) {
+        throw new TRPCError({ code: "CONFLICT", message: "An account with this email already exists" });
+      }
+
+      const newAccount = await createAdminAccount({
+        email: input.email,
+        name: input.name,
+        password: input.password,
+        role: input.role,
+      });
+
+      return {
+        success: true,
+        account: {
+          id: newAccount!.id,
+          email: newAccount!.email,
+          name: newAccount!.name,
+          role: newAccount!.role,
+        },
+      };
+    }),
 });
