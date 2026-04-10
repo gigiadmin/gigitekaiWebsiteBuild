@@ -3,13 +3,15 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, Bell, Mail, Users, Settings } from "lucide-react";
+import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket } from "lucide-react";
 
 // Import all admin pages
 import AdminMetrics from "./AdminMetrics";
 import AdminNotifications from "./AdminNotifications";
 import EmailDigestSettings from "./EmailDigestSettings";
 import AdminUserPreferences from "./AdminUserPreferences";
+import AdminChat from "./AdminChat";
+import AdminPanel from "./AdminPanel";
 
 export default function AdminPortal() {
   const { user, logout } = useAuth();
@@ -61,7 +63,7 @@ export default function AdminPortal() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-slate-900 border border-slate-700">
+          <TabsList className="grid w-full grid-cols-6 bg-slate-900 border border-slate-700 overflow-x-auto">
             <TabsTrigger 
               value="metrics"
               className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
@@ -90,6 +92,20 @@ export default function AdminPortal() {
               <Users className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="chat"
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Chat</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="helpdesk"
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+            >
+              <Ticket className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Tickets</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Metrics Tab */}
@@ -110,6 +126,16 @@ export default function AdminPortal() {
           {/* User Preferences Tab */}
           <TabsContent value="user-preferences" className="mt-6">
             <AdminUserPreferences />
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat" className="mt-6">
+            <AdminChat />
+          </TabsContent>
+
+          {/* Helpdesk Tab */}
+          <TabsContent value="helpdesk" className="mt-6">
+            <AdminPanel />
           </TabsContent>
         </Tabs>
       </div>
