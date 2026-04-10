@@ -7,10 +7,7 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
-import { registerServiceWorker } from "@/hooks/usePWA";
-
-// Register PWA service worker
-registerServiceWorker();
+// Service worker disabled due to OAuth conflicts
 
 const queryClient = new QueryClient();
 
