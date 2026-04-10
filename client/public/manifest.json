@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0E1A",
-  "theme_color": "#0A0E1A",
+  "theme_color": "#00D4FF",
   "orientation": "any",
   "scope": "/",
   "categories": ["business", "technology"],
@@ -51,6 +51,32 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-192-mTgHQN36iurG8KJ64nHfAK.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512-DnYfVz86ebReMpqYfCgjkr.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "View Tickets",
+      "short_name": "Tickets",
+      "description": "View and manage support tickets",
+      "url": "/admin?tab=helpdesk"
+    },
+    {
+      "name": "Live Chat",
+      "short_name": "Chat",
+      "description": "Access live customer chat",
+      "url": "/admin?tab=chat"
     }
   ]
 }
