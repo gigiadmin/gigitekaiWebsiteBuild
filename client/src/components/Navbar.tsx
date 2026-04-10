@@ -1,5 +1,5 @@
 /*
-  GigitekAI Navbar — Theme-aware, i18n-enabled navigation
+  GigitekAI Navbar — Theme-aware navigation
   Two-tier navigation: top utility bar + main nav
   Accent: Electric cyan (#00D4FF)
   Font: Space Grotesk
@@ -9,22 +9,19 @@ import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { t } = useTranslation();
 
   const services = [
-    { label: t("nav.cloud"), href: "#cloud" },
-    { label: t("nav.ai"), href: "#ai" },
-    { label: t("nav.managed"), href: "#managed" },
-    { label: t("nav.cybersecurity"), href: "#security" },
-    { label: t("nav.data"), href: "#data" },
+    { label: "Cloud Infrastructure", href: "#cloud" },
+    { label: "AI & Machine Learning", href: "#ai" },
+    { label: "Managed IT Services", href: "#managed" },
+    { label: "Cybersecurity", href: "#security" },
+    { label: "Data Analytics", href: "#data" },
   ];
 
   useEffect(() => {
@@ -39,12 +36,12 @@ export default function Navbar() {
       <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-500 dark:text-gray-400 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
           <span className="text-[#00D4FF] font-medium">
-            {t("nav.tagline")}
+            GigitekAI — Powering the Next Generation of Enterprise Technology
           </span>
           <div className="flex items-center gap-6">
-            <a href="/blog" className="hover:text-[#00D4FF] transition-colors">{t("nav.blog")}</a>
-            <a href="/about" className="hover:text-[#00D4FF] transition-colors">{t("nav.aboutUs")}</a>
-            <a href="/careers" className="hover:text-[#00D4FF] transition-colors">{t("nav.careers")}</a>
+            <a href="/blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
+            <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
+            <a href="/careers" className="hover:text-[#00D4FF] transition-colors">Careers</a>
             <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
               <Phone size={12} />
               1-609-676-4483
@@ -85,7 +82,7 @@ export default function Navbar() {
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
               >
-                {t("nav.services")}
+                Services
                 <ChevronDown size={14} className={`transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
               </button>
               {servicesOpen && (
@@ -108,9 +105,9 @@ export default function Navbar() {
             </div>
 
             {[
-              { label: t("nav.industries"), href: "#industries" },
-              { label: t("nav.aboutUs"), href: "/about" },
-              { label: t("nav.insights"), href: "/blog" },
+              { label: "Industries", href: "#industries" },
+              { label: "About Us", href: "/about" },
+              { label: "Insights", href: "/blog" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -132,7 +129,7 @@ export default function Navbar() {
                 <LifeBuoy size={18} className="text-[#00D4FF]" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </div>
-              <span>{t("nav.support")}</span>
+              <span>Support</span>
             </a>
           </div>
 
@@ -149,15 +146,12 @@ export default function Navbar() {
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             </a>
 
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-
             {/* Theme Toggle */}
             {toggleTheme && (
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
-                title={theme === 'dark' ? t("nav.lightMode") : t("nav.darkMode")}
+                title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
                 aria-label="Toggle theme"
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -166,14 +160,14 @@ export default function Navbar() {
             <button
               onClick={() => {
                 document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                toast.info(t("nav.getInTouch"), {
-                  description: t("cta.formSubtitle"),
+                toast.info("Get In Touch", {
+                  description: "Complete the form and our team will reach out within 24 hours.",
                   duration: 3000,
                 });
               }}
               className="btn-cyan text-sm"
             >
-              {t("nav.getInTouch")}
+              Get In Touch
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -214,9 +208,9 @@ export default function Navbar() {
             ))}
             <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
               {[
-                { label: t("nav.industries"), href: "#industries" },
-                { label: t("nav.aboutUs"), href: "/about" },
-                { label: t("nav.insights"), href: "/blog" },
+                { label: "Industries", href: "#industries" },
+                { label: "About Us", href: "/about" },
+                { label: "Insights", href: "/blog" },
               ].map((item) => (
                 <a
                   key={item.href}
@@ -249,14 +243,9 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
               >
                 <LifeBuoy size={18} />
-                <span>{t("nav.support")}</span>
+                <span>Support</span>
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </a>
-
-              {/* Mobile Language Switcher */}
-              <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2">
-                <LanguageSwitcher compact />
-              </div>
 
               {/* Mobile Theme Toggle */}
               {toggleTheme && (
@@ -265,7 +254,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                  <span>{theme === 'dark' ? t("nav.lightMode") : t("nav.darkMode")}</span>
+                  <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>
                 </button>
               )}
             </div>
@@ -284,7 +273,7 @@ export default function Navbar() {
                   }, 100);
                 }}
               >
-                {t("nav.getInTouch")}
+                Get In Touch
               </a>
             </div>
           </div>

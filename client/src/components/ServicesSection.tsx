@@ -5,7 +5,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Cloud, Brain, Shield, TrendingUp, Database, Cpu, ArrowRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const CLOUD_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-cloud-services-RDPBQDkRZRbpsWy2UNcbqf.webp";
 const AI_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-ai-solutions-BoVHfmFw3tdkqwMF7iT2YX.webp";
@@ -59,7 +58,6 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const Icon = service.icon;
-  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -91,7 +89,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
         className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        {t("services.learnMore")} <ArrowRight size={14} />
+        Learn More <ArrowRight size={14} />
       </a>
     </div>
   );
@@ -100,7 +98,6 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
 export default function ServicesSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const { t } = useTranslation();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -118,13 +115,13 @@ export default function ServicesSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
           <div ref={ref}>
             <div className={`section-label transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              {t("services.sectionLabel")}
+              WHAT WE DO
             </div>
             <h2
               className={`text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              {t("services.title")}
+              Enterprise Solutions
             </h2>
           </div>
           <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>

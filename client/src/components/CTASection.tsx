@@ -8,13 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useTranslation } from "react-i18next";
 
 export default function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const { t } = useTranslation();
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
   const [error, setError] = useState<string | null>(null);
 
@@ -82,12 +80,12 @@ export default function CTASection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="section-label">{t("cta.sectionLabel")}</div>
+            <div className="section-label">GET STARTED</div>
             <h2
               className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              {t("cta.title")}
+              Ready to Transform Your Technology?
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10">
               Maximize your business potential with enterprise cloud infrastructure and AI solutions. Start with a complimentary Cloud & AI Readiness Assessment — no obligation, no pressure.
@@ -142,7 +140,7 @@ export default function CTASection() {
                   className="text-gray-900 dark:text-white text-xl font-bold mb-2"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {t("cta.formTitle")}
+                  Request Your Free Assessment
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
                   Tell us about your business and we'll design a tailored cloud and AI strategy.
@@ -178,7 +176,7 @@ export default function CTASection() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">{t("cta.name")} *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Full Name *</label>
                     <input
                       type="text"
                       required
@@ -190,7 +188,7 @@ export default function CTASection() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">{t("cta.email")} *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Work Email *</label>
                     <input
                       type="email"
                       required
@@ -204,7 +202,7 @@ export default function CTASection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">{t("cta.company")}</label>
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Company Name</label>
                   <input
                     type="text"
                     value={form.company}
@@ -235,11 +233,11 @@ export default function CTASection() {
                   {submitMutation.isPending ? (
                     <>
                       <Loader2 size={18} className="animate-spin" />
-                      {t("cta.sending")}
+                      Sending...
                     </>
                   ) : (
                     <>
-                      {t("cta.submit")}
+                      Request Assessment
                       <ArrowRight size={18} />
                     </>
                   )}

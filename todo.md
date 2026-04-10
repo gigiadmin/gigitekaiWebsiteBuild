@@ -425,3 +425,7 @@
   - Issue: Clear History button only clears UI, doesn't delete from database
   - Solution: Added backend endpoint to permanently delete chat history from database
   - Implementation: deleteChatMessages() function in db.ts, clearChatHistory endpoint in aibot router, frontend updated to call API
+
+- [x] Remove Spanish translator - i18n system removed from all components, replaced with English strings
+- [x] Hide 'Made with Manus' badge - badge hidden via Management UI settings
+- [x] Add compliant footer attribution - 'Built with Manus' link added to footer

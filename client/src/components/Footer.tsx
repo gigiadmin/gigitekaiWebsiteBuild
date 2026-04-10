@@ -4,7 +4,6 @@
 */
 
 import { Linkedin, Twitter, Facebook, Youtube } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const footerLinks = {
   Services: [
@@ -51,7 +50,6 @@ const socials = [
 // Note: Update these URLs with actual GigitekAI social media profiles when available
 
 export default function Footer() {
-  const { t } = useTranslation();
   return (
     <footer className="bg-gray-100 dark:bg-[#050810] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)]">
       {/* Main footer */}
@@ -71,7 +69,7 @@ export default function Footer() {
               </span>
             </a>
             <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-xs">
-              {t("footer.description")}
+              Enterprise cloud infrastructure, AI solutions, and managed services that transform how businesses operate and scale.
             </p>
             <div className="flex items-center gap-3">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -123,9 +121,14 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.08)]">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-600 text-xs">
-            © {new Date().getFullYear()} GigitekAI. {t("footer.rights")}
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-gray-600 text-xs">
+              © {new Date().getFullYear()} GigitekAI. All rights reserved.
+            </p>
+            <p className="text-gray-500 text-xs">
+              Built with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-[#00D4FF] hover:underline">Manus</a>
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             {["Privacy Policy", "Terms of Service", "Accessibility", "Sitemap"].map((item) => (
               <a

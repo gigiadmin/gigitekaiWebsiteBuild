@@ -6,7 +6,6 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
@@ -14,7 +13,6 @@ const badges = [];
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
-  const { t } = useTranslation();
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
@@ -56,7 +54,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            {t("hero.badge")}
+            NEXT-GEN CLOUD & AI SOLUTIONS
           </div>
 
           {/* Headline */}
@@ -66,9 +64,9 @@ export default function HeroSection() {
             }`}
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            {t("hero.title1")}
+            Intelligent
             <br />
-            {t("hero.title2")}{" "}
+            Cloud & AI {" "}
             <span
               style={{
                 background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
@@ -76,7 +74,7 @@ export default function HeroSection() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              {t("hero.title3")}
+              Solutions
             </span>
           </h1>
 
@@ -86,7 +84,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {t("hero.subtitle")}
+            We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale.
           </p>
 
           {/* CTA Buttons */}
@@ -96,11 +94,11 @@ export default function HeroSection() {
             }`}
           >
             <a href="#contact" className="btn-cyan text-base px-6 py-3">
-              {t("hero.cta1")}
+              Start Your Transformation
               <ArrowRight size={18} />
             </a>
             <a href="#services" className="btn-outline-cyan text-base px-6 py-3">
-              {t("hero.cta2")}
+              View Our Solutions
             </a>
           </div>
 
