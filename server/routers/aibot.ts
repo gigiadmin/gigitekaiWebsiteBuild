@@ -21,7 +21,8 @@ import {
   updateAgentTakeoverRequestStatus,
   getPendingAgentTakeoverRequests,
   getDb,
-  deleteChatMessages
+  deleteChatMessages,
+  deleteMessageById
 } from "../db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -682,6 +683,24 @@ export const aibotRouter = router({
       } catch (error) {
         console.error('[AIBot] Failed to clear chat history:', error);
         return { success: false, message: 'Failed to clear chat history' };
+      }
+    }),
+
+  deleteMessage: publicProcedure
+    .input(z.object({
+      messageId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const success = await deleteMessageById(input.messageId);
+        if (success) {
+          return { success: true, message: 'Message deleted' };
+        } else {
+          return { success: false, message: 'Failed to delete message' };
+        }
+      } catch (error) {
+        console.error('[AIBot] Failed to delete message:', error);
+        return { success: false, message: 'Failed to delete message' };
       }
     }),
 });

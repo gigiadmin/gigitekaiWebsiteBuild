@@ -434,3 +434,10 @@
   - Issue: Frontend was using raw fetch instead of tRPC client
   - Solution: Replaced fetch call with tRPC mutation (clearChatHistoryMutation.mutateAsync)
   - Result: Clear button now properly calls backend endpoint and deletes messages from database
+
+
+## Follow-Up Features (April 10, 2026)
+- [x] Add confirmation pop-up before clearing entire chat history - Modal dialog with cancel/confirm buttons
+- [x] Add feature to delete individual messages from chat history - Delete button appears on hover for each message
+- [x] Implement export chat history as text file - Download button generates .txt file with full transcript
+- [x] Create reusable skill for AI chatbot workflow with /skill-creator - Comprehensive skill at /home/ubuntu/skills/gigitekai-ai-chatbot with API reference and database schema

@@ -121,6 +121,8 @@ export default function AIChatWidget() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -563,17 +565,7 @@ export default function AIChatWidget() {
                   <div className="mt-4 w-full space-y-2 border-t border-gray-700 pt-3">
                     <button
                       onClick={() => {
-                        setShowMenu(false);
-                        toast.promise(
-                          clearChatHistoryMutation.mutateAsync({ sessionId: sessionId || 'unknown' }).then(() => {
-                            setMessages([]);
-                          }),
-                          {
-                            loading: 'Clearing chat history...',
-                            success: 'Chat history cleared permanently',
-                            error: 'Failed to clear chat history',
-                          }
-                        );
+                        setShowClearConfirm(true);
                       }}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/5 border border-gray-700 hover:border-red-500/30 transition-colors"
                     >
@@ -666,18 +658,31 @@ export default function AIChatWidget() {
                 </div>
 
                 {/* Message Bubble */}
-                <div
-                  className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-gradient-to-br from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-tr-md"
-                      : "bg-[#151D30] text-gray-200 rounded-tl-md border border-[rgba(0,212,255,0.08)]"
-                  }`}
-                >
-                  {msg.role === "assistant" ? (
-                    <Streamdown>{msg.message}</Streamdown>
-                  ) : (
-                    msg.message
-                  )}
+                <div className="flex flex-col gap-1 max-w-[80%]">
+                  <div
+                    className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-gradient-to-br from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-tr-md"
+                        : "bg-[#151D30] text-gray-200 rounded-tl-md border border-[rgba(0,212,255,0.08)]"
+                    }`}
+                  >
+                    {msg.role === "assistant" ? (
+                      <Streamdown>{msg.message}</Streamdown>
+                    ) : (
+                      msg.message
+                    )}
+                  </div>
+                  {/* Delete button on hover */}
+                  <button
+                    onClick={() => {
+                      const newMessages = messages.filter((_, i) => i !== idx);
+                      setMessages(newMessages);
+                      toast.success("Message deleted");
+                    }}
+                    className="text-[10px] text-gray-500 hover:text-red-400 opacity-0 hover:opacity-100 transition-opacity px-2 py-1"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
@@ -941,6 +946,43 @@ export default function AIChatWidget() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Clear History Confirmation Dialog */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#151D30] border border-[rgba(0,212,255,0.2)] rounded-xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-semibold text-white mb-2">Clear Chat History?</h3>
+            <p className="text-sm text-gray-400 mb-6">This will permanently delete all messages. This action cannot be undone.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 border border-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowClearConfirm(false);
+                  toast.promise(
+                    clearChatHistoryMutation.mutateAsync({ sessionId: sessionId || 'unknown' }).then(() => {
+                      setMessages([]);
+                      setShowMenu(false);
+                    }),
+                    {
+                      loading: 'Clearing chat history...',
+                      success: 'Chat history cleared permanently',
+                      error: 'Failed to clear chat history',
+                    }
+                  );
+                }}
+                className="flex-1 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-sm border border-red-500/30 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

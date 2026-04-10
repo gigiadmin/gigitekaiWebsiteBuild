@@ -869,3 +869,21 @@ export async function deleteChatMessages(sessionId: string) {
     return false;
   }
 }
+
+
+export async function deleteMessageById(messageId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete message: database not available");
+    return false;
+  }
+
+  try {
+    await db.delete(chatMessages).where(eq(chatMessages.id, messageId));
+    console.log("[Database] Message deleted successfully:", messageId);
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to delete message:", error);
+    return false;
+  }
+}
