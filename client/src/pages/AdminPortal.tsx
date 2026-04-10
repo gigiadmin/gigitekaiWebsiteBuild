@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,17 +13,13 @@ import AdminUserPreferences from "./AdminUserPreferences";
 import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminAgents from "./AdminAgents";
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
-import { initializePWA } from "@/lib/pwa";
+// PWA disabled due to OAuth conflicts - users can add to home screen via Safari Share menu
 
 export default function AdminPortal() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("metrics");
 
-  // Initialize PWA features on mount
-  useEffect(() => {
-    initializePWA().catch((err) => console.error('[AdminPortal] PWA init error:', err));
-  }, []);
+
 
   if (!user || user.role !== "admin") {
     return (
@@ -68,8 +64,7 @@ export default function AdminPortal() {
         </div>
       </div>
 
-      {/* PWA Install Prompt */}
-      <PWAInstallPrompt />
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
