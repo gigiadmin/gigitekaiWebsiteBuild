@@ -583,7 +583,31 @@
   - All 153 tests passing
 
 ## Account Management Features (April 10, 2026)
-- [ ] Change Password feature in admin portal settings tab
-- [ ] Create Agent Account flow (admin can create accounts for techs/agents)
-- [ ] Manage Accounts UI (list all accounts, edit roles, deactivate/reactivate)
-- [ ] Role-based access control enforcement (admin sees all tabs, agent sees limited tabs, viewer read-only)
+- [x] Change Password feature in admin portal settings tab
+  - Added changePassword procedure to admin-auth router
+  - AdminAccountManagement component has Change Password tab with current/new/confirm fields
+- [x] Create Agent Account flow (admin can create accounts for techs/agents)
+  - AdminAccountManagement has Create Account tab (admin-only)
+  - Supports email, name, password, role (admin/agent/viewer) fields
+  - Validates email uniqueness before creating
+- [x] Manage Accounts UI (list all accounts, edit roles, deactivate/reactivate)
+  - AdminAccountManagement has Manage Accounts tab (admin-only)
+  - Lists all accounts with role badges, active status, last login
+  - Admin can change role, toggle active status, delete accounts
+- [x] Role-based access control enforcement (admin sees all tabs, agent sees limited tabs, viewer read-only)
+  - Admin: full access to all 8 tabs
+  - Agent: Chat and Tickets tabs unlocked, User Preferences and Agents tabs locked
+  - Viewer: read-only access, Chat/Tickets/Agents/User Preferences locked
+  - Role badge displayed in header (red=Admin, cyan=Agent, gray=Viewer)
+  - All 168 tests passing
+
+## Database Migration Fix (April 10, 2026)
+- [x] Diagnose adminCredentials table migration issue
+  - Table was already in the database (schema had been pushed in a prior session)
+  - The migrations folder was empty but the table existed with correct camelCase columns
+- [x] Seed admin account with correct column names (hashedPassword, isActive)
+  - Updated scripts/setup-admin-table.mjs to use camelCase column names
+  - Admin account seeded: harry@gigitek.com / GigitekAI2024!
+- [x] Verified login API returns success with JWT session cookie
+  - Tested via curl: {"success":true,"admin":{"id":1,"email":"harry@gigitek.com","name":"Harry (Admin)","role":"admin"}}
+  - All 168 tests passing
