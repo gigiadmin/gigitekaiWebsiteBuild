@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, date } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -334,3 +334,70 @@ export const emailDigestHistory = mysqlTable("emailDigestHistory", {
 
 export type EmailDigestHistory = typeof emailDigestHistory.$inferSelect;
 export type InsertEmailDigestHistory = typeof emailDigestHistory.$inferInsert;
+
+
+// Agent Management - Track agents/technicians and their assignments
+export const agents = mysqlTable("agents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(), // Reference to users table
+  status: mysqlEnum("status", ["available", "busy", "offline", "on-break"]).default("offline").notNull(),
+  specialization: varchar("specialization", { length: 255 }), // e.g., "Microsoft 365", "Security", "Cloud"
+  maxConcurrentTickets: int("maxConcurrentTickets").default(5).notNull(), // Max tickets agent can handle
+  currentTicketCount: int("currentTicketCount").default(0).notNull(), // Current active tickets
+  averageResolutionTime: int("averageResolutionTime"), // Average time to resolve in minutes
+  customerSatisfactionScore: varchar("customerSatisfactionScore", { length: 10 }), // 0-5 rating (stored as string)
+  totalTicketsResolved: int("totalTicketsResolved").default(0).notNull(),
+  totalChatsHandled: int("totalChatsHandled").default(0).notNull(),
+  lastStatusChange: timestamp("lastStatusChange").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Agent = typeof agents.$inferSelect;
+export type InsertAgent = typeof agents.$inferInsert;
+
+// Agent Performance Metrics - Track agent performance over time
+export const agentMetrics = mysqlTable("agentMetrics", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull(), // Reference to agents table
+  date: date("date").notNull(), // Date of metrics
+  ticketsHandled: int("ticketsHandled").default(0).notNull(),
+  chatsHandled: int("chatsHandled").default(0).notNull(),
+  averageResolutionTime: int("averageResolutionTime"), // In minutes
+  customerSatisfactionScore: varchar("customerSatisfactionScore", { length: 10 }), // 0-5 rating
+  firstContactResolution: int("firstContactResolution").default(0).notNull(), // % of tickets resolved on first contact
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AgentMetrics = typeof agentMetrics.$inferSelect;
+export type InsertAgentMetrics = typeof agentMetrics.$inferInsert;
+
+// Agent Assignments - Track which tickets/chats are assigned to which agents
+export const agentAssignments = mysqlTable("agentAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull(), // Reference to agents table
+  ticketId: int("ticketId"), // Reference to tickets table (optional, for ticket assignments)
+  chatSessionId: int("chatSessionId"), // Reference to realtimeChatSessions table (optional, for chat assignments)
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"), // When agent completed the assignment
+  status: mysqlEnum("status", ["assigned", "in-progress", "completed", "escalated"]).default("assigned").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AgentAssignment = typeof agentAssignments.$inferSelect;
+export type InsertAgentAssignment = typeof agentAssignments.$inferInsert;
+
+// Agent Availability Schedule - Track when agents are available
+export const agentSchedules = mysqlTable("agentSchedules", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull(), // Reference to agents table
+  dayOfWeek: int("dayOfWeek").notNull(), // 0-6 (Sunday-Saturday)
+  startTime: varchar("startTime", { length: 5 }).notNull(), // HH:MM format
+  endTime: varchar("endTime", { length: 5 }).notNull(), // HH:MM format
+  isWorkingDay: boolean("isWorkingDay").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AgentSchedule = typeof agentSchedules.$inferSelect;
+export type InsertAgentSchedule = typeof agentSchedules.$inferInsert;
