@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,30 +17,27 @@ import AdminAgents from "./AdminAgents";
 // PWA disabled due to OAuth conflicts - users can add to home screen via Safari Share menu
 
 export default function AdminPortal() {
-  const { user, logout } = useAuth();
+  const { data: adminUser, isLoading } = trpc.adminAuth.me.useQuery();
+  const logoutMutation = trpc.adminAuth.logout.useMutation();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("metrics");
 
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+    setLocation("/login");
+  };
 
-
-  if (!user || user.role !== "admin") {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-slate-700 bg-slate-900">
-          <CardContent className="pt-6 text-center">
-            <div className="text-cyan-500 text-4xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold text-white mb-2">Admin Access Required</h2>
-            <p className="text-gray-400 mb-6">You must be an admin to access the admin portal.</p>
-            <Button 
-              onClick={() => logout()}
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Log Out & Try Another Account
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (!adminUser) {
+    setLocation("/login");
+    return null;
   }
 
   return (
@@ -50,15 +48,16 @@ export default function AdminPortal() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-              <p className="text-sm text-gray-400 mt-1">Logged in as: {user.email}</p>
+              <p className="text-sm text-gray-400 mt-1">Logged in as: {adminUser.email}</p>
             </div>
             <Button 
-              onClick={() => logout()}
+              onClick={handleLogout}
               variant="outline"
               className="border-slate-600 hover:bg-slate-800"
+              disabled={logoutMutation.isPending}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {logoutMutation.isPending ? "Logging out..." : "Logout"}
             </Button>
           </div>
         </div>

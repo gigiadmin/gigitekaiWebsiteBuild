@@ -558,3 +558,12 @@
   - Auto-redirects to /admin if already authenticated
   - Logout now redirects to /login instead of home page
   - All 127 tests passing (1 pre-existing aibot JSON parse issue unrelated to this change)
+
+## Admin Username/Password Login System (April 10, 2026)
+- [ ] Create adminCredentials table in database schema (email, hashedPassword, role, name, isActive)
+- [ ] Build bcrypt password hashing helpers
+- [ ] Create tRPC procedures: adminLogin, adminLogout, adminRegister, adminMe
+- [ ] Update /login page with email/password form (replace OAuth button)
+- [ ] Create AdminAuthGuard component to protect /admin routes
+- [ ] Add first admin account seeding (harry@gigitek.com)
+- [ ] Test login/logout flow end-to-end

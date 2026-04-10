@@ -1,29 +1,57 @@
 /*
-  GigitekAI Login Page
-  Clean login screen shown after logout for easy account switching
+  GigitekAI Admin Login Page
+  Email/password authentication - bypasses OAuth for reliable access on gigitekai.com
 */
 
-import { useEffect } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 
 export default function Login() {
-  const { isAuthenticated, loading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [, setLocation] = useLocation();
 
-  // If already authenticated, redirect to admin portal
+  // Check if already logged in
+  const { data: adminUser, isLoading } = trpc.adminAuth.me.useQuery();
+
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      window.location.href = "/admin";
+    if (!isLoading && adminUser) {
+      setLocation("/admin");
     }
-  }, [isAuthenticated, loading]);
+  }, [adminUser, isLoading, setLocation]);
 
-  const handleSignIn = () => {
-    window.location.href = getLoginUrl();
+  const loginMutation = trpc.adminAuth.login.useMutation({
+    onSuccess: () => {
+      setLocation("/admin");
+    },
+    onError: (err) => {
+      setError(err.message || "Login failed. Please try again.");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    loginMutation.mutate({ email, password });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
+        <div className="w-8 h-8 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] relative overflow-hidden">
-      {/* Background grid effect */}
+      {/* Background grid */}
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -36,7 +64,6 @@ export default function Login() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        {/* Card */}
         <div className="bg-[#0D1526] border border-[#00D4FF]/20 rounded-2xl p-8 shadow-2xl shadow-cyan-500/10">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
@@ -63,34 +90,97 @@ export default function Login() {
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">
-              Admin Portal
-            </h1>
+            <h1 className="text-2xl font-bold text-white mb-2">Admin Portal</h1>
             <p className="text-gray-400 text-sm">
               Sign in to access your operations dashboard
             </p>
           </div>
 
-          {/* Sign In Button */}
-          <button
-            onClick={handleSignIn}
-            className="w-full py-3 px-6 rounded-xl font-semibold text-[#0A0E1A] bg-[#00D4FF] hover:bg-[#00B8D9] transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="w-5 h-5"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@gigitekai.com"
+                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
+                autoComplete="email"
+                disabled={loginMutation.isPending}
               />
-            </svg>
-            Sign In with GigitekAI
-          </button>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
+                autoComplete="current-password"
+                disabled={loginMutation.isPending}
+              />
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-4 h-4 text-red-400 shrink-0"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                  />
+                </svg>
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loginMutation.isPending}
+              className="w-full py-3 px-6 rounded-xl font-semibold text-[#0A0E1A] bg-[#00D4FF] hover:bg-[#00B8D9] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              {loginMutation.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#0A0E1A] border-t-transparent rounded-full animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="w-5 h-5"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                    />
+                  </svg>
+                  Sign In
+                </>
+              )}
+            </button>
+          </form>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
@@ -120,7 +210,6 @@ export default function Login() {
             Back to GigitekAI.com
           </a>
 
-          {/* Footer note */}
           <p className="text-center text-gray-600 text-xs mt-6">
             Secure access for GigitekAI admins and agents only
           </p>

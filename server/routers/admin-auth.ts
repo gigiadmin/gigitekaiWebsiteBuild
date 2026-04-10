@@ -1,0 +1,228 @@
+/**
+ * Admin Auth Router
+ * Handles username/password authentication for admin portal
+ * Bypasses Manus OAuth - uses its own JWT session system
+ */
+
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import {
+  findAdminByEmail,
+  findAdminById,
+  verifyPassword,
+  signAdminToken,
+  verifyAdminToken,
+  buildAdminSessionCookieHeader,
+  clearAdminSessionCookieHeader,
+  getAdminSessionCookie,
+  createAdminAccount,
+  updateLastLogin,
+  getAllAdminAccounts,
+  updateAdminAccount,
+  deleteAdminAccount,
+  hashPassword,
+} from "../admin-auth";
+import type { Request, Response } from "express";
+
+// ── Helper: get admin from request cookies ────────────────────────────────────
+
+export async function getAdminFromRequest(req: Request) {
+  const cookies = parseCookies(req.headers.cookie || "");
+  const token = getAdminSessionCookie(cookies);
+  if (!token) return null;
+  const payload = await verifyAdminToken(token);
+  if (!payload) return null;
+  const admin = await findAdminById(payload.adminId);
+  if (!admin || !admin.isActive) return null;
+  return admin;
+}
+
+function parseCookies(cookieHeader: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(";").forEach((cookie) => {
+    const [name, ...rest] = cookie.trim().split("=");
+    if (name) cookies[name.trim()] = rest.join("=").trim();
+  });
+  return cookies;
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+export const adminAuthRouter = router({
+  // Login with email/password
+  login: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const admin = await findAdminByEmail(input.email);
+
+      if (!admin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
+      }
+
+      if (!admin.isActive) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Account is disabled. Contact your administrator.",
+        });
+      }
+
+      const passwordValid = await verifyPassword(input.password, admin.hashedPassword);
+      if (!passwordValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
+        });
+      }
+
+      // Sign JWT token
+      const token = await signAdminToken({
+        adminId: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      });
+
+      // Set cookie on response
+      const res = (ctx as unknown as { res: Response }).res;
+      if (res) {
+        res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token));
+      }
+
+      // Update last login timestamp
+      await updateLastLogin(admin.id);
+
+      return {
+        success: true,
+        admin: {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role,
+        },
+      };
+    }),
+
+  // Logout - clear session cookie
+  logout: publicProcedure.mutation(async ({ ctx }) => {
+    const res = (ctx as unknown as { res: Response }).res;
+    if (res) {
+      res.setHeader("Set-Cookie", clearAdminSessionCookieHeader());
+    }
+    return { success: true };
+  }),
+
+  // Get current admin session
+  me: publicProcedure.query(async ({ ctx }) => {
+    const req = (ctx as unknown as { req: Request }).req;
+    if (!req) return null;
+    const admin = await getAdminFromRequest(req);
+    if (!admin) return null;
+    return {
+      id: admin.id,
+      email: admin.email,
+      name: admin.name,
+      role: admin.role,
+    };
+  }),
+
+  // Register a new admin/agent (admin only)
+  register: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        name: z.string().min(2),
+        password: z.string().min(8),
+        role: z.enum(["admin", "agent", "viewer"]).default("agent"),
+        adminSecret: z.string(), // Simple secret to prevent unauthorized registration
+      })
+    )
+    .mutation(async ({ input }) => {
+      // Check admin secret (stored as env var or hardcoded for now)
+      const adminSecret = process.env.ADMIN_REGISTRATION_SECRET || "gigitekai-admin-2024";
+      if (input.adminSecret !== adminSecret) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Invalid admin registration secret",
+        });
+      }
+
+      // Check if email already exists
+      const existing = await findAdminByEmail(input.email);
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "An account with this email already exists",
+        });
+      }
+
+      const admin = await createAdminAccount({
+        email: input.email,
+        name: input.name,
+        password: input.password,
+        role: input.role,
+      });
+
+      return {
+        success: true,
+        admin: {
+          id: admin!.id,
+          email: admin!.email,
+          name: admin!.name,
+          role: admin!.role,
+        },
+      };
+    }),
+
+  // List all admin accounts (admin only)
+  listAccounts: publicProcedure.query(async ({ ctx }) => {
+    const req = (ctx as unknown as { req: Request }).req;
+    const admin = req ? await getAdminFromRequest(req) : null;
+    if (!admin || admin.role !== "admin") {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+    }
+    return getAllAdminAccounts();
+  }),
+
+  // Update an admin account (admin only)
+  updateAccount: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(2).optional(),
+        role: z.enum(["admin", "agent", "viewer"]).optional(),
+        isActive: z.boolean().optional(),
+        password: z.string().min(8).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const req = (ctx as unknown as { req: Request }).req;
+      const admin = req ? await getAdminFromRequest(req) : null;
+      if (!admin || admin.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      await updateAdminAccount(input.id, input);
+      return { success: true };
+    }),
+
+  // Delete an admin account (admin only)
+  deleteAccount: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const req = (ctx as unknown as { req: Request }).req;
+      const admin = req ? await getAdminFromRequest(req) : null;
+      if (!admin || admin.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      await deleteAdminAccount(input.id);
+      return { success: true };
+    }),
+});

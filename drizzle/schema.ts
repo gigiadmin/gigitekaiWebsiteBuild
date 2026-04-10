@@ -28,6 +28,22 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 // TODO: Add your tables here
+
+// Admin credentials table for username/password authentication (bypasses OAuth)
+export const adminCredentials = mysqlTable("adminCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  hashedPassword: varchar("hashedPassword", { length: 255 }).notNull(),
+  role: mysqlEnum("role", ["admin", "agent", "viewer"]).default("agent").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastLoginAt: timestamp("lastLoginAt"),
+});
+
+export type AdminCredential = typeof adminCredentials.$inferSelect;
+export type InsertAdminCredential = typeof adminCredentials.$inferInsert;
 // Contact form submissions table
 export const contactSubmissions = mysqlTable("contactSubmissions", {
   id: int("id").autoincrement().primaryKey(),
