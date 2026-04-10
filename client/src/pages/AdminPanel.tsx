@@ -29,6 +29,8 @@ import {
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 
 import { useAuth } from "@/_core/hooks/useAuth";
+import { InviteCustomerModal } from "@/components/InviteCustomerModal";
+
 type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
@@ -38,6 +40,7 @@ export default function AdminPanel() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<AdminTab>("tickets");
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "admin",
@@ -365,8 +368,16 @@ export default function AdminPanel() {
 
         {activeTab === "users" && (
           <div>
-            {!usersLoading && allUsers && allUsers.length > 0 && (
-              <div className="mb-4">
+            <div className="mb-4 flex gap-3">
+              <Button
+                size="sm"
+                onClick={() => setShowInviteModal(true)}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Invite Customer
+              </Button>
+              {!usersLoading && allUsers && allUsers.length > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -376,8 +387,8 @@ export default function AdminPanel() {
                   <Download className="w-4 h-4 mr-2" />
                   Export Users
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
             {usersLoading ? (
               <div className="text-center py-16">
                 <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin mx-auto mb-4" />
@@ -502,6 +513,16 @@ export default function AdminPanel() {
           </div>
         )}
       </div>
+
+      {/* Invite Customer Modal */}
+      <InviteCustomerModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={() => {
+          refetchUsers();
+          setShowInviteModal(false);
+        }}
+      />
     </div>
   );
 }

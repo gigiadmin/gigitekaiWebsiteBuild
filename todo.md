@@ -400,9 +400,9 @@
 - [x] All 146 tests passing after email changes
 
 
-## Customer Invite System (April 2026)
-- [x] Add invite tracking table to database schema - customerInvites table created with token, status, expiry
-- [x] Create backend endpoints for sending and validating invites - 5 endpoints: sendCustomerInvite, getCustomerInvite, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite
-- [ ] Build invite UI in admin portal (modal form with email input) - TODO
-- [ ] Create invite landing page for customers to accept invite - TODO
-- [ ] Test invite flow end-to-end - TODO
+## Customer Invite System (April 2026) - COMPLETE
+- [x] Add invite tracking table to database schema - customerInvites table with token, status, expiry
+- [x] Create backend endpoints for sending and validating invites - 5 endpoints in customer-invites router
+- [x] Build invite UI in admin portal (modal form with email input) - InviteCustomerModal component
+- [x] Create invite landing page for customers to accept invite - AcceptInvite page with token validation
+- [x] Test invite flow end-to-end - All 146 tests passing

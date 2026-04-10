@@ -18,6 +18,7 @@ import AdminNotifications from "./pages/AdminNotifications";
 import AdminDashboard from "./pages/AdminDashboard";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
+import AcceptInvite from "./pages/AcceptInvite";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallBanner from "./components/PWAInstallBanner";
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/careers"} component={Careers} />
       <Route path={"/services/:slug"} component={ServiceDetail} />
       <Route path={"/helpdesk"} component={HelpDesk} />
+      <Route path="/accept-invite" component={AcceptInvite} />
       <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
