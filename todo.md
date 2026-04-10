@@ -413,3 +413,8 @@
 - [x] Build admin metrics dashboard with ticket volume, resolution times, satisfaction ratings - AdminMetrics page at /admin/metrics with 6 metric cards, sentiment distribution, intent routing, satisfaction scores
 - [x] Implement customer feedback system to rate support after ticket closure - TicketFeedback page at /helpdesk/feedback with 1-5 star rating, recommendation, comments, database tracking
 - [x] Create user profile page showing ticket history and request status - UserProfile page at /helpdesk/profile with account info, ticket stats, feedback history, logout
+
+## Homepage Updates (April 2026)
+- [x] Remove partner badges from hero section (Microsoft Azure Partner, AWS Advanced Partner, Google Cloud Partner, ISO 27001 Certified)
+- [x] Update stats: Businesses transformed across North America from 500+ to 50+
+- [x] All 146 tests passing

@@ -10,12 +10,7 @@ import { useTranslation } from "react-i18next";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
-const badges = [
-  { label: "Microsoft Azure Partner", icon: "☁️" },
-  { label: "AWS Advanced Partner", icon: "🔶" },
-  { label: "Google Cloud Partner", icon: "🌐" },
-  { label: "ISO 27001 Certified", icon: "🔒" },
-];
+const badges = [];
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
@@ -109,22 +104,7 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Trust badges */}
-          <div
-            className={`flex flex-wrap gap-3 transition-all duration-700 delay-400 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
-          >
-            {badges.map((badge) => (
-              <div
-                key={badge.label}
-                className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs text-gray-300 backdrop-blur-sm"
-              >
-                <span>{badge.icon}</span>
-                <span>{badge.label}</span>
-              </div>
-            ))}
-          </div>
+
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 
 const stats = [
   { value: 15, suffix: "+", label: "Years delivering enterprise cloud and AI solutions" },
-  { value: 500, suffix: "+", label: "Businesses transformed across North America" },
+  { value: 50, suffix: "+", label: "Businesses transformed across North America" },
   { value: 99.9, suffix: "%", label: "Average uptime across managed cloud environments" },
   { value: 48, suffix: "hr", label: "Average onboarding time for new clients" },
 ];
