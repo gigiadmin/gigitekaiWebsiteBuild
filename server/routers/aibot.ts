@@ -19,8 +19,11 @@ import {
   createAgentTakeoverRequest,
   getAgentTakeoverRequestBySession,
   updateAgentTakeoverRequestStatus,
-  getPendingAgentTakeoverRequests
+  getPendingAgentTakeoverRequests,
+  getDb,
+  deleteChatMessages
 } from "../db";
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite } from "../db";
 
@@ -661,6 +664,24 @@ export const aibotRouter = router({
       } catch (error) {
         console.error('[AIBot] Failed to accept takeover:', error);
         return { success: false, message: 'Failed to accept takeover' };
+      }
+    }),
+
+  clearChatHistory: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const success = await deleteChatMessages(input.sessionId);
+        if (success) {
+          return { success: true, message: 'Chat history cleared permanently' };
+        } else {
+          return { success: false, message: 'Failed to clear chat history' };
+        }
+      } catch (error) {
+        console.error('[AIBot] Failed to clear chat history:', error);
+        return { success: false, message: 'Failed to clear chat history' };
       }
     }),
 });

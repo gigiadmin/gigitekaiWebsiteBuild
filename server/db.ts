@@ -852,3 +852,20 @@ export async function getAllTicketFeedback(): Promise<TicketFeedback[]> {
     return [];
   }
 }
+
+export async function deleteChatMessages(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete chat messages: database not available");
+    return false;
+  }
+
+  try {
+    await db.delete(chatMessages).where(eq(chatMessages.sessionId, sessionId));
+    console.log("[Database] Chat messages deleted successfully for session:", sessionId);
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to delete chat messages:", error);
+    return false;
+  }
+}

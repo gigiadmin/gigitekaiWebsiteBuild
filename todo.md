@@ -418,3 +418,10 @@
 - [x] Remove partner badges from hero section (Microsoft Azure Partner, AWS Advanced Partner, Google Cloud Partner, ISO 27001 Certified)
 - [x] Update stats: Businesses transformed across North America from 500+ to 50+
 - [x] All 146 tests passing
+
+
+## Bug Fixes (April 10, 2026)
+- [x] Fix AI chatbot clear history - messages reappear when reopening chat
+  - Issue: Clear History button only clears UI, doesn't delete from database
+  - Solution: Added backend endpoint to permanently delete chat history from database
+  - Implementation: deleteChatMessages() function in db.ts, clearChatHistory endpoint in aibot router, frontend updated to call API

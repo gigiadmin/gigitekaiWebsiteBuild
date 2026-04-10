@@ -562,9 +562,26 @@ export default function AIChatWidget() {
                   <div className="mt-4 w-full space-y-2 border-t border-gray-700 pt-3">
                     <button
                       onClick={() => {
+                        // Call backend to permanently delete chat history
                         setMessages([]);
                         setShowMenu(false);
-                        toast.success("Chat history cleared");
+                        toast.promise(
+                          (async () => {
+                            const result = await fetch('/api/trpc/aibot.clearChatHistory', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ sessionId: sessionId || 'unknown' }),
+                              credentials: 'include',
+                            }).then(r => r.json());
+                            if (!result.result?.data?.success) throw new Error('Failed to clear history');
+                            return result;
+                          })(),
+                          {
+                            loading: 'Clearing chat history...',
+                            success: 'Chat history cleared permanently',
+                            error: 'Failed to clear chat history',
+                          }
+                        );
                       }}
                       className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-400 hover:bg-red-500/5 border border-gray-700 hover:border-red-500/30 transition-colors"
                     >
