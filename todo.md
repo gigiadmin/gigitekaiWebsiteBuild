@@ -623,3 +623,6 @@
 
 ## Admin Guide Webpage (Apr 10, 2026)
 - [x] Create /admin-guide page from the admin account creation markdown guide with GigitekAI branding
+
+## Admin Portal Guide Link (Apr 10, 2026)
+- [x] Add prominent link to /admin/guide from the Admin Portal header and Account tab

@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye, Lock, LifeBuoy, Home } from "lucide-react";
+import { LogOut, BarChart3, Bell, Mail, Users, MessageSquare, Ticket, Users2, Settings, Shield, Eye, Lock, LifeBuoy, Home, BookOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getLoginUrl } from "@/const";
 
@@ -130,6 +130,15 @@ export default function AdminPortal() {
             </div>
             <div className="flex items-center gap-3">
               <Button
+                onClick={() => setLocation("/admin/guide")}
+                variant="outline"
+                size="sm"
+                className="border-purple-700 text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 hidden sm:flex items-center gap-1.5"
+              >
+                <BookOpen className="w-4 h-4" />
+                Admin Guide
+              </Button>
+              <Button
                 onClick={() => setLocation("/helpdesk")}
                 variant="outline"
                 size="sm"
@@ -163,6 +172,29 @@ export default function AdminPortal() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+
+        {/* Admin Guide Banner */}
+        {isAdmin && (
+          <div
+            onClick={() => setLocation("/admin/guide")}
+            className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-purple-900/30 to-slate-900/60 border border-purple-700/40 rounded-xl px-5 py-4 cursor-pointer hover:border-purple-500/60 hover:from-purple-900/40 transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">Admin Account Guide</p>
+                <p className="text-gray-400 text-xs mt-0.5">Step-by-step instructions for creating admin, agent, and viewer accounts — including role permissions and access revocation.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-purple-400 text-sm font-medium group-hover:text-purple-300 flex-shrink-0">
+              <span className="hidden sm:inline">View Guide</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex flex-wrap w-full bg-slate-900 border border-slate-700 overflow-x-auto gap-0.5 p-1 h-auto">
             <TabsTrigger
