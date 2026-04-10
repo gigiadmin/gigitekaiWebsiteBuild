@@ -550,3 +550,11 @@
 - [x] Create and test agent management procedures
   - 7 test cases covering role-based access control
   - All 153 tests passing
+
+## Logout Redirect Fix (April 10, 2026)
+- [x] Update logout to redirect to login screen instead of home page for easy account switching
+  - Created /login page with GigitekAI branding (dark/cyan theme)
+  - Login page has 'Sign In with GigitekAI' button and 'Back to GigitekAI.com' link
+  - Auto-redirects to /admin if already authenticated
+  - Logout now redirects to /login instead of home page
+  - All 127 tests passing (1 pre-existing aibot JSON parse issue unrelated to this change)

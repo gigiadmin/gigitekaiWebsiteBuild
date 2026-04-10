@@ -39,9 +39,9 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
-      // Redirect to home page after logout (not OAuth portal - avoids redirect URI errors)
+      // Redirect to /login page after logout for easy account switching
       if (typeof window !== "undefined") {
-        window.location.href = "/";
+        window.location.href = "/login";
       }
     }
   }, [logoutMutation, utils]);

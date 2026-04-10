@@ -24,6 +24,7 @@ import UserProfile from "./pages/UserProfile";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import AcceptInvite from "./pages/AcceptInvite";
+import Login from "./pages/Login";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallBanner from "./components/PWAInstallBanner";
@@ -53,6 +54,7 @@ function Router() {
       <Route path={"admin/notifications"} component={AdminNotifications} />
       <Route path={"admin/email-digest"} component={EmailDigestSettings} />
       <Route path={"admin/user-preferences"} component={AdminUserPreferences} />
+      <Route path={"/login"} component={Login} />
       <Route path={"404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
