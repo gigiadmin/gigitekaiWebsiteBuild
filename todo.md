@@ -327,8 +327,8 @@
 
 
 ## Email Alerts & Notification Center (April 2026)
-- [x] Add email notifications to support@gigitek.com for contact form submissions
-- [x] Add email notifications to support@gigitek.com for AI chatbot leads (already implemented)
+- [x] Add email notifications to support@gigitekai.com for contact form submissions
+- [x] Add email notifications to support@gigitekai.com for AI chatbot leads (already implemented)
 - [x] Create admin notification center page showing all alerts (/admin/notifications)
 - [x] Add notification bell icon to navbar with link to notification center
 - [x] All 146 tests passing
