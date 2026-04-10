@@ -193,6 +193,26 @@ export const teamsIntegration = mysqlTable("teamsIntegration", {
 export type TeamsIntegration = typeof teamsIntegration.$inferSelect;
 export type InsertTeamsIntegration = typeof teamsIntegration.$inferInsert;
 
+// Agent Takeover Requests
+export const agentTakeoverRequests = mysqlTable("agentTakeoverRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 100 }).notNull(),
+  visitorName: varchar("visitorName", { length: 255 }),
+  visitorEmail: varchar("visitorEmail", { length: 320 }),
+  visitorPhone: varchar("visitorPhone", { length: 50 }),
+  reason: text("reason"), // Why they want to talk to an agent
+  status: mysqlEnum("status", ["pending", "accepted", "declined", "timeout"]).default("pending").notNull(),
+  assignedAdminId: int("assignedAdminId"), // Admin who accepted the request
+  ticketId: int("ticketId"), // Link to help desk ticket
+  conversationContext: text("conversationContext"), // JSON: summary of chat before handoff
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  acceptedAt: timestamp("acceptedAt"),
+  closedAt: timestamp("closedAt"),
+});
+
+export type AgentTakeoverRequest = typeof agentTakeoverRequests.$inferSelect;
+export type InsertAgentTakeoverRequest = typeof agentTakeoverRequests.$inferInsert;
+
 // Real-Time Chat - Admin to User Communication
 export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
   id: int("id").autoincrement().primaryKey(),

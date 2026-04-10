@@ -132,6 +132,7 @@ export default function AIChatWidget() {
   const escalate = trpc.aibot.escalateToHelpDesk.useMutation();
   const captureLead = trpc.aibot.captureLead.useMutation();
   const emailTranscriptMutation = trpc.aibot.emailTranscript.useMutation();
+  const requestAgentTakeover = trpc.aibot.requestAgentTakeover.useMutation();
   const { data: historyData } = trpc.aibot.getHistory.useQuery(
     { sessionId: sessionId || "" },
     { enabled: !!sessionId }
@@ -590,13 +591,34 @@ export default function AIChatWidget() {
                   </div>
                 )}
 
-                {/* Talk to human */}
+                {/* Request human agent takeover */}
                 <button
-                  onClick={() => { setShowMenu(false); handleEscalate("User wants to talk to support"); }}
+                  onClick={() => {
+                    setShowMenu(false);
+                    requestAgentTakeover.mutate({
+                      sessionId: sessionId || 'unknown',
+                      visitorName: visitorInfo.name || undefined,
+                      visitorEmail: visitorInfo.email || undefined,
+                      visitorPhone: visitorInfo.phone || undefined,
+                      reason: 'User requested to speak with an agent',
+                    }, {
+                      onSuccess: (result: any) => {
+                        if (result.success) {
+                          toast.success('Agent request submitted. A specialist will be with you shortly.');
+                          handleEscalate('User requested agent takeover');
+                        } else {
+                          toast.error(result.message);
+                        }
+                      },
+                      onError: () => {
+                        toast.error('Failed to request agent');
+                      }
+                    });
+                  }}
                   className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/5 transition-colors"
                 >
-                  <ArrowRight size={14} />
-                  Talk to a specialist instead
+                  <Phone size={14} />
+                  Talk to a specialist
                 </button>
 
                 {/* Back to conversation button - only show when returning to menu */}

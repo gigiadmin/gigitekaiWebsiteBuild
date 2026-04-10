@@ -15,7 +15,11 @@ import {
   saveChatAnalytic,
   saveResponseRating,
   saveConversationSummary,
-  saveTeamsIntegration
+  saveTeamsIntegration,
+  createAgentTakeoverRequest,
+  getAgentTakeoverRequestBySession,
+  updateAgentTakeoverRequestStatus,
+  getPendingAgentTakeoverRequests
 } from "../db";
 import { nanoid } from "nanoid";
 
@@ -576,6 +580,88 @@ export const aibotRouter = router({
       } catch (error) {
         console.error("[AIBot] Failed to sync to Teams:", error);
         return { success: false, message: "Failed to sync to Teams" };
+      }
+    }),
+
+// Note: Router closing bracket moved here to add new endpoints
+
+  requestAgentTakeover: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+      visitorName: z.string().optional(),
+      visitorEmail: z.string().email().optional(),
+      visitorPhone: z.string().optional(),
+      reason: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const messages = await getChatMessages(input.sessionId);
+        const context = messages
+          .slice(-5)
+          .map(m => `${m.role === 'user' ? 'Customer' : 'Bot'}: ${m.message}`)
+          .join('\n');
+
+        await createAgentTakeoverRequest({
+          sessionId: input.sessionId,
+          visitorName: input.visitorName || null,
+          visitorEmail: input.visitorEmail || null,
+          visitorPhone: input.visitorPhone || null,
+          reason: input.reason || null,
+          status: 'pending',
+          conversationContext: context || null,
+        });
+
+        await notifyOwner({
+          title: 'Agent Takeover Requested',
+          content: `Customer ${input.visitorName || 'Unknown'} requested agent. Reason: ${input.reason || 'Not specified'}. Session: ${input.sessionId}`
+        });
+
+        return { success: true, message: 'Agent request submitted. A specialist will be with you shortly.' };
+      } catch (error) {
+        console.error('[AIBot] Takeover request failed:', error);
+        return { success: false, message: 'Failed to request agent' };
+      }
+    }),
+
+  getPendingTakeovers: publicProcedure
+    .query(async () => {
+      try {
+        const requests = await getPendingAgentTakeoverRequests();
+        return { requests, count: requests.length };
+      } catch (error) {
+        console.error('[AIBot] Failed to get pending takeovers:', error);
+        return { requests: [], count: 0 };
+      }
+    }),
+
+  acceptAgentTakeover: publicProcedure
+    .input(z.object({
+      requestId: z.number(),
+      adminId: z.number().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const takeoverRequest = await getAgentTakeoverRequestBySession(input.requestId.toString());
+        if (!takeoverRequest) {
+          return { success: false, message: 'Request not found' };
+        }
+
+        const ticket = await createTicket({
+          title: `Agent Takeover: ${takeoverRequest.visitorName || 'Customer'}`,
+          description: `Customer requested agent takeover.\n\nReason: ${takeoverRequest.reason || 'Not specified'}\n\nChat Context:\n${takeoverRequest.conversationContext || 'No context'}\n\nContact: ${takeoverRequest.visitorEmail || 'No email'} | ${takeoverRequest.visitorPhone || 'No phone'}`,
+          priority: 'high',
+          status: 'open',
+          category: 'general_support',
+          userId: 1,
+        });
+
+        const ticketId = (ticket as any)?.[0]?.insertId || 1;
+        await updateAgentTakeoverRequestStatus(input.requestId, 'accepted', input.adminId, ticketId);
+
+        return { success: true, message: 'Agent takeover accepted', ticketId };
+      } catch (error) {
+        console.error('[AIBot] Failed to accept takeover:', error);
+        return { success: false, message: 'Failed to accept takeover' };
       }
     }),
 });

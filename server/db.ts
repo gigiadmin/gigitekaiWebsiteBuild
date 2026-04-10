@@ -1,6 +1,6 @@
 import { eq, like, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -564,5 +564,97 @@ export async function getTeamsIntegration(sessionId: string) {
   } catch (error) {
     console.error("[Database] Failed to get Teams integration:", error);
     return null;
+  }
+}
+
+
+// ─── Agent Takeover Requests ──────────────────────────────────────────────────
+
+export async function createAgentTakeoverRequest(request: InsertAgentTakeoverRequest) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create agent takeover request: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(agentTakeoverRequests).values(request);
+    console.log("[Database] Agent takeover request created successfully");
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to create agent takeover request:", error);
+    throw error;
+  }
+}
+
+export async function getAgentTakeoverRequest(id: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get agent takeover request: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(agentTakeoverRequests).where(eq(agentTakeoverRequests.id, id));
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get agent takeover request:", error);
+    return null;
+  }
+}
+
+export async function getAgentTakeoverRequestBySession(sessionId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get agent takeover request: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.select().from(agentTakeoverRequests).where(eq(agentTakeoverRequests.sessionId, sessionId));
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error("[Database] Failed to get agent takeover request:", error);
+    return null;
+  }
+}
+
+export async function getPendingAgentTakeoverRequests() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get pending requests: database not available");
+    return [];
+  }
+
+  try {
+    return await db.select().from(agentTakeoverRequests).where(eq(agentTakeoverRequests.status, "pending")).orderBy(desc(agentTakeoverRequests.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get pending requests:", error);
+    return [];
+  }
+}
+
+export async function updateAgentTakeoverRequestStatus(id: number, status: "accepted" | "declined" | "timeout", adminId?: number, ticketId?: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update agent takeover request: database not available");
+    return false;
+  }
+
+  try {
+    const updateData: any = { status };
+    if (status === "accepted") {
+      updateData.acceptedAt = new Date();
+      if (adminId) updateData.assignedAdminId = adminId;
+      if (ticketId) updateData.ticketId = ticketId;
+    } else if (status === "declined" || status === "timeout") {
+      updateData.closedAt = new Date();
+    }
+
+    await db.update(agentTakeoverRequests).set(updateData).where(eq(agentTakeoverRequests.id, id));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to update agent takeover request:", error);
+    throw error;
   }
 }
