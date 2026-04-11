@@ -17,9 +17,15 @@ if (!DATABASE_URL) {
 }
 
 async function createAdmin() {
-  const email = "harry@gigitek.com";
-  const name = "Harry (Admin)";
-  const password = "GigitekAI2024!";
+  const email = process.env.ADMIN_EMAIL || "harry@gigitek.com";
+  const name = process.env.ADMIN_NAME || "Harry (Admin)";
+  // SEC-02: Never hardcode passwords in scripts. Set ADMIN_INITIAL_PASSWORD env var before running.
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!password) {
+    console.error("\u274c ADMIN_INITIAL_PASSWORD environment variable is not set.");
+    console.error("   Set it before running: ADMIN_INITIAL_PASSWORD=YourSecurePassword node scripts/create-admin.mjs");
+    process.exit(1);
+  }
   const role = "admin";
 
   console.log("🔗 Connecting to database...");

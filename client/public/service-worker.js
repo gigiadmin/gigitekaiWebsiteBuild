@@ -1,13 +1,9 @@
 const CACHE_NAME = 'gigitekai-support-v1';
 const ADMIN_CACHE_NAME = 'gigitekai-admin-v1';
 const URLS_TO_CACHE = [
+  '/',
+  '/helpdesk',
   '/admin',
-  '/admin?tab=metrics',
-  '/admin?tab=notifications',
-  '/admin?tab=digest-settings',
-  '/admin?tab=user-preferences',
-  '/admin?tab=chat',
-  '/admin?tab=helpdesk',
   '/manifest.json',
 ];
 
@@ -182,24 +178,9 @@ self.addEventListener('notificationclose', (event) => {
   console.log('[Service Worker] Notification closed');
 });
 
-// Periodic background sync for offline data sync
+// Background sync — reserved for future offline queue implementation
+// BUG-02: Removed broken /api/trpc/admin.syncOfflineData call (endpoint does not exist)
 self.addEventListener('sync', (event) => {
   console.log('[Service Worker] Background sync:', event.tag);
-
-  if (event.tag === 'sync-admin-data') {
-    event.waitUntil(
-      // Sync any pending admin data when connection is restored
-      fetch('/api/trpc/admin.syncOfflineData', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('[Service Worker] Offline data synced:', data);
-        })
-        .catch((err) => {
-          console.error('[Service Worker] Sync error:', err);
-        })
-    );
-  }
+  // No-op: sync handlers will be added when offline queue feature is implemented
 });

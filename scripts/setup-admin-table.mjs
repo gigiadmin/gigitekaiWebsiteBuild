@@ -4,8 +4,14 @@ import { config } from "dotenv";
 
 config();
 
-const EMAIL = "harry@gigitek.com";
-const PASSWORD = "GigitekAI2024!";
+const EMAIL = process.env.ADMIN_EMAIL || "harry@gigitek.com";
+// SEC-02: Never hardcode passwords in scripts. Set ADMIN_INITIAL_PASSWORD env var before running.
+const PASSWORD = process.env.ADMIN_INITIAL_PASSWORD;
+if (!PASSWORD) {
+  console.error("\u274c ADMIN_INITIAL_PASSWORD environment variable is not set.");
+  console.error("   Usage: ADMIN_INITIAL_PASSWORD=YourSecurePassword node scripts/setup-admin-table.mjs");
+  process.exit(1);
+}
 
 async function setup() {
   console.log("Connecting to database...");

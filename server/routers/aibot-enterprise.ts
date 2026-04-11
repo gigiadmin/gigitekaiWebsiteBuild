@@ -42,7 +42,9 @@ Routing:
     const responseText = typeof responseContent === 'string' ? responseContent : '';
     if (!responseText) throw new Error("No response from LLM");
 
-    const analysis = JSON.parse(responseText);
+    // Strip markdown code fences that LLMs sometimes wrap JSON in (e.g. ```json ... ```)
+    const cleanedText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    const analysis = JSON.parse(cleanedText);
     
     // Determine routing email based on intent
     let routedTo = "support@gigitekai.com";
@@ -96,7 +98,9 @@ Respond with JSON only (no markdown):
     const responseText = typeof responseContent === 'string' ? responseContent : '';
     if (!responseText) throw new Error("No response from LLM");
 
-    const summary = JSON.parse(responseText);
+    // Strip markdown code fences that LLMs sometimes wrap JSON in (e.g. ```json ... ```)
+    const cleanedText = responseText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    const summary = JSON.parse(cleanedText);
     return {
       summary: summary.summary || "",
       keyPoints: JSON.stringify(summary.keyPoints || []),

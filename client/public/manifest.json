@@ -2,7 +2,7 @@
   "name": "GigitekAI - Cloud & AI Solutions",
   "short_name": "GigitekAI",
   "description": "Enterprise cloud infrastructure and AI solutions that transform how businesses operate and compete.",
-  "start_url": "/admin",
+  "start_url": "/",
   "display": "standalone",
   "scope": "/",
   "background_color": "#0A0E1A",
@@ -69,16 +69,16 @@
   "prefer_related_applications": false,
   "shortcuts": [
     {
-      "name": "View Tickets",
-      "short_name": "Tickets",
-      "description": "View and manage support tickets",
-      "url": "/admin?tab=helpdesk"
+      "name": "Helpdesk",
+      "short_name": "Helpdesk",
+      "description": "Open the customer helpdesk portal",
+      "url": "/helpdesk"
     },
     {
-      "name": "Live Chat",
-      "short_name": "Chat",
-      "description": "Access live customer chat",
-      "url": "/admin?tab=chat"
+      "name": "Admin Portal",
+      "short_name": "Admin",
+      "description": "Access the admin management portal",
+      "url": "/admin"
     }
   ]
 }

@@ -5,12 +5,17 @@
 import type { Request, Response, NextFunction } from "express";
 
 export function securityHeaders(req: Request, res: Response, next: NextFunction) {
+  const isProd = process.env.NODE_ENV === "production";
+
   // Content Security Policy — restrict resource loading
+  // In production: remove unsafe-inline/unsafe-eval from script-src (SEC-01)
+  // In development: keep them for Vite HMR to work
   const cspDirectives = [
     "default-src 'self'",
-    // Scripts: self + inline (needed for Vite HMR in dev) + CDNs
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com",
-    // Styles: self + inline (Tailwind) + Google Fonts
+    isProd
+      ? "script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com",
+    // Styles: inline is required for Tailwind CSS (CSS-in-JS) in both environments
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     // Fonts: self + Google Fonts CDN
     "font-src 'self' https://fonts.gstatic.com data:",

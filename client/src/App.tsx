@@ -52,14 +52,14 @@ function Router() {
       <Route path={"/admin"} component={AdminPortal} />
       <Route path={"/admin/metrics"} component={AdminMetrics} />
       <Route path={"/admin/helpdesk"} component={AdminPanel} />
-      <Route path={"admin/chat"} component={AdminChat} />
-      <Route path={"admin/notifications"} component={AdminNotifications} />
-      <Route path={"admin/email-digest"} component={EmailDigestSettings} />
-      <Route path={"admin/user-preferences"} component={AdminUserPreferences} />
+      <Route path={"/admin/chat"} component={AdminChat} />
+      <Route path={"/admin/notifications"} component={AdminNotifications} />
+      <Route path={"/admin/email-digest"} component={EmailDigestSettings} />
+      <Route path={"/admin/user-preferences"} component={AdminUserPreferences} />
       <Route path={"/login"} component={Login} />
       <Route path={"/admin/guide"} component={AdminGuide} />
       <Route path={"/helpdesk/guide"} component={HelpdeskAgentGuide} />
-      <Route path={"404"} component={NotFound} />
+      <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -44,8 +44,13 @@ async function startServer() {
   app.use(securityHeaders);
 
   // ── Rate Limiting ───────────────────────────────────────────────────────
-  // Auth endpoints: 10 attempts per 15 min
+  // Auth endpoints: 10 attempts per 15 min (OAuth + custom admin login)
   app.use("/api/oauth", authLimiter);
+  app.use("/api/trpc/adminAuth", authLimiter); // CODE-02: brute-force protection on admin login
+  // AI chat: 20 messages per minute (LLM cost protection)
+  app.use("/api/trpc/aibot", chatLimiter);    // CODE-01: was defined but never applied
+  // Contact/lead forms: 5 submissions per 15 min (spam protection)
+  app.use("/api/trpc/contact", formLimiter);  // CODE-01: was defined but never applied
   // General API: 100 req/min
   app.use("/api/trpc", apiLimiter);
 

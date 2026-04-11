@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+Disallow: /helpdesk/dashboard
+Disallow: /helpdesk/tickets/
+Disallow: /helpdesk/profile
+Disallow: /helpdesk/create-ticket
+Disallow: /404
+
+Sitemap: https://gigitekai.com/sitemap.xml

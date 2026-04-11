@@ -635,3 +635,20 @@
 
 ## Helpdesk Nav Guide Link (Apr 10, 2026)
 - [x] Add Guide link to HelpdeskNav component pointing to /helpdesk/guide
+
+## Audit Fixes (Apr 11, 2026)
+- [x] BUG-01: Fix 4 broken admin routes + 404 route missing leading slash in App.tsx
+- [x] CODE-01: Apply chatLimiter to /api/trpc/aibot and formLimiter to /api/trpc/contact in index.ts
+- [x] CODE-02: Apply authLimiter to /api/trpc/adminAuth in index.ts
+- [x] BUG-03: Hide stack traces from end users in ErrorBoundary (production only)
+- [x] BUG-05: Fix LLM JSON parsing in aibot-enterprise.ts to strip markdown fences before parse
+- [x] BUG-04: Fix fake address/phone in Schema.org JSON-LD in index.html
+- [x] SEO-01: Add og:image and twitter:image meta tags to index.html
+- [x] SEO-02: Create robots.txt in client/public/ to block admin routes from indexing
+- [x] SEO-03: Stats section already has real values (15+, 50+, 99.9%, 48hr) — animated counter, not a bug
+- [x] SEC-01: Tighten CSP to remove unsafe-inline/unsafe-eval in production
+- [x] SEC-02: Remove hardcoded default password from all 3 scripts, use ADMIN_INITIAL_PASSWORD env var
+- [x] PWA-01: Fix manifest.json start_url from /admin to /
+- [x] PWA-02: Fix PWA shortcuts to use /helpdesk and /admin direct routes
+- [x] BUG-02: Removed broken /api/trpc/admin.syncOfflineData call from service-worker.js
+- [x] SEC-03: Documented in-memory rate limiter behavior (resets on restart, acceptable for current scale)
