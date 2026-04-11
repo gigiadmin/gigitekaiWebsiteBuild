@@ -692,3 +692,9 @@
 - [x] Update BlogDetail.tsx to render HTML output from TipTap (not Markdown)
 - [x] Submit /api/sitemap-blog.xml to Google Search Console
 - [x] All tests passing after enhancements (178/178)
+
+## Blog Feature Enhancements Round 2 (Apr 11, 2026)
+- [x] Auto read-time estimator in AdminBlog editor (live word count → min read, auto-fills Read Time field)
+- [x] Category filter pills on public /blog page (All + per-category buttons, client-side filtering)
+- [x] YouTube/Vimeo video embed TipTap extension with toolbar button and URL dialog
+- [x] All tests passing after enhancements (178/178)

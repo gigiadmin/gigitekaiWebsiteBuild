@@ -66,6 +66,14 @@ const EMPTY_FORM = {
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
+/** Estimate reading time from HTML content (200 wpm average) */
+function estimateReadTime(html: string): string {
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const words = text.split(" ").filter(Boolean).length;
+  const minutes = Math.max(1, Math.round(words / 200));
+  return `${minutes} min read`;
+}
+
 function slugify(title: string) {
   return title
     .toLowerCase()
@@ -360,7 +368,10 @@ export default function AdminBlog() {
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-400 mb-1 block">Read Time *</label>
+                <label className="text-sm text-gray-400 mb-1 block">
+                  Read Time *
+                  <span className="ml-2 text-[#00D4FF] text-xs font-normal">auto-calculated</span>
+                </label>
                 <Input
                   value={form.readTime}
                   onChange={(e) => setForm((f) => ({ ...f, readTime: e.target.value }))}
@@ -398,7 +409,10 @@ export default function AdminBlog() {
               <label className="text-sm text-gray-400 mb-1 block">Content *</label>
               <RichTextEditor
                 value={form.content}
-                onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+                onChange={(html) => {
+                  const estimated = estimateReadTime(html);
+                  setForm((f) => ({ ...f, content: html, readTime: estimated }));
+                }}
                 onImageInsert={handleEditorImageInsert}
                 placeholder="Write your article here…"
                 minHeight="360px"
