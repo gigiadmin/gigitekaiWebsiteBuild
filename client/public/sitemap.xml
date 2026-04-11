@@ -89,4 +89,27 @@
     <priority>0.5</priority>
   </url>
 
+
+  <!-- ===== Blog Posts ===== -->
+  <url>
+    <loc>https://gigitekai.com/blog/1</loc>
+    <lastmod>2026-03-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://gigitekai.com/blog/2</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://gigitekai.com/blog/3</loc>
+    <lastmod>2026-03-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

@@ -658,3 +658,11 @@
 
 ## Sitemap (Apr 11, 2026)
 - [x] Generate sitemap.xml for all public routes and place in client/public/
+
+## Dynamic Blog Sitemap (Apr 11, 2026)
+- [ ] Add server-side /sitemap-blog.xml endpoint that queries all published blog posts dynamically
+- [ ] Update robots.txt and main sitemap.xml to reference /sitemap-blog.xml
+- [ ] Write vitest test for the blog sitemap endpoint
+
+## Static Blog Sitemap Entries (Apr 11, 2026)
+- [x] Add 3 existing blog posts as static entries to sitemap.xml
