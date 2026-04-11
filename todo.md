@@ -737,3 +737,8 @@
 - [x] Add server-side background scheduler (setInterval) that checks for due scheduled campaigns every minute and sends them
 - [x] Update AdminNewsletterBroadcast UI: Save as Draft button, Schedule Date/Time picker, Drafts tab, Scheduled tab
 - [x] All tests passing after feature (178/178)
+
+## Bug Fix: Newsletter Welcome Email Not Sending (Apr 11, 2026)
+- [x] Diagnose why welcome email is not sent on subscribe — missing sendEmail call in subscribe procedure
+- [x] Fix email sending in newsletter subscribe procedure — added branded welcome email with unsubscribe link
+- [x] All 178 tests passing after fix

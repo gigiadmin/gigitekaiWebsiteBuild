@@ -159,6 +159,62 @@ export const newsletterRouter = router({
         active: true,
       });
 
+      // Send welcome email to new subscriber
+      const siteUrl = "https://gigitekai.com";
+      const unsubUrl = `${siteUrl}/unsubscribe?token=${token}`;
+      const welcomeHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Welcome to GigitekAI Insights</title>
+  <style>
+    body{margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;}
+    .wrapper{max-width:640px;margin:32px auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+    .header{background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);padding:28px 32px;border-bottom:3px solid #00D4FF;}
+    .logo-text{color:#00D4FF;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+    .tagline{color:#8899AA;font-size:12px;margin-top:2px;}
+    .content{padding:32px;color:#1a202c;font-size:15px;line-height:1.7;}
+    .content h1{color:#0A0E1A;font-weight:700;margin-top:0;}
+    .cta-btn{display:inline-block;background:#00D4FF;color:#0A0E1A;font-weight:700;padding:12px 28px;border-radius:6px;text-decoration:none;margin-top:16px;}
+    .footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center;font-size:12px;color:#718096;}
+    .footer a{color:#718096;}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="logo-text">GigitekAI</div>
+      <div class="tagline">Cloud &amp; AI Solutions</div>
+    </div>
+    <div class="content">
+      <h1>Welcome to GigitekAI Insights!</h1>
+      <p>Thank you for subscribing. You're now part of the GigitekAI community — where IT professionals and business leaders stay ahead of the curve on AI, cloud infrastructure, and cybersecurity.</p>
+      <p><strong>What to expect:</strong></p>
+      <ul>
+        <li>Actionable insights on Microsoft 365, AI automation, and managed services</li>
+        <li>Cloud strategy and cybersecurity best practices</li>
+        <li>GigitekAI news, product updates, and exclusive content</li>
+      </ul>
+      <p>In the meantime, explore our latest articles:</p>
+      <a href="${siteUrl}/blog" class="cta-btn">Read Our Blog &rarr;</a>
+      <p style="margin-top:24px;">Questions? Reply to this email or contact us at <a href="mailto:support@gigitek.com" style="color:#00D4FF;">support@gigitek.com</a></p>
+    </div>
+    <div class="footer">
+      <p style="margin:0 0 6px;">GigitekAI &bull; Cloud &amp; AI Solutions &bull; <a href="${siteUrl}">gigitekai.com</a></p>
+      <p style="margin:0;">You're receiving this because you subscribed at gigitekai.com. &nbsp;<a href="${unsubUrl}">Unsubscribe</a></p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      await sendEmail({
+        to: input.email.toLowerCase(),
+        subject: "Welcome to GigitekAI Insights!",
+        html: welcomeHtml,
+        replyTo: "support@gigitek.com",
+      }).catch(() => {});
+
       await notifyOwner({
         title: "New Newsletter Subscriber",
         content: `${input.email} just subscribed${input.source ? ` from ${input.source}` : ""}.`,
