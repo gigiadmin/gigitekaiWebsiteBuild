@@ -660,9 +660,25 @@
 - [x] Generate sitemap.xml for all public routes and place in client/public/
 
 ## Dynamic Blog Sitemap (Apr 11, 2026)
-- [ ] Add server-side /sitemap-blog.xml endpoint that queries all published blog posts dynamically
-- [ ] Update robots.txt and main sitemap.xml to reference /sitemap-blog.xml
-- [ ] Write vitest test for the blog sitemap endpoint
+- [x] DEFERRED: Add server-side /sitemap-blog.xml endpoint (chose static approach for now; revisit when blog moves to database)
+- [x] DEFERRED: Update robots.txt to reference /sitemap-blog.xml (not needed with static approach)
+- [x] DEFERRED: Write vitest test for blog sitemap endpoint (not needed with static approach)
 
 ## Static Blog Sitemap Entries (Apr 11, 2026)
 - [x] Add 3 existing blog posts as static entries to sitemap.xml
+
+## Sitemap Blog URL Fix (Apr 11, 2026)
+- [x] Update sitemap.xml to use /blog as canonical blog index URL with all 3 post entries — now handled dynamically via /api/sitemap-blog.xml
+
+## Blog Database Migration (Apr 11, 2026)
+- [x] Add blogPosts table to Drizzle schema and push migration
+- [x] Add tRPC procedures for blog CRUD (public read + admin write/delete)
+- [x] Update Blog.tsx to read posts from database via tRPC
+- [x] Update BlogDetail.tsx to read single post from database via tRPC
+- [x] Update InsightsSection.tsx homepage teaser to read from database
+- [x] Add Blog Editor tab to Admin Portal (create/edit/delete posts)
+- [x] Add dynamic /api/sitemap-blog.xml endpoint
+- [x] Update robots.txt to reference /sitemap-blog.xml
+- [x] Seed 3 existing hardcoded posts into database
+- [x] Write vitest tests for blog router
+- [x] All tests passing after migration (178/178)

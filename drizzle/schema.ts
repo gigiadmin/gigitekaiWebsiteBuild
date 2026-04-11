@@ -29,6 +29,26 @@ export type InsertUser = typeof users.$inferInsert;
 
 // TODO: Add your tables here
 
+// Blog Posts - database-driven content management
+export const blogPosts = mysqlTable("blogPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(), // URL-friendly identifier
+  title: varchar("title", { length: 500 }).notNull(),
+  excerpt: text("excerpt").notNull(),
+  content: text("content").notNull(), // Markdown content
+  category: varchar("category", { length: 100 }).notNull(),
+  readTime: varchar("readTime", { length: 50 }).notNull(), // e.g. "8 min read"
+  published: boolean("published").default(false).notNull(),
+  authorName: varchar("authorName", { length: 255 }).default("GigitekAI Team").notNull(),
+  featuredImage: varchar("featuredImage", { length: 1000 }), // CDN URL
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  publishedAt: timestamp("publishedAt"),
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
 // Admin credentials table for username/password authentication (bypasses OAuth)
 export const adminCredentials = mysqlTable("adminCredentials", {
   id: int("id").autoincrement().primaryKey(),

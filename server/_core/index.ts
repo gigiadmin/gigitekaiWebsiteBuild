@@ -54,6 +54,37 @@ async function startServer() {
   // General API: 100 req/min
   app.use("/api/trpc", apiLimiter);
 
+  // ── Dynamic Blog Sitemap ────────────────────────────────────────────────
+  app.get("/api/sitemap-blog.xml", async (_req, res) => {
+    try {
+      const { getDb } = await import("../db");
+      const { blogPosts } = await import("../../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      const db = await getDb();
+      const posts = db
+        ? await db
+            .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt, publishedAt: blogPosts.publishedAt })
+            .from(blogPosts)
+            .where(eq(blogPosts.published, true))
+            .orderBy(desc(blogPosts.publishedAt))
+        : [];
+      const base = "https://gigitekai.com";
+      const urls = posts
+        .map((p) => {
+          const lastmod = (p.publishedAt ?? p.updatedAt).toISOString().split("T")[0];
+          return `  <url>\n    <loc>${base}/blog/${p.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
+        })
+        .join("\n");
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
+      res.setHeader("Content-Type", "application/xml");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (err) {
+      console.error("[Sitemap] Blog sitemap error:", err);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API
