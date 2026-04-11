@@ -7,10 +7,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ShareButtons from "@/components/ShareButtons";
+import AuthorBioCard from "@/components/AuthorBioCard";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
 /** Returns the canonical URL for the current article */
 function getArticleUrl(slug: string): string {
@@ -88,6 +90,8 @@ export default function BlogDetail() {
   }
 
   const articleUrl = getArticleUrl(post.slug);
+  const ogImage = post.featuredImage || "https://gigitekai.com/og-default.png";
+  const ogDescription = post.excerpt.length > 160 ? post.excerpt.slice(0, 157) + "..." : post.excerpt;
 
   const displayDate = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString("en-US", {
@@ -103,6 +107,26 @@ export default function BlogDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{post.title} | GigitekAI</title>
+        <meta name="description" content={ogDescription} />
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={ogDescription} />
+        <meta property="og:url" content={articleUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:site_name" content="GigitekAI" />
+        {post.publishedAt && (
+          <meta property="article:published_time" content={new Date(post.publishedAt).toISOString()} />
+        )}
+        <meta property="article:author" content={post.authorName} />
+        {/* Twitter / X card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={ogDescription} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
       <Navbar />
       <main className="flex-1">
         {/* Header */}
@@ -172,8 +196,16 @@ export default function BlogDetail() {
               )}
             </article>
 
+            {/* Author bio card */}
+            <AuthorBioCard
+              name={post.authorName}
+              title={post.authorTitle}
+              bio={post.authorBio}
+              avatar={post.authorAvatar}
+            />
+
             {/* Share buttons — bottom of article */}
-            <div className="mt-8 bg-white rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="mt-4 bg-white rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p
                   className="font-semibold text-gray-900 mb-0.5"

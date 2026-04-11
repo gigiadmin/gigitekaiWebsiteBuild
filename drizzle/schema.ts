@@ -40,6 +40,9 @@ export const blogPosts = mysqlTable("blogPosts", {
   readTime: varchar("readTime", { length: 50 }).notNull(), // e.g. "8 min read"
   published: boolean("published").default(false).notNull(),
   authorName: varchar("authorName", { length: 255 }).default("GigitekAI Team").notNull(),
+  authorTitle: varchar("authorTitle", { length: 255 }), // e.g. "CEO & Founder, GigitekAI"
+  authorBio: text("authorBio"),   // short paragraph about the author
+  authorAvatar: varchar("authorAvatar", { length: 1000 }), // CDN URL for author headshot
   featuredImage: varchar("featuredImage", { length: 1000 }), // CDN URL
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

@@ -45,6 +45,9 @@ type Post = {
   category: string;
   readTime: string;
   authorName: string;
+  authorTitle: string | null;
+  authorBio: string | null;
+  authorAvatar: string | null;
   featuredImage: string | null;
   published: boolean;
   publishedAt: Date | null;
@@ -60,6 +63,9 @@ const EMPTY_FORM = {
   category: "",
   readTime: "",
   authorName: "GigitekAI Team",
+  authorTitle: "",
+  authorBio: "",
+  authorAvatar: "",
   featuredImage: "",
   published: false,
 };
@@ -156,6 +162,9 @@ export default function AdminBlog() {
       category: post.category,
       readTime: post.readTime,
       authorName: post.authorName,
+      authorTitle: post.authorTitle ?? "",
+      authorBio: post.authorBio ?? "",
+      authorAvatar: post.authorAvatar ?? "",
       featuredImage: post.featuredImage ?? "",
       published: post.published,
     });
@@ -381,15 +390,62 @@ export default function AdminBlog() {
               </div>
             </div>
 
-            {/* Author */}
-            <div>
-              <label className="text-sm text-gray-400 mb-1 block">Author</label>
-              <Input
-                value={form.authorName}
-                onChange={(e) => setForm((f) => ({ ...f, authorName: e.target.value }))}
-                placeholder="GigitekAI Team"
-                className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600"
-              />
+            {/* Author section */}
+            <div className="space-y-3 rounded-xl border border-[rgba(0,212,255,0.1)] p-4 bg-[#0A0E1A]/50">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#00D4FF] mb-1">Author Details</p>
+
+              {/* Author name + title side by side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-gray-400 mb-1 block">Author Name</label>
+                  <Input
+                    value={form.authorName}
+                    onChange={(e) => setForm((f) => ({ ...f, authorName: e.target.value }))}
+                    placeholder="GigitekAI Team"
+                    className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400 mb-1 block">Author Title</label>
+                  <Input
+                    value={form.authorTitle}
+                    onChange={(e) => setForm((f) => ({ ...f, authorTitle: e.target.value }))}
+                    placeholder="CEO & Founder, GigitekAI"
+                    className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600"
+                  />
+                </div>
+              </div>
+
+              {/* Author bio */}
+              <div>
+                <label className="text-sm text-gray-400 mb-1 block">Author Bio</label>
+                <Textarea
+                  value={form.authorBio}
+                  onChange={(e) => setForm((f) => ({ ...f, authorBio: e.target.value }))}
+                  placeholder="Short bio shown at the bottom of the article…"
+                  rows={2}
+                  className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600 resize-none"
+                />
+              </div>
+
+              {/* Author avatar URL */}
+              <div>
+                <label className="text-sm text-gray-400 mb-1 block">Author Avatar URL</label>
+                <Input
+                  value={form.authorAvatar}
+                  onChange={(e) => setForm((f) => ({ ...f, authorAvatar: e.target.value }))}
+                  placeholder="https://cdn.example.com/avatar.jpg"
+                  className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600 font-mono text-sm"
+                />
+                {form.authorAvatar && (
+                  <img
+                    src={form.authorAvatar}
+                    alt="Author avatar preview"
+                    className="mt-2 w-12 h-12 rounded-full object-cover border-2 border-[#00D4FF]/30"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                )}
+              </div>
             </div>
 
             {/* Excerpt */}

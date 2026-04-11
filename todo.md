@@ -703,3 +703,12 @@
 - [x] Build reusable ShareButtons component (LinkedIn, X, Copy Link)
 - [x] Integrate ShareButtons into BlogDetail.tsx (header + bottom CTA area)
 - [x] All tests passing after feature (178/178)
+
+## Author Bio Card & Open Graph Meta Tags (Apr 11, 2026)
+- [x] Add authorBio and authorAvatar fields to blogPosts schema and push migration
+- [x] Update blog tRPC router to expose new author fields
+- [x] Build AuthorBioCard component (avatar, name, title, bio)
+- [x] Integrate AuthorBioCard into BlogDetail.tsx (below article content)
+- [x] Add Open Graph meta tags to BlogDetail.tsx (og:title, og:description, og:image, og:url, twitter:card)
+- [x] Update AdminBlog.tsx editor to expose authorBio and authorAvatar fields
+- [x] All tests passing after feature (178/178)
