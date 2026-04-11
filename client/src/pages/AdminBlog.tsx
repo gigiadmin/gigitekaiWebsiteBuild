@@ -1,9 +1,11 @@
 /*
   AdminBlog — Blog post management for Admin Portal
   Features: list all posts (drafts + published), create, edit, delete, toggle publish
+  Editor: TipTap rich text WYSIWYG
+  Images: drag-and-drop S3 uploader
 */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +29,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
+import DragDropImageUploader from "@/components/DragDropImageUploader";
+import { useEditor } from "@tiptap/react";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -122,10 +127,14 @@ export default function AdminBlog() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [showImageUploader, setShowImageUploader] = useState(false);
+  // Ref to the TipTap editor instance so we can insert images programmatically
+  const editorRef = useRef<ReturnType<typeof useEditor> | null>(null);
 
   function openCreate() {
     setEditingPost(null);
     setForm(EMPTY_FORM);
+    setShowImageUploader(false);
     setDialogOpen(true);
   }
 
@@ -142,6 +151,7 @@ export default function AdminBlog() {
       featuredImage: post.featuredImage ?? "",
       published: post.published,
     });
+    setShowImageUploader(false);
     setDialogOpen(true);
   }
 
@@ -149,7 +159,6 @@ export default function AdminBlog() {
     setForm((f) => ({
       ...f,
       title,
-      // Auto-generate slug only when creating (not editing)
       ...(editingPost ? {} : { slug: slugify(title) }),
     }));
   }
@@ -168,6 +177,22 @@ export default function AdminBlog() {
     } else {
       createPost.mutate(payload);
     }
+  }
+
+  /** Called when user uploads an image from the inline uploader inside the editor toolbar */
+  function handleEditorImageInsert() {
+    setShowImageUploader(true);
+  }
+
+  /** Called when the uploader finishes — insert image into editor and update featured image */
+  function handleImageUploaded(url: string) {
+    // Insert into rich text editor at cursor
+    if (editorRef.current) {
+      editorRef.current.chain().focus().setImage({ src: url }).run();
+    }
+    // Also offer as featured image if not set
+    setForm((f) => ({ ...f, featuredImage: f.featuredImage || url }));
+    setShowImageUploader(false);
   }
 
   const isSaving = createPost.isPending || updatePost.isPending;
@@ -240,44 +265,28 @@ export default function AdminBlog() {
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell text-gray-400 text-xs">
                     {post.publishedAt
-                      ? new Date(post.publishedAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : new Date(post.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                      ? new Date(post.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                      : new Date(post.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                   </td>
                   <td className="px-4 py-3">
                     {post.published ? (
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                        Published
-                      </Badge>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">Published</Badge>
                     ) : (
-                      <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
-                        Draft
-                      </Badge>
+                      <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">Draft</Badge>
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <Button
-                        size="sm"
-                        variant="ghost"
+                        size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"
                         title={post.published ? "Unpublish" : "Publish"}
-                        onClick={() =>
-                          togglePublished.mutate({ id: post.id, published: !post.published })
-                        }
+                        onClick={() => togglePublished.mutate({ id: post.id, published: !post.published })}
                       >
                         {post.published ? <EyeOff size={14} /> : <Eye size={14} />}
                       </Button>
                       <Button
-                        size="sm"
-                        variant="ghost"
+                        size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"
                         title="Edit"
                         onClick={() => openEdit(post as Post)}
@@ -285,8 +294,7 @@ export default function AdminBlog() {
                         <Pencil size={14} />
                       </Button>
                       <Button
-                        size="sm"
-                        variant="ghost"
+                        size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-red-400"
                         title="Delete"
                         onClick={() => setDeleteTarget(post as Post)}
@@ -302,9 +310,15 @@ export default function AdminBlog() {
         </div>
       )}
 
-      {/* Create / Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingPost(null); setForm(EMPTY_FORM); } }}>
-        <DialogContent className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white max-w-3xl max-h-[90vh] overflow-y-auto">
+      {/* ── Create / Edit Dialog ─────────────────────────────────────────── */}
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) { setEditingPost(null); setForm(EMPTY_FORM); setShowImageUploader(false); }
+        }}
+      >
+        <DialogContent className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white max-w-4xl max-h-[92vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white text-xl">
               {editingPost ? "Edit Post" : "Create New Post"}
@@ -379,27 +393,66 @@ export default function AdminBlog() {
               />
             </div>
 
-            {/* Content */}
+            {/* Rich Text Content */}
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Content * (Markdown supported)</label>
-              <Textarea
+              <label className="text-sm text-gray-400 mb-1 block">Content *</label>
+              <RichTextEditor
                 value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                placeholder="Write your article in Markdown…"
-                rows={14}
-                className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600 font-mono text-sm resize-y"
+                onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+                onImageInsert={handleEditorImageInsert}
+                placeholder="Write your article here…"
+                minHeight="360px"
               />
             </div>
 
+            {/* Inline image uploader (shown when toolbar image button is clicked) */}
+            {showImageUploader && (
+              <div className="bg-[#0A0E1A] rounded-xl border border-[rgba(0,212,255,0.2)] p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-medium text-white flex items-center gap-2">
+                    <ImageIcon size={14} className="text-[#00D4FF]" />
+                    Upload Image
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowImageUploader(false)}
+                    className="text-gray-500 hover:text-gray-300"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <DragDropImageUploader
+                  onUploaded={handleImageUploaded}
+                  onCancel={() => setShowImageUploader(false)}
+                />
+              </div>
+            )}
+
             {/* Featured Image */}
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Featured Image URL (optional)</label>
-              <Input
-                value={form.featuredImage}
-                onChange={(e) => setForm((f) => ({ ...f, featuredImage: e.target.value }))}
-                placeholder="https://cdn.example.com/image.jpg"
-                className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600"
-              />
+              <label className="text-sm text-gray-400 mb-2 block">Featured Image</label>
+              {form.featuredImage ? (
+                <div className="relative rounded-xl overflow-hidden border border-[rgba(0,212,255,0.2)]">
+                  <img
+                    src={form.featuredImage}
+                    alt="Featured"
+                    className="w-full h-40 object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, featuredImage: "" }))}
+                    className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white rounded-full p-1"
+                    title="Remove featured image"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <DragDropImageUploader
+                  onUploaded={(url) => setForm((f) => ({ ...f, featuredImage: url }))}
+                  currentUrl={null}
+                />
+              )}
             </div>
 
             {/* Published toggle */}

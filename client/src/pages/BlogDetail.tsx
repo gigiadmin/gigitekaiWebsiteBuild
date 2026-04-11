@@ -9,6 +9,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
+import DOMPurify from "dompurify";
 
 export default function BlogDetail() {
   const [, navigate] = useLocation();
@@ -140,7 +141,19 @@ export default function BlogDetail() {
         <section className="py-16 bg-gray-50">
           <div className="container max-w-3xl">
             <article className="bg-white rounded-2xl p-12 prose prose-lg max-w-none">
-              <Streamdown>{post.content}</Streamdown>
+              {/* Render HTML from TipTap editor; fall back to Markdown for legacy posts */}
+              {post.content.trimStart().startsWith("<") ? (
+                <div
+                  className="tiptap-content"
+                  dangerouslySetInnerHTML={{
+                    __html: typeof window !== "undefined"
+                      ? DOMPurify.sanitize(post.content)
+                      : post.content,
+                  }}
+                />
+              ) : (
+                <Streamdown>{post.content}</Streamdown>
+              )}
             </article>
 
             {/* CTA */}

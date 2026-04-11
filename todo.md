@@ -682,3 +682,13 @@
 - [x] Seed 3 existing hardcoded posts into database
 - [x] Write vitest tests for blog router
 - [x] All tests passing after migration (178/178)
+
+## Blog Editor Enhancements (Apr 11, 2026)
+- [x] Install TipTap rich text editor packages
+- [x] Build RichTextEditor component with full toolbar (bold, italic, headings, lists, links, code, blockquote)
+- [x] Build DragDropImageUploader component with S3 backend tRPC procedure
+- [x] Integrate RichTextEditor into AdminBlog.tsx (replace plain textarea)
+- [x] Integrate DragDropImageUploader into AdminBlog.tsx for featured image
+- [x] Update BlogDetail.tsx to render HTML output from TipTap (not Markdown)
+- [x] Submit /api/sitemap-blog.xml to Google Search Console
+- [x] All tests passing after enhancements (178/178)

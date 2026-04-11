@@ -10,6 +10,7 @@ import { getDb } from "../db";
 import { blogPosts } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { storagePut } from "../storage";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -167,6 +168,27 @@ export const blogRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
       await db.delete(blogPosts).where(eq(blogPosts.id, input.id));
       return { success: true };
+    }),
+
+  /** Upload a blog image to S3 (admin only) */
+  uploadImage: protectedProcedure
+    .input(
+      z.object({
+        base64: z.string().min(1),
+        mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+        fileName: z.string().min(1).max(255),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const buffer = Buffer.from(input.base64, "base64");
+      if (buffer.byteLength > 5 * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Image must be under 5 MB" });
+      }
+      const ext = input.mimeType.split("/")[1];
+      const key = `blog-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { url } = await storagePut(key, buffer, input.mimeType);
+      return { url };
     }),
 
   /** Toggle published status (admin only) */
