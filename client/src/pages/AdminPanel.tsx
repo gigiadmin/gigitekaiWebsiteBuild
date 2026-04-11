@@ -27,15 +27,34 @@ import {
   Mail,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 import { InviteCustomerModal } from "@/components/InviteCustomerModal";
 
 type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
-  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  // Primary: Manus OAuth (same session as /helpdesk)
+  const { user: oauthUser, loading: oauthLoading, isAuthenticated: oauthAuthenticated } = useAuth();
+
+  // Fallback: custom admin auth (for agents/viewers without Manus accounts)
+  const { data: customAdminUser, isLoading: customAdminLoading } = trpc.adminAuth.me.useQuery(
+    undefined,
+    { enabled: !oauthLoading && !oauthAuthenticated }
+  );
+
+  const loading = oauthLoading || (!oauthAuthenticated && customAdminLoading);
+
+  // Determine active user — OAuth takes priority
+  const adminUser = oauthAuthenticated && oauthUser
+    ? { id: oauthUser.id, email: oauthUser.email ?? "", role: oauthUser.role === "admin" ? "admin" as const : "agent" as const }
+    : customAdminUser
+    ? { id: customAdminUser.id, email: customAdminUser.email, role: customAdminUser.role as "admin" | "agent" | "viewer" }
+    : null;
+
   const isAuthenticated = !!adminUser;
-  const user = adminUser ? { id: adminUser.id, email: adminUser.email, role: adminUser.role } : null;
+  const user = adminUser;
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -87,9 +106,9 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/login");
+      window.location.href = getLoginUrl();
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading]);
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {

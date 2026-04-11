@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import VideoCallModal from "@/components/VideoCallModal";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 interface OnlineUser {
   userId: number;
@@ -70,9 +72,26 @@ function formatFileSize(bytes: number): string {
 type Tab = "chat" | "analytics" | "transcripts";
 
 export default function AdminChat() {
-  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  // Primary: Manus OAuth (same session as /helpdesk)
+  const { user: oauthUser, loading: oauthLoading, isAuthenticated: oauthAuthenticated } = useAuth();
+
+  // Fallback: custom admin auth (for agents/viewers without Manus accounts)
+  const { data: customAdminUser, isLoading: customAdminLoading } = trpc.adminAuth.me.useQuery(
+    undefined,
+    { enabled: !oauthLoading && !oauthAuthenticated }
+  );
+
+  const loading = oauthLoading || (!oauthAuthenticated && customAdminLoading);
+
+  // Determine active user — OAuth takes priority
+  const adminUser = oauthAuthenticated && oauthUser
+    ? { id: oauthUser.id, email: oauthUser.email ?? "", role: oauthUser.role === "admin" ? "admin" as const : "agent" as const }
+    : customAdminUser
+    ? { id: customAdminUser.id, email: customAdminUser.email, role: customAdminUser.role as "admin" | "agent" | "viewer" }
+    : null;
+
   const isAuthenticated = !!adminUser;
-  const user = adminUser ? { id: adminUser.id, email: adminUser.email, role: adminUser.role } : null;
+  const user = adminUser;
   const [, navigate] = useLocation();
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -120,12 +139,12 @@ export default function AdminChat() {
     { enabled: !!transcriptSessionId }
   );
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated — send to Manus OAuth login
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/login");
+      window.location.href = getLoginUrl();
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading]);
 
   // Initialize WebSocket connection
   useEffect(() => {

@@ -652,3 +652,6 @@
 - [x] PWA-02: Fix PWA shortcuts to use /helpdesk and /admin direct routes
 - [x] BUG-02: Removed broken /api/trpc/admin.syncOfflineData call from service-worker.js
 - [x] SEC-03: Documented in-memory rate limiter behavior (resets on restart, acceptable for current scale)
+
+## OAuth Admin Fix (Apr 11, 2026)
+- [x] Fix OAuth session not being recognized on /admin portal — AdminChat and AdminPanel now use OAuth-first auth with custom admin fallback
