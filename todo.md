@@ -632,3 +632,6 @@
 - [x] Add 'Got it' dismiss button to Admin Portal guide banner (persists via localStorage)
 - [x] Create /helpdesk/guide page — Helpdesk Agent onboarding guide (login, tickets, chat)
 - [x] Connect Admin Metrics dashboard to live helpdesk ticket data from the database
+
+## Helpdesk Nav Guide Link (Apr 10, 2026)
+- [x] Add Guide link to HelpdeskNav component pointing to /helpdesk/guide

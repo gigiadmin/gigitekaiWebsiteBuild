@@ -5,12 +5,10 @@ import {
   LifeBuoy,
   LayoutDashboard,
   PlusCircle,
-  Settings,
   MessageSquare,
   LogOut,
-  ArrowLeft,
   Home,
-  Shield,
+  BookOpen,
 } from "lucide-react";
 
 interface HelpdeskNavProps {
@@ -18,7 +16,7 @@ interface HelpdeskNavProps {
   isAdmin?: boolean;
 }
 
-export default function HelpdeskNav({ showBackToDashboard = false, isAdmin = false }: HelpdeskNavProps) {
+export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
   const { user, logout } = useAuth();
   const [location, navigate] = useLocation();
 
@@ -79,6 +77,12 @@ export default function HelpdeskNav({ showBackToDashboard = false, isAdmin = fal
                       active={location === "/helpdesk/tickets/new"}
                       icon={<PlusCircle className="w-4 h-4" />}
                       label="New Ticket"
+                    />
+                    <NavLink
+                      href="/helpdesk/guide"
+                      active={location === "/helpdesk/guide"}
+                      icon={<BookOpen className="w-4 h-4" />}
+                      label="Agent Guide"
                     />
                   </>
                 )}
@@ -148,6 +152,7 @@ export default function HelpdeskNav({ showBackToDashboard = false, isAdmin = fal
             <>
               <MobileNavLink href="/helpdesk/dashboard" active={location === "/helpdesk/dashboard"} label="My Tickets" />
               <MobileNavLink href="/helpdesk/tickets/new" active={location === "/helpdesk/tickets/new"} label="New Ticket" />
+              <MobileNavLink href="/helpdesk/guide" active={location === "/helpdesk/guide"} label="Agent Guide" />
             </>
           )}
         </div>
