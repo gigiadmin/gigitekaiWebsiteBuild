@@ -26,6 +26,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
 import AdminGuide from "./pages/AdminGuide";
+import HelpdeskAgentGuide from "./pages/HelpdeskAgentGuide";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallBanner from "./components/PWAInstallBanner";
@@ -57,6 +58,7 @@ function Router() {
       <Route path={"admin/user-preferences"} component={AdminUserPreferences} />
       <Route path={"/login"} component={Login} />
       <Route path={"/admin/guide"} component={AdminGuide} />
+      <Route path={"/helpdesk/guide"} component={HelpdeskAgentGuide} />
       <Route path={"404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

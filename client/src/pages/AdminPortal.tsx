@@ -31,6 +31,7 @@ export default function AdminPortal() {
 
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("metrics");
+  const [guideDismissed, setGuideDismissed] = useState(() => localStorage.getItem('adminGuideBannerDismissed') === '1');
 
   const isLoading = oauthLoading || (!isAuthenticated && customAdminLoading);
 
@@ -174,7 +175,7 @@ export default function AdminPortal() {
       <div className="max-w-7xl mx-auto px-6 py-8">
 
         {/* Admin Guide Banner */}
-        {isAdmin && (
+        {isAdmin && !guideDismissed && (
           <div
             onClick={() => setLocation("/admin/guide")}
             className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-purple-900/30 to-slate-900/60 border border-purple-700/40 rounded-xl px-5 py-4 cursor-pointer hover:border-purple-500/60 hover:from-purple-900/40 transition-all group"
@@ -188,9 +189,17 @@ export default function AdminPortal() {
                 <p className="text-gray-400 text-xs mt-0.5">Step-by-step instructions for creating admin, agent, and viewer accounts — including role permissions and access revocation.</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-purple-400 text-sm font-medium group-hover:text-purple-300 flex-shrink-0">
-              <span className="hidden sm:inline">View Guide</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex items-center gap-1 text-purple-400 text-sm font-medium group-hover:text-purple-300">
+                <span className="hidden sm:inline">View Guide</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); setGuideDismissed(true); localStorage.setItem('adminGuideBannerDismissed', '1'); }}
+                className="text-gray-500 hover:text-gray-300 text-xs px-2.5 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors bg-slate-900/60"
+              >
+                Got it
+              </button>
             </div>
           </div>
         )}

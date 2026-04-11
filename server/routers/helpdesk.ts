@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
-import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets } from "../db";
+import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
@@ -229,6 +229,76 @@ export const helpdeskRouter = router({
       return allTickets;
     } catch (error) {
       console.error("Failed to get all tickets:", error);
+      throw error;
+    }
+  }),
+
+  // Get aggregated metrics for the admin dashboard (admin only)
+  getMetrics: adminProcedure.query(async () => {
+    try {
+      const allTickets = await getAllTickets();
+      const allFeedback = await getAllTicketFeedback();
+
+      const total = allTickets.length;
+      const open = allTickets.filter(t => t.status === 'open').length;
+      const inProgress = allTickets.filter(t => t.status === 'in_progress').length;
+      const resolved = allTickets.filter(t => t.status === 'resolved').length;
+      const closed = allTickets.filter(t => t.status === 'closed').length;
+
+      // Average resolution time in hours (for resolved/closed tickets with resolvedAt)
+      const resolvedWithTime = allTickets.filter(t => (t.status === 'resolved' || t.status === 'closed') && t.resolvedAt && t.createdAt);
+      const avgResolutionHours = resolvedWithTime.length > 0
+        ? Math.round(resolvedWithTime.reduce((sum, t) => {
+            const ms = new Date(t.resolvedAt!).getTime() - new Date(t.createdAt).getTime();
+            return sum + ms / (1000 * 60 * 60);
+          }, 0) / resolvedWithTime.length)
+        : null;
+
+      // Tickets by priority
+      const byPriority = {
+        low: allTickets.filter(t => t.priority === 'low').length,
+        medium: allTickets.filter(t => t.priority === 'medium').length,
+        high: allTickets.filter(t => t.priority === 'high').length,
+        critical: allTickets.filter(t => t.priority === 'critical').length,
+      };
+
+      // Tickets by category
+      const byCategory = {
+        bug_report: allTickets.filter(t => t.category === 'bug_report').length,
+        feature_request: allTickets.filter(t => t.category === 'feature_request').length,
+        general_support: allTickets.filter(t => t.category === 'general_support').length,
+        billing: allTickets.filter(t => t.category === 'billing').length,
+      };
+
+      // Tickets created per day (last 7 days)
+      const now = new Date();
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(now);
+        d.setDate(d.getDate() - (6 - i));
+        return d.toISOString().slice(0, 10);
+      });
+      const ticketsByDay = last7Days.map(day => ({
+        day,
+        count: allTickets.filter(t => new Date(t.createdAt).toISOString().slice(0, 10) === day).length,
+      }));
+
+      // Satisfaction from ticket feedback
+      const helpful = allFeedback.filter(f => parseInt(f.rating) >= 4).length;
+      const neutral = allFeedback.filter(f => parseInt(f.rating) === 3).length;
+      const unhelpful = allFeedback.filter(f => parseInt(f.rating) <= 2).length;
+      const totalRatings = allFeedback.length;
+      const satisfactionScore = totalRatings > 0 ? Math.round((helpful / totalRatings) * 100) : null;
+
+      return {
+        total, open, inProgress, resolved, closed,
+        avgResolutionHours,
+        byPriority,
+        byCategory,
+        ticketsByDay,
+        satisfaction: { helpful, neutral, unhelpful, total: totalRatings, score: satisfactionScore },
+      };
+    } catch (error) {
+      console.error("Failed to get metrics:", error);
       throw error;
     }
   }),

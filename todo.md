@@ -626,3 +626,9 @@
 
 ## Admin Portal Guide Link (Apr 10, 2026)
 - [x] Add prominent link to /admin/guide from the Admin Portal header and Account tab
+
+## Four-Task Batch (Apr 10, 2026)
+- [x] Create reusable skill via /skill-creator capturing the GigitekAI admin guide workflow
+- [x] Add 'Got it' dismiss button to Admin Portal guide banner (persists via localStorage)
+- [x] Create /helpdesk/guide page — Helpdesk Agent onboarding guide (login, tickets, chat)
+- [x] Connect Admin Metrics dashboard to live helpdesk ticket data from the database
