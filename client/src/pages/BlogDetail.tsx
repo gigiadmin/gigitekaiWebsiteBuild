@@ -6,10 +6,19 @@ import { useLocation, useRoute } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import ShareButtons from "@/components/ShareButtons";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import DOMPurify from "dompurify";
+
+/** Returns the canonical URL for the current article */
+function getArticleUrl(slug: string): string {
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/blog/${slug}`;
+  }
+  return `https://gigitekai.com/blog/${slug}`;
+}
 
 export default function BlogDetail() {
   const [, navigate] = useLocation();
@@ -78,6 +87,8 @@ export default function BlogDetail() {
     );
   }
 
+  const articleUrl = getArticleUrl(post.slug);
+
   const displayDate = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -119,7 +130,9 @@ export default function BlogDetail() {
             >
               {post.title}
             </h1>
-            <div className="flex items-center gap-6 text-gray-500 text-sm">
+
+            {/* Meta row: date · read time · author */}
+            <div className="flex flex-wrap items-center gap-6 text-gray-500 text-sm mb-6">
               <div className="flex items-center gap-2">
                 <Calendar size={16} />
                 {displayDate}
@@ -134,6 +147,9 @@ export default function BlogDetail() {
                 </div>
               )}
             </div>
+
+            {/* Share buttons — top of article */}
+            <ShareButtons url={articleUrl} title={post.title} />
           </div>
         </section>
 
@@ -156,8 +172,22 @@ export default function BlogDetail() {
               )}
             </article>
 
+            {/* Share buttons — bottom of article */}
+            <div className="mt-8 bg-white rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p
+                  className="font-semibold text-gray-900 mb-0.5"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  Found this article useful?
+                </p>
+                <p className="text-sm text-gray-500">Share it with your network.</p>
+              </div>
+              <ShareButtons url={articleUrl} title={post.title} />
+            </div>
+
             {/* CTA */}
-            <div className="mt-12 bg-white rounded-2xl p-8 border border-gray-100 text-center">
+            <div className="mt-6 bg-white rounded-2xl p-8 border border-gray-100 text-center">
               <h3
                 className="text-2xl font-bold text-gray-900 mb-2"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}

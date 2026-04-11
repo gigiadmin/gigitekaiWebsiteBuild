@@ -698,3 +698,8 @@
 - [x] Category filter pills on public /blog page (All + per-category buttons, client-side filtering)
 - [x] YouTube/Vimeo video embed TipTap extension with toolbar button and URL dialog
 - [x] All tests passing after enhancements (178/178)
+
+## Social Share Buttons on Blog Articles (Apr 11, 2026)
+- [x] Build reusable ShareButtons component (LinkedIn, X, Copy Link)
+- [x] Integrate ShareButtons into BlogDetail.tsx (header + bottom CTA area)
+- [x] All tests passing after feature (178/178)
