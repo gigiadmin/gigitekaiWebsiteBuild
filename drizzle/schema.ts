@@ -440,3 +440,18 @@ export const agentSchedules = mysqlTable("agentSchedules", {
 
 export type AgentSchedule = typeof agentSchedules.$inferSelect;
 export type InsertAgentSchedule = typeof agentSchedules.$inferInsert;
+
+// Newsletter Subscribers — public email capture from blog pages
+export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  /** Random token used for one-click unsubscribe links */
+  unsubscribeToken: varchar("unsubscribeToken", { length: 64 }).notNull().unique(),
+  /** Source page where the user signed up (e.g. "/blog", "/blog/some-slug") */
+  source: varchar("source", { length: 500 }),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;

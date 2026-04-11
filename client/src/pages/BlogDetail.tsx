@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ShareButtons from "@/components/ShareButtons";
 import AuthorBioCard from "@/components/AuthorBioCard";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
@@ -236,6 +237,13 @@ export default function BlogDetail() {
                 Get in Touch
               </button>
             </div>
+          </div>
+        </section>
+
+        {/* Newsletter signup — below article */}
+        <section className="py-10 bg-gray-50">
+          <div className="container max-w-3xl">
+            <NewsletterSignup variant="compact" source={typeof window !== 'undefined' ? window.location.pathname : '/blog'} />
           </div>
         </section>
       </main>

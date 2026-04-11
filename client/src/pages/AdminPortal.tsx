@@ -18,6 +18,7 @@ import AdminPanel from "./AdminPanel";
 import AdminAgents from "./AdminAgents";
 import AdminAccountManagement from "./AdminAccountManagement";
 import AdminBlog from "./AdminBlog";
+import AdminNewsletter from "./AdminNewsletter";
 
 export default function AdminPortal() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -264,6 +265,13 @@ export default function AdminPortal() {
               <span className="hidden sm:inline">Blog</span>
             </TabsTrigger>
             <TabsTrigger
+              value="newsletter"
+              className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+            >
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">Newsletter</span>
+            </TabsTrigger>
+            <TabsTrigger
               value="account"
               className="flex items-center gap-2 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
             >
@@ -343,6 +351,18 @@ export default function AdminPortal() {
               <div className="text-center py-12 text-gray-500">
                 <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-40" />
                 <p>Admin access required to manage blog posts.</p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Newsletter Subscribers Tab — admin only */}
+          <TabsContent value="newsletter" className="mt-6">
+            {isAdmin ? (
+              <AdminNewsletter />
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Mail className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p>Admin access required to view newsletter subscribers.</p>
               </div>
             )}
           </TabsContent>

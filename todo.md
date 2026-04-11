@@ -712,3 +712,13 @@
 - [x] Add Open Graph meta tags to BlogDetail.tsx (og:title, og:description, og:image, og:url, twitter:card)
 - [x] Update AdminBlog.tsx editor to expose authorBio and authorAvatar fields
 - [x] All tests passing after feature (178/178)
+
+## Newsletter Signup (Apr 11, 2026)
+- [x] Add newsletterSubscribers table to Drizzle schema and push migration
+- [x] Add tRPC procedures: subscribe (public), unsubscribe (token-based), adminListSubscribers, adminDeleteSubscriber
+- [x] Build NewsletterSignup component (email input + submit, success/error states)
+- [x] Add NewsletterSignup CTA section to Blog.tsx listing page (between filter pills and article grid)
+- [x] Add newsletter CTA banner to BlogDetail.tsx (after share buttons)
+- [x] Add Subscribers tab to Admin Portal (list, count, export CSV, delete)
+- [x] Send owner notification on new subscriber
+- [x] All tests passing after feature (178/178)

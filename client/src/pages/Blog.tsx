@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Blog() {
   const [, navigate] = useLocation();
@@ -55,6 +56,9 @@ export default function Blog() {
             </p>
           </div>
         </section>
+
+        {/* Newsletter signup banner */}
+        <NewsletterSignup variant="banner" source="/blog" />
 
         {/* Blog posts */}
         <section className="py-16 bg-gray-50">
