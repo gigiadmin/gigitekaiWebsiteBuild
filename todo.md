@@ -655,3 +655,6 @@
 
 ## OAuth Admin Fix (Apr 11, 2026)
 - [x] Fix OAuth session not being recognized on /admin portal — AdminChat and AdminPanel now use OAuth-first auth with custom admin fallback
+
+## Sitemap (Apr 11, 2026)
+- [x] Generate sitemap.xml for all public routes and place in client/public/
