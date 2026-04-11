@@ -455,3 +455,24 @@ export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+
+// Newsletter Campaigns — broadcast history log
+export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** HTML body of the campaign email */
+  body: text("body").notNull(),
+  /** Total active subscribers at time of send */
+  recipientCount: int("recipientCount").default(0).notNull(),
+  /** How many emails were sent successfully */
+  sentCount: int("sentCount").default(0).notNull(),
+  /** How many emails failed */
+  failedCount: int("failedCount").default(0).notNull(),
+  /** 'sending' | 'completed' | 'failed' */
+  status: varchar("status", { length: 50 }).default("completed").notNull(),
+  sentBy: varchar("sentBy", { length: 255 }),  // admin name/email
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
+export type InsertNewsletterCampaign = typeof newsletterCampaigns.$inferInsert;

@@ -722,3 +722,11 @@
 - [x] Add Subscribers tab to Admin Portal (list, count, export CSV, delete)
 - [x] Send owner notification on new subscriber
 - [x] All tests passing after feature (178/178)
+
+## Newsletter Broadcast Tool (Apr 11, 2026)
+- [x] Add newsletterCampaigns table to Drizzle schema and push migration
+- [x] Add sendCampaign tRPC procedure (admin only) — compose subject/body, send to all active subscribers, log results
+- [x] Build AdminNewsletterBroadcast component (compose form, live HTML preview, send button, campaign history table)
+- [x] Integrate broadcast UI into Newsletter tab in Admin Portal (tabbed: Subscribers / Broadcast)
+- [x] Include unsubscribe footer link in every campaign email
+- [x] All tests passing after feature (178/178)

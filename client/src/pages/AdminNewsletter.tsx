@@ -1,11 +1,13 @@
 /**
- * AdminNewsletter — Newsletter subscriber management for Admin Portal
- * Features: subscriber list, active/total count, CSV export, delete
+ * AdminNewsletter — Newsletter management hub
+ * Tabs: Subscribers (list, stats, CSV export, delete) | Broadcast (compose & send campaigns)
  */
 
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminNewsletterBroadcast from "./AdminNewsletterBroadcast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +22,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Mail, Trash2, Download, Loader2, Users } from "lucide-react";
 
-export default function AdminNewsletter() {
+function SubscribersList() {
   const utils = trpc.useUtils();
   const { data: subscribers, isLoading } = trpc.newsletter.listSubscribers.useQuery();
   const { data: stats } = trpc.newsletter.subscriberStats.useQuery();
@@ -165,7 +167,7 @@ export default function AdminNewsletter() {
         </div>
       )}
 
-      {/* Delete confirmation dialog */}
+      {/* Delete confirmation dialog — SubscribersList */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white">
           <AlertDialogHeader>
@@ -187,6 +189,35 @@ export default function AdminNewsletter() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+export default function AdminNewsletter() {
+  return (
+    <div className="space-y-4">
+      <Tabs defaultValue="subscribers">
+        <TabsList className="bg-[#0A0E1A] border border-[rgba(0,212,255,0.15)]">
+          <TabsTrigger
+            value="subscribers"
+            className="data-[state=active]:bg-[#00D4FF] data-[state=active]:text-[#0A0E1A] text-gray-400"
+          >
+            Subscribers
+          </TabsTrigger>
+          <TabsTrigger
+            value="broadcast"
+            className="data-[state=active]:bg-[#00D4FF] data-[state=active]:text-[#0A0E1A] text-gray-400"
+          >
+            Broadcast
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="subscribers" className="mt-4">
+          <SubscribersList />
+        </TabsContent>
+        <TabsContent value="broadcast" className="mt-4">
+          <AdminNewsletterBroadcast />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
