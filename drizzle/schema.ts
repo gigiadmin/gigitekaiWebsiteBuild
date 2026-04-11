@@ -468,9 +468,12 @@ export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
   sentCount: int("sentCount").default(0).notNull(),
   /** How many emails failed */
   failedCount: int("failedCount").default(0).notNull(),
-  /** 'sending' | 'completed' | 'failed' */
+  /** 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed' */
   status: varchar("status", { length: 50 }).default("completed").notNull(),
   sentBy: varchar("sentBy", { length: 255 }),  // admin name/email
+  /** UTC timestamp for when a scheduled campaign should be sent */
+  scheduledAt: timestamp("scheduledAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

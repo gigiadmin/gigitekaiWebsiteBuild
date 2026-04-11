@@ -2,14 +2,16 @@
  * Newsletter Router
  * Public:  subscribe, unsubscribe (token-based)
  * Admin:   listSubscribers, subscriberStats, deleteSubscriber, exportCsv,
- *          sendCampaign, listCampaigns
+ *          sendCampaign, listCampaigns,
+ *          saveDraft, updateDraft, deleteDraft, scheduleCampaign, cancelSchedule,
+ *          listDrafts, listScheduled
  */
 
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { newsletterSubscribers, newsletterCampaigns } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
@@ -26,7 +28,7 @@ function generateToken(): string {
 }
 
 /** Build a branded campaign HTML email */
-function buildCampaignEmail(opts: {
+export function buildCampaignEmail(opts: {
   subject: string;
   bodyHtml: string;
   recipientEmail: string;
@@ -44,14 +46,12 @@ function buildCampaignEmail(opts: {
     body{margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;}
     .wrapper{max-width:640px;margin:32px auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);}
     .header{background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);padding:28px 32px;border-bottom:3px solid #00D4FF;}
-    .header-inner{display:flex;align-items:center;gap:12px;}
     .logo-text{color:#00D4FF;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
     .tagline{color:#8899AA;font-size:12px;margin-top:2px;}
     .content{padding:32px;color:#1a202c;font-size:15px;line-height:1.7;}
     .content h1,.content h2,.content h3{color:#0A0E1A;font-weight:700;}
     .content a{color:#00D4FF;}
     .content img{max-width:100%;border-radius:6px;}
-    .cta-btn{display:inline-block;background:#00D4FF;color:#0A0E1A!important;padding:12px 28px;border-radius:6px;font-weight:700;text-decoration:none;margin:16px 0;}
     .footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center;font-size:12px;color:#718096;}
     .footer a{color:#718096;}
   </style>
@@ -59,16 +59,10 @@ function buildCampaignEmail(opts: {
 <body>
   <div class="wrapper">
     <div class="header">
-      <div class="header-inner">
-        <div>
-          <div class="logo-text">GigitekAI</div>
-          <div class="tagline">Cloud &amp; AI Solutions</div>
-        </div>
-      </div>
+      <div class="logo-text">GigitekAI</div>
+      <div class="tagline">Cloud &amp; AI Solutions</div>
     </div>
-    <div class="content">
-      ${opts.bodyHtml}
-    </div>
+    <div class="content">${opts.bodyHtml}</div>
     <div class="footer">
       <p style="margin:0 0 6px;">GigitekAI &bull; Cloud &amp; AI Solutions &bull; <a href="${opts.siteUrl}">${opts.siteUrl.replace(/^https?:\/\//, "")}</a></p>
       <p style="margin:0;">You're receiving this because you subscribed at gigitekai.com. &nbsp;<a href="${unsubUrl}">Unsubscribe</a></p>
@@ -78,15 +72,69 @@ function buildCampaignEmail(opts: {
 </html>`;
 }
 
+/** Core send logic — shared by sendCampaign and the background scheduler */
+export async function executeCampaignSend(opts: {
+  campaignId: number;
+  subject: string;
+  bodyHtml: string;
+  siteUrl: string;
+  sentBy?: string;
+}) {
+  const db = await getDb();
+  if (!db) return { sentCount: 0, failedCount: 0, recipientCount: 0 };
+
+  const subscribers = await db
+    .select({
+      id: newsletterSubscribers.id,
+      email: newsletterSubscribers.email,
+      unsubscribeToken: newsletterSubscribers.unsubscribeToken,
+    })
+    .from(newsletterSubscribers)
+    .where(eq(newsletterSubscribers.active, true));
+
+  // Mark as sending
+  await db
+    .update(newsletterCampaigns)
+    .set({ status: "sending", recipientCount: subscribers.length })
+    .where(eq(newsletterCampaigns.id, opts.campaignId));
+
+  let sentCount = 0;
+  let failedCount = 0;
+
+  for (const sub of subscribers) {
+    const html = buildCampaignEmail({
+      subject: opts.subject,
+      bodyHtml: opts.bodyHtml,
+      recipientEmail: sub.email,
+      unsubscribeToken: sub.unsubscribeToken,
+      siteUrl: opts.siteUrl,
+    });
+    const ok = await sendEmail({ to: sub.email, subject: opts.subject, html });
+    if (ok) sentCount++; else failedCount++;
+  }
+
+  await db
+    .update(newsletterCampaigns)
+    .set({
+      sentCount,
+      failedCount,
+      status: failedCount === subscribers.length && subscribers.length > 0 ? "failed" : "completed",
+    })
+    .where(eq(newsletterCampaigns.id, opts.campaignId));
+
+  await notifyOwner({
+    title: `Newsletter Campaign Sent: "${opts.subject}"`,
+    content: `Campaign sent${opts.sentBy ? ` by ${opts.sentBy}` : ""}.\n\n- Recipients: ${subscribers.length}\n- Delivered: ${sentCount}\n- Failed: ${failedCount}`,
+  }).catch(() => {});
+
+  return { sentCount, failedCount, recipientCount: subscribers.length };
+}
+
 export const newsletterRouter = router({
-  /** Subscribe a new email address (public) */
+  // ─── Public ───────────────────────────────────────────────────────────────
+
   subscribe: publicProcedure
-    .input(
-      z.object({
-        email: z.string().email("Please enter a valid email address"),
-        source: z.string().max(500).optional(),
-      })
-    )
+    .input(z.object({ email: z.string().email(), source: z.string().max(500).optional() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Service temporarily unavailable" });
@@ -113,13 +161,12 @@ export const newsletterRouter = router({
 
       await notifyOwner({
         title: "New Newsletter Subscriber",
-        content: `${input.email} just subscribed to the GigitekAI newsletter${input.source ? ` from ${input.source}` : ""}.`,
+        content: `${input.email} just subscribed${input.source ? ` from ${input.source}` : ""}.`,
       }).catch(() => {});
 
       return { success: true, alreadySubscribed: false };
     }),
 
-  /** Unsubscribe via token (public) */
   unsubscribe: publicProcedure
     .input(z.object({ token: z.string().min(1) }))
     .mutation(async ({ input }) => {
@@ -133,12 +180,12 @@ export const newsletterRouter = router({
         .limit(1);
 
       if (!sub) throw new TRPCError({ code: "NOT_FOUND", message: "Invalid unsubscribe link" });
-
       await db.update(newsletterSubscribers).set({ active: false }).where(eq(newsletterSubscribers.id, sub.id));
       return { success: true };
     }),
 
-  /** List all subscribers (admin only) */
+  // ─── Admin: Subscribers ───────────────────────────────────────────────────
+
   listSubscribers: protectedProcedure.query(async ({ ctx }) => {
     requireAdmin(ctx.user.role);
     const db = await getDb();
@@ -146,7 +193,6 @@ export const newsletterRouter = router({
     return db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
   }),
 
-  /** Subscriber count stats (admin only) */
   subscriberStats: protectedProcedure.query(async ({ ctx }) => {
     requireAdmin(ctx.user.role);
     const db = await getDb();
@@ -155,7 +201,6 @@ export const newsletterRouter = router({
     return { total: all.length, active: all.filter((s) => s.active).length };
   }),
 
-  /** Delete a subscriber (admin only) */
   deleteSubscriber: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
@@ -166,7 +211,6 @@ export const newsletterRouter = router({
       return { success: true };
     }),
 
-  /** Export active subscribers as CSV (admin only) */
   exportCsv: protectedProcedure.query(async ({ ctx }) => {
     requireAdmin(ctx.user.role);
     const db = await getDb();
@@ -181,91 +225,63 @@ export const newsletterRouter = router({
     return { csv: [header, ...lines].join("\n") };
   }),
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // BROADCAST / CAMPAIGNS
-  // ─────────────────────────────────────────────────────────────────────────
+  // ─── Admin: Campaigns (send immediately) ─────────────────────────────────
 
-  /**
-   * Send a campaign email to all active subscribers.
-   * Runs synchronously (sequential sends) and logs the result.
-   */
   sendCampaign: protectedProcedure
-    .input(
-      z.object({
-        subject: z.string().min(1, "Subject is required").max(500),
-        /** HTML body — produced by the TipTap editor in the frontend */
-        bodyHtml: z.string().min(1, "Email body is required"),
-        /** Canonical site URL for unsubscribe links — pass window.location.origin from frontend */
-        siteUrl: z.string().url().default("https://gigitekai.com"),
-      })
-    )
+    .input(z.object({
+      subject: z.string().min(1).max(500),
+      bodyHtml: z.string().min(1),
+      siteUrl: z.string().url().default("https://gigitekai.com"),
+      /** If provided, sends an existing draft/scheduled campaign */
+      campaignId: z.number().int().positive().optional(),
+    }))
     .mutation(async ({ ctx, input }) => {
       requireAdmin(ctx.user.role);
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-      // Fetch all active subscribers
-      const subscribers = await db
-        .select({ id: newsletterSubscribers.id, email: newsletterSubscribers.email, unsubscribeToken: newsletterSubscribers.unsubscribeToken })
+      const activeCount = await db
+        .select({ active: newsletterSubscribers.active })
         .from(newsletterSubscribers)
         .where(eq(newsletterSubscribers.active, true));
 
-      if (subscribers.length === 0) {
+      if (activeCount.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "No active subscribers to send to." });
       }
 
-      // Insert campaign log (status: sending)
-      const [campaignInsert] = await db.insert(newsletterCampaigns).values({
+      let campaignId = input.campaignId;
+
+      if (campaignId) {
+        // Update existing draft/scheduled to sending
+        await db.update(newsletterCampaigns)
+          .set({ subject: input.subject, body: input.bodyHtml, status: "sending", scheduledAt: null })
+          .where(eq(newsletterCampaigns.id, campaignId));
+      } else {
+        // Create new campaign record
+        const [result] = await db.insert(newsletterCampaigns).values({
+          subject: input.subject,
+          body: input.bodyHtml,
+          recipientCount: activeCount.length,
+          sentCount: 0,
+          failedCount: 0,
+          status: "sending",
+          sentBy: ctx.user.name ?? ctx.user.email ?? "admin",
+        });
+        // @ts-ignore
+        campaignId = (result as any).insertId ?? 0;
+      }
+
+      const result = await executeCampaignSend({
+        campaignId: campaignId!,
         subject: input.subject,
-        body: input.bodyHtml,
-        recipientCount: subscribers.length,
-        sentCount: 0,
-        failedCount: 0,
-        status: "sending",
+        bodyHtml: input.bodyHtml,
+        siteUrl: input.siteUrl,
         sentBy: ctx.user.name ?? ctx.user.email ?? "admin",
       });
 
-      // @ts-ignore — insertId available on mysql2 result
-      const campaignId: number = (campaignInsert as any).insertId ?? 0;
-
-      let sentCount = 0;
-      let failedCount = 0;
-
-      for (const sub of subscribers) {
-        const html = buildCampaignEmail({
-          subject: input.subject,
-          bodyHtml: input.bodyHtml,
-          recipientEmail: sub.email,
-          unsubscribeToken: sub.unsubscribeToken,
-          siteUrl: input.siteUrl,
-        });
-
-        const ok = await sendEmail({ to: sub.email, subject: input.subject, html });
-        if (ok) sentCount++; else failedCount++;
-      }
-
-      // Update campaign log with final counts
-      if (campaignId) {
-        await db
-          .update(newsletterCampaigns)
-          .set({
-            sentCount,
-            failedCount,
-            status: failedCount === subscribers.length ? "failed" : "completed",
-          })
-          .where(eq(newsletterCampaigns.id, campaignId));
-      }
-
-      // Notify owner
-      await notifyOwner({
-        title: `Newsletter Campaign Sent: "${input.subject}"`,
-        content: `Campaign sent by ${ctx.user.name ?? "admin"}.\n\n- Recipients: ${subscribers.length}\n- Delivered: ${sentCount}\n- Failed: ${failedCount}`,
-      }).catch(() => {});
-
-      return { success: true, sentCount, failedCount, recipientCount: subscribers.length };
+      return { success: true, ...result };
     }),
 
-  /** List past campaigns (admin only) */
   listCampaigns: protectedProcedure.query(async ({ ctx }) => {
     requireAdmin(ctx.user.role);
     const db = await getDb();
@@ -279,10 +295,213 @@ export const newsletterRouter = router({
         failedCount: newsletterCampaigns.failedCount,
         status: newsletterCampaigns.status,
         sentBy: newsletterCampaigns.sentBy,
+        scheduledAt: newsletterCampaigns.scheduledAt,
         createdAt: newsletterCampaigns.createdAt,
       })
       .from(newsletterCampaigns)
+      .where(eq(newsletterCampaigns.status, "completed"))
       .orderBy(desc(newsletterCampaigns.createdAt))
       .limit(50);
   }),
+
+  // ─── Admin: Drafts ────────────────────────────────────────────────────────
+
+  saveDraft: protectedProcedure
+    .input(z.object({
+      subject: z.string().max(500).default(""),
+      bodyHtml: z.string().default(""),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [result] = await db.insert(newsletterCampaigns).values({
+        subject: input.subject,
+        body: input.bodyHtml,
+        recipientCount: 0,
+        sentCount: 0,
+        failedCount: 0,
+        status: "draft",
+        sentBy: ctx.user.name ?? ctx.user.email ?? "admin",
+      });
+      // @ts-ignore
+      const id: number = (result as any).insertId ?? 0;
+      return { success: true, id };
+    }),
+
+  updateDraft: protectedProcedure
+    .input(z.object({
+      id: z.number().int().positive(),
+      subject: z.string().max(500),
+      bodyHtml: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [existing] = await db
+        .select({ id: newsletterCampaigns.id, status: newsletterCampaigns.status })
+        .from(newsletterCampaigns)
+        .where(eq(newsletterCampaigns.id, input.id))
+        .limit(1);
+
+      if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Draft not found" });
+      if (existing.status !== "draft" && existing.status !== "scheduled") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Only drafts and scheduled campaigns can be edited" });
+      }
+
+      await db.update(newsletterCampaigns)
+        .set({ subject: input.subject, body: input.bodyHtml })
+        .where(eq(newsletterCampaigns.id, input.id));
+
+      return { success: true };
+    }),
+
+  deleteDraft: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [existing] = await db
+        .select({ status: newsletterCampaigns.status })
+        .from(newsletterCampaigns)
+        .where(eq(newsletterCampaigns.id, input.id))
+        .limit(1);
+
+      if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Campaign not found" });
+      if (existing.status !== "draft" && existing.status !== "scheduled") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Only drafts and scheduled campaigns can be deleted" });
+      }
+
+      await db.delete(newsletterCampaigns).where(eq(newsletterCampaigns.id, input.id));
+      return { success: true };
+    }),
+
+  listDrafts: protectedProcedure.query(async ({ ctx }) => {
+    requireAdmin(ctx.user.role);
+    const db = await getDb();
+    if (!db) return [];
+    return db
+      .select()
+      .from(newsletterCampaigns)
+      .where(eq(newsletterCampaigns.status, "draft"))
+      .orderBy(desc(newsletterCampaigns.updatedAt));
+  }),
+
+  // ─── Admin: Scheduled Campaigns ──────────────────────────────────────────
+
+  scheduleCampaign: protectedProcedure
+    .input(z.object({
+      /** Existing draft ID to schedule, or omit to create new */
+      id: z.number().int().positive().optional(),
+      subject: z.string().min(1).max(500),
+      bodyHtml: z.string().min(1),
+      /** ISO 8601 datetime string — must be in the future */
+      scheduledAt: z.string().datetime(),
+      siteUrl: z.string().url().default("https://gigitekai.com"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const scheduledDate = new Date(input.scheduledAt);
+      if (scheduledDate <= new Date()) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Scheduled time must be in the future" });
+      }
+
+      if (input.id) {
+        await db.update(newsletterCampaigns)
+          .set({ subject: input.subject, body: input.bodyHtml, status: "scheduled", scheduledAt: scheduledDate })
+          .where(eq(newsletterCampaigns.id, input.id));
+        return { success: true, id: input.id };
+      }
+
+      const [result] = await db.insert(newsletterCampaigns).values({
+        subject: input.subject,
+        body: input.bodyHtml,
+        recipientCount: 0,
+        sentCount: 0,
+        failedCount: 0,
+        status: "scheduled",
+        sentBy: ctx.user.name ?? ctx.user.email ?? "admin",
+        scheduledAt: scheduledDate,
+      });
+      // @ts-ignore
+      const id: number = (result as any).insertId ?? 0;
+      return { success: true, id };
+    }),
+
+  cancelSchedule: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      await db.update(newsletterCampaigns)
+        .set({ status: "draft", scheduledAt: null })
+        .where(and(eq(newsletterCampaigns.id, input.id), eq(newsletterCampaigns.status, "scheduled")));
+
+      return { success: true };
+    }),
+
+  listScheduled: protectedProcedure.query(async ({ ctx }) => {
+    requireAdmin(ctx.user.role);
+    const db = await getDb();
+    if (!db) return [];
+    return db
+      .select()
+      .from(newsletterCampaigns)
+      .where(eq(newsletterCampaigns.status, "scheduled"))
+      .orderBy(newsletterCampaigns.scheduledAt);
+  }),
 });
+
+// ─── Background Scheduler ────────────────────────────────────────────────────
+// Checks every 60 seconds for scheduled campaigns that are due and sends them.
+// Exported so server/index.ts can call startNewsletterScheduler() on boot.
+
+export function startNewsletterScheduler(siteUrl = "https://gigitekai.com") {
+  const INTERVAL_MS = 60_000; // 1 minute
+
+  async function checkAndSend() {
+    try {
+      const db = await getDb();
+      if (!db) return;
+
+      const now = new Date();
+      const due = await db
+        .select()
+        .from(newsletterCampaigns)
+        .where(
+          and(
+            eq(newsletterCampaigns.status, "scheduled"),
+            lte(newsletterCampaigns.scheduledAt, now)
+          )
+        );
+
+      for (const campaign of due) {
+        console.log(`[Newsletter Scheduler] Sending scheduled campaign id=${campaign.id} "${campaign.subject}"`);
+        await executeCampaignSend({
+          campaignId: campaign.id,
+          subject: campaign.subject,
+          bodyHtml: campaign.body,
+          siteUrl,
+          sentBy: campaign.sentBy ?? "scheduler",
+        });
+      }
+    } catch (err) {
+      console.error("[Newsletter Scheduler] Error:", err);
+    }
+  }
+
+  // Run immediately on boot, then every minute
+  checkAndSend();
+  setInterval(checkAndSend, INTERVAL_MS);
+  console.log("[Newsletter Scheduler] Started — checking every 60s for scheduled campaigns");
+}

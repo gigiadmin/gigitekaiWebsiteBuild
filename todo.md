@@ -730,3 +730,10 @@
 - [x] Integrate broadcast UI into Newsletter tab in Admin Portal (tabbed: Subscribers / Broadcast)
 - [x] Include unsubscribe footer link in every campaign email
 - [x] All tests passing after feature (178/178)
+
+## Newsletter Draft & Scheduled Campaigns (Apr 11, 2026)
+- [x] Extend newsletterCampaigns schema: add status values 'draft'/'scheduled', add scheduledAt timestamp, push migration
+- [x] Add tRPC procedures: saveDraft, updateDraft, deleteDraft, scheduleCampaign, cancelSchedule, listDrafts
+- [x] Add server-side background scheduler (setInterval) that checks for due scheduled campaigns every minute and sends them
+- [x] Update AdminNewsletterBroadcast UI: Save as Draft button, Schedule Date/Time picker, Drafts tab, Scheduled tab
+- [x] All tests passing after feature (178/178)

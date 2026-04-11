@@ -11,6 +11,7 @@ import { setupWebSocket } from "./websocket";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
 import { securityHeaders } from "./securityHeaders";
 import { startDigestScheduler } from "./digestScheduler";
+import { startNewsletterScheduler } from "../routers/newsletter";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -113,6 +114,7 @@ async function startServer() {
     console.log(`Server running on http://localhost:${port}/`);
     // Start email digest scheduler
     startDigestScheduler();
+    startNewsletterScheduler();
   });
 }
 
