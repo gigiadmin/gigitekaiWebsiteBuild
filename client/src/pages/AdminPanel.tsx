@@ -262,6 +262,7 @@ export default function AdminPanel() {
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
+          <TicketTemplateManager />
           {allTickets && allTickets.length > 0 && (
             <Button
               size="sm"

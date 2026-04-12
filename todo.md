@@ -823,7 +823,7 @@
 - [x] Build BulkTicketActions component (checkbox selection, bulk status change, bulk delete)
 - [x] Build TicketTemplateManager component (create, list, delete, apply templates)
 - [x] Integrate BulkTicketActions into AdminPanel ticket table (checkboxes, bulk status change, bulk delete)
-- [ ] Integrate TicketTemplateManager into AdminPanel toolbar
+- [x] Integrate TicketTemplateManager into AdminPanel toolbar
 - [ ] Enhance search/filter: add date range filter, advanced search by customer email/phone
 - [ ] Add save/load filter presets functionality
 - [x] All 184 tests passing, TypeScript clean
