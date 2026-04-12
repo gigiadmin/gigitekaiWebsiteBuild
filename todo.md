@@ -747,3 +747,15 @@
 - [x] Add SENDGRID_API_KEY to ENV and rewrite email.ts to use SendGrid API
 - [x] Test SendGrid key and verify email delivery (202 OK, email delivered)
 - [x] All tests passing after fix (178/178)
+
+## Unified Admin Portal Rebuild (Apr 12, 2026)
+- [x] Build AdminLayout component — persistent dark sidebar, top bar with user/notifications, breadcrumbs
+- [x] Sidebar sections: Overview (Dashboard, Metrics), Operations (Helpdesk, Chat, Agents), Content (Blog, Newsletter), Customers (Accounts, Invites), Settings (Preferences, Digest, Guide)
+- [x] Migrate all admin modules to use AdminLayout (remove old tab-based AdminPortal)
+- [x] Build unified Admin Dashboard home (AdminHome.tsx) with live KPI cards (open tickets, active chats, subscribers, blog posts, resolution rate, pending invites)
+- [x] Add quick-action buttons on dashboard (Blog, Newsletter, Helpdesk, Chat, Invites, Metrics)
+- [x] Update App.tsx routes — each module gets its own /admin/* route under AdminLayout
+- [x] Collapsible sidebar with icon-only mode for more screen space
+- [x] Active route highlighting in sidebar
+- [x] AdminCustomers page built (invite send/revoke, status badges, stats cards)
+- [x] All 178 tests passing after rebuild

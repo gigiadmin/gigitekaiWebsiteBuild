@@ -4,61 +4,102 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+
+// Public pages
 import Home from "./pages/Home";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
 import About from "./pages/About";
+import Careers from "./pages/Careers";
+import ServiceDetail from "./pages/ServiceDetail";
+
+// Helpdesk (customer-facing)
 import HelpDesk from "./pages/HelpDesk";
 import HelpdeskDashboard from "./pages/HelpdeskDashboard";
 import CreateTicket from "./pages/CreateTicket";
 import TicketDetail from "./pages/TicketDetail";
-import AdminPanel from "./pages/AdminPanel";
-import AdminChat from "./pages/AdminChat";
-import AdminNotifications from "./pages/AdminNotifications";
-import AdminMetrics from "./pages/AdminMetrics";
-import EmailDigestSettings from "./pages/EmailDigestSettings";
-import AdminPortal from "./pages/AdminPortal";
-import AdminUserPreferences from "./pages/AdminUserPreferences";
 import TicketFeedback from "./pages/TicketFeedback";
 import UserProfile from "./pages/UserProfile";
-import Careers from "./pages/Careers";
-import ServiceDetail from "./pages/ServiceDetail";
+import HelpdeskAgentGuide from "./pages/HelpdeskAgentGuide";
+
+// Auth
 import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
-import AdminGuide from "./pages/AdminGuide";
-import HelpdeskAgentGuide from "./pages/HelpdeskAgentGuide";
+import ApprovalGuard from "./components/ApprovalGuard";
+
+// ── Unified Admin Portal ──────────────────────────────────────────────────────
+// Dashboard home
+import AdminHome from "./pages/AdminHome";
+// Operations
+import AdminHelpdeskPage from "./pages/AdminHelpdeskPage";
+import AdminChatPage from "./pages/AdminChatPage";
+import AdminAgentsPage from "./pages/AdminAgentsPage";
+import AdminNotificationsPage from "./pages/AdminNotificationsPage";
+// Content
+import AdminBlogPage from "./pages/AdminBlogPage";
+import AdminNewsletterPage from "./pages/AdminNewsletterPage";
+// Overview
+import AdminMetricsPage from "./pages/AdminMetricsPage";
+// Customers
+import AdminAccountsPage from "./pages/AdminAccountsPage";
+import AdminInvitesPage from "./pages/AdminInvitesPage";
+// Settings
+import AdminPreferencesPage from "./pages/AdminPreferencesPage";
+import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
+import AdminGuidePage from "./pages/AdminGuidePage";
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Widgets
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallBanner from "./components/PWAInstallBanner";
-import ApprovalGuard from "./components/ApprovalGuard";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
+      {/* ── Public ── */}
       <Route path={"/"} component={Home} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:slug"} component={BlogDetail} />
       <Route path={"/about"} component={About} />
       <Route path={"/careers"} component={Careers} />
       <Route path={"/services/:slug"} component={ServiceDetail} />
+
+      {/* ── Helpdesk (customer portal) ── */}
       <Route path={"/helpdesk"} component={HelpDesk} />
       <Route path="/accept-invite" component={AcceptInvite} />
       <Route path="/helpdesk/dashboard">{() => <ApprovalGuard><HelpdeskDashboard /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/tickets/new">{() => <ApprovalGuard><CreateTicket /></ApprovalGuard>}</Route>
-      <Route path="/helpdesk/tickets/:ticketId">{(params) => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
+      <Route path="/helpdesk/tickets/:ticketId">{() => <ApprovalGuard><TicketDetail /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/feedback">{() => <ApprovalGuard><TicketFeedback /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/profile">{() => <ApprovalGuard><UserProfile /></ApprovalGuard>}</Route>
-      <Route path={"/admin"} component={AdminPortal} />
-      <Route path={"/admin/metrics"} component={AdminMetrics} />
-      <Route path={"/admin/helpdesk"} component={AdminPanel} />
-      <Route path={"/admin/chat"} component={AdminChat} />
-      <Route path={"/admin/notifications"} component={AdminNotifications} />
-      <Route path={"/admin/email-digest"} component={EmailDigestSettings} />
-      <Route path={"/admin/user-preferences"} component={AdminUserPreferences} />
-      <Route path={"/login"} component={Login} />
-      <Route path={"/admin/guide"} component={AdminGuide} />
       <Route path={"/helpdesk/guide"} component={HelpdeskAgentGuide} />
+
+      {/* ── Auth ── */}
+      <Route path={"/login"} component={Login} />
+
+      {/* ── Unified Admin Portal ── */}
+      {/* Dashboard home */}
+      <Route path={"/admin"} component={AdminHome} />
+      {/* Overview */}
+      <Route path={"/admin/metrics"} component={AdminMetricsPage} />
+      {/* Operations */}
+      <Route path={"/admin/helpdesk"} component={AdminHelpdeskPage} />
+      <Route path={"/admin/chat"} component={AdminChatPage} />
+      <Route path={"/admin/agents"} component={AdminAgentsPage} />
+      <Route path={"/admin/notifications"} component={AdminNotificationsPage} />
+      {/* Content */}
+      <Route path={"/admin/blog"} component={AdminBlogPage} />
+      <Route path={"/admin/newsletter"} component={AdminNewsletterPage} />
+      {/* Customers */}
+      <Route path={"/admin/accounts"} component={AdminAccountsPage} />
+      <Route path={"/admin/invites"} component={AdminInvitesPage} />
+      {/* Settings */}
+      <Route path={"/admin/preferences"} component={AdminPreferencesPage} />
+      <Route path={"/admin/email-digest"} component={AdminEmailDigestPage} />
+      <Route path={"/admin/guide"} component={AdminGuidePage} />
+
+      {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

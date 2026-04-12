@@ -1,0 +1,324 @@
+/**
+ * AdminLayout — Unified SaaS-style admin portal layout
+ * Inspired by Atera RMM: persistent dark sidebar, grouped nav sections,
+ * top bar with notifications/user, breadcrumbs, collapsible sidebar
+ */
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  LayoutDashboard,
+  BarChart3,
+  Ticket,
+  MessageSquare,
+  Bot,
+  FileText,
+  Mail,
+  Users,
+  UserCog,
+  Settings,
+  BookOpen,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Menu,
+  X,
+  Building2,
+  Send,
+  Zap,
+} from "lucide-react";
+
+interface NavItem {
+  label: string;
+  icon: React.ReactNode;
+  href: string;
+  badge?: number | string;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Dashboard", icon: <LayoutDashboard size={16} />, href: "/admin" },
+      { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/metrics" },
+    ],
+  },
+  {
+    title: "Operations",
+    items: [
+      { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
+      { label: "Live Chat", icon: <MessageSquare size={16} />, href: "/admin/chat" },
+      { label: "AI Agents", icon: <Bot size={16} />, href: "/admin/agents" },
+      { label: "Notifications", icon: <Bell size={16} />, href: "/admin/notifications" },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      { label: "Blog", icon: <FileText size={16} />, href: "/admin/blog" },
+      { label: "Newsletter", icon: <Mail size={16} />, href: "/admin/newsletter" },
+    ],
+  },
+  {
+    title: "Customers",
+    items: [
+      { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
+      { label: "Invites", icon: <Send size={16} />, href: "/admin/invites" },
+    ],
+  },
+  {
+    title: "Settings",
+    items: [
+      { label: "Preferences", icon: <UserCog size={16} />, href: "/admin/preferences" },
+      { label: "Email Digest", icon: <Zap size={16} />, href: "/admin/email-digest" },
+      { label: "Admin Guide", icon: <BookOpen size={16} />, href: "/admin/guide" },
+    ],
+  },
+];
+
+interface AdminLayoutProps {
+  children: React.ReactNode;
+  title?: string;
+  /** Remove padding from main content area (for full-bleed modules like AdminPanel/AdminChat) */
+  noPadding?: boolean;
+}
+
+export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
+  const [location] = useLocation();
+  const { user, logout } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Notification badge — placeholder until a real notifications tRPC procedure is wired
+  const unreadCount = 0;
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
+  const isActive = (href: string) => {
+    if (href === "/admin") return location === "/admin";
+    return location.startsWith(href);
+  };
+
+  const getCurrentTitle = () => {
+    if (title) return title;
+    for (const section of NAV_SECTIONS) {
+      for (const item of section.items) {
+        if (isActive(item.href)) return item.label;
+      }
+    }
+    return "Admin";
+  };
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo / Brand */}
+      <div className={`flex items-center gap-3 px-4 py-5 border-b border-slate-700/50 ${collapsed ? "justify-center" : ""}`}>
+        <div className="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center flex-shrink-0">
+          <Zap size={16} className="text-black" />
+        </div>
+        {!collapsed && (
+          <div>
+            <div className="text-white font-bold text-sm leading-tight">GigitekAI</div>
+            <div className="text-slate-400 text-xs">Admin Portal</div>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.title} className="mb-4">
+            {!collapsed && (
+              <div className="px-3 mb-1">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  {section.title}
+                </span>
+              </div>
+            )}
+            {collapsed && <div className="border-t border-slate-700/50 my-2" />}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <div
+                      className={`
+                        flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all duration-150 group relative
+                        ${active
+                          ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+                        }
+                        ${collapsed ? "justify-center" : ""}
+                      `}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      <span className={`flex-shrink-0 ${active ? "text-cyan-400" : "text-slate-500 group-hover:text-slate-300"}`}>
+                        {item.icon}
+                      </span>
+                      {!collapsed && (
+                        <span className="text-sm font-medium flex-1">{item.label}</span>
+                      )}
+                      {!collapsed && item.label === "Notifications" && unreadCount > 0 && (
+                        <Badge className="bg-cyan-500 text-black text-xs px-1.5 py-0 h-4 min-w-4 flex items-center justify-center">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </Badge>
+                      )}
+                      {collapsed && item.label === "Notifications" && unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full" />
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* User Profile */}
+      <div className={`border-t border-slate-700/50 p-3 ${collapsed ? "flex justify-center" : ""}`}>
+        {!collapsed ? (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-xs font-bold">
+                {user?.name?.charAt(0)?.toUpperCase() ?? "A"}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-xs font-medium truncate">{user?.name ?? "Admin"}</div>
+              <div className="text-slate-500 text-xs truncate">{user?.role ?? "admin"}</div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+              onClick={logout}
+              title="Sign out"
+            >
+              <LogOut size={14} />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+            onClick={logout}
+            title="Sign out"
+          >
+            <LogOut size={14} />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-screen bg-[#0D1117] text-white overflow-hidden">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — desktop */}
+      <aside
+        className={`
+          hidden lg:flex flex-col flex-shrink-0 bg-[#161B22] border-r border-slate-700/50
+          transition-all duration-200 ease-in-out
+          ${collapsed ? "w-16" : "w-56"}
+        `}
+      >
+        <SidebarContent />
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-full w-5 h-10 bg-[#161B22] border border-slate-700/50 border-l-0 rounded-r-md flex items-center justify-center text-slate-500 hover:text-slate-300 transition-colors z-10"
+          style={{ left: collapsed ? "3.5rem" : "13.5rem" }}
+        >
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+      </aside>
+
+      {/* Sidebar — mobile drawer */}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 bg-[#161B22] border-r border-slate-700/50 z-50
+          transform transition-transform duration-200 ease-in-out lg:hidden
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top bar */}
+        <header className="flex-shrink-0 h-14 bg-[#161B22] border-b border-slate-700/50 flex items-center gap-4 px-4">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-8 w-8 text-slate-400"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+          </Button>
+
+          {/* Breadcrumb / Page title */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-500">Admin</span>
+            <ChevronRight size={12} className="text-slate-600" />
+            <span className="text-white font-medium">{getCurrentTitle()}</span>
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Top bar actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/admin/notifications">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-400 hover:text-white relative"
+              >
+                <Bell size={16} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full" />
+                )}
+              </Button>
+            </Link>
+            <Link href="/" target="_blank">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-slate-400 hover:text-white text-xs gap-1.5"
+              >
+                View Site
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className={`flex-1 overflow-y-auto ${noPadding ? '' : 'p-6'}`}>
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
