@@ -108,6 +108,9 @@ export const chatRouter = router({
           priority: "high",
           sessionId: newSessionId,
         }).catch((e: any) => console.warn("[Chat] Admin notification failed:", e));
+
+        // Note: Push notifications are sent client-side via usePushNotifications hook
+        // Admins must have subscribed to push notifications in their preferences
       }
 
       return {

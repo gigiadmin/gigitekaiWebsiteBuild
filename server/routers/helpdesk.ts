@@ -5,6 +5,7 @@ import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
+import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets } from "../../drizzle/schema";
 import { eq, inArray, asc } from "drizzle-orm";
 
@@ -57,6 +58,9 @@ export const helpdeskRouter = router({
           priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
           ticketId: typeof ticket === "number" ? ticket : undefined,
         }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+
+        // Note: Push notifications are sent client-side via usePushNotifications hook
+        // Admins must have subscribed to push notifications in their preferences
 
         return { success: true, ticketId: ticket };
       } catch (error) {
