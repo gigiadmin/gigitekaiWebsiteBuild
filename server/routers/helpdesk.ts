@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
-import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback } from "../db";
+import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback, getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
+import { ticketTemplates, tickets } from "../../drizzle/schema";
+import { eq, inArray, asc } from "drizzle-orm";
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -322,4 +324,95 @@ export const helpdeskRouter = router({
       throw error;
     }
   }),
+
+  // Ticket Templates
+  listTemplates: adminProcedure.query(async () => {
+    try {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+      const templates = await db.select().from(ticketTemplates).orderBy(asc(ticketTemplates.category), asc(ticketTemplates.name));
+      return templates;
+    } catch (error) {
+      console.error("Failed to list templates:", error);
+      throw error;
+    }
+  }),
+
+  createTemplate: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(3),
+        subject: z.string().min(5),
+        body: z.string().min(10),
+        category: z.string().min(3),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db.insert(ticketTemplates).values({
+          name: input.name,
+          subject: input.subject,
+          body: input.body,
+          category: input.category,
+          createdBy: ctx.user.id,
+        });
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to create template:", error);
+        throw error;
+      }
+    }),
+
+  deleteTemplate: adminProcedure
+    .input(z.object({ templateId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db.delete(ticketTemplates).where(eq(ticketTemplates.id, input.templateId));
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to delete template:", error);
+        throw error;
+      }
+    }),
+
+  // Bulk Actions
+  bulkUpdateStatus: adminProcedure
+    .input(
+      z.object({
+        ticketIds: z.array(z.number()),
+        newStatus: z.enum(["open", "in_progress", "resolved", "closed"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db
+          .update(tickets)
+          .set({ status: input.newStatus, updatedAt: new Date() })
+          .where(inArray(tickets.id, input.ticketIds));
+        return { success: true, count: input.ticketIds.length };
+      } catch (error) {
+        console.error("Failed to bulk update status:", error);
+        throw error;
+      }
+    }),
+
+  bulkDelete: adminProcedure
+    .input(z.object({ ticketIds: z.array(z.number()) }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db.delete(tickets).where(inArray(tickets.id, input.ticketIds));
+        return { success: true, count: input.ticketIds.length };
+      } catch (error) {
+        console.error("Failed to bulk delete tickets:", error);
+        throw error;
+      }
+    }),
 });

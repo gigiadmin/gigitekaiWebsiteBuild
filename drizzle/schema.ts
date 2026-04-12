@@ -588,3 +588,22 @@ export const emailGroupMembers = mysqlTable("emailGroupMembers", {
 });
 export type EmailGroupMember = typeof emailGroupMembers.$inferSelect;
 export type InsertEmailGroupMember = typeof emailGroupMembers.$inferInsert;
+
+// Ticket Templates — pre-built responses for common issues
+export const ticketTemplates = mysqlTable("ticketTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Template name (e.g., "Password Reset", "License Renewal") */
+  name: varchar("name", { length: 255 }).notNull(),
+  /** Template subject line */
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** Template body/content */
+  body: text("body").notNull(),
+  /** Category (e.g., "General Support", "Billing", "Technical") */
+  category: varchar("category", { length: 100 }).notNull(),
+  /** Admin who created this template */
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type TicketTemplate = typeof ticketTemplates.$inferSelect;
+export type InsertTicketTemplate = typeof ticketTemplates.$inferInsert;

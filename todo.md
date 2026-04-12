@@ -815,3 +815,15 @@
 
 ## Bug Fixes (Apr 12, 2026)
 - [x] Fix ticket table layout — Actions column is being cut off on the right side (added horizontal scroll container, increased Actions column width to 200px, adjusted button widths)
+
+
+## Helpdesk Enhancements (Apr 12, 2026)
+- [x] Add ticketTemplates table to Drizzle schema (name, subject, body, category, createdBy, createdAt)
+- [x] Build tRPC helpdesk procedures: listTemplates, createTemplate, deleteTemplate, bulkUpdateStatus, bulkDelete
+- [x] Build BulkTicketActions component (checkbox selection, bulk status change, bulk delete)
+- [x] Build TicketTemplateManager component (create, list, delete, apply templates)
+- [ ] Integrate BulkTicketActions into AdminPanel ticket table
+- [ ] Integrate TicketTemplateManager into AdminPanel
+- [ ] Enhance search/filter: add date range filter, advanced search by customer email/phone
+- [ ] Add save/load filter presets functionality
+- [x] All 184 tests passing, TypeScript clean

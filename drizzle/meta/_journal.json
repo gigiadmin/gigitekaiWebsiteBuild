@@ -176,6 +176,13 @@
       "when": 1775964448907,
       "tag": "0024_mature_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1775965823735,
+      "tag": "0025_rapid_chamber",
+      "breakpoints": true
     }
   ]
 }
