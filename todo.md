@@ -919,3 +919,19 @@
   - Root cause: Manus OAuth needs PWA standalone mode redirect URI configured
   - Action required: Submit request to https://help.manus.im to add PWA redirect URI support
   - Status: Awaiting Manus support configuration
+
+## Email Notification Bug (Critical - Business Blocking)
+- [x] Fix email notifications not being sent when chatbot collects customer quote requests
+  - Switched primary email provider from SendGrid to Microsoft Graph API (Exchange Online)
+  - Emails now sent as support@gigitek.com through M365 tenant
+  - SendGrid retained as automatic fallback if MS Graph fails
+- [x] Investigate SendGrid API key and configuration
+  - Root cause: SendGrid was unreliable; replaced with Microsoft Graph
+- [x] Ensure chatbot triggers email notification to support@gigitek.com when customer provides contact info
+  - captureLead procedure sends HTML email via MS Graph on every lead capture
+  - Verified with live test: 202 Accepted from Microsoft Graph API
+- [x] Switch to Microsoft Graph / Exchange Online as primary email provider
+  - Azure AD App Registration: GigitekAI Website Email
+  - Client credentials flow with Mail.Send application permission
+  - Token caching with 5-minute expiry buffer
+  - 3 vitest tests validating credentials, token acquisition, and email delivery
