@@ -967,7 +967,7 @@
 
 
 ## Lead Generation Features (High Priority)
-- [ ] Cybersecurity Risk Assessment Tool - Interactive 10-question quiz with scoring and PDF report
+- [x] Cybersecurity Risk Assessment Tool - Interactive 10-question quiz with scoring and PDF report
   - Scores across: Email Security, Endpoint Protection, Backup & Recovery, Identity Management, Compliance
   - Auto-captures leads (name, email, company) and generates branded PDF
   - Triggers email follow-up sequence

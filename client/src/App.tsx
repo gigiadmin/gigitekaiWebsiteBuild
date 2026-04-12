@@ -56,6 +56,8 @@ import AdminGuidePage from "./pages/AdminGuidePage";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { ExitIntentPopup } from "./components/ExitIntentPopup";
+import { StickyCTABar } from "./components/StickyCTABar";
 
 function Router() {
   return (
@@ -126,6 +128,8 @@ function App() {
           <AIChatWidget />
           <UserChatWidget />
           <PWAInstallPrompt />
+          <ExitIntentPopup />
+          <StickyCTABar />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
