@@ -911,3 +911,11 @@
   - Database schema with websiteTraffic table (date, pageUrl, pageTitle, visitors, pageViews, bounceRate, etc.)
   - 3 tRPC procedures with public tracking and admin-only analytics
   - 4 vitest tests validating all functionality
+
+
+## PWA & Mobile Issues
+- [ ] Fix Safari PWA redirect URI error when saving admin page to home screen
+  - Issue: "Permission denied - Redirect URI is not set" error
+  - Root cause: Manus OAuth needs PWA standalone mode redirect URI configured
+  - Action required: Submit request to https://help.manus.im to add PWA redirect URI support
+  - Status: Awaiting Manus support configuration
