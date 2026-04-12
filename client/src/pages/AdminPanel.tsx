@@ -279,11 +279,11 @@ export default function AdminPanel() {
             <p className="text-gray-400">Loading tickets...</p>
           </div>
         ) : filteredTickets.length > 0 ? (
-          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden">
+          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden w-full">
             {/* Table Wrapper with Horizontal Scroll */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto w-full">
               {/* Table Header */}
-              <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider min-w-max">
+              <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full min-w-fit">
                 <span>ID</span>
                 <span>Title</span>
                 <span>Status</span>
@@ -294,14 +294,14 @@ export default function AdminPanel() {
               </div>
 
               {/* Table Rows */}
-              <div className="divide-y divide-gray-800/40">
+              <div className="divide-y divide-gray-800/40 w-full">
                 {filteredTickets.map((ticket: any) => {
                   const statusConfig = getStatusConfig(ticket.status);
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
                     <div
                       key={ticket.id}
-                      className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center min-w-max"
+                      className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full min-w-fit"
                     >
                     {/* ID */}
                     <span className="text-gray-500 text-sm font-mono">#{ticket.id}</span>
@@ -378,7 +378,7 @@ export default function AdminPanel() {
             </div>
 
             {/* Table Footer */}
-            <div className="px-5 py-3 border-t border-gray-800/60 flex items-center justify-between">
+            <div className="px-5 py-3 border-t border-gray-800/60 flex items-center justify-between w-full">
               <span className="text-xs text-gray-500">
                 Showing {filteredTickets.length} of {allTickets?.length || 0} tickets
               </span>
