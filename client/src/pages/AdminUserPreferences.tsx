@@ -1,6 +1,7 @@
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, Mail } from "lucide-react";
+import { Loader2, Users, Mail, Bell } from "lucide-react";
+import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 
 export default function AdminUserPreferences() {
   // Fetch all user preferences
@@ -12,10 +13,24 @@ export default function AdminUserPreferences() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <Users className="w-6 h-6 text-cyan-500" />
-          <h1 className="text-xl font-bold text-white">User Email Preferences</h1>
+          <h1 className="text-xl font-bold text-white">User Preferences</h1>
         </div>
-        <p className="text-slate-400 text-sm">Manage email digest preferences for all users</p>
+        <p className="text-slate-400 text-sm">Manage your notification and email preferences</p>
       </div>
+
+      {/* Push Notifications Settings */}
+      <Card className="border-slate-700 bg-[#161B22]">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Bell className="w-5 h-5 text-cyan-500" />
+            Notifications
+          </CardTitle>
+          <CardDescription>Configure how you receive notifications</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PushNotificationSettings />
+        </CardContent>
+      </Card>
 
       {/* Loading State */}
       {isLoading && (

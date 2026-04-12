@@ -607,3 +607,23 @@ export const ticketTemplates = mysqlTable("ticketTemplates", {
 });
 export type TicketTemplate = typeof ticketTemplates.$inferSelect;
 export type InsertTicketTemplate = typeof ticketTemplates.$inferInsert;
+
+
+// Push Notifications — store push subscription endpoints for Web Push API
+export const pushNotifications = mysqlTable("pushNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Reference to users.id */
+  userId: int("userId").notNull(),
+  /** Web Push API endpoint URL */
+  endpoint: text("endpoint").notNull(),
+  /** Push subscription auth key (base64) */
+  auth: varchar("auth", { length: 255 }).notNull(),
+  /** Push subscription p256dh key (base64) */
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  /** Whether this subscription is still active */
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type PushNotification = typeof pushNotifications.$inferSelect;
+export type InsertPushNotification = typeof pushNotifications.$inferInsert;

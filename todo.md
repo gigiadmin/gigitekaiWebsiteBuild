@@ -837,3 +837,24 @@
 - [x] Optimize mobile viewport meta tags (viewport-fit=cover, user-scalable=yes)
 - [x] Add iOS PWA meta tags (apple-mobile-web-app-start-url, format-detection)
 - [x] All 184 tests passing, TypeScript clean
+
+
+## Web Push Notifications & Mobile UI (Apr 12, 2026)
+- [x] Add pushNotifications table to Drizzle schema (userId, endpoint, auth, p256dh, isActive, createdAt)
+- [x] Build tRPC webPush router with procedures: subscribe, unsubscribe, getSubscriptions, sendToUser
+- [x] Register webPushRouter in main routers.ts
+- [x] Update service worker to handle push events and display notifications (push + notificationclick handlers)
+- [x] Create usePushNotifications hook for managing subscriptions and VAPID key handling
+- [x] Build PushNotificationSettings component for admin preferences
+- [x] Integrate PushNotificationSettings into AdminUserPreferences page
+- [x] Generate and configure VAPID keys (VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+- [x] Create webPush.test.ts with 3 tests validating VAPID configuration
+- [x] All 187 tests passing (including 3 new Web Push tests), TypeScript clean
+- [ ] Wire push notifications into ticket creation flow (trigger push when new ticket created)
+- [ ] Wire push notifications into chat session creation flow (trigger push when new chat starts)
+- [ ] Build mobile hamburger menu for AdminLayout (collapsible on screens < 768px)
+- [ ] Add touch-friendly button sizing (min 44px height for mobile)
+- [ ] Implement swipe-to-dismiss gesture for notifications
+- [ ] Add long-press context menu for ticket/chat actions
+- [ ] Optimize table layout for mobile (horizontal scroll, collapsible columns)
+- [ ] All tests passing, checkpoint saved, ready to publish

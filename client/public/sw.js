@@ -75,6 +75,59 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Handle Web Push notifications
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    console.warn('[SW] Push event received with no data');
+    return;
+  }
+
+  let notificationData = {};
+  try {
+    notificationData = event.data.json();
+  } catch (error) {
+    console.error('[SW] Failed to parse push data:', error);
+    notificationData = {
+      title: 'GigitekAI Notification',
+      body: event.data.text(),
+    };
+  }
+
+  const { title, body, icon, badge, tag, data } = notificationData;
+
+  event.waitUntil(
+    self.registration.showNotification(title || 'GigitekAI', {
+      body: body || 'You have a new notification',
+      icon: icon || '/logo.png',
+      badge: badge || '/badge.png',
+      tag: tag || 'gigitekai-notification',
+      data: data || {},
+      requireInteraction: false,
+    })
+  );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const urlToOpen = new URL('/admin', self.location.origin).href;
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
 // Handle messages from clients
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {

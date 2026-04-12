@@ -183,6 +183,13 @@
       "when": 1775965823735,
       "tag": "0025_rapid_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1775967264489,
+      "tag": "0026_chilly_thanos",
+      "breakpoints": true
     }
   ]
 }
