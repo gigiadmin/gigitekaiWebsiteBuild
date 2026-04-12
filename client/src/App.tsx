@@ -43,6 +43,7 @@ import AdminMetricsPage from "./pages/AdminMetricsPage";
 // Customers
 import AdminAccountsPage from "./pages/AdminAccountsPage";
 import AdminInvitesPage from "./pages/AdminInvitesPage";
+import AdminEmailPage from "./pages/AdminEmailPage";
 // Settings
 import AdminPreferencesPage from "./pages/AdminPreferencesPage";
 import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
@@ -94,6 +95,8 @@ function Router() {
       {/* Customers */}
       <Route path={"/admin/accounts"} component={AdminAccountsPage} />
       <Route path={"/admin/invites"} component={AdminInvitesPage} />
+      {/* Email */}
+      <Route path={"/admin/email"} component={AdminEmailPage} />
       {/* Settings */}
       <Route path={"/admin/preferences"} component={AdminPreferencesPage} />
       <Route path={"/admin/email-digest"} component={AdminEmailDigestPage} />

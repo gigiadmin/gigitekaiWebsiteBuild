@@ -74,6 +74,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
       { label: "Invites", icon: <Send size={16} />, href: "/admin/invites" },
+      { label: "Email", icon: <Mail size={16} />, href: "/admin/email" },
     ],
   },
   {

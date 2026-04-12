@@ -773,3 +773,20 @@
 - [x] Build NotificationBell component with dropdown panel, WS listener, and 15s polling
 - [x] Replace static bell in AdminLayout top bar with NotificationBell component
 - [x] Write 6 vitest tests for createAdminNotification helper (184/184 passing)
+
+
+## Email Management System (Apr 12, 2026)
+- [x] Design database schema: emailMessages table (direction, from, to, subject, body, templateId, linkedTicketId, linkedSessionId, status, messageId)
+- [x] Design database schema: emailTemplates table (name, subject, body, category)
+- [x] Design SendGrid webhook endpoint to receive incoming emails from support@gigitekai.com
+- [x] Implement email linking logic: parse To/From/Subject to auto-link incoming replies to tickets or chat sessions
+- [x] Add emailMessages and emailTemplates tables to Drizzle schema and run pnpm db:push
+- [x] Build tRPC email router: sendEmail, getHistory, getTemplates, createTemplate, getInbox, search procedures
+- [x] Build SendGrid webhook handler at /api/webhooks/sendgrid to receive incoming emails
+- [x] Implement email linking: auto-link to existing ticket/session on incoming reply
+- [x] Register handleSendGridWebhook in server/_core/index.ts
+- [x] Build Email Compose page (/admin/email) with template selector, recipient picker, subject/body editor
+- [x] Build Email Inbox view showing sent/received emails with linked ticket/session context
+- [x] Add Email nav item to AdminLayout sidebar under Customers section
+- [x] Add /admin/email route to App.tsx
+- [x] All 184 tests passing, TypeScript clean

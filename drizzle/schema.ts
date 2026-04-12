@@ -504,3 +504,55 @@ export const adminNotifications = mysqlTable("adminNotifications", {
 
 export type AdminNotification = typeof adminNotifications.$inferSelect;
 export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
+
+// Email Templates — pre-built templates for common support responses
+export const emailTemplates = mysqlTable("emailTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Template name (e.g., "Ticket Response", "Follow-up", "Resolution") */
+  name: varchar("name", { length: 255 }).notNull(),
+  /** Email subject template (can include {{variables}}) */
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** Email body template (can include {{variables}}) */
+  body: text("body").notNull(),
+  /** Category: 'ticket_response' | 'follow_up' | 'resolution' | 'general' */
+  category: varchar("category", { length: 50 }).notNull(),
+  /** Admin who created this template (null = system template) */
+  createdBy: int("createdBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type InsertEmailTemplate = typeof emailTemplates.$inferInsert;
+
+// Email Messages — sent and received emails from support@gigitekai.com
+export const emailMessages = mysqlTable("emailMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  /** 'sent' | 'received' */
+  direction: varchar("direction", { length: 20 }).notNull(),
+  /** Sender email address */
+  from: varchar("from", { length: 255 }).notNull(),
+  /** Recipient email address(es) — comma-separated for multiple */
+  to: varchar("to", { length: 1000 }).notNull(),
+  /** Email subject */
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** Email body (HTML) */
+  body: text("body").notNull(),
+  /** Optional reference to emailTemplates.id if sent from template */
+  templateId: int("templateId"),
+  /** Optional reference to tickets.id if linked to a ticket */
+  linkedTicketId: int("linkedTicketId"),
+  /** Optional reference to realtimeChatSessions.id if linked to a chat */
+  linkedSessionId: int("linkedSessionId"),
+  /** 'draft' | 'sent' | 'failed' | 'received' */
+  status: varchar("status", { length: 20 }).default("sent").notNull(),
+  /** SendGrid Message-ID for tracking (if sent via SendGrid) */
+  messageId: varchar("messageId", { length: 255 }),
+  /** Admin who sent this email (null = system/webhook) */
+  sentBy: int("sentBy"),
+  /** When the email was sent or received */
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailMessage = typeof emailMessages.$inferSelect;
+export type InsertEmailMessage = typeof emailMessages.$inferInsert;

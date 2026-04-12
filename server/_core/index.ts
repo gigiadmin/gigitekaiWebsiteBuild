@@ -12,6 +12,7 @@ import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter
 import { securityHeaders } from "./securityHeaders";
 import { startDigestScheduler } from "./digestScheduler";
 import { startNewsletterScheduler } from "../routers/newsletter";
+import { handleSendGridWebhook } from "./sendgridWebhook";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -88,6 +89,10 @@ async function startServer() {
 
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // SendGrid webhook for incoming emails
+  app.post("/api/webhooks/sendgrid", handleSendGridWebhook);
+  
   // tRPC API
   app.use(
     "/api/trpc",
