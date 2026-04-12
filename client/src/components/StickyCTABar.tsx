@@ -57,7 +57,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
     <div
       className={`fixed ${
         isMinimized ? "bottom-4 right-4" : "bottom-0 left-0 right-0"
-      } z-40 transition-all duration-300`}
+      } z-50 transition-all duration-300`}
     >
       {isMinimized ? (
         <button

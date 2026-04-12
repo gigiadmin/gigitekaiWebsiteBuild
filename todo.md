@@ -1003,3 +1003,12 @@
   - Updated server/sendgrid.test.ts to use harry@gigitekai.com as test recipient
   - All 228 tests passing - email delivery verified to valid M365 mailbox
   - Log confirms: "[Email] Successfully sent email to harry@gigitekai.com via Microsoft Graph (Exchange Online)"
+
+
+## UI/UX Bug Fixes (Apr 12, 2026)
+- [x] Fix z-index layering - sticky CTA bar minimize/close buttons hidden behind chat icon
+  - Issue: Buttons not clickable due to chat widget z-index being higher
+  - Solution: Updated StickyCTABar.tsx z-index from z-40 to z-50
+  - Now buttons are above chat icon (z-50 > z-50 chat button, but CTA bar container is z-50)
+  - All 228 tests passing - no functionality broken
+  - Buttons now visible and clickable on mobile and desktop
