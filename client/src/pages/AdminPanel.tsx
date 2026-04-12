@@ -69,6 +69,9 @@ export default function AdminPanel() {
   const [quickReplyEmail, setQuickReplyEmail] = useState("");
   const [quickReplyName, setQuickReplyName] = useState("");
   const [selectedTicketIds, setSelectedTicketIds] = useState<number[]>([]);
+  const [dateRangeStart, setDateRangeStart] = useState<string>("");
+  const [dateRangeEnd, setDateRangeEnd] = useState<string>("");
+  const [customerEmailFilter, setCustomerEmailFilter] = useState<string>("");
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -127,9 +130,26 @@ export default function AdminPanel() {
         `#${t.id}`.includes(searchQuery);
       const matchesStatus = statusFilter === "all" || t.status === statusFilter;
       const matchesPriority = priorityFilter === "all" || t.priority === priorityFilter;
-      return matchesSearch && matchesStatus && matchesPriority;
+      
+      let matchesDateRange = true;
+      if (dateRangeStart || dateRangeEnd) {
+        const ticketDate = new Date(t.createdAt).getTime();
+        if (dateRangeStart) {
+          const startDate = new Date(dateRangeStart).getTime();
+          if (ticketDate < startDate) matchesDateRange = false;
+        }
+        if (dateRangeEnd) {
+          const endDate = new Date(dateRangeEnd).getTime() + 86400000;
+          if (ticketDate > endDate) matchesDateRange = false;
+        }
+      }
+      
+      const matchesEmail = customerEmailFilter === "" ||
+        t.customerEmail.toLowerCase().includes(customerEmailFilter.toLowerCase());
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesDateRange && matchesEmail;
     });
-  }, [allTickets, searchQuery, statusFilter, priorityFilter]);
+  }, [allTickets, searchQuery, statusFilter, priorityFilter, dateRangeStart, dateRangeEnd, customerEmailFilter]);
 
   // Stats
   const stats = useMemo(() => {
@@ -228,7 +248,8 @@ export default function AdminPanel() {
           </button>
         </div>
 
-        {activeTab === "tickets" && <>
+        {activeTab === "tickets" && (
+        <>
         {/* Metrics Dashboard */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           <MetricCard label="Total Tickets" value={stats.total} icon={<Ticket className="w-5 h-5" />} color="text-white" onClick={() => setStatusFilter("all")} active={statusFilter === "all"} />
@@ -240,40 +261,65 @@ export default function AdminPanel() {
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search by ticket ID or title..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+              />
+            </div>
             <input
-              type="text"
-              placeholder="Search by ticket ID or title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+              type="email"
+              placeholder="Filter by customer email..."
+              value={customerEmailFilter}
+              onChange={(e) => setCustomerEmailFilter(e.target.value)}
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[180px]"
             />
-          </div>
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
-          >
-            <option value="all">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-          <TicketTemplateManager />
-          {allTickets && allTickets.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => exportTicketsToCSV(allTickets)}
-              className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 whitespace-nowrap"
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-          )}
+              <option value="all">All Priorities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="date"
+              placeholder="Start date..."
+              value={dateRangeStart}
+              onChange={(e) => setDateRangeStart(e.target.value)}
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[140px]"
+            />
+            <input
+              type="date"
+              placeholder="End date..."
+              value={dateRangeEnd}
+              onChange={(e) => setDateRangeEnd(e.target.value)}
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[140px]"
+            />
+            <TicketTemplateManager />
+            {allTickets && allTickets.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => exportTicketsToCSV(allTickets)}
+                className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 whitespace-nowrap"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Bulk Actions */}
@@ -442,7 +488,8 @@ export default function AdminPanel() {
             <p className="text-gray-400 text-sm">Tickets will appear here once users submit support requests.</p>
           </div>
         )}
-        </>}
+        </>
+        )}
 
         {activeTab === "users" && (
           <div>

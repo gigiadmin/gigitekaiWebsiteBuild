@@ -824,6 +824,6 @@
 - [x] Build TicketTemplateManager component (create, list, delete, apply templates)
 - [x] Integrate BulkTicketActions into AdminPanel ticket table (checkboxes, bulk status change, bulk delete)
 - [x] Integrate TicketTemplateManager into AdminPanel toolbar
-- [ ] Enhance search/filter: add date range filter, advanced search by customer email/phone
+- [x] Enhance search/filter: add date range filter (start/end date inputs), advanced search by customer email
 - [ ] Add save/load filter presets functionality
 - [x] All 184 tests passing, TypeScript clean
