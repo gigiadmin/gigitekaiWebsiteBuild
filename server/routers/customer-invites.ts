@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure, router } from "../_core/trpc";
 import { sendEmail } from "../_core/email";
 import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite } from "../db";
+import { getAdminFromRequest } from "./admin-auth";
 
 export const customerInvitesRouter = router({
   sendCustomerInvite: publicProcedure
@@ -11,8 +13,24 @@ export const customerInvitesRouter = router({
       invitedCompany: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user || ctx.user.role !== 'admin') {
-        throw new Error('Only admins can send invites');
+      // Check if user is authenticated via OAuth or custom admin JWT
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      
+      // If not OAuth admin, try custom admin JWT
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin access required to send invites'
+        });
       }
 
       try {
@@ -20,7 +38,7 @@ export const customerInvitesRouter = router({
           input.invitedEmail,
           input.invitedName,
           input.invitedCompany,
-          ctx.user.id
+          adminId!
         );
 
         if (!result) {
@@ -90,12 +108,28 @@ export const customerInvitesRouter = router({
 
   listCustomerInvites: publicProcedure
     .query(async ({ ctx }) => {
-      if (!ctx.user || ctx.user.role !== 'admin') {
-        throw new Error('Only admins can list invites');
+      // Check if user is authenticated via OAuth or custom admin JWT
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      
+      // If not OAuth admin, try custom admin JWT
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin access required to list invites'
+        });
       }
 
       try {
-        const invites = await listCustomerInvites(ctx.user.id);
+        const invites = await listCustomerInvites(adminId!);
         return { success: true, invites };
       } catch (error) {
         console.error('[CustomerInvites] Failed to list invites:', error);
@@ -108,8 +142,22 @@ export const customerInvitesRouter = router({
       inviteId: z.number(),
     }))
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user || ctx.user.role !== 'admin') {
-        throw new Error('Only admins can revoke invites');
+      // Check if user is authenticated via OAuth or custom admin JWT
+      let isAdmin = ctx.user?.role === 'admin';
+      
+      // If not OAuth admin, try custom admin JWT
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin access required to revoke invites'
+        });
       }
 
       try {
