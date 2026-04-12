@@ -32,6 +32,8 @@ import { getLoginUrl } from "@/const";
 
 import { InviteCustomerModal } from "@/components/InviteCustomerModal";
 import QuickReplyModal from "@/components/QuickReplyModal";
+import { BulkTicketActions } from "@/components/BulkTicketActions";
+import { TicketTemplateManager } from "@/components/TicketTemplateManager";
 
 type AdminTab = "tickets" | "users";
 
@@ -66,6 +68,7 @@ export default function AdminPanel() {
   const [quickReplyTicketId, setQuickReplyTicketId] = useState<number | undefined>();
   const [quickReplyEmail, setQuickReplyEmail] = useState("");
   const [quickReplyName, setQuickReplyName] = useState("");
+  const [selectedTicketIds, setSelectedTicketIds] = useState<number[]>([]);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -272,6 +275,16 @@ export default function AdminPanel() {
           )}
         </div>
 
+        {/* Bulk Actions */}
+        <BulkTicketActions
+          selectedTicketIds={selectedTicketIds}
+          onSelectionChange={setSelectedTicketIds}
+          onActionComplete={() => {
+            refetch();
+            setSelectedTicketIds([]);
+          }}
+        />
+
         {/* Tickets Table */}
         {isLoading ? (
           <div className="text-center py-16">
@@ -283,7 +296,8 @@ export default function AdminPanel() {
             {/* Table Wrapper with Horizontal Scroll */}
             <div className="overflow-x-auto w-full">
               {/* Table Header */}
-              <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full min-w-fit">
+              <div className="hidden md:grid grid-cols-[40px_60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full min-w-fit">
+                <span></span>
                 <span>ID</span>
                 <span>Title</span>
                 <span>Status</span>
@@ -301,8 +315,21 @@ export default function AdminPanel() {
                   return (
                     <div
                       key={ticket.id}
-                      className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full min-w-fit"
+                      className="group md:grid md:grid-cols-[40px_60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full min-w-fit"
                     >
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={selectedTicketIds.includes(ticket.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTicketIds([...selectedTicketIds, ticket.id]);
+                        } else {
+                          setSelectedTicketIds(selectedTicketIds.filter(id => id !== ticket.id));
+                        }
+                      }}
+                      className="w-4 h-4 cursor-pointer"
+                    />
                     {/* ID */}
                     <span className="text-gray-500 text-sm font-mono">#{ticket.id}</span>
 

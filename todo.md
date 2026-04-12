@@ -822,8 +822,8 @@
 - [x] Build tRPC helpdesk procedures: listTemplates, createTemplate, deleteTemplate, bulkUpdateStatus, bulkDelete
 - [x] Build BulkTicketActions component (checkbox selection, bulk status change, bulk delete)
 - [x] Build TicketTemplateManager component (create, list, delete, apply templates)
-- [ ] Integrate BulkTicketActions into AdminPanel ticket table
-- [ ] Integrate TicketTemplateManager into AdminPanel
+- [x] Integrate BulkTicketActions into AdminPanel ticket table (checkboxes, bulk status change, bulk delete)
+- [ ] Integrate TicketTemplateManager into AdminPanel toolbar
 - [ ] Enhance search/filter: add date range filter, advanced search by customer email/phone
 - [ ] Add save/load filter presets functionality
 - [x] All 184 tests passing, TypeScript clean
