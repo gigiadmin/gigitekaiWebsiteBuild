@@ -956,3 +956,11 @@
   - Includes error details and timestamp
   - Retry logic with up to 2 retries for failed SMS sends
   - Allows admin to respond quickly to delivery issues
+
+## Azure-Only Email Routing
+- [x] Route ALL emails exclusively through Microsoft Graph API (Azure/Exchange Online)
+- [x] Remove SendGrid as fallback provider
+- [x] Update email module to use MS Graph only
+- [x] Update all email-related tests
+- [x] Update email router comments to reference Microsoft Graph
+- [x] Update inbound webhook comments to clarify outbound vs inbound

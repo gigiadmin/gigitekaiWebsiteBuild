@@ -1,7 +1,8 @@
 /**
- * SendGrid Webhook Handler — Receive incoming emails from support@gigitekai.com
+ * Inbound Email Webhook Handler — Receive incoming emails to support@gigitek.com
  *
- * SendGrid's Inbound Parse webhook sends POST requests with email data.
+ * This webhook receives POST requests with email data from an inbound parse service.
+ * Note: All OUTBOUND emails are sent via Microsoft Graph (Exchange Online).
  * This handler processes incoming emails and:
  *  1. Stores them in the emailMessages table
  *  2. Auto-links them to tickets or chat sessions based on subject/from

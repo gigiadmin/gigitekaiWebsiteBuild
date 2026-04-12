@@ -2,7 +2,7 @@
  * Email Router — Manage support emails from the admin portal
  *
  * Features:
- *  - Send emails via SendGrid from support@gigitekai.com
+ *  - Send emails via Microsoft Graph (Exchange Online) from support@gigitek.com
  *  - Track sent/received emails in the database
  *  - Auto-link incoming replies to tickets or chat sessions
  *  - Pre-built email templates for common responses
@@ -66,7 +66,7 @@ export const emailRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
 
-        // Send via SendGrid
+        // Send via Microsoft Graph (Exchange Online)
         const emailResult = await sendEmail({
           to: input.to,
           subject: input.subject,
@@ -74,7 +74,7 @@ export const emailRouter = router({
           replyTo: "support@gigitekai.com",
         });
 
-        // Extract SendGrid message ID if available (sendEmail returns boolean, so messageId is undefined)
+        // Extract message ID if available (sendEmail returns boolean, so messageId is undefined)
         const messageId: string | undefined = undefined;
 
         // Store in database

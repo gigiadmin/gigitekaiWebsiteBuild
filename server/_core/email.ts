@@ -1,4 +1,5 @@
 import { ENV } from "./env";
+import { sendEmailFailureAlert } from "./smsAlert";
 
 export type EmailPayload = {
   to: string;
@@ -17,7 +18,7 @@ let msGraphTokenCache: { token: string; expiresAt: number } | null = null;
  * Get an access token from Microsoft Entra ID using client credentials flow.
  * Caches the token until 5 minutes before expiry.
  */
-async function getMsGraphToken(): Promise<string | null> {
+export async function getMsGraphToken(): Promise<string | null> {
   // Return cached token if still valid (with 5-minute buffer)
   if (msGraphTokenCache && Date.now() < msGraphTokenCache.expiresAt - 300_000) {
     return msGraphTokenCache.token;
@@ -25,6 +26,9 @@ async function getMsGraphToken(): Promise<string | null> {
 
   const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = ENV;
   if (!msGraphTenantId || !msGraphClientId || !msGraphClientSecret) {
+    console.error(
+      "[Email] Microsoft Graph credentials not configured. Set MS_GRAPH_TENANT_ID, MS_GRAPH_CLIENT_ID, and MS_GRAPH_CLIENT_SECRET."
+    );
     return null;
   }
 
@@ -70,6 +74,8 @@ async function getMsGraphToken(): Promise<string | null> {
  * Sends an email using Microsoft Graph API (Exchange Online).
  * Uses the client credentials flow with Mail.Send application permission.
  * Sends as support@gigitek.com via the /users/{userId}/sendMail endpoint.
+ *
+ * This is the ONLY email provider — all emails route through Azure/Exchange Online.
  */
 async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
   const token = await getMsGraphToken();
@@ -150,71 +156,37 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
 }
 
 /**
- * Sends an email using SendGrid API (fallback).
- */
-async function sendViaSendGrid(payload: EmailPayload): Promise<boolean> {
-  try {
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${ENV.sendGridApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        personalizations: [{ to: [{ email: payload.to }] }],
-        from: {
-          email: "support@gigitek.com",
-          name: payload.fromName ?? "GigitekAI",
-        },
-        reply_to: payload.replyTo
-          ? { email: payload.replyTo }
-          : { email: "support@gigitek.com" },
-        subject: payload.subject,
-        content: [{ type: "text/html", value: payload.html }],
-      }),
-    });
-
-    if (response.status === 202) {
-      console.log(
-        `[Email] Successfully sent email to ${payload.to} via SendGrid`
-      );
-      return true;
-    }
-
-    const detail = await response.text().catch(() => "");
-    console.error(
-      `[Email] SendGrid failed (${response.status} ${response.statusText})${
-        detail ? `: ${detail}` : ""
-      }`
-    );
-    return false;
-  } catch (error) {
-    console.error("[Email] Error sending email via SendGrid:", error);
-    return false;
-  }
-}
-
-/**
- * Sends an email using the best available provider.
- * Priority: Microsoft Graph (Exchange Online) → SendGrid → Error
- * Returns true if successful, false if all providers fail.
+ * Sends an email exclusively via Microsoft Graph API (Azure / Exchange Online).
+ * No fallback providers — all email delivery goes through the Azure app registration.
+ * On failure, triggers an SMS alert to the admin via Twilio.
+ * Returns true if successful, false if sending fails.
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
-  // Priority 1: Microsoft Graph (Exchange Online)
-  if (ENV.msGraphTenantId && ENV.msGraphClientId && ENV.msGraphClientSecret) {
-    const sent = await sendViaMsGraph(payload);
-    if (sent) return true;
-    console.warn("[Email] MS Graph failed, falling back to SendGrid...");
+  const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = ENV;
+
+  if (!msGraphTenantId || !msGraphClientId || !msGraphClientSecret) {
+    console.error(
+      "[Email] Microsoft Graph credentials not configured. All emails require MS_GRAPH_TENANT_ID, MS_GRAPH_CLIENT_ID, and MS_GRAPH_CLIENT_SECRET."
+    );
+    // Trigger SMS alert for missing configuration
+    sendEmailFailureAlert(
+      payload.to,
+      "Microsoft Graph credentials not configured. Check MS_GRAPH_* environment variables."
+    ).catch(() => {});
+    return false;
   }
 
-  // Priority 2: SendGrid
-  if (ENV.sendGridApiKey) {
-    const sent = await sendViaSendGrid(payload);
-    if (sent) return true;
-  }
+  const sent = await sendViaMsGraph(payload);
+  if (sent) return true;
 
+  // Email failed — trigger SMS alert to admin
   console.error(
-    "[Email] All email providers failed. Check MS_GRAPH_* and SENDGRID_API_KEY configuration."
+    `[Email] Failed to send email to ${payload.to} via Microsoft Graph. No fallback provider configured.`
   );
+  sendEmailFailureAlert(
+    payload.to,
+    "Microsoft Graph API failed to send email. Check Azure app permissions and credentials."
+  ).catch(() => {});
+
   return false;
 }
