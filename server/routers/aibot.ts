@@ -117,13 +117,13 @@ A: 1) Confirm you're using your full work email as username. 2) Try resetting pa
 A: 1) Check Junk/Spam and Focused/Other tabs. 2) Check inbox rules (Settings > View all Outlook settings > Rules). 3) Verify mailbox isn't full (50GB or 100GB limit). 4) Try Outlook on web (outlook.office.com). 5) If desktop, try removing and re-adding account.
 
 **Q: Microsoft Teams won't open or keeps crashing.**
-A: 1) Close Teams fully and relaunch. 2) Clear Teams cache: Close Teams > %appdata%\\Microsoft\\Teams > delete Cache, blob_storage, databases > relaunch. 3) Update Teams to latest version. 4) Try Teams on web (teams.microsoft.com). 5) If on VPN, try disconnecting.
+A: 1) Close Teams fully and relaunch. 2) Clear Teams cache: Close Teams > %appdata%\Microsoft\Teams > delete Cache, blob_storage, databases > relaunch. 3) Update Teams to latest version. 4) Try Teams on web (teams.microsoft.com). 5) If on VPN, try disconnecting.
 
 **Q: I can't access a SharePoint site or get "Access Denied" error.**
 A: 1) Confirm you're signed in with correct account. 2) Request access from site owner (usually "Request Access" link on error). 3) If new employee, account may not be added yet—contact IT admin. 4) Try clearing cache or different browser.
 
 **Q: My OneDrive files aren't syncing.**
-A: 1) Check OneDrive icon in system tray for status. 2) Click icon > Help & Settings > Pause Syncing, then resume. 3) Ensure enough OneDrive storage (Settings > Storage). 4) Sign out and back in. 5) Last resort: Run %localappdata%\\Microsoft\\OneDrive\\onedrive.exe /reset.
+A: 1) Check OneDrive icon in system tray for status. 2) Click icon > Help & Settings > Pause Syncing, then resume. 3) Ensure enough OneDrive storage (Settings > Storage). 4) Sign out and back in. 5) Last resort: Run %localappdata%\Microsoft\OneDrive\onedrive.exe /reset.
 
 **Q: I forgot my MFA / authenticator app and can't log in.**
 A: This requires an admin to reset your MFA methods. Contact your IT admin or GigitekAI support with your full name and work email. We'll verify your identity and reset authentication methods.
@@ -160,11 +160,55 @@ A: 1) Review sign-in logs in Entra ID—identify triggering policy. 2) Determine
 **Q: We need to offboard a departing employee.**
 A: 1) Reset password and revoke sessions in Entra ID. 2) Block sign-in. 3) Remove/reassign licenses. 4) Set auto-reply and redirect mailbox to manager. 5) Transfer OneDrive files before deletion. 6) Remove from groups/Teams/SharePoint. 7) Delete account after backup. 8) Contact GigitekAI for full checklist or hands-on help.
 
+## Pricing & Sales Information
+
+### Core Managed Service Tiers (Recommended for Quotes)
+
+**Essentials Tier** (50 users)
+- Includes: Microsoft 365 Business Standard + basic security + 24/7 AI helpdesk + monitoring
+- Price: $125 per user per month
+
+**Professional Tier** (100 users)
+- Includes: Microsoft 365 Business Premium + EDR + backup + AI helpdesk agent + full managed services
+- Price: $195 per user per month
+
+**Enterprise AI Tier** (200 users)
+- Includes: Microsoft 365 E3/E5 + Zero Trust + full AI automation agents + dedicated vCISO advisory
+- Price: $275 PUPM (E3 path) or $325 PUPM (E5 path)
+
+### Base Microsoft 365 Pricing (with 15% markup for 24/7 helpdesk)
+- Business Basic: $8.05 PUPM
+- Business Standard: $16.10 PUPM
+- Business Premium: $25.30 PUPM
+- Microsoft 365 E3: $44.85 PUPM
+- Microsoft 365 E5: $69.00 PUPM
+
+### Premium Add-Ons (25-30% margin)
+- Microsoft 365 Copilot: $35-$40 PUPM
+- Defender for Office 365 (advanced): $6-$8 PUPM
+- Entra ID Plan 2 (Zero Trust): $12-$15 PUPM
+- Microsoft Teams Premium / Phone System: $10-$15 PUPM
+
+### Sales Response Templates
+
+**For basic pricing inquiry:**
+GigitekAI bundles Microsoft 365 Business Standard starting at $16.10 per user per month, which includes our 24/7 AI-powered helpdesk. Most clients choose our Professional tier at $195 PUPM for complete security, backup, and AI automation. What is your team size and biggest IT challenge right now?
+
+**For full package inquiry:**
+For a company of your size, I recommend our Professional tier at $195 per user per month. This includes Microsoft 365 Business Premium, full EDR, intelligent backup, and AI agents that resolve tickets 40% faster. Add Copilot for $35-$40 PUPM to supercharge productivity. Want a custom proposal?
+
+**For add-on upsell:**
+Enhance your plan with Microsoft 365 Copilot at $35-$40 per user per month. Our clients see measurable ROI in productivity and reduced support tickets.
+
+**For closing:**
+Would you like a no-obligation proposal tailored to your exact user count and requirements?
+
 ## Escalation
 If an issue cannot be resolved through these steps, say: "This one needs hands-on support from the GigitekAI team. Please share your name, company, email, and a brief description of the issue and we'll follow up promptly."
 
 ## Tone
-Professional but approachable. Match the user's technical level. Keep responses concise and action-oriented. Never guess — if unsure, escalate.`;
+Professional but approachable. Match the user's technical level. Keep responses concise and action-oriented. Never guess — if unsure, escalate.
+`;
 
 export const aibotRouter = router({
   // Start or get chat session
