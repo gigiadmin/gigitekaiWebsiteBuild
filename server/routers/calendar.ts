@@ -74,9 +74,14 @@ export const calendarRouter = router({
         };
 
         // Create event in M365 calendar using Microsoft Graph API
+        console.log(`[Calendar] Attempting to create calendar event for ${input.name} (${input.email}) on ${meetingDateTime}`);
         const token = await getMsGraphToken();
         if (token) {
+          console.log(`[Calendar] Got MS Graph token (length: ${token.length}), calling Calendar API...`);
           try {
+            const calendarPayload = JSON.stringify(calendarEvent);
+            console.log(`[Calendar] Event payload: ${calendarPayload.substring(0, 200)}...`);
+            
             const calendarResponse = await fetch(
               `https://graph.microsoft.com/v1.0/users/harry@gigitekai.com/calendar/events`,
               {
@@ -85,26 +90,36 @@ export const calendarRouter = router({
                   Authorization: `Bearer ${token}`,
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify(calendarEvent),
+                body: calendarPayload,
               }
             );
 
+            const responseText = await calendarResponse.text();
+            console.log(`[Calendar] Graph API response status: ${calendarResponse.status} ${calendarResponse.statusText}`);
+            console.log(`[Calendar] Graph API response body: ${responseText.substring(0, 500)}`);
+
             if (calendarResponse.ok) {
-              console.log(
-                `[Calendar] Successfully created event in M365 calendar for ${input.name}`
-              );
+              const createdEvent = JSON.parse(responseText);
+              console.log(`[Calendar] ✅ Successfully created event in M365 calendar. Event ID: ${createdEvent.id}`);
             } else {
-              const error = await calendarResponse.text();
               console.error(
-                `[Calendar] Failed to create M365 calendar event (${calendarResponse.status}): ${error}`
+                `[Calendar] ❌ Failed to create M365 calendar event (${calendarResponse.status} ${calendarResponse.statusText}): ${responseText}`
               );
+              // Check for common permission errors
+              if (calendarResponse.status === 403) {
+                console.error(`[Calendar] 403 Forbidden - Check that Calendars.ReadWrite application permission is granted in Azure App Registration (portal.azure.com)`);
+              } else if (calendarResponse.status === 404) {
+                console.error(`[Calendar] 404 Not Found - User harry@gigitekai.com may not exist or have a mailbox`);
+              } else if (calendarResponse.status === 401) {
+                console.error(`[Calendar] 401 Unauthorized - MS Graph token may be invalid or missing Calendar permissions`);
+              }
             }
           } catch (error) {
             console.error("[Calendar] Error creating M365 calendar event:", error);
           }
         } else {
           console.warn(
-            "[Calendar] Could not obtain MS Graph token - calendar event not created"
+            "[Calendar] ⚠️ Could not obtain MS Graph token - calendar event not created. Check MS_GRAPH_CLIENT_ID, MS_GRAPH_CLIENT_SECRET, MS_GRAPH_TENANT_ID environment variables."
           );
         }
 

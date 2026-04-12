@@ -1022,3 +1022,9 @@
   - Creates event with prospect as attendee, 15-minute reminder
   - Logs success/failure for debugging
   - All 228 tests passing - no functionality broken
+
+
+## Calendar Debugging (Apr 12, 2026)
+- [ ] Add detailed logging to calendar router to diagnose Microsoft Graph API failures
+- [ ] Review server logs after test booking to identify error
+- [ ] Fix identified issue (likely missing Calendars.ReadWrite permission in Azure)
