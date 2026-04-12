@@ -22,8 +22,10 @@ import {
   FileIcon,
   Phone,
   Video,
+  Mail,
 } from "lucide-react";
 import VideoCallModal from "@/components/VideoCallModal";
+import QuickReplyModal from "@/components/QuickReplyModal";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -99,6 +101,10 @@ export default function AdminChat() {
   const [messageInput, setMessageInput] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [sessionId, setSessionId] = useState<number | null>(null);
+  const [showQuickReply, setShowQuickReply] = useState(false);
+  const [quickReplySessionId, setQuickReplySessionId] = useState<number | undefined>();
+  const [quickReplyEmail, setQuickReplyEmail] = useState("");
+  const [quickReplyName, setQuickReplyName] = useState("");
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [typingUserId, setTypingUserId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("chat");
@@ -915,6 +921,20 @@ export default function AdminChat() {
                         <Download className="w-3 h-3" />
                         Export
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setQuickReplySessionId(session.id);
+                          setQuickReplyEmail(session.visitorEmail || `user${session.userId}@example.com`);
+                          setQuickReplyName(session.visitorName || `User #${session.userId}`);
+                          setShowQuickReply(true);
+                        }}
+                        className="flex items-center gap-1 text-xs"
+                      >
+                        <Mail className="w-3 h-3" />
+                        Email
+                      </Button>
                     </div>
                   </Card>
                 ))}
@@ -923,6 +943,19 @@ export default function AdminChat() {
           </div>
         )}
       </div>
+
+      {/* Quick Reply Modal */}
+      <QuickReplyModal
+        isOpen={showQuickReply}
+        onClose={() => setShowQuickReply(false)}
+        linkedSessionId={quickReplySessionId}
+        recipientEmail={quickReplyEmail}
+        recipientName={quickReplyName}
+        onSuccess={() => {
+          // Optionally refetch sessions or show success toast
+          toast.success("Email sent successfully!");
+        }}
+      />
 
       {/* Video/Audio Call Modal */}
       {callModalOpen && user && selectedUserId && sessionId && (

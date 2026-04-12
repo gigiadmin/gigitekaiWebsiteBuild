@@ -24,12 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Send, Inbox, FileText, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, Send, Inbox, FileText, AlertCircle, CheckCircle, Users } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import RecipientGroupsManager from "@/components/RecipientGroupsManager";
 
 export default function AdminEmailPage() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"compose" | "inbox" | "templates">("compose");
+  const [tab, setTab] = useState<"compose" | "inbox" | "templates" | "groups">("compose") as any;
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -97,7 +98,7 @@ export default function AdminEmailPage() {
     <AdminLayout title="Email Management">
       <div className="space-y-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="compose" className="flex items-center gap-2">
               <Mail size={14} />
               Compose
@@ -109,6 +110,10 @@ export default function AdminEmailPage() {
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <FileText size={14} />
               Templates
+            </TabsTrigger>
+            <TabsTrigger value="groups" className="flex items-center gap-2">
+              <Users size={14} />
+              Groups
             </TabsTrigger>
           </TabsList>
 
@@ -251,6 +256,11 @@ export default function AdminEmailPage() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Groups Tab */}
+          <TabsContent value="groups" className="space-y-4">
+            <RecipientGroupsManager />
           </TabsContent>
 
           {/* Templates Tab */}

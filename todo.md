@@ -802,3 +802,12 @@
 - [x] Build QuickReplyModal component (compose + send email linked to ticket/session)
 - [x] Wire QuickReplyModal into AdminPanel (Helpdesk) with quick-reply button on each ticket row
 - [x] All 184 tests passing, TypeScript clean
+
+
+## Quick-Reply Modals & Group Management (Apr 12, 2026)
+- [x] Wire QuickReplyModal into AdminChat component with quick-reply button on each chat session
+- [x] Add Mail icon import to AdminChat
+- [x] Build RecipientGroupsManager component (create, edit, delete groups, add/remove members, bulk import)
+- [x] Integrate RecipientGroupsManager into AdminEmailPage as new "Groups" tab
+- [x] Add group selector to Email Compose for bulk sending to groups
+- [x] All 184 tests passing, TypeScript clean
