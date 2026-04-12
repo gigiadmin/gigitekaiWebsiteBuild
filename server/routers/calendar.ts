@@ -6,6 +6,8 @@ import { router, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { sendEmail } from "../_core/email";
+import { getMsGraphToken } from "../_core/email";
+import { ENV } from "../_core/env";
 
 export const calendarRouter = router({
   /**
@@ -70,6 +72,42 @@ export const calendarRouter = router({
           isReminderOn: true,
           reminderMinutesBeforeStart: 15,
         };
+
+        // Create event in M365 calendar using Microsoft Graph API
+        const token = await getMsGraphToken();
+        if (token) {
+          try {
+            const calendarResponse = await fetch(
+              `https://graph.microsoft.com/v1.0/users/harry@gigitekai.com/calendar/events`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(calendarEvent),
+              }
+            );
+
+            if (calendarResponse.ok) {
+              console.log(
+                `[Calendar] Successfully created event in M365 calendar for ${input.name}`
+              );
+            } else {
+              const error = await calendarResponse.text();
+              console.error(
+                `[Calendar] Failed to create M365 calendar event (${calendarResponse.status}): ${error}`
+              );
+            }
+          } catch (error) {
+            console.error("[Calendar] Error creating M365 calendar event:", error);
+          }
+        } else {
+          console.warn(
+            "[Calendar] Could not obtain MS Graph token - calendar event not created"
+          );
+        }
+
 
         // Send confirmation email to prospect
         const emailSent = await sendEmail({

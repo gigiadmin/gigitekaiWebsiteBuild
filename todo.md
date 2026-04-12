@@ -1012,3 +1012,13 @@
   - Now buttons are above chat icon (z-50 > z-50 chat button, but CTA bar container is z-50)
   - All 228 tests passing - no functionality broken
   - Buttons now visible and clickable on mobile and desktop
+
+
+## Calendar Event Creation Bug (Critical - Apr 12, 2026)
+- [x] Implement Microsoft Graph Calendar API to actually create events in M365
+  - Issue: Meeting bookings send emails but don't create calendar events
+  - Solution: Added Microsoft Graph API call to create events in harry@gigitekai.com calendar
+  - Implementation: Uses existing getMsGraphToken() for authentication
+  - Creates event with prospect as attendee, 15-minute reminder
+  - Logs success/failure for debugging
+  - All 228 tests passing - no functionality broken
