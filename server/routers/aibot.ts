@@ -568,6 +568,71 @@ export const aibotRouter = router({
         console.error("[AIBot] Failed to send lead email:", error);
       }
 
+      // Send customer confirmation email if they consented
+      if (consentEmail) {
+        try {
+          const customerConfirmationEmail = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #0A0E1A 0%, #0F1A30 100%); color: #00D4FF; padding: 24px; text-align: center; border-bottom: 2px solid #00D4FF; }
+    .header h2 { margin: 0; font-size: 24px; }
+    .content { padding: 24px; }
+    .greeting { font-size: 16px; color: #333; margin-bottom: 16px; }
+    .message { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+    .cta-button { display: inline-block; background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%); color: #0A0E1A; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0; }
+    .footer { background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>✅ We Received Your Request</h2>
+    </div>
+    <div class="content">
+      <div class="greeting">Hi ${name},</div>
+      <div class="message">
+        Thank you for reaching out to GigitekAI! We've received your inquiry and our team is reviewing your request.
+      </div>
+      <div class="message">
+        <strong>What happens next:</strong><br/>
+        Our sales team will review your requirements and reach out within 24 business hours with a customized proposal tailored to your needs.
+      </div>
+      ${company ? `<div class="message"><strong>Company:</strong> ${company}</div>` : ''}
+      ${interest ? `<div class="message"><strong>Your Interest:</strong> ${interest}</div>` : ''}
+      <div class="message">
+        In the meantime, feel free to explore our services or contact us directly at <a href="tel:609-676-4483" style="color: #00D4FF; text-decoration: none;">609-676-4483</a> or <a href="mailto:support@gigitekai.com" style="color: #00D4FF; text-decoration: none;">support@gigitekai.com</a>.
+      </div>
+      <div style="text-align: center;">
+        <a href="https://gigitekai.com/services" class="cta-button">Explore Our Services</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
+      <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: none;">Manage email preferences</a></p>
+    </div>
+  </div>
+</body>
+</html>
+          `;
+
+          await sendEmail({
+            to: email,
+            subject: "Thank You for Your Interest in GigitekAI",
+            html: customerConfirmationEmail,
+          });
+
+          console.log(`[AIBot] Customer confirmation email sent to ${email}`);
+        } catch (error) {
+          console.error("[AIBot] Failed to send customer confirmation email:", error);
+        }
+      }
+
       return { success: true, message: "Thank you! We'll follow up with you shortly." };
     }),
 

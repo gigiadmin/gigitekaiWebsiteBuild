@@ -935,3 +935,24 @@
   - Client credentials flow with Mail.Send application permission
   - Token caching with 5-minute expiry buffer
   - 3 vitest tests validating credentials, token acquisition, and email delivery
+
+
+## Email Automation Features (New)
+- [x] Daily email digest - Summarize all quote requests from the previous day and send to support@gigitek.com
+  - Scheduled job runs at 6 AM UTC daily via digestScheduler.ts
+  - Groups all leads captured in previous 24 hours
+  - HTML email with lead details, contact preferences, conversation summaries
+  - Includes count of leads, total inquiries, and key metrics
+  - GigitekAI branded with cyan accent colors
+- [x] Customer confirmation email - Send confirmation email to customer immediately after they request a quote
+  - Triggered when captureLead is called in aibot router
+  - Personalized with customer name and company
+  - Sets expectations for 24-hour follow-up timeline
+  - Includes link to services and support contact info
+  - Only sent if customer consented to email contact
+- [x] SMS alert for email delivery failures - Notify via SMS if Microsoft Graph email fails
+  - Triggered when sendEmail returns false
+  - Uses Twilio SMS to send alert to admin phone
+  - Includes error details and timestamp
+  - Retry logic with up to 2 retries for failed SMS sends
+  - Allows admin to respond quickly to delivery issues

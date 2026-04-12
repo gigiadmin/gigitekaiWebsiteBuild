@@ -467,16 +467,23 @@ describe("aibot lead capture email notifications", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(mockSendEmail).toHaveBeenCalled();
+    // Should send 2 emails: 1 to admin, 1 to customer (because consentEmail=true)
+    expect(mockSendEmail.mock.calls.length).toBeGreaterThanOrEqual(2);
 
-    // Verify email was sent to support@gigitekai.com
-    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
-    expect(lastCall[0].to).toBe("support@gigitekai.com");
-    expect(lastCall[0].subject).toContain("New Lead");
-    expect(lastCall[0].subject).toContain("John Lead");
-    expect(lastCall[0].html).toContain("john@example.com");
-    expect(lastCall[0].html).toContain("Tech Corp");
-    expect(lastCall[0].html).toContain("Cloud Migration");
+    // Find the admin notification email
+    const adminCall = mockSendEmail.mock.calls.find(call => call[0].to === "support@gigitekai.com");
+    expect(adminCall).toBeDefined();
+    expect(adminCall[0].subject).toContain("New Lead");
+    expect(adminCall[0].subject).toContain("John Lead");
+    expect(adminCall[0].html).toContain("john@example.com");
+    expect(adminCall[0].html).toContain("Tech Corp");
+    expect(adminCall[0].html).toContain("Cloud Migration");
+
+    // Find the customer confirmation email
+    const customerCall = mockSendEmail.mock.calls.find(call => call[0].to === "john@example.com");
+    expect(customerCall).toBeDefined();
+    expect(customerCall[0].subject).toContain("Thank You");
+    expect(customerCall[0].html).toContain("We Received Your Request");
   });
 
   it("captureLead email includes contact preferences", async () => {
@@ -497,9 +504,11 @@ describe("aibot lead capture email notifications", () => {
       consentText: true,
     });
 
-    const lastCall = mockSendEmail.mock.calls[mockSendEmail.mock.calls.length - 1];
-    expect(lastCall[0].html).toContain("Email");
-    expect(lastCall[0].html).toContain("Text/SMS");
+    // Find the admin notification email (should contain contact preferences)
+    const adminCall = mockSendEmail.mock.calls.find(call => call[0].to === "support@gigitekai.com");
+    expect(adminCall).toBeDefined();
+    expect(adminCall[0].html).toContain("Email");
+    expect(adminCall[0].html).toContain("Text/SMS");
   });
 
   it("captureLead email includes conversation summary", async () => {
