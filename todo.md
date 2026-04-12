@@ -827,3 +827,13 @@
 - [x] Enhance search/filter: add date range filter (start/end date inputs), advanced search by customer email
 - [x] Add save/load filter presets functionality (localStorage persistence, save/load/delete presets modal)
 - [x] All 184 tests passing, TypeScript clean
+
+
+## Progressive Web App (PWA) Conversion (Apr 12, 2026)
+- [x] Update web app manifest (manifest.json) with admin portal config, shortcuts, and icons
+- [x] Update service worker (sw.js) with runtime cache, offline support, and API caching
+- [x] Add PWA registration to main.tsx with service worker registration
+- [x] Wire PWAInstallPrompt component in App.tsx for install prompts
+- [x] Optimize mobile viewport meta tags (viewport-fit=cover, user-scalable=yes)
+- [x] Add iOS PWA meta tags (apple-mobile-web-app-start-url, format-detection)
+- [x] All 184 tests passing, TypeScript clean

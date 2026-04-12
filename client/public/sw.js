@@ -1,6 +1,9 @@
-const CACHE_NAME = 'gigitekai-v1';
+const CACHE_NAME = 'gigitekai-admin-v1';
+const RUNTIME_CACHE = 'gigitekai-admin-runtime';
 const STATIC_ASSETS = [
   '/',
+  '/admin',
+  '/index.html',
   '/manifest.json',
 ];
 
@@ -28,37 +31,53 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event: network-first for API, cache-first for assets
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
   // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+  if (request.method !== 'GET') return;
 
-  // Skip API calls and WebSocket
-  const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws')) return;
-
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone the response and cache it
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          // For navigation requests, return the cached index page
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
+  // API requests: network-first with cache fallback
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const cache = caches.open(RUNTIME_CACHE);
+            cache.then((c) => c.put(request, response.clone()));
           }
-          return new Response('Offline', { status: 503 });
-        });
-      })
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request).then((cached) => {
+            return cached || new Response('Offline - API not available', { status: 503 });
+          });
+        })
+    );
+    return;
+  }
+
+  // Static assets: cache-first with network fallback
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200) return response;
+          const cache = caches.open(RUNTIME_CACHE);
+          cache.then((c) => c.put(request, response.clone()));
+          return response;
+        })
+        .catch(() => caches.match('/index.html'));
+    })
   );
+});
+
+// Handle messages from clients
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

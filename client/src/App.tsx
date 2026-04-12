@@ -53,7 +53,7 @@ import AdminGuidePage from "./pages/AdminGuidePage";
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
-import PWAInstallBanner from "./components/PWAInstallBanner";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 function Router() {
   return (
@@ -121,7 +121,7 @@ function App() {
           <Router />
           <AIChatWidget />
           <UserChatWidget />
-          <PWAInstallBanner />
+          <PWAInstallPrompt />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

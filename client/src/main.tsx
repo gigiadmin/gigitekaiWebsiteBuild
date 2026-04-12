@@ -8,7 +8,17 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
-// Service worker disabled due to OAuth conflicts
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((registration) => {
+      console.log('[PWA] Service worker registered:', registration);
+    }).catch((error) => {
+      console.warn('[PWA] Service worker registration failed:', error);
+    });
+  });
+}
 
 const queryClient = new QueryClient();
 

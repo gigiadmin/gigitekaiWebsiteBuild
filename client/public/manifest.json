@@ -1,8 +1,8 @@
 {
-  "name": "GigitekAI - Cloud & AI Solutions",
+  "name": "GigitekAI Admin Portal",
   "short_name": "GigitekAI",
-  "description": "Enterprise cloud infrastructure and AI solutions that transform how businesses operate and compete.",
-  "start_url": "/",
+  "description": "Enterprise admin portal for managing support tickets, live chat, email, and customer accounts",
+  "start_url": "/admin",
   "display": "standalone",
   "scope": "/",
   "background_color": "#0A0E1A",
@@ -70,15 +70,21 @@
   "shortcuts": [
     {
       "name": "Helpdesk",
-      "short_name": "Helpdesk",
-      "description": "Open the customer helpdesk portal",
-      "url": "/helpdesk"
+      "short_name": "Tickets",
+      "description": "View and manage support tickets",
+      "url": "/admin/helpdesk"
     },
     {
-      "name": "Admin Portal",
-      "short_name": "Admin",
-      "description": "Access the admin management portal",
-      "url": "/admin"
+      "name": "Live Chat",
+      "short_name": "Chat",
+      "description": "Respond to customer chats",
+      "url": "/admin/chat"
+    },
+    {
+      "name": "Email",
+      "short_name": "Email",
+      "description": "Manage customer emails",
+      "url": "/admin/email"
     }
   ]
 }
