@@ -72,6 +72,9 @@ export default function AdminPanel() {
   const [dateRangeStart, setDateRangeStart] = useState<string>("");
   const [dateRangeEnd, setDateRangeEnd] = useState<string>("");
   const [customerEmailFilter, setCustomerEmailFilter] = useState<string>("");
+  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: any }>>([]);
+  const [presetName, setPresetName] = useState<string>("");
+  const [showPresetModal, setShowPresetModal] = useState(false);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -120,6 +123,58 @@ export default function AdminPanel() {
       window.location.href = getLoginUrl();
     }
   }, [isAuthenticated, loading]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("ticket-filter-presets");
+    if (saved) {
+      try {
+        setFilterPresets(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to load filter presets", e);
+      }
+    }
+  }, []);
+
+  const saveFilterPreset = () => {
+    if (!presetName.trim()) {
+      toast.error("Please enter a preset name");
+      return;
+    }
+    const newPreset = {
+      name: presetName,
+      filters: {
+        searchQuery,
+        statusFilter,
+        priorityFilter,
+        dateRangeStart,
+        dateRangeEnd,
+        customerEmailFilter,
+      },
+    };
+    const updated = [...filterPresets, newPreset];
+    setFilterPresets(updated);
+    localStorage.setItem("ticket-filter-presets", JSON.stringify(updated));
+    setPresetName("");
+    setShowPresetModal(false);
+    toast.success(`Filter preset '${presetName}' saved!`);
+  };
+
+  const loadFilterPreset = (preset: any) => {
+    setSearchQuery(preset.filters.searchQuery);
+    setStatusFilter(preset.filters.statusFilter);
+    setPriorityFilter(preset.filters.priorityFilter);
+    setDateRangeStart(preset.filters.dateRangeStart);
+    setDateRangeEnd(preset.filters.dateRangeEnd);
+    setCustomerEmailFilter(preset.filters.customerEmailFilter);
+    toast.success(`Loaded preset '${preset.name}'`);
+  };
+
+  const deleteFilterPreset = (name: string) => {
+    const updated = filterPresets.filter((p) => p.name !== name);
+    setFilterPresets(updated);
+    localStorage.setItem("ticket-filter-presets", JSON.stringify(updated));
+    toast.success(`Preset '${name}' deleted`);
+  };
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
@@ -308,6 +363,31 @@ export default function AdminPanel() {
               className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[140px]"
             />
             <TicketTemplateManager />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowPresetModal(true)}
+              className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 whitespace-nowrap"
+            >
+              💾 Save Filter
+            </Button>
+            {filterPresets.length > 0 && (
+              <select
+                onChange={(e) => {
+                  const preset = filterPresets.find((p) => p.name === e.target.value);
+                  if (preset) loadFilterPreset(preset);
+                  e.target.value = "";
+                }}
+                className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
+              >
+                <option value="">Load Preset...</option>
+                {filterPresets.map((p) => (
+                  <option key={p.name} value={p.name}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            )}
             {allTickets && allTickets.length > 0 && (
               <Button
                 size="sm"
@@ -658,6 +738,58 @@ export default function AdminPanel() {
         recipientName={quickReplyName}
         onSuccess={() => refetch()}
       />
+
+      {/* Save Filter Preset Modal */}
+      {showPresetModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-[#141B2D] border border-gray-800 rounded-xl p-6 w-96">
+            <h3 className="text-white font-bold text-lg mb-4">Save Filter Preset</h3>
+            <input
+              type="text"
+              placeholder="Enter preset name..."
+              value={presetName}
+              onChange={(e) => setPresetName(e.target.value)}
+              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-4 py-2 text-white mb-4 focus:border-[#00D4FF]/50 focus:outline-none"
+              onKeyPress={(e) => e.key === "Enter" && saveFilterPreset()}
+            />
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => { setShowPresetModal(false); setPresetName(""); }}
+                className="border-gray-700 text-gray-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveFilterPreset}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
+              >
+                Save
+              </Button>
+            </div>
+            {filterPresets.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                <h4 className="text-gray-400 text-sm font-semibold mb-3">Existing Presets</h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {filterPresets.map((p) => (
+                    <div key={p.name} className="flex items-center justify-between bg-[#0A0E1A] rounded p-2">
+                      <span className="text-gray-300 text-sm">{p.name}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteFilterPreset(p.name)}
+                        className="text-red-400 hover:text-red-300 h-6 w-6 p-0"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
