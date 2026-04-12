@@ -25,6 +25,7 @@ import HelpdeskAgentGuide from "./pages/HelpdeskAgentGuide";
 // Auth
 import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import ApprovalGuard from "./components/ApprovalGuard";
 
 // ── Unified Admin Portal ──────────────────────────────────────────────────────
@@ -78,6 +79,7 @@ function Router() {
 
       {/* ── Auth ── */}
       <Route path={"/login"} component={Login} />
+      <Route path={"/admin/login"} component={AdminLogin} />
 
       {/* ── Unified Admin Portal ── */}
       {/* Dashboard home */}
