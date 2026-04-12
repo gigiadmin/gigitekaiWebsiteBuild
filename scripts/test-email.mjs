@@ -24,7 +24,7 @@ const endpoint = new URL(
   forgeApiUrl.endsWith('/') ? forgeApiUrl : `${forgeApiUrl}/`
 ).toString();
 
-console.log('Sending test email to harry@gigitek.com via:', endpoint);
+console.log('Sending test email to support@gigitekai.com via:', endpoint);
 
 const response = await fetch(endpoint, {
   method: 'POST',
@@ -35,10 +35,10 @@ const response = await fetch(endpoint, {
     'connect-protocol-version': '1',
   },
   body: JSON.stringify({
-    to: 'harry@gigitek.com',
+    to: 'support@gigitekai.com',
     subject: 'GigitekAI Newsletter — Test Welcome Email',
     html: '<h1 style="color:#00D4FF;">Welcome to GigitekAI Insights!</h1><p>This is a test email to verify the newsletter welcome email is working correctly.</p>',
-    replyTo: 'support@gigitek.com',
+    replyTo: 'support@gigitekai.com',
   }),
 });
 

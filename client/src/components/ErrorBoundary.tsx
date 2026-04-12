@@ -37,7 +37,7 @@ class ErrorBoundary extends Component<Props, State> {
               <pre className="text-sm text-muted-foreground whitespace-break-spaces">
                 {import.meta.env.DEV
                   ? this.state.error?.stack
-                  : this.state.error?.message || "Something went wrong. Please reload the page or contact support@gigitek.com."}
+                  : this.state.error?.message || "Something went wrong. Please reload the page or contact support@gigitekai.com."}
               </pre>
             </div>
 

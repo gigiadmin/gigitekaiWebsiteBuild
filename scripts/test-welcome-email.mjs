@@ -49,7 +49,7 @@ const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    personalizations: [{ to: [{ email: "harry@gigitek.com" }] }],
+    personalizations: [{ to: [{ email: "support@gigitekai.com" }] }],
     from: { email: "support@gigitekai.com", name: "GigitekAI" },
     reply_to: { email: "support@gigitekai.com" },
     subject: "Welcome to GigitekAI Insights! (Live Test)",
@@ -59,7 +59,7 @@ const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
 
 console.log("SendGrid status:", response.status);
 if (response.status === 202) {
-  console.log("✅ Welcome email sent successfully to harry@gigitek.com!");
+  console.log("✅ Welcome email sent successfully to support@gigitekai.com!");
   console.log("   From: support@gigitekai.com");
   console.log("   Reply-To: support@gigitekai.com");
 } else {

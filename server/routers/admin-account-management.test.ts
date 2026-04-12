@@ -45,7 +45,7 @@ import {
 // Helper to create mock admin
 const mockAdmin = (overrides = {}) => ({
   id: 1,
-  email: "harry@gigitek.com",
+  email: "support@gigitekai.com",
   name: "Harry",
   role: "admin" as const,
   hashedPassword: "hashed_password",

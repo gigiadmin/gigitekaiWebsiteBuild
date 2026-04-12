@@ -17,7 +17,7 @@ if (!DATABASE_URL) {
 }
 
 async function createAdmin() {
-  const email = process.env.ADMIN_EMAIL || "harry@gigitek.com";
+  const email = process.env.ADMIN_EMAIL || "support@gigitekai.com";
   const name = process.env.ADMIN_NAME || "Harry (Admin)";
   // SEC-02: Never hardcode passwords in scripts. Set ADMIN_INITIAL_PASSWORD env var before running.
   const password = process.env.ADMIN_INITIAL_PASSWORD;

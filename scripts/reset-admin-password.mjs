@@ -4,7 +4,7 @@ import { config } from "dotenv";
 
 config();
 
-const EMAIL = process.env.ADMIN_EMAIL || "harry@gigitek.com";
+const EMAIL = process.env.ADMIN_EMAIL || "support@gigitekai.com";
 // SEC-02: Never hardcode passwords in scripts. Set ADMIN_INITIAL_PASSWORD env var before running.
 const NEW_PASSWORD = process.env.ADMIN_INITIAL_PASSWORD;
 if (!NEW_PASSWORD) {
