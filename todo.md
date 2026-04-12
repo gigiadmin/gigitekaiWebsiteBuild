@@ -971,16 +971,26 @@
   - Scores across: Email Security, Endpoint Protection, Backup & Recovery, Identity Management, Compliance
   - Auto-captures leads (name, email, company) and generates branded PDF
   - Triggers email follow-up sequence
-- [ ] Exit-Intent Popup - Captures visitors before they leave the site
+- [x] Exit-Intent Popup - Captures visitors before they leave the site
   - Offers high-value lead magnet (e.g., "10 Signs Your Business Needs an IT Upgrade")
   - Simple name + email capture
   - Feeds into newsletter and CRM
-- [ ] Sticky CTA Bar - Persistent call-to-action bar on every page
+- [x] Sticky CTA Bar - Persistent call-to-action bar on every page
   - "Schedule a Free 15-Min IT Strategy Call → [Book Now]"
   - Links to Calendly or scheduling system
   - Stays visible during scroll
-- [ ] Multi-Step Contact Form - Guided form with higher conversion rate
+- [x] Multi-Step Contact Form - Guided form with higher conversion rate
   - Step 1: "What do you need help with?" (checkboxes: Cybersecurity, Cloud, Helpdesk, AI)
   - Step 2: "How many employees?" + "Current IT setup?"
   - Step 3: Name, email, phone
   - 86% higher conversion than single-page forms
+
+
+## M365 Calendar Integration
+- [x] Replace Calendly with Microsoft 365 Calendar integration in Sticky CTA Bar
+  - Booking modal with name, email, phone, company, date, time fields
+  - Sends confirmation email to prospect via Microsoft Graph
+  - Sends internal notification to support@gigitek.com
+  - Creates calendar event in M365 calendar
+  - Backend: bookMeeting and getAvailableSlots tRPC procedures
+  - Frontend: Updated StickyCTABar component with booking modal
