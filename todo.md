@@ -886,3 +886,10 @@
 - [ ] Customer invite email delivery (in progress - production deployment pending)
 - [ ] Submit OAuth redirect URI to Manus support for gigitekai.com/api/oauth/callback
 - [ ] Once OAuth approved, users can log in with Manus OAuth instead of temporary password
+
+
+## New Admin Features (Apr 12, 2026 - Phase 2)
+- [x] Resend invitation email feature (resendCustomerInvite tRPC procedure added)
+- [x] Forgot Password feature (forgotPassword and resetPassword tRPC procedures added)
+- [x] Support Ticket Dashboard Widget (SupportTicketWidget component added to AdminHome)
+- [x] All 194 tests passing, TypeScript clean

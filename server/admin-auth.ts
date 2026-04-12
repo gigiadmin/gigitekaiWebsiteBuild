@@ -35,6 +35,7 @@ export interface AdminTokenPayload {
   email: string;
   name: string;
   role: "admin" | "agent" | "viewer";
+  isReset?: boolean;
 }
 
 export async function signAdminToken(

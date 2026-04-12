@@ -253,6 +253,84 @@ export const adminAuthRouter = router({
       return { success: true };
     }),
 
+  // Forgot password - send reset link via email
+  forgotPassword: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const admin = await findAdminByEmail(input.email);
+        
+        // Always return success to prevent email enumeration
+        if (!admin) {
+          return { success: true, message: 'If an account exists, a reset link will be sent' };
+        }
+
+        // Generate reset token
+        const resetToken = await signAdminToken({
+          adminId: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role,
+          isReset: true,
+        });
+
+        // Send reset email
+        const { sendEmail } = await import('../_core/email');
+        const resetLink = `${process.env.VITE_FRONTEND_URL || 'https://gigitekai.com'}/admin/reset-password?token=${resetToken}`;
+        
+        await sendEmail({
+          to: admin.email,
+          subject: 'GigitekAI Admin Portal - Password Reset Request',
+          html: `
+            <h2>Password Reset Request</h2>
+            <p>Hi ${admin.name},</p>
+            <p>You requested a password reset for your GigitekAI Admin Portal account.</p>
+            <p><a href="${resetLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a></p>
+            <p>This link expires in 1 hour.</p>
+            <p>If you didn't request this, please ignore this email.</p>
+            <p>If you have any questions, contact support@gigitekai.com</p>
+          `
+        });
+
+        return { success: true, message: 'If an account exists, a reset link will be sent' };
+      } catch (error) {
+        console.error('[AdminAuth] Forgot password error:', error);
+        return { success: true, message: 'If an account exists, a reset link will be sent' };
+      }
+    }),
+
+  // Reset password with token
+  resetPassword: publicProcedure
+    .input(z.object({
+      token: z.string(),
+      newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Verify reset token
+        const payload = await verifyAdminToken(input.token);
+        if (!payload || !(payload as any).isReset) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Invalid or expired reset token'
+          });
+        }
+
+        // Update password
+        await updateAdminAccount(payload.adminId, { password: input.newPassword });
+
+        return { success: true, message: 'Password reset successfully' };
+      } catch (error) {
+        console.error('[AdminAuth] Reset password error:', error);
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Failed to reset password'
+        });
+      }
+    }),
+
   // Create a new agent account (admin only, no secret required)
   createAccount: publicProcedure
     .input(

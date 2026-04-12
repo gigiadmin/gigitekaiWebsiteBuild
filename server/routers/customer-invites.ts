@@ -137,6 +137,65 @@ export const customerInvitesRouter = router({
       }
     }),
 
+  resendCustomerInvite: publicProcedure
+    .input(z.object({
+      inviteId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      // Check if user is authenticated via OAuth or custom admin JWT
+      let isAdmin = ctx.user?.role === 'admin';
+      
+      // If not OAuth admin, try custom admin JWT
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin access required to resend invites'
+        });
+      }
+
+      try {
+        // Get the invite from database
+        const adminId = ctx.user?.id || '';
+        if (!adminId) {
+          return { success: false, message: 'Admin ID not found' };
+        }
+        const invitesList = await listCustomerInvites(adminId as any);
+        const invite = (invitesList as any[]).find((i: any) => i.id === input.inviteId);
+        
+        if (!invite) {
+          return { success: false, message: 'Invite not found' };
+        }
+
+        // Resend invite email
+        const inviteLink = `${process.env.VITE_FRONTEND_URL || 'https://gigitekai.com'}/accept-invite?token=${invite.inviteToken}`;
+        
+        await sendEmail({
+          to: invite.invitedEmail,
+          subject: 'Resend: You\'re invited to GigitekAI Support Portal',
+          html: `
+            <h2>Welcome to GigitekAI Support Portal</h2>
+            <p>Hi ${invite.invitedName || 'there'},</p>
+            <p>You've been invited to access the GigitekAI Support Portal by your administrator.</p>
+            <p><a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Accept Invite</a></p>
+            <p>This invite expires on ${invite.expiresAt.toLocaleDateString()}.</p>
+            <p>If you have any questions, contact support@gigitekai.com</p>
+          `
+        });
+
+        return { success: true, message: 'Invite resent successfully' };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to resend invite:', error);
+        return { success: false, message: 'Failed to resend invite' };
+      }
+    }),
+
   revokeCustomerInvite: publicProcedure
     .input(z.object({
       inviteId: z.number(),

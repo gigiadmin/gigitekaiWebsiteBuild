@@ -26,6 +26,7 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
+import { SupportTicketWidget } from "@/components/SupportTicketWidget";
 
 const [DAYS] = [30];
 
@@ -174,6 +175,9 @@ export default function AdminHome() {
             </Link>
           ))}
         </div>
+
+        {/* Support Ticket Widget */}
+        <SupportTicketWidget />
 
         {/* Two-column: Quick Actions + Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
