@@ -5,52 +5,53 @@ export type EmailPayload = {
   subject: string;
   html: string;
   replyTo?: string;
+  fromName?: string;
 };
 
 /**
- * Sends an email using the Manus Email Service
- * Returns true if successful, false if failed
+ * Sends an email using Twilio SendGrid.
+ * Returns true if successful, false if failed.
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
-  if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-    console.error("[Email] Email service not configured");
+  if (!ENV.sendGridApiKey) {
+    console.error("[Email] SendGrid API key not configured (SENDGRID_API_KEY)");
     return false;
   }
 
   try {
-    const endpoint = new URL(
-      "webdevtoken.v1.WebDevService/SendEmail",
-      ENV.forgeApiUrl.endsWith("/") ? ENV.forgeApiUrl : `${ENV.forgeApiUrl}/`
-    ).toString();
-
-    const response = await fetch(endpoint, {
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {
-        accept: "application/json",
-        authorization: `Bearer ${ENV.forgeApiKey}`,
-        "content-type": "application/json",
-        "connect-protocol-version": "1",
+        Authorization: `Bearer ${ENV.sendGridApiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: payload.to,
+        personalizations: [{ to: [{ email: payload.to }] }],
+        from: {
+          email: "support@gigitekai.com",
+          name: payload.fromName ?? "GigitekAI",
+        },
+        reply_to: payload.replyTo
+          ? { email: payload.replyTo }
+          : { email: "support@gigitekai.com" },
         subject: payload.subject,
-        html: payload.html,
-        ...(payload.replyTo && { replyTo: payload.replyTo }),
+        content: [{ type: "text/html", value: payload.html }],
       }),
     });
 
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      console.error(
-        `[Email] Failed to send email (${response.status} ${response.statusText})${
-          detail ? `: ${detail}` : ""
-        }`
-      );
-      return false;
+    // SendGrid returns 202 Accepted on success (no body)
+    if (response.status === 202) {
+      console.log(`[Email] Successfully sent email to ${payload.to}`);
+      return true;
     }
 
-    console.log(`[Email] Successfully sent email to ${payload.to}`);
-    return true;
+    const detail = await response.text().catch(() => "");
+    console.error(
+      `[Email] SendGrid failed (${response.status} ${response.statusText})${
+        detail ? `: ${detail}` : ""
+      }`
+    );
+    return false;
   } catch (error) {
     console.error("[Email] Error sending email:", error);
     return false;

@@ -742,3 +742,8 @@
 - [x] Diagnose why welcome email is not sent on subscribe — missing sendEmail call in subscribe procedure
 - [x] Fix email sending in newsletter subscribe procedure — added branded welcome email with unsubscribe link
 - [x] All 178 tests passing after fix
+
+## Fix: Replace Broken Email Helper with SendGrid (Apr 11, 2026)
+- [x] Add SENDGRID_API_KEY to ENV and rewrite email.ts to use SendGrid API
+- [x] Test SendGrid key and verify email delivery (202 OK, email delivered)
+- [x] All tests passing after fix (178/178)
