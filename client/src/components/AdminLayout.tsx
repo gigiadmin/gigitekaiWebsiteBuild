@@ -9,6 +9,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import NotificationBell from "@/components/NotificationBell";
 import {
   LayoutDashboard,
   BarChart3,
@@ -98,9 +99,6 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Notification badge — placeholder until a real notifications tRPC procedure is wired
-  const unreadCount = 0;
-
   // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false);
@@ -170,14 +168,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
                       {!collapsed && (
                         <span className="text-sm font-medium flex-1">{item.label}</span>
                       )}
-                      {!collapsed && item.label === "Notifications" && unreadCount > 0 && (
-                        <Badge className="bg-cyan-500 text-black text-xs px-1.5 py-0 h-4 min-w-4 flex items-center justify-center">
-                          {unreadCount > 99 ? "99+" : unreadCount}
-                        </Badge>
-                      )}
-                      {collapsed && item.label === "Notifications" && unreadCount > 0 && (
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full" />
-                      )}
+
                     </div>
                   </Link>
                 );
@@ -290,18 +281,8 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
 
           {/* Top bar actions */}
           <div className="flex items-center gap-2">
-            <Link href="/admin/notifications">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-white relative"
-              >
-                <Bell size={16} />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-500 rounded-full" />
-                )}
-              </Button>
-            </Link>
+            {/* Real-time notification bell */}
+            <NotificationBell />
             <Link href="/" target="_blank">
               <Button
                 variant="ghost"

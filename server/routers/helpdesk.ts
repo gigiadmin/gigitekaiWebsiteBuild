@@ -4,6 +4,7 @@ import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, ad
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
+import { createAdminNotification } from "./adminNotifications";
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -44,6 +45,16 @@ export const helpdeskRouter = router({
             console.warn("[Helpdesk] Failed to send critical ticket SMS:", smsError);
           }
         }
+
+        // Create admin portal notification (real-time bell alert)
+        createAdminNotification({
+          type: "new_ticket",
+          title: `New Ticket: ${input.title}`,
+          body: `From: ${ctx.user.name} · Priority: ${input.priority} · ${input.category.replace(/_/g, " ")}`,
+          href: `/admin/helpdesk`,
+          priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
+          ticketId: typeof ticket === "number" ? ticket : undefined,
+        }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
 
         return { success: true, ticketId: ticket };
       } catch (error) {
@@ -120,6 +131,15 @@ export const helpdeskRouter = router({
             title: `New Reply on Ticket #${input.ticketId}`,
             content: `${ctx.user.name} replied:\n\n${input.message}`,
           });
+          // Create admin portal notification
+          createAdminNotification({
+            type: "ticket_reply",
+            title: `Reply on Ticket #${input.ticketId}`,
+            body: `${ctx.user.name}: ${input.message.slice(0, 100)}${input.message.length > 100 ? "..." : ""}`,
+            href: `/admin/helpdesk`,
+            priority: "normal",
+            ticketId: input.ticketId,
+          }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
         }
 
         return { success: true };

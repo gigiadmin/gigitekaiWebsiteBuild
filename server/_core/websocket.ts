@@ -411,3 +411,25 @@ export async function getOnlineUsers() {
   }
   return Array.from(onlineUsers);
 }
+
+/**
+ * Broadcast a real-time admin notification to all connected admin clients.
+ * Called by createAdminNotification() after persisting to the DB.
+ */
+export function broadcastAdminNotification(data: {
+  id: number | null;
+  type: string;
+  title: string;
+  body?: string;
+  href?: string;
+  priority: string;
+  createdAt: string;
+}) {
+  const payload = JSON.stringify({ type: "admin_notification", notification: data });
+  const clientsArray = Array.from(clients.values());
+  for (const client of clientsArray) {
+    if (client.role === "admin" && client.ws.readyState === 1) {
+      client.ws.send(payload);
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { eq, and, sql, gte, desc, count } from "drizzle-orm";
 import { getOnlineUsers } from "../_core/websocket";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
+import { createAdminNotification } from "./adminNotifications";
 
 // ── Magic bytes validation for file upload security ──────────────────────────
 function validateMagicBytes(bytes: Buffer, mimeType: string): boolean {
@@ -95,9 +96,22 @@ export const chatRouter = router({
           status: "active",
         })
         .$returningId();
+      const newSessionId = result[0].id;
+
+      // Notify admin portal when a user (not admin) starts a new chat
+      if (ctx.user.role !== "admin") {
+        createAdminNotification({
+          type: "new_chat",
+          title: "New Chat Session Started",
+          body: `${ctx.user.name || `User #${targetUserId}`} started a live chat session`,
+          href: `/admin/chat`,
+          priority: "high",
+          sessionId: newSessionId,
+        }).catch((e: any) => console.warn("[Chat] Admin notification failed:", e));
+      }
 
       return {
-        id: result[0].id,
+        id: newSessionId,
         userId: targetUserId,
         adminId: ctx.user.role === "admin" ? ctx.user.id : undefined,
         status: "active",

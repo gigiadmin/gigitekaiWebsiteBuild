@@ -759,3 +759,17 @@
 - [x] Active route highlighting in sidebar
 - [x] AdminCustomers page built (invite send/revoke, status badges, stats cards)
 - [x] All 178 tests passing after rebuild
+
+## Real-Time Admin Notification System (Apr 12, 2026)
+- [x] Add adminNotifications table to Drizzle schema (type, title, body, href, priority, isRead, ticketId, sessionId)
+- [x] Run pnpm db:push to migrate adminNotifications table to production DB
+- [x] Create adminNotifications tRPC router (list, getUnreadCount, markRead, markAllRead, cleanup)
+- [x] Export createAdminNotification() helper for server-side use
+- [x] Add broadcastAdminNotification() export to websocket.ts for instant WS delivery
+- [x] Wire createAdminNotification into helpdesk createTicket mutation (new_ticket alert)
+- [x] Wire createAdminNotification into helpdesk addReply mutation (ticket_reply alert when user replies)
+- [x] Wire createAdminNotification into chat getOrCreateSession mutation (new_chat alert for user sessions)
+- [x] Register adminNotificationsRouter in routers.ts
+- [x] Build NotificationBell component with dropdown panel, WS listener, and 15s polling
+- [x] Replace static bell in AdminLayout top bar with NotificationBell component
+- [x] Write 6 vitest tests for createAdminNotification helper (184/184 passing)

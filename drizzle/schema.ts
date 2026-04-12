@@ -479,3 +479,28 @@ export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
 
 export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
 export type InsertNewsletterCampaign = typeof newsletterCampaigns.$inferInsert;
+
+// Admin Notifications — real-time alert log for the admin portal
+export const adminNotifications = mysqlTable("adminNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  /** 'new_ticket' | 'new_chat' | 'ticket_reply' | 'chat_message' */
+  type: varchar("type", { length: 50 }).notNull(),
+  /** Short headline shown in the bell dropdown */
+  title: varchar("title", { length: 255 }).notNull(),
+  /** Optional longer description */
+  body: text("body"),
+  /** Link the admin should navigate to when clicking the notification */
+  href: varchar("href", { length: 500 }),
+  /** Priority: 'critical' | 'high' | 'normal' */
+  priority: varchar("priority", { length: 20 }).default("normal").notNull(),
+  /** Whether the notification has been read by an admin */
+  isRead: boolean("isRead").default(false).notNull(),
+  /** Optional reference to a ticket id */
+  ticketId: int("ticketId"),
+  /** Optional reference to a chat session id */
+  sessionId: int("sessionId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
