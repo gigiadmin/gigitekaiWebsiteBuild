@@ -672,3 +672,104 @@ export const websiteTraffic = mysqlTable("websiteTraffic", {
 });
 export type WebsiteTraffic = typeof websiteTraffic.$inferSelect;
 export type InsertWebsiteTraffic = typeof websiteTraffic.$inferInsert;
+
+
+// ── Lead Generation Features ──────────────────────────────────────────────────
+
+/**
+ * Cybersecurity Risk Assessment - Stores quiz responses and scores
+ */
+export const securityAssessments = mysqlTable("securityAssessments", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  // Quiz responses (0-10 scale for each category)
+  emailSecurityScore: int("emailSecurityScore").notNull(), // 0-10
+  endpointProtectionScore: int("endpointProtectionScore").notNull(), // 0-10
+  backupRecoveryScore: int("backupRecoveryScore").notNull(), // 0-10
+  identityManagementScore: int("identityManagementScore").notNull(), // 0-10
+  complianceScore: int("complianceScore").notNull(), // 0-10
+  overallScore: int("overallScore").notNull(), // 0-50 total
+  riskLevel: varchar("riskLevel", { length: 20 }).notNull(), // "critical", "high", "medium", "low"
+  pdfGenerated: boolean("pdfGenerated").default(false),
+  pdfUrl: varchar("pdfUrl", { length: 500 }),
+  leadCaptured: boolean("leadCaptured").default(true),
+  emailSent: boolean("emailSent").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow().notNull(),
+});
+export type SecurityAssessment = typeof securityAssessments.$inferSelect;
+export type InsertSecurityAssessment = typeof securityAssessments.$inferInsert;
+
+/**
+ * Exit Intent Popup - Tracks popup interactions and conversions
+ */
+export const exitIntentPopups = mysqlTable("exitIntentPopups", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  companyName: varchar("companyName", { length: 255 }),
+  leadMagnetDownloaded: varchar("leadMagnetDownloaded", { length: 255 }), // which guide they downloaded
+  downloadUrl: varchar("downloadUrl", { length: 500 }),
+  pageUrl: varchar("pageUrl", { length: 500 }).notNull(), // which page they were on
+  emailSent: boolean("emailSent").default(false),
+  leadCaptured: boolean("leadCaptured").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ExitIntentPopup = typeof exitIntentPopups.$inferSelect;
+export type InsertExitIntentPopup = typeof exitIntentPopups.$inferInsert;
+
+/**
+ * Multi-Step Contact Form - Tracks multi-step form submissions
+ */
+export const multiStepFormSubmissions = mysqlTable("multiStepFormSubmissions", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  employeeCount: varchar("employeeCount", { length: 50 }), // "1-10", "11-50", "51-100", "100+"
+  currentITSetup: varchar("currentITSetup", { length: 500 }), // description of current setup
+  // Step 1: What do you need help with?
+  needsCybersecurity: boolean("needsCybersecurity").default(false),
+  needsCloud: boolean("needsCloud").default(false),
+  needsHelpdesk: boolean("needsHelpdesk").default(false),
+  needsAI: boolean("needsAI").default(false),
+  otherNeeds: varchar("otherNeeds", { length: 500 }),
+  // Metadata
+  formCompletedAt: timestamp("formCompletedAt"),
+  leadQuality: varchar("leadQuality", { length: 20 }), // "hot", "warm", "cold"
+  assignedTo: int("assignedTo"), // user ID of assigned sales rep
+  status: varchar("status", { length: 20 }).default("new"), // "new", "contacted", "qualified", "converted", "rejected"
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow().notNull(),
+});
+export type MultiStepFormSubmission = typeof multiStepFormSubmissions.$inferSelect;
+export type InsertMultiStepFormSubmission = typeof multiStepFormSubmissions.$inferInsert;
+
+/**
+ * Lead Generation Analytics - Tracks overall lead gen performance
+ */
+export const leadGenAnalytics = mysqlTable("leadGenAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  date: date("date").notNull(),
+  assessmentLeads: int("assessmentLeads").default(0), // from security assessment
+  popupLeads: int("popupLeads").default(0), // from exit intent
+  formLeads: int("formLeads").default(0), // from multi-step form
+  totalLeads: int("totalLeads").default(0),
+  assessmentConversions: int("assessmentConversions").default(0), // leads who booked call
+  popupConversions: int("popupConversions").default(0),
+  formConversions: int("formConversions").default(0),
+  totalConversions: int("totalConversions").default(0),
+  conversionRate: decimal("conversionRate", { precision: 5, scale: 2 }).default("0"), // percentage
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LeadGenAnalytics = typeof leadGenAnalytics.$inferSelect;
+export type InsertLeadGenAnalytics = typeof leadGenAnalytics.$inferInsert;

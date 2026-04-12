@@ -964,3 +964,23 @@
 - [x] Update all email-related tests
 - [x] Update email router comments to reference Microsoft Graph
 - [x] Update inbound webhook comments to clarify outbound vs inbound
+
+
+## Lead Generation Features (High Priority)
+- [ ] Cybersecurity Risk Assessment Tool - Interactive 10-question quiz with scoring and PDF report
+  - Scores across: Email Security, Endpoint Protection, Backup & Recovery, Identity Management, Compliance
+  - Auto-captures leads (name, email, company) and generates branded PDF
+  - Triggers email follow-up sequence
+- [ ] Exit-Intent Popup - Captures visitors before they leave the site
+  - Offers high-value lead magnet (e.g., "10 Signs Your Business Needs an IT Upgrade")
+  - Simple name + email capture
+  - Feeds into newsletter and CRM
+- [ ] Sticky CTA Bar - Persistent call-to-action bar on every page
+  - "Schedule a Free 15-Min IT Strategy Call → [Book Now]"
+  - Links to Calendly or scheduling system
+  - Stays visible during scroll
+- [ ] Multi-Step Contact Form - Guided form with higher conversion rate
+  - Step 1: "What do you need help with?" (checkboxes: Cybersecurity, Cloud, Helpdesk, AI)
+  - Step 2: "How many employees?" + "Current IT setup?"
+  - Step 3: Name, email, phone
+  - 86% higher conversion than single-page forms
