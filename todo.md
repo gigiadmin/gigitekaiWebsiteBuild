@@ -1025,6 +1025,10 @@
 
 
 ## Calendar Debugging (Apr 12, 2026)
-- [ ] Add detailed logging to calendar router to diagnose Microsoft Graph API failures
-- [ ] Review server logs after test booking to identify error
-- [ ] Fix identified issue (likely missing Calendars.ReadWrite permission in Azure)
+- [x] Add detailed logging to calendar router to diagnose Microsoft Graph API failures
+- [x] Review server logs after test booking to identify error
+- [x] Fix identified issue - end time was converting to UTC instead of staying in local time
+  - Root cause: new Date(localTime).toISOString() converts to UTC, giving wrong end time
+  - Fix: Calculate end time by adding 15 minutes to hours/minutes directly
+  - Result: Events now created with correct 15-minute duration (e.g. 10:00-10:15 AM ET)
+  - Graph API returns 201 Created - events confirmed in harry@gigitekai.com calendar

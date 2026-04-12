@@ -28,10 +28,14 @@ export const calendarRouter = router({
     .mutation(async ({ input }) => {
       try {
         // Format the meeting time
+        // Keep local time format (no UTC conversion) since timeZone is specified separately in the event
         const meetingDateTime = `${input.preferredDate}T${input.preferredTime}:00`;
-        const endDateTime = new Date(new Date(meetingDateTime).getTime() + 15 * 60000)
-          .toISOString()
-          .slice(0, 19);
+        const [hours, minutes] = input.preferredTime.split(":").map(Number);
+        const endMinutes = minutes + 15;
+        const endHours = hours + Math.floor(endMinutes / 60);
+        const endMins = endMinutes % 60;
+        const endTime = `${String(endHours).padStart(2, "0")}:${String(endMins).padStart(2, "0")}`;
+        const endDateTime = `${input.preferredDate}T${endTime}:00`;
 
         // Create calendar event in M365
         const calendarEvent = {
