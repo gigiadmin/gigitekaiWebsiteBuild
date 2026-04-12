@@ -790,3 +790,15 @@
 - [x] Add Email nav item to AdminLayout sidebar under Customers section
 - [x] Add /admin/email route to App.tsx
 - [x] All 184 tests passing, TypeScript clean
+
+
+## Email Template Seeder & Quick-Reply Modals (Apr 12, 2026)
+- [x] Create seeder script (seed-email-templates.mjs) with 4 default templates (Ticket Response, Follow-up, Resolution, General Inquiry) — all seeded successfully
+- [x] Add emailRecipientGroups table to Drizzle schema (name, description, type, createdBy, createdAt)
+- [x] Add emailGroupMembers table to Drizzle schema (groupId, email, name, createdAt)
+- [x] Run pnpm db:push to migrate both tables
+- [x] Build tRPC emailRecipientGroupsRouter: createGroup, listGroups, getGroup, updateGroup, deleteGroup, addMembers, removeMember, getGroupEmails
+- [x] Register emailRecipientGroupsRouter in routers.ts
+- [x] Build QuickReplyModal component (compose + send email linked to ticket/session)
+- [x] Wire QuickReplyModal into AdminPanel (Helpdesk) with quick-reply button on each ticket row
+- [x] All 184 tests passing, TypeScript clean

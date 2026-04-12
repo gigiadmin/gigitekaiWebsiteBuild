@@ -31,6 +31,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 
 import { InviteCustomerModal } from "@/components/InviteCustomerModal";
+import QuickReplyModal from "@/components/QuickReplyModal";
 
 type AdminTab = "tickets" | "users";
 
@@ -61,6 +62,10 @@ export default function AdminPanel() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<AdminTab>("tickets");
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showQuickReply, setShowQuickReply] = useState(false);
+  const [quickReplyTicketId, setQuickReplyTicketId] = useState<number | undefined>();
+  const [quickReplyEmail, setQuickReplyEmail] = useState("");
+  const [quickReplyName, setQuickReplyName] = useState("");
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -339,6 +344,20 @@ export default function AdminPanel() {
                         <Eye className="w-3 h-3 mr-1" />
                         View
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setQuickReplyTicketId(ticket.id);
+                          setQuickReplyEmail(ticket.customerEmail);
+                          setQuickReplyName(ticket.customerName);
+                          setShowQuickReply(true);
+                        }}
+                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2.5 rounded-lg"
+                      >
+                        <Mail className="w-3 h-3 mr-1" />
+                        Reply
+                      </Button>
                       <select
                         value={ticket.status}
                         onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
@@ -551,10 +570,19 @@ export default function AdminPanel() {
           setShowInviteModal(false);
         }}
       />
+
+      {/* Quick Reply Modal */}
+      <QuickReplyModal
+        isOpen={showQuickReply}
+        onClose={() => setShowQuickReply(false)}
+        linkedTicketId={quickReplyTicketId}
+        recipientEmail={quickReplyEmail}
+        recipientName={quickReplyName}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }
-
 function MetricCard({
   label, value, icon, color, onClick, active, highlight = false
 }: {

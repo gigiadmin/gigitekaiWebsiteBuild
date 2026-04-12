@@ -556,3 +556,35 @@ export const emailMessages = mysqlTable("emailMessages", {
 
 export type EmailMessage = typeof emailMessages.$inferSelect;
 export type InsertEmailMessage = typeof emailMessages.$inferInsert;
+
+
+// Email Recipient Groups — manage groups of recipients for targeted email campaigns
+export const emailRecipientGroups = mysqlTable("emailRecipientGroups", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Group name (e.g., "Newsletter Subscribers", "VIP Customers") */
+  name: varchar("name", { length: 255 }).notNull(),
+  /** Group description */
+  description: text("description"),
+  /** Group type: 'newsletter_subscribers' | 'customers' | 'custom' */
+  type: varchar("type", { length: 50 }).notNull(),
+  /** Admin who created this group */
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type EmailRecipientGroup = typeof emailRecipientGroups.$inferSelect;
+export type InsertEmailRecipientGroup = typeof emailRecipientGroups.$inferInsert;
+
+// Email Group Members — email addresses in each recipient group
+export const emailGroupMembers = mysqlTable("emailGroupMembers", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Reference to emailRecipientGroups.id */
+  groupId: int("groupId").notNull(),
+  /** Email address of the group member */
+  email: varchar("email", { length: 255 }).notNull(),
+  /** Optional name of the recipient */
+  name: varchar("name", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type EmailGroupMember = typeof emailGroupMembers.$inferSelect;
+export type InsertEmailGroupMember = typeof emailGroupMembers.$inferInsert;
