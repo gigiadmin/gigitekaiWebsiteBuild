@@ -198,7 +198,7 @@ export const newsletterRouter = router({
       </ul>
       <p>In the meantime, explore our latest articles:</p>
       <a href="${siteUrl}/blog" class="cta-btn">Read Our Blog &rarr;</a>
-      <p style="margin-top:24px;">Questions? Reply to this email or contact us at <a href="mailto:support@gigitek.com" style="color:#00D4FF;">support@gigitek.com</a></p>
+      <p style="margin-top:24px;">Questions? Reply to this email or contact us at <a href="mailto:support@gigitekai.com" style="color:#00D4FF;">support@gigitekai.com</a></p>
     </div>
     <div class="footer">
       <p style="margin:0 0 6px;">GigitekAI &bull; Cloud &amp; AI Solutions &bull; <a href="${siteUrl}">gigitekai.com</a></p>
@@ -212,7 +212,7 @@ export const newsletterRouter = router({
         to: input.email.toLowerCase(),
         subject: "Welcome to GigitekAI Insights!",
         html: welcomeHtml,
-        replyTo: "support@gigitek.com",
+        replyTo: "support@gigitekai.com",
       }).catch(() => {});
 
       await notifyOwner({
