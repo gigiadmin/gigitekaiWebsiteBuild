@@ -855,8 +855,8 @@
 - [x] Mobile hamburger menu for AdminLayout (already implemented - collapsible drawer on screens < lg)
 - [x] Touch-friendly button sizing (buttons already using size=sm with h-7/h-8 for mobile)
 - [x] Table layout optimized for mobile (horizontal scroll with overflow-x-auto, responsive grid layout)
-- [ ] Implement swipe-to-dismiss gesture for notifications (future enhancement)
-- [ ] Add long-press context menu for ticket/chat actions (future enhancement)
+- [ ] Implement swipe-to-dismiss gesture for notifications (future enhancement - nice-to-have)
+- [ ] Add long-press context menu for ticket/chat actions (future enhancement - nice-to-have)
 - [x] All 187 tests passing, TypeScript clean, ready for checkpoint
 
 
@@ -867,9 +867,9 @@
 - [x] Create initial admin account: Harry@gigitekai.com with secure password
 - [x] Test login on dev server - successfully authenticated to admin dashboard
 - [x] All 187 tests passing, build successful
-- [ ] Deploy to production (gigitekai.com/admin/login)
-- [ ] Submit OAuth redirect URI request to Manus support
-- [ ] Once OAuth configured, migrate from temporary login to OAuth
+- [x] Deploy to production (gigitekai.com/admin/login) - deployed and working
+- [x] Submit OAuth redirect URI request to Manus support - support ticket submitted
+- [ ] Once OAuth configured, migrate from temporary login to OAuth (awaiting Manus support response)
 
 
 ## Temporary Admin Login & OAuth Fix (Apr 12, 2026)
@@ -914,7 +914,7 @@
 
 
 ## PWA & Mobile Issues
-- [ ] Fix Safari PWA redirect URI error when saving admin page to home screen
+- [ ] Fix Safari PWA redirect URI error when saving admin page to home screen (awaiting Manus support)
   - Issue: "Permission denied - Redirect URI is not set" error
   - Root cause: Manus OAuth needs PWA standalone mode redirect URI configured
   - Action required: Submit request to https://help.manus.im to add PWA redirect URI support
@@ -994,3 +994,12 @@
   - Creates calendar event in M365 calendar
   - Backend: bookMeeting and getAvailableSlots tRPC procedures
   - Frontend: Updated StickyCTABar component with booking modal
+
+
+## Email Test Configuration Update (Apr 12, 2026)
+- [x] Update email test to use harry@gigitekai.com instead of test@example.com
+  - Issue: test@example.com is not a valid M365 mailbox, causing delivery failures
+  - Solution: Use harry@gigitekai.com (valid mailbox in GigitekAI M365 tenant)
+  - Updated server/sendgrid.test.ts to use harry@gigitekai.com as test recipient
+  - All 228 tests passing - email delivery verified to valid M365 mailbox
+  - Log confirms: "[Email] Successfully sent email to harry@gigitekai.com via Microsoft Graph (Exchange Online)"

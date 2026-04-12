@@ -10,8 +10,9 @@ describe("SendGrid Email Configuration", () => {
 
   it("should validate email format in sendEmail function", async () => {
     // Test that sendEmail accepts valid email format
+    // Using harry@gigitekai.com (valid M365 mailbox) instead of test@example.com
     const result = await sendEmail({
-      to: "test@example.com",
+      to: "harry@gigitekai.com",
       subject: "Test Email",
       html: "<p>This is a test</p>",
     });
