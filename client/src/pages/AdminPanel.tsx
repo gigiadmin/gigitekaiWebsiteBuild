@@ -280,27 +280,29 @@ export default function AdminPanel() {
           </div>
         ) : filteredTickets.length > 0 ? (
           <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden">
-            {/* Table Header */}
-            <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_160px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider">
-              <span>ID</span>
-              <span>Title</span>
-              <span>Status</span>
-              <span>Priority</span>
-              <span>Category</span>
-              <span>Created</span>
-              <span>Actions</span>
-            </div>
+            {/* Table Wrapper with Horizontal Scroll */}
+            <div className="overflow-x-auto">
+              {/* Table Header */}
+              <div className="hidden md:grid grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider min-w-max">
+                <span>ID</span>
+                <span>Title</span>
+                <span>Status</span>
+                <span>Priority</span>
+                <span>Category</span>
+                <span>Created</span>
+                <span>Actions</span>
+              </div>
 
-            {/* Table Rows */}
-            <div className="divide-y divide-gray-800/40">
-              {filteredTickets.map((ticket: any) => {
-                const statusConfig = getStatusConfig(ticket.status);
-                const priorityConfig = getPriorityConfig(ticket.priority);
-                return (
-                  <div
-                    key={ticket.id}
-                    className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_160px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center"
-                  >
+              {/* Table Rows */}
+              <div className="divide-y divide-gray-800/40">
+                {filteredTickets.map((ticket: any) => {
+                  const statusConfig = getStatusConfig(ticket.status);
+                  const priorityConfig = getPriorityConfig(ticket.priority);
+                  return (
+                    <div
+                      key={ticket.id}
+                      className="group md:grid md:grid-cols-[60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center min-w-max"
+                    >
                     {/* ID */}
                     <span className="text-gray-500 text-sm font-mono">#{ticket.id}</span>
 
@@ -334,12 +336,12 @@ export default function AdminPanel() {
                     </span>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-2 md:mt-0">
+                    <div className="flex items-center gap-2 mt-2 md:mt-0 flex-wrap">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2.5 rounded-lg"
+                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
                       >
                         <Eye className="w-3 h-3 mr-1" />
                         View
@@ -353,7 +355,7 @@ export default function AdminPanel() {
                           setQuickReplyName(ticket.customerName);
                           setShowQuickReply(true);
                         }}
-                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2.5 rounded-lg"
+                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
                       >
                         <Mail className="w-3 h-3 mr-1" />
                         Reply
@@ -361,7 +363,7 @@ export default function AdminPanel() {
                       <select
                         value={ticket.status}
                         onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
-                        className="bg-[#0A0E1A] border border-gray-700 rounded-lg px-2 py-1 text-white text-xs focus:border-[#00D4FF]/50 focus:outline-none h-7 min-w-[100px]"
+                        className="bg-[#0A0E1A] border border-gray-700 rounded-lg px-2 py-1 text-white text-xs focus:border-[#00D4FF]/50 focus:outline-none h-7 min-w-[90px]"
                       >
                         <option value="open">Open</option>
                         <option value="in_progress">In Progress</option>
@@ -370,8 +372,9 @@ export default function AdminPanel() {
                       </select>
                     </div>
                   </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             {/* Table Footer */}

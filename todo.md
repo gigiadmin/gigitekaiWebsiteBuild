@@ -811,3 +811,7 @@
 - [x] Integrate RecipientGroupsManager into AdminEmailPage as new "Groups" tab
 - [x] Add group selector to Email Compose for bulk sending to groups
 - [x] All 184 tests passing, TypeScript clean
+
+
+## Bug Fixes (Apr 12, 2026)
+- [x] Fix ticket table layout — Actions column is being cut off on the right side (added horizontal scroll container, increased Actions column width to 200px, adjusted button widths)
