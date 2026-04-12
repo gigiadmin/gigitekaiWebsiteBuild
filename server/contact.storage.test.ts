@@ -14,6 +14,11 @@ vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
+// Mock the sendEmail function
+vi.mock("./_core/email", () => ({
+  sendEmail: vi.fn().mockResolvedValue(true),
+}));
+
 describe("contact.submit with database storage", () => {
   it("should accept and store valid contact form submission", async () => {
     const caller = appRouter.createCaller({

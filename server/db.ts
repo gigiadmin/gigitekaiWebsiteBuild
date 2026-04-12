@@ -1,6 +1,6 @@
 import { eq, like, desc, gte, inArray, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, userActivity, InsertUserActivity, customerFeedback, InsertCustomerFeedback, websiteTraffic, InsertWebsiteTraffic, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory } from "../drizzle/schema";
 import crypto from "crypto";
 import { ENV } from './_core/env';
 
@@ -1029,5 +1029,176 @@ export async function updateDigestPreferencesLastSent(userId: number) {
   } catch (error) {
     console.error("[Database] Failed to update last sent:", error);
     throw error;
+  }
+}
+
+
+// User Activity Tracking
+export async function logUserActivity(data: InsertUserActivity) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot log user activity: database not available");
+    return null;
+  }
+  try {
+    const result = await db.insert(userActivity).values(data);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to log user activity:", error);
+    throw error;
+  }
+}
+
+export async function getUserActivityByUserId(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user activity: database not available");
+    return [];
+  }
+  try {
+    const activities = await db
+      .select()
+      .from(userActivity)
+      .where(eq(userActivity.userId, userId))
+      .orderBy(desc(userActivity.createdAt))
+      .limit(limit);
+    return activities;
+  } catch (error) {
+    console.error("[Database] Failed to get user activity:", error);
+    return [];
+  }
+}
+
+export async function getLastLoginByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get last login: database not available");
+    return null;
+  }
+  try {
+    const lastLogin = await db
+      .select()
+      .from(userActivity)
+      .where(and(eq(userActivity.userId, userId), eq(userActivity.activityType, "login")))
+      .orderBy(desc(userActivity.createdAt))
+      .limit(1);
+    return lastLogin[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get last login:", error);
+    return null;
+  }
+}
+
+// Customer Feedback & Ratings
+export async function submitCustomerFeedback(data: InsertCustomerFeedback) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot submit feedback: database not available");
+    return null;
+  }
+  try {
+    const result = await db.insert(customerFeedback).values(data);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to submit feedback:", error);
+    throw error;
+  }
+}
+
+export async function getCustomerFeedbackByTicket(ticketId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get customer feedback: database not available");
+    return null;
+  }
+  try {
+    const feedback = await db
+      .select()
+      .from(customerFeedback)
+      .where(eq(customerFeedback.ticketId, ticketId));
+    return feedback[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get customer feedback:", error);
+    return null;
+  }
+}
+
+export async function getAverageRating(ticketId?: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get average rating: database not available");
+    return 0;
+  }
+  try {
+    const query = db.select({ avg: sql<number>`AVG(rating)` }).from(customerFeedback);
+    const result = ticketId
+      ? await query.where(eq(customerFeedback.ticketId, ticketId))
+      : await query;
+    return result[0]?.avg || 0;
+  } catch (error) {
+    console.error("[Database] Failed to get average rating:", error);
+    return 0;
+  }
+}
+
+// Website Traffic Analytics
+export async function recordWebsiteTraffic(data: InsertWebsiteTraffic) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot record traffic: database not available");
+    return null;
+  }
+  try {
+    const result = await db.insert(websiteTraffic).values(data);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to record traffic:", error);
+    throw error;
+  }
+}
+
+export async function getWebsiteTrafficByDate(date: Date) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get traffic: database not available");
+    return [];
+  }
+  try {
+    const traffic = await db
+      .select()
+      .from(websiteTraffic)
+      .where(eq(websiteTraffic.date, date))
+      .orderBy(desc(websiteTraffic.pageViews));
+    return traffic;
+  } catch (error) {
+    console.error("[Database] Failed to get traffic:", error);
+    return [];
+  }
+}
+
+export async function getWebsiteTrafficSummary(days: number = 30) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get traffic summary: database not available");
+    return null;
+  }
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    
+    const summary = await db
+      .select({
+        totalVisitors: sql<number>`SUM(visitors)`,
+        totalPageViews: sql<number>`SUM(pageViews)`,
+        avgBounceRate: sql<number>`AVG(bounceRate)`,
+        avgTimeOnPage: sql<number>`AVG(avgTimeOnPage)`,
+      })
+      .from(websiteTraffic)
+      .where(gte(websiteTraffic.date, startDate));
+    
+    return summary[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get traffic summary:", error);
+    return null;
   }
 }

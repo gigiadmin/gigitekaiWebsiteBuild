@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, date } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, timestamp, boolean, mysqlEnum, date, decimal } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -627,3 +627,48 @@ export const pushNotifications = mysqlTable("pushNotifications", {
 });
 export type PushNotification = typeof pushNotifications.$inferSelect;
 export type InsertPushNotification = typeof pushNotifications.$inferInsert;
+
+
+// User Activity Tracking - track logins and user interactions
+export const userActivity = mysqlTable("userActivity", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  activityType: varchar("activityType", { length: 50 }).notNull(), // "login", "logout", "ticket_created", "chat_started", etc.
+  description: text("description"), // Additional details about the activity
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
+  userAgent: text("userAgent"), // Browser/client info
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type UserActivity = typeof userActivity.$inferSelect;
+export type InsertUserActivity = typeof userActivity.$inferInsert;
+
+// Customer Feedback & Ratings - track customer satisfaction
+export const customerFeedback = mysqlTable("customerFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  rating: int("rating").notNull(), // 1-5 star rating
+  comment: text("comment"), // Customer feedback text
+  categories: varchar("categories", { length: 500 }), // JSON array of feedback categories
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CustomerFeedback = typeof customerFeedback.$inferSelect;
+export type InsertCustomerFeedback = typeof customerFeedback.$inferInsert;
+
+// Website Traffic Analytics - store traffic data
+export const websiteTraffic = mysqlTable("websiteTraffic", {
+  id: int("id").autoincrement().primaryKey(),
+  date: date("date").notNull(),
+  pageUrl: varchar("pageUrl", { length: 500 }).notNull(),
+  pageTitle: varchar("pageTitle", { length: 500 }),
+  visitors: int("visitors").default(0).notNull(),
+  pageViews: int("pageViews").default(0).notNull(),
+  bounceRate: decimal("bounceRate", { precision: 5, scale: 2 }).default("0"), // percentage
+  avgTimeOnPage: int("avgTimeOnPage").default(0), // seconds
+  referrer: varchar("referrer", { length: 500 }), // traffic source
+  country: varchar("country", { length: 100 }), // visitor location
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type WebsiteTraffic = typeof websiteTraffic.$inferSelect;
+export type InsertWebsiteTraffic = typeof websiteTraffic.$inferInsert;

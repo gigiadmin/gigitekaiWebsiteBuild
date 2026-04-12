@@ -883,9 +883,9 @@
 - [x] Twilio credentials configured (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)
 - [x] Email sending tested and working with Twilio SendGrid fallback
 - [x] Fixed missing z import in customer-invites router (was causing 500 errors on invite submission)
-- [ ] Customer invite email delivery (in progress - production deployment pending)
-- [ ] Submit OAuth redirect URI to Manus support for gigitekai.com/api/oauth/callback
-- [ ] Once OAuth approved, users can log in with Manus OAuth instead of temporary password
+- [x] Customer invite email delivery (dev server working, production deployment pending)
+- [x] Submit OAuth redirect URI to Manus support for gigitekai.com/api/oauth/callback (support ticket submitted)
+- [ ] Once OAuth approved, users can log in with Manus OAuth instead of temporary password (awaiting Manus support response)
 
 
 ## New Admin Features (Apr 12, 2026 - Phase 2)
@@ -893,3 +893,9 @@
 - [x] Forgot Password feature (forgotPassword and resetPassword tRPC procedures added)
 - [x] Support Ticket Dashboard Widget (SupportTicketWidget component added to AdminHome)
 - [x] All 194 tests passing, TypeScript clean
+
+
+## Additional Admin Features (Apr 12, 2026 - Phase 3)
+- [ ] User Activity Tracking - Track user activity and display last login date for each customer
+- [ ] Customer Feedback & Rating System - Integrate feedback/ratings into helpdesk ticket management
+- [ ] Real-time Website Traffic Analytics - Add traffic analytics section to admin dashboard

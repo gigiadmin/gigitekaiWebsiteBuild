@@ -190,6 +190,13 @@
       "when": 1775967264489,
       "tag": "0026_chilly_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1776014056100,
+      "tag": "0027_green_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

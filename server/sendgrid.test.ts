@@ -17,7 +17,7 @@ describe("SendGrid Email Configuration", () => {
     });
     // Result will be false if API key is invalid, but function should execute
     expect(typeof result).toBe("boolean");
-  });
+  }, 15000);
 
   it("should reject invalid email addresses", async () => {
     // Test that sendEmail rejects invalid email

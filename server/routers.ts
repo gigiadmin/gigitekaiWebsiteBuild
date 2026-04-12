@@ -1,11 +1,11 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, adminProcedure, router } from "./_core/trpc";
+import { publicProcedure, adminProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
-import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary } from "./db";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
@@ -51,6 +51,100 @@ export const appRouter = router({
   emailDigest: emailDigestRouter,
   blog: blogRouter,
   newsletter: newsletterRouter,
+
+  // ── User Activity Tracking ──────────────────────────────────────────
+  userActivity: router({
+    logActivity: adminProcedure
+      .input(
+        z.object({
+          userId: z.number(),
+          activityType: z.string(),
+          description: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await logUserActivity({ userId: input.userId, activityType: input.activityType, description: input.description });
+      }),
+    
+    getActivityLog: adminProcedure
+      .input(
+        z.object({
+          userId: z.number(),
+          limit: z.number().default(50),
+        })
+      )
+      .query(async ({ input }) => {
+        return await getUserActivityByUserId(input.userId, input.limit);
+      }),
+    
+    getLastLogin: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await getLastLoginByUserId(input.userId);
+      }),
+  }),
+
+  // ── Customer Feedback & Rating System ─────────────────────────────────
+  customerFeedback: router({
+    submitFeedback: protectedProcedure
+      .input(
+        z.object({
+          ticketId: z.number(),
+          rating: z.number().min(1).max(5),
+          comment: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await submitCustomerFeedback({ ticketId: input.ticketId, userId: ctx.user.id, rating: input.rating, comment: input.comment });
+      }),
+    
+    getFeedback: adminProcedure
+      .input(z.object({ ticketId: z.number() }))
+      .query(async ({ input }) => {
+        return await getCustomerFeedbackByTicket(input.ticketId);
+      }),
+    
+    getAverageRating: adminProcedure
+      .input(z.object({ ticketId: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await getAverageRating(input.ticketId);
+      }),
+  }),
+
+  // ── Real-time Website Traffic Analytics ───────────────────────────────
+  websiteTraffic: router({
+    trackPageView: publicProcedure
+      .input(
+        z.object({
+          pageUrl: z.string(),
+          pageTitle: z.string().optional(),
+          referrer: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await recordWebsiteTraffic({ date: new Date(), pageUrl: input.pageUrl, pageTitle: input.pageTitle, referrer: input.referrer });
+      }),
+    
+    getTrafficStats: adminProcedure
+      .input(
+        z.object({
+          days: z.number().default(30),
+        })
+      )
+      .query(async ({ input }) => {
+        return await getWebsiteTrafficSummary(input.days);
+      }),
+    
+    getTrafficByDate: adminProcedure
+      .input(
+        z.object({
+          date: z.date(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await getWebsiteTrafficByDate(input.date);
+      }),
+  }),
 
   contact: router({
     submit: publicProcedure

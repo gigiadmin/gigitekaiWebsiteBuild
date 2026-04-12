@@ -15,6 +15,11 @@ vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
 }));
 
+// Mock the sendEmail function
+vi.mock("./_core/email", () => ({
+  sendEmail: vi.fn().mockResolvedValue(true),
+}));
+
 function createPublicContext(): TrpcContext {
   const ctx: TrpcContext = {
     user: null,
