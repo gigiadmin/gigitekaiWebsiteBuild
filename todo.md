@@ -103,6 +103,7 @@
 
 
 ## Current Issues to Fix
+- [x] Fix intermittent OAuth account popup — session verification was rejecting empty name field (fixed in sdk.ts line 215-227)
 - [x] Fix mobile menu anchor links not scrolling to correct sections
   - [x] Cloud Infrastructure link - scrolls to #services
   - [x] AI & Machine Learning link - scrolls to #services
