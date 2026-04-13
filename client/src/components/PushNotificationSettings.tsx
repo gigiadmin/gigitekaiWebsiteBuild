@@ -71,8 +71,13 @@ export function PushNotificationSettings() {
       {permission === 'denied' && (
         <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
           <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-yellow-600">
-            Notification permission denied. Please enable notifications in your browser settings.
+          <div className="text-sm text-yellow-600 space-y-1">
+            <p className="font-medium">Notification permission blocked</p>
+            <p className="text-xs text-yellow-500">
+              To enable push notifications, click the lock/info icon in your browser's address bar, 
+              find <strong>Notifications</strong>, and change it to <strong>Allow</strong>. 
+              Then refresh this page and click Enable.
+            </p>
           </div>
         </div>
       )}

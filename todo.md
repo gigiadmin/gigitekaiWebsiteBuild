@@ -1208,3 +1208,32 @@
   - Added Resend button (cyan send icon) next to each Pending invite in the table
   - Improved invite email HTML: GigitekAI branding, #00D4FF CTA button, support@gigitekai.com contact
   - 11 new tests added (customer-invites.test.ts) — 258 total tests passing
+
+## Invite System Phase 2 Enhancements (Next Phase)
+- [ ] Auto-expire pending invitations after 72 hours and notify the sender
+  - Change invite expiry from 30 days to 72 hours for pending invites
+  - Add a scheduled background job (cron) that runs every hour to check for expired invites
+  - When an invite expires, update status to "expired" in the database
+  - Send an email notification to the admin/sender: "Your invite to [email] has expired — resend if still needed"
+  - Show "Expired" badge in the invite table (already supported by schema enum)
+- [ ] Implement bulk invitation via CSV file upload
+  - Add "Bulk Invite" button to the Admin Customers page
+  - CSV format: email, name (optional), company (optional) — one row per invitee
+  - Parse and validate CSV on the server (reject invalid emails, duplicates, already-invited)
+  - Show a preview table before sending: list of valid rows with any errors highlighted
+  - Send invites in batches with a progress indicator
+  - Return a summary report: X sent, Y failed, Z skipped (already invited)
+- [ ] Add confirmation modal before resending an invitation
+  - Replace direct resend action with a confirmation dialog
+  - Modal shows: recipient email, name, company, and original invite date
+  - Two buttons: "Cancel" and "Resend Invitation"
+  - Prevents accidental clicks on the send icon in the invite table
+
+## Bug Fix: VAPID Push Notification Error on Preferences Page (April 13, 2026)
+- [x] Fix "VAPID public key not configured" error on Admin Preferences page
+  - Root cause: hook used process.env.VITE_VAPID_PUBLIC_KEY (Node.js syntax) instead of import.meta.env.VITE_VAPID_PUBLIC_KEY (Vite/browser syntax)
+  - One-line fix in usePushNotifications.ts line 75
+  - VAPID key is set in secrets and will now be correctly read by the browser
+- [x] Fix "Notification permission denied" error handling — show clearer instructions
+  - Replaced generic message with actionable steps: click lock icon → Notifications → Allow → Refresh
+  - 258 tests passing

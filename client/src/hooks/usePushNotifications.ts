@@ -71,9 +71,8 @@ export function usePushNotifications() {
       // Get service worker registration
       const registration = await navigator.serviceWorker.ready;
 
-      // Generate VAPID public key (in production, this should come from server)
-      // For now, we'll use a placeholder that the server should provide
-      const vapidPublicKey = process.env.VITE_VAPID_PUBLIC_KEY || '';
+      // Read VAPID public key from Vite environment (must use import.meta.env in browser)
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
       if (!vapidPublicKey) {
         setError('VAPID public key not configured');
