@@ -203,9 +203,29 @@ export const calendarRouter = router({
     }),
 
   /**
-   * Get available time slots for booking
-   * Returns available slots based on M365 calendar
+   * Get available dates for booking (Mon/Wed/Fri only, up to 3 months out)
    */
+  getAvailableDates: publicProcedure.query(() => {
+    const availableDates: string[] = [];
+    const today = new Date();
+    // Start from tomorrow
+    const start = new Date(today);
+    start.setDate(today.getDate() + 1);
+    // 3 months out
+    const end = new Date(today);
+    end.setMonth(today.getMonth() + 3);
+
+    const current = new Date(start);
+    while (current <= end) {
+      const dayOfWeek = current.getDay(); // 0=Sun, 1=Mon, 3=Wed, 5=Fri
+      if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
+        availableDates.push(current.toISOString().slice(0, 10));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+    return { dates: availableDates };
+  }),
+
   getAvailableSlots: publicProcedure
     .input(
       z.object({
@@ -213,18 +233,26 @@ export const calendarRouter = router({
       })
     )
     .query(async ({ input }) => {
-      // Mock available slots - in production, query M365 calendar
+      // Validate the requested date is a Mon/Wed/Fri
+      const requestedDate = new Date(input.date + "T00:00:00");
+      const dayOfWeek = requestedDate.getDay();
+      const isValidDay = dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5;
+
+      if (!isValidDay) {
+        return { date: input.date, slots: [] };
+      }
+
+      // Available slots: 11:00 AM – 3:00 PM EST (every 30 minutes)
+      // Last slot starts at 2:30 PM so meeting ends by 2:45 PM (15-min meetings)
       const slots = [
-        "09:00",
-        "09:30",
-        "10:00",
-        "10:30",
         "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "13:00",
+        "13:30",
         "14:00",
         "14:30",
-        "15:00",
-        "15:30",
-        "16:00",
       ];
 
       return {

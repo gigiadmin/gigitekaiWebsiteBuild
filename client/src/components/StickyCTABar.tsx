@@ -2,8 +2,9 @@
  * Sticky CTA Bar Component
  * Persistent call-to-action bar that stays visible during scroll
  * Integrated with Microsoft 365 Calendar for booking strategy calls
+ * Availability: Monday, Wednesday, Friday — 11:00 AM to 3:00 PM EST
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -24,6 +25,46 @@ interface BookingFormData {
   preferredTime: string;
 }
 
+// Generate available Mon/Wed/Fri dates up to 3 months out
+function getAvailableDates(): { value: string; label: string }[] {
+  const dates: { value: string; label: string }[] = [];
+  const today = new Date();
+  const end = new Date(today);
+  end.setMonth(today.getMonth() + 3);
+
+  const current = new Date(today);
+  current.setDate(today.getDate() + 1); // Start from tomorrow
+
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  while (current <= end) {
+    const dow = current.getDay();
+    if (dow === 1 || dow === 3 || dow === 5) {
+      const yyyy = current.getFullYear();
+      const mm = String(current.getMonth() + 1).padStart(2, "0");
+      const dd = String(current.getDate()).padStart(2, "0");
+      const value = `${yyyy}-${mm}-${dd}`;
+      const label = `${dayNames[dow]}, ${monthNames[current.getMonth()]} ${current.getDate()}, ${yyyy}`;
+      dates.push({ value, label });
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
+
+// Available time slots: 11:00 AM – 2:30 PM EST (30-min intervals, 15-min meetings)
+const TIME_SLOTS = [
+  { value: "11:00", label: "11:00 AM EST" },
+  { value: "11:30", label: "11:30 AM EST" },
+  { value: "12:00", label: "12:00 PM EST" },
+  { value: "12:30", label: "12:30 PM EST" },
+  { value: "13:00", label: "1:00 PM EST" },
+  { value: "13:30", label: "1:30 PM EST" },
+  { value: "14:00", label: "2:00 PM EST" },
+  { value: "14:30", label: "2:30 PM EST" },
+];
+
 export function StickyCTABar({ onClose }: StickyCTABarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -34,10 +75,12 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
     phone: "",
     company: "",
     preferredDate: "",
-    preferredTime: "10:00",
+    preferredTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const bookingMutation = trpc.calendar.bookMeeting.useMutation();
+
+  const availableDates = useMemo(() => getAvailableDates(), []);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -52,6 +95,9 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
   }, []);
 
   if (!isVisible) return null;
+
+  const selectClass =
+    "w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent";
 
   return (
     <div
@@ -113,12 +159,15 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
         <DialogContent className="sm:max-w-md bg-slate-900 border-cyan-500/30">
           <DialogHeader>
             <DialogTitle className="text-white">Schedule Your Strategy Call</DialogTitle>
+            <p className="text-gray-400 text-sm pt-1">
+              Available Mon, Wed & Fri — 11:00 AM to 3:00 PM EST
+            </p>
           </DialogHeader>
 
           <div className="space-y-4">
             {/* Name */}
             <div>
-              <label className="text-sm text-gray-300 mb-2 block">Full Name</label>
+              <label className="text-sm text-gray-300 mb-2 block">Full Name *</label>
               <Input
                 placeholder="Your name"
                 value={formData.name}
@@ -129,7 +178,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
 
             {/* Email */}
             <div>
-              <label className="text-sm text-gray-300 mb-2 block">Email Address</label>
+              <label className="text-sm text-gray-300 mb-2 block">Email Address *</label>
               <Input
                 type="email"
                 placeholder="your@company.com"
@@ -162,33 +211,53 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
               />
             </div>
 
-            {/* Date & Time */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Date Dropdown */}
+            <div>
+              <label className="text-sm text-gray-300 mb-2 block">Select Date *</label>
+              <select
+                value={formData.preferredDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, preferredDate: e.target.value, preferredTime: "" })
+                }
+                className={selectClass}
+              >
+                <option value="" disabled>
+                  — Choose a date (Mon / Wed / Fri) —
+                </option>
+                {availableDates.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Time Dropdown — only shown after a date is selected */}
+            {formData.preferredDate && (
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Preferred Date</label>
-                <Input
-                  type="date"
-                  value={formData.preferredDate}
-                  onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                  className="bg-slate-800 border-slate-700 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-300 mb-2 block">Preferred Time</label>
-                <Input
-                  type="time"
+                <label className="text-sm text-gray-300 mb-2 block">Select Time (EST) *</label>
+                <select
                   value={formData.preferredTime}
                   onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
-                  className="bg-slate-800 border-slate-700 text-white"
-                />
+                  className={selectClass}
+                >
+                  <option value="" disabled>
+                    — Choose a time slot —
+                  </option>
+                  {TIME_SLOTS.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
+            )}
 
             {/* Submit Button */}
             <Button
               onClick={async () => {
-                if (!formData.name || !formData.email || !formData.preferredDate) {
-                  toast.error("Please fill in all required fields");
+                if (!formData.name || !formData.email || !formData.preferredDate || !formData.preferredTime) {
+                  toast.error("Please fill in all required fields including date and time");
                   return;
                 }
 
@@ -211,7 +280,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
                     phone: "",
                     company: "",
                     preferredDate: "",
-                    preferredTime: "10:00",
+                    preferredTime: "",
                   });
                 } catch (error) {
                   toast.error("Failed to schedule meeting. Please try again.");
@@ -219,8 +288,8 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
                   setIsSubmitting(false);
                 }
               }}
-              disabled={isSubmitting}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
+              disabled={isSubmitting || !formData.preferredDate || !formData.preferredTime}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-bold disabled:opacity-50"
             >
               {isSubmitting ? "Scheduling..." : "Schedule Meeting"}
             </Button>

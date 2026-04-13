@@ -1032,3 +1032,13 @@
   - Fix: Calculate end time by adding 15 minutes to hours/minutes directly
   - Result: Events now created with correct 15-minute duration (e.g. 10:00-10:15 AM ET)
   - Graph API returns 201 Created - events confirmed in harry@gigitekai.com calendar
+
+## Calendar Availability Update (Apr 12, 2026)
+- [x] Restrict booking slots to Mon/Wed/Fri, 11 AM–3 PM EST, up to 3 months out
+  - Frontend: Replaced free-form date/time inputs with smart dropdowns
+  - Date dropdown: Only shows Mon/Wed/Fri dates up to 3 months out
+  - Time dropdown: Only shows 11:00 AM–2:30 PM EST slots (30-min intervals)
+  - Time dropdown only appears after a date is selected
+  - Backend: getAvailableSlots validates day is Mon/Wed/Fri, returns empty if not
+  - Backend: Added getAvailableDates procedure returning all valid dates
+  - All 228 tests passing
