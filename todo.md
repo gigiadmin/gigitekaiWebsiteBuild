@@ -1160,3 +1160,6 @@
 ## Logout Confirmation Page (April 13, 2026)
 - [x] Create logout confirmation page with login link (LogoutConfirmation.tsx created with success message and login/home buttons)
 - [x] Update logout flow to redirect to confirmation page (useAuth hook now redirects to /logout-confirmation after logout)
+
+## Post-Login Redirect Fix (April 13, 2026)
+- [x] After successful OAuth login, redirect to /admin dashboard instead of homepage (updated oauth.ts callback + getLoginUrl to encode returnPath in state)
