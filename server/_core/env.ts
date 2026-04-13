@@ -10,7 +10,6 @@ export const ENV = {
   twilioAccountSid: process.env.TWILIO_ACCOUNT_SID ?? "",
   twilioAuthToken: process.env.TWILIO_AUTH_TOKEN ?? "",
   twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER ?? "",
-  sendGridApiKey: process.env.SENDGRID_API_KEY ?? "",
   msGraphTenantId: process.env.MS_GRAPH_TENANT_ID ?? "",
   msGraphClientId: process.env.MS_GRAPH_CLIENT_ID ?? "",
   msGraphClientSecret: process.env.MS_GRAPH_CLIENT_SECRET ?? "",

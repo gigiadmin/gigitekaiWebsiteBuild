@@ -1,11 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { sendEmail } from "./server/_core/email";
 
-describe("SendGrid Email Configuration", () => {
-  it("should have SendGrid API key configured", async () => {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    expect(apiKey).toBeDefined();
-    expect(apiKey).toMatch(/^SG\./);
+describe("Microsoft Graph Email Configuration", () => {
+  it("should have Microsoft Graph credentials configured", async () => {
+    const tenantId = process.env.MS_GRAPH_TENANT_ID;
+    const clientId = process.env.MS_GRAPH_CLIENT_ID;
+    const clientSecret = process.env.MS_GRAPH_CLIENT_SECRET;
+    expect(tenantId).toBeDefined();
+    expect(clientId).toBeDefined();
+    expect(clientSecret).toBeDefined();
   });
 
   it("should validate email format in sendEmail function", async () => {

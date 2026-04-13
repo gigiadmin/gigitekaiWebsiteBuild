@@ -1121,3 +1121,9 @@
   - Updated in: email.ts, AdminLogin.tsx, CancelMeeting.tsx, RescheduleMeeting.tsx, leadgen.ts, calendar.ts, sendgridWebhook.ts, email.ts router, msgraph-email.test.ts
   - Total replacements: 20+ instances
   - Email notifications will now send to correct address
+
+## Email Configuration Audit (April 13, 2026)
+- [x] Verified: Azure/Microsoft Graph is the ONLY email provider (no SendGrid fallback)
+- [x] Cleaned up: Removed unused sendGridApiKey from env.ts
+- [x] Updated: Renamed sendgrid.test.ts to test Microsoft Graph credentials
+- [x] Confirmed: All email sends route through Azure app exclusively
