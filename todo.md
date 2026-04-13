@@ -1096,3 +1096,11 @@
   - Used wouter Redirect component to send /contact → /#contact
   - Visitors land on homepage scrolled to the contact section
   - All 228 tests passing
+
+## Contact Scroll Fix (Apr 13, 2026)
+- [x] Fix /contact not scrolling to contact form — created dedicated /contact page
+  - Full Contact page with contact form, phone, email, location, hours
+  - Form uses existing trpc.contact.submit procedure
+  - "Book a Free Call" button triggers the booking modal
+  - Trust badges: M365 Certified, AI-First MSP, Zero Trust, 24/7 Helpdesk
+  - All 228 tests passing

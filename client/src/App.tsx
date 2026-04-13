@@ -56,8 +56,8 @@ import AdminGuidePage from "./pages/AdminGuidePage";
 import CancelMeeting from "./pages/CancelMeeting";
 import RescheduleMeeting from "./pages/RescheduleMeeting";
 
-// Contact redirect
-import { Redirect } from "wouter";
+// Contact page
+import Contact from "./pages/Contact";
 
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
@@ -92,8 +92,8 @@ function Router() {
       <Route path="/cancel-meeting" component={CancelMeeting} />
       <Route path="/reschedule-meeting" component={RescheduleMeeting} />
 
-      {/* ── Contact redirect ── */}
-      <Route path="/contact">{() => <Redirect to="/#contact" />}</Route>
+      {/* ── Contact page ── */}
+      <Route path="/contact" component={Contact} />
 
       {/* ── Auth ── */}
       <Route path={"/login"} component={Login} />
