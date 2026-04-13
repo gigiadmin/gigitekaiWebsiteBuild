@@ -1127,3 +1127,7 @@
 - [x] Cleaned up: Removed unused sendGridApiKey from env.ts
 - [x] Updated: Renamed sendgrid.test.ts to test Microsoft Graph credentials
 - [x] Confirmed: All email sends route through Azure app exclusively
+
+## Disable SendGrid Inbound Webhook (April 13, 2026)
+- [x] Disabled SendGrid webhook handler in server/_core/index.ts
+- [x] Now using Azure/Microsoft Graph exclusively for all email (inbound and outbound)
