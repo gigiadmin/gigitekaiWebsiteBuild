@@ -1,26 +1,12 @@
 /**
- * AdminAccountManagement
- * Provides: Change Password, Create Agent Account, Manage All Accounts
- * Role-based: Only admins can create/manage accounts; all roles can change own password
+ * Team Members — Admin Portal
+ * Shows all users who have authenticated via Manus OAuth.
+ * Admins can promote/demote roles and activate/deactivate accounts.
  */
-
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -36,435 +22,367 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { KeyRound, UserPlus, Users, Shield, Eye, Loader2, Trash2, Edit2, CheckCircle, XCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import {
+  Users,
+  Shield,
+  ShieldCheck,
+  Wrench,
+  Search,
+  UserCheck,
+  UserX,
+  RefreshCw,
+} from "lucide-react";
 
-interface AdminAccountManagementProps {
-  currentRole: string;
-}
+type Role = "user" | "admin" | "technician";
 
-export default function AdminAccountManagement({ currentRole }: AdminAccountManagementProps) {
-  const isAdmin = currentRole === "admin";
+const ROLE_CONFIG: Record<Role, { label: string; color: string; icon: React.ReactNode }> = {
+  admin: {
+    label: "Admin",
+    color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+    icon: <ShieldCheck className="w-3 h-3" />,
+  },
+  technician: {
+    label: "Technician",
+    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    icon: <Wrench className="w-3 h-3" />,
+  },
+  user: {
+    label: "User",
+    color: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+    icon: <Shield className="w-3 h-3" />,
+  },
+};
 
+function RoleBadge({ role }: { role: Role }) {
+  const cfg = ROLE_CONFIG[role] ?? ROLE_CONFIG.user;
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white">Account Management</h2>
-        <p className="text-gray-400 mt-1">
-          {isAdmin
-            ? "Manage team accounts, roles, and security settings"
-            : "Update your account security settings"}
-        </p>
-      </div>
-
-      <Tabs defaultValue="change-password" className="w-full">
-        <TabsList className="bg-slate-900 border border-slate-700">
-          <TabsTrigger value="change-password" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
-            <KeyRound className="w-4 h-4 mr-2" />
-            Change Password
-          </TabsTrigger>
-          {isAdmin && (
-            <>
-              <TabsTrigger value="create-account" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Create Account
-              </TabsTrigger>
-              <TabsTrigger value="manage-accounts" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white">
-                <Users className="w-4 h-4 mr-2" />
-                Manage Accounts
-              </TabsTrigger>
-            </>
-          )}
-        </TabsList>
-
-        {/* Change Password Tab */}
-        <TabsContent value="change-password" className="mt-6">
-          <ChangePasswordForm />
-        </TabsContent>
-
-        {/* Create Account Tab (admin only) */}
-        {isAdmin && (
-          <TabsContent value="create-account" className="mt-6">
-            <CreateAccountForm />
-          </TabsContent>
-        )}
-
-        {/* Manage Accounts Tab (admin only) */}
-        {isAdmin && (
-          <TabsContent value="manage-accounts" className="mt-6">
-            <ManageAccountsTable />
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>
+    <Badge
+      variant="outline"
+      className={`flex items-center gap-1 text-xs font-medium border ${cfg.color}`}
+    >
+      {cfg.icon}
+      {cfg.label}
+    </Badge>
   );
 }
 
-// ── Change Password Form ──────────────────────────────────────────────────────
-
-function ChangePasswordForm() {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const changePasswordMutation = trpc.adminAuth.changePassword.useMutation({
-    onSuccess: () => {
-      toast.success("Password changed successfully");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to change password");
-    },
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "Never";
+  return new Date(date).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-    if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
-    changePasswordMutation.mutate({ currentPassword, newPassword });
-  };
-
-  return (
-    <Card className="bg-slate-900 border-slate-700 max-w-md">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <KeyRound className="w-5 h-5 text-cyan-400" />
-          Change Your Password
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Update your admin portal password. Must be at least 8 characters.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-gray-300">Current Password</Label>
-            <Input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Enter current password"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">New Password</Label>
-            <Input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password (min 8 chars)"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Confirm New Password</Label>
-            <Input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <Button
-            type="submit"
-            disabled={changePasswordMutation.isPending}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-          >
-            {changePasswordMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Updating...</>
-            ) : (
-              "Update Password"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
 }
 
-// ── Create Account Form ───────────────────────────────────────────────────────
+export default function AdminAccountManagement() {
+  const [search, setSearch] = useState("");
+  const [confirmAction, setConfirmAction] = useState<{
+    type: "role" | "approve" | "revoke";
+    userId: number;
+    label: string;
+    newRole?: Role;
+  } | null>(null);
 
-function CreateAccountForm() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "agent" | "viewer">("agent");
   const utils = trpc.useUtils();
+  const { data: users = [], isLoading, refetch } = trpc.users.getAll.useQuery();
 
-  const createAccountMutation = trpc.adminAuth.createAccount.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Account created for ${data.account.email}`);
-      setEmail("");
-      setName("");
-      setPassword("");
-      setRole("agent");
-      utils.adminAuth.listAccounts.invalidate();
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to create account");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createAccountMutation.mutate({ email, name, password, role });
-  };
-
-  return (
-    <Card className="bg-slate-900 border-slate-700 max-w-md">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-cyan-400" />
-          Create Team Account
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Add a new admin, agent, or viewer to the portal.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-gray-300">Full Name</Label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. John Smith"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Email Address</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. john@gigitek.com"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Temporary Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 characters"
-              required
-              className="bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Role</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as "admin" | "agent" | "viewer")}>
-              <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="admin">
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-red-400" />
-                    <span>Admin — Full access</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="agent">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-cyan-400" />
-                    <span>Agent — Chat & Tickets</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="viewer">
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-gray-400" />
-                    <span>Viewer — Read-only</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            type="submit"
-            disabled={createAccountMutation.isPending}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-          >
-            {createAccountMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...</>
-            ) : (
-              "Create Account"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Manage Accounts Table ─────────────────────────────────────────────────────
-
-function ManageAccountsTable() {
-  const { data: accounts, isLoading, refetch } = trpc.adminAuth.listAccounts.useQuery();
-  const utils = trpc.useUtils();
-
-  const updateAccountMutation = trpc.adminAuth.updateAccount.useMutation({
+  const updateRoleMutation = trpc.users.updateRole.useMutation({
     onSuccess: () => {
-      toast.success("Account updated");
-      utils.adminAuth.listAccounts.invalidate();
+      toast.success("Role updated successfully");
+      utils.users.getAll.invalidate();
     },
-    onError: (err) => toast.error(err.message || "Failed to update account"),
+    onError: (err) => toast.error(err.message || "Failed to update role"),
   });
 
-  const deleteAccountMutation = trpc.adminAuth.deleteAccount.useMutation({
+  const approveMutation = trpc.users.approve.useMutation({
     onSuccess: () => {
-      toast.success("Account removed");
-      utils.adminAuth.listAccounts.invalidate();
+      toast.success("User activated successfully");
+      utils.users.getAll.invalidate();
     },
-    onError: (err) => toast.error(err.message || "Failed to remove account"),
+    onError: (err) => toast.error(err.message || "Failed to activate user"),
   });
 
-  const toggleActive = (id: number, currentActive: boolean) => {
-    updateAccountMutation.mutate({ id, isActive: !currentActive });
-  };
+  const revokeMutation = trpc.users.revoke.useMutation({
+    onSuccess: () => {
+      toast.success("User deactivated successfully");
+      utils.users.getAll.invalidate();
+    },
+    onError: (err) => toast.error(err.message || "Failed to deactivate user"),
+  });
 
-  const changeRole = (id: number, newRole: "admin" | "agent" | "viewer") => {
-    updateAccountMutation.mutate({ id, role: newRole });
-  };
-
-  const roleColor = (role: string) => {
-    if (role === "admin") return "bg-red-900/30 text-red-400 border-red-800";
-    if (role === "agent") return "bg-cyan-900/30 text-cyan-400 border-cyan-800";
-    return "bg-gray-800 text-gray-400 border-gray-700";
-  };
-
-  const roleIcon = (role: string) => {
-    if (role === "admin") return <Shield className="w-3 h-3" />;
-    if (role === "agent") return <Users className="w-3 h-3" />;
-    return <Eye className="w-3 h-3" />;
-  };
-
-  if (isLoading) {
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
-      </div>
+      (u.name ?? "").toLowerCase().includes(q) ||
+      (u.email ?? "").toLowerCase().includes(q) ||
+      (u.role ?? "").toLowerCase().includes(q)
     );
+  });
+
+  function handleConfirm() {
+    if (!confirmAction) return;
+    if (confirmAction.type === "role" && confirmAction.newRole) {
+      updateRoleMutation.mutate({ userId: confirmAction.userId, role: confirmAction.newRole });
+    } else if (confirmAction.type === "approve") {
+      approveMutation.mutate({ userId: confirmAction.userId });
+    } else if (confirmAction.type === "revoke") {
+      revokeMutation.mutate({ userId: confirmAction.userId });
+    }
+    setConfirmAction(null);
   }
 
+  const stats = {
+    total: users.length,
+    admins: users.filter((u) => u.role === "admin").length,
+    technicians: users.filter((u) => u.role === "technician").length,
+    active: users.filter((u) => u.approved).length,
+  };
+
   return (
-    <Card className="bg-slate-900 border-slate-700">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-cyan-400" />
-          Team Accounts ({accounts?.length ?? 0})
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Manage roles, activate/deactivate, or remove team members.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Team Members</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            All users authenticated via Manus OAuth. Manage roles and access.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => refetch()}
+          className="border-slate-700 text-gray-300 hover:text-white hover:bg-slate-700"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Members", value: stats.total, icon: <Users className="w-5 h-5 text-cyan-400" /> },
+          { label: "Admins", value: stats.admins, icon: <ShieldCheck className="w-5 h-5 text-cyan-400" /> },
+          { label: "Technicians", value: stats.technicians, icon: <Wrench className="w-5 h-5 text-purple-400" /> },
+          { label: "Active", value: stats.active, icon: <UserCheck className="w-5 h-5 text-green-400" /> },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="bg-[#0D1526] border border-slate-700/50 rounded-lg p-4 flex items-center gap-3"
+          >
+            <div className="p-2 bg-slate-800 rounded-lg">{s.icon}</div>
+            <div>
+              <p className="text-2xl font-bold text-white">{s.value}</p>
+              <p className="text-xs text-gray-400">{s.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Input
+          placeholder="Search by name, email, or role..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9 bg-[#0D1526] border-slate-700 text-white placeholder:text-gray-500 focus:border-cyan-500"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="bg-[#0D1526] border border-slate-700/50 rounded-lg overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <RefreshCw className="w-6 h-6 text-cyan-400 animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+            <Users className="w-10 h-10 mb-3 opacity-40" />
+            <p className="text-sm">
+              {search
+                ? "No members match your search."
+                : "No team members yet. Users appear here after they log in via OAuth."}
+            </p>
+          </div>
+        ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-700">
-                <TableHead className="text-gray-400">Name</TableHead>
-                <TableHead className="text-gray-400">Email</TableHead>
-                <TableHead className="text-gray-400">Role</TableHead>
-                <TableHead className="text-gray-400">Status</TableHead>
-                <TableHead className="text-gray-400">Last Login</TableHead>
-                <TableHead className="text-gray-400 text-right">Actions</TableHead>
+              <TableRow className="border-slate-700 hover:bg-transparent">
+                <TableHead className="text-gray-400 font-medium">Member</TableHead>
+                <TableHead className="text-gray-400 font-medium">Role</TableHead>
+                <TableHead className="text-gray-400 font-medium">Status</TableHead>
+                <TableHead className="text-gray-400 font-medium">Login Method</TableHead>
+                <TableHead className="text-gray-400 font-medium">Last Sign In</TableHead>
+                <TableHead className="text-gray-400 font-medium text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {accounts?.map((account) => (
-                <TableRow key={account.id} className="border-slate-800 hover:bg-slate-800/50">
-                  <TableCell className="text-white font-medium">{account.name}</TableCell>
-                  <TableCell className="text-gray-300">{account.email}</TableCell>
+              {filtered.map((user) => (
+                <TableRow key={user.id} className="border-slate-700/50 hover:bg-slate-800/30">
+                  {/* Member info */}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                        {(user.name ?? user.email ?? "?")[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">
+                          {user.name ?? <span className="text-gray-500 italic">No name</span>}
+                        </p>
+                        <p className="text-gray-400 text-xs">{user.email ?? "—"}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Role selector */}
                   <TableCell>
                     <Select
-                      value={account.role}
-                      onValueChange={(v) => changeRole(account.id, v as "admin" | "agent" | "viewer")}
+                      value={user.role}
+                      onValueChange={(val) =>
+                        setConfirmAction({
+                          type: "role",
+                          userId: user.id,
+                          newRole: val as Role,
+                          label: `Change ${user.name ?? user.email ?? "this user"}'s role to ${val}?`,
+                        })
+                      }
                     >
-                      <SelectTrigger className={`w-28 h-7 text-xs border ${roleColor(account.role)} bg-transparent`}>
-                        <div className="flex items-center gap-1">
-                          {roleIcon(account.role)}
-                          <span className="capitalize">{account.role}</span>
-                        </div>
+                      <SelectTrigger className="w-36 bg-slate-800 border-slate-600 text-white h-8 text-xs">
+                        <SelectValue>
+                          <RoleBadge role={user.role as Role} />
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="agent">Agent</SelectItem>
-                        <SelectItem value="viewer">Viewer</SelectItem>
+                        <SelectItem value="admin" className="text-white hover:bg-slate-700">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="w-3 h-3 text-cyan-400" /> Admin
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="technician" className="text-white hover:bg-slate-700">
+                          <div className="flex items-center gap-2">
+                            <Wrench className="w-3 h-3 text-purple-400" /> Technician
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="user" className="text-white hover:bg-slate-700">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-3 h-3 text-slate-400" /> User
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
+
+                  {/* Status */}
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={account.isActive
-                        ? "bg-green-900/30 text-green-400 border-green-800"
-                        : "bg-gray-800 text-gray-500 border-gray-700"}
+                      className={
+                        user.approved
+                          ? "bg-green-500/10 text-green-400 border-green-500/30 text-xs"
+                          : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30 text-xs"
+                      }
                     >
-                      {account.isActive ? "Active" : "Inactive"}
+                      {user.approved ? "Active" : "Pending"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-gray-400 text-sm">
-                    {account.lastLoginAt
-                      ? new Date(account.lastLoginAt).toLocaleDateString()
-                      : "Never"}
+
+                  {/* Login method */}
+                  <TableCell>
+                    <span className="text-gray-400 text-xs capitalize">
+                      {user.loginMethod ?? "OAuth"}
+                    </span>
                   </TableCell>
+
+                  {/* Last sign in */}
+                  <TableCell>
+                    <span className="text-gray-400 text-xs">
+                      {formatDate(user.lastSignedIn)}
+                    </span>
+                  </TableCell>
+
+                  {/* Actions */}
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    {user.approved ? (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleActive(account.id, account.isActive)}
-                        className="h-7 px-2 text-gray-400 hover:text-white"
-                        title={account.isActive ? "Deactivate" : "Activate"}
+                        onClick={() =>
+                          setConfirmAction({
+                            type: "revoke",
+                            userId: user.id,
+                            label: `Deactivate ${user.name ?? user.email ?? "this user"}?`,
+                          })
+                        }
+                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 text-xs h-7"
                       >
-                        {account.isActive
-                          ? <XCircle className="w-4 h-4 text-yellow-500" />
-                          : <CheckCircle className="w-4 h-4 text-green-500" />}
+                        <UserX className="w-3 h-3 mr-1" /> Deactivate
                       </Button>
+                    ) : (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          if (confirm(`Remove account for ${account.email}? This cannot be undone.`)) {
-                            deleteAccountMutation.mutate({ id: account.id });
-                          }
-                        }}
-                        className="h-7 px-2 text-gray-400 hover:text-red-400"
-                        title="Delete account"
+                        onClick={() =>
+                          setConfirmAction({
+                            type: "approve",
+                            userId: user.id,
+                            label: `Activate ${user.name ?? user.email ?? "this user"}?`,
+                          })
+                        }
+                        className="text-green-400 hover:text-green-300 hover:bg-green-500/10 text-xs h-7"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <UserCheck className="w-3 h-3 mr-1" /> Activate
                       </Button>
-                    </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
-              {(!accounts || accounts.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500 py-8">
-                    No accounts found
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+
+      {/* Confirmation dialog */}
+      <AlertDialog
+        open={!!confirmAction}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+      >
+        <AlertDialogContent className="bg-[#0D1526] border-slate-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Action</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {confirmAction?.label}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-800 border-slate-600 text-white hover:bg-slate-700">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

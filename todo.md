@@ -1163,3 +1163,9 @@
 
 ## Post-Login Redirect Fix (April 13, 2026)
 - [x] After successful OAuth login, redirect to /admin dashboard instead of homepage (updated oauth.ts callback + getLoginUrl to encode returnPath in state)
+
+## Team Members View (April 13, 2026)
+- [x] Backend tRPC procedures already existed: trpc.users.getAll, updateRole, approve, revoke
+- [x] Rebuilt AdminAccountManagement as Team Members view using OAuth users
+- [x] Shows user name, email, role, last login, login method, status from database
+- [x] Admin can promote/demote users between admin/technician/user roles with confirmation dialog

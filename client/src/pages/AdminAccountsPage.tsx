@@ -7,7 +7,7 @@ import AdminAccountManagement from "./AdminAccountManagement";
 export default function AdminAccountsPage() {
   return (
     <AdminLayout title="Accounts" noPadding>
-      <AdminAccountManagement currentRole="admin" />
+      <AdminAccountManagement />
     </AdminLayout>
   );
 }

@@ -364,7 +364,7 @@ export default function AdminPortal() {
 
           {/* Account Management Tab — all roles */}
           <TabsContent value="account" className="mt-6">
-            <AdminAccountManagement currentRole={activeUser.role} />
+            <AdminAccountManagement />
           </TabsContent>
         </Tabs>
       </div>
