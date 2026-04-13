@@ -1050,3 +1050,13 @@
   - Time label shows "(Eastern Time — EST)" in cyan
   - Modal subtitle shows "EST (Eastern Time)" in cyan
   - Placeholder text says "Choose a time slot (EST)"
+
+
+## Custom Notes Field in Booking Form (Apr 13, 2026)
+- [x] Add optional custom notes field to booking form with helpful examples
+  - Frontend: Added textarea with placeholder examples (M365, Helpdesk, Cybersecurity, IT modernization, AI automation, Backup & DR, Network security)
+  - Label: "What services are you interested in? (Optional)"
+  - Helper text: "Share any specific IT challenges or services you'd like to discuss"
+  - Backend: Updated bookMeeting input to accept optional notes field
+  - Notes included in calendar event body and confirmation email
+  - All 228 tests passing

@@ -23,6 +23,7 @@ interface BookingFormData {
   company: string;
   preferredDate: string;
   preferredTime: string;
+  notes: string;
 }
 
 // Generate available Mon/Wed/Fri dates up to 3 months out
@@ -76,6 +77,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
     company: "",
     preferredDate: "",
     preferredTime: "",
+    notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const bookingMutation = trpc.calendar.bookMeeting.useMutation();
@@ -262,6 +264,19 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
               </div>
             )}
 
+            {/* Custom Notes Field */}
+            <div>
+              <label className="text-sm text-gray-300 mb-2 block">What services are you interested in? (Optional)</label>
+              <textarea
+                placeholder="E.g., M365 quote, Helpdesk support, Cybersecurity assessment, IT modernization, AI automation, Backup & disaster recovery, Network security, etc."
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full bg-slate-800 border border-slate-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
+                rows={3}
+              />
+              <p className="text-xs text-gray-500 mt-1">Share any specific IT challenges or services you'd like to discuss</p>
+            </div>
+
             {/* Submit Button */}
             <Button
               onClick={async () => {
@@ -279,6 +294,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
                     company: formData.company,
                     preferredDate: formData.preferredDate,
                     preferredTime: formData.preferredTime,
+                    notes: formData.notes,
                   });
 
                   toast.success("Meeting scheduled! Check your email for confirmation.");
@@ -290,6 +306,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
                     company: "",
                     preferredDate: "",
                     preferredTime: "",
+                    notes: "",
                   });
                 } catch (error) {
                   toast.error("Failed to schedule meeting. Please try again.");

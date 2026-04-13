@@ -23,6 +23,7 @@ export const calendarRouter = router({
         company: z.string().optional(),
         preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
         preferredTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
+        notes: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -69,6 +70,7 @@ export const calendarRouter = router({
                 <li>Duration: 15 minutes</li>
                 <li>Company: ${input.company || "Not provided"}</li>
               </ul>
+              ${input.notes ? `<p><strong>Your Notes:</strong></p><p>${input.notes.replace(/\n/g, "<br/>")}</p>` : ""}
               <p>A calendar invite has been sent to your email. If you need to reschedule, please reply to this email or call us at 609-676-4483.</p>
               <p>Best regards,<br/>GigitekAI Team</p>
             `,
