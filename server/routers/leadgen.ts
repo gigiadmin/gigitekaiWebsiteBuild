@@ -114,7 +114,7 @@ export const leadgenRouter = router({
             </div>
             
             <p>Our team will review your assessment and reach out within 24 hours with personalized recommendations.</p>
-            <p><a href="https://gigitekai.com/contact" style="background: #00d4ff; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Schedule Your Free Consultation</a></p>
+            <p><a href="https://gigitekai.com" style="background: #00d4ff; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Schedule Your Free Consultation</a></p>
             
             <p>Best regards,<br>The GigitekAI Team</p>
           </div>

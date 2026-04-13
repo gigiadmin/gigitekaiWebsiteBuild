@@ -1084,3 +1084,9 @@
 - [x] Enhance booking confirmation email with professional branding (no docs links)
 - [x] Implement cancel/reschedule appointments feature with database tracking and M365 sync
 - [x] Create reusable skill documenting the M365 calendar integration process
+
+## Email Link 404 Fix (Apr 13, 2026)
+- [x] Fix "Schedule a Free Consultation" button in lead magnet email — links to /contact which 404s
+  - Changed link from gigitekai.com/contact to https://gigitekai.com (homepage with Book Now button)
+  - No other broken /contact links found in email templates
+  - All 228 tests passing
