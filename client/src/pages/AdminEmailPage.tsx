@@ -1,14 +1,14 @@
 /**
- * AdminEmailPage — Email management for the admin portal
+ * AdminEmailPage — Full two-way email management for the admin portal
  *
  * Features:
- *  - Compose and send emails from support@gigitekai.com
- *  - Pre-built email templates
- *  - Email history and inbox view
- *  - Link emails to tickets or chat sessions
+ *  - Compose and send emails from support@gigitekai.com via Microsoft Graph
+ *  - Sync incoming replies from Exchange Online inbox
+ *  - Pre-built email templates with variable substitution ({{ticketId}}, etc.)
+ *  - Email history showing both sent and received messages
+ *  - Link emails to helpdesk tickets
  */
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -24,31 +24,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Send, Inbox, FileText, AlertCircle, CheckCircle, Users } from "lucide-react";
+import {
+  Mail,
+  Send,
+  Inbox,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Users,
+  RefreshCw,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Eye,
+  X,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import RecipientGroupsManager from "@/components/RecipientGroupsManager";
+import { toast } from "sonner";
 
 export default function AdminEmailPage() {
-  const { user } = useAuth();
-  const [tab, setTab] = useState<"compose" | "inbox" | "templates" | "groups">("compose") as any;
+  const [tab, setTab] = useState<"compose" | "inbox" | "templates" | "groups">("inbox");
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [linkedTicketId, setLinkedTicketId] = useState<number | undefined>();
   const [isSending, setIsSending] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
+  const [inboxFilter, setInboxFilter] = useState<"all" | "sent" | "received">("all");
 
   // Fetch templates
   const { data: templates = [] } = trpc.email.getTemplates.useQuery({});
 
   // Fetch inbox
   const { data: inbox = [], refetch: refetchInbox } = trpc.email.getInbox.useQuery({
-    limit: 50,
-    direction: "all",
+    limit: 100,
+    direction: inboxFilter,
   });
 
   // Send email mutation
-  const sendEmail = trpc.email.sendEmail.useMutation({
+  const sendEmailMutation = trpc.email.sendEmail.useMutation({
     onSuccess: () => {
       setRecipient("");
       setSubject("");
@@ -56,56 +72,146 @@ export default function AdminEmailPage() {
       setSelectedTemplate("");
       setLinkedTicketId(undefined);
       refetchInbox();
+      toast.success("Email sent successfully!");
+    },
+    onError: (err) => {
+      toast.error("Failed to send email: " + err.message);
     },
   });
 
-  // Handle template selection
+  // Sync inbox mutation
+  const syncInboxMutation = trpc.email.syncInbox.useMutation({
+    onSuccess: (result) => {
+      refetchInbox();
+      if (result.synced > 0) {
+        toast.success(`Synced ${result.synced} new message${result.synced !== 1 ? "s" : ""} from Exchange Online`);
+      } else {
+        toast.info("Inbox is up to date — no new messages found");
+      }
+    },
+    onError: (err) => {
+      toast.error("Sync failed: " + err.message);
+    },
+  });
+
+  // Handle template selection — replace {{ticketId}} and other variables with real values
   function handleSelectTemplate(templateId: string) {
     const template = templates.find((t) => t.id === parseInt(templateId));
     if (template) {
       setSelectedTemplate(templateId);
-      setSubject(template.subject);
-      setBody(template.body);
+      const ticketLabel = linkedTicketId ? String(linkedTicketId) : "";
+      const resolveVars = (text: string) =>
+        text
+          .replace(/\{\{ticketId\}\}/gi, ticketLabel)
+          .replace(/\{\{ticket_id\}\}/gi, ticketLabel)
+          .replace(/\{\{recipient\}\}/gi, recipient || "Customer")
+          .replace(/\{\{date\}\}/gi, new Date().toLocaleDateString());
+      setSubject(resolveVars(template.subject));
+      setBody(resolveVars(template.body));
     }
   }
 
   // Handle send email
   async function handleSendEmail() {
     if (!recipient || !subject || !body) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all required fields");
       return;
     }
-
     setIsSending(true);
     try {
-      await sendEmail.mutateAsync({
+      await sendEmailMutation.mutateAsync({
         to: recipient,
         subject,
         body,
         templateId: selectedTemplate ? parseInt(selectedTemplate) : undefined,
         linkedTicketId,
       });
-      alert("Email sent successfully!");
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      alert("Failed to send email. Please try again.");
     } finally {
       setIsSending(false);
     }
   }
 
+  // Handle inbox sync
+  async function handleSync() {
+    setIsSyncing(true);
+    try {
+      await syncInboxMutation.mutateAsync({ limit: 50 });
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
+  const sentCount = inbox.filter((e) => e.direction === "sent").length;
+  const receivedCount = inbox.filter((e) => e.direction === "received").length;
+
   return (
     <AdminLayout title="Email Management">
       <div className="space-y-6">
+        {/* Email detail modal */}
+        {selectedEmail && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setSelectedEmail(null)}>
+            <div
+              className="bg-slate-900 border border-slate-700 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-semibold text-white">{selectedEmail.subject}</h2>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {selectedEmail.direction === "sent"
+                      ? `To: ${selectedEmail.to}`
+                      : `From: ${selectedEmail.from}`}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {formatDistanceToNow(new Date(selectedEmail.timestamp), { addSuffix: true })}
+                  </p>
+                </div>
+                <button onClick={() => setSelectedEmail(null)} className="text-slate-400 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+              {selectedEmail.linkedTicketId && (
+                <Badge variant="outline" className="text-cyan-400 border-cyan-400/30">
+                  Linked to Ticket #{selectedEmail.linkedTicketId}
+                </Badge>
+              )}
+              <div className="border-t border-slate-700 pt-4">
+                <div
+                  className="text-sm text-slate-300 prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: selectedEmail.body || selectedEmail.bodyPreview || "(no content)" }}
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setRecipient(selectedEmail.direction === "sent" ? selectedEmail.to : selectedEmail.from);
+                    setSubject(`Re: ${selectedEmail.subject}`);
+                    setLinkedTicketId(selectedEmail.linkedTicketId ?? undefined);
+                    setSelectedEmail(null);
+                    setTab("compose");
+                  }}
+                >
+                  <Send size={14} className="mr-2" />
+                  Reply
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="compose" className="flex items-center gap-2">
-              <Mail size={14} />
-              Compose
-            </TabsTrigger>
             <TabsTrigger value="inbox" className="flex items-center gap-2">
               <Inbox size={14} />
               Inbox
+              {receivedCount > 0 && (
+                <Badge className="ml-1 h-4 px-1 text-xs bg-cyan-500 text-black">{receivedCount}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="compose" className="flex items-center gap-2">
+              <Mail size={14} />
+              Compose
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <FileText size={14} />
@@ -117,34 +223,114 @@ export default function AdminEmailPage() {
             </TabsTrigger>
           </TabsList>
 
+          {/* Inbox Tab */}
+          <TabsContent value="inbox" className="space-y-4">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex gap-2">
+                {(["all", "received", "sent"] as const).map((f) => (
+                  <Button
+                    key={f}
+                    size="sm"
+                    variant={inboxFilter === f ? "default" : "outline"}
+                    onClick={() => setInboxFilter(f)}
+                    className="capitalize"
+                  >
+                    {f === "all" ? `All (${inbox.length})` : f === "received" ? `Received (${receivedCount})` : `Sent (${sentCount})`}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSync}
+                disabled={isSyncing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
+                {isSyncing ? "Syncing..." : "Sync Inbox"}
+              </Button>
+            </div>
+
+            {inbox.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Inbox size={40} className="text-slate-500 mb-3" />
+                  <p className="text-slate-400 font-medium">No emails yet</p>
+                  <p className="text-slate-500 text-sm mt-1">Click "Sync Inbox" to pull messages from Exchange Online</p>
+                  <Button size="sm" className="mt-4" onClick={handleSync} disabled={isSyncing}>
+                    <RefreshCw size={14} className={`mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+                    Sync Now
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {inbox.map((email) => (
+                  <Card
+                    key={email.id}
+                    className={`hover:bg-slate-800/60 transition-colors cursor-pointer border ${
+                      email.direction === "received" ? "border-cyan-500/20" : "border-slate-700/50"
+                    }`}
+                    onClick={() => setSelectedEmail(email)}
+                  >
+                    <CardContent className="py-3 px-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className={`mt-1 flex-shrink-0 ${email.direction === "received" ? "text-cyan-400" : "text-slate-400"}`}>
+                            {email.direction === "received" ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                              <span className="text-sm font-medium text-white truncate">{email.subject}</span>
+                              <Badge
+                                variant={email.direction === "received" ? "default" : "outline"}
+                                className={`text-xs flex-shrink-0 ${email.direction === "received" ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" : ""}`}
+                              >
+                                {email.direction === "received" ? "Received" : "Sent"}
+                              </Badge>
+                              {email.linkedTicketId && (
+                                <Badge variant="outline" className="text-xs text-cyan-400 border-cyan-400/30 flex-shrink-0">
+                                  Ticket #{email.linkedTicketId}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-400">
+                              {email.direction === "sent" ? `To: ${email.to}` : `From: ${email.from}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-slate-500">
+                            {formatDistanceToNow(new Date(email.timestamp), { addSuffix: true })}
+                          </span>
+                          {email.status === "sent" ? (
+                            <CheckCircle size={14} className="text-green-500" />
+                          ) : email.status === "failed" ? (
+                            <AlertCircle size={14} className="text-red-500" />
+                          ) : (
+                            <Eye size={14} className="text-slate-500" />
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
           {/* Compose Tab */}
           <TabsContent value="compose" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Compose Email</CardTitle>
-                <CardDescription>Send an email from support@gigitekai.com</CardDescription>
+                <CardDescription>Send an email from support@gigitekai.com via Exchange Online</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Template selector */}
-                <div>
-                  <label className="text-sm font-medium">Template (optional)</label>
-                  <Select value={selectedTemplate} onValueChange={handleSelectTemplate}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a template..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates.map((t) => (
-                        <SelectItem key={t.id} value={t.id.toString()}>
-                          {t.name} ({t.category})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 {/* Recipient */}
                 <div>
-                  <label className="text-sm font-medium">Recipient Email</label>
+                  <label className="text-sm font-medium">Recipient Email *</label>
                   <Input
                     type="email"
                     placeholder="customer@example.com"
@@ -160,13 +346,32 @@ export default function AdminEmailPage() {
                     type="number"
                     placeholder="Ticket ID"
                     value={linkedTicketId || ""}
-                    onChange={(e) => setLinkedTicketId(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      setLinkedTicketId(e.target.value ? parseInt(e.target.value) : undefined)
+                    }
                   />
+                </div>
+
+                {/* Template selector */}
+                <div>
+                  <label className="text-sm font-medium">Template (optional)</label>
+                  <Select value={selectedTemplate} onValueChange={handleSelectTemplate}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a template to pre-fill subject & body..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.map((t) => (
+                        <SelectItem key={t.id} value={t.id.toString()}>
+                          {t.name} ({t.category})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Subject */}
                 <div>
-                  <label className="text-sm font-medium">Subject</label>
+                  <label className="text-sm font-medium">Subject *</label>
                   <Input
                     placeholder="Email subject"
                     value={subject}
@@ -176,7 +381,7 @@ export default function AdminEmailPage() {
 
                 {/* Body */}
                 <div>
-                  <label className="text-sm font-medium">Message</label>
+                  <label className="text-sm font-medium">Message *</label>
                   <Textarea
                     placeholder="Email body (supports HTML)"
                     value={body}
@@ -196,71 +401,6 @@ export default function AdminEmailPage() {
                 </Button>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Inbox Tab */}
-          <TabsContent value="inbox" className="space-y-4">
-            {inbox.length === 0 ? (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-10">
-                  <Inbox size={32} className="text-slate-500 mb-2" />
-                  <p className="text-slate-500">No emails yet</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-2">
-                {inbox.map((email) => (
-                  <Card key={email.id} className="hover:bg-slate-800/50 transition-colors">
-                    <CardContent className="py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium">{email.subject}</span>
-                            <Badge
-                              variant={email.direction === "sent" ? "outline" : "default"}
-                              className="text-xs"
-                            >
-                              {email.direction === "sent" ? "Sent" : "Received"}
-                            </Badge>
-                            <Badge
-                              variant={email.status === "sent" ? "outline" : "secondary"}
-                              className="text-xs"
-                            >
-                              {email.status}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-slate-400">
-                            {email.direction === "sent" ? "To:" : "From:"} {email.direction === "sent" ? email.to : email.from}
-                          </p>
-                          {email.linkedTicketId && (
-                            <p className="text-xs text-cyan-400">
-                              Linked to Ticket #{email.linkedTicketId}
-                            </p>
-                          )}
-                          <p className="text-xs text-slate-500 mt-1">
-                            {formatDistanceToNow(new Date(email.timestamp), { addSuffix: true })}
-                          </p>
-                        </div>
-                        <div className="flex-shrink-0">
-                          {email.status === "sent" ? (
-                            <CheckCircle size={16} className="text-green-500" />
-                          ) : email.status === "failed" ? (
-                            <AlertCircle size={16} className="text-red-500" />
-                          ) : (
-                            <Mail size={16} className="text-slate-500" />
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Groups Tab */}
-          <TabsContent value="groups" className="space-y-4">
-            <RecipientGroupsManager />
           </TabsContent>
 
           {/* Templates Tab */}
@@ -297,12 +437,27 @@ export default function AdminEmailPage() {
                           <p className="text-xs font-medium text-slate-400">Body:</p>
                           <p className="text-sm line-clamp-3">{template.body}</p>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            handleSelectTemplate(template.id.toString());
+                            setTab("compose");
+                          }}
+                        >
+                          Use Template
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Groups Tab */}
+          <TabsContent value="groups" className="space-y-4">
+            <RecipientGroupsManager />
           </TabsContent>
         </Tabs>
       </div>

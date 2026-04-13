@@ -1169,3 +1169,23 @@
 - [x] Rebuilt AdminAccountManagement as Team Members view using OAuth users
 - [x] Shows user name, email, role, last login, login method, status from database
 - [x] Admin can promote/demote users between admin/technician/user roles with confirmation dialog
+
+## Two-Way Email Inbox + Template Fix (April 13, 2026)
+- [x] Fix {{ticketId}} template variable not being replaced in email subject lines
+  - Added server-side resolveVars() in sendEmail mutation before sending
+  - Replaces {{ticketId}}, {{ticket_id}}, {{date}}, {{recipient}} with real values
+  - Frontend also resolves variables when selecting a template
+  - 15 new tests added and passing (email.inbox.test.ts)
+- [x] Add Microsoft Graph API backend procedure to fetch inbox messages (received emails)
+  - Added fetchInboxFromMsGraph() to server/_core/email.ts using Mail.Read permission
+  - Added syncInbox tRPC procedure in email router with deduplication by messageId
+  - Auto-links incoming emails to tickets by parsing [TICKET #N] in subject
+- [x] Update Email Management inbox UI to show both sent and received emails
+  - Rebuilt AdminEmailPage.tsx with tabbed layout (Inbox, Compose, Templates, Groups)
+  - Inbox shows direction badges (Received/Sent) with cyan highlight for inbound
+  - Sync Inbox button calls syncInbox mutation and shows count of new messages
+  - Filter buttons: All / Received / Sent
+- [x] Add reply functionality from inbox (reply to received emails)
+  - Clicking any email opens detail modal with Reply button
+  - Reply pre-fills recipient, subject (Re: ...) and links to same ticket
+- [ ] Thread emails by ticket ID so conversations are grouped (future enhancement)

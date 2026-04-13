@@ -155,6 +155,61 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
   }
 }
 
+export type MsGraphMessage = {
+  id: string;
+  subject: string | null;
+  from: { emailAddress: { address: string; name?: string } } | null;
+  toRecipients: { emailAddress: { address: string; name?: string } }[];
+  receivedDateTime: string;
+  bodyPreview: string;
+  body: { content: string; contentType: string };
+  isRead: boolean;
+  conversationId: string | null;
+};
+
+/**
+ * Fetches messages from the support@gigitekai.com inbox via Microsoft Graph.
+ * Requires Mail.Read application permission on the Azure app registration.
+ * Returns up to `top` messages ordered by receivedDateTime descending.
+ */
+export async function fetchInboxFromMsGraph(
+  top = 50,
+  skip = 0
+): Promise<MsGraphMessage[]> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for inbox fetch");
+    return [];
+  }
+
+  const senderEmail = "support@gigitekai.com";
+  const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId";
+  const url =
+    `https://graph.microsoft.com/v1.0/users/${senderEmail}/mailFolders/Inbox/messages` +
+    `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error(`[Email] MS Graph inbox fetch failed (${response.status}): ${detail}`);
+      return [];
+    }
+
+    const data = (await response.json()) as { value: MsGraphMessage[] };
+    return data.value ?? [];
+  } catch (error) {
+    console.error("[Email] Error fetching inbox from MS Graph:", error);
+    return [];
+  }
+}
+
 /**
  * Sends an email exclusively via Microsoft Graph API (Azure / Exchange Online).
  * No fallback providers — all email delivery goes through the Azure app registration.

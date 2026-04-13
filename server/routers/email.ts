@@ -12,7 +12,7 @@ import { getDb } from "../db";
 import { emailMessages, emailTemplates, tickets, realtimeChatSessions } from "../../drizzle/schema";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
-import { sendEmail } from "../_core/email";
+import { sendEmail, fetchInboxFromMsGraph } from "../_core/email";
 import { createAdminNotification } from "./adminNotifications";
 
 // ── Email linking logic ───────────────────────────────────────────────────────
@@ -66,11 +66,23 @@ export const emailRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
 
+        // ── Fix {{ticketId}} and other template variable substitution ──────────
+        // Replace template variables BEFORE sending so subjects/bodies show real values
+        const resolveVars = (text: string): string =>
+          text
+            .replace(/\{\{ticketId\}\}/gi, input.linkedTicketId ? String(input.linkedTicketId) : "")
+            .replace(/\{\{ticket_id\}\}/gi, input.linkedTicketId ? String(input.linkedTicketId) : "")
+            .replace(/\{\{date\}\}/gi, new Date().toLocaleDateString())
+            .replace(/\{\{recipient\}\}/gi, input.to);
+
+        const resolvedSubject = resolveVars(input.subject);
+        const resolvedBody = resolveVars(input.body);
+
         // Send via Microsoft Graph (Exchange Online)
         const emailResult = await sendEmail({
           to: input.to,
-          subject: input.subject,
-          html: input.body,
+          subject: resolvedSubject,
+          html: resolvedBody,
           replyTo: "support@gigitekai.com",
         });
 
@@ -84,8 +96,8 @@ export const emailRouter = router({
             direction: "sent",
             from: "support@gigitekai.com",
             to: input.to,
-            subject: input.subject,
-            body: input.body,
+            subject: resolvedSubject,
+            body: resolvedBody,
             templateId: input.templateId,
             linkedTicketId: input.linkedTicketId,
             linkedSessionId: input.linkedSessionId,
@@ -277,6 +289,73 @@ export const emailRouter = router({
       } catch (error) {
         console.error("[Email] Search failed:", error);
         return [];
+      }
+    }),
+
+  // ── Sync inbox from Microsoft Graph (Exchange Online) ───────────────────────────────
+  syncInbox: adminProcedure
+    .input(
+      z.object({
+        limit: z.number().default(50),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        // Fetch messages from Exchange Online via MS Graph
+        const msMessages = await fetchInboxFromMsGraph(input.limit);
+        if (!msMessages.length) return { synced: 0, total: 0 };
+
+        let synced = 0;
+
+        for (const msg of msMessages) {
+          // Skip if already stored (dedup by messageId)
+          const existing = await db
+            .select({ id: emailMessages.id })
+            .from(emailMessages)
+            .where(eq(emailMessages.messageId, msg.id))
+            .limit(1);
+
+          if (existing.length > 0) continue;
+
+          const fromAddress = msg.from?.emailAddress?.address ?? "unknown";
+          const subject = msg.subject ?? "(no subject)";
+
+          // Try to auto-link to a ticket or session
+          const { ticketId, sessionId } = await linkIncomingEmail(fromAddress, subject, db);
+
+          await db.insert(emailMessages).values({
+            direction: "received",
+            from: fromAddress,
+            to: "support@gigitekai.com",
+            subject,
+            body: msg.body?.content ?? msg.bodyPreview ?? "",
+            status: "received",
+            messageId: msg.id,
+            linkedTicketId: ticketId,
+            linkedSessionId: sessionId,
+            timestamp: new Date(msg.receivedDateTime),
+          });
+
+          // Notify admin of new incoming email
+          await createAdminNotification({
+            type: "ticket_reply",
+            title: "New Email Received",
+            body: `From: ${fromAddress} — ${subject}`,
+            href: `/admin/email`,
+            priority: "normal",
+            ticketId,
+          }).catch(() => {});
+
+          synced++;
+        }
+
+        return { synced, total: msMessages.length };
+      } catch (error) {
+        console.error("[Email] Inbox sync failed:", error);
+        throw error;
       }
     }),
 });
