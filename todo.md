@@ -1280,3 +1280,9 @@
   - Current /admin/accounts correctly shows: Team Members, Manus OAuth login method, role management only
 - [x] Update Admin Accounts page to show Manus OAuth users with correct info (login via Manus, no local passwords)
   - AdminAccountManagement.tsx already shows "Login Method: Manus OAuth" column and correct empty state message
+
+## UI Improvement: Agent Add Modal — Name/Email Dropdown (April 13, 2026)
+- [x] Replace User ID number input in Add Agent modal with searchable name/email dropdown
+  - Backend: add getUsers procedure to list all registered users (id, name, email)
+  - Frontend: replace Input[type=number] with Command/Combobox searchable dropdown
+  - Show user name + email in dropdown, submit userId automatically

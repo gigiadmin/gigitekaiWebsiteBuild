@@ -20,6 +20,7 @@ import {
   getAvailableAgents,
   recordAgentMetrics,
 } from "../db-agents";
+import { getAllUsers } from "../db";
 import { TRPCError } from "@trpc/server";
 
 export const agentsRouter = router({
@@ -54,6 +55,27 @@ export const agentsRouter = router({
         });
       }
     }),
+
+  /**
+   * Get all users for the agent dropdown (admin only)
+   */
+  getUsers: adminProcedure.query(async () => {
+    try {
+      const allUsers = await getAllUsers();
+      // Return only the fields needed for the dropdown
+      return allUsers.map((u) => ({
+        id: u.id,
+        name: u.name ?? "(No name)",
+        email: u.email ?? "",
+      }));
+    } catch (error) {
+      console.error("[Agents] Failed to get users:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get users",
+      });
+    }
+  }),
 
   /**
    * Get all agents

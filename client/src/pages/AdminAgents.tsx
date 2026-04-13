@@ -1,17 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Trash2, Activity } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Users, Plus, Trash2, Activity, ChevronsUpDown, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function AdminAgents() {
   const [showAddAgent, setShowAddAgent] = useState(false);
-  const [newAgentUserId, setNewAgentUserId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [userSearchOpen, setUserSearchOpen] = useState(false);
   const [newAgentSpecialization, setNewAgentSpecialization] = useState("");
+
+  // Fetch all users for the dropdown
+  const { data: allUsers = [] } = trpc.agents.getUsers.useQuery();
 
   // Fetch all agents
   const { data: agents = [], isLoading, refetch } = trpc.agents.getAllAgents.useQuery();
@@ -20,7 +26,7 @@ export default function AdminAgents() {
   const createAgentMutation = trpc.agents.createAgent.useMutation({
     onSuccess: () => {
       toast.success("Agent created successfully");
-      setNewAgentUserId("");
+      setSelectedUserId(null);
       setNewAgentSpecialization("");
       setShowAddAgent(false);
       refetch();
@@ -42,13 +48,13 @@ export default function AdminAgents() {
   });
 
   const handleAddAgent = async () => {
-    if (!newAgentUserId) {
-      toast.error("Please enter a user ID");
+    if (!selectedUserId) {
+      toast.error("Please select a user");
       return;
     }
 
     createAgentMutation.mutate({
-      userId: parseInt(newAgentUserId),
+      userId: selectedUserId,
       specialization: newAgentSpecialization || undefined,
     });
   };
@@ -102,15 +108,63 @@ export default function AdminAgents() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  User ID
+                  Select User
                 </label>
-                <Input
-                  type="number"
-                  placeholder="Enter user ID"
-                  value={newAgentUserId}
-                  onChange={(e) => setNewAgentUserId(e.target.value)}
-                  className="bg-slate-800 border-slate-700 text-white"
-                />
+                <Popover open={userSearchOpen} onOpenChange={setUserSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={userSearchOpen}
+                      className="w-full justify-between bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
+                    >
+                      {selectedUserId
+                        ? (() => {
+                            const u = allUsers.find((u) => u.id === selectedUserId);
+                            return u ? `${u.name} (${u.email})` : "Select user...";
+                          })()
+                        : "Search by name or email..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-slate-800 border-slate-700" align="start">
+                    <Command className="bg-slate-800">
+                      <CommandInput
+                        placeholder="Search name or email..."
+                        className="text-white placeholder:text-gray-400"
+                      />
+                      <CommandList>
+                        <CommandEmpty className="text-gray-400 py-4 text-center text-sm">
+                          No users found.
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {allUsers.map((u) => (
+                            <CommandItem
+                              key={u.id}
+                              value={`${u.name} ${u.email}`}
+                              onSelect={() => {
+                                setSelectedUserId(u.id);
+                                setUserSearchOpen(false);
+                              }}
+                              className="text-white hover:bg-slate-700 cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedUserId === u.id ? "opacity-100 text-cyan-400" : "opacity-0"
+                                )}
+                              />
+                              <div>
+                                <p className="font-medium">{u.name}</p>
+                                <p className="text-xs text-gray-400">{u.email}</p>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
