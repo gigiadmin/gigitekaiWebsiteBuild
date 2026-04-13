@@ -197,14 +197,47 @@ export async function fetchInboxFromMsGraph(
     });
 
     if (!response.ok) {
-      const detail = await response.text().catch(() => "");
+      // Handle 429 rate limiting — MS Graph returns plain text "Rate exceeded."
+      if (response.status === 429) {
+        const retryAfter = response.headers.get("Retry-After") ?? "60";
+        const msg = `MS Graph inbox rate limited. Retry after ${retryAfter}s.`;
+        console.warn(`[Email] ${msg}`);
+        throw new Error(msg);
+      }
+
+      // Safely read the error body — may be plain text, not JSON
+      const contentType = response.headers.get("content-type") ?? "";
+      let detail = "";
+      try {
+        if (contentType.includes("application/json")) {
+          const errJson = await response.json();
+          detail = errJson?.error?.message ?? JSON.stringify(errJson);
+        } else {
+          detail = await response.text();
+        }
+      } catch {
+        detail = `HTTP ${response.status}`;
+      }
+
       console.error(`[Email] MS Graph inbox fetch failed (${response.status}): ${detail}`);
       return [];
     }
 
-    const data = (await response.json()) as { value: MsGraphMessage[] };
+    // Safely parse the JSON response body
+    let data: { value: MsGraphMessage[] };
+    try {
+      data = (await response.json()) as { value: MsGraphMessage[] };
+    } catch (parseError) {
+      console.error("[Email] MS Graph inbox response was not valid JSON:", parseError);
+      return [];
+    }
+
     return data.value ?? [];
   } catch (error) {
+    // Re-throw rate-limit errors so the caller can surface them to the user
+    if (error instanceof Error && error.message.startsWith("MS Graph inbox rate limited")) {
+      throw error;
+    }
     console.error("[Email] Error fetching inbox from MS Graph:", error);
     return [];
   }

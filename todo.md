@@ -1191,3 +1191,11 @@
   - Clicking any email opens detail modal with Reply button
   - Reply pre-fills recipient, subject (Re: ...) and links to same ticket
 - [ ] Thread emails by ticket ID so conversations are grouped (future enhancement — not blocking)
+
+## Bug Fix: MS Graph Inbox Sync Rate Limit Error (April 13, 2026)
+- [x] Fix "Sync failed: Unexpected token 'R', 'Rate exceeded.' is not valid JSON"
+  - Root cause: MS Graph returns plain-text "Rate exceeded." on 429 throttle; JSON.parse crashed
+  - Fixed fetchInboxFromMsGraph: checks Content-Type before parsing, handles 429 with Retry-After header
+  - Fixed syncInbox tRPC procedure: catches rate-limit errors and throws TRPCError with user-friendly message
+  - User now sees: "Microsoft Graph is rate limiting inbox sync. Please wait 60 seconds and try again."
+  - Added 4 new rate-limit detection tests (247 total tests passing)

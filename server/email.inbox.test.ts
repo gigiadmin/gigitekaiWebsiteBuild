@@ -101,6 +101,34 @@ describe("Inbox sync deduplication", () => {
   });
 });
 
+// ── Test: Rate limit error message detection ────────────────────────────────
+
+describe("Rate limit error detection", () => {
+  function isRateLimitError(message: string): boolean {
+    return (
+      message.includes("rate limited") ||
+      message.includes("Rate exceeded") ||
+      message.includes("Retry after")
+    );
+  }
+
+  it("detects 'Rate exceeded.' plain-text response as rate limit", () => {
+    expect(isRateLimitError("Rate exceeded.")).toBe(true);
+  });
+
+  it("detects 'MS Graph inbox rate limited. Retry after 60s.' as rate limit", () => {
+    expect(isRateLimitError("MS Graph inbox rate limited. Retry after 60s.")).toBe(true);
+  });
+
+  it("does not flag a normal error as rate limit", () => {
+    expect(isRateLimitError("Database unavailable")).toBe(false);
+  });
+
+  it("does not flag an empty string as rate limit", () => {
+    expect(isRateLimitError("")).toBe(false);
+  });
+});
+
 // ── Test: Ticket ID extraction from subject ──────────────────────────────────
 
 describe("Ticket ID extraction from email subject", () => {

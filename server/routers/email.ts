@@ -12,6 +12,7 @@ import { getDb } from "../db";
 import { emailMessages, emailTemplates, tickets, realtimeChatSessions } from "../../drizzle/schema";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { sendEmail, fetchInboxFromMsGraph } from "../_core/email";
 import { createAdminNotification } from "./adminNotifications";
 
@@ -355,7 +356,25 @@ export const emailRouter = router({
         return { synced, total: msMessages.length };
       } catch (error) {
         console.error("[Email] Inbox sync failed:", error);
-        throw error;
+
+        // Surface rate-limit errors as a clean user-facing message
+        if (error instanceof Error) {
+          if (
+            error.message.includes("rate limited") ||
+            error.message.includes("Rate exceeded") ||
+            error.message.includes("Retry after")
+          ) {
+            throw new TRPCError({
+              code: "TOO_MANY_REQUESTS",
+              message: "Microsoft Graph is rate limiting inbox sync. Please wait 60 seconds and try again.",
+            });
+          }
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Inbox sync failed. Please try again.",
+        });
       }
     }),
 });
