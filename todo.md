@@ -1131,3 +1131,8 @@
 ## Disable SendGrid Inbound Webhook (April 13, 2026)
 - [x] Disabled SendGrid webhook handler in server/_core/index.ts
 - [x] Now using Azure/Microsoft Graph exclusively for all email (inbound and outbound)
+
+## Remove Lead Capture Popup from Admin Portal (April 13, 2026)
+- [x] Removed "Wait! Before You Go..." popup from admin portal only
+- [x] Kept popup visible for regular users and clients
+  - Updated App.tsx to hide ExitIntentPopup on /admin/* routes

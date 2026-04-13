@@ -136,6 +136,8 @@ function App() {
   const [location] = useLocation();
   // Hide global widgets on standalone meeting management pages
   const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
+  // Hide exit intent popup on admin pages
+  const isAdminPage = location.startsWith("/admin");
 
   return (
     <ErrorBoundary>
@@ -146,7 +148,7 @@ function App() {
           {!isMeetingPage && <AIChatWidget />}
           {!isMeetingPage && <UserChatWidget />}
           {!isMeetingPage && <PWAInstallPrompt />}
-          {!isMeetingPage && <ExitIntentPopup />}
+          {!isMeetingPage && !isAdminPage && <ExitIntentPopup />}
           {!isMeetingPage && <StickyCTABar />}
         </TooltipProvider>
       </ThemeProvider>
