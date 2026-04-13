@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,38 +96,18 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
+  const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: getLoginUrl() });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   
-  // Check admin auth status
-  const { data: adminUser, isLoading: authLoading } = trpc.adminAuth.me.useQuery();
-  const adminLogout = trpc.adminAuth.logout.useMutation({
-    onSuccess: () => {
-      setLocation('/login');
-    },
-  });
-  
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !adminUser) {
-      setLocation('/login');
-    }
-  }, [authLoading, adminUser, setLocation]);
-  
-  if (authLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
-  
-  if (!adminUser) {
-    return null;
-  }
-  
-  const logout = () => adminLogout.mutate();
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -213,12 +194,12 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xs font-bold">
-                {adminUser?.name?.charAt(0)?.toUpperCase() ?? "A"}
+                {user?.name?.charAt(0)?.toUpperCase() ?? "A"}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-medium truncate">{adminUser?.name ?? "Admin"}</div>
-              <div className="text-slate-500 text-xs truncate">{adminUser?.role ?? "admin"}</div>
+              <div className="text-white text-xs font-medium truncate">{user?.name ?? "Admin"}</div>
+              <div className="text-slate-500 text-xs truncate">Admin</div>
             </div>
             <Button
               variant="ghost"
