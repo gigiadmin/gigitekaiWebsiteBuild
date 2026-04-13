@@ -1144,7 +1144,9 @@
 - [x] All 228 tests passing
 
 ## Hide Manus Badge (April 13, 2026)
-- [ ] Find and hide the "Made with Manus" badge from the website
+- [x] Find and hide the "Made with Manus" badge from the website
+  - Removed "Built with Manus" text from Footer.tsx bottom bar
+  - Footer now shows only copyright notice: "© 2026 GigitekAI LLC. All rights reserved."
 
 ## Current Issues (April 13, 2026)
 - [x] Remove "Wait! Before You Go" exit intent popup completely (deleted ExitIntentPopup.tsx component)
@@ -1188,4 +1190,4 @@
 - [x] Add reply functionality from inbox (reply to received emails)
   - Clicking any email opens detail modal with Reply button
   - Reply pre-fills recipient, subject (Re: ...) and links to same ticket
-- [ ] Thread emails by ticket ID so conversations are grouped (future enhancement)
+- [ ] Thread emails by ticket ID so conversations are grouped (future enhancement — not blocking)

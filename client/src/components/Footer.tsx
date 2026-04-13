@@ -123,10 +123,7 @@ export default function Footer() {
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-gray-600 text-xs">
-              © {new Date().getFullYear()} GigitekAI. All rights reserved.
-            </p>
-            <p className="text-gray-500 text-xs">
-              Built with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-[#00D4FF] hover:underline">Manus</a>
+              © {new Date().getFullYear()} GigitekAI LLC. All rights reserved.
             </p>
           </div>
           <div className="flex items-center gap-6">
