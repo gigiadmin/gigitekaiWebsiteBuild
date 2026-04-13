@@ -96,6 +96,17 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
     }
   }, []);
 
+  // Listen for booking modal trigger from Contact page
+  useEffect(() => {
+    const handleOpenBooking = () => {
+      setShowBookingModal(true);
+      setIsVisible(true);
+      sessionStorage.removeItem("ctaBarClosed");
+    };
+    window.addEventListener("gigitekai:open-booking", handleOpenBooking);
+    return () => window.removeEventListener("gigitekai:open-booking", handleOpenBooking);
+  }, []);
+
   if (!isVisible) return null;
 
   const selectClass =

@@ -1104,3 +1104,10 @@
   - "Book a Free Call" button triggers the booking modal
   - Trust badges: M365 Certified, AI-First MSP, Zero Trust, 24/7 Helpdesk
   - All 228 tests passing
+
+## Bug Fix - Book a Free Call Button (April 12, 2026)
+- [x] Fix broken "Book a Free Call" button on /contact page
+  - Issue: Button was dispatching custom event but StickyCTABar wasn't listening
+  - Solution: Added event listener to StickyCTABar for "gigitekai:open-booking" event
+  - Result: Clicking "Book a Free Call" on contact page now opens booking modal
+  - All 228 tests passing
