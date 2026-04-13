@@ -201,26 +201,38 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
               <div className="text-white text-xs font-medium truncate">{user?.name ?? "Admin"}</div>
               <div className="text-slate-500 text-xs truncate">Admin</div>
             </div>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
+                onClick={logout}
+                title="Sign out"
+              >
+                <LogOut size={14} />
+              </Button>
+              <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none border border-slate-700">
+                Sign out
+                <div className="absolute top-full right-2 w-2 h-2 bg-slate-900 transform rotate-45 border-r border-b border-slate-700"></div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="group relative">
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+              className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
               onClick={logout}
               title="Sign out"
             >
               <LogOut size={14} />
             </Button>
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none border border-slate-700">
+              Sign out
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-slate-900 transform rotate-45 border-r border-b border-slate-700"></div>
+            </div>
           </div>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-            onClick={logout}
-            title="Sign out"
-          >
-            <LogOut size={14} />
-          </Button>
         )}
       </div>
     </div>

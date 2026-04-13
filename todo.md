@@ -1149,3 +1149,6 @@
 ## Current Issues (April 13, 2026)
 - [x] Remove "Wait! Before You Go" exit intent popup completely (deleted ExitIntentPopup.tsx component)
 - [x] Fix admin login redirect — admin portal now uses Manus OAuth only (removed admin email/password system, AdminLayout uses useAuth hook)
+
+## Logout Button Enhancement (April 13, 2026)
+- [x] Enhance logout button UI with better visibility and tooltip (added red color, hover effects, and animated tooltip)
