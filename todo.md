@@ -1090,3 +1090,9 @@
   - Changed link from gigitekai.com/contact to https://gigitekai.com (homepage with Book Now button)
   - No other broken /contact links found in email templates
   - All 228 tests passing
+
+## Contact Page 404 Fix (Apr 13, 2026)
+- [x] Fix gigitekai.com/contact 404 — added /contact route that redirects to /#contact section
+  - Used wouter Redirect component to send /contact → /#contact
+  - Visitors land on homepage scrolled to the contact section
+  - All 228 tests passing
