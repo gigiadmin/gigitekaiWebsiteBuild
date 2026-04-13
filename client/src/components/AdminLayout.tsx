@@ -96,9 +96,18 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
   const [location] = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  
+  const adminLogout = trpc.adminAuth.logout.useMutation({
+    onSuccess: () => {
+      window.location.href = '/login';
+    },
+  });
+  const handleLogout = async () => {
+    await adminLogout.mutateAsync();
+  };
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -196,7 +205,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-              onClick={logout}
+              onClick={handleLogout}
               title="Sign out"
             >
               <LogOut size={14} />
@@ -207,7 +216,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-            onClick={logout}
+            onClick={handleLogout}
             title="Sign out"
           >
             <LogOut size={14} />
