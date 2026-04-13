@@ -1259,3 +1259,24 @@
   - Fix 2: Applied class to Streamdown wrapper div in BlogDetail.tsx
   - Fix 3: Added full table, blockquote, code, and hr styling with proper contrast
   - Text is now dark gray (#1f2937) on white — readable on all devices
+
+## Feature: Unified Content Publisher — Blog + Social Media (April 13, 2026)
+- [ ] Build Admin "Publish Content" page — single form to write title, body, excerpt, and trigger all channels
+- [ ] AI-assisted social copy generator — auto-generates LinkedIn, X, and Facebook post text from article content
+- [ ] Generate branded social media image (1200x630) with GigitekAI logo, colors, and article headline
+- [ ] LinkedIn API integration — post to GigitekAI company page (requires LinkedIn OAuth + pages/posts scope)
+- [ ] Twitter/X API integration — post to @GigitekAI account (requires X Developer App, Basic tier $100/mo)
+- [ ] Facebook Graph API integration — post to GigitekAI Facebook Page (requires page access token)
+- [ ] Add social channel credentials to secrets (LinkedIn, X, Facebook tokens)
+- [ ] Social post preview modal — shows exactly what will be posted to each platform before publishing
+- [ ] Publish status dashboard — shows success/failure for each channel after publish
+- [ ] Store social post history in DB (postId, platform, publishedAt, url, status)
+
+## UI Fix: Remove Book Now + Fix Admin Accounts Page (April 13, 2026)
+- [x] Remove "Book Now" sticky bar from all pages (public site and admin portal)
+  - Removed StickyCTABar component from App.tsx — no longer rendered on any page
+- [x] Fix Admin Accounts page — remove Change Password, Create Account buttons (not applicable with Manus OAuth)
+  - Confirmed: those buttons do not exist in current codebase — were from an older cached version
+  - Current /admin/accounts correctly shows: Team Members, Manus OAuth login method, role management only
+- [x] Update Admin Accounts page to show Manus OAuth users with correct info (login via Manus, no local passwords)
+  - AdminAccountManagement.tsx already shows "Login Method: Manus OAuth" column and correct empty state message

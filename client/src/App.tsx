@@ -63,7 +63,7 @@ import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
-import { StickyCTABar } from "./components/StickyCTABar";
+// StickyCTABar removed — Book Now bar disabled per user request
 
 function Router() {
   return (
@@ -149,7 +149,7 @@ function App() {
           {!isMeetingPage && <UserChatWidget />}
           {!isMeetingPage && <PWAInstallPrompt />}
           {/* ExitIntentPopup disabled - no guide provided */}
-          {!isMeetingPage && <StickyCTABar />}
+          {/* StickyCTABar removed */}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
