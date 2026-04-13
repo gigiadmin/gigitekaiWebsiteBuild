@@ -100,7 +100,12 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
   const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: getLoginUrl() });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
+  // Close mobile sidebar on route change — must be before any early return
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
@@ -108,11 +113,6 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       </div>
     );
   }
-
-  // Close mobile sidebar on route change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location]);
 
   const isActive = (href: string) => {
     if (href === "/admin") return location === "/admin";
