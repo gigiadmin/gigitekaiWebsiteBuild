@@ -1111,3 +1111,7 @@
   - Solution: Added event listener to StickyCTABar for "gigitekai:open-booking" event
   - Result: Clicking "Book a Free Call" on contact page now opens booking modal
   - All 228 tests passing
+
+## Contact Page Updates (April 13, 2026)
+- [x] Update location from "South Jersey / Remote-First" to "North America Remote-First"
+- [x] Update email from "support@gigitek.com" to "support@gigitekai.com"

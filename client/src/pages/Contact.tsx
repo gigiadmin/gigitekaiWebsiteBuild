@@ -129,10 +129,10 @@ export default function Contact() {
                     Email
                   </p>
                   <a
-                    href="mailto:support@gigitek.com"
+                    href="mailto:support@gigitekai.com"
                     className="text-white hover:text-[#00d4ff] transition-colors font-medium"
                   >
-                    support@gigitek.com
+                    support@gigitekai.com
                   </a>
                 </div>
               </div>
@@ -146,9 +146,9 @@ export default function Contact() {
                     Location
                   </p>
                   <p className="text-white font-medium">
-                    South Jersey / Remote-First
+                    North America Remote-First
                   </p>
-                  <p className="text-gray-400 text-sm">Serving clients nationwide</p>
+                  <p className="text-gray-400 text-sm">Serving clients across North America</p>
                 </div>
               </div>
 
