@@ -182,13 +182,33 @@ export const leadgenRouter = router({
 
         // Send lead magnet email
         const emailHtml = `
-          <div style="font-family: Arial, sans-serif; color: #333;">
-            <h2>Your Free Guide: ${input.leadMagnetDownloaded}</h2>
-            <p>Hi ${input.firstName},</p>
-            <p>Thank you for downloading our guide! We've attached it below.</p>
-            <p>If you'd like to discuss how GigitekAI can help your business, feel free to reach out anytime.</p>
-            <p><a href="https://gigitekai.com/contact" style="background: #00d4ff; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Schedule a Free Consultation</a></p>
-            <p>Best regards,<br>The GigitekAI Team</p>
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 100%); padding: 32px 30px; border-radius: 8px 8px 0 0; text-align: center;">
+              <div style="color: #00d4ff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">GigitekAI</div>
+              <div style="color: #8892a4; font-size: 13px; margin-top: 4px;">Powering the Next Generation of Enterprise Technology</div>
+            </div>
+            <!-- Body -->
+            <div style="background: #f8f9fa; padding: 32px 30px;">
+              <p style="color: #333; font-size: 16px; margin-top: 0;">Hi ${input.firstName},</p>
+              <p style="color: #333; font-size: 15px; line-height: 1.6;">Thank you for downloading <strong style="color: #0a0e1a;">${input.leadMagnetDownloaded}</strong>. Your guide is ready — check your inbox for the attachment.</p>
+              <!-- Guide box -->
+              <div style="background: white; border-left: 4px solid #00d4ff; padding: 18px 20px; margin: 24px 0; border-radius: 0 6px 6px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+                <div style="font-weight: 700; color: #0a0e1a; margin-bottom: 6px;">📄 ${input.leadMagnetDownloaded}</div>
+                <div style="color: #555; font-size: 14px;">Practical insights to help you identify gaps and modernize your IT infrastructure with confidence.</div>
+              </div>
+              <p style="color: #333; font-size: 15px; line-height: 1.6;">Ready to take the next step? Our team specializes in Microsoft 365, AI automation, cybersecurity, and managed IT services tailored for growing businesses.</p>
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 28px 0;">
+                <a href="https://gigitekai.com" style="background: #00d4ff; color: #0a0e1a; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 700; font-size: 15px;">Schedule a Free Strategy Call</a>
+              </div>
+              <p style="color: #555; font-size: 14px; line-height: 1.6;">Questions? Reply to this email or call us at <strong>609-676-4483</strong>. We're here to help.</p>
+            </div>
+            <!-- Footer -->
+            <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+              <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
+            </div>
           </div>
         `;
 

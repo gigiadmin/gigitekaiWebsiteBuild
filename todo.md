@@ -1060,3 +1060,27 @@
   - Backend: Updated bookMeeting input to accept optional notes field
   - Notes included in calendar event body and confirmation email
   - All 228 tests passing
+
+
+## Remaining Suggested Follow-ups (Apr 13, 2026)
+- [x] Enhance automated email confirmation with better formatting and professional branding
+  - Improved HTML template with GigitekAI dark brand colors
+  - Added cancel/reschedule links to confirmation email
+  - Enhanced lead magnet email with branded template
+- [x] Implement cancel/reschedule appointments feature with database tracking and M365 sync
+  - Added meetingBookings DB table (pnpm db:push completed)
+  - cancelMeeting, rescheduleMeeting, getBookingByToken tRPC procedures
+  - /cancel-meeting and /reschedule-meeting frontend pages created
+  - M365 event deleted/recreated on cancel/reschedule
+  - Global widgets hidden on meeting management pages
+  - All 228 tests passing
+- [x] Create reusable skill documenting the M365 calendar integration process
+  - Skill: m365-calendar-booking (validated)
+  - Covers DB schema, Graph API, event creation, availability config, cancel/reschedule, timezone, email templates, pitfalls
+
+## Email Fixes (Apr 13, 2026)
+- [x] Remove docs link from booking confirmation email
+- [x] Fix "Schedule a Free Consultation" button in lead magnet email to link to gigitekai.com
+- [x] Enhance booking confirmation email with professional branding (no docs links)
+- [x] Implement cancel/reschedule appointments feature with database tracking and M365 sync
+- [x] Create reusable skill documenting the M365 calendar integration process

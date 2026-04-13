@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -52,6 +52,10 @@ import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
 import AdminGuidePage from "./pages/AdminGuidePage";
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Meeting management
+import CancelMeeting from "./pages/CancelMeeting";
+import RescheduleMeeting from "./pages/RescheduleMeeting";
+
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
@@ -80,6 +84,10 @@ function Router() {
       <Route path="/helpdesk/feedback">{() => <ApprovalGuard><TicketFeedback /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/profile">{() => <ApprovalGuard><UserProfile /></ApprovalGuard>}</Route>
       <Route path={"/helpdesk/guide"} component={HelpdeskAgentGuide} />
+
+      {/* ── Meeting Management ── */}
+      <Route path="/cancel-meeting" component={CancelMeeting} />
+      <Route path="/reschedule-meeting" component={RescheduleMeeting} />
 
       {/* ── Auth ── */}
       <Route path={"/login"} component={Login} />
@@ -119,17 +127,21 @@ function Router() {
 export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
+  const [location] = useLocation();
+  // Hide global widgets on standalone meeting management pages
+  const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
           <Toaster />
           <Router />
-          <AIChatWidget />
-          <UserChatWidget />
-          <PWAInstallPrompt />
-          <ExitIntentPopup />
-          <StickyCTABar />
+          {!isMeetingPage && <AIChatWidget />}
+          {!isMeetingPage && <UserChatWidget />}
+          {!isMeetingPage && <PWAInstallPrompt />}
+          {!isMeetingPage && <ExitIntentPopup />}
+          {!isMeetingPage && <StickyCTABar />}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

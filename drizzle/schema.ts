@@ -773,3 +773,24 @@ export const leadGenAnalytics = mysqlTable("leadGenAnalytics", {
 });
 export type LeadGenAnalytics = typeof leadGenAnalytics.$inferSelect;
 export type InsertLeadGenAnalytics = typeof leadGenAnalytics.$inferInsert;
+
+// Meeting Bookings — tracks all scheduled strategy calls for cancel/reschedule
+export const meetingBookings = mysqlTable("meetingBookings", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  company: varchar("company", { length: 255 }),
+  meetingDate: varchar("meetingDate", { length: 10 }).notNull(), // YYYY-MM-DD
+  meetingTime: varchar("meetingTime", { length: 5 }).notNull(),  // HH:MM
+  notes: text("notes"),
+  status: mysqlEnum("status", ["confirmed", "cancelled", "rescheduled"]).default("confirmed").notNull(),
+  cancelToken: varchar("cancelToken", { length: 64 }).unique(), // unique token for cancel/reschedule link
+  m365EventId: varchar("m365EventId", { length: 500 }), // Microsoft Graph event ID for deletion
+  cancelledAt: timestamp("cancelledAt"),
+  rescheduledTo: int("rescheduledTo"), // references another meetingBookings.id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type MeetingBooking = typeof meetingBookings.$inferSelect;
+export type InsertMeetingBooking = typeof meetingBookings.$inferInsert;
