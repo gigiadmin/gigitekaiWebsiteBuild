@@ -124,7 +124,7 @@ export const leadgenRouter = router({
           to: input.email,
           subject: `Your GigitekAI Cybersecurity Risk Assessment Results - ${riskLevel.toUpperCase()}`,
           html: emailHtml,
-          replyTo: "support@gigitek.com",
+          replyTo: "support@gigitekai.com",
         });
 
         // Notify admin
@@ -206,7 +206,7 @@ export const leadgenRouter = router({
             </div>
             <!-- Footer -->
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
               <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
             </div>
           </div>
@@ -216,7 +216,7 @@ export const leadgenRouter = router({
           to: input.email,
           subject: `Your Free Guide: ${input.leadMagnetDownloaded}`,
           html: emailHtml,
-          replyTo: "support@gigitek.com",
+          replyTo: "support@gigitekai.com",
         });
 
         // Notify admin
@@ -321,7 +321,7 @@ export const leadgenRouter = router({
           to: input.email,
           subject: "Thank You for Contacting GigitekAI",
           html: emailHtml,
-          replyTo: "support@gigitek.com",
+          replyTo: "support@gigitekai.com",
         });
 
         // Notify admin with lead quality

@@ -73,7 +73,7 @@ describe("Microsoft Graph Email Integration", () => {
     const token = tokenData.access_token;
 
     // Send a test email
-    const senderEmail = "support@gigitek.com";
+    const senderEmail = "support@gigitekai.com";
     const testPayload = {
       message: {
         subject: "GigitekAI Email Test - Microsoft Graph Integration",

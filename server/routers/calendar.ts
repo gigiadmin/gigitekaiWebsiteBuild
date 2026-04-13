@@ -182,7 +182,7 @@ export const calendarRouter = router({
               </div>
               <!-- Footer -->
               <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
                 <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export const calendarRouter = router({
 
         // Send internal notification to admin
         await sendEmail({
-          to: "support@gigitek.com",
+          to: "support@gigitekai.com",
           subject: `New Meeting Scheduled: ${input.name} from ${input.company || "Unknown Company"}`,
           html: `
             <div style="font-family: Arial, sans-serif; color: #333;">
@@ -297,7 +297,7 @@ export const calendarRouter = router({
               </div>
               <!-- Footer -->
               <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
                 <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
               </div>
             </div>
@@ -371,10 +371,10 @@ export const calendarRouter = router({
               <p style="color: #333; font-size: 16px;">Hi ${b.name},</p>
               <p style="color: #333; font-size: 15px; line-height: 1.6;">Your strategy call scheduled for <strong>${b.meetingDate} at ${b.meetingTime} EST</strong> has been cancelled.</p>
               <p style="color: #555; font-size: 14px; line-height: 1.6;">We hope to connect with you in the future. To book a new call, visit <a href="https://gigitekai.com" style="color: #00d4ff;">gigitekai.com</a>.</p>
-              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>609-676-4483</strong> or email support@gigitek.com.</p>
+              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>609-676-4483</strong> or email support@gigitekai.com.</p>
             </div>
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
             </div>
           </div>
         `,
@@ -382,7 +382,7 @@ export const calendarRouter = router({
 
       // Notify admin
       await sendEmail({
-        to: "support@gigitek.com",
+        to: "support@gigitekai.com",
         subject: `Meeting Cancelled: ${b.name} (${b.meetingDate} ${b.meetingTime})`,
         html: `<p><strong>${b.name}</strong> (${b.email}) cancelled their strategy call scheduled for ${b.meetingDate} at ${b.meetingTime} EST.</p>`,
       });
@@ -535,10 +535,10 @@ export const calendarRouter = router({
                   <tr style="border-top: 1px solid #f0f0f0;"><td style="padding: 7px 0; color: #666; font-size: 14px;">Duration</td><td style="padding: 7px 0; color: #333; font-size: 14px; font-weight: 600;">15 minutes</td></tr>
                 </table>
               </div>
-              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>609-676-4483</strong> or email support@gigitek.com.</p>
+              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>609-676-4483</strong> or email support@gigitekai.com.</p>
             </div>
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitek.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
             </div>
           </div>
         `,
@@ -546,7 +546,7 @@ export const calendarRouter = router({
 
       // Notify admin
       await sendEmail({
-        to: "support@gigitek.com",
+        to: "support@gigitekai.com",
         subject: `Meeting Rescheduled: ${b.name} → ${input.newDate} ${input.newTime}`,
         html: `<p><strong>${b.name}</strong> (${b.email}) rescheduled their strategy call to <strong>${input.newDate} at ${input.newTime} EST</strong>.</p>`,
       });

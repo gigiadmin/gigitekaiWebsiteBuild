@@ -1,5 +1,5 @@
 /**
- * Inbound Email Webhook Handler — Receive incoming emails to support@gigitek.com
+ * Inbound Email Webhook Handler — Receive incoming emails to support@gigitekai.com
  *
  * This webhook receives POST requests with email data from an inbound parse service.
  * Note: All OUTBOUND emails are sent via Microsoft Graph (Exchange Online).

@@ -73,7 +73,7 @@ export async function getMsGraphToken(): Promise<string | null> {
 /**
  * Sends an email using Microsoft Graph API (Exchange Online).
  * Uses the client credentials flow with Mail.Send application permission.
- * Sends as support@gigitek.com via the /users/{userId}/sendMail endpoint.
+ * Sends as support@gigitekai.com via the /users/{userId}/sendMail endpoint.
  *
  * This is the ONLY email provider — all emails route through Azure/Exchange Online.
  */
@@ -84,7 +84,7 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
     return false;
   }
 
-  const senderEmail = "support@gigitek.com";
+  const senderEmail = "support@gigitekai.com";
 
   try {
     const graphPayload: Record<string, unknown> = {

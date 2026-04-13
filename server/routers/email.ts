@@ -2,7 +2,7 @@
  * Email Router — Manage support emails from the admin portal
  *
  * Features:
- *  - Send emails via Microsoft Graph (Exchange Online) from support@gigitek.com
+ *  - Send emails via Microsoft Graph (Exchange Online) from support@gigitekai.com
  *  - Track sent/received emails in the database
  *  - Auto-link incoming replies to tickets or chat sessions
  *  - Pre-built email templates for common responses

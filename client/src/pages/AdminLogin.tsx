@@ -139,7 +139,7 @@ export default function AdminLogin() {
             {/* Help Text */}
             <div className="mt-6 p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
               <p className="text-xs text-slate-400">
-                <strong>Need access?</strong> Contact your administrator at <span className="text-cyan-400">support@gigitek.com</span> to create your admin account.
+                <strong>Need access?</strong> Contact your administrator at <span className="text-cyan-400">support@gigitekai.com</span> to create your admin account.
               </p>
             </div>
           </CardContent>
