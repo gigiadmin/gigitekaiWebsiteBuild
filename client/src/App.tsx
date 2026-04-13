@@ -63,7 +63,7 @@ import Contact from "./pages/Contact";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import { ExitIntentPopup } from "./components/ExitIntentPopup";
+// import { ExitIntentPopup } from "./components/ExitIntentPopup"; // DISABLED: No guide provided, broken lead magnet
 import { StickyCTABar } from "./components/StickyCTABar";
 
 function Router() {
@@ -136,8 +136,6 @@ function App() {
   const [location] = useLocation();
   // Hide global widgets on standalone meeting management pages
   const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
-  // Hide exit intent popup on admin pages
-  const isAdminPage = location.startsWith("/admin");
 
   return (
     <ErrorBoundary>
@@ -148,7 +146,7 @@ function App() {
           {!isMeetingPage && <AIChatWidget />}
           {!isMeetingPage && <UserChatWidget />}
           {!isMeetingPage && <PWAInstallPrompt />}
-          {!isMeetingPage && !isAdminPage && <ExitIntentPopup />}
+          {/* ExitIntentPopup disabled - no guide provided */}
           {!isMeetingPage && <StickyCTABar />}
         </TooltipProvider>
       </ThemeProvider>

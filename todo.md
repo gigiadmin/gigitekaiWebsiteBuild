@@ -1136,3 +1136,11 @@
 - [x] Removed "Wait! Before You Go..." popup from admin portal only
 - [x] Kept popup visible for regular users and clients
   - Updated App.tsx to hide ExitIntentPopup on /admin/* routes
+
+## Remove Exit Intent Popup Completely (April 13, 2026)
+- [x] Disabled ExitIntentPopup component completely from App.tsx
+- [x] Reason: No guide provided (broken lead magnet), was showing on admin portal despite attempts to hide
+- [x] All 228 tests passing
+
+## Hide Manus Badge (April 13, 2026)
+- [ ] Find and hide the "Made with Manus" badge from the website
