@@ -1237,3 +1237,25 @@
 - [x] Fix "Notification permission denied" error handling — show clearer instructions
   - Replaced generic message with actionable steps: click lock icon → Notifications → Allow → Refresh
   - 258 tests passing
+
+## Bug Fix: Mobile Login "Permission denied — Redirect URI is not set" (April 13, 2026)
+- [x] Fix OAuth login failing on mobile — "Permission denied: Redirect URI is not set" on manus.im
+  - Root cause: Manus OAuth app (ID: mmTCDMc2kTTVcTkwoY8f9U) does not have https://gigitekai.com/api/oauth/callback registered as an allowed redirect URI
+  - Code is correct — getLoginUrl() uses window.location.origin which correctly sends https://gigitekai.com
+  - Resolution: Manus platform team must register the redirect URI in the OAuth app settings
+  - Workaround: Users can log in from desktop (gigitekai.com) until the redirect URI is registered
+
+## Blog Post: 2026 IT Trends Article (April 13, 2026)
+- [x] Publish "Strategic IT Upgrades Defining Enterprise Competitiveness in 2026" to the Blog/Insights section
+  - Live at: https://gigitekai.com/blog/strategic-it-upgrades-enterprise-competitiveness-2026
+  - Category: IT Strategy | 18 min read | Author: GigitekAI
+  - Published: April 13, 2026
+  - Appears as the top article in the Insights section
+
+## Bug Fix: Blog Post Body Text Unreadable on Mobile (April 13, 2026)
+- [x] Fix blog article body text rendering as light gray on white/light background — nearly invisible on mobile
+  - Root cause: Streamdown component injects its own inline styles overriding Tailwind classes
+  - Fix 1: Added .blog-article-content CSS class with !important overrides for all text elements
+  - Fix 2: Applied class to Streamdown wrapper div in BlogDetail.tsx
+  - Fix 3: Added full table, blockquote, code, and hr styling with proper contrast
+  - Text is now dark gray (#1f2937) on white — readable on all devices

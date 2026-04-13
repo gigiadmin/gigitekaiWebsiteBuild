@@ -181,7 +181,7 @@ export default function BlogDetail() {
         {/* Content */}
         <section className="py-16 bg-gray-50">
           <div className="container max-w-3xl">
-            <article className="bg-white rounded-2xl p-12 prose prose-lg max-w-none">
+            <article className="bg-white rounded-2xl p-12 prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900 prose-li:text-gray-800 prose-blockquote:text-gray-700 prose-a:text-[#00D4FF] prose-th:text-gray-900 prose-td:text-gray-800 [&_*]:text-gray-800 [&_h1]:text-gray-900 [&_h2]:text-gray-900 [&_h3]:text-gray-900 [&_h4]:text-gray-900 [&_p]:text-gray-800 [&_li]:text-gray-800 [&_blockquote]:text-gray-700 [&_strong]:text-gray-900 [&_td]:text-gray-800 [&_th]:text-gray-900">
               {/* Render HTML from TipTap editor; fall back to Markdown for legacy posts */}
               {post.content.trimStart().startsWith("<") ? (
                 <div
@@ -193,7 +193,9 @@ export default function BlogDetail() {
                   }}
                 />
               ) : (
-                <Streamdown>{post.content}</Streamdown>
+                <div className="blog-article-content">
+                  <Streamdown>{post.content}</Streamdown>
+                </div>
               )}
             </article>
 
