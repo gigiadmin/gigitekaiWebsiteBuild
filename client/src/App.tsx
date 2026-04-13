@@ -97,6 +97,9 @@ function Router() {
       {/* ── Auth ── */}
       {/* OAuth login is handled automatically by useAuth hook in AdminLayout */}
       <Route path="/logout-confirmation" component={LogoutConfirmation} />
+      {/* Redirect /login and /admin/login to /admin (OAuth handles auth) */}
+      <Route path="/login">{() => { window.location.href = "/admin"; return null; }}</Route>
+      <Route path="/admin/login">{() => { window.location.href = "/admin"; return null; }}</Route>
 
       {/* ── Unified Admin Portal ── */}
       {/* Dashboard home */}

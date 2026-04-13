@@ -128,14 +128,14 @@ export default function HelpdeskAgentGuide() {
               <div className="bg-slate-800/40 rounded-lg p-4 border border-slate-700/40">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs font-semibold text-purple-400 bg-purple-900/30 border border-purple-800 px-2 py-0.5 rounded-full">Method B</span>
-                  <span className="text-gray-400 text-xs">Custom Login</span>
+                  <span className="text-gray-400 text-xs">Manus OAuth Login</span>
                 </div>
                 <div className="space-y-2.5">
-                  <StepCard number={1} text="Go to **gigitekai.com/login** in your browser." />
-                  <StepCard number={2} text="Enter your **email** and **password** provided by your admin." />
-                  <StepCard number={3} text="Click **Sign In**. You'll be redirected to the portal." />
+                  <StepCard number={1} text="Go to **gigitekai.com/admin** in your browser." />
+                  <StepCard number={2} text="You'll be redirected to the **Manus OAuth** login page." />
+                  <StepCard number={3} text="Sign in with your **Manus account**. You'll be redirected to the portal." />
                 </div>
-                <NoteBox>Use this method if your admin gave you a direct email/password instead of a Manus account invite.</NoteBox>
+                <NoteBox>All admin and agent access is managed through Manus OAuth. Contact your admin if you need an account.</NoteBox>
               </div>
             </div>
           </div>

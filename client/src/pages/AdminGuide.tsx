@@ -67,7 +67,7 @@ const steps = {
     },
     {
       num: 6,
-      text: 'Share the credentials. Staff log in at `gigitekai.com/login`.',
+      text: 'Share access. Staff log in at `gigitekai.com/admin` via Manus OAuth.',
     },
   ],
   reset: [

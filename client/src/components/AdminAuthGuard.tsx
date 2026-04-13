@@ -1,12 +1,12 @@
 /**
  * AdminAuthGuard
- * Protects admin routes using the credential-based auth system (not Manus OAuth)
- * Redirects to /login if not authenticated
+ * Protects admin routes using Manus OAuth
+ * Redirects to OAuth login if not authenticated
  */
 
 import { useEffect } from "react";
-import { useLocation } from "wouter";
-import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 interface AdminAuthGuardProps {
   children: React.ReactNode;
@@ -14,24 +14,15 @@ interface AdminAuthGuardProps {
 }
 
 export default function AdminAuthGuard({ children, requireRole }: AdminAuthGuardProps) {
-  const [, setLocation] = useLocation();
-  const { data: adminUser, isLoading } = trpc.adminAuth.me.useQuery();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !adminUser) {
-      setLocation("/login");
+    if (!loading && !user) {
+      window.location.href = getLoginUrl();
     }
-    if (!isLoading && adminUser && requireRole) {
-      const roleHierarchy = { admin: 3, agent: 2, viewer: 1 };
-      const userLevel = roleHierarchy[adminUser.role] ?? 0;
-      const requiredLevel = roleHierarchy[requireRole] ?? 0;
-      if (userLevel < requiredLevel) {
-        setLocation("/login");
-      }
-    }
-  }, [adminUser, isLoading, requireRole, setLocation]);
+  }, [user, loading]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
         <div className="flex flex-col items-center gap-4">
@@ -42,7 +33,7 @@ export default function AdminAuthGuard({ children, requireRole }: AdminAuthGuard
     );
   }
 
-  if (!adminUser) {
+  if (!user) {
     return null;
   }
 

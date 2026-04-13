@@ -55,12 +55,7 @@ export default function AdminPortal() {
     : null;
 
   const handleLogout = async () => {
-    if (activeUser?.authType === "oauth") {
-      await oauthLogout();
-    } else {
-      await customLogoutMutation.mutateAsync();
-      setLocation("/login");
-    }
+    await oauthLogout();
   };
 
   if (isLoading) {

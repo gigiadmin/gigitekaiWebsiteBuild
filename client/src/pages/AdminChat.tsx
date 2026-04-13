@@ -468,7 +468,7 @@ export default function AdminChat() {
   }, [transcriptData, transcriptSessionId]);
 
   const handleLogout = async () => {
-    navigate("/login");
+    window.location.href = "/logout-confirmation";
   };
 
   if (loading) {
