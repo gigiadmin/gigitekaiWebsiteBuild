@@ -1042,3 +1042,11 @@
   - Backend: getAvailableSlots validates day is Mon/Wed/Fri, returns empty if not
   - Backend: Added getAvailableDates procedure returning all valid dates
   - All 228 tests passing
+
+## Timezone Clarity in Booking Form (Apr 12, 2026)
+- [x] Make EST timezone label prominent so clients in different time zones clearly see it
+  - Added cyan info banner at top of modal: "All times are Eastern Standard Time (EST / UTC-5)"
+  - Added PST and GMT equivalents to each time slot in the dropdown
+  - Time label shows "(Eastern Time — EST)" in cyan
+  - Modal subtitle shows "EST (Eastern Time)" in cyan
+  - Placeholder text says "Choose a time slot (EST)"

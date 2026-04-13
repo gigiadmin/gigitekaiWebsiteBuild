@@ -55,14 +55,14 @@ function getAvailableDates(): { value: string; label: string }[] {
 
 // Available time slots: 11:00 AM – 2:30 PM EST (30-min intervals, 15-min meetings)
 const TIME_SLOTS = [
-  { value: "11:00", label: "11:00 AM EST" },
-  { value: "11:30", label: "11:30 AM EST" },
-  { value: "12:00", label: "12:00 PM EST" },
-  { value: "12:30", label: "12:30 PM EST" },
-  { value: "13:00", label: "1:00 PM EST" },
-  { value: "13:30", label: "1:30 PM EST" },
-  { value: "14:00", label: "2:00 PM EST" },
-  { value: "14:30", label: "2:30 PM EST" },
+  { value: "11:00", label: "11:00 AM EST (8:00 AM PST / 4:00 PM GMT)" },
+  { value: "11:30", label: "11:30 AM EST (8:30 AM PST / 4:30 PM GMT)" },
+  { value: "12:00", label: "12:00 PM EST (9:00 AM PST / 5:00 PM GMT)" },
+  { value: "12:30", label: "12:30 PM EST (9:30 AM PST / 5:30 PM GMT)" },
+  { value: "13:00", label: "1:00 PM EST (10:00 AM PST / 6:00 PM GMT)" },
+  { value: "13:30", label: "1:30 PM EST (10:30 AM PST / 6:30 PM GMT)" },
+  { value: "14:00", label: "2:00 PM EST (11:00 AM PST / 7:00 PM GMT)" },
+  { value: "14:30", label: "2:30 PM EST (11:30 AM PST / 7:30 PM GMT)" },
 ];
 
 export function StickyCTABar({ onClose }: StickyCTABarProps) {
@@ -160,11 +160,20 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
           <DialogHeader>
             <DialogTitle className="text-white">Schedule Your Strategy Call</DialogTitle>
             <p className="text-gray-400 text-sm pt-1">
-              Available Mon, Wed & Fri — 11:00 AM to 3:00 PM EST
+              Available Mon, Wed & Fri — 11:00 AM to 3:00 PM <span className="text-cyan-400 font-semibold">EST (Eastern Time)</span>
             </p>
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Timezone Notice */}
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg px-4 py-3 flex items-start gap-3">
+              <span className="text-cyan-400 text-lg mt-0.5">🕐</span>
+              <div>
+                <p className="text-cyan-300 font-semibold text-sm">All times are Eastern Standard Time (EST / UTC-5)</p>
+                <p className="text-gray-400 text-xs mt-0.5">Please convert to your local timezone before booking.</p>
+              </div>
+            </div>
+
             {/* Name */}
             <div>
               <label className="text-sm text-gray-300 mb-2 block">Full Name *</label>
@@ -235,14 +244,14 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
             {/* Time Dropdown — only shown after a date is selected */}
             {formData.preferredDate && (
               <div>
-                <label className="text-sm text-gray-300 mb-2 block">Select Time (EST) *</label>
+                <label className="text-sm text-gray-300 mb-2 block">Select Time <span className="text-cyan-400 font-semibold">(Eastern Time — EST)</span> *</label>
                 <select
                   value={formData.preferredTime}
                   onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
                   className={selectClass}
                 >
                   <option value="" disabled>
-                    — Choose a time slot —
+                    — Choose a time slot (EST) —
                   </option>
                   {TIME_SLOTS.map((t) => (
                     <option key={t.value} value={t.value}>
