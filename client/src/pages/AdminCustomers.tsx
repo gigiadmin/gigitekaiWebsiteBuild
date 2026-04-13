@@ -22,12 +22,27 @@ export default function AdminCustomers() {
   const sendInvite = trpc.customerInvites.sendCustomerInvite.useMutation({
     onSuccess: (res) => {
       if (res.success) {
-        toast.success("Invite sent successfully");
+        if ((res as any).emailDelivered === false) {
+          toast.warning(res.message || "Invite created but email delivery failed — use Resend to retry");
+        } else {
+          toast.success("Invite sent successfully");
+        }
         setInviteOpen(false);
         setForm({ email: "", name: "", company: "" });
         refetch();
       } else {
-        toast.error(res.message);
+        toast.error(res.message || "Failed to send invite");
+      }
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const resendInvite = trpc.customerInvites.resendCustomerInvite.useMutation({
+    onSuccess: (res) => {
+      if (res.success) {
+        toast.success("Invite resent successfully");
+        refetch();
+      } else {
+        toast.error(res.message || "Failed to resend invite");
       }
     },
     onError: (e) => toast.error(e.message),
@@ -180,16 +195,28 @@ export default function AdminCustomers() {
                         </td>
                         <td className="py-3">
                           {invite.status === "pending" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-                              onClick={() => revokeInvite.mutate({ inviteId: invite.id })}
-                              disabled={revokeInvite.isPending}
-                              title="Revoke invite"
-                            >
-                              <XCircle size={14} />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10"
+                                onClick={() => resendInvite.mutate({ inviteId: invite.id })}
+                                disabled={resendInvite.isPending}
+                                title="Resend invite email"
+                              >
+                                <Send size={13} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                                onClick={() => revokeInvite.mutate({ inviteId: invite.id })}
+                                disabled={revokeInvite.isPending}
+                                title="Revoke invite"
+                              >
+                                <XCircle size={14} />
+                              </Button>
+                            </div>
                           )}
                         </td>
                       </tr>

@@ -1199,3 +1199,12 @@
   - Fixed syncInbox tRPC procedure: catches rate-limit errors and throws TRPCError with user-friendly message
   - User now sees: "Microsoft Graph is rate limiting inbox sync. Please wait 60 seconds and try again."
   - Added 4 new rate-limit detection tests (247 total tests passing)
+
+## Bug Fix: Customer Invite Email Not Sending (April 13, 2026)
+- [x] Fix invite emails not being delivered to recipients (status shows Pending but no email arrives)
+  - Root cause: invite link used process.env.VITE_FRONTEND_URL (undefined in production) — fixed to hardcoded https://gigitekai.com/accept-invite?token=...
+  - Fixed resendCustomerInvite to look up invite directly by ID (was filtering by adminId which could miss invites)
+  - Added emailDelivered field to sendCustomerInvite response — UI now shows warning toast if email fails
+  - Added Resend button (cyan send icon) next to each Pending invite in the table
+  - Improved invite email HTML: GigitekAI branding, #00D4FF CTA button, support@gigitekai.com contact
+  - 11 new tests added (customer-invites.test.ts) — 258 total tests passing
