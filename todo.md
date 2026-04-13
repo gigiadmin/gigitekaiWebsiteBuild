@@ -1152,3 +1152,7 @@
 
 ## Logout Button Enhancement (April 13, 2026)
 - [x] Enhance logout button UI with better visibility and tooltip (added red color, hover effects, and animated tooltip)
+
+## OAuth Flow Fix (April 13, 2026)
+- [x] Remove old admin email/password login pages and routes (removed Login and AdminLogin components from App.tsx)
+- [x] Ensure /admin redirects to Manus OAuth login if not authenticated (AdminLayout uses useAuth with redirectOnUnauthenticated)
