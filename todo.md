@@ -1156,3 +1156,7 @@
 ## OAuth Flow Fix (April 13, 2026)
 - [x] Remove old admin email/password login pages and routes (removed Login and AdminLogin components from App.tsx)
 - [x] Ensure /admin redirects to Manus OAuth login if not authenticated (AdminLayout uses useAuth with redirectOnUnauthenticated)
+
+## Logout Confirmation Page (April 13, 2026)
+- [x] Create logout confirmation page with login link (LogoutConfirmation.tsx created with success message and login/home buttons)
+- [x] Update logout flow to redirect to confirmation page (useAuth hook now redirects to /logout-confirmation after logout)

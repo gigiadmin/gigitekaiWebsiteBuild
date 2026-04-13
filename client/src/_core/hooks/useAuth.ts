@@ -39,9 +39,9 @@ export function useAuth(options?: UseAuthOptions) {
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
-      // Redirect to /login page after logout for easy account switching
+      // Redirect to logout confirmation page
       if (typeof window !== "undefined") {
-        window.location.href = "/login";
+        window.location.href = "/logout-confirmation";
       }
     }
   }, [logoutMutation, utils]);

@@ -25,6 +25,7 @@ import HelpdeskAgentGuide from "./pages/HelpdeskAgentGuide";
 
 // Auth
 import AcceptInvite from "./pages/AcceptInvite";
+import LogoutConfirmation from "./pages/LogoutConfirmation";
 import ApprovalGuard from "./components/ApprovalGuard";
 
 // ── Unified Admin Portal ──────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ function Router() {
 
       {/* ── Auth ── */}
       {/* OAuth login is handled automatically by useAuth hook in AdminLayout */}
+      <Route path="/logout-confirmation" component={LogoutConfirmation} />
 
       {/* ── Unified Admin Portal ── */}
       {/* Dashboard home */}
