@@ -63,7 +63,7 @@ import Contact from "./pages/Contact";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
-// import { ExitIntentPopup } from "./components/ExitIntentPopup"; // DISABLED: No guide provided, broken lead magnet
+
 import { StickyCTABar } from "./components/StickyCTABar";
 
 function Router() {

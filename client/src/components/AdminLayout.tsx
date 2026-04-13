@@ -95,19 +95,38 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
-  const [location] = useLocation();
-  const { user } = useAuth();
+  const [location, setLocation] = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   
+  // Check admin auth status
+  const { data: adminUser, isLoading: authLoading } = trpc.adminAuth.me.useQuery();
   const adminLogout = trpc.adminAuth.logout.useMutation({
     onSuccess: () => {
-      window.location.href = '/login';
+      setLocation('/login');
     },
   });
-  const handleLogout = async () => {
-    await adminLogout.mutateAsync();
-  };
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !adminUser) {
+      setLocation('/login');
+    }
+  }, [authLoading, adminUser, setLocation]);
+  
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  
+  if (!adminUser) {
+    return null;
+  }
+  
+  const logout = () => adminLogout.mutate();
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -194,18 +213,18 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xs font-bold">
-                {user?.name?.charAt(0)?.toUpperCase() ?? "A"}
+                {adminUser?.name?.charAt(0)?.toUpperCase() ?? "A"}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-medium truncate">{user?.name ?? "Admin"}</div>
-              <div className="text-slate-500 text-xs truncate">{user?.role ?? "admin"}</div>
+              <div className="text-white text-xs font-medium truncate">{adminUser?.name ?? "Admin"}</div>
+              <div className="text-slate-500 text-xs truncate">{adminUser?.role ?? "admin"}</div>
             </div>
             <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-              onClick={handleLogout}
+              onClick={logout}
               title="Sign out"
             >
               <LogOut size={14} />
@@ -216,7 +235,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
-            onClick={handleLogout}
+            onClick={logout}
             title="Sign out"
           >
             <LogOut size={14} />
