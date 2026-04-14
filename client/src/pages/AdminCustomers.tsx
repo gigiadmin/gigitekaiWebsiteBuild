@@ -4,7 +4,6 @@
  */
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -68,10 +67,9 @@ export default function AdminCustomers() {
   };
 
   return (
-    <AdminLayout title="Customers">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold text-white">Customer Accounts</h1>
             <p className="text-slate-400 text-sm mt-0.5">Manage customer portal access and invitations</p>
@@ -131,10 +129,10 @@ export default function AdminCustomers() {
               </DialogContent>
             </Dialog>
           </div>
-        </div>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: "Total Invites", value: invites.length, icon: <Mail size={16} />, color: "text-cyan-400" },
             { label: "Accepted", value: invites.filter((i: any) => i.status === "accepted").length, icon: <CheckCircle size={16} />, color: "text-emerald-400" },
@@ -150,10 +148,10 @@ export default function AdminCustomers() {
               </CardContent>
             </Card>
           ))}
-        </div>
+      </div>
 
-        {/* Invites table */}
-        <Card className="bg-[#161B22] border-slate-700/50">
+      {/* Invites table */}
+      <Card className="bg-[#161B22] border-slate-700/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-white text-base">Customer Invitations</CardTitle>
             <CardDescription className="text-slate-400 text-sm">All customer portal invitations and their status</CardDescription>
@@ -226,8 +224,7 @@ export default function AdminCustomers() {
               </div>
             )}
           </CardContent>
-        </Card>
-      </div>
-    </AdminLayout>
+      </Card>
+    </div>
   );
 }
