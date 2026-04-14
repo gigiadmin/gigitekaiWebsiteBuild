@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import HelpdeskNav from "@/components/HelpdeskNav";
+
 import {
   AlertCircle,
   ArrowUpRight,
@@ -260,9 +260,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
-      <HelpdeskNav isAdmin />
-
+    <div className="w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Admin Header */}
         <div className="mb-8 flex items-center justify-between">
