@@ -23,7 +23,7 @@ export function BulkTicketActions({
   onActionComplete,
 }: BulkTicketActionsProps) {
   const [newStatus, setNewStatus] = useState<
-    "open" | "in_progress" | "resolved" | "closed"
+    "open" | "in_progress" | "on_hold" | "resolved" | "closed"
   >("open");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -73,6 +73,7 @@ export function BulkTicketActions({
         <SelectContent>
           <SelectItem value="open">Open</SelectItem>
           <SelectItem value="in_progress">In Progress</SelectItem>
+          <SelectItem value="on_hold">On Hold</SelectItem>
           <SelectItem value="resolved">Resolved</SelectItem>
           <SelectItem value="closed">Closed</SelectItem>
         </SelectContent>

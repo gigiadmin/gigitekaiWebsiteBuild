@@ -14,6 +14,8 @@ import {
   Eye,
   Filter,
   Loader2,
+  PauseCircle,
+  RotateCcw,
   Search,
   Ticket,
   TrendingUp,
@@ -25,6 +27,10 @@ import {
   UserX,
   Download,
   Mail,
+  StickyNote,
+  History,
+  XCircle,
+  PlayCircle,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -208,11 +214,12 @@ export default function AdminPanel() {
 
   // Stats
   const stats = useMemo(() => {
-    if (!allTickets) return { total: 0, open: 0, inProgress: 0, resolved: 0, closed: 0, critical: 0 };
+    if (!allTickets) return { total: 0, open: 0, inProgress: 0, onHold: 0, resolved: 0, closed: 0, critical: 0 };
     return {
       total: allTickets.length,
       open: allTickets.filter((t: any) => t.status === "open").length,
       inProgress: allTickets.filter((t: any) => t.status === "in_progress").length,
+      onHold: allTickets.filter((t: any) => t.status === "on_hold").length,
       resolved: allTickets.filter((t: any) => t.status === "resolved").length,
       closed: allTickets.filter((t: any) => t.status === "closed").length,
       critical: allTickets.filter((t: any) => t.priority === "critical" && t.status !== "closed").length,
@@ -227,6 +234,7 @@ export default function AdminPanel() {
     const configs: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode; label: string }> = {
       open: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20", icon: <CircleDot className="w-3 h-3" />, label: "Open" },
       in_progress: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20", icon: <Loader2 className="w-3 h-3" />, label: "In Progress" },
+      on_hold: { bg: "bg-purple-500/10", text: "text-purple-400", border: "border-purple-500/20", icon: <Clock className="w-3 h-3" />, label: "On Hold" },
       resolved: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", icon: <CheckCircle2 className="w-3 h-3" />, label: "Resolved" },
       closed: { bg: "bg-gray-500/10", text: "text-gray-400", border: "border-gray-500/20", icon: <CheckCircle2 className="w-3 h-3" />, label: "Closed" },
     };
@@ -306,10 +314,11 @@ export default function AdminPanel() {
         {activeTab === "tickets" && (
         <>
         {/* Metrics Dashboard */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          <MetricCard label="Total Tickets" value={stats.total} icon={<Ticket className="w-5 h-5" />} color="text-white" onClick={() => setStatusFilter("all")} active={statusFilter === "all"} />
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
+          <MetricCard label="Total" value={stats.total} icon={<Ticket className="w-5 h-5" />} color="text-white" onClick={() => setStatusFilter("all")} active={statusFilter === "all"} />
           <MetricCard label="Open" value={stats.open} icon={<CircleDot className="w-5 h-5" />} color="text-blue-400" onClick={() => setStatusFilter("open")} active={statusFilter === "open"} />
           <MetricCard label="In Progress" value={stats.inProgress} icon={<Clock className="w-5 h-5" />} color="text-amber-400" onClick={() => setStatusFilter("in_progress")} active={statusFilter === "in_progress"} />
+          <MetricCard label="On Hold" value={stats.onHold} icon={<PauseCircle className="w-5 h-5" />} color="text-purple-400" onClick={() => setStatusFilter("on_hold")} active={statusFilter === "on_hold"} />
           <MetricCard label="Resolved" value={stats.resolved} icon={<CheckCircle2 className="w-5 h-5" />} color="text-emerald-400" onClick={() => setStatusFilter("resolved")} active={statusFilter === "resolved"} />
           <MetricCard label="Closed" value={stats.closed} icon={<AlertCircle className="w-5 h-5" />} color="text-gray-400" onClick={() => setStatusFilter("closed")} active={statusFilter === "closed"} />
           <MetricCard label="Critical" value={stats.critical} icon={<Zap className="w-5 h-5" />} color="text-red-400" highlight onClick={() => { setStatusFilter("all"); setPriorityFilter("critical"); }} active={priorityFilter === "critical"} />
@@ -490,7 +499,7 @@ export default function AdminPanel() {
                     </span>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-2 md:mt-0 flex-wrap">
+                    <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap">
                       <Button
                         size="sm"
                         variant="outline"
@@ -514,16 +523,54 @@ export default function AdminPanel() {
                         <Mail className="w-3 h-3 mr-1" />
                         Reply
                       </Button>
-                      <select
-                        value={ticket.status}
-                        onChange={(e) => handleUpdateStatus(ticket.id, e.target.value)}
-                        className="bg-[#0A0E1A] border border-gray-700 rounded-lg px-2 py-1 text-white text-xs focus:border-[#00D4FF]/50 focus:outline-none h-7 min-w-[90px]"
-                      >
-                        <option value="open">Open</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
-                      </select>
+                      {/* Context-aware quick action buttons */}
+                      {(ticket.status === "closed" || ticket.status === "resolved") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleUpdateStatus(ticket.id, "open")}
+                          className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                          title="Reopen ticket"
+                        >
+                          <RotateCcw className="w-3 h-3 mr-1" />
+                          Reopen
+                        </Button>
+                      )}
+                      {ticket.status === "open" || ticket.status === "in_progress" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUpdateStatus(ticket.id, "on_hold")}
+                            className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            title="Put on hold"
+                          >
+                            <PauseCircle className="w-3 h-3 mr-1" />
+                            Hold
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleUpdateStatus(ticket.id, "closed")}
+                            className="border-gray-600/50 text-gray-400 hover:bg-gray-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            title="Close ticket"
+                          >
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Close
+                          </Button>
+                        </>
+                      ) : ticket.status === "on_hold" ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleUpdateStatus(ticket.id, "in_progress")}
+                          className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                          title="Resume ticket"
+                        >
+                          <PlayCircle className="w-3 h-3 mr-1" />
+                          Resume
+                        </Button>
+                      ) : null}
                     </div>
                   </div>
                   );

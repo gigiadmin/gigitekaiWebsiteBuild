@@ -88,7 +88,8 @@ export const tickets = mysqlTable("tickets", {
   description: text("description").notNull(),
   priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
   category: mysqlEnum("category", ["bug_report", "feature_request", "general_support", "billing"]).default("general_support").notNull(),
-  status: mysqlEnum("status", ["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  status: mysqlEnum("status", ["open", "in_progress", "on_hold", "resolved", "closed"]).default("open").notNull(),
+  assignedTo: int("assignedTo"), // userId of assigned agent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   resolvedAt: timestamp("resolvedAt"),
@@ -108,6 +109,34 @@ export const ticketReplies = mysqlTable("ticketReplies", {
 
 export type TicketReply = typeof ticketReplies.$inferSelect;
 export type InsertTicketReply = typeof ticketReplies.$inferInsert;
+
+// Internal staff notes on tickets (not visible to customers)
+export const ticketNotes = mysqlTable("ticketNotes", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull(),
+  authorId: int("authorId").notNull(), // userId of staff member
+  authorName: varchar("authorName", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TicketNote = typeof ticketNotes.$inferSelect;
+export type InsertTicketNote = typeof ticketNotes.$inferInsert;
+
+// Ticket activity/audit log
+export const ticketActivity = mysqlTable("ticketActivity", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull(),
+  actorId: int("actorId").notNull(), // userId who performed the action
+  actorName: varchar("actorName", { length: 255 }).notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // e.g. "status_changed", "note_added", "assigned"
+  fromValue: varchar("fromValue", { length: 255 }), // previous value
+  toValue: varchar("toValue", { length: 255 }), // new value
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TicketActivityEntry = typeof ticketActivity.$inferSelect;
+export type InsertTicketActivity = typeof ticketActivity.$inferInsert;
 
 // AI Support Bot - Knowledge Base
 export const knowledgeBase = mysqlTable("knowledgeBase", {

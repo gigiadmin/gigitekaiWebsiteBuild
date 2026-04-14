@@ -6,8 +6,8 @@ import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
 import { users } from "../../drizzle/schema";
-import { ticketTemplates, tickets } from "../../drizzle/schema";
-import { eq, inArray, asc } from "drizzle-orm";
+import { ticketTemplates, tickets, ticketNotes, ticketActivity } from "../../drizzle/schema";
+import { eq, inArray, asc, desc } from "drizzle-orm";
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -160,10 +160,10 @@ export const helpdeskRouter = router({
     .input(
       z.object({
         ticketId: z.number(),
-        status: z.enum(["open", "in_progress", "resolved", "closed"]),
+        status: z.enum(["open", "in_progress", "on_hold", "resolved", "closed"]),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         // Get ticket details before updating
         const ticket = await getTicketById(input.ticketId);
@@ -173,6 +173,23 @@ export const helpdeskRouter = router({
 
         // Update ticket status
         await updateTicketStatus(input.ticketId, input.status);
+
+        // Log activity
+        try {
+          const db = await getDb();
+          if (db) {
+            await db.insert(ticketActivity).values({
+              ticketId: input.ticketId,
+              actorId: ctx.user.id,
+              actorName: ctx.user.name || ctx.user.email || "Admin",
+              action: "status_changed",
+              fromValue: ticket.status,
+              toValue: input.status,
+            });
+          }
+        } catch (logErr) {
+          console.warn("[Helpdesk] Failed to log activity:", logErr);
+        }
 
         // Send email notification to customer
         try {
@@ -268,6 +285,7 @@ export const helpdeskRouter = router({
       const total = allTickets.length;
       const open = allTickets.filter(t => t.status === 'open').length;
       const inProgress = allTickets.filter(t => t.status === 'in_progress').length;
+      const onHold = allTickets.filter(t => t.status === 'on_hold').length;
       const resolved = allTickets.filter(t => t.status === 'resolved').length;
       const closed = allTickets.filter(t => t.status === 'closed').length;
 
@@ -316,7 +334,7 @@ export const helpdeskRouter = router({
       const satisfactionScore = totalRatings > 0 ? Math.round((helpful / totalRatings) * 100) : null;
 
       return {
-        total, open, inProgress, resolved, closed,
+        total, open, inProgress, onHold, resolved, closed,
         avgResolutionHours,
         byPriority,
         byCategory,
@@ -388,7 +406,7 @@ export const helpdeskRouter = router({
     .input(
       z.object({
         ticketIds: z.array(z.number()),
-        newStatus: z.enum(["open", "in_progress", "resolved", "closed"]),
+        newStatus: z.enum(["open", "in_progress", "on_hold", "resolved", "closed"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -416,6 +434,90 @@ export const helpdeskRouter = router({
         return { success: true, count: input.ticketIds.length };
       } catch (error) {
         console.error("Failed to bulk delete tickets:", error);
+        throw error;
+      }
+    }),
+
+  // Add internal staff note to a ticket (not visible to customer)
+  addNote: adminProcedure
+    .input(z.object({
+      ticketId: z.number(),
+      content: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db.insert(ticketNotes).values({
+          ticketId: input.ticketId,
+          authorId: ctx.user.id,
+          authorName: ctx.user.name || ctx.user.email || "Admin",
+          content: input.content,
+        });
+        // Log activity
+        await db.insert(ticketActivity).values({
+          ticketId: input.ticketId,
+          actorId: ctx.user.id,
+          actorName: ctx.user.name || ctx.user.email || "Admin",
+          action: "note_added",
+          toValue: input.content.substring(0, 100),
+        });
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to add note:", error);
+        throw error;
+      }
+    }),
+
+  // Get internal notes for a ticket
+  getNotes: adminProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        const notes = await db
+          .select()
+          .from(ticketNotes)
+          .where(eq(ticketNotes.ticketId, input.ticketId))
+          .orderBy(asc(ticketNotes.createdAt));
+        return notes;
+      } catch (error) {
+        console.error("Failed to get notes:", error);
+        throw error;
+      }
+    }),
+
+  // Get activity log for a ticket
+  getActivity: adminProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        const activity = await db
+          .select()
+          .from(ticketActivity)
+          .where(eq(ticketActivity.ticketId, input.ticketId))
+          .orderBy(desc(ticketActivity.createdAt));
+        return activity;
+      } catch (error) {
+        console.error("Failed to get activity:", error);
+        throw error;
+      }
+    }),
+
+  // Delete a note
+  deleteNote: adminProcedure
+    .input(z.object({ noteId: z.number() }))
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+        await db.delete(ticketNotes).where(eq(ticketNotes.id, input.noteId));
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to delete note:", error);
         throw error;
       }
     }),

@@ -1286,3 +1286,27 @@
   - Backend: add getUsers procedure to list all registered users (id, name, email)
   - Frontend: replace Input[type=number] with Command/Combobox searchable dropdown
   - Show user name + email in dropdown, submit userId automatically
+
+## Helpdesk Ticket System Upgrade — Phased (April 2026)
+
+### Phase 1 — Ticket Actions & Improved Detail View
+- [x] Add ticket status actions: Reopen, Close, Pause/On-Hold in admin ticket list and detail view
+- [x] Add "Pause/On-Hold" as a valid ticket status in DB schema and all status dropdowns
+- [x] Admin ticket list: action button group per row (Reopen / Close / Pause) based on current status
+- [x] Admin ticket detail: prominent action bar at top with status-aware buttons
+- [x] Add internal notes (staff-only comments) to ticket detail — not visible to customer
+- [x] Ticket activity log — show status change history with timestamp and who changed it
+
+### Phase 2 — Assignment, SLA & Omnichannel
+- [ ] Assign ticket to specific agent from admin ticket detail view
+- [ ] SLA timer display on ticket detail (time since opened, time until SLA breach)
+- [ ] Ticket merge — merge duplicate tickets
+- [ ] Bulk ticket actions (select multiple, change status/assign in bulk)
+- [ ] Email-to-ticket: auto-create ticket when email received with no [TICKET #N] reference
+- [ ] Canned responses library for quick replies
+
+### Phase 3 — Self-Service & AI Automation
+- [ ] Knowledge base / FAQ builder in admin (create articles, link from AI chatbot)
+- [ ] AI auto-categorization of new tickets (priority + category suggestion)
+- [ ] AI suggested reply based on ticket content and knowledge base
+- [ ] Proactive push notification to customer on ticket status change

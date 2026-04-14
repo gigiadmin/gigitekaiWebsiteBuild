@@ -188,7 +188,13 @@ export async function updateTicketStatus(ticketId: number, status: string) {
   }
 
   try {
-    const result = await db.update(tickets).set({ status: status as any, updatedAt: new Date() }).where(eq(tickets.id, ticketId));
+    const updateData: any = { status: status as any, updatedAt: new Date() };
+    if (status === "resolved" || status === "closed") {
+      updateData.resolvedAt = new Date();
+    } else if (status === "open" || status === "in_progress" || status === "on_hold") {
+      updateData.resolvedAt = null; // clear resolvedAt when reopening
+    }
+    const result = await db.update(tickets).set(updateData).where(eq(tickets.id, ticketId));
     console.log("[Database] Ticket status updated successfully");
     return result;
   } catch (error) {

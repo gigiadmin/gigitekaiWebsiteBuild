@@ -234,7 +234,7 @@ describe("helpdesk", () => {
       const { ctx } = createAuthContext("admin", true);
       const caller = appRouter.createCaller(ctx);
 
-      for (const status of ["open", "in_progress", "resolved", "closed"]) {
+      for (const status of ["open", "in_progress", "on_hold", "resolved", "closed"]) {
         try {
           await caller.helpdesk.updateStatus({
             ticketId: 1,
