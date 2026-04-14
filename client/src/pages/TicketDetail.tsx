@@ -200,7 +200,7 @@ export default function TicketDetail() {
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
       <HelpdeskNav isAdmin={isAdmin} />
 
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isAdmin ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : ""}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4 ${isAdmin ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : ""}`}>
         {/* Main Column */}
         <div className={isAdmin ? "lg:col-span-2 space-y-6" : "max-w-4xl mx-auto space-y-6"}>
           {/* Back button */}

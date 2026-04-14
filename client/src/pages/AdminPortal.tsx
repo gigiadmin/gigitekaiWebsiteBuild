@@ -169,7 +169,7 @@ export default function AdminPortal() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 pt-4">
 
         {/* Admin Guide Banner */}
         {isAdmin && !guideDismissed && (

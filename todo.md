@@ -1310,3 +1310,9 @@
 - [ ] AI auto-categorization of new tickets (priority + category suggestion)
 - [ ] AI suggested reply based on ticket content and knowledge base
 - [ ] Proactive push notification to customer on ticket status change
+
+## Bug Fix: Book Now Popup (April 2026)
+- [ ] Remove "Book Now" sticky banner popup that appears on admin/helpdesk pages — should only show on public marketing pages if at all
+
+## Bug Fix: Top Navigation Bar Blocking Content (April 2026)
+- [x] Fix admin portal top bar (GigitekAI Admin Portal + Support Center tabs) blocking main content — add proper pt-[height] or margin-top to main content areas
