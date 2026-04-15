@@ -440,8 +440,8 @@ export default function AIChatWidget() {
       {isOpen && (
         <div
           className={`fixed z-50 flex flex-col
-            inset-0
-            md:inset-auto md:bottom-6 md:right-6 md:w-[420px] md:max-h-[680px] md:h-[680px]
+            inset-0 pt-[max(1rem,env(safe-area-inset-top))]
+            md:inset-auto md:bottom-6 md:right-6 md:w-[420px] md:max-h-[680px] md:h-[680px] md:pt-0
             md:rounded-2xl md:border md:border-[rgba(0,212,255,0.15)]
             bg-[#0B1120] shadow-2xl shadow-black/60
             transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}
