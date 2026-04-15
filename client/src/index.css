@@ -141,6 +141,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', sans-serif;
+    /* Safe area insets for notched devices */
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;

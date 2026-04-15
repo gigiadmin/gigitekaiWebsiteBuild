@@ -1316,3 +1316,23 @@
 
 ## Bug Fix: Top Navigation Bar Blocking Content (April 2026)
 - [x] Fix admin portal top bar (GigitekAI Admin Portal + Support Center tabs) blocking main content — removed duplicate HelpdeskNav from AdminPanel.tsx (AdminLayout already provides header)
+
+
+## Blog & Content Updates (April 2026)
+- [x] Add "AI & Automation Update – April 2026" blog post to blog section
+  - Title: AI & Automation Update: What's Hot Right Now – April 2026
+  - Author: GigitekAI LLC
+  - Date: 2026-04-14
+  - Topics: Agentic AI, Claude Computer Use, Perplexity, Grok, multi-agent systems
+  - Call-to-action: Contact GigitekAI for consultation
+
+## Accessibility Audit Fixes (Priority)
+- [ ] Fix SVG accessible name missing (68 instances) — add aria-label to all SVG icons
+- [ ] Fix form-field missing label (4 instances) — add proper <label> elements to form inputs
+- [ ] Fix link accessible name unclear (9 instances) — improve link text clarity
+- [ ] Fix heading sequence out of order (2 instances) — ensure h1→h2→h3 hierarchy
+- [ ] Fix primary skip link missing (1 instance) — add skip-to-content link at top of page
+
+
+## Bug Fix: Mobile Viewport (April 2026)
+- [x] Fix top of site getting cut off on Chrome mobile — add safe area insets and adjust header padding
