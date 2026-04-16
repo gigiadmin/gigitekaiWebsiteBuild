@@ -1,8 +1,9 @@
 /**
  * AdminSocialPage — Social Publishing Hub
  * Write once, publish to LinkedIn, Twitter/X, and Facebook simultaneously.
+ * Includes OAuth connect/disconnect flow for each platform.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,42 @@ import {
   Clock,
   ExternalLink,
   RefreshCw,
+  Link2,
+  Unlink,
+  AlertTriangle,
 } from "lucide-react";
 
 const PLATFORMS = [
-  { id: "linkedin" as const, label: "LinkedIn", icon: Linkedin, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/30", active: "bg-blue-500/20 border-blue-500/60" },
-  { id: "twitter" as const, label: "Twitter / X", icon: Twitter, color: "text-sky-400", bg: "bg-sky-500/10 border-sky-500/30", active: "bg-sky-500/20 border-sky-500/60" },
-  { id: "facebook" as const, label: "Facebook", icon: Facebook, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/30", active: "bg-indigo-500/20 border-indigo-500/60" },
+  {
+    id: "linkedin" as const,
+    label: "LinkedIn",
+    icon: Linkedin,
+    color: "text-blue-400",
+    bg: "bg-blue-500/10 border-blue-500/30",
+    active: "bg-blue-500/20 border-blue-500/60",
+    connectHref: "/api/social/linkedin/connect",
+    brandColor: "#0A66C2",
+  },
+  {
+    id: "twitter" as const,
+    label: "Twitter / X",
+    icon: Twitter,
+    color: "text-sky-400",
+    bg: "bg-sky-500/10 border-sky-500/30",
+    active: "bg-sky-500/20 border-sky-500/60",
+    connectHref: "/api/social/twitter/connect",
+    brandColor: "#1DA1F2",
+  },
+  {
+    id: "facebook" as const,
+    label: "Facebook",
+    icon: Facebook,
+    color: "text-indigo-400",
+    bg: "bg-indigo-500/10 border-indigo-500/30",
+    active: "bg-indigo-500/20 border-indigo-500/60",
+    connectHref: "/api/social/facebook/connect",
+    brandColor: "#1877F2",
+  },
 ];
 
 const MAX_CHARS = 3000;
@@ -32,10 +63,39 @@ const TWITTER_MAX = 280;
 export default function AdminSocialPage() {
   const [content, setContent] = useState("");
   const [link, setLink] = useState("");
-  const [selected, setSelected] = useState<Set<"linkedin" | "twitter" | "facebook">>(() => new Set<"linkedin" | "twitter" | "facebook">(["linkedin"]));
+  const [selected, setSelected] = useState<Set<"linkedin" | "twitter" | "facebook">>(
+    () => new Set<"linkedin" | "twitter" | "facebook">(["linkedin"])
+  );
 
   const utils = trpc.useUtils();
+
+  // Check for ?connected=<platform> or ?error=... from OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("connected");
+    const error = params.get("error");
+    const platform = params.get("platform");
+    if (connected) {
+      toast.success(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
+      utils.social.getConnections.invalidate();
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    if (error) {
+      toast.error(`${platform ?? "Platform"} connect failed: ${error}`);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  const { data: connections, isLoading: connLoading } = trpc.social.getConnections.useQuery();
   const { data: history, isLoading: histLoading } = trpc.social.history.useQuery();
+
+  const disconnectMutation = trpc.social.disconnect.useMutation({
+    onSuccess: (_, vars) => {
+      toast.success(`${vars.platform} disconnected`);
+      utils.social.getConnections.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   const publishMutation = trpc.social.publish.useMutation({
     onSuccess: (data) => {
@@ -53,6 +113,10 @@ export default function AdminSocialPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  function getConnectionForPlatform(id: string) {
+    return connections?.find((c) => c.platform === id) ?? null;
+  }
 
   function togglePlatform(id: "linkedin" | "twitter" | "facebook") {
     setSelected((prev) => {
@@ -84,6 +148,92 @@ export default function AdminSocialPage() {
     <AdminLayout title="Social Publishing Hub">
       <div className="max-w-4xl mx-auto space-y-6">
 
+        {/* Platform Connection Status */}
+        <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
+          <h2 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Platform Connections
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {PLATFORMS.map((p) => {
+              const Icon = p.icon;
+              const conn = getConnectionForPlatform(p.id);
+              const isConnected = !!conn && !conn.isExpired;
+              const isExpired = conn?.isExpired;
+
+              return (
+                <div
+                  key={p.id}
+                  className={`rounded-xl border p-4 flex flex-col gap-3 transition-all ${
+                    isConnected
+                      ? "border-emerald-500/30 bg-emerald-500/5"
+                      : isExpired
+                      ? "border-amber-500/30 bg-amber-500/5"
+                      : "border-gray-700 bg-[#0A0E1A]/60"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-5 h-5 ${p.color}`} />
+                    <span className="text-white font-semibold text-sm">{p.label}</span>
+                    {connLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin ml-auto" />
+                    ) : isConnected ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-auto" />
+                    ) : isExpired ? (
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400 ml-auto" />
+                    ) : (
+                      <XCircle className="w-3.5 h-3.5 text-gray-600 ml-auto" />
+                    )}
+                  </div>
+
+                  {isConnected && conn ? (
+                    <>
+                      <div>
+                        <p className="text-emerald-400 text-xs font-medium">Connected</p>
+                        {conn.screenName && (
+                          <p className="text-gray-400 text-xs mt-0.5 truncate">{conn.screenName}</p>
+                        )}
+                        <p className="text-gray-600 text-xs mt-0.5">
+                          Since {new Date(conn.connectedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => disconnectMutation.mutate({ platform: p.id })}
+                        disabled={disconnectMutation.isPending}
+                        className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <Unlink className="w-3 h-3" />
+                        Disconnect
+                      </button>
+                    </>
+                  ) : isExpired ? (
+                    <>
+                      <p className="text-amber-400 text-xs">Token expired — reconnect</p>
+                      <a
+                        href={p.connectHref}
+                        className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
+                      >
+                        <Link2 className="w-3 h-3" />
+                        Reconnect
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-500 text-xs">Not connected</p>
+                      <a
+                        href={p.connectHref}
+                        className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${p.color} hover:opacity-80`}
+                      >
+                        <Link2 className="w-3 h-3" />
+                        Connect {p.label}
+                      </a>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Compose Card */}
         <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6 space-y-5">
           <h2 className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -95,17 +245,21 @@ export default function AdminSocialPage() {
             {PLATFORMS.map((p) => {
               const Icon = p.icon;
               const isActive = selected.has(p.id);
+              const conn = getConnectionForPlatform(p.id);
+              const isConnected = !!conn && !conn.isExpired;
               return (
                 <button
                   key={p.id}
                   onClick={() => togglePlatform(p.id)}
+                  title={!isConnected ? `Connect ${p.label} first` : undefined}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                     isActive ? p.active + " " + p.color : p.bg + " text-gray-500 hover:text-gray-300"
-                  }`}
+                  } ${!isConnected ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <Icon className="w-4 h-4" />
                   {p.label}
-                  {isActive && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {isActive && isConnected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {!isConnected && <XCircle className="w-3.5 h-3.5 text-gray-600" />}
                 </button>
               );
             })}
@@ -185,7 +339,7 @@ export default function AdminSocialPage() {
               ))}
             </div>
           ) : !history || history.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-8">No posts yet. Publish something above!</p>
+            <p className="text-gray-500 text-sm text-center py-8">No posts yet. Connect a platform and publish something above!</p>
           ) : (
             <div className="space-y-3">
               {history.map((post: any) => {

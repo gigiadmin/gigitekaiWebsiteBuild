@@ -232,6 +232,13 @@
       "when": 1776374847539,
       "tag": "0032_flaky_outlaw_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1776380629124,
+      "tag": "0033_glorious_gabe_jones",
+      "breakpoints": true
     }
   ]
 }

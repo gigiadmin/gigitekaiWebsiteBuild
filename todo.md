@@ -1624,3 +1624,20 @@
 - [x] Show count of selected tickets in toolbar ("3 tickets selected")
 - [x] Clear selection after bulk action completes
 - [x] Write vitest tests for bulkUpdateTickets mutation
+
+## Social Hub OAuth Connect Flows — April 2026
+
+- [ ] Add socialConnections table to schema (platform, accessToken, refreshToken, expiresAt, pageId, personUrn, connectedAt)
+- [ ] Run pnpm db:push to migrate socialConnections table
+- [ ] Build LinkedIn OAuth: GET /api/social/linkedin/connect → redirect to LinkedIn auth URL
+- [ ] Build LinkedIn OAuth: GET /api/social/linkedin/callback → exchange code for token, store in DB
+- [ ] Build Twitter/X OAuth 1.0a: GET /api/social/twitter/connect → request token + redirect
+- [ ] Build Twitter/X OAuth: GET /api/social/twitter/callback → exchange verifier for access token, store in DB
+- [ ] Build Facebook OAuth: GET /api/social/facebook/connect → redirect to FB auth URL
+- [ ] Build Facebook OAuth: GET /api/social/facebook/callback → exchange code for page token, store in DB
+- [ ] Add getSocialConnections tRPC query (admin) to show connection status per platform
+- [ ] Add disconnectSocialPlatform tRPC mutation (admin)
+- [ ] Update social.ts publishPost to use stored tokens from DB instead of env vars
+- [ ] Update AdminSocialPage.tsx with platform connection cards (Connect/Disconnect buttons + status)
+- [ ] Add secrets: LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, TWITTER_API_KEY, TWITTER_API_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET
+- [ ] Write vitest tests for OAuth callback handlers

@@ -16,6 +16,11 @@ import { startSlaAlertScheduler } from "./teamsSlaAlerts";
 import { startNewsletterScheduler } from "../routers/newsletter";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
+import {
+  linkedinConnect, linkedinCallback,
+  twitterConnect, twitterCallback,
+  facebookConnect, facebookCallback,
+} from "../socialOAuth";
 // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
 // import { handleSendGridWebhook } from "./sendgridWebhook";
 
@@ -107,6 +112,14 @@ async function startServer() {
   // Email-to-Ticket: SendGrid Inbound Parse webhook
   // Configure in SendGrid: Settings → Inbound Parse → POST to https://gigitekai.com/api/email-ingest
   app.post("/api/email-ingest", handleEmailIngest);
+
+  // Social OAuth connect/callback routes
+  app.get("/api/social/linkedin/connect", linkedinConnect);
+  app.get("/api/social/linkedin/callback", linkedinCallback);
+  app.get("/api/social/twitter/connect", twitterConnect);
+  app.get("/api/social/twitter/callback", twitterCallback);
+  app.get("/api/social/facebook/connect", facebookConnect);
+  app.get("/api/social/facebook/callback", facebookCallback);
   
   // tRPC API
   app.use(

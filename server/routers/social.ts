@@ -17,15 +17,30 @@
 import { z } from "zod";
 import { adminProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { socialPosts } from "../../drizzle/schema";
+import { socialPosts, socialConnections } from "../../drizzle/schema";
 import { desc, eq } from "drizzle-orm";
+import { createHmac, randomBytes } from "crypto";
+
+// ── Helpers to get stored tokens from DB ──────────────────────────────────
+async function getConnection(platform: "linkedin" | "twitter" | "facebook") {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(socialConnections)
+    .where(eq(socialConnections.platform, platform))
+    .limit(1);
+  return rows[0] ?? null;
+}
 
 // ── Platform publishers ────────────────────────────────────────────────────
 
 async function publishToLinkedIn(content: string, link?: string): Promise<{ postId: string; url: string }> {
-  const token = process.env.LINKEDIN_ACCESS_TOKEN;
-  const personUrn = process.env.LINKEDIN_PERSON_URN;
-  if (!token || !personUrn) throw new Error("LinkedIn credentials not configured");
+  const conn = await getConnection("linkedin");
+  // Fall back to env vars if no DB connection stored
+  const token = conn?.accessToken ?? process.env.LINKEDIN_ACCESS_TOKEN;
+  const personUrn = conn?.personUrn ?? process.env.LINKEDIN_PERSON_URN;
+  if (!token || !personUrn) throw new Error("LinkedIn not connected — click Connect LinkedIn in the Social Hub");
 
   const body: any = {
     author: personUrn,
@@ -69,13 +84,14 @@ async function publishToLinkedIn(content: string, link?: string): Promise<{ post
 }
 
 async function publishToTwitter(content: string): Promise<{ postId: string; url: string }> {
+  const conn = await getConnection("twitter");
   const apiKey = process.env.TWITTER_API_KEY;
   const apiSecret = process.env.TWITTER_API_SECRET;
-  const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-  const accessSecret = process.env.TWITTER_ACCESS_SECRET;
+  const accessToken = conn?.accessToken ?? process.env.TWITTER_ACCESS_TOKEN;
+  const accessSecret = conn?.accessTokenSecret ?? process.env.TWITTER_ACCESS_SECRET;
 
   if (!apiKey || !apiSecret || !accessToken || !accessSecret) {
-    throw new Error("Twitter credentials not configured");
+    throw new Error("Twitter not connected — click Connect Twitter in the Social Hub");
   }
 
   // OAuth 1.0a signature
@@ -132,9 +148,10 @@ async function publishToTwitter(content: string): Promise<{ postId: string; url:
 }
 
 async function publishToFacebook(content: string, link?: string): Promise<{ postId: string; url: string }> {
-  const pageId = process.env.FACEBOOK_PAGE_ID;
-  const pageToken = process.env.FACEBOOK_PAGE_TOKEN;
-  if (!pageId || !pageToken) throw new Error("Facebook credentials not configured");
+  const conn = await getConnection("facebook");
+  const pageId = conn?.pageId ?? process.env.FACEBOOK_PAGE_ID;
+  const pageToken = conn?.accessToken ?? process.env.FACEBOOK_PAGE_TOKEN;
+  if (!pageId || !pageToken) throw new Error("Facebook not connected — click Connect Facebook in the Social Hub");
 
   const params = new URLSearchParams({
     message: content,
@@ -223,6 +240,32 @@ export const socialRouter = router({
       }
 
       return { results };
+    }),
+
+  /** Get connection status for all platforms */
+  getConnections: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const rows = await db.select().from(socialConnections);
+    return rows.map((r) => ({
+      platform: r.platform,
+      screenName: r.screenName,
+      connectedAt: r.connectedAt,
+      expiresAt: r.expiresAt,
+      isExpired: r.expiresAt ? r.expiresAt < new Date() : false,
+    }));
+  }),
+
+  /** Disconnect a platform (delete stored token) */
+  disconnect: adminProcedure
+    .input(z.object({ platform: z.enum(["linkedin", "twitter", "facebook"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db
+        .delete(socialConnections)
+        .where(eq(socialConnections.platform, input.platform));
+      return { success: true };
     }),
 
   /** Get recent social post history */

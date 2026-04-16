@@ -899,3 +899,20 @@ export const socialPosts = mysqlTable("socialPosts", {
 });
 export type SocialPost = typeof socialPosts.$inferSelect;
 export type InsertSocialPost = typeof socialPosts.$inferInsert;
+
+// Social platform OAuth connections — stores tokens obtained via OAuth flows
+export const socialConnections = mysqlTable("socialConnections", {
+  id: int("id").autoincrement().primaryKey(),
+  platform: mysqlEnum("platform", ["linkedin", "twitter", "facebook"]).notNull().unique(),
+  accessToken: text("accessToken").notNull(),
+  accessTokenSecret: text("accessTokenSecret"), // Twitter OAuth 1.0a only
+  refreshToken: text("refreshToken"),
+  expiresAt: timestamp("expiresAt"),
+  pageId: varchar("pageId", { length: 255 }), // Facebook page ID
+  personUrn: varchar("personUrn", { length: 255 }), // LinkedIn person URN
+  screenName: varchar("screenName", { length: 255 }), // display name / handle
+  connectedAt: timestamp("connectedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+export type SocialConnection = typeof socialConnections.$inferSelect;
+export type InsertSocialConnection = typeof socialConnections.$inferInsert;
