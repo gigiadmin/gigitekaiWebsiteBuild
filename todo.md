@@ -1447,3 +1447,8 @@
   - TEAMS_WEBHOOK_URL secret configured in Manus secrets
   - No Azure Bot Service required — uses Teams Incoming Webhook connector
   - Production deployment pending checkpoint + publish
+
+## Teams Bot Enhancements (April 16, 2026)
+- [x] Add "View Ticket" button to all Teams adaptive cards (new ticket, reply, status update)
+- [x] Add "Assign to Agent" button in Teams new ticket card with agent dropdown
+- [x] Auto-sync Teams replies back to helpdesk: when someone replies to a Teams notification, create a ticket reply in the database

@@ -1,48 +1,45 @@
 /**
- * Teams Bot Webhook Handler
- * Receives incoming messages and events from Microsoft Teams
- * Processes ticket updates, replies, and agent collaboration
+ * Teams Bot Webhook Handler — Bot Framework SDK
+ * Handles two-way communication with Microsoft Teams
+ * Receives messages from Teams and syncs replies back to helpdesk tickets
  */
 
 import { Request, Response } from "express";
+import {
+  CloudAdapter,
+  ConfigurationBotFrameworkAuthentication,
+  TurnContext,
+  ActivityHandler,
+  MessageFactory,
+} from "botbuilder";
 import { getDb } from "../db";
 import { tickets, ticketReplies, users } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { createAdminNotification } from "../routers/adminNotifications";
-import crypto from "crypto";
 
-/**
- * Validate Teams webhook signature
- * Teams includes a HMAC-SHA256 signature in the Authorization header
- */
-function validateTeamsSignature(req: Request): boolean {
-  try {
-    const signature = req.headers.authorization?.split(" ")[1];
-    if (!signature) {
-      console.warn("[Teams Webhook] Missing signature");
-      return false;
-    }
+// Bot Framework configuration using Azure Bot credentials
+const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
+  MicrosoftAppId: process.env.TEAMS_BOT_APP_ID || "",
+  MicrosoftAppPassword: process.env.TEAMS_BOT_CLIENT_SECRET || "",
+  MicrosoftAppTenantId: process.env.TEAMS_BOT_TENANT_ID || "",
+  MicrosoftAppType: "SingleTenant",
+});
 
-    // For now, we'll skip signature validation in development
-    // In production, you should validate against your bot's app password
-    // const appPassword = process.env.TEAMS_BOT_CLIENT_SECRET;
-    // const body = JSON.stringify(req.body);
-    // const hash = crypto.createHmac("sha256", appPassword).update(body).digest("base64");
-    // return signature === hash;
+const adapter = new CloudAdapter(botFrameworkAuth);
 
-    return true;
-  } catch (error) {
-    console.error("[Teams Webhook] Signature validation error:", error);
-    return false;
-  }
-}
+// Error handler for the adapter
+adapter.onTurnError = async (context, error) => {
+  console.error("[Teams Bot] Turn error:", error);
+  await context.sendActivity("Sorry, I encountered an error processing your message.");
+};
 
 /**
  * Parse ticket ID from Teams message text
  * Looks for patterns like "#123" or "ticket 123"
  */
 function extractTicketId(text: string): number | null {
-  const match = text.match(/#(\d+)|ticket\s*#?(\d+)/i);
+  const cleanText = text.replace(/<[^>]*>/g, "").trim();
+  const match = cleanText.match(/#(\d+)|ticket\s*#?(\d+)/i);
   if (match) {
     return parseInt(match[1] || match[2], 10);
   }
@@ -51,16 +48,15 @@ function extractTicketId(text: string): number | null {
 
 /**
  * Parse command from Teams message
- * Looks for patterns like "@bot status #123" or "@bot assign #123 to agent"
+ * Supports: @bot status #123, @bot assign #123 to Agent, @bot close #123, @bot resolve #123
  */
 function parseTeamsCommand(text: string): { command: string; ticketId: number | null; args: string[] } | null {
-  const commandMatch = text.match(/@bot\s+(\w+)\s*(.*)/i);
-  if (!commandMatch) {
-    return null;
-  }
+  const cleanText = text.replace(/<[^>]*>/g, "").trim();
+  const commandMatch = cleanText.match(/@\w+\s+(\w+)\s*(.*)/i);
+  if (!commandMatch) return null;
 
   const command = commandMatch[1].toLowerCase();
-  const argsText = commandMatch[2];
+  const argsText = commandMatch[2] || "";
   const ticketId = extractTicketId(argsText);
   const args = argsText.split(/\s+/).filter((a) => a && !a.startsWith("#"));
 
@@ -68,232 +64,282 @@ function parseTeamsCommand(text: string): { command: string; ticketId: number | 
 }
 
 /**
- * Handle Teams message event
+ * The main bot activity handler
  */
-async function handleTeamsMessage(payload: any) {
-  try {
-    const { from, body } = payload;
+class HelpdeskBot extends ActivityHandler {
+  constructor() {
+    super();
 
-    if (!from || !body) {
-      console.warn("[Teams Webhook] Missing from or body in message payload");
-      return { success: false, error: "Missing required fields" };
-    }
+    // Handle incoming messages
+    this.onMessage(async (context: TurnContext) => {
+      const text = context.activity.text || "";
+      const cleanText = text.replace(/<[^>]*>/g, "").trim();
+      const senderName = context.activity.from?.name || "Teams User";
+      const senderAadId = context.activity.from?.aadObjectId;
 
-    const db = await getDb();
-    if (!db) {
-      throw new Error("Database unavailable");
-    }
+      console.log(`[Teams Bot] Message from ${senderName}: ${cleanText}`);
 
-    // Try to extract ticket ID from message
-    const ticketId = extractTicketId(body.content || "");
-
-    // Try to parse a command
-    const command = parseTeamsCommand(body.content || "");
-
-    // If it's a command, handle it
-    if (command && command.command) {
-      console.log(`[Teams Webhook] Command received: ${command.command} for ticket #${command.ticketId}`);
-
-      switch (command.command) {
-        case "status":
-          if (command.ticketId) {
-            const ticket = await db
-              .select()
-              .from(tickets)
-              .where(eq(tickets.id, command.ticketId))
-              .limit(1);
-
-            if (ticket[0]) {
-              return {
-                success: true,
-                action: "status_query",
-                ticketId: command.ticketId,
-                status: ticket[0].status,
-              };
-            }
-          }
-          break;
-
-        case "assign":
-          if (command.ticketId && command.args.length > 0) {
-            // Extract agent name from args
-            const agentName = command.args.join(" ");
-            // Find agent by name
-            const agent = await db
-              .select()
-              .from(users)
-              .where(eq(users.name, agentName))
-              .limit(1);
-
-            if (agent[0]) {
-              // Update ticket assignment
-              await db
-                .update(tickets)
-                .set({ assignedTo: agent[0].id, updatedAt: new Date() })
-                .where(eq(tickets.id, command.ticketId));
-
-              return {
-                success: true,
-                action: "ticket_assigned",
-                ticketId: command.ticketId,
-                assignedTo: agent[0].name,
-              };
-            }
-          }
-          break;
-
-        case "close":
-          if (command.ticketId) {
-            await db
-              .update(tickets)
-              .set({ status: "closed", updatedAt: new Date(), resolvedAt: new Date() })
-              .where(eq(tickets.id, command.ticketId));
-
-            return {
-              success: true,
-              action: "ticket_closed",
-              ticketId: command.ticketId,
-            };
-          }
-          break;
-
-        case "resolve":
-          if (command.ticketId) {
-            await db
-              .update(tickets)
-              .set({ status: "resolved", updatedAt: new Date(), resolvedAt: new Date() })
-              .where(eq(tickets.id, command.ticketId));
-
-            return {
-              success: true,
-              action: "ticket_resolved",
-              ticketId: command.ticketId,
-            };
-          }
-          break;
+      const db = await getDb();
+      if (!db) {
+        await context.sendActivity("❌ Database unavailable. Please try again later.");
+        return;
       }
-    }
 
-    // If a ticket ID was found in the message, add it as a reply
-    if (ticketId) {
-      const ticket = await db
-        .select()
-        .from(tickets)
-        .where(eq(tickets.id, ticketId))
-        .limit(1);
+      // Check for bot commands first
+      const command = parseTeamsCommand(cleanText);
+      if (command) {
+        await handleBotCommand(context, db, command, senderName);
+        return;
+      }
 
-      if (ticket[0]) {
-        // Find or create user from Teams sender info
-        let userId = ticket[0].userId; // Default to ticket creator
-        if (from.user && from.user.id) {
-          // Try to find user by Teams ID or email
-          const senderEmail = from.user.userPrincipalName || from.user.mail;
-          if (senderEmail) {
-            const sender = await db
-              .select()
-              .from(users)
-              .where(eq(users.email, senderEmail))
-              .limit(1);
+      // Check if message references a ticket
+      const ticketId = extractTicketId(cleanText);
+      if (ticketId) {
+        await handleTicketReply(context, db, ticketId, cleanText, senderName, senderAadId);
+        return;
+      }
 
-            if (sender[0]) {
-              userId = sender[0].id;
-            }
-          }
+      // Default response — show help
+      await context.sendActivity(
+        `👋 Hi ${senderName}! I'm the GigitekAI Helpdesk Bot.\n\n` +
+        `**Available commands:**\n` +
+        `• \`@bot status #123\` — Get ticket status\n` +
+        `• \`@bot assign #123 to Agent Name\` — Assign ticket to agent\n` +
+        `• \`@bot close #123\` — Close ticket\n` +
+        `• \`@bot resolve #123\` — Mark ticket as resolved\n\n` +
+        `Or mention a ticket number (e.g., \`#123\`) to add a reply.`
+      );
+    });
+
+    // Handle member added event (bot installed)
+    this.onMembersAdded(async (context: TurnContext) => {
+      const membersAdded = context.activity.membersAdded || [];
+      for (const member of membersAdded) {
+        if (member.id !== context.activity.recipient.id) {
+          await context.sendActivity(
+            `👋 Hello! I'm the **GigitekAI Helpdesk Bot**.\n\n` +
+            `I'll send notifications here when new tickets are created, updated, or replied to.\n\n` +
+            `Use \`@GigitekAI Helpdesk Bot help\` to see available commands.`
+          );
         }
-
-        // Add reply to ticket
-        await db.insert(ticketReplies).values({
-          ticketId,
-          userId,
-          message: body.content || "",
-          isStaffReply: 1, // Teams messages are from staff
-          createdAt: new Date(),
-        });
-
-        // Create admin notification
-        await createAdminNotification({
-          type: "ticket_reply",
-          title: `Teams Reply on Ticket #${ticketId}`,
-          body: `${from.user?.displayName || "Teams User"}: ${(body.content || "").slice(0, 100)}...`,
-          href: `/admin/helpdesk`,
-          priority: "high",
-          ticketId,
-        }).catch((e: any) => console.warn("[Teams Webhook] Notification failed:", e));
-
-        console.log(`[Teams Webhook] Reply added to ticket #${ticketId}`);
-        return { success: true, action: "reply_added", ticketId };
       }
-    }
-
-    console.log("[Teams Webhook] Message processed (no ticket ID found)");
-    return { success: true, action: "message_received" };
-  } catch (error) {
-    console.error("[Teams Webhook] Error handling message:", error);
-    throw error;
+    });
   }
 }
 
 /**
- * Handle Teams webhook events (activity types)
+ * Handle bot commands (@bot status, assign, close, resolve)
  */
-async function handleTeamsEvent(payload: any) {
-  try {
-    const { type, from, body, channelData } = payload;
+async function handleBotCommand(
+  context: TurnContext,
+  db: any,
+  command: { command: string; ticketId: number | null; args: string[] },
+  senderName: string
+) {
+  const { command: cmd, ticketId, args } = command;
 
-    console.log(`[Teams Webhook] Event received: ${type}`);
+  if (!ticketId) {
+    await context.sendActivity(`❌ Please specify a ticket number. Example: \`@bot ${cmd} #123\``);
+    return;
+  }
 
-    // Handle different event types
-    switch (type) {
-      case "message":
-      case "message/edit":
-        return await handleTeamsMessage(payload);
+  const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+  if (!ticketRows[0]) {
+    await context.sendActivity(`❌ Ticket #${ticketId} not found.`);
+    return;
+  }
 
-      case "conversationUpdate":
-        // Bot added to channel or member joined
-        console.log("[Teams Webhook] Conversation updated");
-        return { success: true, action: "conversation_updated" };
+  const ticket = ticketRows[0];
 
-      case "typing":
-        // User is typing
-        console.log("[Teams Webhook] User typing");
-        return { success: true, action: "typing_indicator" };
+  switch (cmd) {
+    case "status":
+      await context.sendActivity(
+        `📋 **Ticket #${ticketId}: ${ticket.title}**\n\n` +
+        `• **Status:** ${ticket.status.replace(/_/g, " ").toUpperCase()}\n` +
+        `• **Priority:** ${ticket.priority.toUpperCase()}\n` +
+        `• **Category:** ${ticket.category.replace(/_/g, " ").toUpperCase()}\n` +
+        `• **Created:** ${new Date(ticket.createdAt).toLocaleString()}`
+      );
+      break;
 
-      default:
-        console.log(`[Teams Webhook] Unhandled event type: ${type}`);
-        return { success: true, action: "event_received" };
+    case "assign": {
+      const agentName = args.filter(a => a.toLowerCase() !== "to").join(" ");
+      if (!agentName) {
+        await context.sendActivity(`❌ Please specify an agent name. Example: \`@bot assign #${ticketId} to John Smith\``);
+        return;
+      }
+
+      // Try to find agent by name (partial match)
+      const agentRows = await db.select().from(users).limit(50);
+      const agent = agentRows.find((u: any) =>
+        u.name?.toLowerCase().includes(agentName.toLowerCase())
+      );
+
+      if (!agent) {
+        await context.sendActivity(`❌ Agent "${agentName}" not found. Please check the name and try again.`);
+        return;
+      }
+
+      await db.update(tickets)
+        .set({ assignedTo: agent.id, updatedAt: new Date() })
+        .where(eq(tickets.id, ticketId));
+
+      await context.sendActivity(
+        `✅ **Ticket #${ticketId}** assigned to **${agent.name}** by ${senderName}.`
+      );
+
+      await createAdminNotification({
+        type: "ticket_reply",
+        title: `Ticket #${ticketId} Assigned via Teams`,
+        body: `${senderName} assigned ticket "${ticket.title}" to ${agent.name}`,
+        href: `/admin/helpdesk`,
+        priority: "normal",
+        ticketId,
+      }).catch(() => {});
+      break;
     }
-  } catch (error) {
-    console.error("[Teams Webhook] Error handling event:", error);
-    throw error;
+
+    case "close":
+      await db.update(tickets)
+        .set({ status: "closed", updatedAt: new Date(), resolvedAt: new Date() })
+        .where(eq(tickets.id, ticketId));
+
+      await context.sendActivity(
+        `🔒 **Ticket #${ticketId}** has been **closed** by ${senderName}.`
+      );
+
+      await createAdminNotification({
+        type: "ticket_reply",
+        title: `Ticket #${ticketId} Closed via Teams`,
+        body: `${senderName} closed ticket "${ticket.title}"`,
+        href: `/admin/helpdesk`,
+        priority: "normal",
+        ticketId,
+      }).catch(() => {});
+      break;
+
+    case "resolve":
+      await db.update(tickets)
+        .set({ status: "resolved", updatedAt: new Date(), resolvedAt: new Date() })
+        .where(eq(tickets.id, ticketId));
+
+      await context.sendActivity(
+        `✅ **Ticket #${ticketId}** has been marked as **resolved** by ${senderName}.`
+      );
+
+      await createAdminNotification({
+        type: "ticket_reply",
+        title: `Ticket #${ticketId} Resolved via Teams`,
+        body: `${senderName} resolved ticket "${ticket.title}"`,
+        href: `/admin/helpdesk`,
+        priority: "normal",
+        ticketId,
+      }).catch(() => {});
+      break;
+
+    default:
+      await context.sendActivity(
+        `❓ Unknown command: \`${cmd}\`\n\n` +
+        `Available commands: \`status\`, \`assign\`, \`close\`, \`resolve\``
+      );
   }
 }
 
 /**
- * Main Teams webhook handler
+ * Handle ticket reply from Teams message
+ * Syncs the reply back to the helpdesk database
+ */
+async function handleTicketReply(
+  context: TurnContext,
+  db: any,
+  ticketId: number,
+  message: string,
+  senderName: string,
+  senderAadId?: string
+) {
+  const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+  if (!ticketRows[0]) {
+    await context.sendActivity(`❌ Ticket #${ticketId} not found.`);
+    return;
+  }
+
+  const ticket = ticketRows[0];
+
+  // Try to find the user by AAD Object ID or name
+  let userId = ticket.userId;
+  if (senderAadId) {
+    const senderRows = await db.select().from(users).limit(100);
+    const sender = senderRows.find((u: any) =>
+      u.name?.toLowerCase() === senderName.toLowerCase()
+    );
+    if (sender) userId = sender.id;
+  }
+
+  // Clean the message (remove HTML tags and ticket reference)
+  const cleanMessage = message
+    .replace(/<[^>]*>/g, "")
+    .replace(/#\d+/g, "")
+    .trim();
+
+  if (!cleanMessage) {
+    await context.sendActivity(`❌ Please include a message along with the ticket number.`);
+    return;
+  }
+
+  // Insert reply into database
+  await db.insert(ticketReplies).values({
+    ticketId,
+    userId,
+    message: `[Via Teams - ${senderName}] ${cleanMessage}`,
+    isStaffReply: 1, // Teams messages are from staff
+    createdAt: new Date(),
+  });
+
+  // Create admin notification
+  await createAdminNotification({
+    type: "ticket_reply",
+    title: `Teams Reply on Ticket #${ticketId}`,
+    body: `${senderName}: ${cleanMessage.slice(0, 100)}`,
+    href: `/admin/helpdesk`,
+    priority: "high",
+    ticketId,
+  }).catch(() => {});
+
+  await context.sendActivity(
+    `✅ Your reply has been added to **Ticket #${ticketId}: ${ticket.title}**\n\n` +
+    `The customer will be notified. [View ticket](https://gigitekai.com/helpdesk/tickets/${ticketId})`
+  );
+
+  console.log(`[Teams Bot] ✅ Reply synced to ticket #${ticketId} from ${senderName}`);
+}
+
+// Initialize the bot instance
+const bot = new HelpdeskBot();
+
+/**
+ * Main Teams webhook handler — processes Bot Framework activities
  */
 export async function handleTeamsWebhook(req: Request, res: Response) {
   try {
-    // Validate signature
-    if (!validateTeamsSignature(req)) {
-      console.warn("[Teams Webhook] Invalid signature");
-      return res.status(401).json({ error: "Unauthorized" });
+    // Check if Bot Framework credentials are configured
+    const appId = process.env.TEAMS_BOT_APP_ID;
+    const appPassword = process.env.TEAMS_BOT_CLIENT_SECRET;
+
+    if (!appId || !appPassword) {
+      console.warn("[Teams Bot] Bot Framework credentials not configured — falling back to basic handler");
+      // Fallback: accept the message but don't process it
+      return res.status(200).json({ status: "received", message: "Bot credentials not configured" });
     }
 
-    const payload = req.body;
-
-    // Validate required fields
-    if (!payload.type) {
-      return res.status(400).json({ error: "Missing event type" });
-    }
-
-    // Handle the event
-    const result = await handleTeamsEvent(payload);
-
-    console.log(`[Teams Webhook] Event processed:`, result);
-    return res.status(200).json(result);
+    await adapter.process(req, res, async (context) => {
+      await bot.run(context);
+    });
   } catch (error) {
-    console.error("[Teams Webhook] Processing failed:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("[Teams Bot] Webhook processing error:", error);
+    // Return 200 to prevent Teams from retrying
+    if (!res.headersSent) {
+      res.status(200).json({ error: "Processing failed" });
+    }
   }
 }
 
@@ -303,14 +349,15 @@ export async function handleTeamsWebhook(req: Request, res: Response) {
 export async function handleTeamsHealthCheck(_req: Request, res: Response) {
   try {
     const db = await getDb();
-    if (!db) {
-      return res.status(503).json({ status: "unhealthy", reason: "Database unavailable" });
-    }
+    const botConfigured = !!(process.env.TEAMS_BOT_APP_ID && process.env.TEAMS_BOT_CLIENT_SECRET);
 
     return res.status(200).json({
       status: "healthy",
       timestamp: new Date().toISOString(),
       botId: process.env.TEAMS_BOT_APP_ID,
+      botFramework: botConfigured ? "configured" : "not configured (using Incoming Webhook only)",
+      webhookUrl: process.env.TEAMS_WEBHOOK_URL ? "configured" : "not configured",
+      database: db ? "connected" : "unavailable",
     });
   } catch (error) {
     console.error("[Teams Health Check] Error:", error);

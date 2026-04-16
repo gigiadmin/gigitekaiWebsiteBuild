@@ -10,6 +10,7 @@ import { tickets, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
+const BASE_URL = "https://gigitekai.com";
 
 /**
  * Send a message to Teams via Incoming Webhook
@@ -48,6 +49,19 @@ function getPriorityColor(priority: string): string {
 }
 
 /**
+ * Get priority badge color for Adaptive Card
+ */
+function getPriorityCardColor(priority: string): string {
+  switch (priority) {
+    case "critical": return "Attention";
+    case "high": return "Warning";
+    case "medium": return "Accent";
+    case "low": return "Good";
+    default: return "Default";
+  }
+}
+
+/**
  * Get status emoji
  */
 function getStatusEmoji(status: string): string {
@@ -63,6 +77,7 @@ function getStatusEmoji(status: string): string {
 
 /**
  * Send ticket notification to Teams channel via Incoming Webhook
+ * Includes: View Ticket, Assign to Agent, and Reply buttons
  */
 export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<void> {
   try {
@@ -82,10 +97,13 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
 
     const creatorName = creator[0]?.name || "Unknown";
     const priorityIcon = getPriorityColor(ticket.priority);
+    const priorityColor = getPriorityCardColor(ticket.priority);
     const statusIcon = getStatusEmoji(ticket.status);
-    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticket.id}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticket.id}`;
+    const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticket.id}`;
+    const assignUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticket.id}&action=assign`;
 
-    // Build Adaptive Card payload for Teams Incoming Webhook
+    // Build enhanced Adaptive Card with action buttons
     const payload = {
       type: "message",
       attachments: [
@@ -124,8 +142,9 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
                         items: [
                           {
                             type: "TextBlock",
-                            text: `${statusIcon} ${ticket.status.toUpperCase()}`,
+                            text: `${priorityIcon} ${ticket.priority.toUpperCase()}`,
                             weight: "Bolder",
+                            color: priorityColor,
                             horizontalAlignment: "Right",
                           },
                         ],
@@ -150,25 +169,38 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
                     wrap: true,
                     size: "Small",
                     maxLines: 3,
+                    color: "Default",
                   },
                 ],
               },
               {
                 type: "FactSet",
                 facts: [
-                  { title: "Priority:", value: `${priorityIcon} ${ticket.priority.toUpperCase()}` },
+                  { title: "Status:", value: `${statusIcon} ${ticket.status.replace(/_/g, " ").toUpperCase()}` },
                   { title: "Category:", value: ticket.category.replace(/_/g, " ").toUpperCase() },
                   { title: "Customer:", value: creatorName },
-                  { title: "Created:", value: new Date(ticket.createdAt).toLocaleString() },
+                  { title: "Created:", value: new Date(ticket.createdAt).toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" }) + " EST" },
                 ],
               },
             ],
             actions: [
               {
                 type: "Action.OpenUrl",
-                title: "View Ticket",
+                title: "👁️ View Ticket",
                 url: ticketUrl,
                 style: "positive",
+              },
+              {
+                type: "Action.OpenUrl",
+                title: "👤 Assign to Agent",
+                url: assignUrl,
+                style: "default",
+              },
+              {
+                type: "Action.OpenUrl",
+                title: "💬 Reply in Portal",
+                url: adminTicketUrl,
+                style: "default",
               },
             ],
           },
@@ -186,6 +218,7 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
 
 /**
  * Send ticket reply notification to Teams
+ * Includes: View Ticket and Reply in Portal buttons
  */
 export async function sendReplyNotificationToTeams(ticketId: number, reply: TicketReply): Promise<void> {
   try {
@@ -199,7 +232,8 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
     const author = await db.select().from(users).where(eq(users.id, reply.userId)).limit(1);
     const authorName = author[0]?.name || "Unknown";
     const replyType = reply.isStaffReply ? "🛠️ Agent Reply" : "👤 Customer Reply";
-    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticketId}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticketId}`;
+    const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
 
     const payload = {
       type: "message",
@@ -214,11 +248,18 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
             body: [
               {
                 type: "TextBlock",
-                text: `${replyType} on Ticket #${ticketId}: ${ticket.title}`,
+                text: `${replyType} on Ticket #${ticketId}`,
                 weight: "Bolder",
                 size: "Medium",
                 color: "Accent",
                 wrap: true,
+              },
+              {
+                type: "TextBlock",
+                text: ticket.title,
+                wrap: true,
+                size: "Small",
+                weight: "Bolder",
               },
               {
                 type: "TextBlock",
@@ -231,16 +272,22 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
                 type: "FactSet",
                 facts: [
                   { title: "From:", value: authorName },
-                  { title: "Time:", value: new Date(reply.createdAt).toLocaleString() },
+                  { title: "Time:", value: new Date(reply.createdAt).toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" }) + " EST" },
                 ],
               },
             ],
             actions: [
               {
                 type: "Action.OpenUrl",
-                title: "View Ticket",
+                title: "👁️ View Ticket",
                 url: ticketUrl,
                 style: "positive",
+              },
+              {
+                type: "Action.OpenUrl",
+                title: "💬 Reply in Portal",
+                url: adminTicketUrl,
+                style: "default",
               },
             ],
           },
@@ -258,6 +305,7 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
 
 /**
  * Send status update notification to Teams
+ * Includes: View Ticket button
  */
 export async function sendStatusUpdateToTeams(
   ticketId: number,
@@ -273,8 +321,10 @@ export async function sendStatusUpdateToTeams(
     if (!ticketRows[0]) throw new Error(`Ticket #${ticketId} not found`);
     const ticket = ticketRows[0];
 
-    const statusIcon = getStatusEmoji(newStatus);
-    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticketId}`;
+    const oldStatusIcon = getStatusEmoji(oldStatus);
+    const newStatusIcon = getStatusEmoji(newStatus);
+    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticketId}`;
+    const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
 
     const payload = {
       type: "message",
@@ -289,7 +339,7 @@ export async function sendStatusUpdateToTeams(
             body: [
               {
                 type: "TextBlock",
-                text: `${statusIcon} Ticket #${ticketId} Status Updated`,
+                text: `${newStatusIcon} Ticket #${ticketId} Status Updated`,
                 weight: "Bolder",
                 size: "Medium",
                 color: "Accent",
@@ -300,23 +350,30 @@ export async function sendStatusUpdateToTeams(
                 text: ticket.title,
                 wrap: true,
                 size: "Small",
+                weight: "Bolder",
               },
               {
                 type: "FactSet",
                 facts: [
-                  { title: "Previous Status:", value: oldStatus.toUpperCase() },
-                  { title: "New Status:", value: `${statusIcon} ${newStatus.toUpperCase()}` },
+                  { title: "Previous Status:", value: `${oldStatusIcon} ${oldStatus.replace(/_/g, " ").toUpperCase()}` },
+                  { title: "New Status:", value: `${newStatusIcon} ${newStatus.replace(/_/g, " ").toUpperCase()}` },
                   { title: "Updated By:", value: updatedByName },
-                  { title: "Time:", value: new Date().toLocaleString() },
+                  { title: "Time:", value: new Date().toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" }) + " EST" },
                 ],
               },
             ],
             actions: [
               {
                 type: "Action.OpenUrl",
-                title: "View Ticket",
+                title: "👁️ View Ticket",
                 url: ticketUrl,
                 style: "positive",
+              },
+              {
+                type: "Action.OpenUrl",
+                title: "⚙️ Manage in Admin Portal",
+                url: adminTicketUrl,
+                style: "default",
               },
             ],
           },
