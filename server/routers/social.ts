@@ -395,11 +395,11 @@ export const socialRouter = router({
 
   /** Get engagement analytics (published posts with engagement data) */
   getEngagement: adminProcedure
-    .input(z.object({ days: z.number().int().min(1).max(90).default(30) }).optional())
+    .input(z.object({ days: z.number().int().min(1).max(365).default(30) }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return { posts: [], totals: { likes: 0, comments: 0, shares: 0 } };
-      const cutoff = new Date(Date.now() - (input?.days ?? 30) * 24 * 60 * 60 * 1000);
+      const cutoff = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
       const posts = await db
         .select()
         .from(socialPosts)

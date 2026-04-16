@@ -4,11 +4,12 @@
  * Features: OAuth connect/disconnect, per-platform post previews,
  * detailed API error messages, and refresh/reconnect button.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ScheduledPostsCalendar from "@/components/ScheduledPostsCalendar";
 import {
   Linkedin,
   Twitter,
@@ -38,6 +39,9 @@ import {
   Share2,
   Edit2,
   Trash2,
+  LayoutGrid,
+  List,
+  CheckCircle,
 } from "lucide-react";
 
 const PLATFORMS = [
@@ -210,6 +214,17 @@ export default function AdminSocialPage() {
   // Draft editing
   const [editingDraftId, setEditingDraftId] = useState<number | null>(null);
 
+  // Auto-save
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const lastSavedContent = useRef("");
+
+  // Engagement date range
+  const [engDays, setEngDays] = useState(30);
+
+  // Scheduled posts view mode
+  const [scheduledView, setScheduledView] = useState<"list" | "calendar">("list");
+
   const utils = trpc.useUtils();
 
   // Handle OAuth callback redirect params
@@ -233,7 +248,7 @@ export default function AdminSocialPage() {
   const { data: history, isLoading: histLoading } = trpc.social.history.useQuery();
   const { data: drafts, isLoading: draftsLoading } = trpc.social.getDrafts.useQuery();
   const { data: scheduled, isLoading: scheduledLoading } = trpc.social.getScheduled.useQuery();
-  const { data: engagement, isLoading: engLoading } = trpc.social.getEngagement.useQuery({ days: 30 });
+  const { data: engagement, isLoading: engLoading } = trpc.social.getEngagement.useQuery({ days: engDays });
 
   const disconnectMutation = trpc.social.disconnect.useMutation({
     onSuccess: (_, vars) => {
@@ -304,6 +319,28 @@ export default function AdminSocialPage() {
     setEditingDraftId(draft.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // Auto-save draft while typing (3s debounce)
+  useEffect(() => {
+    if (!content.trim() || content === lastSavedContent.current) return;
+    setAutoSaveStatus("saving");
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      saveDraftMutation.mutateAsync({
+        id: editingDraftId ?? undefined,
+        content: content.trim(),
+        link: link.trim() || undefined,
+        platforms: Array.from(selected),
+      }).then((result: any) => {
+        lastSavedContent.current = content;
+        if (!editingDraftId && result?.id) setEditingDraftId(result.id);
+        setAutoSaveStatus("saved");
+        utils.social.getDrafts.invalidate();
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
+      }).catch(() => setAutoSaveStatus("idle"));
+    }, 3000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [content, link]);
 
   function handleSaveDraft() {
     if (!content.trim()) return;
@@ -499,6 +536,18 @@ export default function AdminSocialPage() {
               {content.length}/{charLimit}
             </span>
           </div>
+          {/* Auto-save status */}
+          {autoSaveStatus !== "idle" && (
+            <div className={`flex items-center gap-1.5 text-xs ${
+              autoSaveStatus === "saving" ? "text-amber-400" : "text-emerald-400"
+            }`}>
+              {autoSaveStatus === "saving" ? (
+                <><Loader2 className="w-3 h-3 animate-spin" /> Auto-saving...</>
+              ) : (
+                <><CheckCircle className="w-3 h-3" /> Draft saved</>  
+              )}
+            </div>
+          )}
 
           {/* Optional link */}
           <div>
@@ -680,11 +729,38 @@ export default function AdminSocialPage() {
         {/* Scheduled Posts */}
         {(scheduled?.length ?? 0) > 0 && (
           <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Scheduled Posts ({scheduled?.length ?? 0})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                Scheduled Posts ({scheduled?.length ?? 0})
+              </h2>
+              {/* List / Calendar toggle */}
+              <div className="flex items-center gap-1 bg-[#0A0E1A] border border-gray-800 rounded-lg p-0.5">
+                <button
+                  onClick={() => setScheduledView("list")}
+                  className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-colors ${
+                    scheduledView === "list" ? "bg-cyan-500/20 text-cyan-400" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" /> List
+                </button>
+                <button
+                  onClick={() => setScheduledView("calendar")}
+                  className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md transition-colors ${
+                    scheduledView === "calendar" ? "bg-cyan-500/20 text-cyan-400" : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" /> Calendar
+                </button>
+              </div>
+            </div>
             {scheduledLoading ? (
               <div className="space-y-3">{[1,2].map(i => <div key={i} className="h-14 bg-gray-800/40 rounded-xl animate-pulse" />)}</div>
+            ) : scheduledView === "calendar" ? (
+              <ScheduledPostsCalendar
+                scheduled={scheduled ?? []}
+                onCancel={(id) => cancelScheduledMutation.mutate({ id })}
+                cancelPending={cancelScheduledMutation.isPending}
+              />
             ) : (
               <div className="space-y-3">
                 {scheduled?.map((post: any) => {
@@ -722,13 +798,29 @@ export default function AdminSocialPage() {
 
         {/* Engagement Analytics */}
         <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Engagement Analytics <span className="text-gray-500 text-sm font-normal">(last 30 days)</span>
+              Engagement Analytics
             </h2>
-            <button onClick={() => utils.social.getEngagement.invalidate()} className="text-gray-500 hover:text-[#00D4FF] transition-colors">
-              <RefreshCw className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Date range presets */}
+              <div className="flex items-center gap-1 bg-[#0A0E1A] border border-gray-800 rounded-lg p-0.5">
+                {[7, 30, 90].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setEngDays(d)}
+                    className={`text-xs px-2.5 py-1.5 rounded-md transition-colors ${
+                      engDays === d ? "bg-cyan-500/20 text-cyan-400" : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    {d}d
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => utils.social.getEngagement.invalidate()} className="text-gray-500 hover:text-[#00D4FF] transition-colors p-1.5 rounded-lg hover:bg-gray-800" title="Refresh">
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           {engLoading ? (
             <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <div key={i} className="h-20 bg-gray-800/40 rounded-xl animate-pulse" />)}</div>

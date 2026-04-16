@@ -1675,3 +1675,12 @@
 - [ ] Add Scheduled posts panel to AdminSocialPage (list scheduled, cancel)
 - [ ] Add Engagement Analytics section to AdminSocialPage (likes/comments/shares per post, totals)
 - [ ] Write vitest tests for scheduler and engagement poller logic
+
+## Social Hub Follow-Up v4 — April 2026
+- [ ] Update teams-bot-helpdesk/SKILL.md with calendar view, date range filter, and auto-save patterns
+- [ ] Build calendar view for Scheduled Posts (month grid, click day to see posts)
+- [ ] Add date range filter (7d / 30d / 90d / custom) to Engagement Analytics section
+- [ ] Update getEngagement query to accept dynamic date range parameter
+- [ ] Implement auto-save drafts while typing (debounced 3s, silent background save)
+- [ ] Show "Draft auto-saved" indicator in compose form
+- [ ] Write vitest tests for auto-save debounce logic
