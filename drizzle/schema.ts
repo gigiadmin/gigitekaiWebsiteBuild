@@ -891,9 +891,16 @@ export const socialPosts = mysqlTable("socialPosts", {
   postId: varchar("postId", { length: 500 }), // platform-assigned post ID
   content: text("content").notNull(), // the actual text posted
   url: varchar("url", { length: 1000 }), // link to the live post
-  status: mysqlEnum("status", ["published", "failed", "pending"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["published", "failed", "pending", "scheduled", "draft"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
   publishedAt: timestamp("publishedAt"),
+  scheduledAt: timestamp("scheduledAt"),                 // null = immediate, set = scheduled
+  platforms: text("platforms"),                          // JSON array e.g. ["linkedin","twitter"]
+  link: varchar("link", { length: 1000 }),               // optional link attached to post
+  engagementLikes: int("engagementLikes").default(0),
+  engagementComments: int("engagementComments").default(0),
+  engagementShares: int("engagementShares").default(0),
+  engagementLastFetched: timestamp("engagementLastFetched"),
   createdBy: int("createdBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

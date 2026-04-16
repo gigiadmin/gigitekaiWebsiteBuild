@@ -18,7 +18,7 @@ import { z } from "zod";
 import { adminProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { socialPosts, socialConnections } from "../../drizzle/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, gte } from "drizzle-orm";
 import { createHmac, randomBytes } from "crypto";
 
 // ── Helpers to get stored tokens from DB ──────────────────────────────────
@@ -268,7 +268,7 @@ export const socialRouter = router({
       return { success: true };
     }),
 
-  /** Get recent social post history */
+  /** Get recent social post history (published + failed only) */
   history: adminProcedure
     .input(z.object({ limit: z.number().int().min(1).max(50).default(20) }).optional())
     .query(async ({ input }) => {
@@ -277,7 +277,149 @@ export const socialRouter = router({
       return db
         .select()
         .from(socialPosts)
+        .where(eq(socialPosts.status, "published"))
         .orderBy(desc(socialPosts.createdAt))
         .limit(input?.limit ?? 20);
+    }),
+
+  /** Save a draft (no publishing) */
+  saveDraft: adminProcedure
+    .input(
+      z.object({
+        id: z.number().int().optional(), // if set, update existing draft
+        content: z.string().min(1).max(3000),
+        link: z.string().url().optional(),
+        platforms: z.array(z.enum(["linkedin", "twitter", "facebook"])).min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      if (input.id) {
+        await db
+          .update(socialPosts)
+          .set({
+            content: input.content,
+            link: input.link ?? null,
+            platforms: JSON.stringify(input.platforms),
+            title: input.content.slice(0, 100),
+          })
+          .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "draft")));
+        return { id: input.id };
+      }
+      const [result] = await db.insert(socialPosts).values({
+        title: input.content.slice(0, 100),
+        platform: input.platforms[0],
+        content: input.content,
+        link: input.link ?? null,
+        platforms: JSON.stringify(input.platforms),
+        status: "draft",
+        createdBy: ctx.user.id,
+      });
+      return { id: (result as any).insertId };
+    }),
+
+  /** Schedule a post for future publishing */
+  schedulePost: adminProcedure
+    .input(
+      z.object({
+        content: z.string().min(5).max(3000),
+        link: z.string().url().optional(),
+        platforms: z.array(z.enum(["linkedin", "twitter", "facebook"])).min(1),
+        scheduledAt: z.date(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      if (input.scheduledAt <= new Date()) throw new Error("Scheduled time must be in the future");
+      const [result] = await db.insert(socialPosts).values({
+        title: input.content.slice(0, 100),
+        platform: input.platforms[0],
+        content: input.content,
+        link: input.link ?? null,
+        platforms: JSON.stringify(input.platforms),
+        status: "scheduled",
+        scheduledAt: input.scheduledAt,
+        createdBy: ctx.user.id,
+      });
+      return { id: (result as any).insertId };
+    }),
+
+  /** Get all drafts */
+  getDrafts: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return db
+      .select()
+      .from(socialPosts)
+      .where(eq(socialPosts.status, "draft"))
+      .orderBy(desc(socialPosts.createdAt));
+  }),
+
+  /** Get all scheduled posts */
+  getScheduled: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    return db
+      .select()
+      .from(socialPosts)
+      .where(eq(socialPosts.status, "scheduled"))
+      .orderBy(socialPosts.scheduledAt);
+  }),
+
+  /** Delete a draft */
+  deleteDraft: adminProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db
+        .delete(socialPosts)
+        .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "draft")));
+      return { success: true };
+    }),
+
+  /** Cancel a scheduled post */
+  cancelScheduled: adminProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db
+        .update(socialPosts)
+        .set({ status: "draft" })
+        .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "scheduled")));
+      return { success: true };
+    }),
+
+  /** Get engagement analytics (published posts with engagement data) */
+  getEngagement: adminProcedure
+    .input(z.object({ days: z.number().int().min(1).max(90).default(30) }).optional())
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { posts: [], totals: { likes: 0, comments: 0, shares: 0 } };
+      const cutoff = new Date(Date.now() - (input?.days ?? 30) * 24 * 60 * 60 * 1000);
+      const posts = await db
+        .select()
+        .from(socialPosts)
+        .where(
+          and(
+            eq(socialPosts.status, "published"),
+            gte(socialPosts.publishedAt, cutoff)
+          )
+        )
+        .orderBy(desc(socialPosts.publishedAt));
+
+      const totals = posts.reduce(
+        (acc, p) => ({
+          likes: acc.likes + (p.engagementLikes ?? 0),
+          comments: acc.comments + (p.engagementComments ?? 0),
+          shares: acc.shares + (p.engagementShares ?? 0),
+        }),
+        { likes: 0, comments: 0, shares: 0 }
+      );
+
+      return { posts, totals };
     }),
 });

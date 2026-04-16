@@ -14,6 +14,8 @@ import { startDigestScheduler } from "./digestScheduler";
 import { startTeamsDigestScheduler } from "./teamsDigest";
 import { startSlaAlertScheduler } from "./teamsSlaAlerts";
 import { startNewsletterScheduler } from "../routers/newsletter";
+import { startSocialScheduler } from "./socialScheduler";
+import { startEngagementPoller } from "./socialEngagementPoller";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import {
@@ -152,6 +154,10 @@ async function startServer() {
     startTeamsDigestScheduler();
     // Start Teams SLA breach alert scheduler (every 30 minutes)
     startSlaAlertScheduler();
+    // Start Social post scheduler (every 5 minutes)
+    startSocialScheduler();
+    // Start Social engagement poller (every hour)
+    startEngagementPoller();
     // Log Teams webhook endpoint
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
   });

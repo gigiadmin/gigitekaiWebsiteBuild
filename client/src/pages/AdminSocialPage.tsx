@@ -32,6 +32,12 @@ import {
   Repeat2,
   ThumbsUp,
   Globe,
+  Calendar,
+  FileText,
+  BarChart2,
+  Share2,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 
 const PLATFORMS = [
@@ -196,6 +202,14 @@ export default function AdminSocialPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [expandedErrors, setExpandedErrors] = useState<Set<number>>(() => new Set<number>());
 
+  // Schedule state
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("09:00");
+
+  // Draft editing
+  const [editingDraftId, setEditingDraftId] = useState<number | null>(null);
+
   const utils = trpc.useUtils();
 
   // Handle OAuth callback redirect params
@@ -217,12 +231,43 @@ export default function AdminSocialPage() {
 
   const { data: connections, isLoading: connLoading } = trpc.social.getConnections.useQuery();
   const { data: history, isLoading: histLoading } = trpc.social.history.useQuery();
+  const { data: drafts, isLoading: draftsLoading } = trpc.social.getDrafts.useQuery();
+  const { data: scheduled, isLoading: scheduledLoading } = trpc.social.getScheduled.useQuery();
+  const { data: engagement, isLoading: engLoading } = trpc.social.getEngagement.useQuery({ days: 30 });
 
   const disconnectMutation = trpc.social.disconnect.useMutation({
     onSuccess: (_, vars) => {
       toast.success(`${vars.platform} disconnected`);
       utils.social.getConnections.invalidate();
     },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const saveDraftMutation = trpc.social.saveDraft.useMutation({
+    onSuccess: () => {
+      toast.success(editingDraftId ? "Draft updated" : "Draft saved");
+      setContent(""); setLink(""); setEditingDraftId(null);
+      utils.social.getDrafts.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const schedulePostMutation = trpc.social.schedulePost.useMutation({
+    onSuccess: () => {
+      toast.success(`Post scheduled for ${scheduledDate} at ${scheduledTime}`);
+      setContent(""); setLink(""); setScheduleMode(false); setScheduledDate(""); setScheduledTime("09:00");
+      utils.social.getScheduled.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteDraftMutation = trpc.social.deleteDraft.useMutation({
+    onSuccess: () => { toast.success("Draft deleted"); utils.social.getDrafts.invalidate(); },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const cancelScheduledMutation = trpc.social.cancelScheduled.useMutation({
+    onSuccess: () => { toast.success("Scheduled post cancelled — moved to drafts"); utils.social.getScheduled.invalidate(); utils.social.getDrafts.invalidate(); },
     onError: (err) => toast.error(err.message),
   });
 
@@ -240,6 +285,7 @@ export default function AdminSocialPage() {
         failures.forEach((f) => toast.error(`${f.platform}: ${f.error}`));
       }
       utils.social.history.invalidate();
+      utils.social.getEngagement.invalidate();
     },
     onError: (err) => toast.error(err.message),
   });
@@ -247,6 +293,30 @@ export default function AdminSocialPage() {
   function getConnectionForPlatform(id: string) {
     return connections?.find((c) => c.platform === id) ?? null;
   }
+
+  function loadDraft(draft: any) {
+    setContent(draft.content ?? "");
+    setLink(draft.link ?? "");
+    try {
+      const ps = JSON.parse(draft.platforms ?? "[]");
+      if (ps.length > 0) setSelected(new Set(ps));
+    } catch { /* ignore */ }
+    setEditingDraftId(draft.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleSaveDraft() {
+    if (!content.trim()) return;
+    saveDraftMutation.mutate({ id: editingDraftId ?? undefined, content: content.trim(), link: link.trim() || undefined, platforms: Array.from(selected) });
+  }
+
+  function handleSchedule() {
+    if (!content.trim() || !scheduledDate) return;
+    const scheduledAt = new Date(`${scheduledDate}T${scheduledTime}:00`);
+    schedulePostMutation.mutate({ content: content.trim(), link: link.trim() || undefined, platforms: Array.from(selected), scheduledAt });
+  }
+
+  const minDateStr = new Date().toISOString().split("T")[0];
 
   function togglePlatform(id: "linkedin" | "twitter" | "facebook") {
     setSelected((prev) => {
@@ -452,6 +522,49 @@ export default function AdminSocialPage() {
             </p>
           )}
 
+          {/* Schedule toggle */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setScheduleMode(!scheduleMode)}
+              className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors ${
+                scheduleMode ? "border-cyan-500/60 text-cyan-400 bg-cyan-500/10" : "border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white"
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              {scheduleMode ? "Scheduling for later" : "Schedule for later"}
+            </button>
+          </div>
+
+          {scheduleMode && (
+            <div className="flex gap-3 flex-wrap">
+              <div className="flex-1 min-w-[140px]">
+                <label className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Date</label>
+                <input
+                  type="date"
+                  min={minDateStr}
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+                />
+              </div>
+              <div className="flex-1 min-w-[120px]">
+                <label className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Time</label>
+                <input
+                  type="time"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
+          {editingDraftId && (
+            <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
+              <Edit2 className="w-3 h-3" /> Editing draft #{editingDraftId} — publish or save to update
+            </div>
+          )}
+
           {/* Preview toggle + Publish */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <button
@@ -461,18 +574,36 @@ export default function AdminSocialPage() {
               {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               {showPreview ? "Hide Preview" : "Preview Post"}
             </button>
-            <Button
-              onClick={handlePublish}
-              disabled={!content.trim() || overLimit || publishMutation.isPending || selected.size === 0}
-              className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl px-6"
-            >
-              {publishMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={!content.trim() || saveDraftMutation.isPending}
+                className="border-gray-600 text-gray-300 hover:text-white rounded-xl text-sm"
+              >
+                {saveDraftMutation.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <FileText className="w-3.5 h-3.5 mr-1.5" />}
+                {editingDraftId ? "Update Draft" : "Save Draft"}
+              </Button>
+              {scheduleMode ? (
+                <Button
+                  onClick={handleSchedule}
+                  disabled={!content.trim() || !scheduledDate || schedulePostMutation.isPending}
+                  className="bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-[#0A0E1A] font-bold rounded-xl px-6"
+                >
+                  {schedulePostMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Clock className="w-4 h-4 mr-2" />}
+                  {schedulePostMutation.isPending ? "Scheduling..." : "Schedule Post"}
+                </Button>
               ) : (
-                <Send className="w-4 h-4 mr-2" />
+                <Button
+                  onClick={handlePublish}
+                  disabled={!content.trim() || overLimit || publishMutation.isPending || selected.size === 0}
+                  className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl px-6"
+                >
+                  {publishMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                  {publishMutation.isPending ? "Publishing..." : `Publish to ${selected.size} platform${selected.size > 1 ? "s" : ""}`}
+                </Button>
               )}
-              {publishMutation.isPending ? "Publishing..." : `Publish to ${selected.size} platform${selected.size > 1 ? "s" : ""}`}
-            </Button>
+            </div>
           </div>
         </div>
 
@@ -503,6 +634,150 @@ export default function AdminSocialPage() {
             })}
           </div>
         )}
+
+        {/* Drafts */}
+        {(drafts?.length ?? 0) > 0 && (
+          <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
+            <h2 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Drafts ({drafts?.length ?? 0})
+            </h2>
+            {draftsLoading ? (
+              <div className="space-y-3">{[1,2].map(i => <div key={i} className="h-14 bg-gray-800/40 rounded-xl animate-pulse" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {drafts?.map((draft: any) => {
+                  const ps: string[] = (() => { try { return JSON.parse(draft.platforms ?? "[]"); } catch { return [draft.platform]; } })();
+                  return (
+                    <div key={draft.id} className="rounded-xl bg-[#0A0E1A]/60 border border-gray-800/60 p-3 flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {ps.map((pid) => {
+                            const plat = PLATFORMS.find(p => p.id === pid);
+                            if (!plat) return null;
+                            const Icon = plat.icon;
+                            return <Icon key={pid} className={`w-3.5 h-3.5 ${plat.color}`} />;
+                          })}
+                          <span className="text-gray-500 text-xs">{new Date(draft.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-gray-300 text-sm line-clamp-2">{draft.content}</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button onClick={() => loadDraft(draft)} className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 px-2 py-1 rounded border border-cyan-500/30 hover:border-cyan-500/60 transition-colors">
+                          <Edit2 className="w-3 h-3" /> Edit
+                        </button>
+                        <button onClick={() => deleteDraftMutation.mutate({ id: draft.id })} className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-800/40 hover:border-red-500/40 transition-colors">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Scheduled Posts */}
+        {(scheduled?.length ?? 0) > 0 && (
+          <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
+            <h2 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Scheduled Posts ({scheduled?.length ?? 0})
+            </h2>
+            {scheduledLoading ? (
+              <div className="space-y-3">{[1,2].map(i => <div key={i} className="h-14 bg-gray-800/40 rounded-xl animate-pulse" />)}</div>
+            ) : (
+              <div className="space-y-3">
+                {scheduled?.map((post: any) => {
+                  const ps: string[] = (() => { try { return JSON.parse(post.platforms ?? "[]"); } catch { return [post.platform]; } })();
+                  return (
+                    <div key={post.id} className="rounded-xl bg-[#0A0E1A]/60 border border-cyan-500/20 p-3 flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {ps.map((pid) => {
+                            const plat = PLATFORMS.find(p => p.id === pid);
+                            if (!plat) return null;
+                            const Icon = plat.icon;
+                            return <Icon key={pid} className={`w-3.5 h-3.5 ${plat.color}`} />;
+                          })}
+                          <span className="flex items-center gap-1 text-cyan-400 text-xs">
+                            <Clock className="w-3 h-3" />
+                            {post.scheduledAt ? new Date(post.scheduledAt).toLocaleString() : "—"}
+                          </span>
+                        </div>
+                        <p className="text-gray-300 text-sm line-clamp-2">{post.content}</p>
+                      </div>
+                      <button
+                        onClick={() => cancelScheduledMutation.mutate({ id: post.id })}
+                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-800/40 hover:border-red-500/40 transition-colors shrink-0"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Engagement Analytics */}
+        <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Engagement Analytics <span className="text-gray-500 text-sm font-normal">(last 30 days)</span>
+            </h2>
+            <button onClick={() => utils.social.getEngagement.invalidate()} className="text-gray-500 hover:text-[#00D4FF] transition-colors">
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
+          {engLoading ? (
+            <div className="grid grid-cols-3 gap-4">{[1,2,3].map(i => <div key={i} className="h-20 bg-gray-800/40 rounded-xl animate-pulse" />)}</div>
+          ) : !engagement || engagement.posts.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-8">No published posts yet. Engagement data refreshes hourly after publishing.</p>
+          ) : (
+            <>
+              {/* Totals */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {[
+                  { label: "Likes", value: engagement.totals.likes, icon: ThumbsUp, color: "text-pink-400" },
+                  { label: "Comments", value: engagement.totals.comments, icon: MessageCircle, color: "text-blue-400" },
+                  { label: "Shares", value: engagement.totals.shares, icon: Share2, color: "text-green-400" },
+                ].map(({ label, value, icon: Icon, color }) => (
+                  <div key={label} className="bg-[#0A0E1A]/60 rounded-xl border border-gray-800 p-4 text-center">
+                    <Icon className={`w-6 h-6 mx-auto mb-1.5 ${color}`} />
+                    <p className="text-2xl font-bold text-white">{value.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Per-post */}
+              <div className="space-y-2">
+                {engagement.posts.map((post: any) => {
+                  const plat = PLATFORMS.find(p => p.id === post.platform);
+                  const Icon = plat?.icon ?? BarChart2;
+                  return (
+                    <div key={post.id} className="rounded-xl bg-[#0A0E1A]/60 border border-gray-800/60 p-3 flex items-center gap-3">
+                      <div className={`p-1.5 rounded-lg ${plat?.bg ?? "bg-gray-800"} shrink-0`}>
+                        <Icon className={`w-3.5 h-3.5 ${plat?.color ?? "text-gray-400"}`} />
+                      </div>
+                      <p className="text-gray-300 text-sm flex-1 min-w-0 truncate">{post.content}</p>
+                      <div className="flex gap-3 shrink-0 text-xs">
+                        <span className="flex items-center gap-1 text-pink-400"><ThumbsUp className="w-3 h-3" />{post.engagementLikes ?? 0}</span>
+                        <span className="flex items-center gap-1 text-blue-400"><MessageCircle className="w-3 h-3" />{post.engagementComments ?? 0}</span>
+                        <span className="flex items-center gap-1 text-green-400"><Share2 className="w-3 h-3" />{post.engagementShares ?? 0}</span>
+                      </div>
+                      {post.url && (
+                        <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-[#00D4FF] hover:text-cyan-300 shrink-0">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
 
         {/* History */}
         <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6">

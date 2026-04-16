@@ -1655,3 +1655,23 @@
 - [x] Build per-platform post preview cards in AdminSocialPage (LinkedIn card, Twitter card, Facebook card)
 - [x] Show detailed API error messages from social media APIs when a post fails (expand errorMessage in history)
 - [x] Add "Refresh Connection" button to each platform card that re-runs the OAuth connect flow
+
+## Social Hub Sprint 3 — Scheduled Posts, Drafts, Analytics
+
+- [ ] Update teams-bot-helpdesk skill with scheduled posts, drafts, and analytics patterns
+- [ ] Add scheduledAt and isDraft columns to socialPosts table in drizzle/schema.ts
+- [ ] Add engagementLikes, engagementComments, engagementShares, engagementLastFetched columns to socialPosts
+- [ ] Run pnpm db:push to migrate schema
+- [ ] Add saveDraft mutation to social router (status=draft, no publish)
+- [ ] Add schedulePost mutation to social router (status=scheduled, scheduledAt field)
+- [ ] Add getDrafts query to social router
+- [ ] Add getScheduled query to social router
+- [ ] Build server/_core/socialScheduler.ts — cron every 5min, publish scheduled posts whose scheduledAt <= now
+- [ ] Register socialScheduler in server/_core/index.ts
+- [ ] Add fetchEngagement mutation to social router (polls LinkedIn/Twitter/Facebook APIs for likes/comments)
+- [ ] Build server/_core/socialEngagementPoller.ts — hourly cron to refresh engagement on recent posts
+- [ ] Add Drafts panel to AdminSocialPage (list drafts, load into compose, delete)
+- [ ] Add Schedule toggle to compose form (date+time picker, timezone-aware)
+- [ ] Add Scheduled posts panel to AdminSocialPage (list scheduled, cancel)
+- [ ] Add Engagement Analytics section to AdminSocialPage (likes/comments/shares per post, totals)
+- [ ] Write vitest tests for scheduler and engagement poller logic
