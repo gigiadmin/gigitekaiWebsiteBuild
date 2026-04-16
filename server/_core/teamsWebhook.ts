@@ -16,6 +16,7 @@ import { getDb } from "../db";
 import { tickets, ticketReplies, users } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { createAdminNotification } from "../routers/adminNotifications";
+import { getUnassignedTicketsSummary } from "./teamsDigest";
 
 // Bot Framework configuration using Azure Bot credentials
 const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
@@ -106,8 +107,10 @@ class HelpdeskBot extends ActivityHandler {
         `• \`@bot status #123\` — Get ticket status\n` +
         `• \`@bot assign #123 to Agent Name\` — Assign ticket to agent\n` +
         `• \`@bot close #123\` — Close ticket\n` +
-        `• \`@bot resolve #123\` — Mark ticket as resolved\n\n` +
-        `Or mention a ticket number (e.g., \`#123\`) to add a reply.`
+        `• \`@bot resolve #123\` — Mark ticket as resolved\n` +
+        `• \`@bot unassigned\` — List all unassigned tickets\n` +
+        `• \`@bot help\` — Show this help message\n\n` +
+        `Or mention a ticket number (e.g., \`#123 your message here\`) to add a reply.`
       );
     });
 
@@ -137,6 +140,26 @@ async function handleBotCommand(
   senderName: string
 ) {
   const { command: cmd, ticketId, args } = command;
+
+  // Commands that don't require a ticket ID
+  if (cmd === "unassigned") {
+    const summary = await getUnassignedTicketsSummary();
+    await context.sendActivity(summary as any);
+    return;
+  }
+
+  if (cmd === "help") {
+    await context.sendActivity(
+      `👋 **GigitekAI Helpdesk Bot Commands:**\n\n` +
+      `• \`@bot status #123\` — Get ticket status\n` +
+      `• \`@bot assign #123 to Agent Name\` — Assign ticket to agent\n` +
+      `• \`@bot close #123\` — Close ticket\n` +
+      `• \`@bot resolve #123\` — Mark ticket as resolved\n` +
+      `• \`@bot unassigned\` — List all unassigned open tickets\n\n` +
+      `Or mention a ticket number (e.g., \`#123 your message here\`) to add a reply.`
+    );
+    return;
+  }
 
   if (!ticketId) {
     await context.sendActivity(`❌ Please specify a ticket number. Example: \`@bot ${cmd} #123\``);

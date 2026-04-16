@@ -6,9 +6,118 @@ import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams } from "../teamsBot";
+import { searchKnowledgeBase } from "../db";
 import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity } from "../../drizzle/schema";
 import { eq, inArray, asc, desc } from "drizzle-orm";
+
+const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
+const BASE_URL = "https://gigitekai.com";
+
+/**
+ * Send KB article suggestions to Teams when a new ticket is created
+ */
+async function sendKBSuggestionsToTeams(
+  ticketId: number,
+  title: string,
+  description: string,
+  category: string
+): Promise<void> {
+  if (!TEAMS_WEBHOOK_URL) return;
+
+  // Search KB with title + first 100 chars of description
+  const searchQuery = `${title} ${description.slice(0, 100)} ${category.replace(/_/g, " ")}`;
+  const kbArticles = await searchKnowledgeBase(searchQuery);
+
+  if (!kbArticles || kbArticles.length === 0) {
+    console.log(`[Helpdesk] No KB articles found for ticket #${ticketId}`);
+    return;
+  }
+
+  const topArticles = kbArticles.slice(0, 3);
+
+  const articleItems = topArticles.map((article: any) => ({
+    type: "Container",
+    separator: true,
+    items: [
+      {
+        type: "TextBlock",
+        text: `📄 **${article.title}**`,
+        wrap: true,
+        size: "Small",
+        weight: "Bolder",
+      },
+      {
+        type: "TextBlock",
+        text: article.content.slice(0, 120) + (article.content.length > 120 ? "..." : ""),
+        wrap: true,
+        size: "Small",
+        isSubtle: true,
+      },
+      {
+        type: "ActionSet",
+        actions: [{
+          type: "Action.OpenUrl",
+          title: "📖 View Article",
+          url: `${BASE_URL}/knowledge-base/${article.id}`,
+        }],
+      },
+    ],
+  }));
+
+  const payload = {
+    type: "message",
+    attachments: [{
+      contentType: "application/vnd.microsoft.card.adaptive",
+      contentUrl: null,
+      content: {
+        $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+        type: "AdaptiveCard",
+        version: "1.4",
+        body: [
+          {
+            type: "Container",
+            style: "accent",
+            bleed: true,
+            items: [{
+              type: "TextBlock",
+              text: `💡 KB Suggestions for Ticket #${ticketId}`,
+              weight: "Bolder",
+              size: "Medium",
+              color: "Light",
+            }],
+          },
+          {
+            type: "TextBlock",
+            text: `Found ${topArticles.length} relevant knowledge base article${topArticles.length > 1 ? "s" : ""} that may help resolve this ticket:`,
+            wrap: true,
+            size: "Small",
+            spacing: "Small",
+          },
+          ...articleItems,
+        ],
+        actions: [{
+          type: "Action.OpenUrl",
+          title: "📚 Browse Knowledge Base",
+          url: `${BASE_URL}/knowledge-base`,
+          style: "default",
+        }],
+      },
+    }],
+  };
+
+  const response = await fetch(TEAMS_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (response.ok) {
+    console.log(`[Helpdesk] ✅ KB suggestions sent to Teams for ticket #${ticketId} (${topArticles.length} articles)`);
+  } else {
+    console.warn(`[Helpdesk] KB suggestions webhook failed: ${response.status}`);
+  }
+}
 
 export const helpdeskRouter = router({
   // Create a new ticket (requires approved user)
@@ -74,6 +183,12 @@ export const helpdeskRouter = router({
             });
         } else {
           console.warn("[Helpdesk] Cannot send Teams notification: ticket is null or missing id");
+        }
+
+        // Send KB article suggestions to Teams (non-blocking)
+        if (ticket?.id) {
+          sendKBSuggestionsToTeams(ticket.id, input.title, input.description, input.category)
+            .catch((e: any) => console.warn("[Helpdesk] KB suggestions Teams card failed:", e));
         }
 
         // Note: Push notifications are sent client-side via usePushNotifications hook

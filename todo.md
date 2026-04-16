@@ -1452,3 +1452,9 @@
 - [x] Add "View Ticket" button to all Teams adaptive cards (new ticket, reply, status update)
 - [x] Add "Assign to Agent" button in Teams new ticket card with agent dropdown
 - [x] Auto-sync Teams replies back to helpdesk: when someone replies to a Teams notification, create a ticket reply in the database
+
+## Teams Bot Advanced Features (April 16, 2026)
+- [x] Add @bot unassigned command — returns summary of all unassigned open tickets in Teams
+- [x] Daily digest — scheduled Teams message at 8am EST with ticket activity summary (open, in-progress, resolved counts + unassigned list)
+- [x] Knowledge base article suggestions — when a new ticket is created, auto-suggest relevant KB articles in the Teams notification card
+- [ ] Create reusable skill for Teams Bot integration process using skill-creator
