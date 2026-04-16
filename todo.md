@@ -1356,3 +1356,13 @@
 - [ ] Replace SendGrid in newsletter campaign procedure
 - [ ] Test all email flows end-to-end
 - [ ] Remove SENDGRID_API_KEY from secrets (no longer needed)
+
+
+## UX Enhancement: Chat Widget Loading Animation (April 2026)
+- [x] Add loading animation to chat widget for smoother user experience
+  - [x] Enhanced typing indicator with wave animation (instead of bounce)
+  - [x] Added pulse glow effect to thinking indicator
+  - [x] Added skeleton loader with shimmer effect for initial chat load
+  - [x] Disabled input while AI is thinking
+  - [x] Send button shows spinning loader icon during processing
+  - [x] Added 6 custom CSS animations to index.css (wave, shimmer, fadeInUp, pulse-glow, spin)

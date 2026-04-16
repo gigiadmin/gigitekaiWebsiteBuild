@@ -638,6 +638,25 @@ export default function AIChatWidget() {
               </div>
             )}
 
+            {/* Skeleton Loader - Show on initial load */}
+            {messages.length === 0 && !isLoading && (
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-2.5 animate-in fade-in duration-300" style={{ animationDelay: `${i * 100}ms` }}>
+                    <div className="flex-shrink-0 mt-0.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-purple-500/20 border border-[rgba(0,212,255,0.2)] flex items-center justify-center">
+                        <Bot size={14} className="text-[#00D4FF]" />
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="skeleton-loader h-3 rounded-full w-3/4" />
+                      <div className="skeleton-loader h-3 rounded-full w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Chat Messages */}
             {messages.map((msg, idx) => (
               <div
@@ -695,14 +714,14 @@ export default function AIChatWidget() {
                     <Bot size={14} className="text-[#00D4FF]" />
                   </div>
                 </div>
-                <div className="bg-[#151D30] border border-[rgba(0,212,255,0.08)] px-4 py-3 rounded-2xl rounded-tl-md">
+                <div className="bg-[#151D30] border border-[rgba(0,212,255,0.08)] px-4 py-3 rounded-2xl rounded-tl-md thinking-indicator">
                   <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="flex gap-1.5">
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full typing-dot" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full typing-dot" style={{ animationDelay: "200ms" }} />
+                      <span className="w-2 h-2 bg-[#00D4FF] rounded-full typing-dot" style={{ animationDelay: "400ms" }} />
                     </div>
-                    <span className="text-[11px] text-gray-500 ml-1">AI is thinking...</span>
+                    <span className="text-[11px] text-gray-400 ml-2 font-medium">AI is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -935,14 +954,18 @@ export default function AIChatWidget() {
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                   placeholder="Ask anything about our services..."
                   disabled={isLoading}
-                  className="flex-1 px-4 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.12)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/40 focus:ring-1 focus:ring-[#00D4FF]/20 disabled:opacity-50 transition-all"
+                  className={`flex-1 px-4 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.12)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/40 focus:ring-1 focus:ring-[#00D4FF]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+                    isLoading ? "opacity-60" : ""
+                  }`}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={isLoading || !inputValue.trim()}
-                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] hover:shadow-lg hover:shadow-[#00D4FF]/30 disabled:opacity-30 disabled:shadow-none transition-all"
+                  className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] hover:shadow-lg hover:shadow-[#00D4FF]/30 disabled:opacity-30 disabled:shadow-none disabled:cursor-not-allowed transition-all ${
+                    isLoading ? "spinner" : ""
+                  }`}
                 >
-                  <Send size={16} />
+                  {isLoading ? <Loader2 size={16} /> : <Send size={16} />}
                 </button>
               </div>
 
