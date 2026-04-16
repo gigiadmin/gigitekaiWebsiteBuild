@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   MessageCircle,
@@ -26,6 +26,7 @@ import {
   Check,
   Loader2,
   PhoneCall,
+  CalendarDays,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -142,8 +143,44 @@ export default function AIChatWidget() {
     { enabled: !!sessionId }
   );
   const handoffMutation = trpc.chat.handoffFromBot.useMutation();
+  const bookMeetingMutation = trpc.calendar.bookMeeting.useMutation({
+    onSuccess: () => {
+      setBookingSuccess(true);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Booking failed — please try again");
+    },
+  });
   const { user: authUser, isAuthenticated } = useAuth();
   const [handoffComplete, setHandoffComplete] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", notes: "" });
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  // Generate Mon/Wed/Fri dates for the next 3 months
+  const availableDates = useMemo(() => {
+    const dates: Array<{ value: string; label: string }> = [];
+    const now = new Date();
+    const end = new Date();
+    end.setMonth(end.getMonth() + 3);
+    const cur = new Date(now);
+    cur.setDate(cur.getDate() + 1); // start tomorrow
+    while (cur <= end) {
+      const day = cur.getDay();
+      if (day === 1 || day === 3 || day === 5) {
+        const value = cur.toISOString().split("T")[0];
+        const label = cur.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+        dates.push({ value, label });
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  }, []);
+
+  const TIME_SLOTS = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+  ];
 
   // Initialize session
   useEffect(() => {
@@ -950,9 +987,10 @@ export default function AIChatWidget() {
                       Pricing
                     </button>
                     <button
-                      onClick={() => sendQuickMessage("I'd like to schedule a consultation")}
-                      className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] bg-[#151D30] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF]/30 hover:text-[#00D4FF] transition-colors"
+                      onClick={() => { setBookingSuccess(false); setBookingForm({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", notes: "" }); setShowBookingModal(true); }}
+                      className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:bg-[#00D4FF]/20 transition-colors"
                     >
+                      <CalendarDays size={10} />
                       Schedule Call
                     </button>
                     <button
@@ -1008,6 +1046,141 @@ export default function AIChatWidget() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Booking Modal ─────────────────────────────────────────────── */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[9999] p-0 sm:p-4">
+          <div className="bg-[#0D1525] border border-[rgba(0,212,255,0.2)] rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(0,212,255,0.1)]">
+              <div className="flex items-center gap-2">
+                <CalendarDays size={18} className="text-[#00D4FF]" />
+                <h3 className="text-white font-semibold text-base">Schedule a Call</h3>
+              </div>
+              <button onClick={() => setShowBookingModal(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                <X size={18} className="text-gray-400" />
+              </button>
+            </div>
+
+            {bookingSuccess ? (
+              /* Success State */
+              <div className="flex flex-col items-center text-center px-6 py-10">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mb-4">
+                  <Check size={32} className="text-emerald-400" />
+                </div>
+                <h4 className="text-white font-bold text-lg mb-2">Meeting Booked!</h4>
+                <p className="text-gray-400 text-sm mb-1">A confirmation has been sent to <span className="text-[#00D4FF]">{bookingForm.email}</span>.</p>
+                <p className="text-gray-500 text-xs mb-6">Our team will confirm within 1 business hour.</p>
+                <button
+                  onClick={() => { setShowBookingModal(false); setBookingSuccess(false); }}
+                  className="px-6 py-2.5 bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-[#00D4FF]/20 transition-all"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              /* Form */
+              <div className="px-5 py-4 space-y-3">
+                <p className="text-gray-400 text-xs">Available Mon, Wed & Fri · All times EST</p>
+
+                {/* Name */}
+                <input
+                  type="text"
+                  placeholder="Your name *"
+                  value={bookingForm.name}
+                  onChange={(e) => setBookingForm(p => ({ ...p, name: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                />
+                {/* Email */}
+                <input
+                  type="email"
+                  placeholder="Email address *"
+                  value={bookingForm.email}
+                  onChange={(e) => setBookingForm(p => ({ ...p, email: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                />
+                {/* Phone */}
+                <input
+                  type="tel"
+                  placeholder="Phone number (optional)"
+                  value={bookingForm.phone}
+                  onChange={(e) => setBookingForm(p => ({ ...p, phone: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                />
+                {/* Company */}
+                <input
+                  type="text"
+                  placeholder="Company name (optional)"
+                  value={bookingForm.company}
+                  onChange={(e) => setBookingForm(p => ({ ...p, company: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                />
+                {/* Date */}
+                <select
+                  value={bookingForm.preferredDate}
+                  onChange={(e) => setBookingForm(p => ({ ...p, preferredDate: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                >
+                  <option value="">Select date *</option>
+                  {availableDates.map(d => (
+                    <option key={d.value} value={d.value}>{d.label}</option>
+                  ))}
+                </select>
+                {/* Time */}
+                <select
+                  value={bookingForm.preferredTime}
+                  onChange={(e) => setBookingForm(p => ({ ...p, preferredTime: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                >
+                  <option value="">Select time *</option>
+                  {TIME_SLOTS.map(t => (
+                    <option key={t} value={t}>{t} EST</option>
+                  ))}
+                </select>
+                {/* Notes */}
+                <textarea
+                  placeholder="What would you like to discuss? (optional)"
+                  value={bookingForm.notes}
+                  onChange={(e) => setBookingForm(p => ({ ...p, notes: e.target.value }))}
+                  rows={2}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+                />
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => setShowBookingModal(false)}
+                    className="flex-1 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 border border-gray-700 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={bookMeetingMutation.isPending || !bookingForm.name || !bookingForm.email || !bookingForm.preferredDate || !bookingForm.preferredTime}
+                    onClick={() => {
+                      if (!bookingForm.name || !bookingForm.email || !bookingForm.preferredDate || !bookingForm.preferredTime) {
+                        toast.error("Please fill in all required fields");
+                        return;
+                      }
+                      bookMeetingMutation.mutate({
+                        name: bookingForm.name,
+                        email: bookingForm.email,
+                        phone: bookingForm.phone || undefined,
+                        company: bookingForm.company || undefined,
+                        preferredDate: bookingForm.preferredDate,
+                        preferredTime: bookingForm.preferredTime,
+                        notes: bookingForm.notes || undefined,
+                      });
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-[#00D4FF]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    {bookMeetingMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <><CalendarDays size={14} />Book Meeting</>}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

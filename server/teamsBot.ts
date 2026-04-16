@@ -304,6 +304,129 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
 }
 
 /**
+ * Send agent assignment notification to Teams
+ * Called when a ticket is assigned to a specific agent
+ */
+export async function sendAssignmentNotificationToTeams(
+  ticketId: number,
+  agentName: string,
+  assignedByName: string
+): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+    if (!ticketRows[0]) throw new Error(`Ticket #${ticketId} not found`);
+    const ticket = ticketRows[0];
+
+    const priorityIcon = getPriorityColor(ticket.priority);
+    const priorityColor = getPriorityCardColor(ticket.priority);
+    const ticketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
+
+    const payload = {
+      type: "message",
+      attachments: [
+        {
+          contentType: "application/vnd.microsoft.card.adaptive",
+          contentUrl: null,
+          content: {
+            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+            type: "AdaptiveCard",
+            version: "1.4",
+            body: [
+              {
+                type: "Container",
+                style: "accent",
+                bleed: true,
+                items: [
+                  {
+                    type: "ColumnSet",
+                    columns: [
+                      {
+                        type: "Column",
+                        width: "stretch",
+                        items: [{
+                          type: "TextBlock",
+                          text: `👤 Ticket #${ticketId} Assigned`,
+                          weight: "Bolder",
+                          size: "Large",
+                          color: "Accent",
+                        }],
+                      },
+                      {
+                        type: "Column",
+                        width: "auto",
+                        items: [{
+                          type: "TextBlock",
+                          text: `${priorityIcon} ${ticket.priority.toUpperCase()}`,
+                          weight: "Bolder",
+                          color: priorityColor,
+                          horizontalAlignment: "Right",
+                        }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "Container",
+                items: [
+                  {
+                    type: "TextBlock",
+                    text: ticket.title,
+                    weight: "Bolder",
+                    size: "Medium",
+                    wrap: true,
+                  },
+                ],
+              },
+              {
+                type: "FactSet",
+                facts: [
+                  { title: "Assigned To:", value: `👤 ${agentName}` },
+                  { title: "Assigned By:", value: assignedByName },
+                  { title: "Priority:", value: `${priorityIcon} ${ticket.priority.toUpperCase()}` },
+                  { title: "Status:", value: ticket.status.replace(/_/g, " ").toUpperCase() },
+                  {
+                    title: "Assigned At:",
+                    value: new Date().toLocaleString("en-US", {
+                      timeZone: "America/New_York",
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }) + " EST",
+                  },
+                ],
+              },
+            ],
+            actions: [
+              {
+                type: "Action.OpenUrl",
+                title: "👁️ View Ticket",
+                url: ticketUrl,
+                style: "positive",
+              },
+              {
+                type: "Action.OpenUrl",
+                title: "📋 All Tickets",
+                url: `${BASE_URL}/admin/helpdesk`,
+                style: "default",
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    await sendToTeamsWebhook(payload);
+    console.log(`[Teams Bot] ✅ Assignment notification sent for ticket #${ticketId} → ${agentName}`);
+  } catch (error) {
+    console.error(`[Teams Bot] ❌ Error sending assignment notification for ticket #${ticketId}:`, error);
+    throw error;
+  }
+}
+
+/**
  * Send status update notification to Teams
  * Includes: View Ticket button
  */

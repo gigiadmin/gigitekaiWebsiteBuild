@@ -5,7 +5,7 @@ import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
-import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams } from "../teamsBot";
+import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { searchKnowledgeBase } from "../db";
 import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity } from "../../drizzle/schema";
@@ -662,6 +662,69 @@ export const helpdeskRouter = router({
         return activity;
       } catch (error) {
         console.error("Failed to get activity:", error);
+        throw error;
+      }
+    }),
+
+  // Assign ticket to a specific agent (admin only)
+  assignTicket: adminProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        agentId: z.number().nullable(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        const ticket = await getTicketById(input.ticketId);
+        if (!ticket) throw new Error("Ticket not found");
+
+        // Look up agent name
+        let agentName = "Unassigned";
+        if (input.agentId !== null) {
+          const agentRows = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, input.agentId))
+            .limit(1);
+          agentName = agentRows[0]?.name || agentRows[0]?.email || `Agent #${input.agentId}`;
+        }
+
+        const previousAssignee = ticket.assignedTo;
+
+        // Update the ticket's assignedTo field
+        await db
+          .update(tickets)
+          .set({ assignedTo: input.agentId, updatedAt: new Date() })
+          .where(eq(tickets.id, input.ticketId));
+
+        // Log activity
+        await db.insert(ticketActivity).values({
+          ticketId: input.ticketId,
+          actorId: ctx.user.id,
+          actorName: ctx.user.name || ctx.user.email || "Admin",
+          action: "assigned",
+          fromValue: previousAssignee ? String(previousAssignee) : null,
+          toValue: input.agentId !== null ? agentName : "Unassigned",
+        });
+
+        // Send Teams notification (non-blocking)
+        if (input.agentId !== null) {
+          sendAssignmentNotificationToTeams(
+            input.ticketId,
+            agentName,
+            ctx.user.name || ctx.user.email || "Admin"
+          ).catch((e: any) =>
+            console.warn("[Helpdesk] Teams assignment notification failed:", e)
+          );
+        }
+
+        return { success: true, agentName };
+      } catch (error) {
+        console.error("Failed to assign ticket:", error);
         throw error;
       }
     }),

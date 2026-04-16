@@ -1468,3 +1468,34 @@
 - [x] Add "Call Support" button in AI chat widget header with Teams deep link (msteams:) on desktop, tel: fallback on mobile
 - [x] Add "Call Now" quick chip in the chat input area quick reply row
 - [x] Ensure button is visible and accessible on both desktop and mobile chat widget
+
+## Teams Advanced Features — Batch 2 (April 16, 2026)
+
+### Feature 1: SLA Breach Alerts
+- [x] Create server/_core/teamsSlaAlerts.ts — SLA breach alert scheduler
+- [x] Define SLA thresholds: critical=1h, high=2h, medium=4h, low=8h without update
+- [x] Query open/in_progress tickets where updatedAt exceeds SLA threshold
+- [x] Send Teams adaptive card per overdue ticket (title, priority, hours overdue, View Ticket button)
+- [x] Run scheduler every 30 minutes, skip tickets already alerted in same window
+- [x] Register SLA scheduler in server/_core/index.ts
+- [x] Write vitest tests for SLA breach detection logic
+
+### Feature 2: Agent Assignment Notifications
+- [x] Add assignTicket mutation to helpdesk router (adminProcedure)
+  - Input: ticketId, agentId (userId of the agent)
+  - Updates tickets.assignedTo = agentId and tickets.updatedAt
+  - Logs activity in ticketActivity table
+- [x] Add sendAssignmentNotificationToTeams() to teamsBot.ts
+  - Posts to Help Desk channel webhook with ticket details + assigned agent name
+  - Adaptive card: ticket title, priority, "Assigned to: [Agent Name]", View Ticket button
+- [x] Add "Assign Ticket" button/dropdown to AdminPanel.tsx ticket detail view
+- [x] Write vitest tests for assignment notification
+
+### Feature 3: Teams Meeting Booking in Chat Widget
+- [x] Add "Schedule a Call" button/chip in AIChatWidget quick-reply row
+- [x] Build inline booking modal in AIChatWidget (reuse StickyCTABar form pattern)
+  - Fields: name, email, phone (optional), preferred date (Mon/Wed/Fri slots), preferred time
+  - Submit via trpc.calendar.bookMeeting.useMutation()
+  - Show success confirmation with meeting details
+- [x] Update stale phone number (609-676-4483) in calendar.ts email templates to (727) 382-5776
+- [x] Write vitest tests for booking flow

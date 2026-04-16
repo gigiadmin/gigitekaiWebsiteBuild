@@ -12,6 +12,7 @@ import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter
 import { securityHeaders } from "./securityHeaders";
 import { startDigestScheduler } from "./digestScheduler";
 import { startTeamsDigestScheduler } from "./teamsDigest";
+import { startSlaAlertScheduler } from "./teamsSlaAlerts";
 import { startNewsletterScheduler } from "../routers/newsletter";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
@@ -131,6 +132,8 @@ async function startServer() {
     startNewsletterScheduler();
     // Start Teams daily digest scheduler (8 AM EST)
     startTeamsDigestScheduler();
+    // Start Teams SLA breach alert scheduler (every 30 minutes)
+    startSlaAlertScheduler();
     // Log Teams webhook endpoint
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
   });

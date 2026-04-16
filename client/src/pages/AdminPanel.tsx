@@ -31,6 +31,7 @@ import {
   History,
   XCircle,
   PlayCircle,
+  UserPlus,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -81,6 +82,9 @@ export default function AdminPanel() {
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: any }>>([]);
   const [presetName, setPresetName] = useState<string>("");
   const [showPresetModal, setShowPresetModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignTicketId, setAssignTicketId] = useState<number | null>(null);
+  const [assignAgentId, setAssignAgentId] = useState<string>("");
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -112,6 +116,17 @@ export default function AdminPanel() {
       refetchUsers();
     },
     onError: (error: any) => toast.error(error.message || "Failed to update user role"),
+  });
+
+  const assignTicketMutation = trpc.helpdesk.assignTicket.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Ticket assigned to ${data.agentName}!`);
+      refetch();
+      setShowAssignModal(false);
+      setAssignTicketId(null);
+      setAssignAgentId("");
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to assign ticket"),
   });
 
   const updateStatusMutation = trpc.helpdesk.updateStatus.useMutation({
@@ -521,6 +536,23 @@ export default function AdminPanel() {
                         <Mail className="w-3 h-3 mr-1" />
                         Reply
                       </Button>
+                      {/* Assign button */}
+                      {(ticket.status === "open" || ticket.status === "in_progress") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setAssignTicketId(ticket.id);
+                            setAssignAgentId("");
+                            setShowAssignModal(true);
+                          }}
+                          className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                          title="Assign to agent"
+                        >
+                          <UserPlus className="w-3 h-3 mr-1" />
+                          Assign
+                        </Button>
+                      )}
                       {/* Context-aware quick action buttons */}
                       {(ticket.status === "closed" || ticket.status === "resolved") && (
                         <Button
@@ -783,6 +815,49 @@ export default function AdminPanel() {
         recipientName={quickReplyName}
         onSuccess={() => refetch()}
       />
+
+      {/* Assign Ticket Modal */}
+      {showAssignModal && assignTicketId !== null && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-[#141B2D] border border-gray-800 rounded-xl p-6 w-96">
+            <h3 className="text-white font-bold text-lg mb-1">Assign Ticket #{assignTicketId}</h3>
+            <p className="text-gray-400 text-sm mb-4">Select an agent to assign this ticket to. A Teams notification will be sent to the Help Desk channel.</p>
+            <select
+              value={assignAgentId}
+              onChange={(e) => setAssignAgentId(e.target.value)}
+              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-4 py-2.5 text-white text-sm mb-4 focus:border-[#00D4FF]/50 focus:outline-none"
+            >
+              <option value="">Select agent...</option>
+              {allUsers
+                ?.filter((u: any) => u.role === "admin" || u.role === "technician")
+                .map((u: any) => (
+                  <option key={u.id} value={String(u.id)}>
+                    {u.name || u.email}
+                  </option>
+                ))}
+            </select>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => { setShowAssignModal(false); setAssignTicketId(null); setAssignAgentId(""); }}
+                className="border-gray-700 text-gray-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!assignAgentId) { toast.error("Please select an agent"); return; }
+                  assignTicketMutation.mutate({ ticketId: assignTicketId, agentId: parseInt(assignAgentId) });
+                }}
+                disabled={assignTicketMutation.isPending || !assignAgentId}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
+              >
+                {assignTicketMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><UserPlus className="w-4 h-4 mr-2" />Assign</>}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Save Filter Preset Modal */}
       {showPresetModal && (
