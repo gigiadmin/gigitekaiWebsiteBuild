@@ -823,3 +823,15 @@ export const meetingBookings = mysqlTable("meetingBookings", {
 });
 export type MeetingBooking = typeof meetingBookings.$inferSelect;
 export type InsertMeetingBooking = typeof meetingBookings.$inferInsert;
+
+// SLA Snooze — allows agents to temporarily dismiss SLA breach alerts for a ticket
+export const slaSnoozes = mysqlTable("slaSnoozes", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull(),
+  snoozedUntil: timestamp("snoozedUntil").notNull(),
+  snoozedBy: int("snoozedBy").notNull(), // userId of the agent who snoozed
+  reason: varchar("reason", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SlaSnooze = typeof slaSnoozes.$inferSelect;
+export type InsertSlaSnooze = typeof slaSnoozes.$inferInsert;

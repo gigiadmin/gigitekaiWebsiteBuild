@@ -13,8 +13,8 @@
  */
 
 import { getDb } from "../db";
-import { tickets } from "../../drizzle/schema";
-import { inArray } from "drizzle-orm";
+import { tickets, slaSnoozes } from "../../drizzle/schema";
+import { inArray, and, eq, gt } from "drizzle-orm";
 
 const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 const BASE_URL = "https://gigitekai.com";
@@ -221,6 +221,14 @@ export async function checkAndAlertSlaBreaches(): Promise<number> {
 
   const breachedTickets: Array<typeof activeTickets[0] & { hoursOverdue: number }> = [];
 
+  // Fetch all active snoozes in one query for efficiency
+  const nowDate = new Date();
+  const activeSnoozes = await db
+    .select({ ticketId: slaSnoozes.ticketId })
+    .from(slaSnoozes)
+    .where(gt(slaSnoozes.snoozedUntil, nowDate));
+  const snoozedTicketIds = new Set(activeSnoozes.map((s) => s.ticketId));
+
   for (const ticket of activeTickets) {
     const threshold = SLA_THRESHOLDS_MS[ticket.priority];
     if (!threshold) continue;
@@ -233,6 +241,12 @@ export async function checkAndAlertSlaBreaches(): Promise<number> {
 
       // Skip if already alerted in this breach window
       if (alertedTicketIds.has(ticket.id)) continue;
+
+      // Skip if ticket is snoozed by an agent
+      if (snoozedTicketIds.has(ticket.id)) {
+        console.log(`[Teams SLA] 💤 Ticket #${ticket.id} is snoozed — skipping alert`);
+        continue;
+      }
 
       breachedTickets.push({ ...ticket, hoursOverdue });
     } else {

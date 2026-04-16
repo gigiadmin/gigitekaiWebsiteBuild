@@ -1499,3 +1499,47 @@
   - Show success confirmation with meeting details
 - [x] Update stale phone number (609-676-4483) in calendar.ts email templates to (727) 382-5776
 - [x] Write vitest tests for booking flow
+
+## Teams Bot Follow-Up Features (April 16, 2026)
+
+### Follow-Up 1: Reusable Skill for Teams Bot Integration
+- [x] Read skill-creator SKILL.md and follow its workflow
+- [x] Create /home/ubuntu/skills/teams-bot-helpdesk/SKILL.md with full Teams Bot integration guide
+  - Document architecture (Incoming Webhook vs Graph API decision)
+  - Document adaptive card patterns used (new ticket, reply, status, assignment, SLA breach)
+  - Document teamsBot.ts helper functions and how to extend them
+  - Document scheduler pattern (teamsDigest.ts, teamsSlaAlerts.ts)
+  - Include step-by-step setup instructions (webhook URL, secrets)
+
+### Follow-Up 2: SLA Snooze/Dismiss per Ticket
+- [x] Add slaSnoozes table to drizzle/schema.ts (ticketId, snoozedUntil, snoozedBy, reason)
+- [x] Run pnpm db:push to migrate schema
+- [x] Add snoozeSlaBreach mutation to helpdesk router (adminProcedure)
+  - Input: ticketId, snoozeMinutes (30, 60, 120, 240), reason (optional)
+  - Inserts/updates slaSnoozes row with snoozedUntil = now + snoozeMinutes
+- [x] Update teamsSlaAlerts.ts to check slaSnoozes table before alerting
+  - Skip ticket if active snooze exists (snoozedUntil > now)
+- [x] Add "Snooze Alert" button to AdminPanel ticket rows (open/in_progress only)
+  - Dropdown: 30 min, 1 hour, 2 hours, 4 hours
+  - Shows snooze expiry time if currently snoozed
+- [x] Write vitest tests for snooze logic
+
+### Follow-Up 3: Smart Agent Suggestion (Workload-Based)
+- [x] Add getAgentWorkload query to helpdesk router
+  - Returns list of admins/technicians with open+in_progress ticket count each
+- [x] Update assignTicket mutation to accept optional suggestedAgentId
+- [x] Add workload-aware suggestion in Assign modal (AdminPanel.tsx)
+  - Show each agent with their open ticket count next to name
+  - Highlight the agent with fewest tickets as "Recommended"
+  - Sort agents by workload ascending in the dropdown
+- [x] Write vitest tests for workload query
+
+### Follow-Up 4: Timezone-Aware Meeting Booking
+- [x] Add timezone selector to AIChatWidget booking modal
+  - Common US timezones: Eastern, Central, Mountain, Pacific, Hawaii, Alaska
+  - Default: auto-detect from browser (Intl.DateTimeFormat().resolvedOptions().timeZone)
+- [x] Display time slots in selected timezone (convert from EST base)
+- [x] Pass timezone to bookMeeting mutation (add optional timezone field to input schema)
+- [x] Update calendar.ts bookMeeting to include timezone in confirmation email
+- [x] Update calendar event creation to use selected timezone (not hardcoded America/New_York)
+- [x] Write vitest tests for timezone conversion logic

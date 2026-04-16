@@ -8,8 +8,8 @@ import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { searchKnowledgeBase } from "../db";
 import { users } from "../../drizzle/schema";
-import { ticketTemplates, tickets, ticketNotes, ticketActivity } from "../../drizzle/schema";
-import { eq, inArray, asc, desc } from "drizzle-orm";
+import { ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes } from "../../drizzle/schema";
+import { eq, inArray, asc, desc, and, gt, count } from "drizzle-orm";
 
 const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 const BASE_URL = "https://gigitekai.com";
@@ -728,6 +728,74 @@ export const helpdeskRouter = router({
         throw error;
       }
     }),
+
+  // Snooze SLA breach alert for a ticket
+  snoozeSlaBreach: adminProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        snoozeMinutes: z.number().int().min(1).max(480),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        const snoozedUntil = new Date(Date.now() + input.snoozeMinutes * 60 * 1000);
+
+        // Upsert: delete existing snooze for this ticket then insert new one
+        await db.delete(slaSnoozes).where(eq(slaSnoozes.ticketId, input.ticketId));
+        await db.insert(slaSnoozes).values({
+          ticketId: input.ticketId,
+          snoozedUntil,
+          snoozedBy: ctx.user.id,
+          reason: input.reason || null,
+        });
+
+        // Log activity
+        await db.insert(ticketActivity).values({
+          ticketId: input.ticketId,
+          actorId: ctx.user.id,
+          actorName: ctx.user.name || ctx.user.email || "Admin",
+          action: "sla_snoozed",
+          fromValue: null,
+          toValue: `${input.snoozeMinutes} min`,
+        });
+
+        return { success: true, snoozedUntil };
+      } catch (error) {
+        console.error("Failed to snooze SLA:", error);
+        throw error;
+      }
+    }),
+
+  // Get active SLA snooze for a ticket (if any)
+  getSlaSnooze: adminProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      const snooze = await db
+        .select()
+        .from(slaSnoozes)
+        .where(and(eq(slaSnoozes.ticketId, input.ticketId), gt(slaSnoozes.snoozedUntil, new Date())))
+        .limit(1);
+      return snooze[0] || null;
+    }),
+
+  // Get agent workload (open + in_progress ticket count per agent)
+  getAgentWorkload: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const workloads = await db
+      .select({ agentId: tickets.assignedTo, ticketCount: count() })
+      .from(tickets)
+      .where(inArray(tickets.status, ["open", "in_progress"]))
+      .groupBy(tickets.assignedTo);
+    return workloads;
+  }),
 
   // Delete a note
   deleteNote: adminProcedure

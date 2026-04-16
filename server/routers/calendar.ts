@@ -27,11 +27,13 @@ export const calendarRouter = router({
         company: z.string().optional(),
         preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
         preferredTime: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
+        timezone: z.string().optional().default("America/New_York"),
         notes: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
       try {
+        const timezone = input.timezone || "America/New_York";
         // Format the meeting time
         // Keep local time format (no UTC conversion) since timeZone is specified separately in the event
         const meetingDateTime = `${input.preferredDate}T${input.preferredTime}:00`;
@@ -42,16 +44,27 @@ export const calendarRouter = router({
         const endTime = `${String(endHours).padStart(2, "0")}:${String(endMins).padStart(2, "0")}`;
         const endDateTime = `${input.preferredDate}T${endTime}:00`;
 
+        // Friendly timezone abbreviation for display
+        const tzAbbr: Record<string, string> = {
+          "America/New_York": "ET",
+          "America/Chicago": "CT",
+          "America/Denver": "MT",
+          "America/Los_Angeles": "PT",
+          "America/Anchorage": "AKT",
+          "Pacific/Honolulu": "HT",
+        };
+        const tzLabel = tzAbbr[timezone] || timezone;
+
         // Create calendar event in M365
         const calendarEvent = {
           subject: `Strategy Call with ${input.name} (${input.company || "Prospect"})`,
           start: {
             dateTime: meetingDateTime,
-            timeZone: "America/New_York",
+            timeZone: timezone,
           },
           end: {
             dateTime: endDateTime,
-            timeZone: "America/New_York",
+            timeZone: timezone,
           },
           attendees: [
             {
@@ -70,7 +83,7 @@ export const calendarRouter = router({
               <p><strong>Meeting Details:</strong></p>
               <ul>
                 <li>Date: ${input.preferredDate}</li>
-                <li>Time: ${input.preferredTime} ET</li>
+                <li>Time: ${input.preferredTime} ${tzLabel}</li>
                 <li>Duration: 15 minutes</li>
                 <li>Company: ${input.company || "Not provided"}</li>
               </ul>
@@ -138,7 +151,7 @@ export const calendarRouter = router({
         const [h, m] = input.preferredTime.split(":").map(Number);
         const displayHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
         const displayAmPm = h >= 12 ? "PM" : "AM";
-        const displayTime = `${displayHour}:${String(m).padStart(2, "0")} ${displayAmPm} EST`;
+        const displayTime = `${displayHour}:${String(m).padStart(2, "0")} ${displayAmPm} ${tzLabel}`;
 
         // Format date for display (e.g. "2026-04-23" -> "Thursday, April 23, 2026")
         const dateObj = new Date(input.preferredDate + "T12:00:00");
@@ -211,7 +224,7 @@ export const calendarRouter = router({
                 <strong>Meeting Details:</strong>
                 <ul>
                   <li><strong>Date:</strong> ${input.preferredDate}</li>
-                  <li><strong>Time:</strong> ${input.preferredTime} ET</li>
+                  <li><strong>Time:</strong> ${input.preferredTime} ${tzLabel}</li>
                   <li><strong>Duration:</strong> 15 minutes</li>
                 </ul>
               </div>

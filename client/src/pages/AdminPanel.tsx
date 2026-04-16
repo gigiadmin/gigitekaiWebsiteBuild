@@ -32,6 +32,8 @@ import {
   XCircle,
   PlayCircle,
   UserPlus,
+  BellOff,
+  Star,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -85,6 +87,7 @@ export default function AdminPanel() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignTicketId, setAssignTicketId] = useState<number | null>(null);
   const [assignAgentId, setAssignAgentId] = useState<string>("");
+  const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -92,6 +95,16 @@ export default function AdminPanel() {
 
   const { data: allUsers, isLoading: usersLoading, refetch: refetchUsers } = trpc.users.getAll.useQuery(undefined, {
     enabled: isAuthenticated && activeTab === "users",
+  });
+
+  // All admin/tech users for assign modal (always loaded for tickets tab)
+  const { data: allAdminUsers } = trpc.users.getAll.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  // Agent workload for smart suggestion in assign modal
+  const { data: agentWorkloads } = trpc.helpdesk.getAgentWorkload.useQuery(undefined, {
+    enabled: isAuthenticated,
   });
 
   const approveMutation = trpc.users.approve.useMutation({
@@ -116,6 +129,15 @@ export default function AdminPanel() {
       refetchUsers();
     },
     onError: (error: any) => toast.error(error.message || "Failed to update user role"),
+  });
+
+  const snoozeSlaBreachMutation = trpc.helpdesk.snoozeSlaBreach.useMutation({
+    onSuccess: (data) => {
+      const until = new Date(data.snoozedUntil).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+      toast.success(`SLA alert snoozed until ${until}`);
+      setShowSnoozeMenu(null);
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to snooze SLA alert"),
   });
 
   const assignTicketMutation = trpc.helpdesk.assignTicket.useMutation({
@@ -553,6 +575,36 @@ export default function AdminPanel() {
                           Assign
                         </Button>
                       )}
+                      {/* Snooze SLA Alert button */}
+                      {(ticket.status === "open" || ticket.status === "in_progress") && (
+                        <div className="relative">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setShowSnoozeMenu(showSnoozeMenu === ticket.id ? null : ticket.id)}
+                            className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            title="Snooze SLA alert"
+                          >
+                            <BellOff className="w-3 h-3 mr-1" />
+                            Snooze
+                          </Button>
+                          {showSnoozeMenu === ticket.id && (
+                            <div className="absolute right-0 top-8 z-20 bg-[#141B2D] border border-gray-700 rounded-xl shadow-xl min-w-[160px] overflow-hidden">
+                              <p className="text-gray-500 text-[10px] px-3 pt-2 pb-1 uppercase tracking-wide">Snooze SLA alert for</p>
+                              {[30, 60, 120, 240].map((mins) => (
+                                <button
+                                  key={mins}
+                                  onClick={() => snoozeSlaBreachMutation.mutate({ ticketId: ticket.id, snoozeMinutes: mins })}
+                                  disabled={snoozeSlaBreachMutation.isPending}
+                                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-amber-500/10 hover:text-amber-300 transition-colors"
+                                >
+                                  {mins < 60 ? `${mins} min` : `${mins / 60} hour${mins / 60 > 1 ? "s" : ""}`}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       {/* Context-aware quick action buttons */}
                       {(ticket.status === "closed" || ticket.status === "resolved") && (
                         <Button
@@ -821,21 +873,45 @@ export default function AdminPanel() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-[#141B2D] border border-gray-800 rounded-xl p-6 w-96">
             <h3 className="text-white font-bold text-lg mb-1">Assign Ticket #{assignTicketId}</h3>
-            <p className="text-gray-400 text-sm mb-4">Select an agent to assign this ticket to. A Teams notification will be sent to the Help Desk channel.</p>
-            <select
-              value={assignAgentId}
-              onChange={(e) => setAssignAgentId(e.target.value)}
-              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-4 py-2.5 text-white text-sm mb-4 focus:border-[#00D4FF]/50 focus:outline-none"
-            >
-              <option value="">Select agent...</option>
-              {allUsers
-                ?.filter((u: any) => u.role === "admin" || u.role === "technician")
-                .map((u: any) => (
-                  <option key={u.id} value={String(u.id)}>
-                    {u.name || u.email}
-                  </option>
-                ))}
-            </select>
+            <p className="text-gray-400 text-sm mb-4">Select an agent. A Teams notification will be sent to the Help Desk channel.</p>
+            <div className="space-y-2 mb-4">
+              {(() => {
+                const agents = (allAdminUsers || [])
+                  .filter((u: any) => u.role === "admin" || u.role === "technician")
+                  .map((u: any) => {
+                    const wl = (agentWorkloads || []).find((w: any) => w.agentId === u.id);
+                    return { ...u, openTickets: wl ? Number(wl.ticketCount) : 0 };
+                  })
+                  .sort((a: any, b: any) => a.openTickets - b.openTickets);
+                const minLoad = agents.length > 0 ? agents[0].openTickets : 0;
+                return agents.map((u: any) => {
+                  const isRecommended = u.openTickets === minLoad;
+                  return (
+                    <button
+                      key={u.id}
+                      onClick={() => setAssignAgentId(String(u.id))}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all text-sm ${
+                        assignAgentId === String(u.id)
+                          ? "border-cyan-500 bg-cyan-500/10 text-white"
+                          : "border-gray-700 bg-[#0A0E1A] text-gray-300 hover:border-cyan-500/40 hover:bg-cyan-500/5"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        {isRecommended && <Star className="w-3 h-3 text-amber-400" />}
+                        {u.name || u.email}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        u.openTickets === 0 ? "bg-emerald-500/20 text-emerald-400" :
+                        u.openTickets <= 3 ? "bg-cyan-500/20 text-cyan-400" :
+                        "bg-red-500/20 text-red-400"
+                      }`}>
+                        {u.openTickets} open
+                      </span>
+                    </button>
+                  );
+                });
+              })()}
+            </div>
             <div className="flex gap-3 justify-end">
               <Button
                 variant="outline"

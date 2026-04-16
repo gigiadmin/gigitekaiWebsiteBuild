@@ -154,7 +154,7 @@ export default function AIChatWidget() {
   const { user: authUser, isAuthenticated } = useAuth();
   const [handoffComplete, setHandoffComplete] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", notes: "" });
+  const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" });
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
   // Generate Mon/Wed/Fri dates for the next 3 months
@@ -987,7 +987,7 @@ export default function AIChatWidget() {
                       Pricing
                     </button>
                     <button
-                      onClick={() => { setBookingSuccess(false); setBookingForm({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", notes: "" }); setShowBookingModal(true); }}
+                      onClick={() => { setBookingSuccess(false); setBookingForm({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" }); setShowBookingModal(true); }}
                       className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:bg-[#00D4FF]/20 transition-colors"
                     >
                       <CalendarDays size={10} />
@@ -1135,9 +1135,28 @@ export default function AIChatWidget() {
                   className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
                 >
                   <option value="">Select time *</option>
-                  {TIME_SLOTS.map(t => (
-                    <option key={t} value={t}>{t} EST</option>
-                  ))}
+                  {TIME_SLOTS.map(t => {
+                    const tzAbbr: Record<string, string> = {
+                      "America/New_York": "ET", "America/Chicago": "CT",
+                      "America/Denver": "MT", "America/Los_Angeles": "PT",
+                      "America/Anchorage": "AKT", "Pacific/Honolulu": "HT",
+                    };
+                    const label = tzAbbr[bookingForm.timezone] || bookingForm.timezone.split("/").pop()?.replace("_", " ") || "";
+                    return <option key={t} value={t}>{t} {label}</option>;
+                  })}
+                </select>
+                {/* Timezone */}
+                <select
+                  value={bookingForm.timezone}
+                  onChange={(e) => setBookingForm(p => ({ ...p, timezone: e.target.value }))}
+                  className="w-full px-3 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-xl text-sm text-white focus:outline-none focus:border-[#00D4FF]/50 focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                >
+                  <option value="America/New_York">Eastern Time (ET)</option>
+                  <option value="America/Chicago">Central Time (CT)</option>
+                  <option value="America/Denver">Mountain Time (MT)</option>
+                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  <option value="America/Anchorage">Alaska Time (AKT)</option>
+                  <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
                 </select>
                 {/* Notes */}
                 <textarea
@@ -1170,6 +1189,7 @@ export default function AIChatWidget() {
                         company: bookingForm.company || undefined,
                         preferredDate: bookingForm.preferredDate,
                         preferredTime: bookingForm.preferredTime,
+                        timezone: bookingForm.timezone,
                         notes: bookingForm.notes || undefined,
                       });
                     }}
