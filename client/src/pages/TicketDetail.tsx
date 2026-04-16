@@ -4,6 +4,8 @@ import { useLocation, useParams } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
+import SlaTimer from "@/components/SlaTimer";
+import CannedResponsePicker from "@/components/CannedResponsePicker";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   ArrowLeft,
@@ -19,6 +21,7 @@ import {
   Send,
   Shield,
   StickyNote,
+  Sparkles,
   Tag,
   Trash2,
   User,
@@ -59,6 +62,16 @@ export default function TicketDetail() {
   }, [error]);
 
   const utils = trpc.useUtils();
+
+  const suggestReplyMutation = trpc.aiTriage.suggestReply.useMutation({
+    onSuccess: (data) => {
+      if (data.draft) {
+        setReplyText(data.draft);
+        toast.success("AI draft inserted — review and edit before sending");
+      }
+    },
+    onError: () => toast.error("AI draft generation failed"),
+  });
 
   const addReplyMutation = trpc.helpdesk.addReply.useMutation({
     onSuccess: () => {
@@ -258,6 +271,15 @@ export default function TicketDetail() {
               />
             </div>
 
+            {/* SLA Timer */}
+            <div className="mt-4">
+              <SlaTimer
+                priority={ticket.priority}
+                updatedAt={ticket.updatedAt}
+                status={ticket.status}
+              />
+            </div>
+
             {/* Admin Quick Actions */}
             {isAdmin && (
               <div className="mt-5 pt-5 border-t border-gray-800/60">
@@ -446,20 +468,41 @@ export default function TicketDetail() {
                   }}
                   className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
                 />
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <p className="text-xs text-gray-600">Press Ctrl+Enter to send</p>
-                  <Button
-                    type="submit"
-                    disabled={addReplyMutation.isPending || !replyText.trim()}
-                    className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl shadow-lg shadow-[#00D4FF]/15"
-                  >
-                    {addReplyMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4 mr-2" />
+                  <div className="flex items-center gap-2">
+                    {isAdmin && (
+                      <>
+                        <CannedResponsePicker onSelect={(body) => setReplyText(body)} />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={suggestReplyMutation.isPending}
+                          onClick={() => suggestReplyMutation.mutate({ ticketId: ticketIdNum })}
+                          className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/50 rounded-xl text-sm"
+                        >
+                          {suggestReplyMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 mr-1.5" />
+                          )}
+                          AI Draft
+                        </Button>
+                      </>
                     )}
-                    {addReplyMutation.isPending ? "Sending..." : "Send Reply"}
-                  </Button>
+                    <Button
+                      type="submit"
+                      disabled={addReplyMutation.isPending || !replyText.trim()}
+                      className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl shadow-lg shadow-[#00D4FF]/15"
+                    >
+                      {addReplyMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4 mr-2" />
+                      )}
+                      {addReplyMutation.isPending ? "Sending..." : "Send Reply"}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>

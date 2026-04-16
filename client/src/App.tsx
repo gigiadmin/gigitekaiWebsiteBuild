@@ -49,6 +49,8 @@ import AdminEmailPage from "./pages/AdminEmailPage";
 import AdminPreferencesPage from "./pages/AdminPreferencesPage";
 import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
 import AdminGuidePage from "./pages/AdminGuidePage";
+import KnowledgeBase from "./pages/KnowledgeBase";
+import AdminSocialPage from "./pages/AdminSocialPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -125,6 +127,10 @@ function Router() {
       <Route path={"/admin/preferences"} component={AdminPreferencesPage} />
       <Route path={"/admin/email-digest"} component={AdminEmailDigestPage} />
       <Route path={"/admin/guide"} component={AdminGuidePage} />
+      {/* Knowledge Base */}
+      <Route path={"/admin/kb"} component={KnowledgeBase} />
+      {/* Social Publishing Hub */}
+      <Route path={"/admin/social"} component={AdminSocialPage} />
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
@@ -140,8 +146,11 @@ export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
   const [location] = useLocation();
-  // Hide global widgets on standalone meeting management pages
+  // Hide global widgets on admin/helpdesk/meeting pages
   const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
+  const isAdminPage = location.startsWith("/admin");
+  const isHelpdeskPage = location.startsWith("/helpdesk");
+  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage;
 
   return (
     <ErrorBoundary>
@@ -156,9 +165,9 @@ function App() {
           </a>
           <Toaster />
           <Router />
-          {!isMeetingPage && <AIChatWidget />}
-          {!isMeetingPage && <UserChatWidget />}
-          {!isMeetingPage && <PWAInstallPrompt />}
+          {!hideWidgets && <AIChatWidget />}
+          {!hideWidgets && <UserChatWidget />}
+          {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
           {/* ExitIntentPopup disabled - no guide provided */}
           {/* StickyCTABar removed */}
         </TooltipProvider>

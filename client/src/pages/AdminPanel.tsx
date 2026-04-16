@@ -528,6 +528,16 @@ export default function AdminPanel() {
                       {ticket.category.replace(/_/g, " ")}
                     </span>
 
+                    {/* AI Triage Badge */}
+                    {ticket.aiCategory && (
+                      <span
+                        title={`AI: ${ticket.aiPriority} · ${ticket.aiCategory} (${Math.round(Number(ticket.aiConfidence) * 100)}% confidence)${ticket.aiReasoning ? `\n${ticket.aiReasoning}` : ""}`}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 cursor-help"
+                      >
+                        🤖 {ticket.aiCategory} · {ticket.aiPriority}
+                      </span>
+                    )}
+
                     {/* Created */}
                     <span className="text-xs text-gray-500">
                       {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}

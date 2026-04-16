@@ -6,6 +6,7 @@ import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
+import { sendPushToUser } from "../_core/pushHelper";
 import { searchKnowledgeBase } from "../db";
 import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes } from "../../drizzle/schema";
@@ -191,6 +192,35 @@ export const helpdeskRouter = router({
             .catch((e: any) => console.warn("[Helpdesk] KB suggestions Teams card failed:", e));
         }
 
+        // AI Auto-Triage: classify priority + category in background (non-blocking)
+        if (ticket?.id) {
+          import("./aiTriage").then(({ aiTriageRouter: _r }) => {
+            // Call triage directly via db to avoid circular router dependency
+            import("../_core/llm").then(({ invokeLLM }) => {
+              import("../../drizzle/schema").then(({ tickets: ticketsTable }) => {
+                import("drizzle-orm").then(({ eq: eqOp }) => {
+                  getDb().then((dbInst) => {
+                    if (!dbInst) return;
+                    invokeLLM({
+                      messages: [
+                        { role: "system", content: "You are an IT helpdesk triage AI. Return JSON: {\"priority\":\"critical|high|medium|low\",\"category\":\"network|hardware|software|security|m365|billing|other\",\"confidence\":0.0-1.0,\"reasoning\":\"one sentence\"}" },
+                        { role: "user", content: `Title: ${input.title}\nDescription: ${input.description}` },
+                      ],
+                      response_format: { type: "json_schema", json_schema: { name: "triage", strict: true, schema: { type: "object", properties: { priority: { type: "string" }, category: { type: "string" }, confidence: { type: "number" }, reasoning: { type: "string" } }, required: ["priority","category","confidence","reasoning"], additionalProperties: false } } },
+                    }).then((resp) => {
+                      const raw = resp.choices?.[0]?.message?.content;
+                      const txt = typeof raw === "string" ? raw : "";
+                      if (!txt) return;
+                      const r = JSON.parse(txt);
+                      dbInst.update(ticketsTable).set({ aiCategory: r.category, aiPriority: r.priority, aiConfidence: String(Math.min(1, Math.max(0, r.confidence))), aiReasoning: r.reasoning }).where(eqOp(ticketsTable.id, ticket!.id)).catch(() => {});
+                    }).catch(() => {});
+                  });
+                });
+              });
+            });
+          }).catch(() => {});
+        }
+
         // Note: Push notifications are sent client-side via usePushNotifications hook
         // Admins must have subscribed to push notifications in their preferences
 
@@ -348,6 +378,25 @@ export const helpdeskRouter = router({
           );
         } catch (teamsError) {
           console.warn("[Helpdesk] Failed to send Teams status update:", teamsError);
+        }
+
+        // Send push notification to ticket owner on status change
+        try {
+          const statusLabels: Record<string, string> = {
+            open: "Reopened",
+            in_progress: "In Progress",
+            on_hold: "On Hold",
+            resolved: "Resolved ✅",
+            closed: "Closed",
+          };
+          await sendPushToUser(ticket.userId, {
+            title: `Ticket #${input.ticketId} ${statusLabels[input.status] ?? input.status}`,
+            body: ticket.title,
+            tag: `ticket-${input.ticketId}-status`,
+            url: `/helpdesk/tickets/${input.ticketId}`,
+          });
+        } catch (pushErr) {
+          console.warn("[Helpdesk] Push notification failed:", pushErr);
         }
 
         // Send email notification to customer

@@ -1543,3 +1543,84 @@
 - [x] Update calendar.ts bookMeeting to include timezone in confirmation email
 - [x] Update calendar event creation to use selected timezone (not hardcoded America/New_York)
 - [x] Write vitest tests for timezone conversion logic
+
+## 10-Feature Sprint — April 2026
+
+### Feature 1: AI Auto-Categorization of New Tickets
+- [ ] Add aiCategory and aiPriority columns to tickets table in drizzle/schema.ts
+- [ ] Run pnpm db:push to migrate schema
+- [ ] Create server/routers/aiTriage.ts with autoTriageTicket procedure (publicProcedure, called on ticket creation)
+- [ ] LLM prompt: given ticket title + description, return JSON {priority: "critical|high|medium|low", category: "network|hardware|software|security|m365|billing|other", confidence: 0-1, reasoning: string}
+- [ ] Call autoTriageTicket inside createTicket mutation after insert, update aiCategory/aiPriority fields
+- [ ] Show AI badge on ticket rows in AdminPanel (category chip + confidence %)
+- [ ] Write vitest tests for autoTriageTicket logic
+
+### Feature 2: AI Suggested Reply
+- [ ] Create suggestReply tRPC procedure (adminProcedure) in aiTriage.ts
+- [ ] Input: ticketId — fetch ticket title, description, all activity/replies, and matching KB articles
+- [ ] LLM prompt: generate a professional, empathetic reply draft for the agent
+- [ ] Add "AI Draft" button to ticket reply area in AdminPanel (next to Send button)
+- [ ] On click: show loading spinner, insert LLM draft into reply textarea for agent to review/edit
+- [ ] Write vitest tests for suggestReply procedure
+
+### Feature 3: Knowledge Base Builder
+- [ ] Add kbArticles table to drizzle/schema.ts (id, title, content, category, tags, isPublished, createdAt, updatedAt)
+- [ ] Run pnpm db:push to migrate schema
+- [ ] Add CRUD procedures to server/routers/kb.ts (list, get, create, update, delete, publish/unpublish)
+- [ ] Build /admin/knowledge-base page in AdminPanel with article list, create/edit modal, and publish toggle
+- [ ] Integrate KB search into AI chatbot: before LLM call, search kbArticles by keyword match, inject top 3 as context
+- [ ] Add KB search to suggestReply procedure (inject matching articles as context)
+- [ ] Write vitest tests for KB CRUD and search
+
+### Feature 4: Remove Sticky Banner from Admin/Helpdesk Pages + SLA Timer
+- [ ] Find StickyCTABar / BookNowBanner component and add route exclusion for /admin, /helpdesk, /support paths
+- [ ] Add SLA timer display to ticket rows in AdminPanel: show "Xh Ym since opened" and color-code (green/amber/red) based on priority thresholds
+- [ ] Add SLA countdown to ticket detail modal: "Xh Ym until SLA breach" with live update every minute
+- [ ] Write vitest tests for SLA timer calculation logic
+
+### Feature 5: Proactive Push Notifications on Ticket Status Change
+- [ ] Verify VAPID keys are configured (VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+- [ ] Add pushSubscriptions table to drizzle/schema.ts (id, sessionId, endpoint, p256dh, auth, createdAt)
+- [ ] Run pnpm db:push to migrate schema
+- [ ] Add subscribePush / unsubscribePush procedures to server/routers/push.ts
+- [ ] Send push notification in updateTicketStatus mutation when status changes (to customer session)
+- [ ] Add push subscription prompt to AIChatWidget after ticket is created
+- [ ] Write vitest tests for push subscription and notification dispatch
+
+### Feature 6: Canned Responses Library
+- [ ] Add cannedResponses table to drizzle/schema.ts (id, title, body, category, usageCount, createdAt)
+- [ ] Run pnpm db:push to migrate schema
+- [ ] Add CRUD procedures to server/routers/cannedResponses.ts (list, create, update, delete, incrementUsage)
+- [ ] Build /admin/canned-responses page in AdminPanel with list, search, create/edit modal
+- [ ] Add "Quick Reply" button to ticket reply area in AdminPanel — opens searchable canned response picker
+- [ ] On select: insert canned response body into reply textarea (agent can edit before sending)
+- [ ] Write vitest tests for canned response CRUD
+
+### Feature 7: Email-to-Ticket Ingestion
+- [x] Create POST /api/email-ingest webhook endpoint in server/_core/index.ts
+- [x] Parse inbound email payload (from, subject, body, attachments)
+- [x] Check if subject contains [TICKET #N] — if yes, add as reply to existing ticket; if no, create new ticket
+- [x] Set ticket source = "email", assign default priority = "medium"
+- [x] Send Teams notification for new email-originated tickets
+- [x] Document webhook URL for email provider configuration (SendGrid Inbound Parse / M365 Power Automate)
+- [x] Write vitest tests for email parsing and ticket creation logic
+
+### Feature 8: Social Publishing Hub
+- [x] Build /admin/publish page in AdminPanel: title, body (markdown), excerpt, featured image URL fields
+- [x] Add AI copy generator button: LLM generates LinkedIn post, X post, Facebook post from article content
+- [x] Add social post preview modal showing each platform's formatted post before publishing
+- [x] LinkedIn API: POST to company page via LinkedIn API v2 (requires LINKEDIN_ACCESS_TOKEN secret)
+- [x] Twitter/X API: POST tweet via X API v2 (requires X_BEARER_TOKEN, X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET secrets)
+- [x] Facebook Graph API: POST to page via Graph API (requires FACEBOOK_PAGE_ACCESS_TOKEN secret)
+- [x] Add socialPosts table to drizzle/schema.ts (id, title, platform, postId, publishedAt, url, status)
+- [x] Run pnpm db:push to migrate schema
+- [x] Show publish status dashboard (success/failure per channel) after publish
+- [x] Write vitest tests for social post generation logic
+
+### Feature 9: Bulk Ticket Actions
+- [x] Add checkbox column to ticket table in AdminPanel (select all / select individual)
+- [x] Add bulk action toolbar: appears when 1+ tickets selected — actions: Change Status, Assign Agent, Close All
+- [x] Add bulkUpdateTickets mutation to helpdesk router (adminProcedure) — accepts ticketIds[], action, value
+- [x] Show count of selected tickets in toolbar ("3 tickets selected")
+- [x] Clear selection after bulk action completes
+- [x] Write vitest tests for bulkUpdateTickets mutation

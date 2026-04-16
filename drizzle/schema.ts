@@ -90,6 +90,12 @@ export const tickets = mysqlTable("tickets", {
   category: mysqlEnum("category", ["bug_report", "feature_request", "general_support", "billing"]).default("general_support").notNull(),
   status: mysqlEnum("status", ["open", "in_progress", "on_hold", "resolved", "closed"]).default("open").notNull(),
   assignedTo: int("assignedTo"), // userId of assigned agent
+  // AI Triage fields
+  aiCategory: varchar("aiCategory", { length: 100 }), // LLM-suggested category
+  aiPriority: varchar("aiPriority", { length: 20 }), // LLM-suggested priority
+  aiConfidence: decimal("aiConfidence", { precision: 4, scale: 2 }), // 0.00-1.00
+  aiReasoning: text("aiReasoning"), // LLM explanation
+  source: varchar("source", { length: 50 }).default("web").notNull(), // 'web' | 'email' | 'chat'
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   resolvedAt: timestamp("resolvedAt"),
@@ -835,3 +841,61 @@ export const slaSnoozes = mysqlTable("slaSnoozes", {
 });
 export type SlaSnooze = typeof slaSnoozes.$inferSelect;
 export type InsertSlaSnooze = typeof slaSnoozes.$inferInsert;
+
+// Knowledge Base Articles — admin-managed articles surfaced in AI chatbot and agent reply suggestions
+export const kbArticles = mysqlTable("kbArticles", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 500 }).notNull(),
+  content: text("content").notNull(), // Markdown
+  category: varchar("category", { length: 100 }).notNull().default("general"),
+  tags: varchar("tags", { length: 500 }), // comma-separated
+  isPublished: boolean("isPublished").default(false).notNull(),
+  createdBy: int("createdBy"), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type KbArticle = typeof kbArticles.$inferSelect;
+export type InsertKbArticle = typeof kbArticles.$inferInsert;
+
+// Canned Responses — pre-written reply templates for agents
+export const cannedResponses = mysqlTable("cannedResponses", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  category: varchar("category", { length: 100 }).notNull().default("general"),
+  usageCount: int("usageCount").default(0).notNull(),
+  createdBy: int("createdBy"), // userId
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CannedResponse = typeof cannedResponses.$inferSelect;
+export type InsertCannedResponse = typeof cannedResponses.$inferInsert;
+
+// Push Subscriptions — Web Push API subscriptions for proactive notifications
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 64 }).notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+// Social Posts — history of posts published to social media platforms
+export const socialPosts = mysqlTable("socialPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 500 }).notNull(),
+  platform: mysqlEnum("platform", ["linkedin", "twitter", "facebook"]).notNull(),
+  postId: varchar("postId", { length: 500 }), // platform-assigned post ID
+  content: text("content").notNull(), // the actual text posted
+  url: varchar("url", { length: 1000 }), // link to the live post
+  status: mysqlEnum("status", ["published", "failed", "pending"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  publishedAt: timestamp("publishedAt"),
+  createdBy: int("createdBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SocialPost = typeof socialPosts.$inferSelect;
+export type InsertSocialPost = typeof socialPosts.$inferInsert;

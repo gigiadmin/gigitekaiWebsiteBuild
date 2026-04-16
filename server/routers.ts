@@ -24,6 +24,10 @@ import { emailRecipientGroupsRouter } from "./routers/emailRecipientGroups";
 import { webPushRouter } from "./routers/webPush";
 import { leadgenRouter } from "./routers/leadgen";
 import { calendarRouter } from "./routers/calendar";
+import { aiTriageRouter } from "./routers/aiTriage";
+import { kbRouter } from "./routers/kb";
+import { cannedResponsesRouter } from "./routers/cannedResponses";
+import { socialRouter } from "./routers/social";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -36,6 +40,10 @@ export const appRouter = router({
   webPush: webPushRouter,
   leadgen: leadgenRouter,
   calendar: calendarRouter,
+  aiTriage: aiTriageRouter,
+  kb: kbRouter,
+  cannedResponses: cannedResponsesRouter,
+  social: socialRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

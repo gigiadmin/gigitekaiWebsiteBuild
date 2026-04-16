@@ -15,6 +15,7 @@ import { startTeamsDigestScheduler } from "./teamsDigest";
 import { startSlaAlertScheduler } from "./teamsSlaAlerts";
 import { startNewsletterScheduler } from "../routers/newsletter";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
+import { handleEmailIngest } from "../emailIngest";
 // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
 // import { handleSendGridWebhook } from "./sendgridWebhook";
 
@@ -102,6 +103,10 @@ async function startServer() {
   
   // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
   // app.post("/api/webhooks/sendgrid", handleSendGridWebhook);
+
+  // Email-to-Ticket: SendGrid Inbound Parse webhook
+  // Configure in SendGrid: Settings → Inbound Parse → POST to https://gigitekai.com/api/email-ingest
+  app.post("/api/email-ingest", handleEmailIngest);
   
   // tRPC API
   app.use(
