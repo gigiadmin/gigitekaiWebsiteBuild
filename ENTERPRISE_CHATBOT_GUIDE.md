@@ -465,7 +465,7 @@ await trpc.aibot.syncToTeams.mutation({
 
 For issues or questions:
 - **Email:** support@gigitekai.com
-- **Phone:** 1-609-676-4483
+- **Phone:** (727) 382-5776
 - **Website:** https://gigitekai.com
 
 ---

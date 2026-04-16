@@ -192,7 +192,7 @@ Advanced troubleshooting:
 - Scan for malware
 - Check for hard drive errors
 
-If issues persist, contact our helpdesk at support@gigitekai.com or call 609-676-4483.', 
+If issues persist, contact our helpdesk at support@gigitekai.com or call (727) 382-5776.', 
 'slow, performance, computer, speed, optimization, troubleshooting', 7, NOW(), NOW()),
 
 ('Troubleshooting', 'How to Fix Email Sync Issues in Outlook',

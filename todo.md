@@ -1457,4 +1457,9 @@
 - [x] Add @bot unassigned command — returns summary of all unassigned open tickets in Teams
 - [x] Daily digest — scheduled Teams message at 8am EST with ticket activity summary (open, in-progress, resolved counts + unassigned list)
 - [x] Knowledge base article suggestions — when a new ticket is created, auto-suggest relevant KB articles in the Teams notification card
-- [ ] Create reusable skill for Teams Bot integration process using skill-creator
+- [x] Create reusable skill for Teams Bot integration process using skill-creator
+
+## Phone Number Update (April 16, 2026)
+- [x] Replace all instances of old phone number (609-676-4483) with new Teams voice number (727) 382-5776
+- [x] Ensure all phone links use tel:+17273825776 format for click-to-call
+- [x] Updated: Navbar, CTASection, ApprovalGuard, AIChatWidget, index.html structured data, all documentation files

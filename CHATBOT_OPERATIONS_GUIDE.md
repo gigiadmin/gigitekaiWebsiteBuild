@@ -473,7 +473,7 @@ Output: { transcript: string, messageCount: number }
 For questions or issues:
 
 - **Email:** support@gigitekai.com
-- **Phone:** 1-609-676-4483
+- **Phone:** (727) 382-5776
 - **Website:** https://gigitekai.com
 
 ---

@@ -54,7 +54,7 @@ support@gigitekai.com</p>`,
     body: `<p>Hi {{recipientName}},</p>
 <p>Thank you for contacting GigitekAI. We appreciate your interest in our services.</p>
 <p>{{customMessage}}</p>
-<p>If you have any questions, feel free to reach out to us at support@gigitekai.com or call 609-676-4483.</p>
+<p>If you have any questions, feel free to reach out to us at support@gigitekai.com or call (727) 382-5776.</p>
 <p>Best regards,<br>
 GigitekAI Support Team<br>
 support@gigitekai.com</p>`,

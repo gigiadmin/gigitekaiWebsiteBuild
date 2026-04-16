@@ -131,7 +131,7 @@ This document provides a comprehensive summary of all work completed on the Gigi
 - Updated in contact section and CTAs
 
 #### Contact Details:
-- Phone: 1-609-676-4483
+- Phone: (727) 382-5776
 - Email: support@gigitekai.com
 - Sales: sales@gigitekai.com
 - Billing: billing@gigitekai.com
@@ -303,7 +303,7 @@ This document provides a comprehensive summary of all work completed on the Gigi
 
 For questions about the chatbot, helpdesk, or any features:
 - **Support Email**: support@gigitekai.com
-- **Phone**: 1-609-676-4483
+- **Phone**: (727) 382-5776
 - **Sales**: sales@gigitekai.com
 - **Billing**: billing@gigitekai.com
 
