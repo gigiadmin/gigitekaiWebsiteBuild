@@ -1684,3 +1684,13 @@
 - [ ] Implement auto-save drafts while typing (debounced 3s, silent background save)
 - [ ] Show "Draft auto-saved" indicator in compose form
 - [ ] Write vitest tests for auto-save debounce logic
+
+## Social Hub Calendar v5 — April 2026
+- [x] Update teams-bot-helpdesk SKILL.md with drag-and-drop, optimal time, and confirm dialog patterns
+- [x] Add HTML5 drag-and-drop to ScheduledPostsCalendar day cells (dragover/drop handlers)
+- [x] Add reschedulePost mutation to social router (adminProcedure, updates scheduledAt)
+- [x] Show visual drop target highlight on drag-over day cells
+- [x] Add getOptimalPostingTimes query to social router (analyze engagement by hour/day-of-week)
+- [x] Show optimal time badges in schedule time picker (e.g. "Best time" label on recommended slots)
+- [x] Add confirmation dialog (shadcn AlertDialog) before canceling a post from calendar view
+- [x] Dialog shows post content preview, scheduled time, and Cancel/Confirm buttons

@@ -422,4 +422,56 @@ export const socialRouter = router({
 
       return { posts, totals };
     }),
+
+  /** Reschedule a scheduled post to a new date/time */
+  reschedulePost: adminProcedure
+    .input(z.object({
+      id: z.number().int(),
+      scheduledAt: z.number(), // UTC timestamp ms
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db
+        .update(socialPosts)
+        .set({ scheduledAt: new Date(input.scheduledAt) })
+        .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "scheduled")));
+      return { success: true };
+    }),
+
+  /** Analyze past engagement to suggest optimal posting hours */
+  getOptimalPostingTimes: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return { bestHours: [] as number[] };
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const posts = await db
+        .select()
+        .from(socialPosts)
+        .where(
+          and(
+            eq(socialPosts.status, "published"),
+            gte(socialPosts.publishedAt, thirtyDaysAgo)
+          )
+        );
+
+      if (posts.length === 0) return { bestHours: [] as number[] };
+
+      // Group by hour, sum engagement
+      const hourScores: Record<number, number> = {};
+      for (const p of posts) {
+        if (!p.publishedAt) continue;
+        const hour = new Date(p.publishedAt).getHours();
+        const score = (p.engagementLikes ?? 0) + (p.engagementComments ?? 0) + (p.engagementShares ?? 0);
+        hourScores[hour] = (hourScores[hour] ?? 0) + score;
+      }
+
+      // Sort by score descending, take top 3
+      const bestHours = Object.entries(hourScores)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([h]) => Number(h));
+
+      return { bestHours };
+    }),
 });

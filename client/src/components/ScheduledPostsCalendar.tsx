@@ -4,10 +4,22 @@
  * - Navigate months with prev/next arrows
  * - Days with posts show colored platform dots
  * - Click a day to see that day's posts with Cancel buttons
+ * - Drag a post to a new day to reschedule it (HTML5 DnD, no external lib)
+ * - Cancel confirmation dialog before removing a post
  */
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
+import { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight, Clock, X, GripVertical } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const PLATFORM_COLORS: Record<string, string> = {
   linkedin: "bg-blue-500",
@@ -28,6 +40,14 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [dragOverDay, setDragOverDay] = useState<number | null>(null);
+  const [confirmCancelPost, setConfirmCancelPost] = useState<any | null>(null);
+  const draggingPostId = useRef<number | null>(null);
+
+  const utils = trpc.useUtils();
+  const rescheduleMutation = trpc.social.reschedulePost.useMutation({
+    onSuccess: () => utils.social.getScheduled.invalidate(),
+  });
 
   function prevMonth() {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
@@ -68,6 +88,22 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
     year: "numeric",
   });
 
+  function handleDrop(targetDay: number) {
+    const postId = draggingPostId.current;
+    if (!postId) return;
+    // Find the post to preserve its time-of-day
+    const post = scheduled.find(p => p.id === postId);
+    if (!post) return;
+    const originalDate = post.scheduledAt ? new Date(post.scheduledAt) : new Date();
+    const newDate = new Date(viewYear, viewMonth, targetDay,
+      originalDate.getHours(), originalDate.getMinutes(), 0, 0);
+    rescheduleMutation.mutate({ id: postId, scheduledAt: newDate.getTime() });
+    setDragOverDay(null);
+    draggingPostId.current = null;
+    // Update selected day to show the moved post
+    setSelectedDay(targetDay);
+  }
+
   return (
     <div className="space-y-4">
       {/* Month navigation */}
@@ -89,6 +125,11 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
         </button>
       </div>
 
+      {/* Drag hint */}
+      <p className="text-xs text-gray-600 text-center">
+        Drag a post to a new day to reschedule it
+      </p>
+
       {/* Day-of-week headers */}
       <div className="grid grid-cols-7 gap-1">
         {DAYS_OF_WEEK.map(d => (
@@ -107,6 +148,7 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
             viewYear === today.getFullYear();
           const hasPosts = !!postsByDay[day]?.length;
           const isSelected = selectedDay === day;
+          const isDragTarget = dragOverDay === day;
           const rawPlatforms = (postsByDay[day] ?? []).map((p: any) => {
             try { return JSON.parse(p.platforms ?? "[]")[0] ?? p.platform; }
             catch { return p.platform as string; }
@@ -117,8 +159,14 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
             <button
               key={idx}
               onClick={() => setSelectedDay(isSelected ? null : day)}
-              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-colors text-sm
-                ${isSelected ? "bg-cyan-500/20 border border-cyan-500/50" : hasPosts ? "bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/60" : "hover:bg-gray-800/40 border border-transparent"}
+              onDragOver={(e) => { e.preventDefault(); setDragOverDay(day); }}
+              onDragLeave={() => setDragOverDay(null)}
+              onDrop={(e) => { e.preventDefault(); handleDrop(day); }}
+              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-all text-sm
+                ${isDragTarget ? "bg-cyan-500/30 border-2 border-cyan-400 scale-105" :
+                  isSelected ? "bg-cyan-500/20 border border-cyan-500/50" :
+                  hasPosts ? "bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/60" :
+                  "hover:bg-gray-800/40 border border-transparent"}
                 ${isToday ? "ring-1 ring-cyan-500/70" : ""}
               `}
             >
@@ -134,6 +182,11 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                     />
                   ))}
                 </div>
+              )}
+              {isDragTarget && (
+                <span className="absolute inset-0 flex items-center justify-center text-cyan-400 text-xs font-bold pointer-events-none">
+                  +
+                </span>
               )}
             </button>
           );
@@ -157,7 +210,19 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
               let platforms: string[] = [];
               try { platforms = JSON.parse(post.platforms ?? "[]"); } catch { platforms = [post.platform]; }
               return (
-                <div key={post.id} className="flex items-start gap-3 bg-gray-800/40 rounded-lg p-3">
+                <div
+                  key={post.id}
+                  draggable
+                  onDragStart={(e) => {
+                    draggingPostId.current = post.id;
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("postId", String(post.id));
+                  }}
+                  onDragEnd={() => { draggingPostId.current = null; setDragOverDay(null); }}
+                  className="flex items-start gap-3 bg-gray-800/40 rounded-lg p-3 cursor-grab active:cursor-grabbing group"
+                >
+                  {/* Drag handle */}
+                  <GripVertical className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 mt-0.5 shrink-0 transition-colors" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       {platforms.map((pid) => (
@@ -179,7 +244,7 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                     <p className="text-gray-300 text-sm line-clamp-2">{post.content}</p>
                   </div>
                   <button
-                    onClick={() => onCancel(post.id)}
+                    onClick={() => setConfirmCancelPost(post)}
                     disabled={cancelPending}
                     className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-900/20 transition-colors shrink-0"
                     title="Cancel this post"
@@ -192,6 +257,54 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
           )}
         </div>
       )}
+
+      {/* Reschedule status */}
+      {rescheduleMutation.isPending && (
+        <p className="text-xs text-cyan-400 text-center animate-pulse">Rescheduling post...</p>
+      )}
+
+      {/* Cancel confirmation dialog */}
+      <AlertDialog open={!!confirmCancelPost} onOpenChange={(open) => { if (!open) setConfirmCancelPost(null); }}>
+        <AlertDialogContent className="bg-[#141B2D] border border-gray-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Cancel Scheduled Post?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {confirmCancelPost && (
+                <>
+                  Scheduled for{" "}
+                  <span className="text-cyan-400 font-medium">
+                    {new Date(confirmCancelPost.scheduledAt).toLocaleString("en-US", {
+                      weekday: "short", month: "short", day: "numeric",
+                      hour: "numeric", minute: "2-digit",
+                    })}
+                  </span>
+                  . The post will be moved to Drafts.
+                  <blockquote className="mt-2 text-xs text-gray-500 border-l-2 border-gray-700 pl-2 line-clamp-3">
+                    {confirmCancelPost.content}
+                  </blockquote>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+              Keep Scheduled
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmCancelPost) {
+                  onCancel(confirmCancelPost.id);
+                  setConfirmCancelPost(null);
+                  setSelectedDay(null);
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Cancel Post
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

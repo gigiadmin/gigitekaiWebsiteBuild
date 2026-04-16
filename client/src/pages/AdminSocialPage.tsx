@@ -42,6 +42,7 @@ import {
   LayoutGrid,
   List,
   CheckCircle,
+  Star,
 } from "lucide-react";
 
 const PLATFORMS = [
@@ -249,6 +250,7 @@ export default function AdminSocialPage() {
   const { data: drafts, isLoading: draftsLoading } = trpc.social.getDrafts.useQuery();
   const { data: scheduled, isLoading: scheduledLoading } = trpc.social.getScheduled.useQuery();
   const { data: engagement, isLoading: engLoading } = trpc.social.getEngagement.useQuery({ days: engDays });
+  const { data: optimalTimes } = trpc.social.getOptimalPostingTimes.useQuery();
 
   const disconnectMutation = trpc.social.disconnect.useMutation({
     onSuccess: (_, vars) => {
@@ -604,6 +606,35 @@ export default function AdminSocialPage() {
                   onChange={(e) => setScheduledTime(e.target.value)}
                   className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
                 />
+                {/* Optimal posting time suggestions */}
+                {optimalTimes && optimalTimes.bestHours.length > 0 && (() => {
+                  const selectedHour = scheduledTime ? parseInt(scheduledTime.split(":")[0], 10) : -1;
+                  const isBest = optimalTimes.bestHours.includes(selectedHour);
+                  return (
+                    <div className="mt-1.5">
+                      {isBest ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-400 font-medium">
+                          <Star className="w-3 h-3 fill-amber-400" /> Best time for engagement
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600">
+                          Best hours:{" "}
+                          {optimalTimes.bestHours.map((h) => (
+                            <button
+                              key={h}
+                              type="button"
+                              onClick={() => setScheduledTime(`${String(h).padStart(2, "0")}:00`)}
+                              className="inline-flex items-center gap-0.5 text-amber-400 hover:text-amber-300 font-medium transition-colors mr-1"
+                            >
+                              <Star className="w-2.5 h-2.5 fill-amber-400" />
+                              {h === 0 ? "12am" : h < 12 ? `${h}am` : h === 12 ? "12pm" : `${h - 12}pm`}
+                            </button>
+                          ))}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
