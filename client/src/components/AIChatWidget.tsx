@@ -780,7 +780,9 @@ export default function AIChatWidget() {
               </div>
 
               {/* Name */}
+              <label htmlFor="visitor-name" className="sr-only">Your name</label>
               <input
+                id="visitor-name"
                 type="text"
                 placeholder="Your name *"
                 value={visitorInfo.name}
@@ -788,7 +790,9 @@ export default function AIChatWidget() {
                 className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
               {/* Email */}
+              <label htmlFor="visitor-email" className="sr-only">Email address</label>
               <input
+                id="visitor-email"
                 type="email"
                 placeholder="Email address *"
                 value={visitorInfo.email}
@@ -796,7 +800,9 @@ export default function AIChatWidget() {
                 className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
               {/* Phone */}
+              <label htmlFor="visitor-phone" className="sr-only">Phone number</label>
               <input
+                id="visitor-phone"
                 type="tel"
                 placeholder="Phone number"
                 value={visitorInfo.phone}
@@ -804,7 +810,9 @@ export default function AIChatWidget() {
                 className="w-full px-3 py-2 bg-[#151D30] border border-[rgba(0,212,255,0.15)] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
               />
               {/* Company */}
+              <label htmlFor="visitor-company" className="sr-only">Company name</label>
               <input
+                id="visitor-company"
                 type="text"
                 placeholder="Company name"
                 value={visitorInfo.company}

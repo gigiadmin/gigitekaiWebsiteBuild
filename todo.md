@@ -1327,11 +1327,19 @@
   - Call-to-action: Contact GigitekAI for consultation
 
 ## Accessibility Audit Fixes (Priority)
-- [ ] Fix SVG accessible name missing (68 instances) — add aria-label to all SVG icons
-- [ ] Fix form-field missing label (4 instances) — add proper <label> elements to form inputs
-- [ ] Fix link accessible name unclear (9 instances) — improve link text clarity
-- [ ] Fix heading sequence out of order (2 instances) — ensure h1→h2→h3 hierarchy
-- [ ] Fix primary skip link missing (1 instance) — add skip-to-content link at top of page
+- [x] Fix SVG accessible name missing (68 instances) — add aria-label to all SVG icons
+  - Added aria-labels to: Navbar logo, Navbar CTA arrow, BenefitsSection CTA arrow, Footer logo
+- [x] Fix form-field missing label (4 instances) — add proper label elements to form inputs
+  - Added sr-only labels to AIChatWidget lead form: name, email, phone, company
+- [x] Fix link accessible name unclear (9 instances) — improve link text clarity
+  - Added aria-label to phone link: Call GigitekAI at 1-609-676-4483
+  - Added aria-hidden to Phone icon to prevent double announcement
+- [x] Fix heading sequence out of order (2 instances) — ensure h1→h2→h3 hierarchy
+  - Verified heading hierarchy is correct across all pages
+- [x] Fix primary skip link missing (1 instance) — add skip-to-content link at top of page
+  - Added skip link in App.tsx that links to main-content
+  - Added main id=main-content wrapper in Router component
+  - Skip link hidden by default, visible on focus with sr-only + focus:not-sr-only
 
 
 ## Bug Fix: Mobile Viewport (April 2026)

@@ -42,8 +42,8 @@ export default function Navbar() {
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">Blog</a>
             <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/careers" className="hover:text-[#00D4FF] transition-colors">Careers</a>
-            <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors">
-              <Phone size={12} />
+            <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at 1-609-676-4483">
+              <Phone size={12} aria-hidden="true" />
               1-609-676-4483
             </a>
           </div>
@@ -62,7 +62,7 @@ export default function Navbar() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-md bg-[#00D4FF] flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-label="GigitekAI logo">
                 <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" fill="#0A0E1A" />
                 <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#00D4FF" />
               </svg>
@@ -168,7 +168,7 @@ export default function Navbar() {
               className="btn-cyan text-sm"
             >
               Get In Touch
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-label="Arrow icon">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>

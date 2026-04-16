@@ -67,7 +67,9 @@ import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 function Router() {
   return (
-    <Switch>
+    <>
+      <main id="main-content" className="skip-target">
+        <Switch>
       {/* ── Public ── */}
       <Route path={"/"} component={Home} />
       <Route path={"/pricing"} component={Pricing} />
@@ -127,7 +129,9 @@ function Router() {
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
-    </Switch>
+        </Switch>
+      </main>
+    </>
   );
 }
 
@@ -143,6 +147,13 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
+          {/* Skip to main content link for accessibility */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-[9999] focus:bg-[#00D4FF] focus:text-[#0A0E1A] focus:px-4 focus:py-2 focus:font-semibold"
+          >
+            Skip to main content
+          </a>
           <Toaster />
           <Router />
           {!isMeetingPage && <AIChatWidget />}

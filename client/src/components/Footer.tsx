@@ -59,7 +59,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <a href="#" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-md bg-[#00D4FF] flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-label="GigitekAI logo">
                   <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" fill="#0A0E1A" />
                   <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#00D4FF" />
                 </svg>
