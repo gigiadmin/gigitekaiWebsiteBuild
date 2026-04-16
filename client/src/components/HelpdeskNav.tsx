@@ -26,7 +26,7 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
   };
 
   return (
-    <nav className="border-b border-[rgba(0,212,255,0.15)] bg-[#0A0E1A]/95 backdrop-blur-xl sticky top-0 z-50">
+    <nav className="border-b border-[rgba(0,212,255,0.15)] bg-[#0A0E1A]/95 backdrop-blur-xl sticky top-[env(safe-area-inset-top)] z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo + Brand */}

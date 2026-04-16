@@ -1336,3 +1336,15 @@
 
 ## Bug Fix: Mobile Viewport (April 2026)
 - [x] Fix top of site getting cut off on Chrome mobile — add safe area insets and adjust header padding
+- [x] DEEP FIX APPLIED (Apr 16, 2026): Changed AIChatWidget, Navbar, HelpdeskNav from padding-based to top-offset approach using env(safe-area-inset-top) for sticky positioning
+
+
+## Email Service Migration: SendGrid → Microsoft Graph (April 2026)
+- [ ] Verify Microsoft Graph Mail.Send permission is granted in Azure AD
+- [ ] Create sendEmail helper using Microsoft Graph API (replaces SendGrid)
+- [ ] Replace SendGrid in contact form email procedure
+- [ ] Replace SendGrid in invite email procedure
+- [ ] Replace SendGrid in ticket notification procedure
+- [ ] Replace SendGrid in newsletter campaign procedure
+- [ ] Test all email flows end-to-end
+- [ ] Remove SENDGRID_API_KEY from secrets (no longer needed)

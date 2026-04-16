@@ -52,7 +52,7 @@ export default function Navbar() {
 
       {/* Main navigation */}
       <nav
-        className={`w-full sticky top-0 z-50 transition-all duration-300 ${
+        className={`w-full sticky top-[env(safe-area-inset-top)] z-50 transition-all duration-300 ${
           scrolled
             ? "bg-white/95 dark:bg-[#0A0E1A]/95 backdrop-blur-md shadow-lg shadow-black/10 dark:shadow-black/30 border-b border-gray-200 dark:border-[rgba(0,212,255,0.1)]"
             : "bg-white dark:bg-[#0A0E1A]"
