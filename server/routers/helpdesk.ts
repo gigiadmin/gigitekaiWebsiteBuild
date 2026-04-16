@@ -5,6 +5,7 @@ import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
+import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams } from "../teamsBot";
 import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity } from "../../drizzle/schema";
 import { eq, inArray, asc, desc } from "drizzle-orm";
@@ -58,6 +59,18 @@ export const helpdeskRouter = router({
           priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
           ticketId: typeof ticket === "number" ? ticket : undefined,
         }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+
+        // Send notification to Teams channel
+        if (typeof ticket === "number") {
+          try {
+            const ticketData = await getTicketById(ticket);
+            if (ticketData) {
+              await sendTicketNotificationToTeams(ticketData);
+            }
+          } catch (teamsError) {
+            console.warn("[Helpdesk] Failed to send Teams notification:", teamsError);
+          }
+        }
 
         // Note: Push notifications are sent client-side via usePushNotifications hook
         // Admins must have subscribed to push notifications in their preferences
@@ -146,6 +159,21 @@ export const helpdeskRouter = router({
             priority: "normal",
             ticketId: input.ticketId,
           }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+
+          // Send notification to Teams channel
+          try {
+            const reply = {
+              id: 0, // Will be set by database
+              ticketId: input.ticketId,
+              userId: ctx.user.id,
+              message: input.message,
+              isStaffReply,
+              createdAt: new Date(),
+            };
+            await sendReplyNotificationToTeams(input.ticketId, reply);
+          } catch (teamsError) {
+            console.warn("[Helpdesk] Failed to send Teams reply notification:", teamsError);
+          }
         }
 
         return { success: true };
@@ -189,6 +217,18 @@ export const helpdeskRouter = router({
           }
         } catch (logErr) {
           console.warn("[Helpdesk] Failed to log activity:", logErr);
+        }
+
+        // Send status update notification to Teams
+        try {
+          await sendStatusUpdateToTeams(
+            input.ticketId,
+            ticket.status,
+            input.status,
+            ctx.user.name || ctx.user.email || "Admin"
+          );
+        } catch (teamsError) {
+          console.warn("[Helpdesk] Failed to send Teams status update:", teamsError);
         }
 
         // Send email notification to customer

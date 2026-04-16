@@ -1366,3 +1366,87 @@
   - [x] Disabled input while AI is thinking
   - [x] Send button shows spinning loader icon during processing
   - [x] Added 6 custom CSS animations to index.css (wave, shimmer, fadeInUp, pulse-glow, spin)
+
+
+## Teams Bot Integration (Priority - April 2026)
+- [ ] Phase 1: Plan Teams Bot architecture
+  - [ ] Design ticket notification flow (helpdesk → Teams)
+  - [ ] Design message handling flow (Teams → helpdesk sync)
+  - [ ] Plan Microsoft Graph API calls needed
+  - [ ] Document Teams bot webhook structure
+  - [ ] Plan call logging integration with Teams phone
+
+- [ ] Phase 2: Azure AD & Teams Bot Setup
+  - [ ] Create Azure AD app registration for Teams bot
+  - [ ] Configure Microsoft Graph API permissions
+  - [ ] Generate bot credentials (app ID, password)
+  - [ ] Set up Teams bot endpoint URL
+  - [ ] Configure Teams app manifest
+
+- [ ] Phase 3: Teams Bot Backend (server/teamsBot.ts)
+  - [ ] Create Teams bot service class
+  - [ ] Implement ticket notification logic
+  - [ ] Add message parsing and command handling
+  - [ ] Build ticket sync from Teams messages
+  - [ ] Add error handling and logging
+
+- [ ] Phase 4: Webhook Integration
+  - [ ] Create /api/teams/webhook endpoint
+  - [ ] Implement Teams message validation
+  - [ ] Add ticket creation from Teams messages
+  - [ ] Add ticket update from Teams replies
+  - [ ] Implement agent assignment from Teams
+
+- [ ] Phase 5: Call Logging Integration
+  - [ ] Set up Teams call event listener
+  - [ ] Log calls to helpdesk tickets
+  - [ ] Link call recordings to tickets
+  - [ ] Track call duration and participants
+
+- [ ] Phase 6: Testing & Deployment
+  - [ ] Test ticket notifications in Teams
+  - [ ] Test message sync (Teams ↔ helpdesk)
+  - [ ] Test with real Teams phone calls
+  - [ ] Deploy Teams bot to production
+  - [ ] Add bot to GigitekAI Teams tenant
+
+- [ ] Phase 7: Documentation
+  - [ ] Write Teams bot setup guide
+  - [ ] Document webhook endpoints
+  - [ ] Create troubleshooting guide
+  - [ ] Document call logging features
+
+
+## Teams Bot Integration (Phase 4 - Webhook & Integration - COMPLETED)
+- [x] Create Teams webhook handler (/api/webhooks/teams)
+  - Receives incoming messages and events from Microsoft Teams
+  - Parses ticket IDs from message text (#123 format)
+  - Handles bot commands (@bot status #123, @bot assign, @bot close, @bot resolve)
+  - Validates Teams webhook signatures
+  - Stores replies as ticket comments
+  - Creates admin notifications for Teams activity
+- [x] Integrate Teams notifications into helpdesk ticket procedures
+  - sendTicketNotificationToTeams() called on createTicket
+  - sendReplyNotificationToTeams() called on addReply
+  - sendStatusUpdateToTeams() called on updateStatus
+  - All notifications include adaptive cards with ticket details
+  - Error handling with fallback logging
+- [x] Write comprehensive tests for Teams integration
+  - 21 new tests for Teams webhook handler
+  - Tests for ticket ID parsing from various formats
+  - Tests for bot command parsing (@bot commands)
+  - Tests for adaptive card formatting
+  - Tests for message validation and event types
+  - All 277 tests passing
+- [ ] Test Teams bot end-to-end in production
+  - Create test ticket in helpdesk
+  - Verify notification appears in Teams channel
+  - Reply to Teams message
+  - Verify reply syncs back to helpdesk
+  - Test status updates from admin panel
+  - Verify Teams notifications appear
+- [ ] Deploy Teams bot to production
+  - Configure webhook URL in Azure Bot Service
+  - Test with real Teams environment
+  - Monitor webhook logs for errors
+  - Set up alerts for failed notifications

@@ -12,6 +12,7 @@ import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter
 import { securityHeaders } from "./securityHeaders";
 import { startDigestScheduler } from "./digestScheduler";
 import { startNewsletterScheduler } from "../routers/newsletter";
+import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
 // import { handleSendGridWebhook } from "./sendgridWebhook";
 
@@ -54,6 +55,8 @@ async function startServer() {
   app.use("/api/trpc/aibot", chatLimiter);    // CODE-01: was defined but never applied
   // Contact/lead forms: 5 submissions per 15 min (spam protection)
   app.use("/api/trpc/contact", formLimiter);  // CODE-01: was defined but never applied
+  // Teams webhook: 100 req/min (bot message limit)
+  app.use("/api/webhooks/teams", apiLimiter);
   // General API: 100 req/min
   app.use("/api/trpc", apiLimiter);
 
@@ -91,6 +94,10 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   
+  // Teams Bot webhook
+  app.post("/api/webhooks/teams", handleTeamsWebhook);
+  app.get("/api/webhooks/teams/health", handleTeamsHealthCheck);
+  
   // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
   // app.post("/api/webhooks/sendgrid", handleSendGridWebhook);
   
@@ -121,6 +128,8 @@ async function startServer() {
     // Start email digest scheduler
     startDigestScheduler();
     startNewsletterScheduler();
+    // Log Teams webhook endpoint
+    console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
   });
 }
 
