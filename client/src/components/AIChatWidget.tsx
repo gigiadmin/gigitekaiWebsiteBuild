@@ -25,6 +25,7 @@ import {
   MoreVertical,
   Check,
   Loader2,
+  PhoneCall,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -505,6 +506,25 @@ export default function AIChatWidget() {
                     )}
                   </div>
                 )}
+                {/* Call Support Button */}
+                <a
+                  href="msteams:l/call/0/0?users=4:+17273825776"
+                  onClick={(e) => {
+                    // On mobile or if Teams link fails, fall back to tel:
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                      e.preventDefault();
+                      window.location.href = "tel:+17273825776";
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 hover:border-emerald-400/60 rounded-lg transition-all group"
+                  title="Call (727) 382-5776"
+                  aria-label="Call GigitekAI support at (727) 382-5776"
+                >
+                  <PhoneCall size={14} className="text-emerald-400 group-hover:text-emerald-300 animate-pulse" />
+                  <span className="hidden sm:inline text-[11px] font-medium text-emerald-400 group-hover:text-emerald-300 whitespace-nowrap">Call Us</span>
+                </a>
+
                 {/* Minimize - desktop only */}
                 <button
                   onClick={handleClose}
@@ -941,6 +961,17 @@ export default function AIChatWidget() {
                     >
                       Talk to Human
                     </button>
+                    <a
+                      href="msteams:l/call/0/0?users=4:+17273825776"
+                      onClick={(e) => {
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        if (isMobile) { e.preventDefault(); window.location.href = "tel:+17273825776"; }
+                      }}
+                      className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:border-emerald-400/50 hover:text-emerald-300 transition-colors"
+                    >
+                      <PhoneCall size={10} />
+                      Call Now
+                    </a>
                   </div>
                 </div>
               )}

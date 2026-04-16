@@ -1463,3 +1463,8 @@
 - [x] Replace all instances of old phone number (609-676-4483) with new Teams voice number (727) 382-5776
 - [x] Ensure all phone links use tel:+17273825776 format for click-to-call
 - [x] Updated: Navbar, CTASection, ApprovalGuard, AIChatWidget, index.html structured data, all documentation files
+
+## Teams Click-to-Call Integration (April 16, 2026)
+- [x] Add "Call Support" button in AI chat widget header with Teams deep link (msteams:) on desktop, tel: fallback on mobile
+- [x] Add "Call Now" quick chip in the chat input area quick reply row
+- [x] Ensure button is visible and accessible on both desktop and mobile chat widget
