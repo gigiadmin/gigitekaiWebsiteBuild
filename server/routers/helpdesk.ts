@@ -39,11 +39,11 @@ export const helpdeskRouter = router({
         });
 
         // Send SMS for critical tickets
-        if (input.priority === "critical") {
+        if (input.priority === "critical" && ticket?.id) {
           try {
             await sendSMS({
               to: "609-676-4483",
-              message: `CRITICAL TICKET #${ticket}\n${input.title}\nFrom: ${ctx.user.name}\nCategory: ${input.category}`,
+              message: `CRITICAL TICKET #${ticket.id}\n${input.title}\nFrom: ${ctx.user.name}\nCategory: ${input.category}`,
             });
           } catch (smsError) {
             console.warn("[Helpdesk] Failed to send critical ticket SMS:", smsError);
@@ -51,31 +51,35 @@ export const helpdeskRouter = router({
         }
 
         // Create admin portal notification (real-time bell alert)
-        createAdminNotification({
-          type: "new_ticket",
-          title: `New Ticket: ${input.title}`,
-          body: `From: ${ctx.user.name} · Priority: ${input.priority} · ${input.category.replace(/_/g, " ")}`,
-          href: `/admin/helpdesk`,
-          priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
-          ticketId: typeof ticket === "number" ? ticket : undefined,
-        }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+        if (ticket?.id) {
+          createAdminNotification({
+            type: "new_ticket",
+            title: `New Ticket: ${input.title}`,
+            body: `From: ${ctx.user.name} · Priority: ${input.priority} · ${input.category.replace(/_/g, " ")}`,
+            href: `/admin/helpdesk`,
+            priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
+            ticketId: ticket.id,
+          }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+        }
 
-        // Send notification to Teams channel
-        if (typeof ticket === "number") {
-          try {
-            const ticketData = await getTicketById(ticket);
-            if (ticketData) {
-              await sendTicketNotificationToTeams(ticketData);
-            }
-          } catch (teamsError) {
-            console.warn("[Helpdesk] Failed to send Teams notification:", teamsError);
-          }
+        // Send notification to Teams channel (non-blocking)
+        if (ticket?.id) {
+          console.log(`[Helpdesk] Sending Teams notification for ticket #${ticket.id}`);
+          sendTicketNotificationToTeams(ticket)
+            .then(() => {
+              console.log(`[Helpdesk] Teams notification sent for ticket #${ticket.id}`);
+            })
+            .catch((teamsError) => {
+              console.error(`[Helpdesk] Failed to send Teams notification for ticket #${ticket.id}:`, teamsError);
+            });
+        } else {
+          console.warn("[Helpdesk] Cannot send Teams notification: ticket is null or missing id");
         }
 
         // Note: Push notifications are sent client-side via usePushNotifications hook
         // Admins must have subscribed to push notifications in their preferences
 
-        return { success: true, ticketId: ticket };
+        return { success: true, ticketId: ticket?.id || null };
       } catch (error) {
         console.error("Failed to create ticket:", error);
         throw error;

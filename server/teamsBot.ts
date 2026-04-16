@@ -1,199 +1,73 @@
 /**
  * Teams Bot Service
- * Handles ticket notifications and agent collaboration in Microsoft Teams
- * Integrates with Azure Bot Service and Microsoft Graph API
+ * Sends ticket notifications to Microsoft Teams via Incoming Webhook
+ * No Azure AD auth or Graph API permissions required
  */
 
-import { ClientSecretCredential } from "@azure/identity";
 import type { Ticket, TicketReply } from "../drizzle/schema";
 import { getDb } from "./db";
 import { tickets, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-/**
- * Get access token for Microsoft Graph API
- */
-async function getAccessToken(): Promise<string> {
-  const credential = new ClientSecretCredential(
-    process.env.TEAMS_BOT_TENANT_ID!,
-    process.env.TEAMS_BOT_APP_ID!,
-    process.env.TEAMS_BOT_CLIENT_SECRET!
-  );
-
-  const token = await credential.getToken("https://graph.microsoft.com/.default");
-  return token.token;
-}
+const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 
 /**
- * Send HTTP request to Microsoft Graph API
+ * Send a message to Teams via Incoming Webhook
  */
-async function graphApiCall(method: string, endpoint: string, body?: object) {
-  const token = await getAccessToken();
-  const url = `https://graph.microsoft.com/v1.0${endpoint}`;
+async function sendToTeamsWebhook(payload: object): Promise<void> {
+  if (!TEAMS_WEBHOOK_URL) {
+    throw new Error("[Teams Bot] TEAMS_WEBHOOK_URL is not configured");
+  }
 
-  const response = await fetch(url, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
+  const response = await fetch(TEAMS_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Graph API error: ${response.status} - ${error}`);
+    const text = await response.text();
+    throw new Error(`[Teams Bot] Webhook error: ${response.status} - ${text}`);
   }
 
-  return response.json();
+  const result = await response.text();
+  console.log(`[Teams Bot] Webhook response: ${result}`);
 }
 
 /**
- * Format ticket data for Teams adaptive card
+ * Get priority color for Teams card
  */
-function formatTicketCard(ticket: Ticket & { userName?: string; assignedName?: string | null }) {
-  const statusEmoji = {
-    open: "🔴",
-    in_progress: "🟡",
-    on_hold: "⏸️",
-    resolved: "✅",
-    closed: "🔒",
-  };
-
-  return {
-    type: "message",
-    attachments: [
-      {
-        contentType: "application/vnd.microsoft.card.adaptive",
-        contentUrl: null,
-        content: {
-          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-          type: "AdaptiveCard",
-          version: "1.4",
-          body: [
-            {
-              type: "Container",
-              style: "emphasis",
-              items: [
-                {
-                  type: "ColumnSet",
-                  columns: [
-                    {
-                      width: "stretch",
-                      items: [
-                        {
-                          type: "TextBlock",
-                          text: `Ticket #${ticket.id}`,
-                          weight: "bolder",
-                          size: "large",
-                          color: "accent",
-                        },
-                        {
-                          type: "TextBlock",
-                          text: ticket.title,
-                          weight: "bolder",
-                          size: "medium",
-                          wrap: true,
-                          spacing: "small",
-                        },
-                      ],
-                    },
-                    {
-                      width: "auto",
-                      items: [
-                        {
-                          type: "TextBlock",
-                          text: `${statusEmoji[ticket.status as keyof typeof statusEmoji]} ${ticket.status.toUpperCase()}`,
-                          weight: "bolder",
-                          color: "accent",
-                          horizontalAlignment: "right",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "Container",
-              items: [
-                {
-                  type: "FactSet",
-                  facts: [
-                    {
-                      name: "Priority:",
-                      value: ticket.priority.toUpperCase(),
-                    },
-                    {
-                      name: "Category:",
-                      value: ticket.category.replace(/_/g, " ").toUpperCase(),
-                    },
-                    {
-                      name: "Created:",
-                      value: new Date(ticket.createdAt).toLocaleString(),
-                    },
-                    {
-                      name: "Customer:",
-                      value: ticket.userName || "Unknown",
-                    },
-                    ...(ticket.assignedName
-                      ? [
-                          {
-                            name: "Assigned To:",
-                            value: ticket.assignedName,
-                          },
-                        ]
-                      : []),
-                  ],
-                },
-              ],
-            },
-            {
-              type: "Container",
-              items: [
-                {
-                  type: "TextBlock",
-                  text: "Description:",
-                  weight: "bolder",
-                  size: "small",
-                  spacing: "medium",
-                },
-                {
-                  type: "TextBlock",
-                  text: ticket.description,
-                  wrap: true,
-                  size: "small",
-                },
-              ],
-            },
-            {
-              type: "ActionSet",
-              actions: [
-                {
-                  type: "Action.OpenUrl",
-                  title: "View in Helpdesk",
-                  url: `https://gigitekai.com/helpdesk/tickets/${ticket.id}`,
-                  style: "positive",
-                },
-                {
-                  type: "Action.OpenUrl",
-                  title: "Reply",
-                  url: `https://gigitekai.com/helpdesk/tickets/${ticket.id}#reply`,
-                },
-              ],
-            },
-          ],
-        },
-      },
-    ],
-  };
+function getPriorityColor(priority: string): string {
+  switch (priority) {
+    case "critical": return "🔴";
+    case "high": return "🟠";
+    case "medium": return "🟡";
+    case "low": return "🟢";
+    default: return "⚪";
+  }
 }
 
 /**
- * Send ticket notification to Teams channel
+ * Get status emoji
  */
-export async function sendTicketNotificationToTeams(ticket: Ticket) {
+function getStatusEmoji(status: string): string {
+  switch (status) {
+    case "open": return "🆕";
+    case "in_progress": return "⚙️";
+    case "on_hold": return "⏸️";
+    case "resolved": return "✅";
+    case "closed": return "🔒";
+    default: return "❓";
+  }
+}
+
+/**
+ * Send ticket notification to Teams channel via Incoming Webhook
+ */
+export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<void> {
   try {
+    console.log(`[Teams Bot] Starting to send ticket #${ticket.id} notification...`);
+
     const db = await getDb();
     if (!db) {
       throw new Error("Database not available");
@@ -206,74 +80,18 @@ export async function sendTicketNotificationToTeams(ticket: Ticket) {
       .where(eq(users.id, ticket.userId))
       .limit(1);
 
-    // Get assigned agent info if applicable
-    let assignedAgent = null;
-    if (ticket.assignedTo) {
-      assignedAgent = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, ticket.assignedTo))
-        .limit(1);
-    }
+    const creatorName = creator[0]?.name || "Unknown";
+    const priorityIcon = getPriorityColor(ticket.priority);
+    const statusIcon = getStatusEmoji(ticket.status);
+    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticket.id}`;
 
-    const ticketData = {
-      ...ticket,
-      userName: creator[0]?.name || "Unknown",
-      assignedName: assignedAgent?.[0]?.name || null,
-    };
-
-    // Send message to Teams channel
-    const message = formatTicketCard(ticketData);
-
-    await graphApiCall(
-      "POST",
-      `/teams/${process.env.TEAMS_BOT_TEAM_ID}/channels/${process.env.TEAMS_BOT_CHANNEL_ID}/messages`,
-      message
-    );
-
-    console.log(`[Teams Bot] Ticket #${ticket.id} notification sent to Teams`);
-    return { success: true, ticketId: ticket.id };
-  } catch (error) {
-    console.error(`[Teams Bot] Error sending ticket notification:`, error);
-    throw error;
-  }
-}
-
-/**
- * Send ticket reply notification to Teams
- */
-export async function sendReplyNotificationToTeams(ticketId: number, reply: TicketReply) {
-  try {
-    const db = await getDb();
-    if (!db) {
-      throw new Error("Database not available");
-    }
-
-    // Get ticket details
-    const ticket = await db
-      .select()
-      .from(tickets)
-      .where(eq(tickets.id, ticketId))
-      .limit(1);
-
-    if (!ticket[0]) {
-      throw new Error(`Ticket #${ticketId} not found`);
-    }
-
-    // Get reply author info
-    const author = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, reply.userId))
-      .limit(1);
-
-    const replyType = reply.isStaffReply ? "Agent Reply" : "Customer Reply";
-
-    const message = {
+    // Build Adaptive Card payload for Teams Incoming Webhook
+    const payload = {
       type: "message",
       attachments: [
         {
           contentType: "application/vnd.microsoft.card.adaptive",
+          contentUrl: null,
           content: {
             $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
             type: "AdaptiveCard",
@@ -282,29 +100,35 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
               {
                 type: "Container",
                 style: "emphasis",
+                bleed: true,
                 items: [
                   {
-                    type: "TextBlock",
-                    text: `${replyType} on Ticket #${ticketId}`,
-                    weight: "bolder",
-                    size: "large",
-                    color: "accent",
-                  },
-                ],
-              },
-              {
-                type: "Container",
-                items: [
-                  {
-                    type: "FactSet",
-                    facts: [
+                    type: "ColumnSet",
+                    columns: [
                       {
-                        name: "From:",
-                        value: author[0]?.name || "Unknown",
+                        type: "Column",
+                        width: "stretch",
+                        items: [
+                          {
+                            type: "TextBlock",
+                            text: `🎫 New Helpdesk Ticket #${ticket.id}`,
+                            weight: "Bolder",
+                            size: "Large",
+                            color: "Accent",
+                          },
+                        ],
                       },
                       {
-                        name: "Time:",
-                        value: new Date(reply.createdAt).toLocaleString(),
+                        type: "Column",
+                        width: "auto",
+                        items: [
+                          {
+                            type: "TextBlock",
+                            text: `${statusIcon} ${ticket.status.toUpperCase()}`,
+                            weight: "Bolder",
+                            horizontalAlignment: "Right",
+                          },
+                        ],
                       },
                     ],
                   },
@@ -315,21 +139,36 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
                 items: [
                   {
                     type: "TextBlock",
-                    text: reply.message,
+                    text: ticket.title,
+                    weight: "Bolder",
+                    size: "Medium",
                     wrap: true,
+                  },
+                  {
+                    type: "TextBlock",
+                    text: ticket.description,
+                    wrap: true,
+                    size: "Small",
+                    maxLines: 3,
                   },
                 ],
               },
               {
-                type: "ActionSet",
-                actions: [
-                  {
-                    type: "Action.OpenUrl",
-                    title: "View Ticket",
-                    url: `https://gigitekai.com/helpdesk/tickets/${ticketId}`,
-                    style: "positive",
-                  },
+                type: "FactSet",
+                facts: [
+                  { title: "Priority:", value: `${priorityIcon} ${ticket.priority.toUpperCase()}` },
+                  { title: "Category:", value: ticket.category.replace(/_/g, " ").toUpperCase() },
+                  { title: "Customer:", value: creatorName },
+                  { title: "Created:", value: new Date(ticket.createdAt).toLocaleString() },
                 ],
+              },
+            ],
+            actions: [
+              {
+                type: "Action.OpenUrl",
+                title: "View Ticket",
+                url: ticketUrl,
+                style: "positive",
               },
             ],
           },
@@ -337,16 +176,82 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
       ],
     };
 
-    await graphApiCall(
-      "POST",
-      `/teams/${process.env.TEAMS_BOT_TEAM_ID}/channels/${process.env.TEAMS_BOT_CHANNEL_ID}/messages`,
-      message
-    );
-
-    console.log(`[Teams Bot] Reply notification for ticket #${ticketId} sent to Teams`);
-    return { success: true, ticketId, replyId: reply.id };
+    await sendToTeamsWebhook(payload);
+    console.log(`[Teams Bot] ✅ Ticket #${ticket.id} notification sent to Teams`);
   } catch (error) {
-    console.error(`[Teams Bot] Error sending reply notification:`, error);
+    console.error(`[Teams Bot] ❌ Error sending ticket notification for ticket #${ticket.id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Send ticket reply notification to Teams
+ */
+export async function sendReplyNotificationToTeams(ticketId: number, reply: TicketReply): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+    if (!ticketRows[0]) throw new Error(`Ticket #${ticketId} not found`);
+    const ticket = ticketRows[0];
+
+    const author = await db.select().from(users).where(eq(users.id, reply.userId)).limit(1);
+    const authorName = author[0]?.name || "Unknown";
+    const replyType = reply.isStaffReply ? "🛠️ Agent Reply" : "👤 Customer Reply";
+    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticketId}`;
+
+    const payload = {
+      type: "message",
+      attachments: [
+        {
+          contentType: "application/vnd.microsoft.card.adaptive",
+          contentUrl: null,
+          content: {
+            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+            type: "AdaptiveCard",
+            version: "1.4",
+            body: [
+              {
+                type: "TextBlock",
+                text: `${replyType} on Ticket #${ticketId}: ${ticket.title}`,
+                weight: "Bolder",
+                size: "Medium",
+                color: "Accent",
+                wrap: true,
+              },
+              {
+                type: "TextBlock",
+                text: reply.message,
+                wrap: true,
+                size: "Small",
+                maxLines: 5,
+              },
+              {
+                type: "FactSet",
+                facts: [
+                  { title: "From:", value: authorName },
+                  { title: "Time:", value: new Date(reply.createdAt).toLocaleString() },
+                ],
+              },
+            ],
+            actions: [
+              {
+                type: "Action.OpenUrl",
+                title: "View Ticket",
+                url: ticketUrl,
+                style: "positive",
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    await sendToTeamsWebhook(payload);
+    console.log(`[Teams Bot] ✅ Reply notification sent for ticket #${ticketId}`);
+  } catch (error) {
+    console.error(`[Teams Bot] ❌ Error sending reply notification for ticket #${ticketId}:`, error);
     throw error;
   }
 }
@@ -358,68 +263,60 @@ export async function sendStatusUpdateToTeams(
   ticketId: number,
   oldStatus: string,
   newStatus: string,
-  changedBy: string
-) {
+  updatedByName: string
+): Promise<void> {
   try {
-    const message = {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+    if (!ticketRows[0]) throw new Error(`Ticket #${ticketId} not found`);
+    const ticket = ticketRows[0];
+
+    const statusIcon = getStatusEmoji(newStatus);
+    const ticketUrl = `https://gigitekai.com/helpdesk/tickets/${ticketId}`;
+
+    const payload = {
       type: "message",
       attachments: [
         {
           contentType: "application/vnd.microsoft.card.adaptive",
+          contentUrl: null,
           content: {
             $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
             type: "AdaptiveCard",
             version: "1.4",
             body: [
               {
-                type: "Container",
-                style: "emphasis",
-                items: [
-                  {
-                    type: "TextBlock",
-                    text: `Status Update: Ticket #${ticketId}`,
-                    weight: "bolder",
-                    size: "large",
-                    color: "accent",
-                  },
-                ],
+                type: "TextBlock",
+                text: `${statusIcon} Ticket #${ticketId} Status Updated`,
+                weight: "Bolder",
+                size: "Medium",
+                color: "Accent",
+                wrap: true,
               },
               {
-                type: "Container",
-                items: [
-                  {
-                    type: "FactSet",
-                    facts: [
-                      {
-                        name: "Previous Status:",
-                        value: oldStatus.toUpperCase(),
-                      },
-                      {
-                        name: "New Status:",
-                        value: newStatus.toUpperCase(),
-                      },
-                      {
-                        name: "Changed By:",
-                        value: changedBy,
-                      },
-                      {
-                        name: "Time:",
-                        value: new Date().toLocaleString(),
-                      },
-                    ],
-                  },
-                ],
+                type: "TextBlock",
+                text: ticket.title,
+                wrap: true,
+                size: "Small",
               },
               {
-                type: "ActionSet",
-                actions: [
-                  {
-                    type: "Action.OpenUrl",
-                    title: "View Ticket",
-                    url: `https://gigitekai.com/helpdesk/tickets/${ticketId}`,
-                    style: "positive",
-                  },
+                type: "FactSet",
+                facts: [
+                  { title: "Previous Status:", value: oldStatus.toUpperCase() },
+                  { title: "New Status:", value: `${statusIcon} ${newStatus.toUpperCase()}` },
+                  { title: "Updated By:", value: updatedByName },
+                  { title: "Time:", value: new Date().toLocaleString() },
                 ],
+              },
+            ],
+            actions: [
+              {
+                type: "Action.OpenUrl",
+                title: "View Ticket",
+                url: ticketUrl,
+                style: "positive",
               },
             ],
           },
@@ -427,45 +324,34 @@ export async function sendStatusUpdateToTeams(
       ],
     };
 
-    await graphApiCall(
-      "POST",
-      `/teams/${process.env.TEAMS_BOT_TEAM_ID}/channels/${process.env.TEAMS_BOT_CHANNEL_ID}/messages`,
-      message
-    );
-
-    console.log(`[Teams Bot] Status update for ticket #${ticketId} sent to Teams`);
-    return { success: true, ticketId };
+    await sendToTeamsWebhook(payload);
+    console.log(`[Teams Bot] ✅ Status update notification sent for ticket #${ticketId}`);
   } catch (error) {
-    console.error(`[Teams Bot] Error sending status update:`, error);
+    console.error(`[Teams Bot] ❌ Error sending status update for ticket #${ticketId}:`, error);
     throw error;
   }
 }
 
 /**
- * Test Teams bot connection
+ * Handle incoming Teams webhook messages (for bot commands)
  */
-export async function testTeamsBotConnection() {
-  try {
-    // Try to get team info
-    const team = await graphApiCall("GET", `/teams/${process.env.TEAMS_BOT_TEAM_ID}`);
+export function parseTeamsWebhookMessage(body: any): {
+  text: string;
+  ticketId?: number;
+  command?: string;
+} {
+  const text = body?.text || body?.value?.text || "";
+  const cleanText = text.replace(/<[^>]*>/g, "").trim();
 
-    console.log(`[Teams Bot] Connected to team: ${team.displayName}`);
+  // Extract ticket ID from message (e.g., "#123" or "ticket 123")
+  const ticketMatch = cleanText.match(/#(\d+)/);
+  const ticketId = ticketMatch ? parseInt(ticketMatch[1]) : undefined;
 
-    // Try to get channel info
-    const channel = await graphApiCall(
-      "GET",
-      `/teams/${process.env.TEAMS_BOT_TEAM_ID}/channels/${process.env.TEAMS_BOT_CHANNEL_ID}`
-    );
+  // Extract command (e.g., "@bot status", "@bot assign", "@bot close")
+  const commandMatch = cleanText.match(/@\w+\s+(\w+)/);
+  const command = commandMatch ? commandMatch[1].toLowerCase() : undefined;
 
-    console.log(`[Teams Bot] Connected to channel: ${channel.displayName}`);
-
-    return {
-      success: true,
-      team: team.displayName,
-      channel: channel.displayName,
-    };
-  } catch (error) {
-    console.error(`[Teams Bot] Connection test failed:`, error);
-    throw error;
-  }
+  return { text: cleanText, ticketId, command };
 }
+
+console.log(`[Teams Bot] Webhook endpoint configured: ${TEAMS_WEBHOOK_URL ? "✅ Ready" : "❌ Missing TEAMS_WEBHOOK_URL"}`);

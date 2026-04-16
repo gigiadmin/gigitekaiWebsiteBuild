@@ -1,74 +1,81 @@
-# Microsoft Teams Bot Integration Guide
+# GigitekAI Teams Bot Integration Guide
 
-This document describes the Teams Bot integration for GigitekAI's helpdesk system. The bot enables real-time ticket notifications and agent collaboration directly in Microsoft Teams.
+## Overview
 
-## Architecture Overview
+The GigitekAI helpdesk sends automatic notifications to your Microsoft Teams **Help Desk** channel whenever:
+- A new support ticket is created
+- A reply is added to a ticket
+- A ticket status changes (open → in_progress → resolved → closed)
 
-The Teams Bot integration consists of three main components:
+## Architecture (Incoming Webhook — No Azure Permissions Required)
 
-1. **Backend Service** (`server/teamsBot.ts`) - Handles Microsoft Graph API calls to send notifications
-2. **Webhook Handler** (`server/_core/teamsWebhook.ts`) - Receives and processes incoming Teams messages
-3. **Helpdesk Integration** (`server/routers/helpdesk.ts`) - Triggers Teams notifications on ticket events
+The integration uses a **Teams Incoming Webhook** connector. This is simpler and more reliable than the Microsoft Graph API approach (which requires `ChannelMessage.Send` application permission that Microsoft does not expose for app-only access).
 
-## Environment Variables
-
-The following environment variables are required for Teams Bot functionality:
-
-```bash
-TEAMS_BOT_TENANT_ID=b7595a11-d451-46a6-aff1-c98ee3bda4f9
-TEAMS_BOT_APP_ID=9e97adab-0263-4989-9c54-67db8e99f0a4
-TEAMS_BOT_CLIENT_SECRET=<your-client-secret>
-TEAMS_BOT_TEAM_ID=19:3XsCBwsjQciq2UpxPI7wvMEAQTqj2T3jAgzDu6iFKbo1@thread.tacv2
-TEAMS_BOT_CHANNEL_ID=19:3XsCBwsjQciq2UpxPI7wvMEAQTqj2T3jAgzDu6iFKbo1@thread.tacv2
-TEAMS_WEBHOOK_URL=https://gigitekai.com/api/webhooks/teams
 ```
+Helpdesk Ticket Created
+        ↓
+server/routers/helpdesk.ts
+        ↓
+sendTicketNotificationToTeams(ticket)
+        ↓
+server/teamsBot.ts → POST to TEAMS_WEBHOOK_URL
+        ↓
+Teams Help Desk Channel (Adaptive Card)
+```
+
+## Components
+
+1. **Outbound Notifications** (`server/teamsBot.ts`) — Sends adaptive cards to Teams via Incoming Webhook
+2. **Inbound Webhook Handler** (`server/_core/teamsWebhook.ts`) — Receives and processes incoming Teams messages (future two-way sync)
+3. **Helpdesk Integration** (`server/routers/helpdesk.ts`) — Triggers Teams notifications on ticket events
+
+## Setup Steps
+
+### Step 1: Create Teams Incoming Webhook
+
+1. Open Microsoft Teams
+2. Go to your **Help Desk** channel
+3. Click **"..."** (three dots) next to the channel name → **Connectors**
+4. Search for **"Incoming Webhook"** → **Configure**
+5. Name it: `GigitekAI Helpdesk Bot`
+6. Click **Create**
+7. **Copy the webhook URL** (starts with `https://gigitek.webhook.office.com/...`)
+
+### Step 2: Configure the Secret
+
+Add the webhook URL as `TEAMS_WEBHOOK_URL` in the Manus project secrets.
+
+The current webhook URL is already configured for the **Help Desk** channel.
+
+## Environment Variables Required
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `TEAMS_WEBHOOK_URL` | Teams Incoming Webhook URL for Help Desk channel | ✅ Yes |
+| `TEAMS_BOT_APP_ID` | Azure Bot App ID (for inbound webhook validation only) | Optional |
+| `TEAMS_BOT_CLIENT_SECRET` | Azure Bot Client Secret (for inbound webhook validation only) | Optional |
+| `TEAMS_BOT_TENANT_ID` | Azure AD Tenant ID (for inbound webhook validation only) | Optional |
+| `TEAMS_BOT_TEAM_ID` | Teams Team ID (for inbound webhook validation only) | Optional |
+| `TEAMS_BOT_CHANNEL_ID` | Teams Channel ID (for inbound webhook validation only) | Optional |
+
+**Note:** Only `TEAMS_WEBHOOK_URL` is required for outbound notifications. The Azure Bot credentials are only needed for the future inbound bot command feature.
 
 ## API Endpoints
 
-### Webhook Endpoint
+### Webhook Endpoint (Inbound — Future)
 
 **POST** `/api/webhooks/teams`
 
-Receives incoming messages and events from Microsoft Teams. The endpoint:
-
-- Validates webhook signatures
-- Parses ticket IDs from message text (e.g., `#123`)
-- Handles bot commands (e.g., `@bot status #123`)
-- Adds replies to tickets
-- Creates admin notifications
-
-#### Supported Commands
-
-- `@bot status #123` - Get ticket status
-- `@bot assign #123 to Agent Name` - Assign ticket to agent
-- `@bot close #123` - Close ticket
-- `@bot resolve #123` - Mark ticket as resolved
-
-#### Example Webhook Payload
-
-```json
-{
-  "type": "message",
-  "from": {
-    "user": {
-      "id": "29:1234567890",
-      "displayName": "John Doe",
-      "userPrincipalName": "john@company.com"
-    }
-  },
-  "body": {
-    "content": "This is a reply to #123"
-  }
-}
-```
+Receives incoming messages and events from Microsoft Teams. Supports:
+- Ticket ID parsing from message text (e.g., `#123`)
+- Bot commands (e.g., `@bot status #123`, `@bot close #123`)
+- Reply sync from Teams to helpdesk
 
 ### Health Check Endpoint
 
 **GET** `/api/webhooks/teams/health`
 
 Returns the health status of the Teams bot connection.
-
-#### Example Response
 
 ```json
 {
@@ -78,80 +85,68 @@ Returns the health status of the Teams bot connection.
 }
 ```
 
-## Ticket Notifications
+## Notification Types
 
 ### New Ticket Notification
-
-When a new ticket is created in the helpdesk, an adaptive card is sent to the Teams channel with:
-
+Sent when a customer creates a new support ticket. Includes:
 - Ticket ID and title
-- Priority level with emoji indicator
-- Category and creation date
+- Priority badge (🔴 Critical, 🟠 High, 🟡 Medium, 🟢 Low)
 - Customer name
-- Assigned agent (if applicable)
-- Direct link to view ticket in helpdesk
+- Category
+- Direct link to view ticket in admin portal
 
 ### Reply Notification
-
-When a customer or agent replies to a ticket, a notification is sent with:
-
+Sent when a reply is added to a ticket. Includes:
+- Ticket reference
 - Reply author name
-- Timestamp
-- Reply message preview
-- Link to ticket
+- Reply content preview
+- Direct link to ticket
 
 ### Status Update Notification
-
-When a ticket status changes, a notification is sent with:
-
-- Previous status
-- New status
-- Admin who made the change
-- Timestamp
-- Link to ticket
+Sent when an admin changes ticket status. Includes:
+- Ticket reference
+- Old status → New status
+- Who made the change
+- Direct link to ticket
 
 ## Integration Points
 
 ### Helpdesk Ticket Creation
 
 When a ticket is created via `helpdesk.createTicket`:
-
 1. Ticket is stored in database
 2. Owner notification is sent
 3. SMS alert for critical tickets
 4. Admin portal notification created
-5. **Teams notification sent** ← New
+5. **Teams notification sent via Incoming Webhook** ✅
 
 ### Helpdesk Reply
 
 When a reply is added via `helpdesk.addReply`:
-
 1. Reply is stored in database
 2. Owner notification sent
 3. Admin portal notification created
-4. **Teams notification sent** ← New
+4. **Teams notification sent via Incoming Webhook** ✅
 
 ### Status Update
 
 When ticket status changes via `helpdesk.updateStatus`:
-
 1. Status is updated in database
 2. Activity is logged
 3. Customer email notification sent
-4. **Teams status update sent** ← New
+4. **Teams status update sent via Incoming Webhook** ✅
 
 ## Error Handling
 
-All Teams Bot operations include error handling:
+All Teams Bot operations are non-blocking:
+- Errors are caught and logged with `[Teams Bot]` prefix
+- Failed notifications do not block ticket operations
+- Errors include full error message for debugging
 
-- Database unavailability is caught and logged
-- Microsoft Graph API errors are caught and logged
-- Failed notifications don't block ticket operations
-- Errors are logged with `[Teams Bot]` prefix for easy filtering
-
-Example error log:
+Example log:
 ```
-[Teams Bot] Failed to send ticket notification: Error: Graph API error: 401 - Unauthorized
+[Teams Bot] ✅ Ticket #330014 notification sent to Teams
+[Teams Bot] Webhook response: 1
 ```
 
 ## Testing
@@ -162,61 +157,38 @@ Run the Teams Bot tests:
 pnpm test -- server/teamsBot.test.ts
 ```
 
-Test coverage includes:
-
-- Ticket ID parsing from various message formats
-- Bot command parsing (@bot commands)
-- Adaptive card formatting
-- Message validation
-- Event type handling
+To manually test:
+1. Go to: `https://gigitekai.com/helpdesk/tickets/new`
+2. Create a test ticket
+3. Check your Teams **Help Desk** channel — an adaptive card should appear within seconds
 
 ## Deployment Checklist
 
-- [ ] Configure webhook URL in Azure Bot Service
-- [ ] Set `TEAMS_BOT_CLIENT_SECRET` in production environment
-- [ ] Test webhook endpoint health check: `GET /api/webhooks/teams/health`
-- [ ] Create test ticket and verify Teams notification
-- [ ] Test reply sync from Teams to helpdesk
-- [ ] Test status updates from admin panel
-- [ ] Monitor webhook logs for errors
-- [ ] Set up alerts for failed notifications
+- [x] `TEAMS_WEBHOOK_URL` configured in Manus secrets
+- [x] Teams Incoming Webhook connector created in Help Desk channel
+- [x] Test ticket created — adaptive card appeared in Teams ✅
+- [x] Server restarted with correct environment variable
+- [ ] Verify on production after publish
 
 ## Troubleshooting
 
-### Webhook Not Receiving Messages
-
-1. Verify webhook URL is correct in Azure Bot Service
-2. Check that `TEAMS_WEBHOOK_URL` environment variable is set
-3. Verify Teams channel ID is correct
-4. Test health endpoint: `GET /api/webhooks/teams/health`
-
-### Notifications Not Appearing in Teams
-
-1. Check that `TEAMS_BOT_TEAM_ID` and `TEAMS_BOT_CHANNEL_ID` are correct
-2. Verify bot has permissions to post to the channel
-3. Check Microsoft Graph API permissions in Azure AD
-4. Review server logs for `[Teams Bot]` error messages
-
-### Authentication Errors
-
-1. Verify `TEAMS_BOT_TENANT_ID` is correct
-2. Verify `TEAMS_BOT_APP_ID` is correct
-3. Verify `TEAMS_BOT_CLIENT_SECRET` is the actual secret value (not the ID)
-4. Ensure bot has `Mail.Send` and `Team.ReadWrite.All` permissions
+| Issue | Solution |
+|-------|----------|
+| No notification in Teams | Check `TEAMS_WEBHOOK_URL` is set in Manus secrets and server was restarted |
+| 403 Forbidden error | The webhook URL may have expired — create a new Incoming Webhook connector in Teams |
+| Webhook response not `1` | Teams rejected the payload — check server logs for `[Teams Bot]` errors |
+| Notification shows but link is broken | Ensure production URL is `https://gigitekai.com` |
+| "Graph API error" in logs | Old code still running — restart the server to pick up new `TEAMS_WEBHOOK_URL` |
 
 ## Future Enhancements
 
-- [ ] Two-way message sync (Teams ↔ Helpdesk)
+- [ ] Two-way message sync (Teams ↔ Helpdesk via Azure Bot Service)
 - [ ] Teams call logging and recording
-- [ ] Ticket search from Teams
-- [ ] Custom slash commands
-- [ ] Adaptive card actions (quick status changes)
+- [ ] Ticket search from Teams (`@bot search #keyword`)
+- [ ] Adaptive card actions (quick status changes from Teams)
 - [ ] Mention notifications for assigned agents
-- [ ] Rich media support (images, files)
 
 ## References
 
-- [Microsoft Teams Bot Framework](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-overview)
-- [Microsoft Graph API](https://docs.microsoft.com/en-us/graph/overview)
+- [Microsoft Teams Incoming Webhooks](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
 - [Adaptive Cards](https://adaptivecards.io/)
-- [Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/)

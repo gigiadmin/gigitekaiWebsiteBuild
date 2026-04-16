@@ -141,7 +141,10 @@ export async function createTicket(ticket: InsertTicket) {
     console.log("[Database] Ticket created successfully");
     // Get the inserted ticket to return with ID
     const insertedTickets = await db.select().from(tickets).where(eq(tickets.userId, ticket.userId)).orderBy(desc(tickets.createdAt)).limit(1);
-    return insertedTickets[0] || null;
+    const insertedTicket = insertedTickets[0];
+    if (!insertedTicket) return null;
+    console.log(`[Database] Returning ticket ID: ${insertedTicket.id}`);
+    return insertedTicket;
   } catch (error) {
     console.error("[Database] Failed to create ticket:", error);
     throw error;
