@@ -6,7 +6,7 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -42,10 +42,26 @@ export default function Navbar() {
             <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
             <a href="/helpdesk-pricing" className="hover:text-[#00D4FF] transition-colors">Pricing</a>
-            <a href="tel:+17273825776" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-5776">
-              <Phone size={12} aria-hidden="true" />
-              (727) 382-5776
-            </a>
+            <div className="flex items-center gap-4">
+              <a href="tel:+17273825776" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-5776">
+                <Phone size={12} aria-hidden="true" />
+                (727) 382-5776
+              </a>
+              <button
+                onClick={() => {
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  toast.info("Book a Consultation", {
+                    description: "Fill out the form and our team will schedule a call with you.",
+                    duration: 3000,
+                  });
+                }}
+                className="flex items-center gap-1 px-3 py-1 bg-[#00D4FF]/20 hover:bg-[#00D4FF]/30 text-[#00D4FF] rounded transition-colors text-xs font-semibold"
+                aria-label="Book a consultation"
+              >
+                <Calendar size={12} aria-hidden="true" />
+                Book a Consultation
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -236,6 +252,18 @@ export default function Navbar() {
                   {item.label}
                 </a>
               ))}
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  setTimeout(() => {
+                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                className="flex items-center gap-2 w-full py-2 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors"
+              >
+                <Calendar size={14} />
+                <span>Book a Consultation</span>
+              </button>
 
               {/* Mobile Help Desk - Standout */}
               <a
