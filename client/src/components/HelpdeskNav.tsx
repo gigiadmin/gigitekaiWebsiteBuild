@@ -63,6 +63,12 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
                       icon={<MessageSquare className="w-4 h-4" />}
                       label="Live Chat"
                     />
+                    <NavLink
+                      href="/helpdesk/guide"
+                      active={location === "/helpdesk/guide"}
+                      icon={<BookOpen className="w-4 h-4" />}
+                      label="Agent Guide"
+                    />
                   </>
                 ) : (
                   <>
@@ -77,12 +83,6 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
                       active={location === "/helpdesk/tickets/new"}
                       icon={<PlusCircle className="w-4 h-4" />}
                       label="New Ticket"
-                    />
-                    <NavLink
-                      href="/helpdesk/guide"
-                      active={location === "/helpdesk/guide"}
-                      icon={<BookOpen className="w-4 h-4" />}
-                      label="Agent Guide"
                     />
                   </>
                 )}
@@ -147,12 +147,12 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
             <>
               <MobileNavLink href="/admin/helpdesk" active={location === "/admin/helpdesk"} label="Tickets" />
               <MobileNavLink href="/admin/chat" active={location === "/admin/chat"} label="Live Chat" />
+              <MobileNavLink href="/helpdesk/guide" active={location === "/helpdesk/guide"} label="Agent Guide" />
             </>
           ) : (
             <>
               <MobileNavLink href="/helpdesk/dashboard" active={location === "/helpdesk/dashboard"} label="My Tickets" />
               <MobileNavLink href="/helpdesk/tickets/new" active={location === "/helpdesk/tickets/new"} label="New Ticket" />
-              <MobileNavLink href="/helpdesk/guide" active={location === "/helpdesk/guide"} label="Agent Guide" />
             </>
           )}
         </div>
