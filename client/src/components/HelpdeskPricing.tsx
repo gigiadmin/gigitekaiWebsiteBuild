@@ -225,10 +225,7 @@ export default function HelpdeskPricing() {
                 </p>
                 <Button
                   onClick={() => {
-                    const contactForm = document.getElementById('contact-form');
-                    if (contactForm) {
-                      contactForm.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
                   }}
                   className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
                 >
@@ -309,7 +306,7 @@ export default function HelpdeskPricing() {
                       ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
                       : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
                   }`}
-                  onClick={() => window.location.href = '#contact'}
+                  onClick={() => window.location.href = '/#contact'}
                 >
                   {tier.cta}
                 </Button>
@@ -645,10 +642,7 @@ export default function HelpdeskPricing() {
           </p>
           <Button 
             onClick={() => {
-              const contactForm = document.getElementById('contact');
-              if (contactForm) {
-                contactForm.scrollIntoView({ behavior: 'smooth' });
-              }
+              window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
             }}
             className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg cursor-pointer"
           >

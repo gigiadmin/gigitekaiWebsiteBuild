@@ -49,11 +49,7 @@ export default function SiteNavBar2024() {
               </a>
               <button
                 onClick={() => {
-                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                  toast.info("Book a Consultation", {
-                    description: "Fill out the form and our team will schedule a call with you.",
-                    duration: 3000,
-                  });
+                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
                 }}
                 className="flex items-center gap-1 px-3 py-1 bg-[#00D4FF]/20 hover:bg-[#00D4FF]/30 text-[#00D4FF] rounded transition-colors text-xs font-semibold"
                 aria-label="Book a consultation"
@@ -175,14 +171,8 @@ export default function SiteNavBar2024() {
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
             )}
-            <button
-              onClick={() => {
-                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                toast.info("Get In Touch", {
-                  description: "Complete the form and our team will reach out within 24 hours.",
-                  duration: 3000,
-                });
-              }}
+            <a
+              href="/#contact"
               className="btn-cyan text-sm"
             >
               Get In Touch
@@ -266,9 +256,7 @@ export default function SiteNavBar2024() {
               <button
                 onClick={() => {
                   setMobileOpen(false);
-                  setTimeout(() => {
-                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
+                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
                 }}
                 className="flex items-center gap-2 w-full py-2 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors"
               >

@@ -128,7 +128,7 @@ export default function ServicesSection() {
             <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
               GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
-            <a href="#contact" className="btn-cyan text-sm">
+            <a href="/#contact" className="btn-cyan text-sm">
               Explore All Capabilities <ArrowRight size={16} />
             </a>
           </div>

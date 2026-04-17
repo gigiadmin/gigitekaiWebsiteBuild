@@ -93,7 +93,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <a href="#contact" className="btn-cyan text-base px-6 py-3">
+            <a href="/#contact" className="btn-cyan text-base px-6 py-3">
               Start Your Transformation
               <ArrowRight size={18} />
             </a>

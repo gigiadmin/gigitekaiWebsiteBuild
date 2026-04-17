@@ -267,7 +267,7 @@ export default function ServiceDetail() {
                   {service.heroDescription}
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="#contact" className="btn-cyan">
+                  <a href="/#contact" className="btn-cyan">
                     {service.ctaText} <ArrowRight size={16} />
                   </a>
                   <a
