@@ -49,7 +49,7 @@ export default function SiteNavBar2024() {
               </a>
               <button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
+                  window.location.href = '/#contact';
                 }}
                 className="flex items-center gap-1 px-3 py-1 bg-[#00D4FF]/20 hover:bg-[#00D4FF]/30 text-[#00D4FF] rounded transition-colors text-xs font-semibold"
                 aria-label="Book a consultation"
