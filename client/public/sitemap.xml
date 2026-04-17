@@ -4,7 +4,7 @@
   <!-- ===== Core Pages ===== -->
   <url>
     <loc>https://gigitekai.com/</loc>
-    <lastmod>2026-04-11</lastmod>
+    <lastmod>2026-04-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -72,6 +72,21 @@
     <lastmod>2026-04-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <!-- ===== Legal Pages ===== -->
+  <url>
+    <loc>https://gigitekai.com/privacy-policy</loc>
+    <lastmod>2026-04-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://gigitekai.com/terms-of-service</loc>
+    <lastmod>2026-04-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
 
   <!-- ===== Support / Helpdesk (public-facing) ===== -->
