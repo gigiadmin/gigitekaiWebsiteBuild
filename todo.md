@@ -221,6 +221,11 @@
 - [x] Add "Book a Consultation" button to top navigation bar next to phone number
 - [x] Implement smooth scroll to contact form from button click
 - [x] Add calendar icon and toast notification for consultation button
+- [x] Implement toggle switch to show monthly and annual pricing
+- [x] Apply 10% discount calculation for annual prepayment
+- [x] Update pricing cards to display annual prices when toggled
+- [x] Update comparison table to show annual costs with discount
+- [x] Add "Save 10%" badge when annual pricing is selected
 
 ## Service Pages
 - [x] Fix "Learn more" links on service cards to navigate to individual service detail pages

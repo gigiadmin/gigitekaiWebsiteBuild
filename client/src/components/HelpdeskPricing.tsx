@@ -1,7 +1,18 @@
+import { useState } from "react";
 import { Check, X, AlertCircle, TrendingUp, Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function HelpdeskPricing() {
+  const [isAnnual, setIsAnnual] = useState(false);
+  const ANNUAL_DISCOUNT = 0.1; // 10% discount for annual prepayment
+  const calculatePrice = (monthlyPrice: number) => {
+    if (isAnnual) {
+      const annualPrice = monthlyPrice * 12 * (1 - ANNUAL_DISCOUNT);
+      return Math.round(annualPrice / 12 * 100) / 100; // Round to 2 decimals
+    }
+    return monthlyPrice;
+  };
+
   const tiers = [
     {
       name: "Essential",
@@ -81,6 +92,35 @@ export default function HelpdeskPricing() {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Flat monthly per-user rates with no hidden fees, no per-ticket charges, and no surprise invoices.
           </p>
+          
+          {/* Pricing Toggle */}
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Monthly
+            </span>
+            <button
+              onClick={() => setIsAnnual(!isAnnual)}
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                isAnnual ? 'bg-cyan-500' : 'bg-gray-600'
+              }`}
+              aria-label="Toggle annual pricing"
+            >
+              <span
+                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                  isAnnual ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+            <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              Annual
+            </span>
+            {isAnnual && (
+              <span className="ml-2 inline-block bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">
+                Save 10%
+              </span>
+            )}
+          </div>
+          
           <div className="mt-8 flex flex-wrap gap-6 justify-center text-sm">
             <div className="flex items-center gap-2 text-cyan-400">
               <TrendingUp className="w-5 h-5" />
@@ -130,13 +170,21 @@ export default function HelpdeskPricing() {
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold text-cyan-500">
-                      ${tier.price}
+                      ${calculatePrice(tier.price)}
                     </span>
-                    <span className="text-muted-foreground">/user/month</span>
+                    <span className="text-muted-foreground">
+                      {isAnnual ? '/user/month (annual)' : '/user/month'}
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Minimum 10 users • Billed monthly
-                  </p>
+                  {isAnnual ? (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ${(calculatePrice(tier.price) * 12).toFixed(2)}/user/year • Minimum 10 users
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Minimum 10 users • Billed monthly
+                    </p>
+                  )}
                 </div>
 
                 {/* CTA Button */}
@@ -214,13 +262,22 @@ export default function HelpdeskPricing() {
                     Feature
                   </th>
                   <th className="px-6 py-4 text-center font-semibold text-foreground">
-                    Essential
+                    <div>Essential</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-1">
+                      ${calculatePrice(69)}{isAnnual ? '/mo' : ''}
+                    </div>
                   </th>
                   <th className="px-6 py-4 text-center font-semibold text-cyan-400">
-                    Professional
+                    <div>Professional</div>
+                    <div className="text-xs font-normal text-cyan-400 mt-1">
+                      ${calculatePrice(119)}{isAnnual ? '/mo' : ''}
+                    </div>
                   </th>
                   <th className="px-6 py-4 text-center font-semibold text-foreground">
-                    Elite
+                    <div>Elite</div>
+                    <div className="text-xs font-normal text-muted-foreground mt-1">
+                      ${calculatePrice(189)}{isAnnual ? '/mo' : ''}
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -268,21 +325,41 @@ export default function HelpdeskPricing() {
                     professional: "15 minutes",
                     elite: "15 minutes",
                   },
+                  {
+                    feature: "Annual Cost (10 users)",
+                    essential: isAnnual ? `$${(calculatePrice(69) * 12 * 10).toFixed(0)}` : `$${(69 * 12 * 10).toFixed(0)}`,
+                    professional: isAnnual ? `$${(calculatePrice(119) * 12 * 10).toFixed(0)}` : `$${(119 * 12 * 10).toFixed(0)}`,
+                    elite: isAnnual ? `$${(calculatePrice(189) * 12 * 10).toFixed(0)}` : `$${(189 * 12 * 10).toFixed(0)}`,
+                  },
                 ].map((row, idx) => (
                   <tr
                     key={idx}
-                    className="border-b border-border hover:bg-background/50 transition-colors"
+                    className={`border-b border-border hover:bg-background/50 transition-colors ${
+                      row.feature === 'Annual Cost (10 users)' ? 'bg-cyan-500/5 font-semibold' : ''
+                    }`}
                   >
-                    <td className="px-6 py-4 font-medium text-foreground">
+                    <td className={`px-6 py-4 font-medium ${
+                      row.feature === 'Annual Cost (10 users)' ? 'text-cyan-400' : 'text-foreground'
+                    }`}>
                       {row.feature}
                     </td>
-                    <td className="px-6 py-4 text-center text-muted-foreground">
+                    <td className={`px-6 py-4 text-center ${
+                      row.feature === 'Annual Cost (10 users)'
+                        ? 'text-cyan-400 font-semibold'
+                        : 'text-muted-foreground'
+                    }`}>
                       {row.essential}
                     </td>
-                    <td className="px-6 py-4 text-center text-cyan-400 font-semibold">
+                    <td className={`px-6 py-4 text-center font-semibold ${
+                      row.feature === 'Annual Cost (10 users)' ? 'text-cyan-300' : 'text-cyan-400'
+                    }`}>
                       {row.professional}
                     </td>
-                    <td className="px-6 py-4 text-center text-foreground">
+                    <td className={`px-6 py-4 text-center ${
+                      row.feature === 'Annual Cost (10 users)'
+                        ? 'text-cyan-400 font-semibold'
+                        : 'text-foreground'
+                    }`}>
                       {row.elite}
                     </td>
                   </tr>
