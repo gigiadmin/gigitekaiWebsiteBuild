@@ -643,7 +643,15 @@ export default function HelpdeskPricing() {
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             Schedule a discovery call today to get a custom quote based on your exact user count, infrastructure, and compliance needs. All plans can be tailored to your environment.
           </p>
-          <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg">
+          <Button 
+            onClick={() => {
+              const contactForm = document.getElementById('contact');
+              if (contactForm) {
+                contactForm.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg cursor-pointer"
+          >
             Schedule a Discovery Call
           </Button>
         </div>
