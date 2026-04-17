@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
+import { triggerBookingModal } from "./StickyCTABar";
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
@@ -49,7 +50,7 @@ export default function SiteNavBar2024() {
               </a>
               <button
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
+                  triggerBookingModal();
                 }}
                 className="flex items-center gap-1 px-3 py-1 bg-[#00D4FF]/20 hover:bg-[#00D4FF]/30 text-[#00D4FF] rounded transition-colors text-xs font-semibold"
                 aria-label="Book a consultation"

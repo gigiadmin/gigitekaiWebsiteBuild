@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, X, AlertCircle, TrendingUp, Clock, Shield, Headphones, Zap, HardDrive, Lock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { triggerBookingModal } from "./StickyCTABar";
 
 export default function HelpdeskPricing() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -225,7 +226,7 @@ export default function HelpdeskPricing() {
                 </p>
                 <Button
                   onClick={() => {
-                    window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
+                    triggerBookingModal();
                   }}
                   className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
                 >
@@ -642,7 +643,7 @@ export default function HelpdeskPricing() {
           </p>
           <Button 
             onClick={() => {
-              window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
+              triggerBookingModal();
             }}
             className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg cursor-pointer"
           >

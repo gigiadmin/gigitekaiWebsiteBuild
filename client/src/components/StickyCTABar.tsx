@@ -4,7 +4,7 @@
  * Integrated with Microsoft 365 Calendar for booking strategy calls
  * Availability: Monday, Wednesday, Friday — 11:00 AM to 3:00 PM EST
  */
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { X, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,6 +14,17 @@ import { toast } from "sonner";
 
 interface StickyCTABarProps {
   onClose?: () => void;
+}
+
+// Global ref for direct booking trigger access
+let globalBookingTrigger: (() => void) | null = null;
+
+export function triggerBookingModal() {
+  if (globalBookingTrigger) {
+    globalBookingTrigger();
+  } else {
+    console.warn("Booking modal not yet initialized");
+  }
 }
 
 interface BookingFormData {
@@ -70,6 +81,7 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const triggerRef = useRef<(() => void) | null>(null);
   const [formData, setFormData] = useState<BookingFormData>({
     name: "",
     email: "",
@@ -96,15 +108,24 @@ export function StickyCTABar({ onClose }: StickyCTABarProps) {
     }
   }, []);
 
-  // Listen for booking modal trigger from Contact page
+  // Initialize global booking trigger and listen for events
   useEffect(() => {
     const handleOpenBooking = () => {
       setShowBookingModal(true);
       setIsVisible(true);
       sessionStorage.removeItem("ctaBarClosed");
     };
+    
+    // Set up global ref for direct access
+    triggerRef.current = handleOpenBooking;
+    globalBookingTrigger = handleOpenBooking;
+    
+    // Also listen for custom event
     window.addEventListener("gigitekai:open-booking", handleOpenBooking);
-    return () => window.removeEventListener("gigitekai:open-booking", handleOpenBooking);
+    return () => {
+      window.removeEventListener("gigitekai:open-booking", handleOpenBooking);
+      globalBookingTrigger = null;
+    };
   }, []);
 
   if (!isVisible) return null;
