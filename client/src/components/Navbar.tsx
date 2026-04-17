@@ -226,15 +226,16 @@ export default function Navbar() {
             ))}
             <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
               {[
-                { label: "Helpdesk Pricing", href: "/helpdesk-pricing" },
-                { label: "ROI Calculator", href: "/roi-calculator" },
-                { label: "Industries", href: "#industries" },
-                { label: "About Us", href: "/about" },
-                { label: "Insights", href: "/blog" },
+                { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
+                { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
+                { label: "Industries", href: "#industries", id: "nav-industries" },
+                { label: "About Us", href: "/about", id: "nav-about" },
+                { label: "Insights", href: "/blog", id: "nav-insights" },
               ].map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
+                  data-nav-id={item.id}
                   className="block py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors"
                   onClick={(e) => {
                     if (item.href.startsWith('#')) {
