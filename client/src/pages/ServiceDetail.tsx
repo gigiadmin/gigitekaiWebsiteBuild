@@ -9,6 +9,7 @@ import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import Breadcrumb from "@/components/Breadcrumb";
+import HelpdeskPricing from "@/components/HelpdeskPricing";
 import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu } from "lucide-react";
 
 const serviceData: Record<string, {
@@ -359,6 +360,11 @@ export default function ServiceDetail() {
             </div>
           </div>
         </section>
+
+        {/* Pricing Section - Only show for Managed IT Services */}
+        {slug === 'managed' && (
+          <HelpdeskPricing />
+        )}
 
         {/* Technologies Section */}
         <section className="py-16 bg-white">
