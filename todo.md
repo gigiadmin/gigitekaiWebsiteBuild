@@ -226,6 +226,10 @@
 - [x] Update pricing cards to display annual prices when toggled
 - [x] Update comparison table to show annual costs with discount
 - [x] Add "Save 10%" badge when annual pricing is selected
+- [x] Highlight Professional plan with prominent ribbon and special border
+- [x] Add gradient cyan border (2px) with glow effect to Professional card
+- [x] Add decorative corner accents and visual depth to Professional plan
+- [x] Ensure Professional card scales larger on desktop (md:scale-105)
 
 ## Service Pages
 - [x] Fix "Learn more" links on service cards to navigate to individual service detail pages

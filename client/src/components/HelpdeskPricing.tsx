@@ -142,19 +142,32 @@ export default function HelpdeskPricing() {
           {tiers.map((tier, idx) => (
             <div
               key={idx}
-              className={`relative rounded-lg border transition-all ${
+              className={`relative rounded-xl border transition-all overflow-hidden ${
                 tier.popular
-                  ? "border-cyan-500 bg-gradient-to-b from-cyan-500/10 to-transparent shadow-lg shadow-cyan-500/20 md:scale-105"
-                  : "border-border bg-card hover:border-cyan-500/50"
+                  ? "border-2 border-cyan-500 bg-gradient-to-b from-cyan-500/20 via-background to-background shadow-2xl shadow-cyan-500/40 md:scale-105 ring-1 ring-cyan-500/60"
+                  : "border border-border bg-card hover:border-cyan-500/50"
               }`}
             >
-              {/* Popular Badge */}
+              {/* Popular Ribbon & Accents */}
               {tier.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-cyan-500 text-black px-4 py-1 rounded-full text-sm font-bold">
-                    ⭐ MOST POPULAR
-                  </span>
-                </div>
+                <>
+                  {/* Gradient Top Border Accent */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                  
+                  {/* Ribbon Banner */}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <div className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 text-black px-6 py-2 rounded-lg text-xs font-bold tracking-widest shadow-lg flex items-center gap-2 whitespace-nowrap border border-cyan-300">
+                      <span className="text-lg">⭐</span>
+                      <span>MOST POPULAR</span>
+                      <span className="text-lg">⭐</span>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative Corner Accents */}
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-cyan-500 rounded-full opacity-70 blur-sm"></div>
+                  <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-cyan-500/50 rounded-full opacity-50 blur-sm"></div>
+                  <div className="absolute top-1/4 -right-1 w-1 h-12 bg-gradient-to-b from-cyan-500/60 to-transparent rounded-full"></div>
+                </>
               )}
 
               <div className="p-8">
