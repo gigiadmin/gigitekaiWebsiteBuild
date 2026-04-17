@@ -5,6 +5,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { trpc } from "@/lib/trpc";
 import { Clock, AlertCircle, CheckCircle2, TrendingUp, Download } from "lucide-react";
 import { toast } from "sonner";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function AdminHelpdeskMetricsPage() {
   // Fetch all tickets for analysis
@@ -139,8 +140,15 @@ export default function AdminHelpdeskMetricsPage() {
     toast.success("Metrics exported successfully");
   };
 
+  const breadcrumbs = [
+    { label: "Admin", href: "/admin" },
+    { label: "Operations", href: "/admin/helpdesk" },
+    { label: "Metrics" },
+  ];
+
   return (
     <div className="space-y-6">
+      <Breadcrumb items={breadcrumbs} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

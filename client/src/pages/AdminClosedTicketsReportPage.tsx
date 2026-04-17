@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import { Download, Search, Eye, RotateCcw, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface Ticket {
   id: number;
@@ -122,8 +123,15 @@ export default function AdminClosedTicketsReportPage() {
     toast.success("Report exported successfully");
   };
 
+  const breadcrumbs = [
+    { label: "Admin", href: "/admin" },
+    { label: "Operations", href: "/admin/helpdesk" },
+    { label: "Closed Tickets" },
+  ];
+
   return (
     <div className="space-y-6">
+      <Breadcrumb items={breadcrumbs} />
       <div>
         <h1 className="text-3xl font-bold">Closed Tickets Report</h1>
         <p className="text-slate-400 mt-1">Last {daysRange} days — {filteredTickets.length} tickets</p>

@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Clock, CheckCircle2, TrendingUp, AlertCircle, Users2 } from "lucide-react";
 import { toast } from "sonner";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface AgentMetrics {
   agentId: number;
@@ -113,8 +114,15 @@ export default function AdminAgentDashboardPage() {
     );
   }
 
+  const breadcrumbs = [
+    { label: "Admin", href: "/admin" },
+    { label: "Operations", href: "/admin/helpdesk" },
+    { label: "Agent Dashboard" },
+  ];
+
   return (
     <div className="space-y-6">
+      <Breadcrumb items={breadcrumbs} />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Agent Dashboard</h1>

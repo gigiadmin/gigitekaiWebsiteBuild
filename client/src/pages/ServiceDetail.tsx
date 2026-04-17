@@ -8,6 +8,7 @@ import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import Breadcrumb from "@/components/Breadcrumb";
 import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu } from "lucide-react";
 
 const serviceData: Record<string, {
@@ -223,6 +224,11 @@ export default function ServiceDetail() {
   }
 
   const Icon = service.icon;
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    { label: "Services", href: "/#services" },
+    { label: service.title },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -232,6 +238,7 @@ export default function ServiceDetail() {
         <section className="bg-[#0A0E1A] py-20 lg:py-28 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(0,212,255,0.08),transparent_60%)]"></div>
           <div className="container relative z-10">
+            <Breadcrumb items={breadcrumbs} />
             <button
               onClick={() => navigate("/")}
               className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#00D4FF] transition-colors mb-8"

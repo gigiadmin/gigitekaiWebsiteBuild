@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
 import SlaTimer from "@/components/SlaTimer";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
+import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   ArrowLeft,
@@ -209,6 +210,12 @@ export default function TicketDetail() {
   const statusConfig = getStatusConfig(ticket.status);
   const priorityConfig = getPriorityConfig(ticket.priority);
 
+  const breadcrumbs = [
+    { label: "Helpdesk", href: "/helpdesk/dashboard" },
+    { label: "Tickets", href: "/helpdesk/dashboard" },
+    { label: `#${ticketIdNum}` },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
       <HelpdeskNav isAdmin={isAdmin} />
@@ -216,6 +223,7 @@ export default function TicketDetail() {
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-4 ${isAdmin ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : ""}`}>
         {/* Main Column */}
         <div className={isAdmin ? "lg:col-span-2 space-y-6" : "max-w-4xl mx-auto space-y-6"}>
+          <Breadcrumb items={breadcrumbs} />
           {/* Back button */}
           <button
             onClick={() => navigate(isAdmin ? "/admin/helpdesk" : "/helpdesk/dashboard")}

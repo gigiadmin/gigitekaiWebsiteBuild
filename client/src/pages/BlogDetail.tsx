@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc";
 import { Streamdown } from "streamdown";
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet-async";
+import Breadcrumb from "@/components/Breadcrumb";
 
 /** Returns the canonical URL for the current article */
 function getArticleUrl(slug: string): string {
@@ -53,6 +54,11 @@ export default function BlogDetail() {
       </div>
     );
   }
+
+  const breadcrumbs = [
+    { label: "Blog", href: "/blog" },
+    { label: post?.title || "Article" },
+  ];
 
   if (isLoading) {
     return (
@@ -133,6 +139,7 @@ export default function BlogDetail() {
         {/* Header */}
         <section className="py-12 bg-white border-b border-gray-100">
           <div className="container max-w-3xl">
+            <Breadcrumb items={breadcrumbs} />
             <button
               onClick={() => navigate("/blog")}
               className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-all mb-6"
