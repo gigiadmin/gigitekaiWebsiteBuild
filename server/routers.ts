@@ -328,7 +328,7 @@ Submitted from GigitekAI website contact form.
       </ul>
       <p><span class="success-badge">Status: Active</span></p>
       <p style="text-align: center;">
-        <a href="https://gigitekai.com" class="cta-button">Access Support Center</a>
+        <a href="https://gigitekai.com/admin" class="cta-button">Access Support Center</a>
       </p>
       <p>If you have any questions or need assistance, feel free to reach out to our team at support@gigitekai.com or call 609-676-4483.</p>
     </div>
