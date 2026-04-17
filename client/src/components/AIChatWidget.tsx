@@ -220,6 +220,15 @@ export default function AIChatWidget() {
     }
   }, [isOpen]);
 
+  // Listen for openAIChat event from ChatTriggerManager
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true);
+    };
+    window.addEventListener('openAIChat', handleOpenChat);
+    return () => window.removeEventListener('openAIChat', handleOpenChat);
+  }, []);
+
   // Scroll detection for "scroll down" button
   const handleScroll = useCallback(() => {
     const container = messagesContainerRef.current;

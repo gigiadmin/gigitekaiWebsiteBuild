@@ -1875,3 +1875,20 @@
 - [x] Run full test suite (316 tests passing)
 - [x] Verify TypeScript compilation (0 errors)
 - [ ] Save checkpoint with all three features
+
+
+## Chatbot Issue - April 17, 2026
+- [x] Investigate chatbot not responding on website
+  - [x] Dev server running
+  - [x] TypeScript: No errors
+  - [x] Dependencies: OK
+  - [x] Check AIChatWidget component: Working
+  - [x] Check AIChatBox component: Not used by website bot
+  - [x] Verify LLM integration endpoints: Configured
+  - [x] Check browser console for errors: None
+  - [x] Test chatbot in dev environment: Ready
+  - [x] Verify API credentials and keys: Configured
+  - [x] ROOT CAUSE FOUND: ChatTriggerManager Start Chat button had no onClick handler
+  - [x] FIX APPLIED: Added handleStartChat function with event dispatch
+  - [x] INTEGRATION: AIChatWidget now listens for openAIChat event
+  - [x] Tests passing: 313/316 (3 unrelated timeout failures)

@@ -147,6 +147,12 @@ export default function ChatTriggerManager({
     setCurrentTrigger(null);
   };
 
+  const handleStartChat = () => {
+    // Dispatch custom event to open AIChatWidget
+    window.dispatchEvent(new CustomEvent('openAIChat'));
+    handleClose();
+  };
+
   if (!showPrompt || !currentTrigger) return null;
 
   return (
@@ -172,7 +178,10 @@ export default function ChatTriggerManager({
         <p className="text-sm text-gray-300 mb-4">{currentTrigger.message}</p>
 
         {/* CTA */}
-        <Button className="w-full bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold text-sm">
+        <Button 
+          onClick={handleStartChat}
+          className="w-full bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold text-sm"
+        >
           Start Chat
         </Button>
       </div>
