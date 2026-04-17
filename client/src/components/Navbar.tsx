@@ -226,9 +226,9 @@ export default function Navbar() {
             ))}
             <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
               {[
-                { label: "Industries", href: "#industries" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator" },
+                { label: "Industries", href: "#industries" },
                 { label: "About Us", href: "/about" },
                 { label: "Insights", href: "/blog" },
               ].map((item) => (
