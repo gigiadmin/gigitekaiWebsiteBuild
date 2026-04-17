@@ -72,9 +72,8 @@ import Contact from "./pages/Contact";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { StickyCTABar } from "./components/StickyCTABar";
 // ChatTriggerManager removed per user request - Start Chat popup disabled
-
-// StickyCTABar removed — Book Now bar disabled per user request
 
 function Router() {
   return (
@@ -190,10 +189,10 @@ function App() {
           <Router />
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}
+          {!isAdminPage && !isMeetingPage && <StickyCTABar />}
           {/* ChatTriggerManager removed - Start Chat popup disabled */}
           {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
           {/* ExitIntentPopup disabled - no guide provided */}
-          {/* StickyCTABar removed */}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
