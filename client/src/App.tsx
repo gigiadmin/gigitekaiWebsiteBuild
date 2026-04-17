@@ -71,6 +71,7 @@ import Contact from "./pages/Contact";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import ChatTriggerManager from "./components/ChatTriggerManager";
 
 // StickyCTABar removed — Book Now bar disabled per user request
 
@@ -187,6 +188,7 @@ function App() {
           <Router />
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}
+          {!hideWidgets && <ChatTriggerManager />}
           {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
           {/* ExitIntentPopup disabled - no guide provided */}
           {/* StickyCTABar removed */}

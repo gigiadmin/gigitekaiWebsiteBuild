@@ -1824,3 +1824,54 @@
 - [x] Test email capture form submission (316 tests passing)
 - [x] Test social share functionality (verified in component)
 - [ ] Save checkpoint with all follow-ups complete
+
+
+## Engagement Features Phase 2 (April 2026)
+
+### Proactive Chat Triggers
+- [x] Design trigger rules (page time, scroll depth, exit intent, specific pages)
+- [x] Create ChatTriggerManager component to manage display logic
+- [x] Build trigger configuration system (4 default triggers)
+- [x] Implement delay and frequency capping (cooldown system)
+- [x] Add trigger analytics tracking (localStorage)
+- [x] Test trigger logic on different page types
+- [x] Integrate with existing AIChatBox component
+
+### Lead Magnets (Checklists & Templates)
+- [x] Create Lead Magnet Modal component (email capture)
+- [x] Design 5 downloadable resources:
+  - [x] IT Security Checklist
+  - [x] AI Implementation Roadmap
+  - [x] Cloud Migration Template
+  - [x] Helpdesk SLA Template
+  - [x] Cybersecurity Assessment
+- [x] Add download tracking and analytics
+- [x] Create Lead Magnet landing page (LeadMagnetsSection)
+- [x] Integrate lead magnet CTAs on homepage
+- [x] Set up email delivery for downloaded resources
+
+### Industry Benchmarks Widget
+- [x] Design Industry Benchmarks data structure
+- [x] Create IndustryBenchmarksWidget component
+- [x] Add benchmark data for 5 industries:
+  - [x] Healthcare
+  - [x] Finance
+  - [x] Manufacturing
+  - [x] Retail
+  - [x] Professional Services
+- [x] Implement peer comparison visualization (cards + progress bar)
+- [x] Add industry selector and filtering
+- [x] Create benchmark data (hardcoded for MVP)
+- [x] Integrate widget on homepage
+- [x] Add benchmark comparison CTAs
+
+### Integration & Testing
+- [x] Add all three features to homepage
+- [x] Add lead magnets to homepage
+- [x] Add benchmarks to homepage
+- [x] Test chat triggers on mobile
+- [x] Test lead magnet email capture
+- [x] Test benchmark widget responsiveness
+- [x] Run full test suite (316 tests passing)
+- [x] Verify TypeScript compilation (0 errors)
+- [ ] Save checkpoint with all three features
