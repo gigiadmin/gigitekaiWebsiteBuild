@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useRecentlyViewed } from "@/_core/hooks/useRecentlyViewed";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,8 @@ import {
   CheckCircle2,
   Inbox,
   MessageSquareText,
+  Clock,
+  Trash2,
 } from "lucide-react";
 
 interface NavItem {
@@ -112,10 +115,19 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
   const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: getLoginUrl() });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { items: recentItems, addItem: addRecentItem, clearAll: clearRecentItems } = useRecentlyViewed();
 
   // Close mobile sidebar on route change — must be before any early return
   useEffect(() => {
     setMobileOpen(false);
+  }, [location]);
+
+  // Track current page in recently viewed
+  useEffect(() => {
+    if (location.startsWith("/admin") && location !== "/admin") {
+      const currentTitle = getCurrentTitle();
+      addRecentItem(location, currentTitle);
+    }
   }, [location]);
 
   if (loading) {
@@ -139,6 +151,19 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       }
     }
     return "Admin";
+  };
+
+  const formatTime = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
   };
 
   const SidebarContent = () => (
@@ -199,6 +224,39 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           </div>
         ))}
       </nav>
+
+      {/* Recently Viewed Section */}
+      {!collapsed && recentItems.length > 0 && (
+        <div className="border-t border-slate-700/50 p-3 space-y-2">
+          <div className="flex items-center justify-between px-3 mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <Clock size={12} /> Recent
+            </span>
+            <button
+              onClick={clearRecentItems}
+              className="text-slate-600 hover:text-slate-400 transition-colors"
+              title="Clear history"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+          <div className="space-y-0.5">
+            {recentItems.map((item) => (
+              <Link key={item.href} href={item.href}>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-150 group cursor-pointer text-xs">
+                  <span className="text-slate-600 group-hover:text-slate-400 flex-shrink-0">
+                    <Clock size={12} />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="truncate text-slate-300">{item.label}</div>
+                    <div className="text-slate-600 text-xs">{formatTime(item.timestamp)}</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* User Profile */}
       <div className={`border-t border-slate-700/50 p-3 ${collapsed ? "flex justify-center" : ""}`}>
