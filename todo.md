@@ -1800,3 +1800,13 @@
 - [x] Verify client users only see support/ticket pages (HelpdeskNav shows only customer routes by default)
 - [x] Test that admin routes are inaccessible to client users (403 redirect) - All 22 admin routes wrapped with ApprovalGuard
 - [x] Update todo.md with completion status
+
+
+## ROI Calculator Implementation (April 2026)
+- [x] Create ROI Calculator component with input fields and calculations
+- [x] Add ROI Calculator page (/roi-calculator)
+- [ ] Integrate email capture on results (lead generation)
+- [ ] Add ROI Calculator link to homepage hero CTA
+- [x] Add ROI Calculator link to navigation menu
+- [x] Test calculator with various inputs (316 tests passing)
+- [ ] Save checkpoint with ROI Calculator

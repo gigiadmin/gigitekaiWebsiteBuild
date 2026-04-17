@@ -106,6 +106,7 @@ export default function Navbar() {
 
             {[
               { label: "Industries", href: "#industries" },
+              { label: "ROI Calculator", href: "/roi-calculator" },
               { label: "About Us", href: "/about" },
               { label: "Insights", href: "/blog" },
             ].map((item) => (
