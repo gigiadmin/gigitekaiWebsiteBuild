@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import MainNavigation from "@/components/MainNavigation";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
@@ -33,7 +33,7 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <MainNavigation />
+      <SiteNavBar2024 />
       <main className="flex-1">
         {/* Header */}
         <section className="py-16 bg-white border-b border-gray-100">

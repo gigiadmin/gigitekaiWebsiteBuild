@@ -5,7 +5,7 @@
 */
 
 import { useParams, useLocation } from "wouter";
-import MainNavigation from "@/components/MainNavigation";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -206,7 +206,7 @@ export default function ServiceDetail() {
   if (!service) {
     return (
       <div className="min-h-screen flex flex-col">
-        <MainNavigation />
+        <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center bg-[#0A0E1A]">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -232,7 +232,7 @@ export default function ServiceDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <MainNavigation />
+      <SiteNavBar2024 />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="bg-[#0A0E1A] py-20 lg:py-28 relative overflow-hidden">

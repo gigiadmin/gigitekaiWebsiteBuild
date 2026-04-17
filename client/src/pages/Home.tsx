@@ -5,7 +5,7 @@
   Fonts: Space Grotesk (display) + DM Sans (body)
 */
 
-import MainNavigation from "@/components/MainNavigation";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import BenefitsSection from "@/components/BenefitsSection";
@@ -25,7 +25,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      <MainNavigation />
+      <SiteNavBar2024 />
       <main className="flex-1">
         <HeroSection />
         <ServicesSection />

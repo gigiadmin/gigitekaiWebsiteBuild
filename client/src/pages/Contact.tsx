@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import MainNavigation from "@/components/MainNavigation";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import {
   Mail,
@@ -70,7 +70,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0a0e1a]">
-      <MainNavigation />
+      <SiteNavBar2024 />
 
       {/* Hero */}
       <section className="pt-28 pb-16 px-4 text-center relative overflow-hidden">

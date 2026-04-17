@@ -3,7 +3,7 @@
 */
 
 import { useLocation, useRoute } from "wouter";
-import MainNavigation from "@/components/MainNavigation";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ShareButtons from "@/components/ShareButtons";
@@ -38,7 +38,7 @@ export default function BlogDetail() {
   if (!match || !slug) {
     return (
       <div className="min-h-screen flex flex-col">
-        <MainNavigation />
+        <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Article not found</h1>
@@ -63,7 +63,7 @@ export default function BlogDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <MainNavigation />
+        <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="animate-spin text-[#00D4FF] mr-3" size={28} />
           <span className="text-gray-500 text-lg">Loading article…</span>
@@ -76,7 +76,7 @@ export default function BlogDetail() {
   if (error || !post) {
     return (
       <div className="min-h-screen flex flex-col">
-        <MainNavigation />
+        <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Article not found</h1>
@@ -134,7 +134,7 @@ export default function BlogDetail() {
         <meta name="twitter:description" content={ogDescription} />
         <meta name="twitter:image" content={ogImage} />
       </Helmet>
-      <MainNavigation />
+      <SiteNavBar2024 />
       <main className="flex-1">
         {/* Header */}
         <section className="py-12 bg-white border-b border-gray-100">

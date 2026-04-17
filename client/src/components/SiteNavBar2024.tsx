@@ -10,7 +10,7 @@ import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar } from
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export default function Navbar() {
+export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
