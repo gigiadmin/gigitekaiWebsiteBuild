@@ -246,6 +246,13 @@
       "when": 1776382507685,
       "tag": "0034_clean_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1776387595725,
+      "tag": "0035_zippy_agent_brand",
+      "breakpoints": true
     }
   ]
 }

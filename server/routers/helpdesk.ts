@@ -860,4 +860,67 @@ export const helpdeskRouter = router({
         throw error;
       }
     }),
+
+  closeTicket: adminProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        closingNotes: z.string().min(10, "Closing notes must be at least 10 characters").max(2000),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        const ticket = await getTicketById(input.ticketId);
+        if (!ticket) throw new Error("Ticket not found");
+
+        if (ticket.status === "closed") {
+          throw new Error("Ticket is already closed");
+        }
+
+        // Update ticket to closed with closing notes
+        await db
+          .update(tickets)
+          .set({
+            status: "closed",
+            closingNotes: input.closingNotes,
+            closedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(tickets.id, input.ticketId));
+
+        // Log activity
+        try {
+          await db.insert(ticketActivity).values({
+            ticketId: input.ticketId,
+            actorId: ctx.user.id,
+            actorName: ctx.user.name || ctx.user.email || "Admin",
+            action: "status_changed",
+            fromValue: ticket.status,
+            toValue: "closed",
+          });
+        } catch (logErr) {
+          console.warn("[Helpdesk] Failed to log close activity:", logErr);
+        }
+
+        // Notify Teams
+        try {
+          await sendStatusUpdateToTeams(
+            input.ticketId,
+            ticket.status,
+            "closed",
+            ctx.user.name || ctx.user.email || "Admin"
+          );
+        } catch (teamsErr) {
+          console.warn("[Helpdesk] Failed to send Teams close notification:", teamsErr);
+        }
+
+        return { success: true, ticketId: input.ticketId };
+      } catch (error) {
+        console.error("[Helpdesk] Failed to close ticket:", error);
+        throw error;
+      }
+    }),
 });

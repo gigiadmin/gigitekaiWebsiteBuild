@@ -99,6 +99,8 @@ export const tickets = mysqlTable("tickets", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   resolvedAt: timestamp("resolvedAt"),
+  closingNotes: text("closingNotes"), // Required when closing a ticket
+  closedAt: timestamp("closedAt"),
 });
 
 export type Ticket = typeof tickets.$inferSelect;

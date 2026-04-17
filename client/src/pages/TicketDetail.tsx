@@ -507,21 +507,39 @@ export default function TicketDetail() {
               </form>
             </div>
           ) : (
-            <div className="bg-[#141B2D]/40 border border-gray-800/30 rounded-xl p-6 text-center">
-              <CheckCircle2 className="w-8 h-8 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400 text-sm font-medium">This ticket is closed</p>
+            <div className="bg-[#141B2D]/40 border border-gray-800/30 rounded-xl p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                <div>
+                  <p className="text-gray-300 text-sm font-medium">This ticket is closed</p>
+                  {(ticket as any).closedAt && (
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Closed on {new Date((ticket as any).closedAt).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {(ticket as any).closingNotes && (
+                <div className="bg-slate-900/60 border border-slate-700/50 rounded-lg p-4">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                    Resolution Notes
+                  </p>
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{(ticket as any).closingNotes}</p>
+                </div>
+              )}
               {isAdmin ? (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => updateStatusMutation.mutate({ ticketId: ticketIdNum, status: "open" })}
-                  className="mt-3 border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                  className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
                 >
                   <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                   Reopen Ticket
                 </Button>
               ) : (
-                <p className="text-gray-500 text-xs mt-1">Create a new ticket if you need further assistance.</p>
+                <p className="text-gray-500 text-xs">Create a new ticket if you need further assistance.</p>
               )}
             </div>
           )}

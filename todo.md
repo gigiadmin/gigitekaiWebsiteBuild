@@ -1713,3 +1713,13 @@
 - [x] Add sidebar links to AdminLayout: Canned Responses, Leads, Contacts
 - [x] Add Quick Actions to AdminHome: View Leads, Contact Submissions, Canned Responses
 - [x] Register /admin/leads, /admin/contacts, /admin/canned-responses routes in App.tsx
+
+## Ticket Close with Required Closing Notes — April 2026
+
+- [x] Add `closingNotes` text column to `supportTickets` table in drizzle/schema.ts
+- [x] Run `pnpm db:push` to migrate the schema
+- [x] Add `closeTicket` adminProcedure to helpdesk router (input: ticketId, closingNotes; validates non-empty note; sets status=closed)
+- [x] Build `CloseTicketDialog` component — AlertDialog with required Textarea, char counter, Cancel/Close Ticket buttons
+- [x] Wire `CloseTicketDialog` into AdminPanel Close button (replace direct mutation with dialog open)
+- [x] Show closing notes in TicketDetail view (read-only, below the conversation thread)
+- [x] Write vitest test for closeTicket procedure (validates empty note rejection)

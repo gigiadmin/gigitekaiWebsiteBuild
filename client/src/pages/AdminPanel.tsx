@@ -44,6 +44,7 @@ import QuickReplyModal from "@/components/QuickReplyModal";
 import { BulkTicketActions } from "@/components/BulkTicketActions";
 import { TicketTemplateManager } from "@/components/TicketTemplateManager";
 import SlaTimer from "@/components/SlaTimer";
+import CloseTicketDialog from "@/components/CloseTicketDialog";
 
 type AdminTab = "tickets" | "users";
 
@@ -88,6 +89,8 @@ export default function AdminPanel() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignTicketId, setAssignTicketId] = useState<number | null>(null);
   const [assignAgentId, setAssignAgentId] = useState<string>("");
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
+  const [closeDialogTicket, setCloseDialogTicket] = useState<{ id: number; title: string; status: string } | null>(null);
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
@@ -653,9 +656,12 @@ export default function AdminPanel() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleUpdateStatus(ticket.id, "closed")}
-                            className="border-gray-600/50 text-gray-400 hover:bg-gray-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
-                            title="Close ticket"
+                            onClick={() => {
+                              setCloseDialogTicket({ id: ticket.id, title: ticket.title, status: ticket.status });
+                              setCloseDialogOpen(true);
+                            }}
+                            className="border-red-600/40 text-red-400 hover:bg-red-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            title="Close ticket (requires closing notes)"
                           >
                             <XCircle className="w-3 h-3 mr-1" />
                             Close
@@ -1005,6 +1011,21 @@ export default function AdminPanel() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Close Ticket Dialog — requires closing notes */}
+      {closeDialogTicket && (
+        <CloseTicketDialog
+          open={closeDialogOpen}
+          onOpenChange={setCloseDialogOpen}
+          ticketId={closeDialogTicket.id}
+          ticketTitle={closeDialogTicket.title}
+          ticketStatus={closeDialogTicket.status}
+          onSuccess={() => {
+            setCloseDialogTicket(null);
+            refetch();
+          }}
+        />
       )}
     </div>
   );
