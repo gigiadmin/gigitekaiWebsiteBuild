@@ -109,7 +109,17 @@ const QUICK_ACTIONS = [
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [sessionId, setSessionId] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>(() => {
+    // Initialize sessionId from localStorage on mount
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("chatSessionId");
+      if (saved) {
+        console.log("[Chat] Initializing sessionId from localStorage:", saved);
+        return saved;
+      }
+    }
+    return "";
+  });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -131,8 +141,20 @@ export default function AIChatWidget() {
   const actionsMenuRef = useRef<HTMLDivElement>(null);
 
   // tRPC hooks
-  const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation();
-  const sendMessageMutation = trpc.aibot.sendMessage.useMutation();
+  const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation({
+    onError: (err: any) => {
+      console.error("[Chat] Session init failed:", err);
+    },
+  });
+  const sendMessageMutation = trpc.aibot.sendMessage.useMutation({
+    onError: (err: any) => {
+      console.error("[Chat] Message send failed:", err);
+      toast.error("Failed to send message. Please try again.");
+    },
+    onSuccess: (data) => {
+      console.log("[Chat] Message sent successfully");
+    },
+  });
   const escalate = trpc.aibot.escalateToHelpDesk.useMutation();
   const captureLead = trpc.aibot.captureLead.useMutation();
   const emailTranscriptMutation = trpc.aibot.emailTranscript.useMutation();
@@ -186,27 +208,39 @@ export default function AIChatWidget() {
   useEffect(() => {
     const initSession = async () => {
       try {
+        console.log("[Chat] Initializing session...");
         const result = await getOrCreateSession.mutateAsync({
           sessionId: localStorage.getItem("chatSessionId") || undefined,
         });
+        console.log("[Chat] Session initialized:", result.sessionId);
         setSessionId(result.sessionId);
         localStorage.setItem("chatSessionId", result.sessionId);
       } catch (error) {
         console.error("Failed to initialize chat session:", error);
+        toast.error("Failed to initialize chat. Please refresh and try again.");
       }
     };
     if (isOpen && !sessionId) {
+      console.log("[Chat] Opening chat, initializing session...");
       initSession();
+    } else if (isOpen && sessionId) {
+      console.log("[Chat] Chat opened with existing sessionId:", sessionId);
     }
-  }, [isOpen, sessionId]);
+  }, [isOpen, getOrCreateSession]);
+
+  // Debug: Log whenever sessionId changes
+  useEffect(() => {
+    console.log("[Chat] sessionId state updated to:", sessionId, "button should be", sessionId ? "enabled" : "disabled");
+  }, [sessionId]);
 
   // Load history
   useEffect(() => {
-    if (historyData?.messages && historyData.messages.length > 0) {
+    if (sessionId && historyData?.messages && historyData.messages.length > 0) {
+      console.log("[Chat] Loading history:", historyData.messages.length, "messages");
       setMessages(historyData.messages as ChatMessage[]);
       setHasInteracted(true);
     }
-  }, [historyData]);
+  }, [historyData, sessionId]);
 
   // Auto-scroll
   useEffect(() => {
@@ -215,19 +249,28 @@ export default function AIChatWidget() {
 
   // Focus input when chat opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && sessionId) {
+      console.log("[Chat] Chat opened and session ready, focusing input");
       setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }, [isOpen]);
+  }, [isOpen, sessionId]);
 
   // Listen for openAIChat event from ChatTriggerManager
   useEffect(() => {
     const handleOpenChat = () => {
+      console.log("[Chat] openAIChat event received");
       setIsOpen(true);
     };
     window.addEventListener('openAIChat', handleOpenChat);
     return () => window.removeEventListener('openAIChat', handleOpenChat);
   }, []);
+
+  // Log when sessionId changes
+  useEffect(() => {
+    if (sessionId) {
+      console.log("[Chat] SessionId is now set:", sessionId);
+    }
+  }, [sessionId]);
 
   // Scroll detection for "scroll down" button
   const handleScroll = useCallback(() => {
@@ -259,12 +302,25 @@ export default function AIChatWidget() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !sessionId || isLoading) {
-      if (!sessionId && inputValue.trim()) {
-        toast.error("Initializing chat session... Please wait.");
-      }
+    console.log("[Chat] handleSendMessage called, state:", { inputValue: inputValue.trim(), sessionId: !!sessionId, isLoading, sessionIdValue: sessionId });
+    if (!inputValue.trim() || isLoading) {
       return;
     }
+    
+    // If sessionId is not set, initialize it first
+    if (!sessionId) {
+      console.log("[Chat] Session not initialized, initializing now...");
+      try {
+        const result = await getOrCreateSession.mutateAsync({});
+        setSessionId(result.sessionId);
+        localStorage.setItem("chatSessionId", result.sessionId);
+      } catch (error) {
+        console.error("[Chat] Failed to initialize session:", error);
+        toast.error("Failed to initialize chat session. Please try again.");
+        return;
+      }
+    }
+    console.log("[Chat] Sending message:", inputValue);
     const userMessage = inputValue.trim();
     setInputValue("");
     setHasInteracted(true);
@@ -272,7 +328,9 @@ export default function AIChatWidget() {
     setIsLoading(true);
 
     try {
+      console.log("[Chat] Calling sendMessage mutation...");
       const response = await sendMessageMutation.mutateAsync({ sessionId, message: userMessage });
+      console.log("[Chat] Got response:", response.message.substring(0, 50));
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
 
       if (response.shouldEscalate && response.messageCount && response.messageCount > 2) {
@@ -1042,8 +1100,18 @@ export default function AIChatWidget() {
                   }`}
                 />
                 <button
-                  onClick={handleSendMessage}
-                  disabled={isLoading || !inputValue.trim() || !sessionId}
+                  onClick={() => {
+                    console.log('[Chat] Button clicked, state:', { sessionId: !!sessionId, inputValue: inputValue.trim(), isLoading });
+                    handleSendMessage();
+                  }}
+                  disabled={isLoading || !inputValue.trim()}
+                  title={isLoading ? 'Sending...' : 'Send message'}
+                  {...(() => {
+                    if (typeof window !== 'undefined' && window.location.hostname.includes('manus')) {
+                      console.log('[Chat] Button render state:', { sessionId: !!sessionId, sessionIdValue: sessionId, inputValue: inputValue.trim(), isLoading, disabled: isLoading || !inputValue.trim() || !sessionId });
+                    }
+                    return {};
+                  })()}
                   className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] hover:shadow-lg hover:shadow-[#00D4FF]/30 disabled:opacity-30 disabled:shadow-none disabled:cursor-not-allowed transition-all ${
                     isLoading ? "spinner" : ""
                   }`}
