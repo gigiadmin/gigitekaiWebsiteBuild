@@ -189,10 +189,7 @@ function App() {
           <Router />
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}
-          {/* ChatTriggerManager removed - Start Chat popup disabled */}
           {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
-          {/* ExitIntentPopup disabled - no guide provided */}
-          {/* StickyCTABar removed - Book Now bar disabled */}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

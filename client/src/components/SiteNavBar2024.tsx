@@ -47,16 +47,6 @@ export default function SiteNavBar2024() {
                 <Phone size={12} aria-hidden="true" />
                 (727) 382-5776
               </a>
-              <button
-                onClick={() => {
-                  window.location.href = '/#contact';
-                }}
-                className="flex items-center gap-1 px-3 py-1 bg-[#00D4FF]/20 hover:bg-[#00D4FF]/30 text-[#00D4FF] rounded transition-colors text-xs font-semibold"
-                aria-label="Book a consultation"
-              >
-                <Calendar size={12} aria-hidden="true" />
-                Book a Consultation
-              </button>
             </div>
           </div>
         </div>
@@ -179,7 +169,7 @@ export default function SiteNavBar2024() {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-label="Arrow icon">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </button>
+            </a>
           </div>
 
           {/* Mobile hamburger */}
