@@ -203,7 +203,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="lg:hidden bg-gray-50 dark:bg-[#0F1629] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
+          <div className="lg:hidden bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
             {services.map((s) => (
               <a
                 key={s.href}
@@ -236,7 +236,7 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   data-nav-id={item.id}
-                  className="block py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors"
+                  className="block py-2 text-sm text-white hover:text-[#00D4FF] transition-colors"
                   onClick={(e) => {
                     if (item.href.startsWith('#')) {
                       e.preventDefault();
