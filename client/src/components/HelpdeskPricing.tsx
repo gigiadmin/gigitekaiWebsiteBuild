@@ -301,8 +301,9 @@ export default function HelpdeskPricing() {
               </thead>
               <tbody>
                 {[
+                  { category: "Support & Response", isCategory: true },
                   {
-                    feature: "Remote Support",
+                    feature: "Remote Support Hours",
                     essential: "8am–6pm",
                     professional: "24/7",
                     elite: "24/7",
@@ -314,7 +315,38 @@ export default function HelpdeskPricing() {
                     elite: "Yes",
                   },
                   {
-                    feature: "Backup & DR",
+                    feature: "Critical Response SLA",
+                    essential: "4 hours",
+                    professional: "15 minutes",
+                    elite: "15 minutes",
+                  },
+                  {
+                    feature: "Ticket-Based Support",
+                    essential: "Yes",
+                    professional: "Yes",
+                    elite: "Yes",
+                  },
+                  { category: "Infrastructure & Security", isCategory: true },
+                  {
+                    feature: "Endpoint Security & Antivirus",
+                    essential: "Yes",
+                    professional: "Yes",
+                    elite: "Yes",
+                  },
+                  {
+                    feature: "24/7 System Monitoring",
+                    essential: "Yes",
+                    professional: "Yes",
+                    elite: "Yes",
+                  },
+                  {
+                    feature: "Automated Patch Management",
+                    essential: "Yes",
+                    professional: "Yes",
+                    elite: "Yes",
+                  },
+                  {
+                    feature: "Backup & Disaster Recovery",
                     essential: "No",
                     professional: "Yes",
                     elite: "Yes (Immutable)",
@@ -325,6 +357,7 @@ export default function HelpdeskPricing() {
                     professional: "No",
                     elite: "Yes",
                   },
+                  { category: "Strategic Services", isCategory: true },
                   {
                     feature: "vCIO Consulting",
                     essential: "No",
@@ -338,10 +371,17 @@ export default function HelpdeskPricing() {
                     elite: "HIPAA/SOC2",
                   },
                   {
-                    feature: "Critical Response SLA",
-                    essential: "4 hours",
-                    professional: "15 minutes",
-                    elite: "15 minutes",
+                    feature: "Security Assessments",
+                    essential: "No",
+                    professional: "No",
+                    elite: "Yes",
+                  },
+                  { category: "Pricing", isCategory: true },
+                  {
+                    feature: "Monthly Cost per User",
+                    essential: `$${calculatePrice(69)}`,
+                    professional: `$${calculatePrice(119)}`,
+                    elite: `$${calculatePrice(189)}`,
                   },
                   {
                     feature: "Annual Cost (10 users)",
@@ -349,39 +389,57 @@ export default function HelpdeskPricing() {
                     professional: isAnnual ? `$${(calculatePrice(119) * 12 * 10).toFixed(0)}` : `$${(119 * 12 * 10).toFixed(0)}`,
                     elite: isAnnual ? `$${(calculatePrice(189) * 12 * 10).toFixed(0)}` : `$${(189 * 12 * 10).toFixed(0)}`,
                   },
-                ].map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-b border-border hover:bg-background/50 transition-colors ${
-                      row.feature === 'Annual Cost (10 users)' ? 'bg-cyan-500/5 font-semibold' : ''
-                    }`}
-                  >
-                    <td className={`px-6 py-4 font-medium ${
-                      row.feature === 'Annual Cost (10 users)' ? 'text-cyan-400' : 'text-foreground'
-                    }`}>
-                      {row.feature}
-                    </td>
-                    <td className={`px-6 py-4 text-center ${
-                      row.feature === 'Annual Cost (10 users)'
-                        ? 'text-cyan-400 font-semibold'
-                        : 'text-muted-foreground'
-                    }`}>
-                      {row.essential}
-                    </td>
-                    <td className={`px-6 py-4 text-center font-semibold ${
-                      row.feature === 'Annual Cost (10 users)' ? 'text-cyan-300' : 'text-cyan-400'
-                    }`}>
-                      {row.professional}
-                    </td>
-                    <td className={`px-6 py-4 text-center ${
-                      row.feature === 'Annual Cost (10 users)'
-                        ? 'text-cyan-400 font-semibold'
-                        : 'text-foreground'
-                    }`}>
-                      {row.elite}
-                    </td>
-                  </tr>
-                ))}
+                  {
+                    feature: "Minimum Users",
+                    essential: "10 users",
+                    professional: "10 users",
+                    elite: "10 users",
+                  },
+                ].map((row, idx) => {
+                  if (row.isCategory) {
+                    return (
+                      <tr key={idx} className="bg-cyan-500/10 border-b-2 border-cyan-500/30">
+                        <td colSpan={4} className="px-6 py-3 font-bold text-cyan-400 text-sm tracking-wide uppercase">
+                          {row.category}
+                        </td>
+                      </tr>
+                    );
+                  }
+                  const isPricingRow = ['Annual Cost (10 users)', 'Monthly Cost per User'].includes(row.feature || '');
+                  return (
+                    <tr
+                      key={idx}
+                      className={`border-b border-border hover:bg-background/50 transition-colors ${
+                        isPricingRow ? 'bg-cyan-500/5 font-semibold' : ''
+                      }`}
+                    >
+                      <td className={`px-6 py-4 font-medium ${
+                        isPricingRow ? 'text-cyan-400' : 'text-foreground'
+                      }`}>
+                        {row.feature}
+                      </td>
+                      <td className={`px-6 py-4 text-center ${
+                        isPricingRow
+                          ? 'text-cyan-400 font-semibold'
+                          : row.essential === 'Yes' ? 'text-green-400' : 'text-muted-foreground'
+                      }`}>
+                        {row.essential === 'Yes' ? <Check className="w-5 h-5 inline" /> : row.essential === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.essential}
+                      </td>
+                      <td className={`px-6 py-4 text-center font-semibold ${
+                        isPricingRow ? 'text-cyan-300' : 'text-cyan-400'
+                      }`}>
+                        {row.professional === 'Yes' ? <Check className="w-5 h-5 inline text-cyan-400" /> : row.professional === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.professional}
+                      </td>
+                      <td className={`px-6 py-4 text-center ${
+                        isPricingRow
+                          ? 'text-cyan-400 font-semibold'
+                          : row.elite === 'Yes' ? 'text-green-400' : 'text-foreground'
+                      }`}>
+                        {row.elite === 'Yes' ? <Check className="w-5 h-5 inline" /> : row.elite === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.elite}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
