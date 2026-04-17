@@ -208,12 +208,22 @@ export const newsletterRouter = router({
 </body>
 </html>`;
 
-      await sendEmail({
+      const emailSent = await sendEmail({
         to: input.email.toLowerCase(),
         subject: "Welcome to GigitekAI Insights!",
         html: welcomeHtml,
         replyTo: "support@gigitekai.com",
-      }).catch(() => {});
+      }).catch((err) => {
+        console.error("[Newsletter] Welcome email failed to send:", err);
+        return false;
+      });
+
+      if (!emailSent) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send welcome email. Please check your email address and try again.",
+        });
+      }
 
       await notifyOwner({
         title: "New Newsletter Subscriber",
