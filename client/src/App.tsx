@@ -15,6 +15,8 @@ import ServiceDetail from "./pages/ServiceDetail";
 import Pricing from "./pages/Pricing";
 import ROICalculatorPage from "./pages/ROICalculatorPage";
 import HelpdeskPricingPage from "./pages/HelpdeskPricing";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 // Helpdesk (customer-facing)
 import HelpDesk from "./pages/HelpDesk";
@@ -106,7 +108,9 @@ function Router() {
       <Route path="/reschedule-meeting" component={RescheduleMeeting} />
 
       {/* ── Contact page ── */}
-      <Route path="/contact" component={Contact} />
+      <Route path={"/contact"} component={Contact} />
+      <Route path={"/privacy-policy"} component={PrivacyPolicy} />
+      <Route path={"/terms-of-service"} component={TermsOfService} />
 
       {/* ── Auth ── */}
       {/* OAuth login is handled automatically by useAuth hook in AdminLayout */}

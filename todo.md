@@ -2021,3 +2021,22 @@
 - [x] Verify Request a Quote button appears at 50+ users
 - [x] Verify volume discount message displays correctly
 - [x] Verify annual discount applied when toggle is active
+
+
+## Production Release Fixes (In Progress - April 2026)
+- [ ] Replace placeholder stats on homepage (20+ Years, 50+ Businesses, 99.99% Uptime, 48hr Onboarding)
+- [ ] Fix heading structure - ensure only one H1 tag, proper H2/H3 hierarchy
+- [ ] Create Privacy Policy page (/privacy-policy)
+- [ ] Create Terms of Service page (/terms-of-service)
+- [ ] Add meta tags and descriptions to all major pages
+- [ ] Add schema.org markup (Organization, LocalBusiness, Service, FAQPage)
+- [ ] Implement Server-Side Rendering (SSR) or Static Site Generation (SSG)
+- [ ] Standardize contact info across all pages (727) 382-5776 and support@gigitekai.com
+- [ ] Add alt text to all images for accessibility
+- [ ] Ensure good color contrast and ARIA labels
+- [ ] Add cookie consent banner
+- [ ] Verify ROI calculator and all forms work correctly
+- [ ] Run Google PageSpeed Insights and fix Core Web Vitals issues
+- [ ] Update sitemap.xml with legal pages
+- [ ] Verify robots.txt allows full crawling
+- [ ] Test all pages server-side rendering

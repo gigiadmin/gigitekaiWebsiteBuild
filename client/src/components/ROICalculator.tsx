@@ -83,9 +83,9 @@ export default function ROICalculator() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
           GigitekAI ROI Calculator
-        </h1>
+        </h2>
         <p className="text-gray-400">
           See how much you can save with AI-powered IT automation
         </p>
