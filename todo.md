@@ -1975,3 +1975,10 @@
 
 ## Navigation Updates (COMPLETED April 2026)
 - [x] Remove Careers link from top right navigation bar
+
+
+## Navigation Menu Updates (COMPLETED April 2026)
+- [x] Add 'Pricing' link to main navigation menu (top bar) - links to /helpdesk-pricing
+- [x] Change 'Blog' label to 'News & Updates' in navigation
+- [x] Rearrange top bar order to: About Us, News & Updates, Pricing, Phone Number
+- [ ] Create reusable skill for pricing page integration workflow
