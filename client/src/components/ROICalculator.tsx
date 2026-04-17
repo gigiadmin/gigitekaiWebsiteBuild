@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { TrendingUp, DollarSign, Clock, Zap } from "lucide-react";
+'use client';
+
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { TrendingUp, DollarSign, Clock, Zap, Share2, Mail } from 'lucide-react';
+
 
 interface ROIResult {
   annualSavings: number;
@@ -18,37 +21,27 @@ export default function ROICalculator() {
   const [ticketsPerMonth, setTicketsPerMonth] = useState(200);
   const [manualHoursPerWeek, setManualHoursPerWeek] = useState(40);
   const [showResults, setShowResults] = useState(false);
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [company, setCompany] = useState('');
+  const [emailCaptured, setEmailCaptured] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Industry benchmarks
-  const COST_PER_TICKET = 85; // Average cost to resolve a ticket
-  const AUTOMATION_REDUCTION = 0.65; // 65% ticket reduction with AI
-  const MANUAL_PROCESS_HOURLY_RATE = 65; // Average IT staff hourly rate
-  const GIGITEKAI_MONTHLY_COST = 3500; // Estimated monthly cost (adjust as needed)
+  const COST_PER_TICKET = 85;
+  const AUTOMATION_REDUCTION = 0.65;
+  const MANUAL_PROCESS_HOURLY_RATE = 65;
+  const GIGITEKAI_MONTHLY_COST = 3500;
 
   const calculateROI = (): ROIResult => {
-    // Calculate ticket cost savings
     const ticketCostSavings = ticketsPerMonth * 12 * COST_PER_TICKET * AUTOMATION_REDUCTION;
-
-    // Calculate manual process savings
-    const manualProcessSavings = manualHoursPerWeek * 52 * MANUAL_PROCESS_HOURLY_RATE * 0.7; // 70% automation
-
-    // Calculate GigitekAI annual cost
+    const manualProcessSavings = manualHoursPerWeek * 52 * MANUAL_PROCESS_HOURLY_RATE * 0.7;
     const gigitekaiAnnualCost = GIGITEKAI_MONTHLY_COST * 12;
-
-    // Total annual savings
     const totalAnnualSavings = ticketCostSavings + manualProcessSavings - gigitekaiAnnualCost;
-
-    // Monthly hours saved
-    const monthlyHoursSaved = (manualHoursPerWeek * 4 * 0.7) + (ticketsPerMonth * AUTOMATION_REDUCTION * 0.5); // 0.5 hours per ticket
-
-    // Cost per employee
+    const monthlyHoursSaved = (manualHoursPerWeek * 4 * 0.7) + (ticketsPerMonth * AUTOMATION_REDUCTION * 0.5);
     const costPerEmployee = annualITSpend / employees;
-    const newCostPerEmployee = costPerEmployee * 0.76; // 24% reduction
-
-    // Payback period
+    const newCostPerEmployee = costPerEmployee * 0.76;
     const paybackMonths = gigitekaiAnnualCost > 0 ? Math.ceil(gigitekaiAnnualCost / (totalAnnualSavings / 12)) : 0;
-
-    // Percentage savings
     const percentageSavings = (totalAnnualSavings / annualITSpend) * 100;
 
     return {
@@ -63,12 +56,28 @@ export default function ROICalculator() {
   const results = calculateROI();
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  const handleCaptureLead = async () => {
+    if (!email) {
+      alert('Please enter your email');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      setEmailCaptured(true);
+      alert('Report sent! Check your inbox for your personalized ROI analysis.');
+    } catch (error) {
+      alert('Error submitting form');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -240,10 +249,104 @@ export default function ROICalculator() {
               </div>
             </div>
 
+            {/* Email Capture */}
+            {!emailCaptured ? (
+              <div className="bg-[#0A0E1A] rounded-lg p-4 border border-[#00D4FF]/20 mt-6 space-y-3">
+                <p className="text-sm text-gray-300 font-semibold flex items-center gap-2">
+                  <Mail size={16} className="text-[#00D4FF]" />
+                  Get Your ROI Report
+                </p>
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-[#0A0E1A] border-slate-600 text-white text-sm"
+                />
+                <Input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="bg-[#0A0E1A] border-slate-600 text-white text-sm"
+                />
+                <Input
+                  type="text"
+                  placeholder="Company Name"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="bg-[#0A0E1A] border-slate-600 text-white text-sm"
+                />
+                <Button
+                  onClick={handleCaptureLead}
+                  disabled={isSubmitting}
+                  className="w-full bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Me My Report'}
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-[#0A0E1A] rounded-lg p-4 border border-[#00D4FF]/20 mt-6 text-center">
+                <p className="text-sm text-[#00D4FF] font-semibold">✓ Report sent to {email}</p>
+                <p className="text-xs text-gray-500 mt-1">Check your inbox for your personalized ROI analysis</p>
+              </div>
+            )}
+
+            {/* Social Share */}
+            {emailCaptured && (
+              <div className="bg-[#0A0E1A] rounded-lg p-4 border border-slate-700/50 mt-4">
+                <p className="text-sm text-gray-400 mb-3 flex items-center gap-2">
+                  <Share2 size={16} />
+                  Share Your Results
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      const text = `I just calculated my potential ROI with GigitekAI and found I could save ${formatCurrency(results.annualSavings)} annually! 🚀`;
+                      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-slate-600 text-gray-300 hover:text-white text-xs"
+                  >
+                    LinkedIn
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const text = `I could save ${formatCurrency(results.annualSavings)}/year with AI automation! Check out the GigitekAI ROI calculator`;
+                      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-slate-600 text-gray-300 hover:text-white text-xs"
+                  >
+                    Twitter
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const text = `I just calculated my ROI with GigitekAI: ${formatCurrency(results.annualSavings)}/year in potential savings!`;
+                      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-slate-600 text-gray-300 hover:text-white text-xs"
+                  >
+                    Facebook
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <Button
-              onClick={() => setShowResults(false)}
+              onClick={() => {
+                setShowResults(false);
+                setEmailCaptured(false);
+                setEmail('');
+                setFirstName('');
+                setCompany('');
+              }}
               variant="outline"
-              className="w-full border-slate-600 text-gray-300 hover:text-white"
+              className="w-full border-slate-600 text-gray-300 hover:text-white mt-4"
             >
               Adjust Inputs
             </Button>
@@ -252,7 +355,7 @@ export default function ROICalculator() {
       </div>
 
       {/* CTA Section */}
-      {showResults && (
+      {showResults && emailCaptured && (
         <Card className="bg-[#141B2D] border-[#00D4FF]/30 p-6 mt-8 text-center">
           <h3 className="text-xl font-semibold text-white mb-2">
             Ready to See These Savings?

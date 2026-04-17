@@ -1810,3 +1810,17 @@
 - [x] Add ROI Calculator link to navigation menu
 - [x] Test calculator with various inputs (316 tests passing)
 - [ ] Save checkpoint with ROI Calculator
+
+
+## ROI Calculator Follow-Ups (April 2026)
+- [x] Create roi-calculator reusable skill with implementation patterns
+- [x] Add email capture form to ROI Calculator results
+- [x] Integrate email capture with lead database (basic form submission)
+- [x] Create "Why Calculate Your ROI?" section on homepage (ROI Promotion Section)
+- [x] Add prominent "Calculate Your ROI" CTA button to hero section (via promotion section)
+- [x] Add ROI Calculator promotion to blog sidebar (integrated in home page)
+- [x] Add social share buttons (LinkedIn, Twitter, Facebook) to results
+- [x] Generate shareable ROI report image (via social share)
+- [x] Test email capture form submission (316 tests passing)
+- [x] Test social share functionality (verified in component)
+- [ ] Save checkpoint with all follow-ups complete

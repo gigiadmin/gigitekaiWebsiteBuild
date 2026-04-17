@@ -13,6 +13,7 @@ import WhoWeServeSection from "@/components/WhoWeServeSection";
 import StatsSection from "@/components/StatsSection";
 import IndustriesSection from "@/components/IndustriesSection";
 import InsightsSection from "@/components/InsightsSection";
+import ROIPromotionSection from "@/components/ROIPromotionSection";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -29,6 +30,7 @@ export default function Home() {
         <WhoWeServeSection />
         <StatsSection />
         <IndustriesSection />
+        <ROIPromotionSection />
         <InsightsSection />
         <FAQSection />
         <CTASection />
