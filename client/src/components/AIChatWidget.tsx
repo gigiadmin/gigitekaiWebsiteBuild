@@ -1059,7 +1059,7 @@ export default function AIChatWidget() {
                       Pricing
                     </button>
                     <button
-                      onClick={() => { setBookingSuccess(false); setBookingForm({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" }); setShowBookingModal(true); }}
+                      onClick={() => { window.location.href = "/contact"; }}
                       className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:bg-[#00D4FF]/20 transition-colors"
                     >
                       <CalendarDays size={10} />

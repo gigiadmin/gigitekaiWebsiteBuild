@@ -168,29 +168,7 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Book a call CTA */}
-            <div className="rounded-xl border border-[#00d4ff]/30 bg-[#00d4ff]/5 p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar className="w-5 h-5 text-[#00d4ff]" />
-                <h3 className="text-white font-semibold">
-                  Prefer a Strategy Call?
-                </h3>
-              </div>
-              <p className="text-gray-400 text-sm mb-4">
-                Book a free 15-minute strategy call. Available Mon, Wed &amp;
-                Fri — 11 AM to 3 PM EST.
-              </p>
-              <Button
-                className="w-full bg-[#00d4ff] hover:bg-[#00b8e0] text-black font-semibold"
-                onClick={() => {
-                  // Trigger the sticky CTA bar booking modal
-                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
-                }}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Book a Free Call
-              </Button>
-            </div>
+
 
             {/* Trust badges */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">

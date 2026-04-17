@@ -363,7 +363,10 @@ export default function ROICalculator() {
           <p className="text-gray-400 mb-6">
             Schedule a 15-minute consultation with our team to discuss your specific situation and create a custom implementation plan.
           </p>
-          <Button className="bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold px-8">
+          <Button 
+            className="bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold px-8"
+            onClick={() => window.location.href = '/contact'}
+          >
             Schedule Consultation
           </Button>
         </Card>

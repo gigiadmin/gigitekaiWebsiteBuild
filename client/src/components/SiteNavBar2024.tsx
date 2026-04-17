@@ -246,7 +246,7 @@ export default function SiteNavBar2024() {
               <button
                 onClick={() => {
                   setMobileOpen(false);
-                  window.dispatchEvent(new CustomEvent("gigitekai:open-booking"));
+                  window.location.href = "/contact";
                 }}
                 className="flex items-center gap-2 w-full py-2 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors"
               >
