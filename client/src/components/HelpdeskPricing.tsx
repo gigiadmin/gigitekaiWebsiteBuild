@@ -4,13 +4,63 @@ import { Button } from "@/components/ui/button";
 
 export default function HelpdeskPricing() {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [userCount, setUserCount] = useState(10);
   const ANNUAL_DISCOUNT = 0.1; // 10% discount for annual prepayment
+  const VOLUME_DISCOUNT_THRESHOLD = 25; // 8% discount for 25+ users
+  const VOLUME_DISCOUNT = 0.08; // 8% volume discount
   const calculatePrice = (monthlyPrice: number) => {
     if (isAnnual) {
       const annualPrice = monthlyPrice * 12 * (1 - ANNUAL_DISCOUNT);
       return Math.round(annualPrice / 12 * 100) / 100; // Round to 2 decimals
     }
     return monthlyPrice;
+  };
+
+  const calculateTotalPrice = (monthlyPrice: number) => {
+    let price = monthlyPrice * userCount;
+    
+    // Apply volume discount if applicable
+    if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
+      price *= (1 - VOLUME_DISCOUNT);
+    }
+    
+    // Apply annual discount if applicable
+    if (isAnnual) {
+      price *= 12 * (1 - ANNUAL_DISCOUNT);
+    } else {
+      price *= 12; // Annual total for display
+    }
+    
+    return Math.round(price * 100) / 100;
+  };
+
+  const calculateMonthlyCost = (monthlyPrice: number) => {
+    let price = monthlyPrice;
+    
+    // Apply volume discount if applicable
+    if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
+      price *= (1 - VOLUME_DISCOUNT);
+    }
+    
+    // Apply annual discount if applicable
+    if (isAnnual) {
+      price *= (1 - ANNUAL_DISCOUNT);
+    }
+    
+    return Math.round(price * 100) / 100;
+  };
+
+  const calculateSavings = (monthlyPrice: number) => {
+    if (!isAnnual) return 0;
+    const regularPrice = monthlyPrice * userCount * 12;
+    let discountedPrice = regularPrice;
+    
+    if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
+      discountedPrice *= (1 - VOLUME_DISCOUNT);
+    }
+    discountedPrice *= (1 - ANNUAL_DISCOUNT);
+    
+    return Math.round((regularPrice - discountedPrice) * 100) / 100;
   };
 
   const tiers = [
@@ -134,6 +184,58 @@ export default function HelpdeskPricing() {
               <Shield className="w-5 h-5" />
               <span>Enterprise Security</span>
             </div>
+          </div>
+          
+          {/* User Count Calculator */}
+          <div className="mt-8 bg-card border border-border rounded-lg p-6 max-w-md mx-auto">
+            <label className="block text-sm font-semibold text-foreground mb-3">
+              Number of Users
+            </label>
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="number"
+                min="10"
+                max="1000"
+                value={userCount}
+                onChange={(e) => setUserCount(Math.max(10, parseInt(e.target.value) || 10))}
+                className="flex-1 px-3 py-2 bg-background border border-border rounded text-foreground text-center"
+              />
+              <span className="text-sm text-muted-foreground">users</span>
+            </div>
+            {userCount >= 25 && (
+              <div className="text-xs text-cyan-400 mb-3">
+                ✓ Volume discount (8%) applied at {userCount} users
+              </div>
+            )}
+            <div className="text-sm text-muted-foreground">
+              <p className="mb-2">Professional Plan Total:</p>
+              <p className="text-lg font-bold text-cyan-400">
+                ${(calculateTotalPrice(119)).toLocaleString('en-US', { maximumFractionDigits: 0 })}/year
+              </p>
+              {isAnnual && calculateSavings(119) > 0 && (
+                <p className="text-xs text-green-400 mt-2">
+                  Save ${calculateSavings(119).toLocaleString('en-US', { maximumFractionDigits: 2 })} annually
+                </p>
+              )}
+            </div>
+            {userCount >= 50 && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-3">
+                  For deployments of 50+ users, let's discuss custom pricing and volume discounts.
+                </p>
+                <Button
+                  onClick={() => {
+                    const contactForm = document.getElementById('contact-form');
+                    if (contactForm) {
+                      contactForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
+                >
+                  Request a Quote
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

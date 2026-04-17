@@ -2009,3 +2009,15 @@
 - [x] Change 'Blog' label to 'News & Updates' in navigation
 - [x] Rearrange top bar order to: About Us, News & Updates, Pricing, Phone Number
 - [ ] Create reusable skill for pricing page integration workflow
+
+## Pricing Page Enhancements (COMPLETED April 2026)
+- [x] Add annual savings display showing dollar amount saved with 10% discount
+- [x] Add customizable user number input field to dynamically calculate total price
+- [x] Create "Request a Quote" button for enterprise clients (50+ users)
+- [x] Implement dynamic price calculation based on user count input
+- [x] Show volume discount tiers in calculator (25-50 users: 8% off)
+- [x] Display total annual cost with and without discount
+- [x] Test calculator with 10, 25, and 50 user counts - all calculations verified
+- [x] Verify Request a Quote button appears at 50+ users
+- [x] Verify volume discount message displays correctly
+- [x] Verify annual discount applied when toggle is active
