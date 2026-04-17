@@ -1888,7 +1888,61 @@
   - [x] Check browser console for errors: None
   - [x] Test chatbot in dev environment: Ready
   - [x] Verify API credentials and keys: Configured
-  - [x] ROOT CAUSE FOUND: ChatTriggerManager Start Chat button had no onClick handler
-  - [x] FIX APPLIED: Added handleStartChat function with event dispatch
-  - [x] INTEGRATION: AIChatWidget now listens for openAIChat event
-  - [x] Tests passing: 313/316 (3 unrelated timeout failures)
+  - [x] ROOT CAUSE FOUND: Race condition - users could send messages before sessionId was created
+  - [x] FIX APPLIED: Disabled input field until sessionId exists
+  - [x] INTEGRATION: Added "Initializing chat..." placeholder and error toast
+  - [x] Tests passing: 314/316 (2 unrelated Teams Bot credential timeouts)
+  - [x] Chatbot now responds to user messages including quote requests
+  - [x] Checkpoint saved: b936a1b3
+
+
+## Final Push Features (April 17, 2026)
+
+### Newsletter Signup System
+- [ ] Create Newsletter table in database schema (email, name, subscribedAt, unsubscribedAt)
+- [ ] Add newsletter router with subscribe/unsubscribe endpoints
+- [ ] Build NewsletterSignupForm component (email, name inputs, consent checkbox)
+- [ ] Add newsletter signup section to homepage (between ROI and footer)
+- [ ] Integrate with SendGrid for email delivery
+- [ ] Add double opt-in verification flow
+- [ ] Create admin newsletter management page (/admin/newsletter)
+- [ ] Test newsletter signup and email delivery
+
+### FAQ Improvements
+- [ ] Expand FAQ with 10+ new questions covering:
+  - [ ] Pricing and licensing questions
+  - [ ] Implementation timeline questions
+  - [ ] Security and compliance questions
+  - [ ] Support and SLA questions
+  - [ ] Integration questions
+- [ ] Add FAQ categories (Pricing, Implementation, Security, Support, Integration)
+- [ ] Improve FAQ UI with category filtering
+- [ ] Add search functionality to FAQ
+- [ ] Add FAQ to sitemap for SEO
+- [ ] Test FAQ search and filtering
+
+### Blog Enhancements
+- [ ] Add category field to blog posts (Technology, Insights, Case Studies, News)
+- [ ] Add tags field to blog posts (multi-select)
+- [ ] Create blog category pages (/blog/technology, /blog/insights, etc.)
+- [ ] Add blog search functionality (by title, content, tags)
+- [ ] Add tag cloud to blog sidebar
+- [ ] Add related posts section to blog detail pages
+- [ ] Add "Filter by category" dropdown to blog list
+- [ ] Test blog search, filtering, and category pages
+
+### Contact Form Improvements
+- [ ] Add file upload field to contact form (max 5MB, allowed: PDF, DOC, XLS)
+- [ ] Add phone number field with validation (E.164 format)
+- [ ] Add phone number formatting (auto-format as user types)
+- [ ] Validate phone number on submit
+- [ ] Store file uploads to S3 with reference in database
+- [ ] Add file download link in admin contact submissions page
+- [ ] Add phone number display in admin contacts page
+- [ ] Test file upload, phone validation, and admin viewing
+
+### Integration & Testing
+- [ ] Run full test suite (target: 320+ tests)
+- [ ] Verify TypeScript compilation (0 errors)
+- [ ] Test all 4 features on mobile and desktop
+- [ ] Save checkpoint with all 4 features

@@ -16,6 +16,7 @@ import InsightsSection from "@/components/InsightsSection";
 import ROIPromotionSection from "@/components/ROIPromotionSection";
 import LeadMagnetsSection from "@/components/LeadMagnetsSection";
 import IndustryBenchmarksWidget from "@/components/IndustryBenchmarksWidget";
+import { NewsletterSignupSection } from "@/components/NewsletterSignupSection";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -35,6 +36,7 @@ export default function Home() {
         <ROIPromotionSection />
         <LeadMagnetsSection />
         <IndustryBenchmarksWidget />
+        <NewsletterSignupSection />
         <InsightsSection />
         <FAQSection />
         <CTASection />

@@ -39,6 +39,38 @@ const faqs = [
     q: "What does the onboarding process look like?",
     a: "Onboarding begins with a complimentary Cloud & AI Readiness Assessment (typically 2–3 business days). From there, we develop a tailored engagement plan, assign your dedicated team, and begin a structured onboarding sprint. Most clients are fully operational with our managed services within 30–45 days.",
   },
+  {
+    q: "How does GigitekAI pricing work?",
+    a: "We offer flexible pricing models: fixed monthly managed services retainers, project-based engagements for migrations and implementations, and usage-based pricing for cloud infrastructure. There are no hidden fees. We provide transparent cost estimates upfront and work with you to optimize cloud spending. Most clients see 20–40% cost reduction within the first year through our optimization practices.",
+  },
+  {
+    q: "What is your typical implementation timeline for AI projects?",
+    a: "AI project timelines vary based on scope. A proof-of-concept typically takes 4–6 weeks. A production-ready AI system usually takes 3–6 months from discovery to deployment. We provide a detailed project roadmap during the initial assessment, including milestones, deliverables, and success metrics.",
+  },
+  {
+    q: "How do you ensure data security in cloud environments?",
+    a: "Security is embedded in every layer of our architecture. We implement zero-trust networking, encryption at rest and in transit, multi-factor authentication, role-based access controls, and continuous security monitoring. We also conduct regular penetration testing and security audits. Our security practices align with NIST, CIS, and industry-specific frameworks.",
+  },
+  {
+    q: "What kind of support does GigitekAI provide?",
+    a: "We offer 24/7/365 helpdesk support with guaranteed response times (critical issues: 1 hour, high: 4 hours, medium: 8 hours, low: 24 hours). You have a dedicated support team, a technical account manager, and direct access to senior engineers for strategic guidance. We also provide quarterly business reviews to align technology with your business goals.",
+  },
+  {
+    q: "Can GigitekAI integrate with our existing Microsoft 365 environment?",
+    a: "Yes. We're Microsoft 365 specialists with deep expertise in Azure, Microsoft Teams, SharePoint, Exchange Online, and Microsoft 365 security. We can architect integrations between your on-premises systems and Microsoft 365, optimize licensing, implement advanced security features, and provide managed services for your entire M365 stack.",
+  },
+  {
+    q: "What happens if we need to scale up or down our services?",
+    a: "Our services are designed to scale with your business. You can increase or decrease capacity with 30 days' notice. We handle all the infrastructure provisioning, deprovisioning, and cost adjustments. There are no long-term lock-in contracts — we work on a month-to-month basis after your initial commitment period.",
+  },
+  {
+    q: "Does GigitekAI offer disaster recovery and business continuity planning?",
+    a: "Absolutely. We design and implement comprehensive disaster recovery (DR) and business continuity (BC) strategies tailored to your RTO and RPO requirements. This includes automated backups, geo-redundant infrastructure, failover testing, and runbook documentation. We conduct annual DR drills to ensure your team is prepared.",
+  },
+  {
+    q: "How do I get started with GigitekAI?",
+    a: "Start with our free Cloud & AI Readiness Assessment. Schedule a 30-minute discovery call with our team, and we'll evaluate your current environment, discuss your business goals, and provide a customized roadmap. There's no obligation — we're here to help you understand your options.",
+  },
 ];
 
 function FAQItem({ faq, index }: { faq: typeof faqs[0]; index: number }) {
