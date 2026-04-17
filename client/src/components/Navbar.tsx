@@ -203,7 +203,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="lg:hidden bg-gray-50 dark:bg-[#0F1629] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2">
+          <div className="lg:hidden bg-gray-50 dark:bg-[#0F1629] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
             {services.map((s) => (
               <a
                 key={s.href}
