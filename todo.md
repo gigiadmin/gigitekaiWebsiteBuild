@@ -238,6 +238,10 @@
 - [x] Highlight Professional plan column in cyan
 - [x] Show specific feature values (hours, SLAs, compliance standards)
 - [x] Organize 20+ features across all three pricing tiers
+- [x] Add pricing calculation explanation note above comparison table
+- [x] Include example calculation ($119/user/month × 12 months × 10 users = $14,280/year)
+- [x] Explain 10% annual discount in the note
+- [x] Add call-to-action for custom quotes
 
 ## Service Pages
 - [x] Fix "Learn more" links on service cards to navigate to individual service detail pages

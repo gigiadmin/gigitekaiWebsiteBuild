@@ -270,6 +270,19 @@ export default function HelpdeskPricing() {
           </div>
         </div>
 
+        {/* Pricing Calculation Explanation */}
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg p-4 mb-6">
+          <div className="flex gap-3">
+            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-foreground font-semibold mb-2">Understanding Annual Pricing</p>
+              <p className="text-sm text-muted-foreground">
+                The annual costs shown in the table are calculated for <strong>10 users</strong> (the minimum). For example, Professional plan: <strong>$119/user/month × 12 months × 10 users = $14,280/year</strong>. When you toggle to annual billing, an additional <strong>10% discount</strong> is applied, reducing this to <strong>$12,852/year</strong>. For custom deployments with different user counts, contact our sales team for a tailored quote.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Comparison Table */}
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
