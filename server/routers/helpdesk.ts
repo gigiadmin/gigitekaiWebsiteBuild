@@ -10,7 +10,7 @@ import { sendPushToUser } from "../_core/pushHelper";
 import { searchKnowledgeBase } from "../db";
 import { users } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes } from "../../drizzle/schema";
-import { eq, inArray, asc, desc, and, gt, count } from "drizzle-orm";
+import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
 
 const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 const BASE_URL = "https://gigitekai.com";
@@ -922,5 +922,74 @@ export const helpdeskRouter = router({
         console.error("[Helpdesk] Failed to close ticket:", error);
         throw error;
       }
+    }),
+
+  // Get closed tickets from last N days for reporting
+  getClosedTicketsReport: adminProcedure
+    .input(z.object({ days: z.number().default(30) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const cutoffDate = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+
+      const closedTickets = await db
+        .select()
+        .from(tickets)
+        .where(
+          and(
+            eq(tickets.status, "closed"),
+            gte(tickets.closedAt, cutoffDate)
+          )
+        )
+        .orderBy(desc(tickets.closedAt));
+
+      return closedTickets;
+    }),
+
+  // Reopen a closed ticket with a reason
+  reopenTicket: adminProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        reopenReason: z.string().min(10, "Reason must be at least 10 characters"),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const ticket = await getTicketById(input.ticketId);
+      if (!ticket) throw new Error("Ticket not found");
+      if (ticket.status !== "closed") throw new Error("Ticket is not closed");
+
+      // Reopen the ticket
+      await db
+        .update(tickets)
+        .set({
+          status: "open",
+          updatedAt: new Date(),
+        })
+        .where(eq(tickets.id, input.ticketId));
+
+      // Log the reopen activity with reason
+      await db.insert(ticketActivity).values({
+        ticketId: input.ticketId,
+        actorId: ctx.user.id,
+        actorName: ctx.user.name || ctx.user.email || "Admin",
+        action: "reopened",
+        fromValue: "closed",
+        toValue: input.reopenReason,
+      });
+
+      // Notify Teams
+      await sendStatusUpdateToTeams(
+        input.ticketId,
+        "Reopened",
+        ctx.user.name || "Admin",
+        `Reason: ${input.reopenReason}`
+      );
+
+      return { success: true, ticketId: input.ticketId };
     }),
 });

@@ -54,6 +54,8 @@ import AdminSocialPage from "./pages/AdminSocialPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AdminContactsPage from "./pages/AdminContactsPage";
 import AdminCannedResponsesPage from "./pages/AdminCannedResponsesPage";
+import AdminClosedTicketsReportPage from "./pages/AdminClosedTicketsReportPage";
+import AdminHelpdeskMetricsPage from "./pages/AdminHelpdeskMetricsPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -140,6 +142,10 @@ function Router() {
       <Route path={"/admin/contacts"} component={AdminContactsPage} />
       {/* Canned Responses */}
       <Route path={"/admin/canned-responses"} component={AdminCannedResponsesPage} />
+      {/* Closed Tickets Report */}
+      <Route path={"/admin/closed-tickets"} component={AdminClosedTicketsReportPage} />
+      {/* Helpdesk Metrics Dashboard */}
+      <Route path={"/admin/helpdesk-metrics"} component={AdminHelpdeskMetricsPage} />
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

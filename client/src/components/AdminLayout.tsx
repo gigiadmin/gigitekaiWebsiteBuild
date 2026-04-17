@@ -33,6 +33,7 @@ import {
   Send,
   Zap,
   TrendingUp,
+  CheckCircle2,
   Inbox,
   MessageSquareText,
 } from "lucide-react";
@@ -61,6 +62,8 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
+      { label: "Closed Tickets", icon: <CheckCircle2 size={16} />, href: "/admin/closed-tickets" },
+      { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/helpdesk-metrics" },
       { label: "Canned Responses", icon: <MessageSquareText size={16} />, href: "/admin/canned-responses" },
       { label: "Live Chat", icon: <MessageSquare size={16} />, href: "/admin/chat" },
       { label: "AI Agents", icon: <Bot size={16} />, href: "/admin/agents" },

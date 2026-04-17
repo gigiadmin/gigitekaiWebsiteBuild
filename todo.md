@@ -1723,3 +1723,10 @@
 - [x] Wire `CloseTicketDialog` into AdminPanel Close button (replace direct mutation with dialog open)
 - [x] Show closing notes in TicketDetail view (read-only, below the conversation thread)
 - [x] Write vitest test for closeTicket procedure (validates empty note rejection)
+
+## Closing Notes Follow-Ups — April 2026
+
+- [x] Create reusable helpdesk-closing-notes skill via skill-creator (documents the closing notes pattern, dialog, procedure, DB schema)
+- [x] Build 30-day closed tickets report page (`/admin/closed-tickets-report`) — list tickets closed in last 30 days with closing notes, resolution time, and export to CSV
+- [x] Add reopen ticket feature with auto-populate reason — when reopening, show a dialog asking "Reason for reopening?" and auto-populate ticket history with the reason
+- [x] Build helpdesk metrics dashboard (`/admin/helpdesk-metrics`) — KPI cards for ticket volume, avg resolution time, common closing note themes (word cloud or tag cloud)
