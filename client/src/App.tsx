@@ -14,6 +14,7 @@ import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import Pricing from "./pages/Pricing";
 import ROICalculatorPage from "./pages/ROICalculatorPage";
+import HelpdeskPricingPage from "./pages/HelpdeskPricing";
 
 // Helpdesk (customer-facing)
 import HelpDesk from "./pages/HelpDesk";
@@ -83,6 +84,7 @@ function Router() {
       {/* ── Public ── */}
       <Route path={"/"} component={Home} />
       <Route path={"/pricing"} component={Pricing} />
+      <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
       <Route path={"/roi-calculator"} component={ROICalculatorPage} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:slug"} component={BlogDetail} />

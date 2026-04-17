@@ -204,6 +204,18 @@
   - Deleted 364 test tickets and 0 replies
   - Database is now clean (0 tickets remaining)
 
+## Helpdesk Pricing Integration (COMPLETED April 2026)
+- [x] Create helpdesk pricing page component with three tiers (Essential $69, Professional $119, Elite $189)
+- [x] Add pricing comparison table showing features across tiers
+- [x] Integrate helpdesk pricing into Services section of website
+- [x] Add "View Pricing" CTA buttons on pricing cards
+- [x] Update Aria's system prompt with comprehensive helpdesk pricing knowledge
+- [x] Train Aria to answer pricing questions, tier comparisons, and volume discounts
+- [x] Add helpdesk service details to Aria's knowledge base (SLAs, features, onboarding)
+- [x] Add volume discount information (25-50 users: 8%, annual pre-pay: 10%)
+- [x] Document onboarding process ($50/user, waived for 25+ seats)
+- [x] Test Aria responses to pricing and tier-related questions - VERIFIED WORKING
+
 ## Service Pages
 - [x] Fix "Learn more" links on service cards to navigate to individual service detail pages
   - Created ServiceDetail page with comprehensive content for all 6 services
@@ -284,6 +296,20 @@
 - [x] WebSocket signaling for call_request, call_offer, call_answer, ice_candidate, call_end, call_reject
 - [x] 18 new video call tests (signaling format, state transitions, ICE config)
 - [x] All 134 tests passing, build clean
+
+## Helpdesk Pricing Integration (NEW)
+- [ ] Create helpdesk pricing page component with three tiers (Essential $69, Professional $119, Elite $189)
+- [ ] Add pricing comparison table showing features across tiers
+- [ ] Integrate helpdesk pricing into Services section of website
+- [ ] Create pricing calculator for users to estimate monthly costs
+- [ ] Add "Get Quote" CTA buttons on pricing cards
+- [ ] Update Aria's system prompt with comprehensive helpdesk pricing knowledge
+- [ ] Train Aria to answer pricing questions, tier comparisons, and volume discounts
+- [ ] Add helpdesk service details to Aria's knowledge base (SLAs, features, onboarding)
+- [ ] Create pricing FAQ section for common questions
+- [ ] Add volume discount information (25-50 users: 8%, annual pre-pay: 10%)
+- [ ] Document onboarding process ($50/user, waived for 25+ seats)
+- [ ] Test Aria responses to pricing and tier-related questions
 
 ## PWA Finalization (April 2026)
 - [x] manifest.json with all icon sizes (72-512px) and CDN-hosted icons

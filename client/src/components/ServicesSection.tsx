@@ -141,6 +141,20 @@ export default function ServicesSection() {
           ))}
         </div>
 
+        {/* Helpdesk Pricing CTA */}
+        <div className="mb-16 bg-gradient-to-r from-cyan-500/10 to-cyan-500/5 border border-cyan-500/30 rounded-lg p-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">24/7 Managed Help Desk</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Three pricing tiers: Essential ($69/user/month), Professional ($119/user/month), Elite ($189/user/month)</p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">Volume discounts available • No hidden fees • Flat monthly rates</p>
+            </div>
+            <a href="/helpdesk-pricing" className="btn-cyan whitespace-nowrap">
+              View Pricing <ArrowRight size={16} />
+            </a>
+          </div>
+        </div>
+
         {/* Visual showcase */}
         <div className="grid md:grid-cols-2 gap-6 rounded-2xl overflow-hidden">
           <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
