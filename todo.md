@@ -1694,3 +1694,11 @@
 - [x] Show optimal time badges in schedule time picker (e.g. "Best time" label on recommended slots)
 - [x] Add confirmation dialog (shadcn AlertDialog) before canceling a post from calendar view
 - [x] Dialog shows post content preview, scheduled time, and Cancel/Confirm buttons
+
+## Social Hub v6 — April 2026
+- [x] Create reusable social-publishing-hub skill via skill-creator (documents all Social Hub patterns)
+- [x] Draft new post from empty calendar cell (click empty day → compose panel pre-filled with that date)
+- [x] Quick-edit modal on calendar post cards (pencil icon → modal to edit content, save via updateScheduledPost mutation)
+- [x] Enhance optimal posting times: show top 3 most engaging days of week (not just hour)
+- [x] Add bestDays to getOptimalPostingTimes query response
+- [x] Show day-of-week badges (e.g. "Mon", "Wed", "Fri") in schedule date picker

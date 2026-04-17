@@ -3,12 +3,14 @@
  * Month grid view of scheduled social posts.
  * - Navigate months with prev/next arrows
  * - Days with posts show colored platform dots
- * - Click a day to see that day's posts with Cancel buttons
+ * - Click a day with posts to see that day's posts panel
+ * - Click an EMPTY day to open compose pre-filled with that date
  * - Drag a post to a new day to reschedule it (HTML5 DnD, no external lib)
- * - Cancel confirmation dialog before removing a post
+ * - Quick-edit modal (pencil icon) to edit post content inline
+ * - Cancel confirmation AlertDialog before removing a post
  */
 import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Clock, X, GripVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, X, GripVertical, Pencil, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import {
   AlertDialog,
@@ -20,6 +22,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 const PLATFORM_COLORS: Record<string, string> = {
   linkedin: "bg-blue-500",
@@ -33,21 +44,36 @@ interface Props {
   scheduled: any[];
   onCancel: (id: number) => void;
   cancelPending?: boolean;
+  /** Called when user clicks an empty day — parent should pre-fill compose with this date */
+  onDraftFromDay?: (dateStr: string) => void;
 }
 
-export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPending }: Props) {
+export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPending, onDraftFromDay }: Props) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [dragOverDay, setDragOverDay] = useState<number | null>(null);
   const [confirmCancelPost, setConfirmCancelPost] = useState<any | null>(null);
+  const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [editContent, setEditContent] = useState("");
   const draggingPostId = useRef<number | null>(null);
 
   const utils = trpc.useUtils();
   const rescheduleMutation = trpc.social.reschedulePost.useMutation({
     onSuccess: () => utils.social.getScheduled.invalidate(),
   });
+  const updateMutation = trpc.social.updateScheduledPost.useMutation({
+    onSuccess: () => {
+      utils.social.getScheduled.invalidate();
+      setEditingPost(null);
+    },
+  });
+
+  function openQuickEdit(post: any) {
+    setEditingPost(post);
+    setEditContent(post.content ?? "");
+  }
 
   function prevMonth() {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
@@ -125,9 +151,9 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
         </button>
       </div>
 
-      {/* Drag hint */}
+      {/* Hint */}
       <p className="text-xs text-gray-600 text-center">
-        Drag a post to a new day to reschedule it
+        Drag a post to reschedule · Click empty day to draft · Click post day to manage
       </p>
 
       {/* Day-of-week headers */}
@@ -158,22 +184,30 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
           return (
             <button
               key={idx}
-              onClick={() => setSelectedDay(isSelected ? null : day)}
+              onClick={() => {
+                if (!hasPosts && onDraftFromDay) {
+                  const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                  onDraftFromDay(dateStr);
+                } else {
+                  setSelectedDay(isSelected ? null : day);
+                }
+              }}
               onDragOver={(e) => { e.preventDefault(); setDragOverDay(day); }}
               onDragLeave={() => setDragOverDay(null)}
               onDrop={(e) => { e.preventDefault(); handleDrop(day); }}
-              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-all text-sm
+              title={!hasPosts ? "Click to draft a post for this day" : undefined}
+              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-all text-sm group
                 ${isDragTarget ? "bg-cyan-500/30 border-2 border-cyan-400 scale-105" :
                   isSelected ? "bg-cyan-500/20 border border-cyan-500/50" :
                   hasPosts ? "bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/60" :
-                  "hover:bg-gray-800/40 border border-transparent"}
+                  "hover:bg-gray-800/40 border border-transparent hover:border-gray-700/40"}
                 ${isToday ? "ring-1 ring-cyan-500/70" : ""}
               `}
             >
               <span className={`text-xs font-medium ${isToday ? "text-cyan-400" : hasPosts ? "text-white" : "text-gray-500"}`}>
                 {day}
               </span>
-              {hasPosts && (
+              {hasPosts ? (
                 <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
                   {platforms.slice(0, 3).map((pid: any, pi: number) => (
                     <span
@@ -182,6 +216,8 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                     />
                   ))}
                 </div>
+              ) : (
+                <Plus className="w-2.5 h-2.5 text-gray-700 group-hover:text-gray-500 mt-0.5 transition-colors" />
               )}
               {isDragTarget && (
                 <span className="absolute inset-0 flex items-center justify-center text-cyan-400 text-xs font-bold pointer-events-none">
@@ -243,6 +279,15 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                     </div>
                     <p className="text-gray-300 text-sm line-clamp-2">{post.content}</p>
                   </div>
+                  {/* Quick-edit button */}
+                  <button
+                    onClick={() => openQuickEdit(post)}
+                    className="text-gray-500 hover:text-cyan-400 p-1 rounded hover:bg-cyan-900/20 transition-colors shrink-0"
+                    title="Edit post content"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  {/* Cancel button */}
                   <button
                     onClick={() => setConfirmCancelPost(post)}
                     disabled={cancelPending}
@@ -262,6 +307,58 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
       {rescheduleMutation.isPending && (
         <p className="text-xs text-cyan-400 text-center animate-pulse">Rescheduling post...</p>
       )}
+
+      {/* Quick-edit dialog */}
+      <Dialog open={!!editingPost} onOpenChange={(open) => { if (!open) setEditingPost(null); }}>
+        <DialogContent className="bg-[#141B2D] border border-gray-700 max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Pencil className="w-4 h-4 text-cyan-400" /> Edit Scheduled Post
+            </DialogTitle>
+          </DialogHeader>
+          {editingPost && (
+            <div className="space-y-3">
+              <div className="text-xs text-gray-500">
+                Scheduled for{" "}
+                <span className="text-cyan-400">
+                  {new Date(editingPost.scheduledAt).toLocaleString("en-US", {
+                    weekday: "short", month: "short", day: "numeric",
+                    hour: "numeric", minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={5}
+                className="bg-[#0A0E1A] border-gray-700 text-white resize-none focus:border-cyan-500/50"
+                placeholder="Post content..."
+              />
+              <div className="text-xs text-gray-600 text-right">{editContent.length} chars</div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setEditingPost(null)}
+              className="border-gray-700 text-gray-300 hover:bg-gray-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editingPost && editContent.trim()) {
+                  updateMutation.mutate({ id: editingPost.id, content: editContent.trim() });
+                }
+              }}
+              disabled={!editContent.trim() || updateMutation.isPending}
+              className="bg-cyan-500 hover:bg-cyan-400 text-[#0A0E1A] font-bold"
+            >
+              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Cancel confirmation dialog */}
       <AlertDialog open={!!confirmCancelPost} onOpenChange={(open) => { if (!open) setConfirmCancelPost(null); }}>

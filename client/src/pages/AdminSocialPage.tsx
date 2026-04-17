@@ -495,7 +495,7 @@ export default function AdminSocialPage() {
         </div>
 
         {/* Compose Card */}
-        <div className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6 space-y-5">
+        <div id="social-compose" className="bg-[#141B2D] border border-gray-800 rounded-2xl p-6 space-y-5">
           <h2 className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Compose Post
           </h2>
@@ -597,6 +597,44 @@ export default function AdminSocialPage() {
                   onChange={(e) => setScheduledDate(e.target.value)}
                   className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-3 py-2 text-white text-sm focus:border-cyan-500/50 focus:outline-none"
                 />
+                {/* Best days of week suggestions */}
+                {optimalTimes && optimalTimes.bestDays && optimalTimes.bestDays.length > 0 && (() => {
+                  const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                  const selectedDayOfWeek = scheduledDate ? new Date(scheduledDate + "T12:00:00").getDay() : -1;
+                  const isBestDay = optimalTimes.bestDays.includes(selectedDayOfWeek);
+                  return (
+                    <div className="mt-1.5">
+                      {isBestDay ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-400 font-medium">
+                          <Star className="w-3 h-3 fill-amber-400" /> Best day for engagement
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600">
+                          Best days:{" "}
+                          {optimalTimes.bestDays.map((d) => {
+                            // Find the next occurrence of this day of week from today
+                            const today = new Date();
+                            const daysUntil = (d - today.getDay() + 7) % 7 || 7;
+                            const nextDate = new Date(today);
+                            nextDate.setDate(today.getDate() + daysUntil);
+                            const dateStr = nextDate.toISOString().split("T")[0];
+                            return (
+                              <button
+                                key={d}
+                                type="button"
+                                onClick={() => setScheduledDate(dateStr)}
+                                className="inline-flex items-center gap-0.5 text-amber-400 hover:text-amber-300 font-medium transition-colors mr-1"
+                              >
+                                <Star className="w-2.5 h-2.5 fill-amber-400" />
+                                {DAY_NAMES[d]}
+                              </button>
+                            );
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               <div className="flex-1 min-w-[120px]">
                 <label className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">Time</label>
@@ -791,6 +829,15 @@ export default function AdminSocialPage() {
                 scheduled={scheduled ?? []}
                 onCancel={(id) => cancelScheduledMutation.mutate({ id })}
                 cancelPending={cancelScheduledMutation.isPending}
+                onDraftFromDay={(dateStr) => {
+                  // Pre-fill compose form with this date and open schedule mode
+                  setScheduledDate(dateStr);
+                  setScheduleMode(true);
+                  // Scroll to compose section
+                  setTimeout(() => {
+                    document.getElementById("social-compose")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 100);
+                }}
               />
             ) : (
               <div className="space-y-3">
