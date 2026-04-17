@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Download, Search, Eye, RotateCcw } from "lucide-react";
+import { Download, Search, Eye, RotateCcw, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -18,14 +18,18 @@ interface Ticket {
   closingNotes?: string;
 }
 
+type SortBy = "date" | "priority" | "resolution";
+
 export default function AdminClosedTicketsReportPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
   const [reopenReason, setReopenReason] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("date");
+  const [daysRange, setDaysRange] = useState(30);
 
   const { data: closedTickets = [], isLoading } = trpc.helpdesk.getClosedTicketsReport.useQuery(
-    { days: 30 },
+    { days: daysRange },
     { refetchInterval: 30000 }
   );
 
@@ -39,15 +43,38 @@ export default function AdminClosedTicketsReportPage() {
   });
 
   const filteredTickets = useMemo(() => {
-    if (!searchQuery) return closedTickets as Ticket[];
-    const query = searchQuery.toLowerCase();
-    return (closedTickets as Ticket[]).filter(
-      (t) =>
-        t.id.toString().includes(query) ||
-        t.title.toLowerCase().includes(query) ||
-        t.closingNotes?.toLowerCase().includes(query)
-    );
-  }, [closedTickets, searchQuery]);
+    let results = closedTickets as Ticket[];
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      results = results.filter(
+        (t) =>
+          t.id.toString().includes(query) ||
+          t.title.toLowerCase().includes(query) ||
+          t.closingNotes?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    results.sort((a, b) => {
+      if (sortBy === "priority") {
+        const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+        return (priorityOrder[a.priority] || 99) - (priorityOrder[b.priority] || 99);
+      }
+      if (sortBy === "date") {
+        return new Date(b.closedAt).getTime() - new Date(a.closedAt).getTime();
+      }
+      if (sortBy === "resolution") {
+        const aTime = new Date(a.closedAt).getTime() - new Date(a.createdAt).getTime();
+        const bTime = new Date(b.closedAt).getTime() - new Date(b.createdAt).getTime();
+        return aTime - bTime;
+      }
+      return 0;
+    });
+
+    return results;
+  }, [closedTickets, searchQuery, sortBy]);
 
   const metrics = useMemo(() => {
     if (filteredTickets.length === 0) return { avgResolutionTime: 0, totalTickets: 0 };
@@ -99,7 +126,7 @@ export default function AdminClosedTicketsReportPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Closed Tickets Report</h1>
-        <p className="text-slate-400 mt-1">Last 30 days — {filteredTickets.length} tickets</p>
+        <p className="text-slate-400 mt-1">Last {daysRange} days — {filteredTickets.length} tickets</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,20 +140,42 @@ export default function AdminClosedTicketsReportPage() {
         </Card>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <Input
-            placeholder="Search by ticket ID, title, or notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-900/60 border-slate-700/50"
-          />
+      <div className="space-y-3">
+        <div className="flex gap-3 flex-wrap">
+          <div className="flex-1 min-w-[200px] relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Input
+              placeholder="Search by ticket ID, title, or notes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-900/60 border-slate-700/50"
+            />
+          </div>
+          <select
+            value={daysRange}
+            onChange={(e) => setDaysRange(Number(e.target.value))}
+            className="px-3 py-2 bg-slate-900/60 border border-slate-700/50 rounded text-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={14}>Last 14 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={60}>Last 60 days</option>
+            <option value={90}>Last 90 days</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortBy)}
+            className="px-3 py-2 bg-slate-900/60 border border-slate-700/50 rounded text-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+          >
+            <option value="date">Sort by Date (Newest)</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="resolution">Sort by Resolution Time</option>
+          </select>
+          <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export CSV
+          </Button>
         </div>
-        <Button onClick={handleExportCSV} variant="outline" className="gap-2">
-          <Download className="w-4 h-4" />
-          Export CSV
-        </Button>
       </div>
 
       <Card className="bg-slate-900/60 border-slate-700/50 overflow-hidden">

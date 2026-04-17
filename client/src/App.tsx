@@ -56,6 +56,7 @@ import AdminContactsPage from "./pages/AdminContactsPage";
 import AdminCannedResponsesPage from "./pages/AdminCannedResponsesPage";
 import AdminClosedTicketsReportPage from "./pages/AdminClosedTicketsReportPage";
 import AdminHelpdeskMetricsPage from "./pages/AdminHelpdeskMetricsPage";
+import AdminAgentDashboardPage from "./pages/AdminAgentDashboardPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -146,6 +147,8 @@ function Router() {
       <Route path={"/admin/closed-tickets"} component={AdminClosedTicketsReportPage} />
       {/* Helpdesk Metrics Dashboard */}
       <Route path={"/admin/helpdesk-metrics"} component={AdminHelpdeskMetricsPage} />
+      {/* Agent Dashboard */}
+      <Route path={"/admin/agent-dashboard"} component={AdminAgentDashboardPage} />
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

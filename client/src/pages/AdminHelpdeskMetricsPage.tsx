@@ -1,8 +1,10 @@
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { trpc } from "@/lib/trpc";
-import { Clock, AlertCircle, CheckCircle2, TrendingUp } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle2, TrendingUp, Download } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminHelpdeskMetricsPage() {
   // Fetch all tickets for analysis
@@ -110,12 +112,45 @@ export default function AdminHelpdeskMetricsPage() {
     return Object.entries(trend).map(([date, count]) => ({ date, tickets: count }));
   }, [allTickets]);
 
+  const handleExportCSV = () => {
+    const headers = ["Metric", "Value"];
+    const rows = [
+      ["Total Tickets", metrics.total],
+      ["Open Tickets", metrics.open],
+      ["In Progress", metrics.inProgress],
+      ["Resolved", metrics.resolved],
+      ["Closed (30d)", metrics.closed],
+      ["Average Resolution Time (hours)", metrics.avgResolutionTime],
+      ["Median Resolution Time (hours)", metrics.medianResolutionTime],
+      ["Closure Rate (%)", metrics.total > 0 ? ((metrics.closed / metrics.total) * 100).toFixed(1) : 0],
+      ["", ""],
+      ["Closing Note Themes", "Count"],
+      ...Object.entries(metrics.closingNoteThemes).map(([theme, count]) => [theme, count]),
+    ];
+
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `helpdesk-metrics-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Metrics exported successfully");
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Helpdesk Metrics</h1>
-        <p className="text-slate-400 mt-1">Ticket volume, resolution time, and closing note analysis</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Helpdesk Metrics</h1>
+          <p className="text-slate-400 mt-1">Ticket volume, resolution time, and closing note analysis</p>
+        </div>
+        <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+          <Download className="w-4 h-4" />
+          Export CSV
+        </Button>
       </div>
 
       {/* KPI Cards */}
