@@ -225,7 +225,7 @@ export default function HelpdeskPricing() {
                 </p>
                 <Button
                   onClick={() => {
-                    window.location.href = '/#contact';
+                    window.location.href = '/contact';
                   }}
                   className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
                 >
@@ -642,7 +642,7 @@ export default function HelpdeskPricing() {
           </p>
           <Button 
             onClick={() => {
-              window.location.href = '/#contact';
+              window.location.href = '/contact';
             }}
             className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg cursor-pointer"
           >
