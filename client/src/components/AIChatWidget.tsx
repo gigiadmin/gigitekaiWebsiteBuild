@@ -259,7 +259,12 @@ export default function AIChatWidget() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !sessionId || isLoading) return;
+    if (!inputValue.trim() || !sessionId || isLoading) {
+      if (!sessionId && inputValue.trim()) {
+        toast.error("Initializing chat session... Please wait.");
+      }
+      return;
+    }
     const userMessage = inputValue.trim();
     setInputValue("");
     setHasInteracted(true);
@@ -1030,15 +1035,15 @@ export default function AIChatWidget() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
-                  placeholder="Ask anything about our services..."
-                  disabled={isLoading}
+                  placeholder={!sessionId ? "Initializing chat..." : "Ask anything about our services..."}
+                  disabled={isLoading || !sessionId}
                   className={`flex-1 px-4 py-2.5 bg-[#151D30] border border-[rgba(0,212,255,0.12)] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]/40 focus:ring-1 focus:ring-[#00D4FF]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
                     isLoading ? "opacity-60" : ""
                   }`}
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={isLoading || !inputValue.trim()}
+                  disabled={isLoading || !inputValue.trim() || !sessionId}
                   className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-[#00D4FF] to-[#0099CC] text-[#0A0E1A] hover:shadow-lg hover:shadow-[#00D4FF]/30 disabled:opacity-30 disabled:shadow-none disabled:cursor-not-allowed transition-all ${
                     isLoading ? "spinner" : ""
                   }`}
