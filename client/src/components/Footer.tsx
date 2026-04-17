@@ -126,16 +126,41 @@ export default function Footer() {
               © {new Date().getFullYear()} GigitekAI LLC. All rights reserved.
             </p>
           </div>
-          <div className="flex items-center gap-6">
-            {["Privacy Policy", "Terms of Service", "Accessibility", "Sitemap"].map((item) => (
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Contact Info */}
+            <div className="flex items-center gap-4 text-xs text-gray-600">
+              <a href="tel:+17273825776" className="hover:text-[#00D4FF] transition-colors">
+                (727) 382-5776
+              </a>
+              <span>|</span>
+              <a href="mailto:support@gigitekai.com" className="hover:text-[#00D4FF] transition-colors">
+                support@gigitekai.com
+              </a>
+            </div>
+            
+            {/* Legal Links */}
+            <div className="flex items-center gap-4">
               <a
-                key={item}
-                href="#"
+                href="/privacy-policy"
                 className="text-gray-600 text-xs hover:text-[#00D4FF] transition-colors"
               >
-                {item}
+                Privacy Policy
               </a>
-            ))}
+              <span className="text-gray-400">|</span>
+              <a
+                href="/terms-of-service"
+                className="text-gray-600 text-xs hover:text-[#00D4FF] transition-colors"
+              >
+                Terms of Service
+              </a>
+              <span className="text-gray-400">|</span>
+              <a
+                href="/sitemap.xml"
+                className="text-gray-600 text-xs hover:text-[#00D4FF] transition-colors"
+              >
+                Sitemap
+              </a>
+            </div>
           </div>
         </div>
       </div>
