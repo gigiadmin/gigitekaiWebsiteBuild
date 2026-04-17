@@ -203,7 +203,14 @@ export default function SiteNavBar2024() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="lg:hidden bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 max-h-[calc(100vh-80px)] overflow-y-auto">
+          <>
+            {/* Overlay backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            {/* Full-screen mobile menu */}
+            <div className="fixed top-16 left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 overflow-y-auto z-50 lg:hidden">
             {services.map((s) => (
               <a
                 key={s.href}
@@ -309,7 +316,8 @@ export default function SiteNavBar2024() {
                 Get In Touch
               </a>
             </div>
-          </div>
+            </div>
+          </>
         )}
       </nav>
     </>
