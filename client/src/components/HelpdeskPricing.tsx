@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X, AlertCircle, TrendingUp, Clock, Shield } from "lucide-react";
+import { Check, X, AlertCircle, TrendingUp, Clock, Shield, Headphones, Zap, HardDrive, Lock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function HelpdeskPricing() {
@@ -41,14 +41,14 @@ export default function HelpdeskPricing() {
       popular: true,
       cta: "Get Quote",
       features: [
-        "24/7 live help desk support",
-        "Remote support & troubleshooting",
-        "Automated patch management",
-        "Endpoint security & antivirus",
-        "24/7 system monitoring",
-        "Backup & disaster recovery included",
-        "15-minute critical response SLA",
-        "Included at no extra cost",
+        { text: "24/7 live help desk support", icon: Headphones },
+        { text: "Remote support & troubleshooting", icon: Zap },
+        { text: "Automated patch management", icon: Award },
+        { text: "Endpoint security & antivirus", icon: Shield },
+        { text: "24/7 system monitoring", icon: Clock },
+        { text: "Backup & disaster recovery included", icon: HardDrive },
+        { text: "15-minute critical response SLA", icon: TrendingUp },
+        { text: "Included at no extra cost", icon: Check },
       ],
       notIncluded: ["Advanced threat detection / SOC", "vCIO consulting"],
     },
@@ -217,12 +217,17 @@ export default function HelpdeskPricing() {
                   <p className="text-sm font-semibold text-foreground">
                     What's Included:
                   </p>
-                  {tier.features.map((feature, i) => (
-                    <div key={i} className="flex gap-3">
-                      <Check className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-foreground leading-relaxed">{feature}</span>
-                    </div>
-                  ))}
+                  {tier.features.map((feature, i) => {
+                    const isObject = typeof feature === 'object' && feature !== null;
+                    const text = isObject ? feature.text : feature;
+                    const IconComponent = isObject ? feature.icon : Check;
+                    return (
+                      <div key={i} className="flex gap-3">
+                        <IconComponent className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground leading-relaxed">{text}</span>
+                      </div>
+                    );
+                  })}
 
                   {tier.notIncluded.length > 0 && (
                     <>
