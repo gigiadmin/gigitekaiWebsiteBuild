@@ -113,42 +113,42 @@ function Router() {
 
       {/* ── Unified Admin Portal ── */}
       {/* Dashboard home */}
-      <Route path={"/admin"} component={AdminHome} />
+      <Route path={"/admin"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
       {/* Overview */}
-      <Route path={"/admin/metrics"} component={AdminMetricsPage} />
+      <Route path={"/admin/metrics"}>{() => <ApprovalGuard><AdminMetricsPage /></ApprovalGuard>}</Route>
       {/* Operations */}
-      <Route path={"/admin/helpdesk"} component={AdminHelpdeskPage} />
-      <Route path={"/admin/chat"} component={AdminChatPage} />
-      <Route path={"/admin/agents"} component={AdminAgentsPage} />
-      <Route path={"/admin/notifications"} component={AdminNotificationsPage} />
+      <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>
       {/* Content */}
-      <Route path={"/admin/blog"} component={AdminBlogPage} />
-      <Route path={"/admin/newsletter"} component={AdminNewsletterPage} />
+      <Route path={"/admin/blog"}>{() => <ApprovalGuard><AdminBlogPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/newsletter"}>{() => <ApprovalGuard><AdminNewsletterPage /></ApprovalGuard>}</Route>
       {/* Customers */}
-      <Route path={"/admin/accounts"} component={AdminAccountsPage} />
-      <Route path={"/admin/invites"} component={AdminInvitesPage} />
+      <Route path={"/admin/accounts"}>{() => <ApprovalGuard><AdminAccountsPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/invites"}>{() => <ApprovalGuard><AdminInvitesPage /></ApprovalGuard>}</Route>
       {/* Email */}
-      <Route path={"/admin/email"} component={AdminEmailPage} />
+      <Route path={"/admin/email"}>{() => <ApprovalGuard><AdminEmailPage /></ApprovalGuard>}</Route>
       {/* Settings */}
-      <Route path={"/admin/preferences"} component={AdminPreferencesPage} />
-      <Route path={"/admin/email-digest"} component={AdminEmailDigestPage} />
-      <Route path={"/admin/guide"} component={AdminGuidePage} />
+      <Route path={"/admin/preferences"}>{() => <ApprovalGuard><AdminPreferencesPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/email-digest"}>{() => <ApprovalGuard><AdminEmailDigestPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/guide"}>{() => <ApprovalGuard><AdminGuidePage /></ApprovalGuard>}</Route>
       {/* Knowledge Base */}
-      <Route path={"/admin/kb"} component={KnowledgeBase} />
+      <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
       {/* Social Publishing Hub */}
-      <Route path={"/admin/social"} component={AdminSocialPage} />
+      <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
       {/* Leads & CRM */}
-      <Route path={"/admin/leads"} component={AdminLeadsPage} />
+      <Route path={"/admin/leads"}>{() => <ApprovalGuard><AdminLeadsPage /></ApprovalGuard>}</Route>
       {/* Contact Submissions */}
-      <Route path={"/admin/contacts"} component={AdminContactsPage} />
+      <Route path={"/admin/contacts"}>{() => <ApprovalGuard><AdminContactsPage /></ApprovalGuard>}</Route>
       {/* Canned Responses */}
-      <Route path={"/admin/canned-responses"} component={AdminCannedResponsesPage} />
+      <Route path={"/admin/canned-responses"}>{() => <ApprovalGuard><AdminCannedResponsesPage /></ApprovalGuard>}</Route>
       {/* Closed Tickets Report */}
-      <Route path={"/admin/closed-tickets"} component={AdminClosedTicketsReportPage} />
+      <Route path={"/admin/closed-tickets"}>{() => <ApprovalGuard><AdminClosedTicketsReportPage /></ApprovalGuard>}</Route>
       {/* Helpdesk Metrics Dashboard */}
-      <Route path={"/admin/helpdesk-metrics"} component={AdminHelpdeskMetricsPage} />
+      <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
       {/* Agent Dashboard */}
-      <Route path={"/admin/agent-dashboard"} component={AdminAgentDashboardPage} />
+      <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

@@ -1783,3 +1783,20 @@
 - [x] Implement recently viewed section in sidebar (with clear history)
 - [x] Test all navigation enhancements (316 tests passing)
 - [x] Save checkpoint with all enhancements
+
+
+## Future Enhancements (On Hold)
+- [ ] M365 Copilot Studio agent integration (hybrid with GigitekAI agents) - See `/home/ubuntu/M365_COPILOT_AGENT_STRATEGY.md` for detailed strategy
+  - [ ] Ticket Classification Agent (Copilot Studio)
+  - [ ] KB Q&A Agent (Copilot Studio)
+  - [ ] Power Automate flow orchestration
+  - [ ] Autonomous ticket triage flows
+  - [ ] Integration with existing GigitekAI system
+
+
+## Client User Visibility Controls (April 2026)
+- [x] Hide admin links from client users in support portal (HelpdeskNav already filters based on isAdmin prop)
+- [x] Add role-based navigation filtering (admin vs. client user) - Implemented in AdminAuthGuard
+- [x] Verify client users only see support/ticket pages (HelpdeskNav shows only customer routes by default)
+- [x] Test that admin routes are inaccessible to client users (403 redirect) - All 22 admin routes wrapped with ApprovalGuard
+- [x] Update todo.md with completion status
