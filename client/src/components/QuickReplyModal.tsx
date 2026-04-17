@@ -4,7 +4,7 @@
  * Props:
  *  - isOpen: boolean
  *  - onClose: () => void
- *  - linkedTicketId?: number (for Helpdesk)
+ *  - linkedTicketId?: number (for Helpdesk) — enables AI Draft button
  *  - linkedSessionId?: number (for Chat)
  *  - recipientEmail: string
  *  - recipientName?: string
@@ -28,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Send } from "lucide-react";
+import { Mail, Send, Sparkles, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface QuickReplyModalProps {
   isOpen: boolean;
@@ -53,9 +54,33 @@ export default function QuickReplyModal({
   const [body, setBody] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch templates
   const { data: templates = [] } = trpc.email.getTemplates.useQuery({});
+
+  // AI Draft Reply mutation
+  const suggestReply = trpc.aiTriage.suggestReply.useMutation({
+    onSuccess: (data) => {
+      if (data.draft) {
+        setBody(data.draft);
+        toast.success("AI draft generated — review before sending");
+      }
+    },
+    onError: () => {
+      toast.error("AI draft failed. Please type your reply manually.");
+    },
+  });
+
+  async function handleAIDraft() {
+    if (!linkedTicketId) return;
+    setIsGenerating(true);
+    try {
+      await suggestReply.mutateAsync({ ticketId: linkedTicketId });
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   // Send email mutation
   const sendEmail = trpc.email.sendEmail.useMutation({
@@ -81,7 +106,7 @@ export default function QuickReplyModal({
   // Handle send email
   async function handleSendEmail() {
     if (!subject || !body) {
-      alert("Please fill in subject and body");
+      toast.error("Please fill in subject and body");
       return;
     }
 
@@ -97,7 +122,7 @@ export default function QuickReplyModal({
       });
     } catch (error) {
       console.error("Failed to send email:", error);
-      alert("Failed to send email. Please try again.");
+      toast.error("Failed to send email. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -145,6 +170,27 @@ export default function QuickReplyModal({
               onChange={(e) => setSubject(e.target.value)}
             />
           </div>
+
+          {/* AI Draft button — only shown when linked to a ticket */}
+          {linkedTicketId && (
+            <div className="flex justify-end -mb-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAIDraft}
+                disabled={isGenerating}
+                className="border-violet-500/40 text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/60 text-xs h-7 px-3"
+              >
+                {isGenerating ? (
+                  <Loader2 size={12} className="mr-1.5 animate-spin" />
+                ) : (
+                  <Sparkles size={12} className="mr-1.5" />
+                )}
+                {isGenerating ? "Generating..." : "AI Draft Reply"}
+              </Button>
+            </div>
+          )}
 
           {/* Body */}
           <div>

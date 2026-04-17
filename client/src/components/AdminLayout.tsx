@@ -32,6 +32,9 @@ import {
   Building2,
   Send,
   Zap,
+  TrendingUp,
+  Inbox,
+  MessageSquareText,
 } from "lucide-react";
 
 interface NavItem {
@@ -58,6 +61,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
+      { label: "Canned Responses", icon: <MessageSquareText size={16} />, href: "/admin/canned-responses" },
       { label: "Live Chat", icon: <MessageSquare size={16} />, href: "/admin/chat" },
       { label: "AI Agents", icon: <Bot size={16} />, href: "/admin/agents" },
       { label: "Notifications", icon: <Bell size={16} />, href: "/admin/notifications" },
@@ -75,6 +79,8 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Customers",
     items: [
+      { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
+      { label: "Contacts", icon: <Inbox size={16} />, href: "/admin/contacts" },
       { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
       { label: "Invites", icon: <Send size={16} />, href: "/admin/invites" },
       { label: "Email", icon: <Mail size={16} />, href: "/admin/email" },

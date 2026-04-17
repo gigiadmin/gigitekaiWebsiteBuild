@@ -25,6 +25,8 @@ import {
   RefreshCw,
   Activity,
   Zap,
+  Inbox,
+  MessageSquareText,
 } from "lucide-react";
 import { SupportTicketWidget } from "@/components/SupportTicketWidget";
 
@@ -126,6 +128,9 @@ export default function AdminHome() {
     { label: "Live Chat", href: "/admin/chat", icon: <MessageSquare size={14} />, color: "text-cyan-400" },
     { label: "Invite Customer", href: "/admin/invites", icon: <Users size={14} />, color: "text-blue-400" },
     { label: "View Metrics", href: "/admin/metrics", icon: <TrendingUp size={14} />, color: "text-pink-400" },
+    { label: "View Leads", href: "/admin/leads", icon: <TrendingUp size={14} />, color: "text-green-400" },
+    { label: "Contact Submissions", href: "/admin/contacts", icon: <Inbox size={14} />, color: "text-orange-400" },
+    { label: "Canned Responses", href: "/admin/canned-responses", icon: <MessageSquareText size={14} />, color: "text-purple-400" },
   ];
 
   return (

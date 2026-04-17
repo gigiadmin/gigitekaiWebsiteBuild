@@ -43,6 +43,7 @@ import { InviteCustomerModal } from "@/components/InviteCustomerModal";
 import QuickReplyModal from "@/components/QuickReplyModal";
 import { BulkTicketActions } from "@/components/BulkTicketActions";
 import { TicketTemplateManager } from "@/components/TicketTemplateManager";
+import SlaTimer from "@/components/SlaTimer";
 
 type AdminTab = "tickets" | "users";
 
@@ -542,6 +543,15 @@ export default function AdminPanel() {
                     <span className="text-xs text-gray-500">
                       {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
+
+                    {/* SLA Timer — inline in list row */}
+                    <div className="hidden md:block">
+                      <SlaTimer
+                        priority={ticket.priority}
+                        updatedAt={ticket.updatedAt}
+                        status={ticket.status}
+                      />
+                    </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap">

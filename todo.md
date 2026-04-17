@@ -1702,3 +1702,14 @@
 - [x] Enhance optimal posting times: show top 3 most engaging days of week (not just hour)
 - [x] Add bestDays to getOptimalPostingTimes query response
 - [x] Show day-of-week badges (e.g. "Mon", "Wed", "Fri") in schedule date picker
+
+## Tier 1 Features — April 2026
+
+- [x] Build AdminLeadsPage (/admin/leads) — list recent leads, show analytics, update lead status using leadgen router
+- [x] Build AdminContactsPage (/admin/contacts) — browse/manage contact form submissions from DB
+- [x] Build AdminCannedResponsesPage (/admin/canned-responses) — list/create/edit/delete canned responses using cannedResponses router
+- [x] Add AI Draft Reply button to QuickReplyModal — call trpc.aiTriage.suggestReply and pre-fill body
+- [x] Add SlaTimer component to AdminPanel ticket list rows (beside the Created column)
+- [x] Add sidebar links to AdminLayout: Canned Responses, Leads, Contacts
+- [x] Add Quick Actions to AdminHome: View Leads, Contact Submissions, Canned Responses
+- [x] Register /admin/leads, /admin/contacts, /admin/canned-responses routes in App.tsx

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
 import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary } from "./db";
-import { users } from "../drizzle/schema";
+import { users, contactSubmissions } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
@@ -258,6 +258,22 @@ Submitted from GigitekAI website contact form.
           };
         }
       }),
+    // ── List Contact Submissions (Admin Only) ──────────────────────────────────
+    list: adminProcedure.query(async () => {
+      try {
+        const db = await getDb();
+        if (!db) return [];
+        const { desc } = await import("drizzle-orm");
+        return await db
+          .select()
+          .from(contactSubmissions)
+          .orderBy(desc(contactSubmissions.createdAt))
+          .limit(200);
+      } catch (error) {
+        console.error("[Contact] List failed:", error);
+        return [];
+      }
+    }),
   }),
 
   // User management (admin only)

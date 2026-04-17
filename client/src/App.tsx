@@ -51,6 +51,9 @@ import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
 import AdminGuidePage from "./pages/AdminGuidePage";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import AdminSocialPage from "./pages/AdminSocialPage";
+import AdminLeadsPage from "./pages/AdminLeadsPage";
+import AdminContactsPage from "./pages/AdminContactsPage";
+import AdminCannedResponsesPage from "./pages/AdminCannedResponsesPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -131,6 +134,12 @@ function Router() {
       <Route path={"/admin/kb"} component={KnowledgeBase} />
       {/* Social Publishing Hub */}
       <Route path={"/admin/social"} component={AdminSocialPage} />
+      {/* Leads & CRM */}
+      <Route path={"/admin/leads"} component={AdminLeadsPage} />
+      {/* Contact Submissions */}
+      <Route path={"/admin/contacts"} component={AdminContactsPage} />
+      {/* Canned Responses */}
+      <Route path={"/admin/canned-responses"} component={AdminCannedResponsesPage} />
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
