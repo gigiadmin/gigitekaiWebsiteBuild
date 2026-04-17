@@ -1,5 +1,5 @@
-const CACHE_NAME = 'gigitekai-admin-v1';
-const RUNTIME_CACHE = 'gigitekai-admin-runtime';
+const CACHE_NAME = 'gigitekai-admin-v2';
+const RUNTIME_CACHE = 'gigitekai-admin-runtime-v2';
 const STATIC_ASSETS = [
   '/',
   '/admin',
