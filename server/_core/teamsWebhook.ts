@@ -19,20 +19,31 @@ import { createAdminNotification } from "../routers/adminNotifications";
 import { getUnassignedTicketsSummary } from "./teamsDigest";
 
 // Bot Framework configuration using Azure Bot credentials
-const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
-  MicrosoftAppId: process.env.TEAMS_BOT_APP_ID || "",
-  MicrosoftAppPassword: process.env.TEAMS_BOT_CLIENT_SECRET || "",
-  MicrosoftAppTenantId: process.env.TEAMS_BOT_TENANT_ID || "",
-  MicrosoftAppType: "SingleTenant",
-});
-
-const adapter = new CloudAdapter(botFrameworkAuth);
+// Gracefully handle missing credentials to prevent server crash
+let adapter: CloudAdapter | null = null;
+try {
+  if (process.env.TEAMS_BOT_APP_ID && process.env.TEAMS_BOT_CLIENT_SECRET) {
+    const botFrameworkAuth = new ConfigurationBotFrameworkAuthentication({
+      MicrosoftAppId: process.env.TEAMS_BOT_APP_ID,
+      MicrosoftAppPassword: process.env.TEAMS_BOT_CLIENT_SECRET,
+      MicrosoftAppTenantId: process.env.TEAMS_BOT_TENANT_ID || "",
+      MicrosoftAppType: "SingleTenant",
+    });
+    adapter = new CloudAdapter(botFrameworkAuth);
+  } else {
+    console.warn("[Teams Bot] Bot Framework credentials not configured — bot features disabled");
+  }
+} catch (err) {
+  console.warn("[Teams Bot] Failed to initialize Bot Framework:", err);
+}
 
 // Error handler for the adapter
-adapter.onTurnError = async (context, error) => {
-  console.error("[Teams Bot] Turn error:", error);
-  await context.sendActivity("Sorry, I encountered an error processing your message.");
-};
+if (adapter) {
+  adapter.onTurnError = async (context, error) => {
+    console.error("[Teams Bot] Turn error:", error);
+    await context.sendActivity("Sorry, I encountered an error processing your message.");
+  };
+}
 
 /**
  * Parse ticket ID from Teams message text
@@ -354,6 +365,9 @@ export async function handleTeamsWebhook(req: Request, res: Response) {
       return res.status(200).json({ status: "received", message: "Bot credentials not configured" });
     }
 
+    if (!adapter) {
+      return res.status(200).json({ status: "received", message: "Bot adapter not initialized" });
+    }
     await adapter.process(req, res, async (context) => {
       await bot.run(context);
     });
