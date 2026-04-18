@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
 
@@ -15,6 +15,7 @@ export default function KBPublic() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackArticleId, setFeedbackArticleId] = useState<number | null>(null);
   const [feedbackMessageId, setFeedbackMessageId] = useState<number | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   // Scroll to top when modal opens
   useEffect(() => {
@@ -28,6 +29,12 @@ export default function KBPublic() {
       document.body.style.overflow = "auto";
     };
   }, [selectedArticle]);
+
+  // Handle scroll to prevent accidental article selection
+  const handleScroll = () => {
+    setIsScrolling(true);
+    setTimeout(() => setIsScrolling(false), 300);
+  };
 
   // Fetch published KB articles
   const { data: articles, isLoading } = trpc.kb.list.useQuery(
@@ -137,22 +144,30 @@ export default function KBPublic() {
               <div className="fixed inset-0 bg-black/80 z-50 lg:hidden flex flex-col">
                 <div className="w-full h-full bg-slate-800 overflow-y-auto flex flex-col">
                   <div className="p-6 pb-32">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-white mb-2">
-                          {selectedArticle.title}
-                        </h2>
-                        <Badge className={`text-xs border ${categoryColors[selectedArticle.category]}`}>
-                          {selectedArticle.category}
-                        </Badge>
-                      </div>
+                    <div className="flex justify-between items-start mb-4 sticky top-0 bg-slate-800 py-4 -mx-6 px-6 z-10 border-b border-slate-700">
                       <button
                         onClick={() => setSelectedArticle(null)}
-                        className="text-gray-400 hover:text-white text-3xl leading-none ml-4"
+                        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+                        aria-label="Back to KB list"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span className="text-sm">Back</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedArticle(null)}
+                        className="text-gray-400 hover:text-white text-2xl leading-none transition-colors"
                         aria-label="Close"
                       >
                         ×
                       </button>
+                    </div>
+                    <div className="mb-4">
+                      <h2 className="text-2xl font-bold text-white mb-2">
+                        {selectedArticle.title}
+                      </h2>
+                      <Badge className={`text-xs border ${categoryColors[selectedArticle.category]}`}>
+                        {selectedArticle.category}
+                      </Badge>
                     </div>
                     <div className="prose prose-invert max-w-none">
                       <KBArticleContent content={selectedArticle.content} />
@@ -193,12 +208,12 @@ export default function KBPublic() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Article List */}
-            <div className="lg:col-span-1 space-y-3">
+            <div className="lg:col-span-1 space-y-3 max-h-96 overflow-y-auto pr-2" onScroll={handleScroll}>
               {filteredArticles.map((article: any) => (
                 <div
                   key={article.id}
-                  onClick={() => setSelectedArticle(article)}
-                  onTouchEnd={() => setSelectedArticle(article)}
+                  onClick={() => !isScrolling && setSelectedArticle(article)}
+                  onTouchEnd={() => !isScrolling && setSelectedArticle(article)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {

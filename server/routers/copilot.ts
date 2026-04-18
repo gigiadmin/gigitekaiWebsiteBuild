@@ -437,4 +437,68 @@ Return JSON with:
       };
     }
   }),
+
+  // Batch generate KB articles from multiple tickets
+  batchGenerateKBArticles: adminProcedure
+    .input(
+      z.object({
+        ticketIds: z.array(z.number()).min(1).max(10),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const results = [];
+
+      for (const ticketId of input.ticketIds) {
+        try {
+          const db = await getDb();
+          if (!db) {
+            results.push({ ticketId, success: false, error: "Database unavailable" });
+            continue;
+          }
+
+          const ticketList = await db
+            .select()
+            .from(tickets)
+            .where(eq(tickets.id, ticketId));
+
+          const ticket = ticketList[0];
+          if (!ticket) {
+            results.push({ ticketId, success: false, error: "Ticket not found" });
+            continue;
+          }
+
+          if (ticket.status !== "resolved") {
+            results.push({ ticketId, success: false, error: "Only resolved tickets" });
+            continue;
+          }
+
+          const prompt = `Generate KB article from ticket: ${ticket.title}\n${ticket.description}\nReturn JSON with title, description, content, category, tags, difficulty, estimatedTime`;
+
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a technical writer. Return valid JSON only." },
+              { role: "user", content: prompt },
+            ],
+          });
+
+          const articleContent = response.choices[0].message.content;
+          const articleText = typeof articleContent === "string" ? articleContent : (articleContent[0] as any)?.text || "";
+          const article = JSON.parse(articleText);
+
+          results.push({
+            ticketId,
+            success: true,
+            article,
+          });
+        } catch (error) {
+          results.push({ ticketId, success: false, error: String(error) });
+        }
+      }
+
+      return {
+        success: true,
+        results,
+        totalGenerated: results.filter((r: any) => r.success).length,
+      };
+    }),
 });
