@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
 import { SLATimer } from "@/components/SLATimer";
+import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -40,6 +41,7 @@ export default function TicketDetail() {
   const [surveyRating, setSurveyRating] = useState<number | null>(null);
   const [surveyComment, setSurveyComment] = useState("");
   const [surveySubmitted, setSurveySubmitted] = useState(false);
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -427,10 +429,32 @@ export default function TicketDetail() {
                       </Button>
                     </>
                   )}
+                  {isAdmin && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsAssignmentModalOpen(true)}
+                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                    >
+                      <User className="w-3.5 h-3.5 mr-1.5" />
+                      Assign Agent
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Agent Assignment Modal */}
+          {isAdmin && (
+            <AgentAssignmentModal
+              ticketId={ticketIdNum}
+              currentAssignedTo={ticket.assignedTo || undefined}
+              isOpen={isAssignmentModalOpen}
+              onClose={() => setIsAssignmentModalOpen(false)}
+              onAssignmentSuccess={() => refetch()}
+            />
+          )}
 
           {/* Description */}
           <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6">
