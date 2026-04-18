@@ -77,6 +77,7 @@ import Contact from "./pages/Contact";
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { CopilotChat } from "./components/CopilotChat";
 // ChatTriggerManager removed per user request - Start Chat popup disabled
 // StickyCTABar removed per user request - Book Now bar disabled
 
@@ -204,6 +205,7 @@ function App() {
           <Router />
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}
+          {!hideWidgets && <CopilotChat />}
           {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
         </TooltipProvider>
       </ThemeProvider>
