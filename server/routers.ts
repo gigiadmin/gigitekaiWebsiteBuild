@@ -31,6 +31,7 @@ import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
 import { copilotM365Router } from "./routers/copilotM365";
+import { copilotStudioRouter } from "./routers/copilotStudio";
 import { pricingRouter } from "./routers/pricing";
 
 export const appRouter = router({
@@ -51,6 +52,7 @@ export const appRouter = router({
   social: socialRouter,
   copilot: copilotRouter,
   copilotM365: copilotM365Router,
+  copilotStudio: copilotStudioRouter,
   pricing: pricingRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
