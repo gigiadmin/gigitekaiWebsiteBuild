@@ -614,11 +614,16 @@
   - 7 test cases covering role-based access control
   - All 153 tests passing
 
-## KB Mobile Modal Bottom Padding Fix (April 18, 2026)
+## KB Mobile Modal Full-Screen Fix (April 18, 2026)
 - [x] Fix KB article content being cut off at bottom of mobile screen
   - Added pb-32 (bottom padding) to mobile modal to prevent content from being hidden behind browser chrome
   - Article footer with metadata now fully visible on mobile
   - Users can scroll entire article without content cutoff
+- [x] Fix KB article modal appearing at bottom of page instead of top
+  - Changed modal from bottom sheet to full-screen fixed positioning
+  - Added useEffect hook to auto-scroll to top when modal opens
+  - Disabled body scroll while modal is open to prevent background scrolling
+  - Users can now click any article and see it immediately at the top of the screen
 
 ## Logout Redirect Fix (April 10, 2026)
 - [x] Update logout to redirect to login screen instead of home page for easy account switching

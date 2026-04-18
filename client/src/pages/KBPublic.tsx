@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,19 @@ export default function KBPublic() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
+
+  // Scroll to top when modal opens
+  useEffect(() => {
+    if (selectedArticle) {
+      window.scrollTo(0, 0);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedArticle]);
 
   // Fetch published KB articles
   const { data: articles, isLoading } = trpc.kb.list.useQuery(
@@ -115,10 +128,10 @@ export default function KBPublic() {
         {/* Articles Grid */}
         {!isLoading && filteredArticles.length > 0 && (
           <>
-            {/* Mobile Bottom Sheet Modal */}
+            {/* Mobile Full-Screen Modal */}
             {selectedArticle && (
-              <div className="fixed inset-0 bg-black/80 z-50 lg:hidden flex items-end">
-                <div className="w-full bg-slate-800 border-t border-slate-700 rounded-t-lg max-h-[90vh] overflow-y-auto">
+              <div className="fixed inset-0 bg-black/80 z-50 lg:hidden flex flex-col">
+                <div className="w-full h-full bg-slate-800 overflow-y-auto flex flex-col">
                   <div className="p-6 pb-32">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
