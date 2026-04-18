@@ -76,11 +76,11 @@ export default function HelpdeskDashboard() {
   };
 
   const getPriorityConfig = (priority: string) => {
-    const configs: Record<string, { dot: string; text: string; label: string }> = {
-      low: { dot: "bg-green-500", text: "text-green-400", label: "Low" },
-      medium: { dot: "bg-yellow-500", text: "text-yellow-400", label: "Medium" },
-      high: { dot: "bg-orange-500", text: "text-orange-400", label: "High" },
-      critical: { dot: "bg-red-500", text: "text-red-400", label: "Critical" },
+    const configs: Record<string, { dot: string; text: string; label: string; border: string }> = {
+      low: { dot: "bg-green-500", text: "text-green-400", label: "Low", border: "border-l-4 border-l-green-500" },
+      medium: { dot: "bg-yellow-500", text: "text-yellow-400", label: "Medium", border: "border-l-4 border-l-yellow-500" },
+      high: { dot: "bg-orange-500", text: "text-orange-400", label: "High", border: "border-l-4 border-l-orange-500" },
+      critical: { dot: "bg-red-500", text: "text-red-400", label: "Critical", border: "border-l-4 border-l-red-500" },
     };
     return configs[priority] || configs.medium;
   };
@@ -93,6 +93,42 @@ export default function HelpdeskDashboard() {
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      bug_report: "🐛 Bug Report",
+      feature_request: "✨ Feature Request",
+      general_support: "💬 General Support",
+      billing: "💳 Billing",
+    };
+    return labels[category] || "General Support";
+  };
+
+  const getSLAStatus = (priority: string, createdAt: Date | string) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const hoursElapsed = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+
+    const slaHours: Record<string, number> = {
+      critical: 1,
+      high: 4,
+      medium: 8,
+      low: 24,
+    };
+
+    const slaLimit = slaHours[priority] || 8;
+    const percentageUsed = (hoursElapsed / slaLimit) * 100;
+
+    if (percentageUsed >= 100) {
+      return { status: "breached", color: "text-red-400", icon: "⚠️" };
+    } else if (percentageUsed >= 75) {
+      return { status: "critical", color: "text-orange-400", icon: "⏰" };
+    } else if (percentageUsed >= 50) {
+      return { status: "warning", color: "text-yellow-400", icon: "⏳" };
+    } else {
+      return { status: "healthy", color: "text-green-400", icon: "✓" };
+    }
   };
 
   if (loading) {
@@ -177,12 +213,16 @@ export default function HelpdeskDashboard() {
                 <div
                   key={ticket.id}
                   onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                  className="group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer"
+                  className={`group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer ${getPriorityConfig(ticket.priority).border}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <span className="text-gray-500 text-xs font-mono">#{ticket.id}</span>
+                        <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">{getCategoryLabel(ticket.category)}</span>
+                        <span className={`text-xs font-semibold ${getSLAStatus(ticket.priority, ticket.createdAt).color}`}>
+                          {getSLAStatus(ticket.priority, ticket.createdAt).icon} SLA
+                        </span>
                         <h3 className="text-white font-semibold text-base group-hover:text-[#00D4FF] transition-colors truncate">
                           {ticket.title}
                         </h3>

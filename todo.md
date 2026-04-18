@@ -199,6 +199,15 @@
   - Updated Navbar links to point to individual IDs
   - Added scroll-mt-24 for proper scroll offset with sticky nav
 
+## User Ticket Portal - Quick Wins (7/7 Complete)
+- [x] Quick Win #1: Last Updated timestamp on ticket cards
+- [x] Quick Win #2: Priority-based left border accent (green/yellow/orange/red)
+- [x] Quick Win #3: Category display with emoji labels
+- [x] Quick Win #4: SLA status indicator (✓ Healthy, ⏳ Warning, ⏰ Critical, ⚠️ Breached)
+- [x] Quick Win #5: Ticket assignment display in detail view
+- [x] Quick Win #6: Quick reply suggestions for users
+- [x] Quick Win #7: Mark as Urgent button in reply form
+
 ## Database Cleanup
 - [x] Remove all test tickets from the database
   - Deleted 364 test tickets and 0 replies

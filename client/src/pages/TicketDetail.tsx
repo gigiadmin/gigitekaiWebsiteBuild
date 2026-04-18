@@ -268,15 +268,11 @@ export default function TicketDetail() {
                 value={<span className="text-white font-medium capitalize">{ticket.category.replace(/_/g, " ")}</span>}
               />
               <MetaItem
-                icon={<Clock className="w-4 h-4" />}
-                label="Created"
-                value={<span className="text-white font-medium">{new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
+                icon={<User className="w-4 h-4" />}
+                label="Assigned To"
+                value={<span className="text-white font-medium">{ticket.assignedTo ? "Agent #" + ticket.assignedTo : "Unassigned"}</span>}
               />
-              <MetaItem
-                icon={<Clock className="w-4 h-4" />}
-                label="Last Updated"
-                value={<span className="text-white font-medium">{new Date(ticket.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
-              />
+
             </div>
 
             {/* SLA Timer */}
@@ -456,13 +452,49 @@ export default function TicketDetail() {
             )}
           </div>
 
+          {/* Quick Reply Suggestions */}
+          {!isAdmin && ticket.status !== "closed" && (
+            <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-4">
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Quick Replies</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  onClick={() => setReplyText("Thank you for your message. We're looking into this and will get back to you shortly.")}
+                  className="text-left text-xs bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 p-2 rounded-lg hover:bg-cyan-500/20 transition-colors"
+                >
+                  📝 Thank you message
+                </button>
+                <button
+                  onClick={() => setReplyText("Could you provide more details about the issue? This will help us assist you better.")}
+                  className="text-left text-xs bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 p-2 rounded-lg hover:bg-cyan-500/20 transition-colors"
+                >
+                  ❓ Request more info
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Reply Form */}
           {ticket.status !== "closed" ? (
             <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6">
-              <h2 className="text-white font-bold text-sm mb-3 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                <Send className="w-4 h-4 text-[#00D4FF]" />
-                {isAdmin ? "Reply to Customer" : "Reply"}
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-white font-bold text-sm flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <Send className="w-4 h-4 text-[#00D4FF]" />
+                  {isAdmin ? "Reply to Customer" : "Reply"}
+                </h2>
+                {!isAdmin && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      toast.success("Ticket marked as urgent! Support team will prioritize this.");
+                    }}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                  >
+                    🚨 Mark as Urgent
+                  </Button>
+                )}
+              </div>
               <form onSubmit={handleAddReply} className="space-y-4">
                 <textarea
                   value={replyText}
