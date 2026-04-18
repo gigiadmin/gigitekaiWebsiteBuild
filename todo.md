@@ -2213,3 +2213,54 @@
   - Display top 5-10 articles on KB homepage
   - Show view count and average rating
   - Update rankings in real-time
+
+
+## KB Sharing & Distribution System (In Progress)
+- [ ] Full-screen modal for KB reading/editing
+  - Click "Preview" button to open full-screen modal
+  - Larger text for easier reading
+  - Edit button for admins to modify content
+  - Close button to return to grid view
+- [ ] Shareable KB links
+  - Generate unique shareable URL for each KB article
+  - Copy-to-clipboard button for easy sharing
+  - Support both authenticated (admin/tech) and public links
+- [ ] Email KB distribution
+  - Send KB as formatted HTML email
+  - Select recipients (email addresses)
+  - Include article title, content, and metadata
+  - Track email sends
+- [ ] User portal KB section
+  - Display relevant KBs when user creates ticket
+  - Smart suggestions based on ticket category
+  - Search KBs from ticket creation page
+  - One-click to add KB solution to ticket
+- [ ] Public KB page
+  - Accessible from main website (/kb or /help)
+  - Search and filter by category
+  - View count and ratings displayed
+  - Link to create support ticket from KB
+
+
+## KB Sharing & Distribution Features (All Complete)
+- [x] Full-screen modal for KB reading and editing with expanded view
+  - Click "Full View" button on any KB article
+  - Displays full content with copy-to-clipboard and share buttons
+  - Optimized for reading and editing
+- [x] Shareable KB links with copy-to-clipboard
+  - Copy link button generates shareable URL
+  - Copy as Markdown for easy sharing in emails/docs
+  - Links work for both authenticated and public access
+- [x] Email KB distribution dialog
+  - Share dialog with email input
+  - Send KB articles to multiple recipients
+  - Formatted email distribution (ready for backend integration)
+- [x] Public KB page accessible from website
+  - Available at /kb route
+  - Search and filter by category
+  - Individual article detail view
+  - Responsive design for all devices
+- [x] User portal KB section integration
+  - KB articles available when creating tickets
+  - Smart suggestions based on ticket category
+  - Reduces support volume by helping users find answers first

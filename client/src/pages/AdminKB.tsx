@@ -4,15 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Trash2, Edit2, BookOpen } from "lucide-react";
+import { Search, Plus, Trash2, Edit2, BookOpen, Eye } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { CodeBlockWithCopy } from "@/components/CodeBlockWithCopy";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";
+import { KBFullScreenModal } from "@/components/KBFullScreenModal";
+import { KBShareDialog } from "@/components/KBShareDialog";
 
 export default function AdminKB() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [fullScreenArticle, setFullScreenArticle] = useState<any>(null);
+  const [shareArticle, setShareArticle] = useState<any>(null);
 
   // Fetch all KB articles
   const { data: articles, isLoading, refetch } = trpc.kb.list.useQuery(
@@ -25,6 +29,14 @@ export default function AdminKB() {
     mutate: () => {},
     isPending: false,
   } as any;
+
+  const handleShare = (article: any) => {
+    setShareArticle(article);
+  };
+
+  const handleEmail = (article: any) => {
+    setShareArticle(article);
+  };
   
   /*
   const deleteArticleMutation = trpc.kb.delete.useMutation({
@@ -58,7 +70,29 @@ export default function AdminKB() {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* Full Screen Modal */}
+      {fullScreenArticle && (
+        <KBFullScreenModal
+          article={fullScreenArticle}
+          isOpen={!!fullScreenArticle}
+          onClose={() => setFullScreenArticle(null)}
+          onShare={handleShare}
+          onEmail={handleEmail}
+          isAdmin={true}
+        />
+      )}
+
+      {/* Share Dialog */}
+      {shareArticle && (
+        <KBShareDialog
+          article={shareArticle}
+          isOpen={!!shareArticle}
+          onClose={() => setShareArticle(null)}
+        />
+      )}
+
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -143,6 +177,15 @@ export default function AdminKB() {
                     </Badge>
                   )}
                 </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setFullScreenArticle(article)}
+                  className="w-full mt-2 text-xs text-gray-400 hover:text-white hover:bg-slate-700"
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  Full View
+                </Button>
               </Card>
             ))}
           </div>
@@ -239,5 +282,6 @@ export default function AdminKB() {
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -61,6 +61,7 @@ import AdminCannedResponsesPage from "./pages/AdminCannedResponsesPage";
 import AdminClosedTicketsReportPage from "./pages/AdminClosedTicketsReportPage";
 import AdminHelpdeskMetricsPage from "./pages/AdminHelpdeskMetricsPage";
 import AdminAgentDashboardPage from "./pages/AdminAgentDashboardPage";
+import KBPublic from "./pages/KBPublic";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -102,6 +103,10 @@ function Router() {
       <Route path="/helpdesk/feedback">{() => <ApprovalGuard><TicketFeedback /></ApprovalGuard>}</Route>
       <Route path="/helpdesk/profile">{() => <ApprovalGuard><UserProfile /></ApprovalGuard>}</Route>
       <Route path={"/helpdesk/guide"} component={HelpdeskAgentGuide} />
+      <Route path={"/kb"} component={KBPublic} />
+
+      {/* ── Public KB ── */}
+      <Route path={"/kb/:id"} component={KBPublic} />
 
       {/* ── Meeting Management ── */}
       <Route path="/cancel-meeting" component={CancelMeeting} />
