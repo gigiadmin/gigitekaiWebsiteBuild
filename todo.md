@@ -1372,7 +1372,7 @@
 
 ### Phase 2 — Assignment, SLA & Omnichannel
 - [x] SLA timer display on ticket detail (time since opened, time until SLA breach) — SLATimer component created with real-time countdown, progress bars, and breach detection
-- [ ] Assign ticket to specific agent from admin ticket detail view
+- [x] Assign ticket to specific agent from admin ticket detail view — AgentAssignmentModal component created with agent dropdown, status indicators, and assignment mutations
 - [ ] Ticket merge — merge duplicate tickets
 - [ ] Bulk ticket actions (select multiple, change status/assign in bulk)
 - [ ] Email-to-ticket: auto-create ticket when email received with no [TICKET #N] reference
