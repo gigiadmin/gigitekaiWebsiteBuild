@@ -2108,42 +2108,84 @@
   - All tests passing (7/7 Teams webhook tests)
   - Verified webhook connectivity and credential validation
 
-### Phase 2: Auto-Create Tickets from Teams Messages
-- [ ] Parse Teams messages for ticket creation intent
-- [ ] Extract customer info, issue description, priority from Teams message
-- [ ] Auto-create ticket in helpdesk database
-- [ ] Link Teams message thread to ticket for context
-- [ ] Notify customer via chat widget that ticket was created
-- [ ] Handle Teams message attachments (convert to ticket attachments)
+### Phase 2: Auto-Create Tickets from Teams Messages (COMPLETED)
+- [x] Parse Teams messages for ticket creation intent
+- [x] Extract customer info, issue description, priority from Teams message
+- [x] Auto-create ticket in helpdesk database
+- [x] Link Teams message thread to ticket for context
+- [x] Notify customer via chat widget that ticket was created
+- [x] Handle Teams message attachments (convert to ticket attachments)
 
-### Phase 3: Copilot for M365 Integration
-- [ ] Set up Microsoft Graph API authentication for Copilot access
-- [ ] Create tRPC endpoint for Copilot ticket analysis
-- [ ] Implement Copilot prompt engineering for:
-  - Ticket summarization
-  - Issue categorization
-  - Priority assessment
-  - Solution recommendations
-- [ ] Add Copilot KB article generation from resolved tickets
-- [ ] Store generated KB articles in database
-- [ ] Link KB articles to tickets for future reference
-- [ ] Implement Copilot access to M365 tenant data (emails, documents)
-
-### Phase 4: Pattern Analysis & Process Improvements
-- [ ] Analyze ticket patterns (common issues, response times, resolution rates)
-- [ ] Generate weekly/monthly improvement suggestions via Copilot
-- [ ] Identify automation opportunities (repetitive issues → KB articles)
-- [ ] Create admin dashboard showing:
+### Phase 2B: Copilot for M365 - Ticket Pattern Analysis (Next Week)
+- [ ] Integrate Copilot for Microsoft 365 with ticket analysis engine
+  - Analyze ticket patterns (common issues, response times, resolution rates)
+  - Suggest process improvements based on ticket data
+  - Identify automation opportunities (repetitive issues → KB articles)
+- [ ] Create Copilot prompt engineering for:
+  - Ticket summarization and categorization
+  - Issue severity and priority assessment
+  - Solution recommendations from KB
+  - Process improvement suggestions
+- [ ] Implement admin dashboard showing:
   - Top issues by frequency
   - Average resolution time by category
   - Suggested KB articles to create
   - Process improvement recommendations
-- [ ] Send improvement digest to admin via Teams
+- [ ] Send weekly improvement digest to admin via Teams
+- [ ] Test Copilot analysis accuracy and recommendations
 
-### Phase 5: Testing & Deployment
+### Phase 3: Copilot KB Article Auto-Generation (Next Week)
+- [ ] Enable Copilot to automatically generate KB articles from resolved tickets
+  - Analyze resolved ticket + solution for KB content
+  - Generate article title, description, and steps
+  - Categorize article by topic and difficulty level
+- [ ] Implement KB article generation workflow:
+  - Trigger on ticket resolution
+  - Review generated article before publishing
+  - Link article to original ticket
+  - Tag with relevant keywords for search
+- [ ] Create admin approval UI for generated KB articles
+- [ ] Test KB article quality and relevance
+- [ ] Measure KB article usage and effectiveness
+
+### Phase 4: Copilot for Microsoft 365 Enterprise Integration (Next Week)
+- [ ] Set up Microsoft Graph API authentication for Copilot access
+  - Configure OAuth 2.0 for M365 tenant
+  - Request necessary Graph API permissions
+  - Implement token refresh and caching
+- [ ] Enable Copilot to access M365 tenant data:
+  - Email data from Exchange Online
+  - Document data from SharePoint
+  - User activity from Azure AD
+  - Calendar and meeting data
+- [ ] Implement Copilot analysis of M365 data:
+  - Correlate ticket issues with email threads
+  - Link KB articles to relevant documents
+  - Identify user patterns and pain points
+  - Suggest solutions from organizational knowledge
+- [ ] Create tRPC endpoints for Copilot analysis:
+  - `copilot.analyzeTicket` - Full ticket analysis with M365 context
+  - `copilot.suggestSolution` - Solution recommendations
+  - `copilot.generateKBArticle` - Auto-generate KB from resolved ticket
+  - `copilot.getProcessInsights` - Weekly process improvement digest
+- [ ] Test Copilot accuracy with M365 data integration
+- [ ] Performance testing and optimization
+
+### Phase 5: Reusable Skill for Teams + Copilot Integration (Next Week)
+- [ ] Create skill-creator guide for Teams + Copilot integration
+  - Document setup process (Azure credentials, Teams webhook, M365 auth)
+  - Include prompt engineering best practices
+  - Provide customization examples
+  - Add troubleshooting guide
+- [ ] Package Teams integration patterns as reusable skill
+- [ ] Package Copilot integration patterns as reusable skill
+- [ ] Document ROI metrics and success indicators
+
+### Phase 6: Testing & Production Deployment
 - [ ] End-to-end testing: Customer ticket → Teams notification → Agent reply → Customer update
 - [ ] Test Teams message parsing and ticket creation
-- [ ] Test Copilot analysis accuracy
-- [ ] Performance testing (webhook latency, message throughput)
-- [ ] Security testing (Teams auth, data encryption)
+- [ ] Test Copilot analysis accuracy and KB generation
+- [ ] Performance testing (webhook latency, message throughput, Copilot response time)
+- [ ] Security testing (Teams auth, M365 auth, data encryption)
+- [ ] Load testing (multiple concurrent tickets, Copilot requests)
 - [ ] Save checkpoint and deploy to production
