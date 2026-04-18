@@ -26,6 +26,7 @@ import { leadgenRouter } from "./routers/leadgen";
 import { calendarRouter } from "./routers/calendar";
 import { aiTriageRouter } from "./routers/aiTriage";
 import { kbRouter } from "./routers/kb";
+import { kbFeedbackRouter } from "./routers/kbFeedback";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 
@@ -42,6 +43,7 @@ export const appRouter = router({
   calendar: calendarRouter,
   aiTriage: aiTriageRouter,
   kb: kbRouter,
+  kbFeedback: kbFeedbackRouter,
   cannedResponses: cannedResponsesRouter,
   social: socialRouter,
   auth: router({

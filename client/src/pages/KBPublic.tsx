@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star } from "lucide-react";
+import { Search, BookOpen, Star, ThumbsUp, ThumbsDown } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
+import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
 
 export default function KBPublic() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackArticleId, setFeedbackArticleId] = useState<number | null>(null);
+  const [feedbackMessageId, setFeedbackMessageId] = useState<number | null>(null);
 
   // Scroll to top when modal opens
   useEffect(() => {
@@ -153,9 +157,34 @@ export default function KBPublic() {
                     <div className="prose prose-invert max-w-none">
                       <KBArticleContent content={selectedArticle.content} />
                     </div>
-                    <div className="mt-6 pt-4 border-t border-slate-700 flex items-center gap-2 text-sm text-gray-400">
-                      <Star className="w-4 h-4" />
-                      <span>Was this article helpful?</span>
+                    <div className="mt-6 pt-4 border-t border-slate-700">
+                      <p className="text-sm text-gray-400 mb-3">Was this article helpful?</p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setFeedbackArticleId(selectedArticle.id);
+                            setFeedbackMessageId(selectedArticle.id); // Using article ID as message ID for now
+                            setFeedbackOpen(true);
+                          }}
+                          className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <ThumbsUp className="w-4 h-4" />
+                          Yes
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setFeedbackArticleId(selectedArticle.id);
+                            setFeedbackMessageId(selectedArticle.id);
+                            setFeedbackOpen(true);
+                          }}
+                          className="flex-1 gap-2 bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          <ThumbsDown className="w-4 h-4" />
+                          No
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -229,6 +258,21 @@ export default function KBPublic() {
           </>
         )}
       </div>
+
+      {/* Feedback Dialog */}
+      {feedbackArticleId && feedbackMessageId && (
+        <KBFeedbackDialog
+          articleId={feedbackArticleId}
+          messageId={feedbackMessageId}
+          isOpen={feedbackOpen}
+          onClose={() => {
+            setFeedbackOpen(false);
+            setFeedbackArticleId(null);
+            setFeedbackMessageId(null);
+          }}
+          articleTitle={selectedArticle?.title || "Article"}
+        />
+      )}
     </div>
   );
 }
