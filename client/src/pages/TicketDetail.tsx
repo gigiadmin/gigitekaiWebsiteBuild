@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
 import { SLATimer } from "@/components/SLATimer";
 import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
+import { TicketMergeModal } from "@/components/TicketMergeModal";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -42,6 +43,7 @@ export default function TicketDetail() {
   const [surveyComment, setSurveyComment] = useState("");
   const [surveySubmitted, setSurveySubmitted] = useState(false);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -430,15 +432,27 @@ export default function TicketDetail() {
                     </>
                   )}
                   {isAdmin && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsAssignmentModalOpen(true)}
-                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
-                    >
-                      <User className="w-3.5 h-3.5 mr-1.5" />
-                      Assign Agent
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsAssignmentModalOpen(true)}
+                        className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                      >
+                        <User className="w-3.5 h-3.5 mr-1.5" />
+                        Assign Agent
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsMergeModalOpen(true)}
+                        className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 text-xs"
+                        title="Merge this ticket into another"
+                      >
+                        <Zap className="w-3.5 h-3.5 mr-1.5" />
+                        Merge
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -453,6 +467,20 @@ export default function TicketDetail() {
               isOpen={isAssignmentModalOpen}
               onClose={() => setIsAssignmentModalOpen(false)}
               onAssignmentSuccess={() => refetch()}
+            />
+          )}
+
+          {/* Ticket Merge Modal */}
+          {isAdmin && (
+            <TicketMergeModal
+              sourceTicketId={ticketIdNum}
+              sourceTicketTitle={ticket.title}
+              isOpen={isMergeModalOpen}
+              onClose={() => setIsMergeModalOpen(false)}
+              onMergeSuccess={() => {
+                refetch();
+                setIsMergeModalOpen(false);
+              }}
             />
           )}
 

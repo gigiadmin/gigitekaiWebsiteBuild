@@ -101,6 +101,7 @@ export const tickets = mysqlTable("tickets", {
   resolvedAt: timestamp("resolvedAt"),
   closingNotes: text("closingNotes"), // Required when closing a ticket
   closedAt: timestamp("closedAt"),
+  mergedInto: int("mergedInto"), // ticketId of the ticket this was merged into (null if not merged)
 });
 
 export type Ticket = typeof tickets.$inferSelect;
