@@ -85,6 +85,16 @@ export default function HelpdeskDashboard() {
     return configs[priority] || configs.medium;
   };
 
+  const formatTimeAgo = (date: Date | string) => {
+    const now = new Date();
+    const then = new Date(date);
+    const seconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+    if (seconds < 60) return "just now";
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
@@ -193,9 +203,9 @@ export default function HelpdeskDashboard() {
                         <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded">
                           {ticket.category.replace(/_/g, " ")}
                         </span>
-                        {/* Date */}
+                        {/* Last Updated */}
                         <span className="text-xs text-gray-500">
-                          {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          Updated: {formatTimeAgo(ticket.updatedAt || ticket.createdAt)}
                         </span>
                       </div>
                     </div>
