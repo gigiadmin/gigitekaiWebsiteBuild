@@ -2350,3 +2350,25 @@
 - [ ] Update todo.md with completion status
 - [ ] Save checkpoint with all follow-ups
 - [ ] Provide summary to user
+
+
+## KB Article Upload & Admin Dashboard (NEW - April 2026)
+
+### Admin KB Analytics Dashboard
+- [ ] Create KBAnalyticsDashboard component in client/src/pages/KBAnalyticsDashboard.tsx
+- [ ] Display most suggested KB articles (with feedback stats)
+- [ ] Show feedback ratings breakdown (helpful vs unhelpful)
+- [ ] Highlight articles with most negative feedback
+- [ ] Add date range filter for analytics
+- [ ] Add route /admin/kb-analytics in App.tsx
+- [ ] Integrate with getKBAnalytics tRPC query
+
+### KB Article Upload & Formatting
+- [ ] Extract KB articles from GigiTek_Tier2_KB_T2-001-007.docx (T2-001 through T2-007)
+- [ ] Extract KB articles from GigiTek_KB_Articles_016-030.docx (Articles 016-030)
+- [ ] Create uniform formatting template for all KB articles
+- [ ] Ensure consistent structure: Title, Category, Tags, Content
+- [ ] Format content for readability (headings, bullet points, code blocks)
+- [ ] Upload articles via KB admin interface on gigitekai.com
+- [ ] Verify all articles are searchable and indexed by bot
+- [ ] Test bot can suggest articles to users
