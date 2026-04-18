@@ -33,6 +33,7 @@ import { copilotRouter } from "./routers/copilot";
 import { copilotM365Router } from "./routers/copilotM365";
 import { copilotStudioRouter } from "./routers/copilotStudio";
 import { pricingRouter } from "./routers/pricing";
+import { helpdeskAgentSlaRouter } from "./routers/helpdesk-agent-sla";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -66,6 +67,7 @@ export const appRouter = router({
   }),
 
   helpdesk: helpdeskRouter,
+  helpdeskAgentSla: helpdeskAgentSlaRouter,
   aibot: aibotRouter,
   chat: chatRouter,
   customerInvites: customerInvitesRouter,

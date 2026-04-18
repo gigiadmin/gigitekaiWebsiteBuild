@@ -991,3 +991,75 @@ export const pricingAnalytics = mysqlTable("pricingAnalytics", {
 });
 export type PricingAnalytics = typeof pricingAnalytics.$inferSelect;
 export type InsertPricingAnalytics = typeof pricingAnalytics.$inferInsert;
+
+
+// SLA Configuration — defines SLA rules for different ticket categories and priorities
+export const slaConfigurations = mysqlTable("slaConfigurations", {
+  id: int("id").autoincrement().primaryKey(),
+  category: varchar("category", { length: 100 }).notNull(),
+  priority: varchar("priority", { length: 20 }).notNull(),
+  responseTimeMinutes: int("responseTimeMinutes").notNull(), // time to first response
+  resolutionTimeMinutes: int("resolutionTimeMinutes").notNull(), // time to resolution
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SlaConfiguration = typeof slaConfigurations.$inferSelect;
+export type InsertSlaConfiguration = typeof slaConfigurations.$inferInsert;
+
+// SLA Tracking — tracks SLA metrics for each ticket
+export const slaTracking = mysqlTable("slaTracking", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().unique(),
+  responseDeadline: timestamp("responseDeadline").notNull(),
+  resolutionDeadline: timestamp("resolutionDeadline").notNull(),
+  responseBreached: boolean("responseBreached").default(false).notNull(),
+  resolutionBreached: boolean("resolutionBreached").default(false).notNull(),
+  firstResponseAt: timestamp("firstResponseAt"),
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SlaTracking = typeof slaTracking.$inferSelect;
+export type InsertSlaTracking = typeof slaTracking.$inferInsert;
+
+// Ticket Merge History — tracks when tickets are merged together
+export const ticketMerges = mysqlTable("ticketMerges", {
+  id: int("id").autoincrement().primaryKey(),
+  primaryTicketId: int("primaryTicketId").notNull(), // the ticket that remains
+  mergedTicketId: int("mergedTicketId").notNull(), // the ticket that was merged into primary
+  mergedBy: int("mergedBy").notNull(), // userId of agent who performed merge
+  reason: text("reason"), // why tickets were merged
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TicketMerge = typeof ticketMerges.$inferSelect;
+export type InsertTicketMerge = typeof ticketMerges.$inferInsert;
+
+// Agent Workload — tracks agent ticket assignments and workload
+export const agentWorkload = mysqlTable("agentWorkload", {
+  id: int("id").autoincrement().primaryKey(),
+  agentId: int("agentId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  assignedTickets: int("assignedTickets").default(0).notNull(),
+  completedTickets: int("completedTickets").default(0).notNull(),
+  avgResolutionTime: decimal("avgResolutionTime", { precision: 8, scale: 2 }), // minutes
+  slaBreaches: int("slaBreaches").default(0).notNull(),
+  customerSatisfaction: decimal("customerSatisfaction", { precision: 3, scale: 2 }), // 0-5
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AgentWorkload = typeof agentWorkload.$inferSelect;
+export type InsertAgentWorkload = typeof agentWorkload.$inferInsert;
+
+// Bulk Ticket Actions — tracks bulk operations performed on tickets
+export const bulkTicketActions = mysqlTable("bulkTicketActions", {
+  id: int("id").autoincrement().primaryKey(),
+  actionType: varchar("actionType", { length: 50 }).notNull(), // 'close', 'assign', 'prioritize', 'tag'
+  ticketIds: text("ticketIds").notNull(), // JSON array of ticket IDs
+  assignedTo: int("assignedTo"), // for assign action
+  newPriority: varchar("newPriority", { length: 20 }), // for prioritize action
+  newStatus: varchar("newStatus", { length: 20 }), // for status change action
+  performedBy: int("performedBy").notNull(), // userId of agent
+  affectedCount: int("affectedCount").notNull(), // number of tickets affected
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BulkTicketAction = typeof bulkTicketActions.$inferSelect;
+export type InsertBulkTicketAction = typeof bulkTicketActions.$inferInsert;
