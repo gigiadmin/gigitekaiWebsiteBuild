@@ -925,3 +925,17 @@ export const socialConnections = mysqlTable("socialConnections", {
 });
 export type SocialConnection = typeof socialConnections.$inferSelect;
 export type InsertSocialConnection = typeof socialConnections.$inferInsert;
+
+// KB Article Feedback — user ratings and feedback on suggested KB articles
+export const kbArticleFeedback = mysqlTable("kbArticleFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(), // chatMessages.id - the bot message that suggested the KB article
+  articleId: int("articleId").notNull(), // kbArticles.id - the KB article that was suggested
+  rating: mysqlEnum("rating", ["helpful", "unhelpful"]).notNull(), // thumbs-up or thumbs-down
+  feedbackMessage: text("feedbackMessage"), // optional: what was missing or why it wasn't helpful
+  sessionId: varchar("sessionId", { length: 64 }), // chat session ID for context
+  userId: int("userId"), // user ID if authenticated
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbArticleFeedback = typeof kbArticleFeedback.$inferSelect;
+export type InsertKbArticleFeedback = typeof kbArticleFeedback.$inferInsert;

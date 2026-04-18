@@ -2303,3 +2303,49 @@
   - [x] Updated todo.md with completion status
   - [x] Ready to save checkpoint with KB-aware bot features
   - [x] Prepared summary for user
+
+
+## KB-Aware Bot Follow-Ups (NEW - April 2026)
+
+### Follow-Up 1: Reusable Skill Creation
+- [ ] Create /home/ubuntu/skills/kb-aware-bot-integration/ directory
+- [ ] Document the KB-aware bot implementation process in SKILL.md
+- [ ] Include step-by-step workflow for integrating KB with AI bot
+- [ ] Add code templates and configuration examples
+- [ ] Create README with usage instructions
+
+### Follow-Up 2: Thumbs-Up/Down Feedback Mechanism
+- [x] Added kbArticleFeedback table to drizzle schema (messageId, articleId, rating: helpful|unhelpful, userId, createdAt)
+- [x] Created submitKBArticleFeedback() function in db.ts
+- [x] Created getKBArticleFeedback() function in db.ts
+- [ ] Add feedback endpoints in aibot router (submitFeedback mutation)
+- [ ] Add thumbs-up/down buttons to bot response UI
+- [ ] Write tests for feedback submission
+
+### Follow-Up 3: Missing Feedback Collection
+- [x] Added feedbackMessage field to kbArticleFeedback table (optional text)
+- [ ] Create "What was missing?" dialog when user rates KB article as unhelpful
+- [ ] Collect user feedback on what information was needed
+- [ ] Store feedback for admin review
+- [ ] Write tests for feedback collection flow
+
+### Follow-Up 4: Admin Analytics Dashboard
+- [x] Created getKBArticleAnalytics() function in db.ts
+- [ ] Create new route /admin/kb-analytics in App.tsx
+- [ ] Build KBAnalyticsDashboard component showing feedback stats
+- [ ] Add tRPC procedure getKBAnalytics in admin router
+- [ ] Add date range filter for analytics
+- [ ] Write tests for analytics queries
+
+### Follow-Up 5: Testing
+- [ ] Test feedback submission and storage
+- [ ] Test missing feedback collection dialog
+- [ ] Test analytics dashboard queries
+- [ ] Test feedback ratings aggregation
+- [ ] Verify analytics reflect real feedback data
+- [ ] Test date range filtering
+
+### Follow-Up 6: Delivery
+- [ ] Update todo.md with completion status
+- [ ] Save checkpoint with all follow-ups
+- [ ] Provide summary to user

@@ -1325,3 +1325,68 @@ export async function isKBArticleRelevant(articleId: number, userMessage: string
     return false;
   }
 }
+
+
+// ─── KB Article Feedback ───────────────────────────────────────────────────
+
+import { kbArticleFeedback, InsertKbArticleFeedback, KbArticleFeedback } from "../drizzle/schema";
+
+export async function submitKBArticleFeedback(feedback: InsertKbArticleFeedback): Promise<KbArticleFeedback | null> {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    await db.insert(kbArticleFeedback).values(feedback);
+    return feedback as KbArticleFeedback;
+  } catch (error) {
+    console.error("[Database] Failed to submit KB feedback:", error);
+    return null;
+  }
+}
+
+export async function getKBArticleFeedback(articleId: number): Promise<KbArticleFeedback[]> {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select()
+      .from(kbArticleFeedback)
+      .where(eq(kbArticleFeedback.articleId, articleId))
+      .orderBy(desc(kbArticleFeedback.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get KB feedback:", error);
+    return [];
+  }
+}
+
+export async function getKBArticleAnalytics(articleId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    let feedback: KbArticleFeedback[];
+    if (articleId) {
+      feedback = await db.select().from(kbArticleFeedback).where(eq(kbArticleFeedback.articleId, articleId));
+    } else {
+      feedback = await db.select().from(kbArticleFeedback);
+    }
+    
+    // Group by article and calculate stats
+    const stats: Record<number, any> = {};
+    for (const item of feedback) {
+      if (!stats[item.articleId]) {
+        stats[item.articleId] = { helpful: 0, unhelpful: 0 };
+      }
+      if (item.rating === 'helpful') stats[item.articleId].helpful++;
+      else stats[item.articleId].unhelpful++;
+    }
+    return Object.entries(stats).map(([id, data]) => ({
+      articleId: parseInt(id),
+      helpful: data.helpful,
+      unhelpful: data.unhelpful,
+      total: data.helpful + data.unhelpful,
+      helpfulRate: Math.round((data.helpful / (data.helpful + data.unhelpful)) * 100),
+    }));
+  } catch (error) {
+    console.error("[Database] Failed to get KB analytics:", error);
+    return [];
+  }
+}

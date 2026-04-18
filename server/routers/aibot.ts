@@ -25,7 +25,11 @@ import {
   getPendingAgentTakeoverRequests,
   getDb,
   deleteChatMessages,
-  deleteMessageById
+  deleteMessageById,
+  submitKBArticleFeedback,
+  getKBArticleFeedback,
+  getKBArticleAnalytics,
+  getKBArticleFeedbackMessages
 } from "../db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
