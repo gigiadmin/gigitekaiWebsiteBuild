@@ -4,7 +4,7 @@ import { useLocation, useParams } from "wouter";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
-import SlaTimer from "@/components/SlaTimer";
+import { SLATimer } from "@/components/SLATimer";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -308,9 +308,9 @@ export default function TicketDetail() {
 
             {/* SLA Timer */}
             <div className="mt-4">
-              <SlaTimer
+              <SLATimer
                 priority={ticket.priority}
-                updatedAt={ticket.updatedAt}
+                createdAt={ticket.createdAt}
                 status={ticket.status}
               />
             </div>

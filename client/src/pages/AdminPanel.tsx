@@ -43,7 +43,7 @@ import { InviteCustomerModal } from "@/components/InviteCustomerModal";
 import QuickReplyModal from "@/components/QuickReplyModal";
 import { BulkTicketActions } from "@/components/BulkTicketActions";
 import { TicketTemplateManager } from "@/components/TicketTemplateManager";
-import SlaTimer from "@/components/SlaTimer";
+import { SLATimer } from "@/components/SLATimer";
 import CloseTicketDialog from "@/components/CloseTicketDialog";
 
 type AdminTab = "tickets" | "users";
@@ -549,9 +549,9 @@ export default function AdminPanel() {
 
                     {/* SLA Timer — inline in list row */}
                     <div className="hidden md:block">
-                      <SlaTimer
+                      <SLATimer
                         priority={ticket.priority}
-                        updatedAt={ticket.updatedAt}
+                        createdAt={ticket.createdAt}
                         status={ticket.status}
                       />
                     </div>

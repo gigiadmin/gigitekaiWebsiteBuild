@@ -1371,8 +1371,8 @@
 - [x] Ticket activity log — show status change history with timestamp and who changed it
 
 ### Phase 2 — Assignment, SLA & Omnichannel
+- [x] SLA timer display on ticket detail (time since opened, time until SLA breach) — SLATimer component created with real-time countdown, progress bars, and breach detection
 - [ ] Assign ticket to specific agent from admin ticket detail view
-- [ ] SLA timer display on ticket detail (time since opened, time until SLA breach)
 - [ ] Ticket merge — merge duplicate tickets
 - [ ] Bulk ticket actions (select multiple, change status/assign in bulk)
 - [ ] Email-to-ticket: auto-create ticket when email received with no [TICKET #N] reference
