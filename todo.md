@@ -1374,10 +1374,10 @@
 - [x] SLA timer display on ticket detail (time since opened, time until SLA breach) — SLATimer component created with real-time countdown, progress bars, and breach detection
 - [x] Assign ticket to specific agent from admin ticket detail view — AgentAssignmentModal component created with agent dropdown, status indicators, and assignment mutations
 - [x] Integrated AgentAssignmentModal into TicketDetail.tsx and AdminPanel.tsx for single and bulk assignment workflows
-- [ ] Ticket merge — merge duplicate tickets
-- [ ] Bulk ticket actions (select multiple, change status/assign in bulk)
-- [ ] Email-to-ticket: auto-create ticket when email received with no [TICKET #N] reference
-- [ ] Canned responses library for quick replies
+- [x] Ticket merge — merge duplicate tickets (mergeTicket, unmergeTicket, getMergedTickets, getTicketMergeStatus procedures + TicketMergeModal UI)
+- [x] Bulk ticket actions (select multiple, change status/assign in bulk) — bulkUpdateStatus, bulkAssignAgent, bulkUpdatePriority, bulkUpdateCategory, bulkClose, bulkDelete, getBulkStats procedures
+- [x] Email-to-ticket: auto-create ticket when email received with no [TICKET #N] reference — processIncomingEmail, getEmailSettings, updateEmailSettings, getEmailStats, testEmailWebhook procedures
+- [x] Canned responses library for quick replies — Already implemented with AdminCannedResponsesPage, CannedResponsePicker, and full CRUD router
 
 ### Phase 3 — Self-Service & AI Automation
 - [ ] Knowledge base / FAQ builder in admin (create articles, link from AI chatbot)

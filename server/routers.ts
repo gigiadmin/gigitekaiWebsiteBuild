@@ -35,6 +35,8 @@ import { copilotStudioRouter } from "./routers/copilotStudio";
 import { pricingRouter } from "./routers/pricing";
 import { helpdeskAgentSlaRouter } from "./routers/helpdesk-agent-sla";
 import { ticketMergeRouter } from "./routers/helpdesk-ticket-merge";
+import { bulkActionsRouter } from "./routers/helpdesk-bulk-actions";
+import { emailToTicketRouter } from "./routers/helpdesk-email-to-ticket";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -70,6 +72,8 @@ export const appRouter = router({
   helpdesk: helpdeskRouter,
   helpdeskAgentSla: helpdeskAgentSlaRouter,
   ticketMerge: ticketMergeRouter,
+  bulkActions: bulkActionsRouter,
+  emailToTicket: emailToTicketRouter,
   aibot: aibotRouter,
   chat: chatRouter,
   customerInvites: customerInvitesRouter,
