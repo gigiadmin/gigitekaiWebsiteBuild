@@ -9,6 +9,9 @@ vi.mock("./db", () => {
 
   return {
     searchKnowledgeBase: vi.fn(async () => []),
+    searchKBArticles: vi.fn(async () => []),
+    getAllPublishedKBArticles: vi.fn(async () => []),
+    isKBArticleRelevant: vi.fn(async () => false),
     createChatSession: vi.fn(async (session: any) => {
       sessions.set(session.sessionId, {
         ...session,
@@ -574,3 +577,278 @@ describe("aibot lead capture email notifications", () => {
     expect(result.message).toContain("Thank you");
   });
 });
+
+
+  // ─── KB-Aware Bot Tests ───────────────────────────────────────────────────────
+
+  it("searches published KB articles when available", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return KB articles
+    const { searchKBArticles } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "How to reset Microsoft 365 password",
+        content: "To reset your password, go to account.microsoft.com...",
+        category: "M365",
+        tags: "password,reset,m365",
+        isPublished: true,
+        createdBy: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        relevanceScore: 100,
+      },
+    ]);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "How do I reset my password?",
+    });
+
+    expect(result.message).toBeDefined();
+    expect(result.message).toContain("📚 **This is covered in our KB:**");
+    expect(result.message).toContain("How to reset Microsoft 365 password");
+  });
+
+  it("falls back to legacy knowledge base when KB articles not found", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return empty (no KB articles)
+    const { searchKBArticles, searchKnowledgeBase } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([]);
+    
+    // Mock legacy KB search to return results
+    vi.mocked(searchKnowledgeBase).mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "Microsoft 365 Basics",
+        content: "Microsoft 365 is a cloud-based productivity suite...",
+        category: "General",
+        keywords: "m365,basics,cloud",
+        priority: 1,
+      },
+    ]);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Tell me about Microsoft 365",
+    });
+
+    expect(result.message).toBeDefined();
+    expect(result.sessionId).toBe(sessionId);
+  });
+
+  it("provides proactive KB suggestions when KB articles not directly matched", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return empty (no direct match)
+    const { searchKBArticles, getAllPublishedKBArticles, isKBArticleRelevant } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([]);
+    
+    // Mock getAllPublishedKBArticles to return available articles
+    vi.mocked(getAllPublishedKBArticles).mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "Troubleshooting Teams connectivity",
+        content: "If Teams is not connecting...",
+        category: "Teams",
+        tags: "teams,connectivity,troubleshooting",
+        isPublished: true,
+        createdBy: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        title: "Managing Teams channels",
+        content: "Teams channels allow you to organize...",
+        category: "Teams",
+        tags: "teams,channels,management",
+        isPublished: true,
+        createdBy: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    // Mock isKBArticleRelevant to return true for first article
+    vi.mocked(isKBArticleRelevant)
+      .mockResolvedValueOnce(true)  // First article is relevant
+      .mockResolvedValueOnce(false); // Second article is not relevant
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "I'm having trouble with Teams",
+    });
+
+    expect(result.message).toBeDefined();
+    expect(result.message).toContain("💡 **Hey, this might help:**");
+  });
+
+  it("tracks KB article usage in metadata", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return KB articles
+    const { searchKBArticles } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([
+      {
+        id: 1,
+        title: "KB Article Test",
+        content: "Test content",
+        category: "Test",
+        tags: "test",
+        isPublished: true,
+        createdBy: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        relevanceScore: 100,
+      },
+    ]);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Test question",
+    });
+
+    expect(result.message).toBeDefined();
+    expect(result.sessionId).toBe(sessionId);
+  });
+
+  it("includes KB article links in bot response", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return KB articles with specific ID
+    const { searchKBArticles } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([
+      {
+        id: 42,
+        title: "Test KB Article",
+        content: "Test content for KB article",
+        category: "Test",
+        tags: "test",
+        isPublished: true,
+        createdBy: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        relevanceScore: 100,
+      },
+    ]);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Test question",
+    });
+
+    expect(result.message).toBeDefined();
+    expect(result.message).toContain("/kb/42");
+  });
+
+  it("handles KB search errors gracefully", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to throw error
+    const { searchKBArticles } = await import("./db");
+    vi.mocked(searchKBArticles).mockRejectedValueOnce(new Error("DB error"));
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Test question",
+    });
+
+    // Should still return a response (falls back to legacy KB)
+    expect(result.message).toBeDefined();
+    expect(result.sessionId).toBe(sessionId);
+  });
+
+  it("limits proactive suggestions to maximum 2 articles", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return empty
+    const { searchKBArticles, getAllPublishedKBArticles, isKBArticleRelevant } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([]);
+    
+    // Mock getAllPublishedKBArticles to return many articles
+    const manyArticles = Array.from({ length: 10 }, (_, i) => ({
+      id: i + 1,
+      title: `KB Article ${i + 1}`,
+      content: `Content ${i + 1}`,
+      category: "Test",
+      tags: "test",
+      isPublished: true,
+      createdBy: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+    vi.mocked(getAllPublishedKBArticles).mockResolvedValueOnce(manyArticles);
+
+    // Mock isKBArticleRelevant to return true for all (to test limit)
+    vi.mocked(isKBArticleRelevant).mockResolvedValue(true);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Test question with long content to trigger proactive suggestions",
+    });
+
+    expect(result.message).toBeDefined();
+    // Count occurrences of KB links - should be max 2 suggestions
+    const linkMatches = result.message.match(/\/kb\/\d+/g) || [];
+    expect(linkMatches.length).toBeLessThanOrEqual(2);
+  });
+
+  it("does not provide proactive suggestions for very short messages", async () => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+
+    // Create session first
+    const sessionRes = await caller.getOrCreateSession({});
+    const sessionId = sessionRes.sessionId;
+
+    // Mock searchKBArticles to return empty
+    const { searchKBArticles } = await import("./db");
+    vi.mocked(searchKBArticles).mockResolvedValueOnce([]);
+
+    const result = await caller.sendMessage({
+      sessionId,
+      message: "Hi",
+    });
+
+    expect(result.message).toBeDefined();
+    // Short message should not trigger proactive suggestions
+    expect(result.message).not.toContain("💡 **Hey, this might help:**");
+  });

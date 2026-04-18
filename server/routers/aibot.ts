@@ -4,7 +4,10 @@ import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { 
-  searchKnowledgeBase, 
+  searchKnowledgeBase,
+  searchKBArticles,
+  getAllPublishedKBArticles,
+  isKBArticleRelevant,
   createChatSession, 
   getChatSession, 
   saveChatMessage, 
@@ -320,12 +323,41 @@ export const aibotRouter = router({
         routedTo: analysis.routedTo
       });
 
-      // Search knowledge base for relevant context
-      const relevantDocs = await searchKnowledgeBase(message);
-      const context = relevantDocs
-        .slice(0, 3)
-        .map(doc => `[${doc.category}] ${doc.title}: ${doc.content}`)
-        .join("\n\n");
+      // Search knowledge base for relevant context (hybrid: KB articles first, then legacy KB fallback)
+      let relevantDocs: any[] = [];
+      let kbArticleMatches: any[] = [];
+      let kbArticleContext = "";
+      let legacyKBContext = "";
+
+      // Phase 1: Search published KB articles
+      try {
+        kbArticleMatches = await searchKBArticles(message, 3);
+        if (kbArticleMatches.length > 0) {
+          kbArticleContext = kbArticleMatches
+            .map(article => `[${article.category || 'General'}] ${article.title}: ${article.content.substring(0, 500)}...`)
+            .join("\n\n");
+        }
+      } catch (error) {
+        console.error("[AIBot] KB article search failed:", error);
+      }
+
+      // Phase 2: Fall back to legacy knowledge base if no KB articles found
+      if (kbArticleMatches.length === 0) {
+        try {
+          relevantDocs = await searchKnowledgeBase(message);
+          if (relevantDocs.length > 0) {
+            legacyKBContext = relevantDocs
+              .slice(0, 3)
+              .map(doc => `[${doc.category}] ${doc.title}: ${doc.content}`)
+              .join("\n\n");
+          }
+        } catch (error) {
+          console.error("[AIBot] Legacy KB search failed:", error);
+        }
+      }
+
+      // Combine contexts: KB articles take priority
+      const context = kbArticleContext || legacyKBContext;
 
       // Build conversation history for LLM
       const conversationHistory = history.map(msg => ({
@@ -344,9 +376,40 @@ export const aibotRouter = router({
         });
 
         const assistantMessageContent = response.choices[0]?.message?.content;
-        const assistantMessage = typeof assistantMessageContent === 'string' 
+        let assistantMessage = typeof assistantMessageContent === 'string' 
           ? assistantMessageContent 
           : "I apologize, I'm having trouble responding. Please try again.";
+
+        // Add KB attribution if KB articles were used
+        if (kbArticleMatches.length > 0) {
+          const topArticle = kbArticleMatches[0];
+          assistantMessage += `\n\n📚 **This is covered in our KB:** [${topArticle.title}](/kb/${topArticle.id})`;
+        }
+
+        // Proactive KB suggestions: check if other KB articles might be helpful
+        if (kbArticleMatches.length === 0 && message.length > 10) {
+          try {
+            const allKBArticles = await getAllPublishedKBArticles();
+            const suggestedArticles = [];
+            
+            for (const article of allKBArticles.slice(0, 5)) {
+              const isRelevant = await isKBArticleRelevant(article.id, message, 50);
+              if (isRelevant) {
+                suggestedArticles.push(article);
+                if (suggestedArticles.length >= 2) break; // Limit to 2 suggestions
+              }
+            }
+
+            if (suggestedArticles.length > 0) {
+              assistantMessage += `\n\n💡 **Hey, this might help:**`;
+              suggestedArticles.forEach(article => {
+                assistantMessage += `\n- [${article.title}](/kb/${article.id})`;
+              });
+            }
+          } catch (error) {
+            console.error("[AIBot] Failed to generate proactive KB suggestions:", error);
+          }
+        }
 
         // Check if escalation is needed (angry customers or complex issues)
         const autoEscalateFromSentiment = shouldAutoEscalate(analysis.sentiment, analysis.sentimentScore);
@@ -367,12 +430,14 @@ export const aibotRouter = router({
           role: "assistant",
           message: assistantMessage,
           metadata: JSON.stringify({
-            confidence: relevantDocs.length > 0 ? 0.8 : 0.5,
-            sources: relevantDocs.map(d => d.id),
+            confidence: kbArticleMatches.length > 0 ? 0.9 : (relevantDocs.length > 0 ? 0.8 : 0.5),
+            sources: [...kbArticleMatches.map(d => d.id), ...relevantDocs.map(d => d.id)],
             shouldEscalate,
             sentiment: analysis.sentiment,
             intent: analysis.intent,
-            routedTo: analysis.routedTo
+            routedTo: analysis.routedTo,
+            kbArticlesUsed: kbArticleMatches.length,
+            proactiveSuggestions: assistantMessage.includes("Hey, this might help")
           }),
         });
         const assistantMessageId = (assistantMsgResult as any)?.[0]?.insertId || 1;

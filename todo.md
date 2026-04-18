@@ -2264,3 +2264,42 @@
   - KB articles available when creating tickets
   - Smart suggestions based on ticket category
   - Reduces support volume by helping users find answers first
+
+
+## KB-Aware AI Bot Integration (NEW - April 2026)
+- [x] Phase 1: Design KB-aware bot architecture
+  - [x] Analyzed current bot knowledge retrieval (searchKnowledgeBase in aibot.ts)
+  - [x] Designed hybrid knowledge system (KB articles + M365 fallback)
+  - [x] Planned instant sync trigger on KB article publication
+  - [x] Documented proactive KB suggestion logic
+- [x] Phase 2: Implement KB sync trigger on article publication
+  - [x] Added searchKBArticles() helper in db.ts for instant KB article search
+  - [x] Created getAllPublishedKBArticles() function to fetch all published articles
+  - [x] Instant sync enabled: bot queries published kbArticles directly on each message
+- [x] Phase 3: Integrate KB search into bot's response pipeline
+  - [x] Updated aibot.ts sendMessage to search kbArticles table first (not just legacy knowledgeBase)
+  - [x] Implemented hybrid search: KB articles first, then M365 general knowledge fallback
+  - [x] Added KB article relevance scoring and ranking (100 points for title match, 30 for title term, 25 for tags, 10 for content)
+  - [x] Preserved existing M365 knowledge in system prompt as ultimate fallback
+- [x] Phase 4: Add KB attribution and proactive suggestions
+  - [x] Added KB article attribution to bot responses ("📚 This is covered in our KB: [link]")
+  - [x] Implemented proactive KB suggestions ("💡 Hey, this might help: [KB articles]")
+  - [x] Added KB article links (/kb/{id}) to bot message responses
+  - [x] Included KB article metadata (category, tags) in bot context
+- [x] Phase 5: Write vitest tests for KB-aware bot functionality
+  - [x] Test KB sync trigger on article publication
+  - [x] Test hybrid knowledge retrieval (KB + M365 fallback)
+  - [x] Test proactive KB suggestions in bot responses
+  - [x] Test KB article attribution in responses
+  - [x] Test bot behavior when KB article is unpublished
+  - [x] Created 8+ new tests covering all KB-aware features
+- [x] Phase 6: Test end-to-end KB sync and bot responses
+  - [x] Verified bot immediately knows about published KB articles
+  - [x] Tested bot suggests article when user asks related question
+  - [x] Verified bot provides M365 knowledge when KB doesn't have answer
+  - [x] Tested bot proactively suggests KB articles during conversation
+  - [x] Confirmed instant sync works on each message (no caching delays)
+- [x] Phase 7: Deliver KB-aware bot implementation
+  - [x] Updated todo.md with completion status
+  - [x] Ready to save checkpoint with KB-aware bot features
+  - [x] Prepared summary for user

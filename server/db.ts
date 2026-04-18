@@ -1,6 +1,6 @@
-import { eq, like, desc, gte, inArray, and, sql } from "drizzle-orm";
+import { eq, like, desc, gte, inArray, and, sql, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, userActivity, InsertUserActivity, customerFeedback, InsertCustomerFeedback, websiteTraffic, InsertWebsiteTraffic, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory } from "../drizzle/schema";
+import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, userActivity, InsertUserActivity, customerFeedback, InsertCustomerFeedback, websiteTraffic, InsertWebsiteTraffic, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory, kbArticles } from "../drizzle/schema";
 import crypto from "crypto";
 import { ENV } from './_core/env';
 
@@ -1209,5 +1209,119 @@ export async function getWebsiteTrafficSummary(days: number = 30) {
   } catch (error) {
     console.error("[Database] Failed to get traffic summary:", error);
     return null;
+  }
+}
+
+
+/**
+ * Search published KB articles by keywords (hybrid KB-aware bot)
+ * Returns both exact matches and partial matches, ranked by relevance
+ * Used by AI bot to find relevant KB articles for user queries
+ */
+export async function searchKBArticles(keywords: string, limit: number = 3) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot search KB articles: database not available");
+    return [];
+  }
+
+  try {
+    // Split keywords into individual terms for better matching
+    const terms = keywords.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+    if (terms.length === 0) return [];
+
+    // Fetch all published KB articles
+    const articles = await db
+      .select()
+      .from(kbArticles)
+      .where(eq(kbArticles.isPublished, true));
+
+    // Score each article based on keyword matches
+    const scored = articles.map(article => {
+      let score = 0;
+      const titleLower = article.title.toLowerCase();
+      const contentLower = article.content.toLowerCase();
+      const tagsLower = (article.tags || "").toLowerCase();
+
+      // Exact phrase match in title (100 points)
+      if (titleLower.includes(keywords.toLowerCase())) score += 100;
+
+      // Individual term matches
+      terms.forEach(term => {
+        // Title matches (30 points each)
+        if (titleLower.includes(term)) score += 30;
+        // Tag matches (25 points each)
+        if (tagsLower.includes(term)) score += 25;
+        // Content matches (10 points each)
+        if (contentLower.includes(term)) score += 10;
+      });
+
+      return { ...article, relevanceScore: score };
+    });
+
+    // Sort by relevance score and return top results
+    return scored
+      .filter(a => a.relevanceScore > 0)
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .slice(0, limit);
+  } catch (error) {
+    console.error("[Database] Failed to search KB articles:", error);
+    return [];
+  }
+}
+
+/**
+ * Get all published KB articles (for bot training/sync)
+ * Returns articles ordered by most recent first
+ */
+export async function getAllPublishedKBArticles() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get KB articles: database not available");
+    return [];
+  }
+
+  try {
+    return await db
+      .select()
+      .from(kbArticles)
+      .where(eq(kbArticles.isPublished, true))
+      .orderBy(desc(kbArticles.updatedAt));
+  } catch (error) {
+    console.error("[Database] Failed to get KB articles:", error);
+    return [];
+  }
+}
+
+/**
+ * Check if a KB article is highly relevant to a user message
+ * Returns true if relevance score is above threshold (for proactive suggestions)
+ */
+export async function isKBArticleRelevant(articleId: number, userMessage: string, threshold: number = 50): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const [article] = await db
+      .select()
+      .from(kbArticles)
+      .where(and(eq(kbArticles.id, articleId), eq(kbArticles.isPublished, true)))
+      .limit(1);
+
+    if (!article) return false;
+
+    // Simple relevance check: count keyword matches
+    const messageLower = userMessage.toLowerCase();
+    const titleLower = article.title.toLowerCase();
+    const contentLower = article.content.toLowerCase();
+
+    // Check if message contains article keywords
+    const titleWords = titleLower.split(/\s+/).filter(w => w.length > 3);
+    const matches = titleWords.filter(word => messageLower.includes(word)).length;
+
+    return matches >= 1; // At least one significant word match
+  } catch (error) {
+    console.error("[Database] Failed to check KB article relevance:", error);
+    return false;
   }
 }
