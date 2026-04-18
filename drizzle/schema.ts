@@ -939,3 +939,55 @@ export const kbArticleFeedback = mysqlTable("kbArticleFeedback", {
 });
 export type KbArticleFeedback = typeof kbArticleFeedback.$inferSelect;
 export type InsertKbArticleFeedback = typeof kbArticleFeedback.$inferInsert;
+
+
+// Pricing Tiers — helpdesk service tiers and pricing
+export const pricingTiers = mysqlTable("pricingTiers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(), // "Starter", "Pro", "Enterprise"
+  description: text("description"),
+  monthlyPrice: decimal("monthlyPrice", { precision: 10, scale: 2 }).notNull(),
+  annualPrice: decimal("annualPrice", { precision: 10, scale: 2 }).notNull(),
+  isPopular: boolean("isPopular").default(false).notNull(),
+  features: text("features").notNull(), // JSON array of feature strings
+  maxUsers: int("maxUsers"), // max team members
+  maxTickets: int("maxTickets"), // max tickets per month
+  maxStorage: int("maxStorage"), // in GB
+  supportLevel: varchar("supportLevel", { length: 50 }), // "Basic", "Priority", "24/7"
+  slaResponse: varchar("slaResponse", { length: 50 }), // e.g. "4 hours", "1 hour"
+  slaResolution: varchar("slaResolution", { length: 50 }), // e.g. "48 hours", "24 hours"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type PricingTier = typeof pricingTiers.$inferSelect;
+export type InsertPricingTier = typeof pricingTiers.$inferInsert;
+
+// ROI Calculations — user ROI calculator submissions
+export const roiCalculations = mysqlTable("roiCalculations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // null if anonymous
+  tierName: varchar("tierName", { length: 255 }),
+  currentEmployees: int("currentEmployees").notNull(),
+  ticketsPerMonth: int("ticketsPerMonth").notNull(),
+  avgResolutionTime: decimal("avgResolutionTime", { precision: 5, scale: 2 }).notNull(), // hours
+  costPerHour: decimal("costPerHour", { precision: 10, scale: 2 }).notNull(),
+  estimatedSavings: decimal("estimatedSavings", { precision: 12, scale: 2 }).notNull(), // annual
+  paybackPeriod: decimal("paybackPeriod", { precision: 5, scale: 2 }), // months
+  roiPercentage: decimal("roiPercentage", { precision: 10, scale: 2 }), // %
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type RoiCalculation = typeof roiCalculations.$inferSelect;
+export type InsertRoiCalculation = typeof roiCalculations.$inferInsert;
+
+// Pricing Analytics — track pricing page engagement
+export const pricingAnalytics = mysqlTable("pricingAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  date: varchar("date", { length: 10 }).notNull().unique(), // YYYY-MM-DD
+  pageViews: int("pageViews").default(0).notNull(),
+  tierViews: text("tierViews"), // JSON object with tier view counts
+  calculatorUsed: int("calculatorUsed").default(0).notNull(),
+  contactFormSubmitted: int("contactFormSubmitted").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PricingAnalytics = typeof pricingAnalytics.$inferSelect;
+export type InsertPricingAnalytics = typeof pricingAnalytics.$inferInsert;

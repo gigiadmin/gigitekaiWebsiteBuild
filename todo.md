@@ -2459,3 +2459,13 @@
   - Sticky header stays visible while scrolling content
   - Clear visual hierarchy with cyan accent color
   - Better mobile experience overall
+
+
+## KB Scroll Sensitivity Fix (April 18, 2026)
+- [x] Fix KB article selection being too sensitive during scrolling
+  - Replaced onClick/onTouchEnd with pointer events (onPointerDown/onPointerUp)
+  - Added movement distance detection - only selects if pointer moved less than 10px
+  - Prevents accidental selection while scrolling through article list
+  - Added select-none class to prevent text selection during scrolling
+  - More reliable scroll detection with 500ms debounce
+  - Better UX: users can now scroll smoothly without triggering article selection

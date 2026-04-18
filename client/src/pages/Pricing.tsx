@@ -1,12 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
 
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"annual" | "monthly">("annual");
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calculatorData, setCalculatorData] = useState({
+    currentEmployees: 10,
+    ticketsPerMonth: 100,
+    avgResolutionTime: 2,
+    costPerHour: 50,
+    tierName: "Professional",
+  });
+  const [roiResult, setRoiResult] = useState<any>(null);
 
-  const tiers = [
+  // Fetch pricing tiers from database
+  const { data: dbTiers, isLoading } = trpc.pricing.listTiers.useQuery();
+  const calculateROI = trpc.pricing.calculateROI.useMutation({
+    onSuccess: (data) => {
+      setRoiResult(data);
+    },
+  });
+  const trackCalculator = trpc.pricing.trackCalculatorUsage.useMutation();
+  const trackPageView = trpc.pricing.trackPageView.useMutation();
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView.mutate({});
+  }, [trackPageView]);
+
+  const handleCalculateROI = () => {
+    trackCalculator.mutate();
+    calculateROI.mutate(calculatorData);
+  };
+
+  // Use database tiers if available, otherwise use defaults
+  const tiers = dbTiers || [
     {
       name: "Essentials",
       description: "Perfect for small teams",
@@ -72,8 +103,9 @@ export default function Pricing() {
   ];
 
   const monthlyPrice = (annualPrice: number) => {
-    const monthly = (annualPrice * 12) / 12;
-    return billingCycle === "annual" ? annualPrice : Math.round(monthly * 1.2); // 20% monthly premium
+    const annual = typeof annualPrice === 'string' ? parseFloat(annualPrice) : annualPrice;
+    const monthly = (annual * 12) / 12;
+    return billingCycle === "annual" ? annual : Math.round(monthly * 1.2); // 20% monthly premium
   };
 
   return (
@@ -88,7 +120,123 @@ export default function Pricing() {
             One clean price. Everything included. No hidden fees.
           </p>
 
-          {/* Billing Toggle */}
+          {/* ROI Calculator Button */}
+        <div className="mb-8">
+          <Button
+            onClick={() => {
+              setShowCalculator(!showCalculator);
+            }}
+            className="bg-cyan-500 hover:bg-cyan-600 text-white"
+          >
+            {showCalculator ? "Hide" : "Calculate Your ROI"}
+          </Button>
+        </div>
+
+        {/* ROI Calculator */}
+        {showCalculator && (
+          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-8 mb-12">
+            <h2 className="text-2xl font-bold mb-6">ROI Calculator</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Team Size</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10000"
+                  value={calculatorData.currentEmployees}
+                  onChange={(e) =>
+                    setCalculatorData({
+                      ...calculatorData,
+                      currentEmployees: parseInt(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Tickets/Month</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100000"
+                  value={calculatorData.ticketsPerMonth}
+                  onChange={(e) =>
+                    setCalculatorData({
+                      ...calculatorData,
+                      ticketsPerMonth: parseInt(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Avg Resolution Time (hrs)</label>
+                <input
+                  type="number"
+                  min="0.5"
+                  max="168"
+                  step="0.5"
+                  value={calculatorData.avgResolutionTime}
+                  onChange={(e) =>
+                    setCalculatorData({
+                      ...calculatorData,
+                      avgResolutionTime: parseFloat(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Cost/Hour ($)</label>
+                <input
+                  type="number"
+                  min="10"
+                  max="500"
+                  value={calculatorData.costPerHour}
+                  onChange={(e) =>
+                    setCalculatorData({
+                      ...calculatorData,
+                      costPerHour: parseFloat(e.target.value),
+                    })
+                  }
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={handleCalculateROI}
+              disabled={calculateROI.isPending}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+            >
+              {calculateROI.isPending ? "Calculating..." : "Calculate ROI"}
+            </Button>
+            {roiResult && (
+              <div className="mt-8 p-6 bg-slate-700 rounded-lg border border-cyan-500">
+                <h3 className="text-xl font-bold text-cyan-400 mb-4">Your ROI Results</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Monthly Savings</p>
+                    <p className="text-2xl font-bold text-cyan-400">${roiResult.monthlySavings.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Annual Savings</p>
+                    <p className="text-2xl font-bold text-cyan-400">${roiResult.annualSavings.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">ROI</p>
+                    <p className="text-2xl font-bold text-green-400">{roiResult.roiPercentage}%</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Payback Period</p>
+                    <p className="text-2xl font-bold text-cyan-400">{roiResult.paybackMonths.toFixed(1)} mo</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Billing Toggle */}
           <div className="flex justify-center gap-4 mb-12">
             <button
               onClick={() => setBillingCycle("annual")}
@@ -115,16 +263,17 @@ export default function Pricing() {
 
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {tiers.map((tier, idx) => (
+          {isLoading && <div className="col-span-3 text-center text-gray-400">Loading pricing...</div>}
+          {!isLoading && tiers.map((tier: any, idx: number) => (
             <Card
               key={idx}
               className={`relative transition-all ${
-                tier.highlighted
+                tier.isPopular
                   ? "border-cyan-500 bg-gradient-to-b from-slate-800 to-slate-900 shadow-2xl shadow-cyan-500/20 scale-105"
                   : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
               }`}
             >
-              {tier.highlighted && (
+              {tier.isPopular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                   Most Popular
                 </div>
@@ -133,7 +282,6 @@ export default function Pricing() {
               <CardHeader>
                 <CardTitle className="text-2xl">{tier.name}</CardTitle>
                 <CardDescription className="text-slate-400">{tier.description}</CardDescription>
-                <p className="text-sm text-slate-500 mt-2">{tier.users}</p>
               </CardHeader>
 
               <CardContent className="space-y-6">
@@ -141,20 +289,20 @@ export default function Pricing() {
                 <div className="space-y-1">
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-bold text-cyan-400">
-                      ${monthlyPrice(tier.price)}
+                      ${monthlyPrice(tier.monthlyPrice || tier.price)}
                     </span>
-                    <span className="text-slate-400">/user/month</span>
+                    <span className="text-slate-400">/month</span>
                   </div>
-                  {tier.priceAlt && (
+                  {tier.annualPrice && (
                     <p className="text-sm text-slate-500">
-                      or ${monthlyPrice(tier.priceAlt)} ({tier.priceNote})
+                      ${(Number(tier.annualPrice) / 12).toFixed(0)}/month when billed annually
                     </p>
                   )}
                 </div>
 
                 {/* Features */}
                 <ul className="space-y-3">
-                  {tier.features.map((feature, fidx) => (
+                  {(tier.features || []).map((feature: any, fidx: number) => (
                     <li key={fidx} className="flex gap-3 items-start">
                       <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
                       <span className="text-slate-300">{feature}</span>
@@ -165,12 +313,12 @@ export default function Pricing() {
                 {/* CTA Button */}
                 <Button
                   className={`w-full mt-6 ${
-                    tier.highlighted
+                    tier.isPopular
                       ? "bg-cyan-500 hover:bg-cyan-600 text-white"
                       : "bg-slate-700 hover:bg-slate-600 text-white border border-slate-600"
                   }`}
                 >
-                  {tier.cta}
+                  Get Started
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
