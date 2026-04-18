@@ -3,6 +3,7 @@ import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
+import PricingFAQ from "@/components/PricingFAQ";
 
 export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState<"annual" | "monthly">("annual");
@@ -392,6 +393,9 @@ export default function Pricing() {
           </div>
         </div>
       </div>
+
+      {/* Pricing FAQ Section */}
+      <PricingFAQ />
     </div>
   );
 }
