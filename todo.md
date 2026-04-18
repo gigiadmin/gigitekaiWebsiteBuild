@@ -1380,10 +1380,10 @@
 - [x] Canned responses library for quick replies — Already implemented with AdminCannedResponsesPage, CannedResponsePicker, and full CRUD router
 
 ### Phase 3 — Self-Service & AI Automation
-- [ ] Knowledge base / FAQ builder in admin (create articles, link from AI chatbot)
-- [ ] AI auto-categorization of new tickets (priority + category suggestion)
-- [ ] AI suggested reply based on ticket content and knowledge base
-- [ ] Proactive push notification to customer on ticket status change
+- [x] Knowledge base / FAQ builder in admin (create articles, link from AI chatbot) — helpdeskKbRouter with CRUD operations, search, and statistics
+- [x] AI auto-categorization of new tickets (priority + category suggestion) — helpdeskAiTriageRouter with LLM-based categorization and bulk triage
+- [x] AI suggested reply based on ticket content and knowledge base — helpdeskAiRepliesRouter with KB integration and multiple reply suggestions
+- [x] Proactive push notification to customer on ticket status change — helpdeskNotificationsRouter with status, assignment, reply, and SLA breach notifications
 
 ## Bug Fix: Book Now Popup (April 2026)
 - [ ] Remove "Book Now" sticky banner popup that appears on admin/helpdesk pages — should only show on public marketing pages if at all
