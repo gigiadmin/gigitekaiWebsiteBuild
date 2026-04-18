@@ -2318,7 +2318,8 @@
 - [x] Added kbArticleFeedback table to drizzle schema (messageId, articleId, rating: helpful|unhelpful, userId, createdAt)
 - [x] Created submitKBArticleFeedback() function in db.ts
 - [x] Created getKBArticleFeedback() function in db.ts
-- [ ] Add feedback endpoints in aibot router (submitFeedback mutation)
+- [x] Added submitKBFeedback mutation in aibot router
+- [x] Added getKBAnalytics query in aibot router
 - [ ] Add thumbs-up/down buttons to bot response UI
 - [ ] Write tests for feedback submission
 

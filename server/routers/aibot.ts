@@ -997,4 +997,44 @@ export const aibotRouter = router({
         return { success: false, message: 'Failed to delete message' };
       }
     }),
+
+  submitKBFeedback: publicProcedure
+    .input(z.object({
+      messageId: z.number(),
+      articleId: z.number(),
+      rating: z.enum(['helpful', 'unhelpful']),
+      feedbackMessage: z.string().optional(),
+      sessionId: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await submitKBArticleFeedback({
+          messageId: input.messageId,
+          articleId: input.articleId,
+          rating: input.rating,
+          feedbackMessage: input.feedbackMessage || null,
+          sessionId: input.sessionId || null,
+          userId: null,
+          createdAt: new Date(),
+        });
+        return { success: !!result, feedback: result };
+      } catch (error) {
+        console.error('[AIBot] Failed to submit KB feedback:', error);
+        return { success: false, error: 'Failed to submit feedback' };
+      }
+    }),
+
+  getKBAnalytics: publicProcedure
+    .input(z.object({
+      articleId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const analytics = await getKBArticleAnalytics(input.articleId);
+        return { success: true, analytics };
+      } catch (error) {
+        console.error('[AIBot] Failed to get KB analytics:', error);
+        return { success: false, analytics: [] };
+      }
+    }),
 });
