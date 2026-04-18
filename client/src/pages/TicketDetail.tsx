@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation, useParams } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
 import SlaTimer from "@/components/SlaTimer";
@@ -37,6 +37,9 @@ export default function TicketDetail() {
   const [replyText, setReplyText] = useState("");
   const [noteText, setNoteText] = useState("");
   const [activeAdminTab, setActiveAdminTab] = useState<"notes" | "activity">("notes");
+  const [surveyRating, setSurveyRating] = useState<number | null>(null);
+  const [surveyComment, setSurveyComment] = useState("");
+  const [surveySubmitted, setSurveySubmitted] = useState(false);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -63,6 +66,34 @@ export default function TicketDetail() {
   }, [error]);
 
   const utils = trpc.useUtils();
+
+  // Sample KB articles (in production, fetch from database)
+  const knowledgeBaseArticles = [
+    { id: 1, title: "How to reset your password", category: "account", keywords: ["password", "reset", "login", "access"] },
+    { id: 2, title: "Troubleshooting email sync issues", category: "email", keywords: ["email", "sync", "not", "working", "outlook"] },
+    { id: 3, title: "Setting up two-factor authentication", category: "security", keywords: ["2fa", "authentication", "security", "login"] },
+    { id: 4, title: "Cloud storage setup guide", category: "storage", keywords: ["cloud", "storage", "onedrive", "sharepoint"] },
+    { id: 5, title: "VPN connection troubleshooting", category: "network", keywords: ["vpn", "connection", "network", "remote"] },
+    { id: 6, title: "Printer setup and configuration", category: "hardware", keywords: ["printer", "printing", "setup", "driver"] },
+  ];
+
+  // Get suggested KB articles based on ticket content
+  const suggestedArticles = useMemo(() => {
+    if (!ticketData?.ticket) return [];
+    const { title, description } = ticketData.ticket;
+    const content = `${title} ${description}`.toLowerCase();
+    const contentWords = content.split(/\s+/);
+
+    const scored = knowledgeBaseArticles.map(article => {
+      const matches = article.keywords.filter(kw => contentWords.includes(kw.toLowerCase())).length;
+      return { ...article, score: matches };
+    });
+
+    return scored
+      .filter(a => a.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [ticketData?.ticket]);
 
   const suggestReplyMutation = trpc.aiTriage.suggestReply.useMutation({
     onSuccess: (data) => {
@@ -283,6 +314,33 @@ export default function TicketDetail() {
                 status={ticket.status}
               />
             </div>
+
+            {/* Suggested KB Articles */}
+            {suggestedArticles.length > 0 && (
+              <div className="mt-5 pt-5 border-t border-gray-800/60">
+                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Suggested Articles</p>
+                <div className="space-y-2">
+                  {suggestedArticles.map((article: any) => (
+                    <a
+                      key={article.id}
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toast.success(`Opening: ${article.title}`);
+                      }}
+                      className="flex items-start gap-3 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/20 transition-colors group"
+                    >
+                      <span className="text-cyan-400 flex-shrink-0 mt-0.5">📚</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-cyan-300 group-hover:text-cyan-200 font-medium truncate">{article.title}</p>
+                        <p className="text-xs text-gray-500 capitalize">{article.category}</p>
+                      </div>
+                      <span className="text-cyan-400/60 flex-shrink-0">→</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Admin Quick Actions */}
             {isAdmin && (
@@ -566,6 +624,45 @@ export default function TicketDetail() {
                     Resolution Notes
                   </p>
                   <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{(ticket as any).closingNotes}</p>
+                </div>
+              )}
+              {!isAdmin && !surveySubmitted && (
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4">
+                  <p className="text-sm text-cyan-300 font-semibold mb-3">How satisfied are you with the resolution?</p>
+                  <div className="flex gap-2 mb-3">
+                    {[1, 2, 3, 4, 5].map(rating => (
+                      <button
+                        key={rating}
+                        onClick={() => setSurveyRating(rating)}
+                        className={`text-2xl px-3 py-2 rounded-lg transition-all ${
+                          surveyRating === rating
+                            ? "bg-cyan-500/30 scale-110"
+                            : "bg-cyan-500/10 hover:bg-cyan-500/20"
+                        }`}
+                      >
+                        {rating === 1 ? "😞" : rating === 2 ? "😐" : rating === 3 ? "😊" : rating === 4 ? "😄" : "🤩"}
+                      </button>
+                    ))}
+                  </div>
+                  {surveyRating && (
+                    <textarea
+                      value={surveyComment}
+                      onChange={(e) => setSurveyComment(e.target.value)}
+                      placeholder="Optional: Tell us what we could improve..."
+                      rows={2}
+                      className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none mb-3"
+                    />
+                  )}
+                  <Button
+                    onClick={() => {
+                      toast.success("Thank you for your feedback!");
+                      setSurveySubmitted(true);
+                    }}
+                    disabled={!surveyRating}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium rounded-lg"
+                  >
+                    Submit Feedback
+                  </Button>
                 </div>
               )}
               {isAdmin ? (

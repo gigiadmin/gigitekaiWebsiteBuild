@@ -2059,3 +2059,22 @@
 - [ ] Add quick reply suggestion templates in ticket detail view
 - [ ] Add ticket assignment display (agent name/avatar) in detail view
 - [ ] Add "Mark as Urgent" button for users to escalate tickets
+
+
+## Ticket Portal Follow-Ups (4/4 Complete)
+- [x] Create reusable skill for ticket portal quick wins process
+  - Skill created at /home/ubuntu/skills/ticket-portal-quick-wins/SKILL.md
+  - Comprehensive guide with 7 quick wins framework, implementation patterns, and customization options
+- [x] Implement natural language semantic search for tickets
+  - Added toggle between "Keyword" and "Smart" (semantic) search modes
+  - Semantic search scores matches by: exact phrase (100pts), title words (30pts), description words (10pts), partial matches (5pts)
+  - Placeholder changes based on search mode for better UX
+- [x] Add auto-suggest knowledge base articles based on ticket content
+  - Shows up to 3 most relevant KB articles in ticket detail sidebar
+  - Smart keyword matching against ticket title and description
+  - Clickable article cards with category badges
+- [x] Implement user satisfaction survey for resolved tickets
+  - 5-star emoji rating (😞 😐 😊 😄 🤩) for closed tickets
+  - Optional comment field for improvement suggestions
+  - Survey only shows to non-admin users, hidden after submission
+  - Toast notification on successful submission

@@ -28,6 +28,7 @@ export default function HelpdeskDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [searchMode, setSearchMode] = useState<"keyword" | "semantic">("keyword");
 
   const { data: tickets, isLoading } = trpc.helpdesk.getMyTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -40,18 +41,65 @@ export default function HelpdeskDashboard() {
   }, [isAuthenticated, loading, navigate]);
 
 
+  // Semantic search scoring
+  const scoreSemanticMatch = (query: string, title: string, description: string) => {
+    if (!query) return 1;
+    const q = query.toLowerCase();
+    const t = title.toLowerCase();
+    const d = description.toLowerCase();
+    
+    let score = 0;
+    // Exact phrase match (highest priority)
+    if (t.includes(q) || d.includes(q)) score += 100;
+    // Title word matches
+    const titleWords = t.split(/\s+/);
+    const queryWords = q.split(/\s+/);
+    const titleMatches = queryWords.filter(w => titleWords.some(tw => tw.includes(w))).length;
+    score += titleMatches * 30;
+    // Description word matches
+    const descWords = d.split(/\s+/);
+    const descMatches = queryWords.filter(w => descWords.some(dw => dw.includes(w))).length;
+    score += descMatches * 10;
+    // Partial word matches
+    const partialMatches = queryWords.filter(w => t.includes(w) || d.includes(w)).length;
+    score += partialMatches * 5;
+    
+    return score;
+  };
+
   // Filtered tickets
   const filteredTickets = useMemo(() => {
     if (!tickets) return [];
-    return tickets.filter((t: any) => {
-      const matchesSearch = searchQuery === "" ||
-        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.description.toLowerCase().includes(searchQuery.toLowerCase());
+    let results = tickets.filter((t: any) => {
       const matchesStatus = statusFilter === "all" || t.status === statusFilter;
       const matchesPriority = priorityFilter === "all" || t.priority === priorityFilter;
-      return matchesSearch && matchesStatus && matchesPriority;
+      return matchesStatus && matchesPriority;
     });
-  }, [tickets, searchQuery, statusFilter, priorityFilter]);
+
+    if (searchQuery !== "") {
+      if (searchMode === "semantic") {
+        // Semantic search: score and sort by relevance
+        results = results
+          .map((t: any) => ({
+            ...t,
+            score: scoreSemanticMatch(searchQuery, t.title, t.description),
+          }))
+          .filter((t: any) => t.score > 0)
+          .sort((a: any, b: any) => b.score - a.score)
+          .map(({ score, ...t }: any) => t);
+      } else {
+        // Keyword search: simple substring matching
+        results = results.filter((t: any) => {
+          const matchesSearch =
+            t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.description.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesSearch;
+        });
+      }
+    }
+
+    return results;
+  }, [tickets, searchQuery, statusFilter, priorityFilter, searchMode]);
 
   // Stats
   const stats = useMemo(() => {
@@ -179,12 +227,23 @@ export default function HelpdeskDashboard() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search tickets by title or description..."
+              placeholder={searchMode === "semantic" ? "Describe your issue (e.g., 'email not working on my computer')..." : "Search tickets by title or description..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
             />
           </div>
+          <button
+            onClick={() => setSearchMode(searchMode === "keyword" ? "semantic" : "keyword")}
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              searchMode === "semantic"
+                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                : "bg-gray-800/50 text-gray-400 border border-gray-700/50"
+            }`}
+            title={searchMode === "semantic" ? "Switch to keyword search" : "Switch to semantic search"}
+          >
+            {searchMode === "semantic" ? "🧠 Smart" : "🔍 Keyword"}
+          </button>
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
