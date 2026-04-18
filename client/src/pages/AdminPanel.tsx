@@ -44,6 +44,7 @@ import QuickReplyModal from "@/components/QuickReplyModal";
 import { BulkTicketActions } from "@/components/BulkTicketActions";
 import { TicketTemplateManager } from "@/components/TicketTemplateManager";
 import { SLATimer } from "@/components/SLATimer";
+import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import CloseTicketDialog from "@/components/CloseTicketDialog";
 
 type AdminTab = "tickets" | "users";
@@ -89,6 +90,8 @@ export default function AdminPanel() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignTicketId, setAssignTicketId] = useState<number | null>(null);
   const [assignAgentId, setAssignAgentId] = useState<string>("");
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+  const [assignmentModalTicketId, setAssignmentModalTicketId] = useState<number | null>(null);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [closeDialogTicket, setCloseDialogTicket] = useState<{ id: number; title: string; status: string } | null>(null);
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
@@ -582,22 +585,19 @@ export default function AdminPanel() {
                         Reply
                       </Button>
                       {/* Assign button */}
-                      {(ticket.status === "open" || ticket.status === "in_progress") && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setAssignTicketId(ticket.id);
-                            setAssignAgentId("");
-                            setShowAssignModal(true);
-                          }}
-                          className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
-                          title="Assign to agent"
-                        >
-                          <UserPlus className="w-3 h-3 mr-1" />
-                          Assign
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setAssignmentModalTicketId(ticket.id);
+                          setIsAssignmentModalOpen(true);
+                        }}
+                        className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                        title="Assign to agent"
+                      >
+                        <UserPlus className="w-3 h-3 mr-1" />
+                        Assign
+                      </Button>
                       {/* Snooze SLA Alert button */}
                       {(ticket.status === "open" || ticket.status === "in_progress") && (
                         <div className="relative">
@@ -1024,6 +1024,23 @@ export default function AdminPanel() {
           onSuccess={() => {
             setCloseDialogTicket(null);
             refetch();
+          }}
+        />
+      )}
+
+      {/* Agent Assignment Modal */}
+      {assignmentModalTicketId && (
+        <AgentAssignmentModal
+          ticketId={assignmentModalTicketId}
+          isOpen={isAssignmentModalOpen}
+          onClose={() => {
+            setIsAssignmentModalOpen(false);
+            setAssignmentModalTicketId(null);
+          }}
+          onAssignmentSuccess={() => {
+            refetch();
+            setIsAssignmentModalOpen(false);
+            setAssignmentModalTicketId(null);
           }}
         />
       )}
