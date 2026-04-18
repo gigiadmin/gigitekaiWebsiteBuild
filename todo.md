@@ -2470,3 +2470,71 @@
   - Added select-none class to prevent text selection during scrolling
   - More reliable scroll detection with 500ms debounce
   - Better UX: users can now scroll smoothly without triggering article selection
+
+
+## Real-Time Helpdesk Dashboard (April 18, 2026)
+- [x] Real-time dashboard to monitor key helpdesk metrics (ticket volume, response times, resolution rates, SLA compliance)
+  - Backend: helpdeskDashboardMetricsRouter with 7 procedures
+  - getOverallMetrics - Total tickets, status distribution, priority breakdown, SLA compliance, trends
+  - getAgentMetrics - Agent performance, workload, resolution rates, SLA adherence
+  - getQueueMetrics - Queue depth, wait times, unassigned tickets, urgent tickets
+  - getTicketTrends - Ticket creation/resolution trends over 7-90 days
+  - getSlaBreaches - SLA breach tracking by priority and agent
+  - getCategoryPerformance - Category-wise metrics and performance
+  - getDashboardSnapshot - Real-time system health snapshot
+  - Frontend: Dashboard.tsx component with real-time metrics display
+  - Auto-refresh controls (5s/10s/30s intervals)
+  - System health indicator (Healthy/Warning/Critical)
+  - Key metrics cards (Total Tickets, Unassigned, SLA Compliance, Critical)
+  - Ticket status distribution with progress bars
+  - Priority breakdown visualization
+  - Performance metrics display
+  - Agent performance table with workload and SLA tracking
+  - Responsive grid layout with dark theme
+  - Integrated into admin portal at /admin/dashboard
+  - Fully styled with GigitekAI brand colors (cyan accents, dark slate background)
+  - 10 vitest tests (all passing)
+  - 479/480 tests passing | TypeScript: 0 errors | Dev server: running
+
+
+## Teams Real-Time Collaboration Integration (April 18, 2026)
+- [ ] Phase 1: Teams Bot Setup & Ticket Event Notifications
+  - [ ] Configure Teams Bot Framework SDK (already have TEAMS_BOT_* secrets)
+  - [ ] Create Teams bot message handler for incoming messages
+  - [ ] Implement ticket event notifications (new ticket, status change, SLA breach)
+  - [ ] Post notifications to configured Teams channel
+  - [ ] Add Teams channel configuration to admin settings
+  - [ ] Test notification delivery to Teams channel
+  - [ ] Create vitest tests for Teams bot message handling
+
+- [ ] Phase 2: Two-Way Sync - Teams Replies → Helpdesk Tickets
+  - [ ] Parse Teams message replies and extract ticket reference
+  - [ ] Create ticket reply from Teams message
+  - [ ] Update ticket status/notes from Teams message
+  - [ ] Handle @mentions for agent assignment
+  - [ ] Sync attachments from Teams to ticket
+  - [ ] Post confirmation message in Teams thread
+  - [ ] Create vitest tests for two-way sync
+
+- [ ] Phase 3: Interactive Ticket Cards & Quick Actions in Teams
+  - [ ] Design adaptive card template for ticket details
+  - [ ] Include ticket ID, title, priority, status, SLA countdown
+  - [ ] Add quick action buttons (Assign, Change Status, Add Reply, Resolve)
+  - [ ] Implement action handlers for button clicks
+  - [ ] Update card in Teams when ticket is updated
+  - [ ] Create vitest tests for adaptive card rendering
+
+- [ ] Phase 4: Agent Presence Sync & Availability Management
+  - [ ] Fetch agent Teams presence status (Available/Busy/Away/Offline)
+  - [ ] Sync Teams status to agent availability in helpdesk
+  - [ ] Update ticket assignment logic based on agent availability
+  - [ ] Show agent status in Teams channel notifications
+  - [ ] Create vitest tests for presence sync
+
+- [ ] Phase 5: Teams Collaboration Testing & Deployment
+  - [ ] End-to-end testing: create ticket → Teams notification → reply in Teams → helpdesk updated
+  - [ ] Test adaptive card interactions and quick actions
+  - [ ] Test agent presence sync with Teams
+  - [ ] Test file sharing from Teams to helpdesk
+  - [ ] Performance testing with high notification volume
+  - [ ] Create final checkpoint and deploy to production
