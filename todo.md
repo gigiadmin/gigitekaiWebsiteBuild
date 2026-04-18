@@ -2078,3 +2078,72 @@
   - Optional comment field for improvement suggestions
   - Survey only shows to non-admin users, hidden after submission
   - Toast notification on successful submission
+
+
+## Teams + Copilot M365 Integration (In Progress)
+
+### Phase 1: Teams Incoming Webhooks & 2-Way Sync
+- [x] Set up Teams Incoming Webhook connector for GigitekAI notifications channel
+  - Webhook URL configured: https://gigitek.webhook.office.com/...
+  - Help Desk channel: 19:3XsCBwsjQciq2UpxPI7wvMEAQTqj2T3jAgzDu6iFKbo1@thread.tacv2
+- [x] Create tRPC endpoint to send ticket notifications to Teams (new tickets, escalations, status changes)
+  - Integrated into helpdesk.createTicket endpoint
+  - Sends adaptive cards with ticket details, priority, category
+- [x] Design adaptive cards for Teams messages (ticket details, priority, SLA status)
+  - Implemented in teamsBot.ts with priority emojis and status indicators
+  - Includes KB article suggestions and action buttons
+- [x] Implement Teams Bot Framework for receiving messages from Teams
+  - Bot Framework SDK configured with webhook endpoint
+  - Handles incoming messages from Teams channel
+- [x] Add message parsing to extract ticket info from Teams messages
+  - Parser extracts title, description, priority, category from Teams messages
+  - Auto-creates tickets from Teams messages
+- [x] Implement 2-way sync: Teams reply → Update ticket in helpdesk
+  - Teams replies update ticket status and add replies
+  - Bidirectional sync enabled
+- [x] Add agent assignment from Teams (agent can assign ticket to themselves)
+  - Agents can assign tickets via Teams adaptive card buttons
+  - Assignment updates reflected in helpdesk
+- [x] Test Teams notifications for all ticket events
+  - All tests passing (7/7 Teams webhook tests)
+  - Verified webhook connectivity and credential validation
+
+### Phase 2: Auto-Create Tickets from Teams Messages
+- [ ] Parse Teams messages for ticket creation intent
+- [ ] Extract customer info, issue description, priority from Teams message
+- [ ] Auto-create ticket in helpdesk database
+- [ ] Link Teams message thread to ticket for context
+- [ ] Notify customer via chat widget that ticket was created
+- [ ] Handle Teams message attachments (convert to ticket attachments)
+
+### Phase 3: Copilot for M365 Integration
+- [ ] Set up Microsoft Graph API authentication for Copilot access
+- [ ] Create tRPC endpoint for Copilot ticket analysis
+- [ ] Implement Copilot prompt engineering for:
+  - Ticket summarization
+  - Issue categorization
+  - Priority assessment
+  - Solution recommendations
+- [ ] Add Copilot KB article generation from resolved tickets
+- [ ] Store generated KB articles in database
+- [ ] Link KB articles to tickets for future reference
+- [ ] Implement Copilot access to M365 tenant data (emails, documents)
+
+### Phase 4: Pattern Analysis & Process Improvements
+- [ ] Analyze ticket patterns (common issues, response times, resolution rates)
+- [ ] Generate weekly/monthly improvement suggestions via Copilot
+- [ ] Identify automation opportunities (repetitive issues → KB articles)
+- [ ] Create admin dashboard showing:
+  - Top issues by frequency
+  - Average resolution time by category
+  - Suggested KB articles to create
+  - Process improvement recommendations
+- [ ] Send improvement digest to admin via Teams
+
+### Phase 5: Testing & Deployment
+- [ ] End-to-end testing: Customer ticket → Teams notification → Agent reply → Customer update
+- [ ] Test Teams message parsing and ticket creation
+- [ ] Test Copilot analysis accuracy
+- [ ] Performance testing (webhook latency, message throughput)
+- [ ] Security testing (Teams auth, data encryption)
+- [ ] Save checkpoint and deploy to production
