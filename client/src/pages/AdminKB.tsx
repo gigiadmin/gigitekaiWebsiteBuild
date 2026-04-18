@@ -217,6 +217,15 @@ export default function AdminKB() {
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => setFullScreenArticle(selectedArticle)}
+                      className="border-cyan-600 text-cyan-400 hover:bg-cyan-900/30 text-xs"
+                    >
+                      <BookOpen className="w-4 h-4 mr-1" />
+                      Open in
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="border-slate-600 text-gray-400 hover:text-white"
                     >
                       <Edit2 className="w-4 h-4" />

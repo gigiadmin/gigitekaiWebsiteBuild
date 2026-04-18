@@ -2372,3 +2372,17 @@
 - [ ] Upload articles via KB admin interface on gigitekai.com
 - [ ] Verify all articles are searchable and indexed by bot
 - [ ] Test bot can suggest articles to users
+
+
+## KB Mobile Click Issue (BLOCKING - April 18, 2026)
+- [x] Fix KB article cards not clickable/tappable on mobile
+  - [x] Added onTouchEnd handler for mobile tap events
+  - [x] Converted Card to div for better event control
+  - [x] Added keyboard support (Enter/Space)
+  - [x] Added visual feedback on tap (active:border-cyan-500)
+  - [x] Added accessibility attributes (role, tabIndex)
+- [x] Verify KB article opening works on desktop
+- [x] Test article detail view on mobile viewport
+- [ ] Test category filters on mobile
+- [ ] Test search functionality on mobile
+- [x] Ensure proper touch event handlers for mobile

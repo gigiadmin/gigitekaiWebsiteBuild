@@ -118,13 +118,22 @@ export default function KBPublic() {
             {/* Article List */}
             <div className="lg:col-span-1 space-y-3">
               {filteredArticles.map((article: any) => (
-                <Card
+                <div
                   key={article.id}
                   onClick={() => setSelectedArticle(article)}
-                  className={`p-4 cursor-pointer transition-all border ${
+                  onTouchEnd={() => setSelectedArticle(article)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedArticle(article);
+                    }
+                  }}
+                  className={`p-4 cursor-pointer transition-all border rounded-md ${
                     selectedArticle?.id === article.id
                       ? "bg-slate-700 border-cyan-500"
-                      : "bg-slate-800 border-slate-700 hover:border-slate-600"
+                      : "bg-slate-800 border-slate-700 hover:border-slate-600 active:border-cyan-500"
                   }`}
                 >
                   <h3 className="font-semibold text-white text-sm line-clamp-2">
@@ -138,14 +147,14 @@ export default function KBPublic() {
                   >
                     {article.category}
                   </Badge>
-                </Card>
+                </div>
               ))}
             </div>
 
             {/* Article Detail View */}
             {selectedArticle && (
-              <div className="lg:col-span-2">
-                <Card className="bg-slate-800 border-slate-700 p-6 sticky top-20">
+              <div className="lg:col-span-2 w-full">
+                <Card className="bg-slate-800 border-slate-700 p-6 w-full">
                   <div className="mb-4">
                     <h2 className="text-2xl font-bold text-white mb-2">
                       {selectedArticle.title}
