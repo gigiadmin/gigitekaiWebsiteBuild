@@ -16,6 +16,7 @@ export default function KBPublic() {
   const [feedbackArticleId, setFeedbackArticleId] = useState<number | null>(null);
   const [feedbackMessageId, setFeedbackMessageId] = useState<number | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [scrollStartY, setScrollStartY] = useState(0);
 
   // Scroll to top when modal opens
   useEffect(() => {
@@ -33,7 +34,21 @@ export default function KBPublic() {
   // Handle scroll to prevent accidental article selection
   const handleScroll = () => {
     setIsScrolling(true);
-    setTimeout(() => setIsScrolling(false), 300);
+    setTimeout(() => setIsScrolling(false), 500);
+  };
+
+  // Handle pointer down to track scroll intent
+  const handlePointerDown = (e: React.PointerEvent) => {
+    setScrollStartY(e.clientY);
+  };
+
+  // Handle pointer up to detect if it was a scroll or click
+  const handlePointerUp = (e: React.PointerEvent, article: any) => {
+    const moveDistance = Math.abs(e.clientY - scrollStartY);
+    // Only select if pointer moved less than 10px (not a scroll)
+    if (moveDistance < 10 && !isScrolling) {
+      setSelectedArticle(article);
+    }
   };
 
   // Fetch published KB articles
@@ -212,8 +227,8 @@ export default function KBPublic() {
               {filteredArticles.map((article: any) => (
                 <div
                   key={article.id}
-                  onClick={() => !isScrolling && setSelectedArticle(article)}
-                  onTouchEnd={() => !isScrolling && setSelectedArticle(article)}
+                  onPointerDown={handlePointerDown}
+                  onPointerUp={(e) => handlePointerUp(e, article)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
@@ -222,7 +237,7 @@ export default function KBPublic() {
                       setSelectedArticle(article);
                     }
                   }}
-                  className={`p-4 cursor-pointer transition-all border rounded-md ${
+                  className={`p-4 cursor-pointer transition-all border rounded-md select-none ${
                     selectedArticle?.id === article.id
                       ? "bg-slate-700 border-cyan-500"
                       : "bg-slate-800 border-slate-700 hover:border-slate-600 active:border-cyan-500"

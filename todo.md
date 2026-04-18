@@ -2444,3 +2444,18 @@
 - Feedback collection system with "What was missing?" dialog
 - Admin analytics dashboard with charts and metrics
 - 23 sample articles ready to deploy
+
+
+## KB Navigation Improvements (April 18, 2026)
+- [x] Fix KB modal close button not returning to list
+  - Added sticky "Back" button with chevron icon
+  - X close button still available on right side
+  - Both buttons properly close modal and return to article list
+- [x] Prevent accidental article selection while scrolling
+  - Added scroll detection with 300ms debounce
+  - Clicks during scroll are ignored
+  - Article list has max-height with scroll container
+- [x] Improve KB navigation UX
+  - Sticky header stays visible while scrolling content
+  - Clear visual hierarchy with cyan accent color
+  - Better mobile experience overall
