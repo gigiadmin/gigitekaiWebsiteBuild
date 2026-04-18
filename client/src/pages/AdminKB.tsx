@@ -128,17 +128,21 @@ export default function AdminKB() {
                 <h3 className="font-semibold text-white text-sm line-clamp-2">
                   {article.title}
                 </h3>
-                <Badge
-                  className={`mt-2 text-xs border ${
-                    categoryColors[article.category] ||
-                    "bg-slate-700 text-gray-400 border-slate-600"
-                  }`}
-                >
-                  {article.category}
-                </Badge>
-                <p className="text-xs text-gray-500 mt-2">
-                  Priority: {article.priority}
-                </p>
+                <div className="flex items-center gap-2 flex-wrap mt-2">
+                  <Badge
+                    className={`text-xs border ${
+                      categoryColors[article.category] ||
+                      "bg-slate-700 text-gray-400 border-slate-600"
+                    }`}
+                  >
+                    {article.category}
+                  </Badge>
+                  {!article.isPublished && (
+                    <Badge className="bg-yellow-900/40 text-yellow-400 border-yellow-800 text-xs border">
+                      Draft
+                    </Badge>
+                  )}
+                </div>
               </Card>
             ))}
           </div>
