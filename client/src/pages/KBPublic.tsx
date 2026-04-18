@@ -114,7 +114,42 @@ export default function KBPublic() {
 
         {/* Articles Grid */}
         {!isLoading && filteredArticles.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <>
+            {/* Mobile Bottom Sheet Modal */}
+            {selectedArticle && (
+              <div className="fixed inset-0 bg-black/80 z-50 lg:hidden flex items-end">
+                <div className="w-full bg-slate-800 border-t border-slate-700 rounded-t-lg max-h-[90vh] overflow-y-auto">
+                  <div className="p-6 pb-32">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                          {selectedArticle.title}
+                        </h2>
+                        <Badge className={`text-xs border ${categoryColors[selectedArticle.category]}`}>
+                          {selectedArticle.category}
+                        </Badge>
+                      </div>
+                      <button
+                        onClick={() => setSelectedArticle(null)}
+                        className="text-gray-400 hover:text-white text-3xl leading-none ml-4"
+                        aria-label="Close"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className="prose prose-invert max-w-none">
+                      <KBArticleContent content={selectedArticle.content} />
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-slate-700 flex items-center gap-2 text-sm text-gray-400">
+                      <Star className="w-4 h-4" />
+                      <span>Was this article helpful?</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Article List */}
             <div className="lg:col-span-1 space-y-3">
               {filteredArticles.map((article: any) => (
@@ -151,10 +186,10 @@ export default function KBPublic() {
               ))}
             </div>
 
-            {/* Article Detail View */}
+            {/* Article Detail View - Desktop Only */}
             {selectedArticle && (
-              <div className="lg:col-span-2 w-full">
-                <Card className="bg-slate-800 border-slate-700 p-6 w-full">
+              <div className="hidden lg:block lg:col-span-2 w-full">
+                <Card className="bg-slate-800 border-slate-700 p-6 w-full sticky top-20">
                   <div className="mb-4">
                     <h2 className="text-2xl font-bold text-white mb-2">
                       {selectedArticle.title}
@@ -177,7 +212,8 @@ export default function KBPublic() {
                 </Card>
               </div>
             )}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>
