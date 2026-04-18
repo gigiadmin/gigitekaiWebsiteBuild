@@ -2189,3 +2189,27 @@
 - [ ] Security testing (Teams auth, M365 auth, data encryption)
 - [ ] Load testing (multiple concurrent tickets, Copilot requests)
 - [ ] Save checkpoint and deploy to production
+
+
+## Knowledge Base Follow-Ups (Next Session)
+- [ ] Create reusable skill for KB article creation and import process
+  - Document the import workflow (research → article creation → database import)
+  - Provide customizable templates for different issue types
+  - Include troubleshooting guide for common import issues
+- [x] Add copy-to-clipboard buttons for code blocks in KB articles
+  - Implemented CodeBlockWithCopy component with hover-to-reveal button
+  - Integrated with KBArticleContent for automatic code block detection
+  - Shows Copied confirmation with toast notification
+  - Fully functional in admin KB view
+- [x] Implement user feedback system for KB articles
+  - Added kbArticleRatings table for 1-5 star ratings
+  - Added kbArticleComments table for user feedback
+  - Created KBFeedback component with star rating UI
+  - Comment section with textarea and submit button
+  - Displays average rating and comment count
+  - Integrated into AdminKB article detail view
+- [ ] Create most popular articles section
+  - Track article views and ratings
+  - Display top 5-10 articles on KB homepage
+  - Show view count and average rating
+  - Update rankings in real-time

@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Trash2, Edit2, BookOpen } from "lucide-react";
 import { Streamdown } from "streamdown";
+import { CodeBlockWithCopy } from "@/components/CodeBlockWithCopy";
+import { KBArticleContent } from "@/components/KBArticleContent";
+import { KBFeedback } from "@/components/KBFeedback";
 
 export default function AdminKB() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -202,10 +205,17 @@ export default function AdminKB() {
 
                 {/* Content */}
                 <div className="prose prose-invert max-w-none">
-                  <Streamdown>
-                    {selectedArticle.content}
-                  </Streamdown>
+                  <KBArticleContent content={selectedArticle.content} />
                 </div>
+
+                {/* Feedback Section */}
+                <KBFeedback
+                  articleId={selectedArticle.id}
+                  articleTitle={selectedArticle.title}
+                  averageRating={selectedArticle.averageRating}
+                  ratingCount={selectedArticle.ratingCount}
+                  commentCount={selectedArticle.commentCount}
+                />
 
                 {/* Metadata */}
                 <div className="mt-6 pt-4 border-t border-slate-700 text-xs text-gray-500">
@@ -214,6 +224,9 @@ export default function AdminKB() {
                   </p>
                   <p>
                     Updated: {new Date(selectedArticle.updatedAt).toLocaleString()}
+                  </p>
+                  <p className="mt-2">
+                    Views: {selectedArticle.viewCount || 0}
                   </p>
                 </div>
               </Card>
