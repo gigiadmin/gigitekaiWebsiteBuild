@@ -1420,15 +1420,26 @@
 - [x] DEEP FIX APPLIED (Apr 16, 2026): Changed AIChatWidget, Navbar, HelpdeskNav from padding-based to top-offset approach using env(safe-area-inset-top) for sticky positioning
 
 
-## Email Service Migration: SendGrid → Microsoft Graph (April 2026)
-- [ ] Verify Microsoft Graph Mail.Send permission is granted in Azure AD
-- [ ] Create sendEmail helper using Microsoft Graph API (replaces SendGrid)
-- [ ] Replace SendGrid in contact form email procedure
-- [ ] Replace SendGrid in invite email procedure
-- [ ] Replace SendGrid in ticket notification procedure
-- [ ] Replace SendGrid in newsletter campaign procedure
-- [ ] Test all email flows end-to-end
-- [ ] Remove SENDGRID_API_KEY from secrets (no longer needed)
+## Email Service Migration: SendGrid → Microsoft Graph (April 2026) - COMPLETE ✅
+- [x] Verify Microsoft Graph Mail.Send permission is granted in Azure AD
+- [x] Create sendEmail helper using Microsoft Graph API (replaces SendGrid)
+  - Implemented in server/_core/email.ts with token caching and error handling
+  - Uses client credentials flow with Mail.Send application permission
+  - Sends from support@gigitekai.com via Exchange Online
+- [x] Replace SendGrid in contact form email procedure
+  - Contact form uses sendEmail() from email.ts
+- [x] Replace SendGrid in invite email procedure
+  - Invite system uses sendEmail() from email.ts
+- [x] Replace SendGrid in ticket notification procedure
+  - Ticket notifications use sendEmail() from email.ts
+- [x] Replace SendGrid in newsletter campaign procedure
+  - Newsletter uses sendEmail() from email.ts (emailDigest.ts)
+- [x] Test all email flows end-to-end
+  - All email flows tested and working via Microsoft Graph
+- [x] Remove SENDGRID_API_KEY from secrets (no longer needed)
+  - SendGrid completely removed, no API key required
+  - Removed duplicate sendEmail.ts file
+  - SendGrid webhook disabled in server/_core/index.ts
 
 
 ## UX Enhancement: Chat Widget Loading Animation (April 2026)
