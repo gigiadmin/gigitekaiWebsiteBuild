@@ -64,6 +64,7 @@ import AdminAgentDashboardPage from "./pages/AdminAgentDashboardPage";
 import AdminCopilot from "./pages/AdminCopilot";
 import AdminCopilotM365 from "./pages/AdminCopilotM365";
 import KBPublic from "./pages/KBPublic";
+import Dashboard from "./pages/Dashboard";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -163,6 +164,8 @@ function Router() {
       <Route path={"/admin/closed-tickets"}>{() => <ApprovalGuard><AdminClosedTicketsReportPage /></ApprovalGuard>}</Route>
       {/* Helpdesk Metrics Dashboard */}
       <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
+      {/* Real-Time Dashboard */}
+      <Route path={"/admin/dashboard"}>{() => <ApprovalGuard><Dashboard /></ApprovalGuard>}</Route>
       {/* Agent Dashboard */}
       <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
       {/* Copilot for M365 */}
