@@ -16,6 +16,7 @@ import { startSlaAlertScheduler } from "./teamsSlaAlerts";
 import { startNewsletterScheduler } from "../routers/newsletter";
 import { startSocialScheduler } from "./socialScheduler";
 import { startEngagementPoller } from "./socialEngagementPoller";
+import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import {
@@ -158,6 +159,8 @@ async function startServer() {
     startSocialScheduler();
     // Start Social engagement poller (every hour)
     startEngagementPoller();
+    // Start invite expiry scheduler (every hour)
+    startInviteExpiryScheduler();
     // Log Teams webhook endpoint
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
   });

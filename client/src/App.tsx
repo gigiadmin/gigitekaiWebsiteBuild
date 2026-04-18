@@ -62,6 +62,7 @@ import AdminClosedTicketsReportPage from "./pages/AdminClosedTicketsReportPage";
 import AdminHelpdeskMetricsPage from "./pages/AdminHelpdeskMetricsPage";
 import AdminAgentDashboardPage from "./pages/AdminAgentDashboardPage";
 import AdminCopilot from "./pages/AdminCopilot";
+import AdminCopilotM365 from "./pages/AdminCopilotM365";
 import KBPublic from "./pages/KBPublic";
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -165,6 +166,8 @@ function Router() {
       <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
       {/* Copilot for M365 */}
       <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
+      {/* Copilot M365 Intelligence */}
+      <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

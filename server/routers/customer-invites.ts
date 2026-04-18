@@ -241,15 +241,115 @@ export const customerInvitesRouter = router({
       }
     }),
 
+  bulkSendCustomerInvites: publicProcedure
+    .input(z.object({
+      csvContent: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin access required to send bulk invites'
+        });
+      }
+
+      try {
+        const lines = input.csvContent.trim().split('\n');
+        if (lines.length < 2) {
+          return { success: false, message: 'CSV must contain header and at least one row', sent: 0, failed: 0, skipped: 0 };
+        }
+
+        const results = {
+          sent: 0,
+          failed: 0,
+          skipped: 0,
+          errors: [] as string[],
+        };
+
+        const processedEmails = new Set<string>();
+        const db = await getDb();
+
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const parts = line.split(',').map(v => v.trim());
+          const email = parts[0];
+          const name = parts[1];
+          const company = parts[2];
+
+          if (!email || !email.includes('@')) {
+            results.errors.push(`Row ${i + 1}: Invalid email "${email}"`);
+            results.failed++;
+            continue;
+          }
+
+          if (processedEmails.has(email)) {
+            results.errors.push(`Row ${i + 1}: Duplicate email "${email}"`);
+            results.skipped++;
+            continue;
+          }
+          processedEmails.add(email);
+
+          if (db) {
+            const existing = await db.select().from(customerInvitesTable).where(eq(customerInvitesTable.invitedEmail, email)).limit(1);
+            if (existing.length > 0) {
+              results.errors.push(`Row ${i + 1}: ${email} already invited`);
+              results.skipped++;
+              continue;
+            }
+          }
+
+          try {
+            const result = await createCustomerInvite(email, name || undefined, company || undefined, adminId!);
+            if (result) {
+              const inviteLink = `https://gigitekai.com/accept-invite?token=${result.inviteToken}`;
+              await sendEmail({
+                to: email,
+                subject: "You're invited to GigitekAI Support Portal",
+                fromName: 'GigitekAI Support',
+                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0E1A; color: #ffffff; padding: 32px; border-radius: 8px;"><div style="text-align: center; margin-bottom: 24px;"><h1 style="color: #00D4FF; font-size: 24px; margin: 0;">GigitekAI</h1></div><h2 style="color: #ffffff; font-size: 20px;">You're Invited!</h2><p style="color: #c9d1d9;">Hi ${name || 'there'},</p><p style="color: #c9d1d9;">You've been invited to access the <strong style="color: #00D4FF;">GigitekAI Support Portal</strong>.</p><div style="text-align: center; margin: 32px 0;"><a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Accept Invitation</a></div><p style="color: #8892a4; font-size: 13px;">This invite expires on ${result.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p></div>`
+              });
+              results.sent++;
+            } else {
+              results.errors.push(`Row ${i + 1}: Failed to create invite for ${email}`);
+              results.failed++;
+            }
+          } catch (error) {
+            results.errors.push(`Row ${i + 1}: Error sending invite to ${email}`);
+            results.failed++;
+          }
+        }
+
+        return {
+          success: true,
+          message: `Bulk invite complete: ${results.sent} sent, ${results.failed} failed, ${results.skipped} skipped`,
+          ...results,
+        };
+      } catch (error) {
+        console.error('[CustomerInvites] Bulk send error:', error);
+        return { success: false, message: 'Failed to process bulk invites', sent: 0, failed: 0, skipped: 0 };
+      }
+    }),
+
   revokeCustomerInvite: publicProcedure
     .input(z.object({
       inviteId: z.number(),
     }))
     .mutation(async ({ input, ctx }) => {
-      // Check if user is authenticated via OAuth or custom admin JWT
       let isAdmin = ctx.user?.role === 'admin';
       
-      // If not OAuth admin, try custom admin JWT
       if (!isAdmin && ctx.req) {
         const admin = await getAdminFromRequest(ctx.req);
         if (admin) {

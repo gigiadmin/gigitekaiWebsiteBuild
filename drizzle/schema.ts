@@ -353,7 +353,7 @@ export const customerInvites = mysqlTable("customerInvites", {
   invitedBy: int("invitedBy").notNull(), // Admin ID who sent invite
   status: mysqlEnum("status", ["pending", "accepted", "expired", "revoked"]).default("pending").notNull(),
   acceptedBy: int("acceptedBy"), // User ID who accepted (after signup)
-  expiresAt: timestamp("expiresAt").notNull(), // Invite expires after 30 days
+  expiresAt: timestamp("expiresAt").notNull(), // Invite expires after 72 hours
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   acceptedAt: timestamp("acceptedAt"),
 });

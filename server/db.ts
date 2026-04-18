@@ -686,7 +686,7 @@ export async function createCustomerInvite(
 
   const inviteToken = crypto.randomUUID();
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // 30 days
+  expiresAt.setHours(expiresAt.getHours() + 72); // 72 hours
 
   try {
     const result = await db.insert(customerInvites).values({
