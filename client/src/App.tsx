@@ -61,6 +61,7 @@ import AdminCannedResponsesPage from "./pages/AdminCannedResponsesPage";
 import AdminClosedTicketsReportPage from "./pages/AdminClosedTicketsReportPage";
 import AdminHelpdeskMetricsPage from "./pages/AdminHelpdeskMetricsPage";
 import AdminAgentDashboardPage from "./pages/AdminAgentDashboardPage";
+import AdminCopilot from "./pages/AdminCopilot";
 import KBPublic from "./pages/KBPublic";
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -162,6 +163,8 @@ function Router() {
       <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
       {/* Agent Dashboard */}
       <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
+      {/* Copilot for M365 */}
+      <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
