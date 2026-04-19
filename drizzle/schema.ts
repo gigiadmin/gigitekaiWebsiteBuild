@@ -1124,3 +1124,85 @@ export const kbArticleViews = mysqlTable("kbArticleViews", {
 });
 export type KbArticleView = typeof kbArticleViews.$inferSelect;
 export type InsertKbArticleView = typeof kbArticleViews.$inferInsert;
+
+
+// Customer Portal Sessions — track customer self-service portal access
+export const customerPortalSessions = mysqlTable("customerPortalSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  customerId: int("customerId").notNull(), // userId of customer
+  sessionToken: varchar("sessionToken", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
+  userAgent: varchar("userAgent", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CustomerPortalSession = typeof customerPortalSessions.$inferSelect;
+export type InsertCustomerPortalSession = typeof customerPortalSessions.$inferInsert;
+
+// Notification Preferences — customer choices for notifications
+export const notificationPreferences = mysqlTable("notificationPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(), // customer userId
+  emailNotifications: boolean("emailNotifications").default(true).notNull(),
+  smsNotifications: boolean("smsNotifications").default(false).notNull(),
+  inAppNotifications: boolean("inAppNotifications").default(true).notNull(),
+  emailFrequency: mysqlEnum("emailFrequency", ["immediate", "daily", "weekly"]).default("immediate").notNull(),
+  smsPhoneNumber: varchar("smsPhoneNumber", { length: 20 }), // E.164 format
+  notifyOnTicketCreated: boolean("notifyOnTicketCreated").default(true).notNull(),
+  notifyOnTicketUpdated: boolean("notifyOnTicketUpdated").default(true).notNull(),
+  notifyOnTicketResolved: boolean("notifyOnTicketResolved").default(true).notNull(),
+  notifyOnSurveyRequest: boolean("notifyOnSurveyRequest").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+// Notification Queue — pending notifications to be sent
+export const notificationQueue = mysqlTable("notificationQueue", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // recipient userId
+  type: mysqlEnum("type", ["email", "sms", "in_app"]).notNull(),
+  subject: varchar("subject", { length: 255 }), // for email
+  content: text("content").notNull(),
+  relatedTicketId: int("relatedTicketId"), // optional: ticket this relates to
+  relatedEntityType: varchar("relatedEntityType", { length: 50 }), // "ticket", "survey", "kb_article"
+  relatedEntityId: int("relatedEntityId"), // ID of related entity
+  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).default("pending").notNull(),
+  sentAt: timestamp("sentAt"),
+  failureReason: text("failureReason"),
+  retryCount: int("retryCount").default(0).notNull(),
+  maxRetries: int("maxRetries").default(3).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type NotificationQueueItem = typeof notificationQueue.$inferSelect;
+export type InsertNotificationQueueItem = typeof notificationQueue.$inferInsert;
+
+// Customer Portal Activity — track customer actions in self-service portal
+export const customerPortalActivity = mysqlTable("customerPortalActivity", {
+  id: int("id").autoincrement().primaryKey(),
+  customerId: int("customerId").notNull(),
+  action: mysqlEnum("action", ["view_ticket", "view_kb", "submit_survey", "add_comment", "login", "logout"]).notNull(),
+  resourceType: varchar("resourceType", { length: 50 }), // "ticket", "kb_article", "survey"
+  resourceId: int("resourceId"), // ID of resource
+  metadata: text("metadata"), // additional context (JSON string)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CustomerPortalActivity = typeof customerPortalActivity.$inferSelect;
+export type InsertCustomerPortalActivity = typeof customerPortalActivity.$inferInsert;
+
+// Chat Suggestions — track KB article suggestions shown in live chat
+export const chatSuggestions = mysqlTable("chatSuggestions", {
+  id: int("id").autoincrement().primaryKey(),
+  chatSessionId: int("chatSessionId").notNull(), // realtimeChatSessions.id
+  articleId: int("articleId").notNull(),
+  suggestedBy: mysqlEnum("suggestedBy", ["ai", "agent"]).default("ai").notNull(),
+  suggestedAt: timestamp("suggestedAt").defaultNow().notNull(),
+  clickedAt: timestamp("clickedAt"), // when user clicked the suggestion
+  helpful: boolean("helpful"), // user feedback
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ChatSuggestion = typeof chatSuggestions.$inferSelect;
+export type InsertChatSuggestion = typeof chatSuggestions.$inferInsert;
