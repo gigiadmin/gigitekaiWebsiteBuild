@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { M365ServiceDegradations } from "@/components/M365ServiceDegradations";
 import { UptimeDashboard } from "@/components/UptimeDashboard";
+import { AlertThresholdConfig } from "@/components/AlertThresholdConfig";
 
 enum ServiceHealthStatus {
   HEALTHY = "healthy",
@@ -31,7 +32,7 @@ interface ServiceHealthCheck {
   metrics?: Record<string, unknown>;
 }
 
-type DashboardTab = "health" | "uptime";
+type DashboardTab = "health" | "uptime" | "thresholds";
 
 export default function AdminServiceHealthMonitoring() {
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -166,6 +167,16 @@ export default function AdminServiceHealthMonitoring() {
               }`}
             >
               Uptime & Trends
+            </button>
+            <button
+              onClick={() => setActiveTab("thresholds")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === "thresholds"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+              }`}
+            >
+              Alert Thresholds
             </button>
           </div>
         </div>
@@ -423,6 +434,17 @@ export default function AdminServiceHealthMonitoring() {
       {/* Uptime Tab */}
       {activeTab === "uptime" && (
         <UptimeDashboard />
+      )}
+
+      {/* Thresholds Tab */}
+      {activeTab === "thresholds" && (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-xl font-semibold text-white mb-2">Alert Thresholds Configuration</h2>
+            <p className="text-gray-400 text-sm">Configure alert thresholds and notification preferences for each service</p>
+          </div>
+          <AlertThresholdConfig />
+        </div>
       )}
     </div>
   );
