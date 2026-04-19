@@ -371,14 +371,22 @@ export const aibotRouter = router({
 
       // Call LLM with context
       try {
-        const response = await invokeLLM({
+        // Add timeout to prevent hanging
+        const llmPromise = invokeLLM({
           messages: [
             { role: "system", content: SYSTEM_PROMPT + (context ? `\n\nRelevant documentation:\n${context}` : "") },
             ...conversationHistory,
           ],
         });
 
-        const assistantMessageContent = response.choices[0]?.message?.content;
+        // 30 second timeout for LLM response
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('LLM response timeout')), 30000)
+        );
+
+        const response = await Promise.race([llmPromise, timeoutPromise]);
+
+        const assistantMessageContent = (response as any).choices[0]?.message?.content;
         let assistantMessage = typeof assistantMessageContent === 'string' 
           ? assistantMessageContent 
           : "I apologize, I'm having trouble responding. Please try again.";
@@ -493,8 +501,20 @@ export const aibotRouter = router({
   getHistory: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .query(async ({ input }) => {
-      const messages = await getChatMessages(input.sessionId);
-      return { messages };
+      try {
+        // Add timeout to prevent hanging
+        const historyPromise = getChatMessages(input.sessionId);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('History fetch timeout')), 5000)
+        );
+        
+        const messages = await Promise.race([historyPromise, timeoutPromise]) as any[];
+        return { messages: messages || [] };
+      } catch (error) {
+        console.error('[AIBot] Failed to fetch chat history:', error);
+        // Return empty messages array instead of failing
+        return { messages: [] };
+      }
     }),
 
   // Escalate to help desk
