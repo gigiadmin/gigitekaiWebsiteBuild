@@ -244,36 +244,109 @@ export async function fetchInboxFromMsGraph(
 }
 
 /**
- * Sends an email exclusively via Microsoft Graph API (Azure / Exchange Online).
- * No fallback providers — all email delivery goes through the Azure app registration.
- * On failure, triggers an SMS alert to the admin via Twilio.
- * Returns true if successful, false if sending fails.
+ * Sends an email via SendGrid (fallback) when Microsoft Graph fails.
+ * Used when MS Graph returns 403 (permission denied) or other errors.
+ */
+async function sendViaSendGrid(payload: EmailPayload): Promise<boolean> {
+  const sendgridApiKey = process.env.SENDGRID_API_KEY;
+  if (!sendgridApiKey) {
+    console.warn("[Email] SendGrid API key not configured. Skipping fallback email provider.");
+    return false;
+  }
+
+  try {
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${sendgridApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personalizations: [
+          {
+            to: [{ email: payload.to }],
+          },
+        ],
+        from: {
+          email: "noreply@gigitekai.com",
+          name: payload.fromName ?? "GigitekAI",
+        },
+        subject: payload.subject,
+        content: [
+          {
+            type: "text/html",
+            value: payload.html,
+          },
+        ],
+        reply_to: payload.replyTo
+          ? {
+              email: payload.replyTo,
+            }
+          : undefined,
+      }),
+    });
+
+    if (response.ok) {
+      console.log(
+        `[Email] Successfully sent email to ${payload.to} via SendGrid (fallback)`
+      );
+      return true;
+    }
+
+    const detail = await response.text().catch(() => "");
+    console.error(
+      `[Email] SendGrid failed (${response.status})${detail ? `: ${detail}` : ""}`
+    );
+    return false;
+  } catch (error) {
+    console.error("[Email] Error sending email via SendGrid:", error);
+    return false;
+  }
+}
+
+/**
+ * Sends an email via Microsoft Graph API (Azure / Exchange Online) with SendGrid fallback.
+ * On MS Graph failure (403 permission denied, etc.), attempts SendGrid.
+ * On complete failure, triggers an SMS alert to the admin.
+ * Returns true if successful, false if all providers fail.
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = ENV;
 
   if (!msGraphTenantId || !msGraphClientId || !msGraphClientSecret) {
     console.error(
-      "[Email] Microsoft Graph credentials not configured. All emails require MS_GRAPH_TENANT_ID, MS_GRAPH_CLIENT_ID, and MS_GRAPH_CLIENT_SECRET."
+      "[Email] Microsoft Graph credentials not configured. Attempting SendGrid fallback."
     );
-    // Trigger SMS alert for missing configuration
+    // Try SendGrid fallback
+    const sent = await sendViaSendGrid(payload);
+    if (sent) return true;
+
+    // Both failed — trigger SMS alert
     sendEmailFailureAlert(
       payload.to,
-      "Microsoft Graph credentials not configured. Check MS_GRAPH_* environment variables."
+      "All email providers failed. Check MS_GRAPH_* and SENDGRID_API_KEY environment variables."
     ).catch(() => {});
     return false;
   }
 
+  // Try MS Graph first
   const sent = await sendViaMsGraph(payload);
   if (sent) return true;
 
-  // Email failed — trigger SMS alert to admin
+  // MS Graph failed — try SendGrid fallback
+  console.warn(
+    `[Email] MS Graph failed for ${payload.to}. Attempting SendGrid fallback.`
+  );
+  const fallbackSent = await sendViaSendGrid(payload);
+  if (fallbackSent) return true;
+
+  // All providers failed — trigger SMS alert to admin
   console.error(
-    `[Email] Failed to send email to ${payload.to} via Microsoft Graph. No fallback provider configured.`
+    `[Email] Failed to send email to ${payload.to} via all providers (MS Graph + SendGrid).`
   );
   sendEmailFailureAlert(
     payload.to,
-    "Microsoft Graph API failed to send email. Check Azure app permissions and credentials."
+    "All email providers failed. Check Azure app permissions and SendGrid configuration."
   ).catch(() => {});
 
   return false;

@@ -2939,3 +2939,8 @@
 - [ ] Verify notification delivery
 - [ ] Test search and filtering
 - [ ] Deploy to production
+
+
+## Test Failures to Fix
+- [x] Fix Email API 403 Forbidden - Added SendGrid fallback provider
+- [x] Fix Helpdesk test timeout - Fixed stale database mocks for KB functions

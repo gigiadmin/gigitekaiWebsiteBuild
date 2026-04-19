@@ -38,6 +38,10 @@ vi.mock("./db", () => {
     revokeUser: vi.fn(async () => true),
     upsertUser: vi.fn(async () => {}),
     getUserByOpenId: vi.fn(async () => null),
+    searchKnowledgeBase: vi.fn(async () => []),
+    searchKBArticles: vi.fn(async () => []),
+    getAllPublishedKBArticles: vi.fn(async () => []),
+    isKBArticleRelevant: vi.fn(async () => false),
     getDb: vi.fn(async () => null),
   };
 });
