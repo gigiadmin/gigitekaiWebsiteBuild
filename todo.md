@@ -3036,3 +3036,46 @@
 - [ ] Test M365 API response parsing
 - [ ] Performance test with 7 days of health data
 - [ ] Deploy to production
+
+
+### M365 Degradation Details (COMPLETED)
+- [x] Fetch detailed service health information from MS Graph (service name, component, status, issue description)
+- [x] Parse and display degradation reasons for each affected service
+- [x] Show last updated timestamp for each service status
+- [x] Display impact scope (affected users/regions if available)
+- [x] Show estimated resolution time from MS Graph health data
+- [x] Create M365 Service Details component showing all degraded services in list view
+- [x] Integrate M365ServiceDegradations component into admin dashboard
+- [x] Add expandable details section for M365 degradations
+- [x] Color-coded status badges (red/orange/yellow)
+- [x] Responsive grid layout for service details
+
+## Phase 3 (In Progress): Historical Uptime & Configurable Thresholds
+
+### Historical Uptime Tracking (TODO)
+- [ ] Create healthCheckHistory table in database schema
+- [ ] Store health check results with timestamps (Email, Helpdesk, M365)
+- [ ] Implement 7-day uptime calculation per service
+- [ ] Create Chart.js uptime visualization component
+- [ ] Add historical data query to service health monitoring router
+- [ ] Display uptime percentage and trend line on dashboard
+
+### Configurable Alert Thresholds (TODO)
+- [ ] Create alertThresholds table in database schema
+- [ ] Add admin settings page for alert configuration
+- [ ] Allow setting custom thresholds for:
+  - Response time (ms)
+  - Error rate (%)
+  - Unprocessed ticket count
+  - Agent availability (%)
+- [ ] Store per-service threshold preferences
+- [ ] Update scheduler to use configurable thresholds
+- [ ] Add threshold validation in alert logic
+
+### Testing & Deployment
+- [ ] Write tests for historical data queries
+- [ ] Test alert threshold logic with various scenarios
+- [ ] Verify uptime calculations accuracy
+- [ ] Test M365 API response parsing
+- [ ] Performance test with 7 days of health data
+- [ ] Deploy to production

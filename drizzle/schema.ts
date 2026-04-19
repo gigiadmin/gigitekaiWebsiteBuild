@@ -1241,3 +1241,84 @@ export type CustomRole = typeof customRoles.$inferSelect;
 export type InsertCustomRole = typeof customRoles.$inferInsert;
 export type UserRoleAssignment = typeof userRoleAssignments.$inferSelect;
 export type AdminMenuCustomization = typeof adminMenuCustomization.$inferSelect;
+
+
+// Service Health Check History — track health status over time for uptime calculations
+export const healthCheckHistory = mysqlTable("healthCheckHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  service: varchar("service", { length: 100 }).notNull(), // "Email API", "Helpdesk System", "M365 Service Health"
+  status: mysqlEnum("status", ["healthy", "degraded", "critical", "offline"]).notNull(),
+  responseTime: int("responseTime").notNull(), // milliseconds
+  message: text("message"),
+  metrics: json("metrics").$type<Record<string, unknown>>(), // Service-specific metrics
+  checkedAt: timestamp("checkedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type HealthCheckRecord = typeof healthCheckHistory.$inferSelect;
+export type InsertHealthCheckRecord = typeof healthCheckHistory.$inferInsert;
+
+// Alert Thresholds — configurable thresholds for each service
+export const alertThresholds = mysqlTable("alertThresholds", {
+  id: int("id").autoincrement().primaryKey(),
+  service: varchar("service", { length: 100 }).notNull().unique(), // "Email API", "Helpdesk System", "M365 Service Health"
+  
+  // Response time threshold (ms) - alert if exceeded
+  responseTimeThreshold: int("responseTimeThreshold").default(5000).notNull(),
+  
+  // Error rate threshold (%) - alert if exceeded
+  errorRateThreshold: int("errorRateThreshold").default(10).notNull(),
+  
+  // Unprocessed tickets threshold - for Helpdesk
+  unprocessedTicketsThreshold: int("unprocessedTicketsThreshold").default(50),
+  
+  // Agent availability threshold (%) - alert if below
+  agentAvailabilityThreshold: int("agentAvailabilityThreshold").default(50),
+  
+  // SLA compliance threshold (%) - alert if below
+  slaComplianceThreshold: int("slaComplianceThreshold").default(90),
+  
+  // Enable/disable alerts for this service
+  enabled: boolean("enabled").default(true).notNull(),
+  
+  // Notification settings
+  notifyOnDegraded: boolean("notifyOnDegraded").default(true).notNull(),
+  notifyOnCritical: boolean("notifyOnCritical").default(true).notNull(),
+  notifyOnRecovery: boolean("notifyOnRecovery").default(true).notNull(),
+  
+  // Last modified
+  updatedBy: int("updatedBy"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AlertThreshold = typeof alertThresholds.$inferSelect;
+export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
+
+// Uptime Statistics — pre-calculated uptime percentages for dashboard display
+export const uptimeStatistics = mysqlTable("uptimeStatistics", {
+  id: int("id").autoincrement().primaryKey(),
+  service: varchar("service", { length: 100 }).notNull(),
+  
+  // Time period
+  period: mysqlEnum("period", ["1h", "24h", "7d", "30d"]).notNull(),
+  
+  // Uptime percentage (0-100)
+  uptimePercentage: decimal("uptimePercentage", { precision: 5, scale: 2 }).notNull(),
+  
+  // Counts
+  totalChecks: int("totalChecks").notNull(),
+  healthyChecks: int("healthyChecks").notNull(),
+  degradedChecks: int("degradedChecks").notNull(),
+  criticalChecks: int("criticalChecks").notNull(),
+  offlineChecks: int("offlineChecks").notNull(),
+  
+  // Average response time
+  avgResponseTime: int("avgResponseTime"), // milliseconds
+  
+  // Calculated at
+  calculatedAt: timestamp("calculatedAt").defaultNow().notNull(),
+});
+
+export type UptimeStatistic = typeof uptimeStatistics.$inferSelect;
+export type InsertUptimeStatistic = typeof uptimeStatistics.$inferInsert;

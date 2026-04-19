@@ -1,10 +1,13 @@
 /**
  * Health Check Scheduler
  * Runs periodic health checks for critical services
+ * Stores results in history and updates uptime statistics
  */
 
 import { checkEmailApiHealth, checkHelpdeskHealth, checkM365Health, ServiceHealthStatus } from "../routers/service-health-monitoring";
 import { notifyOwner } from "../_core/notification";
+import { storeHealthCheck, updateUptimeStatistics } from "../utils/uptimeCalculator";
+import { getAlertThreshold } from "../utils/alertThresholds";
 
 interface HealthCheckLog {
   timestamp: Date;
@@ -48,36 +51,51 @@ async function sendAlertIfStatusChanged(
   const previousSt = previousStatus[service] || ServiceHealthStatus.HEALTHY;
   previousStatus[service] = newStatus;
 
-  if (
-    (previousSt === ServiceHealthStatus.HEALTHY || previousSt === ServiceHealthStatus.DEGRADED) &&
-    (newStatus === ServiceHealthStatus.CRITICAL || newStatus === ServiceHealthStatus.OFFLINE)
-  ) {
-    console.error(`[Health Alert] CRITICAL: ${service} is ${newStatus}`);
-
-    try {
-      await notifyOwner({
-        title: `🚨 CRITICAL: ${service} Status Alert`,
-        content: `Service: ${service}\nStatus: ${newStatus}\nMessage: ${message}\n\nTime: ${new Date().toISOString()}`,
-      });
-    } catch (error) {
-      console.error(`[Health Alert] Failed to send notification:`, error);
-    }
+  // Get alert threshold configuration
+  const threshold = await getAlertThreshold(service);
+  if (!threshold || !threshold.enabled) {
+    return;
   }
 
-  if (
-    (previousSt === ServiceHealthStatus.CRITICAL || previousSt === ServiceHealthStatus.OFFLINE) &&
-    newStatus === ServiceHealthStatus.HEALTHY
-  ) {
-    console.log(`[Health Alert] ✅ RECOVERED: ${service}`);
+  let shouldNotify = false;
+  let alertType = "";
 
-    try {
-      await notifyOwner({
-        title: `✅ RECOVERED: ${service} Status`,
-        content: `Service: ${service}\nStatus: ${newStatus}\nMessage: ${message}\n\nTime: ${new Date().toISOString()}`,
-      });
-    } catch (error) {
-      console.error(`[Health Alert] Failed to send recovery notification:`, error);
-    }
+  if (
+    newStatus === ServiceHealthStatus.CRITICAL &&
+    threshold.notifyOnCritical
+  ) {
+    shouldNotify = true;
+    alertType = "CRITICAL";
+  } else if (
+    newStatus === ServiceHealthStatus.DEGRADED &&
+    previousSt === ServiceHealthStatus.HEALTHY &&
+    threshold.notifyOnDegraded
+  ) {
+    shouldNotify = true;
+    alertType = "DEGRADED";
+  } else if (
+    (previousSt === ServiceHealthStatus.CRITICAL ||
+      previousSt === ServiceHealthStatus.OFFLINE) &&
+    newStatus === ServiceHealthStatus.HEALTHY &&
+    threshold.notifyOnRecovery
+  ) {
+    shouldNotify = true;
+    alertType = "RECOVERED";
+  }
+
+  if (!shouldNotify) {
+    return;
+  }
+
+  console.error(`[Health Alert] ${alertType}: ${service} is ${newStatus}`);
+
+  try {
+    await notifyOwner({
+      title: `🚨 ${alertType}: ${service} Status Alert`,
+      content: `Service: ${service}\nStatus: ${newStatus}\nMessage: ${message}\n\nTime: ${new Date().toISOString()}`,
+    });
+  } catch (error) {
+    console.error(`[Health Alert] Failed to send notification:`, error);
   }
 }
 
@@ -91,6 +109,7 @@ async function runHealthCheckCycle() {
       checkM365Health(),
     ]);
 
+    // Log health checks
     logHealthCheck({
       timestamp: new Date(),
       service: emailHealth.service,
@@ -115,6 +134,49 @@ async function runHealthCheckCycle() {
       responseTime: m365Health.responseTime,
     });
 
+    // Store health check results in database
+    try {
+      await Promise.all([
+        storeHealthCheck(
+          emailHealth.service,
+          emailHealth.status as any,
+          emailHealth.responseTime,
+          emailHealth.message,
+          emailHealth.metrics
+        ),
+        storeHealthCheck(
+          helpdeskHealth.service,
+          helpdeskHealth.status as any,
+          helpdeskHealth.responseTime,
+          helpdeskHealth.message,
+          helpdeskHealth.metrics
+        ),
+        storeHealthCheck(
+          m365Health.service,
+          m365Health.status as any,
+          m365Health.responseTime,
+          m365Health.message,
+          m365Health.metrics
+        ),
+      ]);
+
+      // Update uptime statistics every 6 hours
+      const now = new Date();
+      if (now.getHours() % 6 === 0 && now.getMinutes() < 5) {
+        await Promise.all([
+          updateUptimeStatistics(emailHealth.service, "24h"),
+          updateUptimeStatistics(emailHealth.service, "7d"),
+          updateUptimeStatistics(helpdeskHealth.service, "24h"),
+          updateUptimeStatistics(helpdeskHealth.service, "7d"),
+          updateUptimeStatistics(m365Health.service, "24h"),
+          updateUptimeStatistics(m365Health.service, "7d"),
+        ]);
+      }
+    } catch (error) {
+      console.error(`[Health Check] Error storing health check data:`, error);
+    }
+
+    // Send alerts if status changed
     await sendAlertIfStatusChanged(emailHealth.service, emailHealth.status, emailHealth.message);
     await sendAlertIfStatusChanged(helpdeskHealth.service, helpdeskHealth.status, helpdeskHealth.message);
     await sendAlertIfStatusChanged(m365Health.service, m365Health.status, m365Health.message);
