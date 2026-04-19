@@ -7,6 +7,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Clock, CheckCircle2, TrendingUp, AlertCircle, Users2 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/Breadcrumb";
+import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 
 interface AgentMetrics {
   agentId: number;
@@ -121,8 +122,8 @@ export default function AdminAgentDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb items={breadcrumbs} />
+    <AdminLayoutWithSidebar currentPage="agent-dashboard">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Agent Dashboard</h1>
@@ -292,6 +293,7 @@ export default function AdminAgentDashboardPage() {
           </div>
         </Card>
       </div>
-    </div>
+      </div>
+    </AdminLayoutWithSidebar>
   );
 }
