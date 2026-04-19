@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X, Mail, ExternalLink } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
 import DragDropImageUploader from "@/components/DragDropImageUploader";
 import { useEditor } from "@tiptap/react";
@@ -94,6 +94,8 @@ function slugify(title: string) {
 export default function AdminBlog() {
   const utils = trpc.useUtils();
   const { data: posts, isLoading } = trpc.blog.adminListPosts.useQuery();
+  const [shareEmail, setShareEmail] = useState<{ postId: number; postTitle: string; postSlug: string } | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState("");
 
   const createPost = trpc.blog.createPost.useMutation({
     onSuccess: () => {
@@ -116,6 +118,17 @@ export default function AdminBlog() {
       setForm(EMPTY_FORM);
     },
     onError: (err) => toast.error(err.message),
+  });
+
+  const sendBlogEmail = trpc.blog.sendBlogEmail.useMutation({
+    onSuccess: () => {
+      toast.success("Blog post shared successfully");
+      setShareEmail(null);
+      setRecipientEmail("");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to send email");
+    },
   });
 
   const deletePost = trpc.blog.deletePost.useMutation({
@@ -272,8 +285,13 @@ export default function AdminBlog() {
                   className="border-b border-[rgba(0,212,255,0.05)] hover:bg-[rgba(0,212,255,0.03)] transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium text-white line-clamp-1">{post.title}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">/blog/{post.slug}</div>
+                    <button
+                      onClick={() => window.open(`/blog/${post.slug}`, "_blank")}
+                      className="text-left hover:text-[#00D4FF] transition-colors cursor-pointer"
+                    >
+                      <div className="font-medium text-white line-clamp-1">{post.title}</div>
+                      <div className="text-gray-500 text-xs mt-0.5">/blog/{post.slug}</div>
+                    </button>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     <span className="text-[#00D4FF] text-xs font-semibold uppercase tracking-wider">
@@ -294,6 +312,26 @@ export default function AdminBlog() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      {post.published && (
+                        <>
+                          <Button
+                            size="sm" variant="ghost"
+                            className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"
+                            title="View Post"
+                            onClick={() => window.open(`/blog/${post.slug}`, "_blank")}
+                          >
+                            <ExternalLink size={14} />
+                          </Button>
+                          <Button
+                            size="sm" variant="ghost"
+                            className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"
+                            title="Share via Email"
+                            onClick={() => setShareEmail({ postId: post.id, postTitle: post.title, postSlug: post.slug })}
+                          >
+                            <Mail size={14} />
+                          </Button>
+                        </>
+                      )}
                       <Button
                         size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"

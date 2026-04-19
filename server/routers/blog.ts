@@ -11,6 +11,7 @@ import { blogPosts } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
+import { sendEmail } from "../_core/email";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -213,5 +214,68 @@ export const blogRouter = router({
         .set({ published: input.published, publishedAt })
         .where(eq(blogPosts.id, input.id));
       return { success: true };
+    }),
+
+  /** Send blog post via email (admin only) */
+  sendBlogEmail: protectedProcedure
+    .input(
+      z.object({
+        postId: z.number().int().positive(),
+        recipientEmail: z.string().email("Invalid email address"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Get the blog post
+      const [post] = await db
+        .select()
+        .from(blogPosts)
+        .where(eq(blogPosts.id, input.postId))
+        .limit(1);
+
+      if (!post) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Blog post not found" });
+      }
+
+      if (!post.published) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Can only share published posts" });
+      }
+
+      // Build the blog post URL
+      const baseUrl = process.env.VITE_APP_ID ? `https://gigitekai.com` : `http://localhost:3000`;
+      const postUrl = `${baseUrl}/blog/${post.slug}`;
+
+      // Send email with blog post link
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #00D4FF;">Check out this blog post</h2>
+          <p>Hi,</p>
+          <p>I wanted to share this interesting article with you:</p>
+          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #333;">${post.title}</h3>
+            <p style="color: #666; margin: 10px 0;">${post.excerpt}</p>
+            <p style="color: #999; font-size: 14px; margin: 10px 0;">
+              Category: ${post.category} | Read time: ${post.readTime}
+            </p>
+            <a href="${postUrl}" style="display: inline-block; background-color: #00D4FF; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 10px;">
+              Read the full article
+            </a>
+          </div>
+          <p style="color: #999; font-size: 12px; margin-top: 30px;">
+            This email was sent from GigitekAI Blog
+          </p>
+        </div>
+      `;
+
+      await sendEmail({
+        to: input.recipientEmail,
+        subject: `Check out: ${post.title}`,
+        html: emailHtml,
+      });
+
+      return { success: true, message: "Blog post shared successfully" };
     }),
 });
