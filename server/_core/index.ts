@@ -17,6 +17,7 @@ import { startNewsletterScheduler } from "../routers/newsletter";
 import { startSocialScheduler } from "./socialScheduler";
 import { startEngagementPoller } from "./socialEngagementPoller";
 import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
+import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import {
@@ -166,6 +167,8 @@ async function startServer() {
     startEngagementPoller();
     // Start invite expiry scheduler (every hour)
     startInviteExpiryScheduler();
+    // Start health check scheduler (every 5 minutes)
+    startHealthCheckScheduler(5 * 60 * 1000);
     // Log Teams webhook endpoint
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
   });

@@ -50,8 +50,9 @@ import CloseTicketDialog from "@/components/CloseTicketDialog";
 import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard";
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
+import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
 
-type AdminTab = "tickets" | "users" | "surveys" | "workload" | "m365health";
+type AdminTab = "tickets" | "users" | "surveys" | "workload" | "m365health" | "service-health";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -387,6 +388,17 @@ export default function AdminPanel() {
           >
             <Cloud className="w-4 h-4" />
             M365 Health
+          </button>
+          <button
+            onClick={() => setActiveTab("service-health")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "service-health"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <AlertCircle className="w-4 h-4" />
+            Service Health
           </button>
         </div>
 
@@ -1099,6 +1111,11 @@ export default function AdminPanel() {
         {/* M365 Health Tab */}
         {activeTab === "m365health" && (
           <AdminM365Health />
+        )}
+
+        {/* Service Health Monitoring Tab */}
+        {activeTab === "service-health" && (
+          <AdminServiceHealthMonitoring />
         )}
     </div>
   );
