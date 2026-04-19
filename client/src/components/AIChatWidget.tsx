@@ -34,6 +34,7 @@ export default function AIChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
+  const initInProgressRef = useRef(false); // Prevent double-init race condition
 
   // tRPC hooks
   const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation({
@@ -95,28 +96,50 @@ export default function AIChatWidget() {
     "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
   ];
 
-  // Initialize session
+  // Initialize session with hard 5-second timeout to prevent infinite hang
   useEffect(() => {
+    if (!isOpen || sessionId || initInProgressRef.current) return;
+
     const initSession = async () => {
+      initInProgressRef.current = true;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
       try {
         console.log("[Chat] Initializing session...");
-        const result = await getOrCreateSession.mutateAsync({
-          sessionId: localStorage.getItem("chatSessionId") || undefined,
-        });
+        // Race between session init and 5-second timeout
+        const result = await Promise.race([
+          getOrCreateSession.mutateAsync({
+            sessionId: localStorage.getItem("chatSessionId") || undefined,
+          }),
+          new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error("Session init timeout")), 5000);
+          }),
+        ]);
+        if (timeoutId) clearTimeout(timeoutId);
         console.log("[Chat] Session initialized:", result.sessionId);
         setSessionId(result.sessionId);
         localStorage.setItem("chatSessionId", result.sessionId);
-      } catch (error) {
-        console.error("Failed to initialize chat session:", error);
-        toast.error("Failed to initialize chat. Please refresh and try again.");
+      } catch (error: any) {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (error?.message === "Session init timeout") {
+          // Generate a local fallback session ID so the chat is still usable
+          const fallbackId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          console.warn("[Chat] Session init timed out, using fallback ID:", fallbackId);
+          setSessionId(fallbackId);
+          localStorage.setItem("chatSessionId", fallbackId);
+        } else {
+          console.error("Failed to initialize chat session:", error);
+          // Still generate fallback so chat is usable
+          const fallbackId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          setSessionId(fallbackId);
+          localStorage.setItem("chatSessionId", fallbackId);
+        }
+      } finally {
+        initInProgressRef.current = false;
       }
     };
-    if (isOpen && !sessionId) {
-      console.log("[Chat] Opening chat, initializing session...");
-      initSession();
-    } else if (isOpen && sessionId) {
-      console.log("[Chat] Chat opened with existing sessionId:", sessionId);
-    }
+
+    console.log("[Chat] Opening chat, initializing session...");
+    initSession();
   }, [isOpen, sessionId]);
 
   // Debug: Log whenever sessionId changes

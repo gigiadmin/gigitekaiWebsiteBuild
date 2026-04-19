@@ -19,6 +19,12 @@ export async function getDb() {
   return _db;
 }
 
+// Reset DB connection on ECONNRESET - allows reconnection on next query
+export function resetDbConnection() {
+  _db = null;
+  console.warn('[Database] Connection reset, will reconnect on next query');
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
