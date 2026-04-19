@@ -13,6 +13,12 @@ import About from "./pages/About";
 import AboutUs from "./pages/AboutUs";
 import OurTeam from "./pages/OurTeam";
 import Partners from "./pages/Partners";
+import IndustryHealthcare from "./pages/IndustryHealthcare";
+import IndustryFinancial from "./pages/IndustryFinancial";
+import IndustryManufacturing from "./pages/IndustryManufacturing";
+import IndustryRetail from "./pages/IndustryRetail";
+import IndustryGovernment from "./pages/IndustryGovernment";
+import IndustryEducation from "./pages/IndustryEducation";
 import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import Pricing from "./pages/Pricing";
@@ -104,6 +110,12 @@ function Router() {
       <Route path={"/our-team"} component={OurTeam} />
       <Route path={"/partners"} component={Partners} />
       <Route path={"/careers"} component={Careers} />
+      <Route path={"/industries/healthcare"} component={IndustryHealthcare} />
+      <Route path={"/industries/financial-services"} component={IndustryFinancial} />
+      <Route path={"/industries/manufacturing"} component={IndustryManufacturing} />
+      <Route path={"/industries/retail-ecommerce"} component={IndustryRetail} />
+      <Route path={"/industries/government"} component={IndustryGovernment} />
+      <Route path={"/industries/education"} component={IndustryEducation} />
       <Route path={"/services/:slug"} component={ServiceDetail} />
 
       {/* ── Helpdesk (customer portal) ── */}

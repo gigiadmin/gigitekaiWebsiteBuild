@@ -99,6 +99,12 @@ export default function Footer() {
                   if (link === "Contact Us") href = "/#contact";
                   if (link === "Insights Blog") href = "/kb";
                   if (link === "Support Portal") href = "/helpdesk";
+                  if (link === "Healthcare") href = "/industries/healthcare";
+                  if (link === "Financial Services") href = "/industries/financial-services";
+                  if (link === "Manufacturing") href = "/industries/manufacturing";
+                  if (link === "Retail & eCommerce") href = "/industries/retail-ecommerce";
+                  if (link === "Government") href = "/industries/government";
+                  if (link === "Education") href = "/industries/education";
                   return (
                   <li key={link}>
                     <a
