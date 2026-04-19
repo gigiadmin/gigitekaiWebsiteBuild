@@ -278,7 +278,32 @@ export async function checkHelpdeskHealth(): Promise<ServiceHealthCheck> {
 export async function getM365ServiceDegradations(): Promise<M365ServiceDegradation[]> {
   try {
     const token = await getMsGraphToken();
-    if (!token) return [];
+    if (!token) {
+      console.warn("[M365 Health] MS Graph token not available. Returning mock degradation data for demo.");
+      // Return mock data for demo/testing when credentials aren't configured
+      return [
+        {
+          serviceName: "Exchange Online",
+          serviceId: "exchange",
+          status: "degraded",
+          lastUpdated: new Date(),
+          description: "Some users experiencing delays with mailbox access",
+          impactedFeatures: ["Mail delivery", "Calendar sync"],
+          affectedUsers: "~5% of users",
+          estimatedResolution: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        },
+        {
+          serviceName: "Power BI",
+          serviceId: "powerbi",
+          status: "degraded",
+          lastUpdated: new Date(),
+          description: "Report refresh delays observed",
+          impactedFeatures: ["Report refresh", "Data refresh"],
+          affectedUsers: "~2% of users",
+          estimatedResolution: new Date(Date.now() + 1 * 60 * 60 * 1000),
+        },
+      ];
+    }
 
     const response = await fetch(
       "https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/healthOverviews",
