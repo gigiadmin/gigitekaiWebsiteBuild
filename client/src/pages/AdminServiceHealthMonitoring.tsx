@@ -13,6 +13,7 @@ import { AlertCircle, CheckCircle, AlertTriangle, RefreshCw, Clock, ChevronDown,
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { M365ServiceDegradations } from "@/components/M365ServiceDegradations";
+import { UptimeDashboard } from "@/components/UptimeDashboard";
 
 enum ServiceHealthStatus {
   HEALTHY = "healthy",
@@ -30,10 +31,13 @@ interface ServiceHealthCheck {
   metrics?: Record<string, unknown>;
 }
 
+type DashboardTab = "health" | "uptime";
+
 export default function AdminServiceHealthMonitoring() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
   const [expandedM365, setExpandedM365] = useState(false);
+  const [activeTab, setActiveTab] = useState<DashboardTab>("health");
 
   // Query health dashboard
   const { data: dashboard, isLoading, refetch } = trpc.serviceHealthMonitoring.getSystemHealthDashboard.useQuery(
@@ -141,6 +145,29 @@ export default function AdminServiceHealthMonitoring() {
         <div>
           <h1 className="text-3xl font-bold text-white">Service Health Monitoring</h1>
           <p className="text-gray-400 mt-1">Real-time system status and performance metrics</p>
+          {/* Tab Navigation */}
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => setActiveTab("health")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === "health"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+              }`}
+            >
+              Real-Time Health
+            </button>
+            <button
+              onClick={() => setActiveTab("uptime")}
+              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === "uptime"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+              }`}
+            >
+              Uptime & Trends
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -178,8 +205,11 @@ export default function AdminServiceHealthMonitoring() {
         </div>
       </div>
 
-      {/* Overall Status */}
-      <Card className={`border ${getStatusBgColor(dashboard.overallStatus)} p-6`}>
+      {/* Tab Content */}
+      {activeTab === "health" && (
+        <>
+          {/* Overall Status */}
+          <Card className={`border ${getStatusBgColor(dashboard.overallStatus)} p-6`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {getStatusIcon(dashboard.overallStatus)}
@@ -383,10 +413,17 @@ export default function AdminServiceHealthMonitoring() {
         </Card>
       )}
 
-      {/* Last Updated */}
-      <div className="text-center text-sm text-gray-500">
-        Dashboard last updated: {new Date(dashboard.timestamp).toLocaleString()}
-      </div>
+          {/* Last Updated */}
+          <div className="text-center text-sm text-gray-500">
+            Dashboard last updated: {new Date(dashboard.timestamp).toLocaleString()}
+          </div>
+        </>
+      )}
+
+      {/* Uptime Tab */}
+      {activeTab === "uptime" && (
+        <UptimeDashboard />
+      )}
     </div>
   );
 }
