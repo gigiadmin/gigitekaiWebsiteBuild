@@ -16,10 +16,9 @@ const footerLinks = {
   ],
   Company: [
     "About Us",
-    "Careers",
     "Our Team",
     "Partners",
-    "Press",
+    "Careers",
     "Contact Us",
   ],
   Resources: [
@@ -97,7 +96,9 @@ export default function Footer() {
               <ul className="space-y-2.5">
                 {links.map((link) => {
                   let href = "#";
-                  if (link === "About Us") href = "/about";
+                  if (link === "About Us") href = "/about-us";
+                  if (link === "Our Team") href = "/our-team";
+                  if (link === "Partners") href = "/partners";
                   if (link === "Careers") href = "/careers";
                   if (link === "Contact Us") href = "/#contact";
                   if (link === "Insights Blog") href = "/blog";

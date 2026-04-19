@@ -2889,3 +2889,13 @@
   - [ ] Test KB list view on both desktop and mobile
   - [ ] Test article opening on both platforms
   - [ ] Test sharing on both platforms
+
+
+## Priority 2: Build Additional Pages (In Progress)
+
+- [ ] Build About Us page with company history and mission
+- [ ] Build Our Team page with generic team member data
+- [ ] Build/Remix Partners page
+- [ ] Remove Press link from footer navigation
+- [ ] Test all new pages for 404 errors
+- [ ] Final pre-production testing
