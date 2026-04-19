@@ -50,10 +50,12 @@ import { customerPortalRouter } from "./routers/customer-portal";
 import { notificationsRouter } from "./routers/notifications";
 import { adminRolesRouter } from "./routers/admin-roles-permissions";
 import { adminMenuCustomizationRouter } from "./routers/admin-menu-customization";
+import { m365HealthRouter } from "./routers/m365-health";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
+  m365Health: m365HealthRouter,
   agents: agentsRouter,
   adminAuth: adminAuthRouter,
   adminNotifications: adminNotificationsRouter,

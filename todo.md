@@ -2899,3 +2899,43 @@
 - [ ] Remove Press link from footer navigation
 - [ ] Test all new pages for 404 errors
 - [ ] Final pre-production testing
+
+
+## M365 Service Health Integration (NEW)
+
+### Backend (server/routers/m365-health.ts)
+- [ ] Create tRPC procedure to fetch M365 service health via Microsoft Graph API
+- [ ] Implement getServiceHealth procedure (list all services with status)
+- [ ] Implement getServiceIssues procedure (get detailed issues for a service)
+- [ ] Add caching layer (5-minute TTL) to reduce API calls
+- [ ] Implement error handling for Graph API failures
+- [ ] Add permission check (ServiceHealth.Read.All)
+
+### Frontend (client/src/pages/AdminM365Health.tsx)
+- [ ] Create M365 Health dashboard page
+- [ ] Display service status grid with color coding (green/yellow/red)
+- [ ] Show service name, current status, and last updated time
+- [ ] Add search/filter by service name
+- [ ] Add status filter (operational, investigating, degraded, down)
+- [ ] Display detailed issue information when clicking on a service
+- [ ] Show issue timeline and resolution status
+
+### Notifications
+- [ ] Add critical issue detection (serviceInterruption, serviceDegradation)
+- [ ] Send Teams notification when critical issue detected
+- [ ] Send email notification to admins
+- [ ] Add notification preferences (which services to monitor)
+- [ ] Implement notification history/log
+
+### Navigation & Integration
+- [ ] Add M365 Health link to admin sidebar
+- [ ] Add M365 Health card to admin dashboard
+- [ ] Show critical issues badge on navigation
+- [ ] Add M365 Health to admin menu
+
+### Testing & Deployment
+- [ ] Write tests for M365 health procedures
+- [ ] Test Graph API integration with real tenant
+- [ ] Verify notification delivery
+- [ ] Test search and filtering
+- [ ] Deploy to production

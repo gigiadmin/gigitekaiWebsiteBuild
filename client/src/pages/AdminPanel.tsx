@@ -34,6 +34,7 @@ import {
   UserPlus,
   BellOff,
   Star,
+  Cloud,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -48,8 +49,9 @@ import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import CloseTicketDialog from "@/components/CloseTicketDialog";
 import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard";
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
+import AdminM365Health from "./AdminM365Health";
 
-type AdminTab = "tickets" | "users" | "surveys" | "workload";
+type AdminTab = "tickets" | "users" | "surveys" | "workload" | "m365health";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -374,6 +376,17 @@ export default function AdminPanel() {
           >
             <Zap className="w-4 h-4" />
             Workload
+          </button>
+          <button
+            onClick={() => setActiveTab("m365health")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "m365health"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Cloud className="w-4 h-4" />
+            M365 Health
           </button>
         </div>
 
@@ -1081,6 +1094,11 @@ export default function AdminPanel() {
           <div className="space-y-6">
             <AgentWorkloadOptimizer />
           </div>
+        )}
+
+        {/* M365 Health Tab */}
+        {activeTab === "m365health" && (
+          <AdminM365Health />
         )}
     </div>
   );
