@@ -2,10 +2,37 @@ import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { KBAnalyticsDashboard } from "@/components/KBAnalyticsDashboard";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { TrendingUp, MessageSquare, ThumbsUp, ThumbsDown } from "lucide-react";
 
 export default function AdminKBAnalytics() {
+  const [useNewDashboard, setUseNewDashboard] = useState(true);
+
+  // Show new analytics dashboard
+  if (useNewDashboard) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-white">KB Analytics</h1>
+              <p className="text-gray-400 text-sm mt-1">Track article performance and effectiveness</p>
+            </div>
+            <button
+              onClick={() => setUseNewDashboard(false)}
+              className="text-xs text-gray-500 hover:text-gray-400 underline"
+            >
+              View Legacy Dashboard
+            </button>
+          </div>
+          <KBAnalyticsDashboard />
+        </div>
+      </div>
+    );
+  }
+
+  // Legacy dashboard code below
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
 
   // Fetch analytics data
@@ -45,13 +72,22 @@ export default function AdminKBAnalytics() {
   const isLoading = analyticsLoading || summaryLoading || reasonsLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">KB Analytics Dashboard</h1>
-          <p className="text-gray-400">Monitor article performance and user feedback</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white">KB Analytics (Legacy)</h1>
+            <p className="text-gray-400 text-sm mt-1">Legacy dashboard</p>
+          </div>
+          <button
+            onClick={() => setUseNewDashboard(true)}
+            className="text-xs text-cyan-400 hover:text-cyan-300 underline"
+          >
+            Switch to New Dashboard
+          </button>
         </div>
+
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">

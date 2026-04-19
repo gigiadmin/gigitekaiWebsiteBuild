@@ -288,6 +288,13 @@
       "when": 1776559930482,
       "tag": "0040_keen_havok",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1776561353320,
+      "tag": "0041_great_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

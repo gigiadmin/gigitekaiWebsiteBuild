@@ -1078,3 +1078,49 @@ export const ticketSurveys = mysqlTable("ticketSurveys", {
 });
 export type TicketSurvey = typeof ticketSurveys.$inferSelect;
 export type InsertTicketSurvey = typeof ticketSurveys.$inferInsert;
+
+
+// KB Article Analytics — track views, shares, and effectiveness
+export const kbArticleAnalytics = mysqlTable("kbArticleAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull(),
+  views: int("views").default(0).notNull(), // total views
+  shares: int("shares").default(0).notNull(), // total shares
+  ticketsResolved: int("ticketsResolved").default(0).notNull(), // tickets resolved using this article
+  avgHelpfulnessRating: decimal("avgHelpfulnessRating", { precision: 3, scale: 2 }), // 0-5 rating
+  lastViewedAt: timestamp("lastViewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type KbArticleAnalytic = typeof kbArticleAnalytics.$inferSelect;
+export type InsertKbArticleAnalytic = typeof kbArticleAnalytics.$inferInsert;
+
+// KB Article Shares — track when articles are shared with customers/agents
+export const kbArticleShares = mysqlTable("kbArticleShares", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull(),
+  sharedBy: int("sharedBy").notNull(), // userId of agent who shared
+  sharedWith: varchar("sharedWith", { length: 255 }), // email address or userId
+  sharedVia: mysqlEnum("sharedVia", ["email", "link", "ticket"]).default("email").notNull(),
+  ticketId: int("ticketId"), // optional: ticket this was shared from
+  message: text("message"), // optional: custom message with share
+  sharedAt: timestamp("sharedAt").defaultNow().notNull(),
+  viewedAt: timestamp("viewedAt"), // when recipient viewed the share
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbArticleShare = typeof kbArticleShares.$inferSelect;
+export type InsertKbArticleShare = typeof kbArticleShares.$inferInsert;
+
+// KB Article Views — track individual views for analytics
+export const kbArticleViews = mysqlTable("kbArticleViews", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull(),
+  viewedBy: int("viewedBy"), // userId (null for anonymous)
+  viewedFrom: mysqlEnum("viewedFrom", ["kb_portal", "ticket_detail", "search_widget", "share_link"]).default("kb_portal").notNull(),
+  ticketId: int("ticketId"), // optional: ticket context
+  viewedAt: timestamp("viewedAt").defaultNow().notNull(),
+  timeSpent: int("timeSpent"), // seconds spent reading
+  helpful: boolean("helpful"), // user marked as helpful
+});
+export type KbArticleView = typeof kbArticleViews.$inferSelect;
+export type InsertKbArticleView = typeof kbArticleViews.$inferInsert;

@@ -10,13 +10,15 @@ import { CodeBlockWithCopy } from "@/components/CodeBlockWithCopy";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
-import { KBShareDialog } from "@/components/KBShareDialog";
+import { ShareKBModal } from "@/components/ShareKBModal";
 
 export default function AdminKB() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [fullScreenArticle, setFullScreenArticle] = useState<any>(null);
   const [shareArticle, setShareArticle] = useState<any>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareArticleData, setShareArticleData] = useState<any>(null);
 
   // Fetch all KB articles
   const { data: articles, isLoading, refetch } = trpc.kb.list.useQuery(
@@ -31,11 +33,13 @@ export default function AdminKB() {
   } as any;
 
   const handleShare = (article: any) => {
-    setShareArticle(article);
+    setShareArticleData(article);
+    setIsShareModalOpen(true);
   };
 
   const handleEmail = (article: any) => {
-    setShareArticle(article);
+    setShareArticleData(article);
+    setIsShareModalOpen(true);
   };
   
   /*
@@ -83,12 +87,16 @@ export default function AdminKB() {
         />
       )}
 
-      {/* Share Dialog */}
-      {shareArticle && (
-        <KBShareDialog
-          article={shareArticle}
-          isOpen={!!shareArticle}
-          onClose={() => setShareArticle(null)}
+      {/* Share Modal */}
+      {shareArticleData && (
+        <ShareKBModal
+          isOpen={isShareModalOpen}
+          onClose={() => {
+            setIsShareModalOpen(false);
+            setShareArticleData(null);
+          }}
+          articleId={shareArticleData.id}
+          articleTitle={shareArticleData.title}
         />
       )}
 
