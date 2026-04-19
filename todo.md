@@ -2989,3 +2989,50 @@
 - 🔄 Phase 3: Ready for production deployment
 - All 582 tests passing (100%)
 - TypeScript: 0 errors
+
+
+## Phase 3: Enhanced M365 Service Health Monitoring
+
+### M365 Degradation Details
+- [ ] Fetch detailed service health information from MS Graph (service name, component, status, issue description)
+- [ ] Parse and display degradation reasons for each affected service
+- [ ] Show last updated timestamp for each service status
+- [ ] Display impact scope (affected users/regions if available)
+- [ ] Show estimated resolution time from MS Graph health data
+- [ ] Create M365 Service Details component showing all degraded services in list view
+
+### Historical Uptime Tracking
+- [ ] Create healthCheckHistory table in database schema
+- [ ] Store health check results with timestamps (Email, Helpdesk, M365)
+- [ ] Implement 7-day uptime calculation per service
+- [ ] Create Chart.js uptime visualization component
+- [ ] Add historical data query to service health monitoring router
+- [ ] Display uptime percentage and trend line on dashboard
+
+### Configurable Alert Thresholds
+- [ ] Create alertThresholds table in database schema
+- [ ] Add admin settings page for alert configuration
+- [ ] Allow setting custom thresholds for:
+  - Response time (ms)
+  - Error rate (%)
+  - Unprocessed ticket count
+  - Agent availability (%)
+- [ ] Store per-service threshold preferences
+- [ ] Update scheduler to use configurable thresholds
+- [ ] Add threshold validation in alert logic
+
+### Frontend Dashboard Updates
+- [ ] Enhance M365 Service Health card with expandable details
+- [ ] Add service degradation list with full details
+- [ ] Integrate uptime chart component
+- [ ] Add threshold configuration UI in admin settings
+- [ ] Show current vs configured thresholds on dashboard
+- [ ] Add service impact indicators
+
+### Testing & Deployment
+- [ ] Write tests for historical data queries
+- [ ] Test alert threshold logic with various scenarios
+- [ ] Verify uptime calculations accuracy
+- [ ] Test M365 API response parsing
+- [ ] Performance test with 7 days of health data
+- [ ] Deploy to production

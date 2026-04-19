@@ -9,9 +9,10 @@
 
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import { AlertCircle, CheckCircle, AlertTriangle, RefreshCw, Clock } from "lucide-react";
+import { AlertCircle, CheckCircle, AlertTriangle, RefreshCw, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { M365ServiceDegradations } from "@/components/M365ServiceDegradations";
 
 enum ServiceHealthStatus {
   HEALTHY = "healthy",
@@ -32,9 +33,19 @@ interface ServiceHealthCheck {
 export default function AdminServiceHealthMonitoring() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+  const [expandedM365, setExpandedM365] = useState(false);
 
   // Query health dashboard
   const { data: dashboard, isLoading, refetch } = trpc.serviceHealthMonitoring.getSystemHealthDashboard.useQuery(
+    undefined,
+    {
+      refetchInterval: autoRefresh ? refreshInterval : false,
+      staleTime: 5000,
+    }
+  );
+
+  // Query M365 degradations
+  const { data: m365Degradations, isLoading: m365Loading } = trpc.serviceHealthMonitoring.getM365ServiceDegradations.useQuery(
     undefined,
     {
       refetchInterval: autoRefresh ? refreshInterval : false,
@@ -342,6 +353,35 @@ export default function AdminServiceHealthMonitoring() {
           </Card>
         ))}
       </div>
+
+      {/* M365 Service Degradations Details */}
+      {m365Degradations && m365Degradations.length > 0 && (
+        <Card className="border border-yellow-500/30 bg-yellow-500/5 p-6">
+          <button
+            onClick={() => setExpandedM365(!expandedM365)}
+            className="w-full flex items-center justify-between hover:bg-yellow-500/10 p-2 rounded transition-colors"
+          >
+            <h2 className="text-lg font-semibold text-yellow-500 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              M365 Service Degradations ({m365Degradations.length})
+            </h2>
+            {expandedM365 ? (
+              <ChevronUp className="w-5 h-5 text-yellow-500" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-yellow-500" />
+            )}
+          </button>
+
+          {expandedM365 && (
+            <div className="mt-4 pt-4 border-t border-yellow-500/30">
+              <M365ServiceDegradations
+                degradations={m365Degradations}
+                isLoading={m365Loading}
+              />
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Last Updated */}
       <div className="text-center text-sm text-gray-500">

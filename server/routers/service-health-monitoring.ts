@@ -40,6 +40,20 @@ export interface ServiceHealthCheck {
 }
 
 /**
+ * M365 Service degradation detail
+ */
+export interface M365ServiceDegradation {
+  serviceName: string;
+  serviceId: string;
+  status: "operational" | "degraded" | "interrupted" | "extended_recovery";
+  lastUpdated: Date;
+  description?: string;
+  impactedFeatures?: string[];
+  affectedUsers?: string;
+  estimatedResolution?: Date;
+}
+
+/**
  * Email API health metrics
  */
 interface EmailHealthMetrics {
@@ -259,6 +273,74 @@ export async function checkHelpdeskHealth(): Promise<ServiceHealthCheck> {
 }
 
 /**
+ * Get detailed M365 service degradations
+ */
+export async function getM365ServiceDegradations(): Promise<M365ServiceDegradation[]> {
+  try {
+    const token = await getMsGraphToken();
+    if (!token) return [];
+
+    const response = await fetch(
+      "https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/healthOverviews",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!response.ok) return [];
+
+    const data = (await response.json()) as {
+      value?: Array<{
+        id: string;
+        displayName: string;
+        status: string;
+        lastUpdatedTime?: string;
+        issues?: Array<{
+          description: string;
+          affectedFeatures?: string[];
+          affectedUsers?: string;
+          estimatedResolution?: string;
+        }>;
+      }>;
+    };
+
+    const degradations: M365ServiceDegradation[] = [];
+
+    (data.value || []).forEach((service) => {
+      if (
+        service.status === "serviceDegradation" ||
+        service.status === "serviceInterruption" ||
+        service.status === "extendedRecovery"
+      ) {
+        const mainIssue = service.issues?.[0];
+
+        degradations.push({
+          serviceName: service.displayName,
+          serviceId: service.id,
+          status: (service.status === "serviceInterruption"
+            ? "interrupted"
+            : service.status === "extendedRecovery"
+            ? "extended_recovery"
+            : "degraded") as any,
+          lastUpdated: new Date(service.lastUpdatedTime || new Date()),
+          description: mainIssue?.description,
+          impactedFeatures: mainIssue?.affectedFeatures,
+          affectedUsers: mainIssue?.affectedUsers,
+          estimatedResolution: mainIssue?.estimatedResolution
+            ? new Date(mainIssue.estimatedResolution)
+            : undefined,
+        });
+      }
+    });
+
+    return degradations;
+  } catch (error) {
+    console.error("[M365 Health] Error fetching degradations:", error);
+    return [];
+  }
+}
+
+/**
  * Check M365 Service Health
  */
 export async function checkM365Health(): Promise<ServiceHealthCheck> {
@@ -311,7 +393,18 @@ export async function checkM365Health(): Promise<ServiceHealthCheck> {
     }
 
     const data = (await response.json()) as {
-      value?: Array<{ status: string }>;
+      value?: Array<{
+        id: string;
+        displayName: string;
+        status: string;
+        lastUpdatedTime?: string;
+        issues?: Array<{
+          description: string;
+          affectedFeatures?: string[];
+          affectedUsers?: string;
+          estimatedResolution?: string;
+        }>;
+      }>;
     };
     const services = data.value || [];
 
@@ -459,6 +552,13 @@ export const serviceHealthMonitoringRouter = router({
    */
   getM365Health: adminProcedure.query(async () => {
     return checkM365Health();
+  }),
+
+  /**
+   * Get detailed M365 service degradations
+   */
+  getM365ServiceDegradations: adminProcedure.query(async () => {
+    return getM365ServiceDegradations();
   }),
 
   /**
