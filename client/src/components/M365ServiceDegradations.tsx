@@ -8,198 +8,135 @@
 import { AlertCircle, AlertTriangle, Clock, Users, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-interface M365ServiceDegradation {
-  serviceName: string;
-  serviceId: string;
-  status: "operational" | "degraded" | "interrupted" | "extended_recovery";
-  lastUpdated: Date;
-  description?: string;
-  impactedFeatures?: string[];
-  affectedUsers?: string;
-  estimatedResolution?: Date;
-}
-
-interface M365ServiceDegradationsProps {
-  degradations: M365ServiceDegradation[];
+interface M365ServiceDegradationProps {
+  degradations: Array<{
+    serviceName: string;
+    serviceId: string;
+    status: "operational" | "degraded" | "interrupted" | "extended_recovery";
+    lastUpdated: Date | string;
+    description?: string;
+    impactedFeatures?: string[] | string;
+    affectedUsers?: string;
+    estimatedResolution?: Date | string;
+  }>;
   isLoading?: boolean;
 }
 
 export function M365ServiceDegradations({
   degradations,
   isLoading = false,
-}: M365ServiceDegradationsProps) {
+}: M365ServiceDegradationProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
-          <p className="text-gray-400 text-sm">Loading service details...</p>
-        </div>
+        <div className="text-muted-foreground">Loading M365 degradations...</div>
       </div>
     );
   }
 
   if (!degradations || degradations.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-          <p className="text-gray-400 text-sm">All M365 services operational</p>
-        </div>
+      <div className="text-center py-8">
+        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-green-500" />
+        <p className="text-muted-foreground">No service degradations detected</p>
       </div>
     );
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "interrupted":
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case "extended_recovery":
-        return <AlertTriangle className="w-5 h-5 text-orange-500" />;
-      case "degraded":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "interrupted":
-        return "border-red-500/30 bg-red-500/5";
-      case "extended_recovery":
-        return "border-orange-500/30 bg-orange-500/5";
-      case "degraded":
-        return "border-yellow-500/30 bg-yellow-500/5";
-      default:
-        return "border-gray-500/30 bg-gray-500/5";
-    }
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "interrupted":
-        return "bg-red-500/20 text-red-400 border-red-500/50";
-      case "extended_recovery":
-        return "bg-orange-500/20 text-orange-400 border-orange-500/50";
-      case "degraded":
-        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/50";
-      default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/50";
-    }
-  };
-
-  const formatStatusLabel = (status: string) => {
-    switch (status) {
-      case "interrupted":
-        return "Service Interrupted";
-      case "extended_recovery":
-        return "Extended Recovery";
-      case "degraded":
-        return "Degraded";
-      default:
-        return "Unknown";
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {degradations.map((degradation) => (
-        <Card
-          key={degradation.serviceId}
-          className={`border ${getStatusColor(degradation.status)} p-5`}
-        >
-          {/* Header */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3 flex-1">
-              {getStatusIcon(degradation.status)}
-              <div>
-                <h3 className="font-semibold text-white text-lg">
-                  {degradation.serviceName}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  ID: {degradation.serviceId}
-                </p>
+      {degradations.map((degradation) => {
+        // Ensure we have valid data
+        const serviceName = degradation.serviceName || degradation.serviceId || "Unknown Service";
+        const status = degradation.status || "operational";
+        const description = degradation.description || "No description available";
+        const impactedFeatures = typeof degradation.impactedFeatures === "string" ? degradation.impactedFeatures.split(", ") : Array.isArray(degradation.impactedFeatures) ? degradation.impactedFeatures : [];
+        const affectedUsers = degradation.affectedUsers || "Unknown";
+        const lastUpdated = new Date(degradation.lastUpdated || new Date());
+        const estimatedResolution = degradation.estimatedResolution ? new Date(degradation.estimatedResolution || new Date()) : null;
+
+        return (
+          <Card
+            key={degradation.serviceId}
+            className="border-l-4 border-l-amber-500 bg-card/50"
+          >
+            <div className="p-4">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-card-foreground">{serviceName}</h3>
+                  <p className="text-sm text-muted-foreground">ID: {degradation.serviceId}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  <span className="px-2 py-1 bg-amber-500/20 text-amber-600 text-xs font-medium rounded">
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </span>
+                </div>
               </div>
-            </div>
-            <span
-              className={`text-xs px-3 py-1 rounded-full font-semibold border ${getStatusBadgeColor(degradation.status)}`}
-            >
-              {formatStatusLabel(degradation.status)}
-            </span>
-          </div>
 
-          {/* Description */}
-          {degradation.description && (
-            <div className="mb-4 p-3 bg-black/30 rounded border border-gray-700/50">
-              <p className="text-sm text-gray-300">{degradation.description}</p>
-            </div>
-          )}
+              {/* Description */}
+              <p className="text-sm text-card-foreground mb-4">{description}</p>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Impacted Features */}
-            {degradation.impactedFeatures && degradation.impactedFeatures.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-4 h-4 text-cyan-500" />
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Impacted Features
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {/* Impacted Features */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Impacted Features</span>
+                  </div>
+                  {impactedFeatures.length > 0 ? (
+                    <ul className="text-sm space-y-1">
+                      {impactedFeatures.map((feature, idx) => (
+                        <li key={idx} className="text-card-foreground">
+                          • {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">None specified</p>
+                  )}
+                </div>
+
+                {/* Affected Users */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Affected Users</span>
+                  </div>
+                  <p className="text-sm text-card-foreground">{affectedUsers}</p>
+                </div>
+              </div>
+
+              {/* Timestamps */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground">Last Updated</span>
+                  </div>
+                  <p className="text-sm text-card-foreground">
+                    {lastUpdated.toLocaleString()}
                   </p>
                 </div>
-                <div className="space-y-1">
-                  {degradation.impactedFeatures.map((feature, idx) => (
-                    <div key={idx} className="text-sm text-gray-300 pl-6">
-                      • {feature}
+
+                {estimatedResolution && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">Est. Resolution</span>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-sm text-card-foreground">
+                      {estimatedResolution.toLocaleString()}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-
-            {/* Affected Users */}
-            {degradation.affectedUsers && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="w-4 h-4 text-cyan-500" />
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Affected Users
-                  </p>
-                </div>
-                <p className="text-sm text-gray-300">{degradation.affectedUsers}</p>
-              </div>
-            )}
-
-            {/* Last Updated */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-cyan-500" />
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  Last Updated
-                </p>
-              </div>
-              <p className="text-sm text-gray-300">
-                {new Date(degradation.lastUpdated).toLocaleString()}
-              </p>
             </div>
-
-            {/* Estimated Resolution */}
-            {degradation.estimatedResolution && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-4 h-4 text-green-500" />
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Est. Resolution
-                  </p>
-                </div>
-                <p className="text-sm text-green-400">
-                  {new Date(degradation.estimatedResolution).toLocaleString()}
-                </p>
-              </div>
-            )}
-          </div>
-        </Card>
-      ))}
+          </Card>
+        );
+      })}
     </div>
   );
 }

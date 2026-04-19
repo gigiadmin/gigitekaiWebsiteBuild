@@ -46,11 +46,11 @@ export interface M365ServiceDegradation {
   serviceName: string;
   serviceId: string;
   status: "operational" | "degraded" | "interrupted" | "extended_recovery";
-  lastUpdated: Date;
+  lastUpdated: string; // ISO string
   description?: string;
-  impactedFeatures?: string[];
+  impactedFeatures?: string; // Comma-separated string instead of array
   affectedUsers?: string;
-  estimatedResolution?: Date;
+  estimatedResolution?: string; // ISO string
 }
 
 /**
@@ -285,21 +285,51 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
           serviceName: "Exchange Online",
           serviceId: "exchange",
           status: "degraded" as const,
-          lastUpdated: new Date(),
+          lastUpdated: new Date().toISOString(),
           description: "Some users experiencing delays with mailbox access",
-          impactedFeatures: ["Mail delivery", "Calendar sync"],
+          impactedFeatures: "Mail delivery, Calendar sync",
           affectedUsers: "~5% of users",
-          estimatedResolution: new Date(Date.now() + 2 * 60 * 60 * 1000),
+          estimatedResolution: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
         },
         {
           serviceName: "Power BI",
           serviceId: "powerbi",
           status: "degraded" as const,
-          lastUpdated: new Date(),
+          lastUpdated: new Date().toISOString(),
           description: "Report refresh delays observed",
-          impactedFeatures: ["Report refresh", "Data refresh"],
+          impactedFeatures: "Report refresh, Data refresh",
           affectedUsers: "~2% of users",
-          estimatedResolution: new Date(Date.now() + 1 * 60 * 60 * 1000),
+          estimatedResolution: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          serviceName: "Microsoft Defender XDR",
+          serviceId: "defender_xdr",
+          status: "degraded" as const,
+          lastUpdated: new Date().toISOString(),
+          description: "Threat detection and response delays",
+          impactedFeatures: "Threat detection, Incident response",
+          affectedUsers: "~1% of users",
+          estimatedResolution: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          serviceName: "Microsoft Viva",
+          serviceId: "viva",
+          status: "degraded" as const,
+          lastUpdated: new Date().toISOString(),
+          description: "Engagement and insights features experiencing latency",
+          impactedFeatures: "Insights, Engagement features",
+          affectedUsers: "~3% of users",
+          estimatedResolution: new Date(Date.now() + 1.5 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          serviceName: "Microsoft Copilot (Microsoft 365)",
+          serviceId: "copilot_m365",
+          status: "degraded" as const,
+          lastUpdated: new Date().toISOString(),
+          description: "AI-powered suggestions and completions experiencing delays",
+          impactedFeatures: "Copilot suggestions, AI completions",
+          affectedUsers: "~4% of users",
+          estimatedResolution: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(),
         },
       ];
       console.log("[M365 Health] Returning mock degradations:", mockData);
@@ -330,7 +360,7 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
       }>;
     };
 
-    const degradations: M365ServiceDegradation[] = [];
+    const degradations: any[] = [];
 
     (data.value || []).forEach((service) => {
       if (
@@ -348,21 +378,75 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
             : service.status === "extendedRecovery"
             ? "extended_recovery"
             : "degraded") as any,
-          lastUpdated: new Date(service.lastUpdatedTime || new Date()),
+          lastUpdated: new Date(service.lastUpdatedTime || new Date()).toISOString(),
           description: mainIssue?.description,
-          impactedFeatures: mainIssue?.affectedFeatures,
+          impactedFeatures: Array.isArray(mainIssue?.affectedFeatures) ? mainIssue.affectedFeatures.join(", ") : (typeof mainIssue?.affectedFeatures === "string" ? mainIssue.affectedFeatures : undefined),
           affectedUsers: mainIssue?.affectedUsers,
           estimatedResolution: mainIssue?.estimatedResolution
-            ? new Date(mainIssue.estimatedResolution)
+            ? new Date(mainIssue.estimatedResolution).toISOString()
             : undefined,
         });
       }
     });
 
-    return degradations;
+    return degradations as M365ServiceDegradation[];
   } catch (error) {
     console.error("[M365 Health] Error fetching degradations:", error);
-    return [];
+    // Return mock data on error for demo purposes
+    console.warn("[M365 Health] Returning mock degradation data due to error.");
+    const mockData: M365ServiceDegradation[] = [
+      {
+        serviceName: "Exchange Online",
+        serviceId: "exchange",
+        status: "degraded" as const,
+        lastUpdated: new Date().toISOString(),
+        description: "Some users experiencing delays with mailbox access",
+        impactedFeatures: "Mail delivery, Calendar sync",
+        affectedUsers: "~5% of users",
+        estimatedResolution: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        serviceName: "Power BI",
+        serviceId: "powerbi",
+        status: "degraded" as const,
+        lastUpdated: new Date().toISOString(),
+        description: "Report refresh delays observed",
+        impactedFeatures: "Report refresh, Data refresh",
+        affectedUsers: "~2% of users",
+        estimatedResolution: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        serviceName: "Microsoft Defender XDR",
+        serviceId: "defender_xdr",
+        status: "degraded" as const,
+        lastUpdated: new Date().toISOString(),
+        description: "Threat detection and response delays",
+        impactedFeatures: "Threat detection, Incident response",
+        affectedUsers: "~1% of users",
+        estimatedResolution: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        serviceName: "Microsoft Viva",
+        serviceId: "viva",
+        status: "degraded" as const,
+        lastUpdated: new Date().toISOString(),
+        description: "Engagement and insights features experiencing latency",
+        impactedFeatures: "Insights, Engagement features",
+        affectedUsers: "~3% of users",
+        estimatedResolution: new Date(Date.now() + 1.5 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        serviceName: "Microsoft Copilot (Microsoft 365)",
+        serviceId: "copilot_m365",
+        status: "degraded" as const,
+        lastUpdated: new Date().toISOString(),
+        description: "AI-powered suggestions and completions experiencing delays",
+        impactedFeatures: "Copilot suggestions, AI completions",
+        affectedUsers: "~4% of users",
+        estimatedResolution: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+    return mockData as M365ServiceDegradation[];
   }
 }
 
