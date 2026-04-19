@@ -7,6 +7,7 @@ import HelpdeskNav from "@/components/HelpdeskNav";
 import { SLATimer } from "@/components/SLATimer";
 import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import { TicketMergeModal } from "@/components/TicketMergeModal";
+import { SurveyModal } from "@/components/SurveyModal";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -39,9 +40,7 @@ export default function TicketDetail() {
   const [replyText, setReplyText] = useState("");
   const [noteText, setNoteText] = useState("");
   const [activeAdminTab, setActiveAdminTab] = useState<"notes" | "activity">("notes");
-  const [surveyRating, setSurveyRating] = useState<number | null>(null);
-  const [surveyComment, setSurveyComment] = useState("");
-  const [surveySubmitted, setSurveySubmitted] = useState(false);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
 
@@ -61,6 +60,12 @@ export default function TicketDetail() {
   const { data: activity, refetch: refetchActivity } = trpc.helpdesk.getActivity.useQuery(
     { ticketId: ticketIdNum },
     { enabled: isAdmin && isAuthenticated && !!ticketId && ticketId !== "0" }
+  );
+
+  // Check if survey already submitted
+  const { data: existingSurvey } = trpc.helpdeskSurvey.getSurvey.useQuery(
+    { ticketId: ticketIdNum },
+    { enabled: isAuthenticated && !!ticketId && ticketId !== "0" }
   );
 
   useEffect(() => {
@@ -159,6 +164,13 @@ export default function TicketDetail() {
       navigate("/helpdesk");
     }
   }, [isAuthenticated, loading, navigate]);
+
+  // Auto-open survey modal for closed tickets (if not already submitted)
+  useEffect(() => {
+    if (ticketData?.ticket && !isAdmin && (ticketData.ticket.status === "closed" || ticketData.ticket.status === "resolved") && !existingSurvey) {
+      setIsSurveyModalOpen(true);
+    }
+  }, [ticketData?.ticket, isAdmin, existingSurvey]);
 
   const handleAddReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -484,6 +496,14 @@ export default function TicketDetail() {
             />
           )}
 
+          {/* Survey Modal */}
+          <SurveyModal
+            isOpen={isSurveyModalOpen}
+            onClose={() => setIsSurveyModalOpen(false)}
+            ticketId={ticketIdNum}
+            ticketTitle={ticket.title}
+          />
+
           {/* Description */}
           <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-6">
             <h2 className="text-white font-bold text-sm mb-3 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -678,43 +698,21 @@ export default function TicketDetail() {
                   <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{(ticket as any).closingNotes}</p>
                 </div>
               )}
-              {!isAdmin && !surveySubmitted && (
+              {!isAdmin && !existingSurvey && (
                 <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4">
-                  <p className="text-sm text-cyan-300 font-semibold mb-3">How satisfied are you with the resolution?</p>
-                  <div className="flex gap-2 mb-3">
-                    {[1, 2, 3, 4, 5].map(rating => (
-                      <button
-                        key={rating}
-                        onClick={() => setSurveyRating(rating)}
-                        className={`text-2xl px-3 py-2 rounded-lg transition-all ${
-                          surveyRating === rating
-                            ? "bg-cyan-500/30 scale-110"
-                            : "bg-cyan-500/10 hover:bg-cyan-500/20"
-                        }`}
-                      >
-                        {rating === 1 ? "😞" : rating === 2 ? "😐" : rating === 3 ? "😊" : rating === 4 ? "😄" : "🤩"}
-                      </button>
-                    ))}
-                  </div>
-                  {surveyRating && (
-                    <textarea
-                      value={surveyComment}
-                      onChange={(e) => setSurveyComment(e.target.value)}
-                      placeholder="Optional: Tell us what we could improve..."
-                      rows={2}
-                      className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:border-cyan-500/50 focus:outline-none mb-3"
-                    />
-                  )}
+                  <p className="text-sm text-cyan-300 font-semibold mb-2">Help us improve</p>
+                  <p className="text-xs text-cyan-200 mb-3">Share your feedback on this support experience</p>
                   <Button
-                    onClick={() => {
-                      toast.success("Thank you for your feedback!");
-                      setSurveySubmitted(true);
-                    }}
-                    disabled={!surveyRating}
+                    onClick={() => setIsSurveyModalOpen(true)}
                     className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-medium rounded-lg"
                   >
-                    Submit Feedback
+                    Take Survey
                   </Button>
+                </div>
+              )}
+              {existingSurvey && (
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                  <p className="text-xs text-green-300">✓ Thank you for your feedback!</p>
                 </div>
               )}
               {isAdmin ? (

@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
+import { KBSearchWidget } from "@/components/KBSearchWidget";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -170,6 +171,17 @@ export default function CreateTicket() {
             />
             <p className="text-gray-600 text-xs mt-1.5">{formData.description.length} characters (minimum 10)</p>
           </div>
+
+          {/* KB Search Widget */}
+          {(formData.title.length > 5 || formData.description.length > 10) && (
+            <KBSearchWidget
+              ticketTitle={formData.title}
+              ticketDescription={formData.description}
+              onArticleSelect={(articleId, articleTitle) => {
+                toast.info(`Selected: ${articleTitle}`);
+              }}
+            />
+          )}
 
           {/* Priority */}
           <div>

@@ -28,8 +28,7 @@ import {
   deleteMessageById,
   submitKBArticleFeedback,
   getKBArticleFeedback,
-  getKBArticleAnalytics,
-  getKBArticleFeedbackMessages
+  getKBArticleAnalytics
 } from "../db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";

@@ -1064,3 +1064,17 @@ export const bulkTicketActions = mysqlTable("bulkTicketActions", {
 });
 export type BulkTicketAction = typeof bulkTicketActions.$inferSelect;
 export type InsertBulkTicketAction = typeof bulkTicketActions.$inferInsert;
+
+
+// Ticket Surveys — customer satisfaction surveys for closed tickets
+export const ticketSurveys = mysqlTable("ticketSurveys", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().unique(), // one survey per ticket
+  rating: int("rating").notNull(), // 1-5 star rating
+  comment: text("comment"), // optional customer feedback
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+  submittedBy: int("submittedBy"), // userId of customer who submitted
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TicketSurvey = typeof ticketSurveys.$inferSelect;
+export type InsertTicketSurvey = typeof ticketSurveys.$inferInsert;

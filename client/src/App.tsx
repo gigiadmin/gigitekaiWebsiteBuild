@@ -73,6 +73,8 @@ import RescheduleMeeting from "./pages/RescheduleMeeting";
 
 // Contact page
 import Contact from "./pages/Contact";
+import ContactHarry from "./pages/ContactHarry";
+import ContactCard from "./pages/ContactCard";
 
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
@@ -118,6 +120,8 @@ function Router() {
 
       {/* ── Contact page ── */}
       <Route path={"/contact"} component={Contact} />
+      <Route path={"/hh"} component={ContactHarry} />
+      <Route path={"/contact-card"} component={ContactCard} />
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/terms-of-service"} component={TermsOfService} />
 

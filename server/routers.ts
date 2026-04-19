@@ -43,6 +43,7 @@ import { helpdeskKbRouter } from "./routers/helpdesk-kb";
 import { helpdeskNotificationsRouter } from "./routers/helpdesk-notifications";
 import { helpdeskDashboardMetricsRouter } from "./routers/helpdesk-dashboard-metrics";
 import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
+import { helpdeskSurveyRouter } from "./routers/helpdesk-survey";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -86,6 +87,7 @@ export const appRouter = router({
   helpdeskNotifications: helpdeskNotificationsRouter,
   helpdeskDashboardMetrics: helpdeskDashboardMetricsRouter,
   teamsPresenceSync: teamsPresenceSyncRouter,
+  helpdeskSurvey: helpdeskSurveyRouter,
   aibot: aibotRouter,
   chat: chatRouter,
   customerInvites: customerInvitesRouter,

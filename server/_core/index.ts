@@ -124,6 +124,11 @@ async function startServer() {
   app.get("/api/social/facebook/connect", facebookConnect);
   app.get("/api/social/facebook/callback", facebookCallback);
   
+  // Harry's contact page redirect
+  app.get("/hh", (_req, res) => {
+    res.redirect("/contact");
+  });
+  
   // tRPC API
   app.use(
     "/api/trpc",
