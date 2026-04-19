@@ -142,6 +142,32 @@ export const helpdeskRouter = router({
           status: "open",
         });
 
+        // Send confirmation email to customer
+        try {
+          const ticketNum = ticket?.id ? String(ticket.id) : "pending";
+          const confirmationEmail = `
+            <h2>Ticket Confirmation</h2>
+            <p>Thank you for contacting GigitekAI Support!</p>
+            <p><strong>Ticket #${ticketNum}</strong></p>
+            <p><strong>Title:</strong> ${input.title}</p>
+            <p><strong>Priority:</strong> ${input.priority.toUpperCase()}</p>
+            <p><strong>Category:</strong> ${input.category.replace(/_/g, " ")}</p>
+            <p>Your ticket has been received and assigned to our support team. We will respond as soon as possible.</p>
+            <p>You can track your ticket status at: <a href="${BASE_URL}/customer-portal">GigitekAI Customer Portal</a></p>
+            <p>Best regards,<br/>GigitekAI Support Team</p>
+          `;
+          const ticketId = ticket?.id ? String(ticket.id) : "pending";
+          const userEmail = ctx.user.email || "support@gigitekai.com";
+          await sendEmail({
+            to: userEmail,
+            subject: `Ticket Confirmation #${ticketId}: ${input.title}`,
+            html: confirmationEmail,
+          });
+          console.log(`[Helpdesk] Confirmation email sent to ${ctx.user.email} for ticket #${ticket?.id}`);
+        } catch (emailError) {
+          console.warn("[Helpdesk] Failed to send confirmation email:", emailError);
+        }
+
         // Send notification to owner
         await notifyOwner({
           title: `New Help Desk Ticket: ${input.title}`,
@@ -157,6 +183,28 @@ export const helpdeskRouter = router({
             });
           } catch (smsError) {
             console.warn("[Helpdesk] Failed to send critical ticket SMS:", smsError);
+          }
+          
+          // Send critical ticket email alert to admins
+          try {
+            const criticalAlert = `
+              <h2 style="color: #ff0000;">CRITICAL TICKET ALERT</h2>
+              <p><strong>Ticket #${ticket.id}</strong></p>
+              <p><strong>Title:</strong> ${input.title}</p>
+              <p><strong>From:</strong> ${ctx.user.name} (${ctx.user.email})</p>
+              <p><strong>Category:</strong> ${input.category.replace(/_/g, " ")}</p>
+              <p><strong>Description:</strong></p>
+              <p>${input.description}</p>
+              <p><a href="${BASE_URL}/admin/helpdesk?filter=critical">View in Admin Panel</a></p>
+            `;
+            await sendEmail({
+              to: "support@gigitekai.com",
+              subject: `CRITICAL: Ticket #${ticket.id} - ${input.title}`,
+              html: criticalAlert,
+            });
+            console.log(`[Helpdesk] Critical ticket email alert sent for ticket #${ticket.id}`);
+          } catch (emailError) {
+            console.warn("[Helpdesk] Failed to send critical ticket email:", emailError);
           }
         }
 
