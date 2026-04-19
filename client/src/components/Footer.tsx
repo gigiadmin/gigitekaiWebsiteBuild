@@ -23,10 +23,6 @@ const footerLinks = {
   ],
   Resources: [
     "Insights Blog",
-    "Case Studies",
-    "Whitepapers",
-    "Webinars",
-    "Documentation",
     "Support Portal",
   ],
   Industries: [
@@ -101,7 +97,8 @@ export default function Footer() {
                   if (link === "Partners") href = "/partners";
                   if (link === "Careers") href = "/careers";
                   if (link === "Contact Us") href = "/#contact";
-                  if (link === "Insights Blog") href = "/blog";
+                  if (link === "Insights Blog") href = "/kb";
+                  if (link === "Support Portal") href = "/helpdesk";
                   return (
                   <li key={link}>
                     <a
