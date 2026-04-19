@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, text, timestamp, boolean, mysqlEnum, date, decimal } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, text, timestamp, boolean, mysqlEnum, json, date, decimal } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -1206,3 +1206,38 @@ export const chatSuggestions = mysqlTable("chatSuggestions", {
 });
 export type ChatSuggestion = typeof chatSuggestions.$inferSelect;
 export type InsertChatSuggestion = typeof chatSuggestions.$inferInsert;
+
+
+// Custom User Roles & Permissions
+export const customRoles = mysqlTable("customRoles", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  permissions: json("permissions").$type<string[]>().notNull(), // Array of permission codes
+  isSystem: boolean("isSystem").default(false).notNull(), // System roles cannot be deleted
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const userRoleAssignments = mysqlTable("userRoleAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  roleId: int("roleId").notNull().references(() => customRoles.id, { onDelete: "cascade" }),
+  assignedBy: int("assignedBy").notNull(),
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+});
+
+// Admin Menu Customization
+export const adminMenuCustomization = mysqlTable("adminMenuCustomization", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  menuOrder: json("menuOrder").$type<string[]>().notNull(), // Array of menu item IDs in custom order
+  collapsedSections: json("collapsedSections").$type<string[]>().notNull(), // Array of collapsed section names
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CustomRole = typeof customRoles.$inferSelect;
+export type InsertCustomRole = typeof customRoles.$inferInsert;
+export type UserRoleAssignment = typeof userRoleAssignments.$inferSelect;
+export type AdminMenuCustomization = typeof adminMenuCustomization.$inferSelect;
