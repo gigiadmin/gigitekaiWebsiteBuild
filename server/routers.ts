@@ -51,11 +51,19 @@ import { notificationsRouter } from "./routers/notifications";
 import { adminRolesRouter } from "./routers/admin-roles-permissions";
 import { adminMenuCustomizationRouter } from "./routers/admin-menu-customization";
 import { m365HealthRouter } from "./routers/m365-health";
+import { aiTicketCategorization } from "./routers/ai-ticket-categorization";
+import { kbSeedingRouter } from "./routers/kb-seeding";
+import { aiTrainingRouter } from "./routers/ai-training";
+import { ticketRoutingRouter } from "./routers/ticket-routing";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   m365Health: m365HealthRouter,
+  aiTicketCategorization: aiTicketCategorization,
+  kbSeeding: kbSeedingRouter,
+  aiTraining: aiTrainingRouter,
+  ticketRouting: ticketRoutingRouter,
   agents: agentsRouter,
   adminAuth: adminAuthRouter,
   adminNotifications: adminNotificationsRouter,
