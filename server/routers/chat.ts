@@ -379,8 +379,99 @@ export const chatRouter = router({
         throw new Error("Only admins can view analytics");
       }
 
-      const db = await getDb();
-      if (!db) {
+      // Wrap entire query in 10-second timeout to prevent hanging on DB connection issues
+      try {
+        const result = await Promise.race([
+          (async () => {
+            const db = await getDb();
+            if (!db) {
+              return {
+                totalSessions: 0,
+                activeSessions: 0,
+                closedSessions: 0,
+                totalMessages: 0,
+                avgMessagesPerSession: 0,
+                totalLeads: 0,
+                aiChatSessions: 0,
+                aiChatMessages: 0,
+                escalatedChats: 0,
+                recentSessions: [],
+              };
+            }
+
+            const since = new Date();
+            since.setDate(since.getDate() - input.days);
+
+            // Real-time chat stats
+            const allRtSessions = await db
+              .select()
+              .from(realtimeChatSessions)
+              .where(gte(realtimeChatSessions.createdAt, since));
+
+            const activeSessions = allRtSessions.filter((s) => s.status === "active").length;
+            const closedSessions = allRtSessions.filter((s) => s.status === "closed").length;
+
+            const rtMsgCount = await db
+              .select({ cnt: count() })
+              .from(realtimeChatMessages)
+              .where(gte(realtimeChatMessages.createdAt, since));
+
+            // AI chat stats
+            const aiSessions = await db
+              .select()
+              .from(chatSessions)
+              .where(gte(chatSessions.createdAt, since));
+
+            const aiMsgCount = await db
+              .select({ cnt: count() })
+              .from(chatMessages)
+              .where(gte(chatMessages.createdAt, since));
+
+            const escalated = aiSessions.filter((s) => s.status === "escalated").length;
+
+            // Leads
+            const leads = await db
+              .select({ cnt: count() })
+              .from(chatLeads)
+              .where(gte(chatLeads.createdAt, since));
+
+            // Recent sessions for timeline
+            const recentSessions = await db
+              .select()
+              .from(realtimeChatSessions)
+              .orderBy(desc(realtimeChatSessions.createdAt))
+              .limit(10);
+
+            const totalMessages = (rtMsgCount[0]?.cnt || 0) + (aiMsgCount[0]?.cnt || 0);
+            const totalSessions = allRtSessions.length + aiSessions.length;
+
+            return {
+              totalSessions,
+              activeSessions,
+              closedSessions,
+              totalMessages,
+              avgMessagesPerSession: totalSessions > 0 ? Math.round(totalMessages / totalSessions) : 0,
+              totalLeads: leads[0]?.cnt || 0,
+              aiChatSessions: aiSessions.length,
+              aiChatMessages: aiMsgCount[0]?.cnt || 0,
+              escalatedChats: escalated,
+              recentSessions: recentSessions.map((s) => ({
+                id: s.id,
+                userId: s.userId,
+                status: s.status,
+                createdAt: s.createdAt,
+                closedAt: s.closedAt,
+              })),
+            };
+          })(),
+          new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error("Analytics query timeout after 10 seconds")), 10000);
+          }),
+        ]);
+        return result;
+      } catch (error: any) {
+        console.error("[Analytics] Query failed:", error?.message);
+        // Return empty analytics on timeout or error
         return {
           totalSessions: 0,
           activeSessions: 0,
@@ -394,71 +485,6 @@ export const chatRouter = router({
           recentSessions: [],
         };
       }
-
-      const since = new Date();
-      since.setDate(since.getDate() - input.days);
-
-      // Real-time chat stats
-      const allRtSessions = await db
-        .select()
-        .from(realtimeChatSessions)
-        .where(gte(realtimeChatSessions.createdAt, since));
-
-      const activeSessions = allRtSessions.filter((s) => s.status === "active").length;
-      const closedSessions = allRtSessions.filter((s) => s.status === "closed").length;
-
-      const rtMsgCount = await db
-        .select({ cnt: count() })
-        .from(realtimeChatMessages)
-        .where(gte(realtimeChatMessages.createdAt, since));
-
-      // AI chat stats
-      const aiSessions = await db
-        .select()
-        .from(chatSessions)
-        .where(gte(chatSessions.createdAt, since));
-
-      const aiMsgCount = await db
-        .select({ cnt: count() })
-        .from(chatMessages)
-        .where(gte(chatMessages.createdAt, since));
-
-      const escalated = aiSessions.filter((s) => s.status === "escalated").length;
-
-      // Leads
-      const leads = await db
-        .select({ cnt: count() })
-        .from(chatLeads)
-        .where(gte(chatLeads.createdAt, since));
-
-      // Recent sessions for timeline
-      const recentSessions = await db
-        .select()
-        .from(realtimeChatSessions)
-        .orderBy(desc(realtimeChatSessions.createdAt))
-        .limit(10);
-
-      const totalMessages = (rtMsgCount[0]?.cnt || 0) + (aiMsgCount[0]?.cnt || 0);
-      const totalSessions = allRtSessions.length + aiSessions.length;
-
-      return {
-        totalSessions,
-        activeSessions,
-        closedSessions,
-        totalMessages,
-        avgMessagesPerSession: totalSessions > 0 ? Math.round(totalMessages / totalSessions) : 0,
-        totalLeads: leads[0]?.cnt || 0,
-        aiChatSessions: aiSessions.length,
-        aiChatMessages: aiMsgCount[0]?.cnt || 0,
-        escalatedChats: escalated,
-        recentSessions: recentSessions.map((s) => ({
-          id: s.id,
-          userId: s.userId,
-          status: s.status,
-          createdAt: s.createdAt,
-          closedAt: s.closedAt,
-        })),
-      };
     }),
 
   // Get all sessions (admin, for transcript list)

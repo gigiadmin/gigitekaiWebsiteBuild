@@ -767,7 +767,7 @@ export default function AdminChat() {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#00D4FF] mx-auto mb-3"></div>
                 <p className="text-gray-400">Loading analytics...</p>
               </div>
-            ) : analytics ? (
+            ) : analytics && analytics.totalSessions > 0 ? (
               <>
                 {/* Metric Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -859,6 +859,11 @@ export default function AdminChat() {
                   </Card>
                 </div>
               </>
+            ) : analytics ? (
+              <div className="text-center py-12 bg-red-500/10 border border-red-500/30 rounded-lg p-6">
+                <p className="text-red-400 mb-2">Failed to load analytics</p>
+                <p className="text-sm text-gray-400">The analytics query timed out. Please try again or refresh the page.</p>
+              </div>
             ) : (
               <p className="text-gray-400 text-center py-8">No analytics data available</p>
             )}
