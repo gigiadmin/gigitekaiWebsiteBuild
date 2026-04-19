@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { NotificationBell } from "./NotificationBell";
+import NotificationBell from "./NotificationBell";
 
 interface AdminLayoutProps {
   children: React.ReactNode;

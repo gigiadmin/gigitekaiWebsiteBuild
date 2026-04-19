@@ -80,35 +80,35 @@ export default function NotificationBell() {
   // ── tRPC queries & mutations ───────────────────────────────────────────────
   const utils = trpc.useUtils();
 
-  const { data: unreadCount = 0, refetch: refetchCount } =
-    trpc.adminNotifications.getUnreadCount.useQuery(undefined, {
+  const { data: unreadNotifications = [], refetch: refetchCount } =
+    trpc.adminNotifications.getUnread.useQuery(undefined, {
       refetchInterval: 15_000,
       enabled: isAuthenticated && user?.role === "admin",
     });
 
-  const { data: notifications = [], refetch: refetchList } =
-    trpc.adminNotifications.list.useQuery(
-      { limit: 30, onlyUnread: false },
+  const { data: allNotifications = [], refetch: refetchList } =
+    trpc.adminNotifications.getAll.useQuery(
+      { limit: 30, offset: 0 },
       { enabled: open && isAuthenticated && user?.role === "admin" }
     );
 
-  const markRead = trpc.adminNotifications.markRead.useMutation({
+  const markRead = trpc.adminNotifications.markAsRead.useMutation({
     onSuccess: () => {
-      utils.adminNotifications.getUnreadCount.invalidate();
-      utils.adminNotifications.list.invalidate();
+      utils.adminNotifications.getUnread.invalidate();
+      utils.adminNotifications.getAll.invalidate();
     },
   });
 
-  const markAllRead = trpc.adminNotifications.markAllRead.useMutation({
+  const markAllRead = trpc.adminNotifications.markAllAsRead.useMutation({
     onMutate: async () => {
       // Optimistic: zero out badge immediately
-      await utils.adminNotifications.getUnreadCount.cancel();
-      utils.adminNotifications.getUnreadCount.setData(undefined, 0);
+      await utils.adminNotifications.getUnread.cancel();
+      utils.adminNotifications.getUnread.setData(undefined, []);
       setWsUnread(0);
     },
     onSettled: () => {
-      utils.adminNotifications.getUnreadCount.invalidate();
-      utils.adminNotifications.list.invalidate();
+      utils.adminNotifications.getUnread.invalidate();
+      utils.adminNotifications.getAll.invalidate();
     },
   });
 
@@ -167,12 +167,14 @@ export default function NotificationBell() {
   // ── Handlers ──────────────────────────────────────────────────────────────
   function handleNotifClick(notif: AdminNotification) {
     if (!notif.isRead) {
-      markRead.mutate({ id: notif.id });
+      markRead.mutate({ notificationId: notif.id });
     }
     setOpen(false);
     if (notif.href) navigate(notif.href);
   }
 
+  const unreadCount = Array.isArray(unreadNotifications) ? unreadNotifications.filter((n: any) => !n.isRead).length : 0;
+  const notifications = Array.isArray(allNotifications) ? allNotifications : [];
   const totalUnread = unreadCount + wsUnread;
   const displayCount = totalUnread > 99 ? "99+" : totalUnread;
 
@@ -242,7 +244,7 @@ export default function NotificationBell() {
                 <p className="text-sm">No notifications yet</p>
               </div>
             ) : (
-              notifications.map((notif) => (
+              notifications.map((notif: AdminNotification) => (
                 <button
                   key={notif.id}
                   className={`w-full text-left px-4 py-3 flex gap-3 items-start hover:bg-slate-700/50 transition-colors border-b border-slate-700/50 last:border-0 ${

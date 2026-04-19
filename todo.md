@@ -287,6 +287,32 @@
 ## Database Cleanup Round 2
 - [x] Remove all 80 test tickets from the database (new batch appeared after previous cleanup)
 
+## Phase 3: Admin Customization Features (In Progress)
+
+### Custom Roles & Permissions
+- [x] Backend router created (admin-roles-permissions.ts)
+- [x] Database schema created (customRoles, userRoleAssignments)
+- [ ] Frontend UI for role creation/assignment
+- [ ] Role-based menu visibility
+- [ ] Permission checking in admin procedures
+
+### Menu Customization
+- [x] Backend router created (admin-menu-customization.ts)
+- [x] Database schema created (adminMenuCustomization)
+- [x] Frontend component created (AdminMenuCustomizer.tsx)
+- [x] Integration with AdminLayoutWithSidebar
+- [ ] Persist user menu preferences
+- [ ] Load and apply saved menu order
+- [ ] Test menu customization end-to-end
+
+### Notification System Cleanup
+- [x] Fixed NotificationBell component TypeScript errors
+- [x] Updated router procedure names (getUnread, getAll, markAsRead, markAllAsRead)
+- [x] Fixed AdminMenuCustomizer router references
+- [ ] Test notification bell functionality
+- [ ] Test real-time notification delivery
+- [ ] Verify WebSocket connection handling
+
 ## New Feature Implementation (April 2026)
 - [x] Dark/light theme toggle - add theme switcher accessible from navbar
 - [x] Chat transcripts and export - export chat history as PDF/text from admin panel
