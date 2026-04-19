@@ -18,7 +18,7 @@ import { agentsRouter } from "./routers/agents";
 import { adminAuthRouter } from "./routers/admin-auth";
 import { blogRouter } from "./routers/blog";
 import { newsletterRouter } from "./routers/newsletter";
-import { adminNotificationsRouter } from "./routers/adminNotifications";
+import { adminNotificationsRouter } from "./routers/admin-notifications";
 import { emailRouter } from "./routers/email";
 import { emailRecipientGroupsRouter } from "./routers/emailRecipientGroups";
 import { webPushRouter } from "./routers/webPush";

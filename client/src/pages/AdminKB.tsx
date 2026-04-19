@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Trash2, Edit2, BookOpen, Eye } from "lucide-react";
+import { Search, Plus, Trash2, Edit2, BookOpen, Eye, Mail, Share2 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { CodeBlockWithCopy } from "@/components/CodeBlockWithCopy";
 import { KBArticleContent } from "@/components/KBArticleContent";
@@ -234,6 +234,24 @@ export default function AdminKB() {
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => handleEmail(selectedArticle)}
+                      className="border-blue-600 text-blue-400 hover:bg-blue-900/30"
+                      title="Email article"
+                    >
+                      <Mail className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleShare(selectedArticle)}
+                      className="border-green-600 text-green-400 hover:bg-green-900/30"
+                      title="Share article"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="border-slate-600 text-gray-400 hover:text-white"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -299,6 +317,17 @@ export default function AdminKB() {
         </div>
       )}
     </div>
+
+    {/* Share KB Modal */}
+    {shareArticleData && (
+      <ShareKBModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        articleId={shareArticleData.id}
+        articleTitle={shareArticleData.title}
+        articleUrl={`${window.location.origin}/kb/${shareArticleData.id}`}
+      />
+    )}
     </>
   );
 }

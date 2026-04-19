@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { NotificationBell } from "./NotificationBell";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -224,8 +225,11 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
-          <div className="text-sm text-gray-400">
-            <span className="text-[#00D4FF]">{user?.email}</span>
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <div className="text-sm text-gray-400">
+              <span className="text-[#00D4FF]">{user?.email}</span>
+            </div>
           </div>
         </div>
 

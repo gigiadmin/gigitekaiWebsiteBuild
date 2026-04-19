@@ -2820,3 +2820,37 @@
 - [x] Add search bar to sidebar for quick page navigation
 - [x] Add icons to each navigation item for visual recognition
 - [x] Implement collapsible sections (OPERATIONS and ANALYTICS)
+
+
+## Admin Sidebar Enhancements (Phase 1)
+- [ ] Implement real-time notification system for admin sidebar
+  - [ ] Create notification badge on sidebar
+  - [ ] Show notification center with ticket/system alerts
+  - [ ] WebSocket integration for real-time updates
+- [ ] Build custom user roles & permissions system
+  - [ ] Create role management interface
+  - [ ] Define permission matrix (view, edit, delete, approve)
+  - [ ] Implement role-based access control in routers
+- [ ] Add drag-and-drop menu customization
+  - [ ] Make sidebar menu items draggable
+  - [ ] Save custom order to database
+  - [ ] Load saved order on page load
+- [ ] Create reusable sidebar skill for documentation
+  - [ ] Document component architecture
+  - [ ] Create implementation guide
+  - [ ] Publish as skill for future projects
+
+## KB Desktop/Mobile Parity Fix (Phase 2)
+- [ ] Fix KB article view on desktop
+  - [ ] Implement full-screen modal for KB articles on desktop
+  - [ ] Match mobile full-screen experience
+  - [ ] Add back button to return to KB list
+- [ ] Integrate KB sharing features
+  - [ ] Add email share button to KB articles
+  - [ ] Add copy link button to KB articles
+  - [ ] Verify ShareKBModal is accessible to agents
+  - [ ] Test sharing functionality end-to-end
+- [ ] Verify KB desktop/mobile parity
+  - [ ] Test KB list view on both desktop and mobile
+  - [ ] Test article opening on both platforms
+  - [ ] Test sharing on both platforms
