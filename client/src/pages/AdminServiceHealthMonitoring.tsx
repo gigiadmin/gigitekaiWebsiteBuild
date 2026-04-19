@@ -50,7 +50,7 @@ export default function AdminServiceHealthMonitoring() {
   );
 
   // Query M365 degradations
-  const { data: m365Degradations, isLoading: m365Loading } = trpc.serviceHealthMonitoring.getM365ServiceDegradations.useQuery(
+  const { data: m365Degradations, isLoading: m365Loading, error: m365Error } = trpc.serviceHealthMonitoring.getM365ServiceDegradations.useQuery(
     undefined,
     {
       refetchInterval: autoRefresh ? refreshInterval : false,
@@ -58,7 +58,18 @@ export default function AdminServiceHealthMonitoring() {
     }
   );
 
+  // Debug logging
+  useEffect(() => {
+    console.log("[AdminServiceHealthMonitoring] M365 Degradations:", m365Degradations);
+    if (m365Error) console.error("[AdminServiceHealthMonitoring] M365 Error:", m365Error);
+  }, [m365Degradations, m365Error]);
+
   // Get status color
+  // Debug logging for dashboard
+  useEffect(() => {
+    console.log("[AdminServiceHealthMonitoring] Dashboard:", dashboard);
+  }, [dashboard]);
+
   const getStatusColor = (status: ServiceHealthStatus) => {
     switch (status) {
       case ServiceHealthStatus.HEALTHY:

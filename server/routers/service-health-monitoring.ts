@@ -280,12 +280,11 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
     const token = await getMsGraphToken();
     if (!token) {
       console.warn("[M365 Health] MS Graph token not available. Returning mock degradation data for demo.");
-      // Return mock data for demo/testing when credentials aren't configured
-      return [
+      const mockData: M365ServiceDegradation[] = [
         {
           serviceName: "Exchange Online",
           serviceId: "exchange",
-          status: "degraded",
+          status: "degraded" as const,
           lastUpdated: new Date(),
           description: "Some users experiencing delays with mailbox access",
           impactedFeatures: ["Mail delivery", "Calendar sync"],
@@ -295,7 +294,7 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
         {
           serviceName: "Power BI",
           serviceId: "powerbi",
-          status: "degraded",
+          status: "degraded" as const,
           lastUpdated: new Date(),
           description: "Report refresh delays observed",
           impactedFeatures: ["Report refresh", "Data refresh"],
@@ -303,6 +302,8 @@ export async function getM365ServiceDegradations(): Promise<M365ServiceDegradati
           estimatedResolution: new Date(Date.now() + 1 * 60 * 60 * 1000),
         },
       ];
+      console.log("[M365 Health] Returning mock degradations:", mockData);
+      return mockData;
     }
 
     const response = await fetch(
