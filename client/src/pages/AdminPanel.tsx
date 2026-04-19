@@ -46,8 +46,10 @@ import { TicketTemplateManager } from "@/components/TicketTemplateManager";
 import { SLATimer } from "@/components/SLATimer";
 import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import CloseTicketDialog from "@/components/CloseTicketDialog";
+import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard";
+import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 
-type AdminTab = "tickets" | "users";
+type AdminTab = "tickets" | "users" | "surveys" | "workload";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -350,6 +352,28 @@ export default function AdminPanel() {
                 {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab("surveys")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "surveys"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Star className="w-4 h-4" />
+            Surveys
+          </button>
+          <button
+            onClick={() => setActiveTab("workload")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "workload"
+                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            Workload
           </button>
         </div>
 
@@ -1044,6 +1068,20 @@ export default function AdminPanel() {
           }}
         />
       )}
+
+        {/* Surveys Tab */}
+        {activeTab === "surveys" && (
+          <div className="space-y-6">
+            <SurveyAnalyticsDashboard />
+          </div>
+        )}
+
+        {/* Workload Tab */}
+        {activeTab === "workload" && (
+          <div className="space-y-6">
+            <AgentWorkloadOptimizer />
+          </div>
+        )}
     </div>
   );
 }
