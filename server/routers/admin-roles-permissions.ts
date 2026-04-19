@@ -151,6 +151,31 @@ export const adminRolesRouter = router({
       return roles;
     }),
 
+  // List all users
+  listUsers: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const allUsers = await db.select().from(users);
+    
+    // Get custom roles for each user
+    const usersWithRoles = await Promise.all(
+      allUsers.map(async (user) => {
+        const assignments = await db
+          .select()
+          .from(userRoleAssignments)
+          .where(eq(userRoleAssignments.userId, user.id));
+        
+        return {
+          ...user,
+          customRoles: assignments.map((a) => a.roleId),
+        };
+      })
+    );
+    
+    return usersWithRoles;
+  }),
+
   // Check permission
   hasPermission: protectedProcedure
     .input(
