@@ -53,7 +53,7 @@ function createAuthContext(role: "user" | "admin" = "user", approved: boolean = 
   const user: AuthenticatedUser = {
     id: 1,
     openId: "test-user",
-    email: "test@example.com",
+    email: "hhenry23@gmail.com",
     name: "Test User",
     loginMethod: "manus",
     role,

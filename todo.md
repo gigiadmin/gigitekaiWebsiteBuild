@@ -292,7 +292,7 @@
 ### Custom Roles & Permissions
 - [x] Backend router created (admin-roles-permissions.ts)
 - [x] Database schema created (customRoles, userRoleAssignments)
-- [ ] Frontend UI for role creation/assignment
+- [x] Frontend UI for role creation/assignment (AdminRolesManager.tsx)
 - [ ] Role-based menu visibility
 - [ ] Permission checking in admin procedures
 

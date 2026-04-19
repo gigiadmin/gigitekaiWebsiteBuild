@@ -12,7 +12,7 @@ describe("Chat Router", () => {
     id: 1,
     openId: "test-user",
     name: "Test User",
-    email: "test@example.com",
+    email: "hhenry23@gmail.com",
     role: "user" as const,
     loginMethod: "oauth",
     createdAt: new Date(),

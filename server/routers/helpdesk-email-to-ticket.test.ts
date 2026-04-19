@@ -84,12 +84,12 @@ describe("Email-to-Ticket Router", () => {
 
   it("should test email webhook", () => {
     const testEmail = {
-      from: "test@example.com",
+      from: "hhenry23@gmail.com",
       subject: "Test Email",
       body: "This is a test email",
     };
 
-    expect(testEmail.from).toBe("test@example.com");
+    expect(testEmail.from).toBe("hhenry23@gmail.com");
     expect(testEmail.subject).toBe("Test Email");
   });
 

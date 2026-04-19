@@ -13,7 +13,7 @@ describe("Microsoft Graph Email Configuration", () => {
 
   it("should validate email format in sendEmail function", async () => {
     // Test that sendEmail accepts valid email format
-    // Using harry@gigitekai.com (valid M365 mailbox) instead of test@example.com
+    // Using harry@gigitekai.com (valid M365 mailbox) instead of hhenry23@gmail.com
     const result = await sendEmail({
       to: "harry@gigitekai.com",
       subject: "Test Email",

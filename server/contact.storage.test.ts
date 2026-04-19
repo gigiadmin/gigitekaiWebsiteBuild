@@ -48,7 +48,7 @@ describe("contact.submit with database storage", () => {
     try {
       await caller.contact.submit({
         name: "",
-        email: "test@example.com",
+        email: "hhenry23@gmail.com",
         message: "Test message",
       });
       expect.fail("Should have thrown validation error");

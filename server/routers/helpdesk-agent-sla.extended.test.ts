@@ -7,7 +7,7 @@ describe("Helpdesk Agent & SLA - Extended Tests", () => {
 
   beforeAll(() => {
     caller = appRouter.createCaller({
-      user: { id: 1, email: "test@example.com", role: "user" },
+      user: { id: 1, email: "hhenry23@gmail.com", role: "user" },
       req: {} as any,
       res: {} as any,
     });

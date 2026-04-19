@@ -9,7 +9,7 @@ describe("Authentication Flows", () => {
     });
 
     it("should handle OAuth callback", async () => {
-      const mockCallback = vi.fn().mockResolvedValue({ user: { id: "123", email: "test@example.com" } });
+      const mockCallback = vi.fn().mockResolvedValue({ user: { id: "123", email: "hhenry23@gmail.com" } });
       const result = await mockCallback({ code: "auth_code_123" });
       expect(result.user).toBeDefined();
       expect(result.user.id).toBe("123");
@@ -56,7 +56,7 @@ describe("Authentication Flows", () => {
 
   describe("Session Management", () => {
     it("should maintain session across requests", () => {
-      const session = { userId: "123", email: "test@example.com", expiresAt: Date.now() + 3600000 };
+      const session = { userId: "123", email: "hhenry23@gmail.com", expiresAt: Date.now() + 3600000 };
       expect(session.userId).toBe("123");
       expect(session.expiresAt).toBeGreaterThan(Date.now());
     });
@@ -104,7 +104,7 @@ describe("Authentication Flows", () => {
 
   describe("User Context", () => {
     it("should provide user context in protected procedures", () => {
-      const user = { id: "123", email: "test@example.com", role: "user" };
+      const user = { id: "123", email: "hhenry23@gmail.com", role: "user" };
       expect(user.id).toBe("123");
       expect(user.role).toBe("user");
     });
@@ -115,7 +115,7 @@ describe("Authentication Flows", () => {
     });
 
     it("should reject non-admin access to admin procedures", () => {
-      const user = { id: "123", email: "test@example.com", role: "user" };
+      const user = { id: "123", email: "hhenry23@gmail.com", role: "user" };
       const isAdmin = user.role === "admin";
       expect(isAdmin).toBe(false);
     });
