@@ -166,6 +166,7 @@ async function handleBotCommand(
       `• \`@bot assign #123 to Agent Name\` — Assign ticket to agent\n` +
       `• \`@bot close #123\` — Close ticket\n` +
       `• \`@bot resolve #123\` — Mark ticket as resolved\n` +
+      `• \`@bot quickassist #123\` — Start Quick Assist remote session\n` +
       `• \`@bot unassigned\` — List all unassigned open tickets\n\n` +
       `Or mention a ticket number (e.g., \`#123 your message here\`) to add a reply.`
     );
@@ -267,6 +268,26 @@ async function handleBotCommand(
         body: `${senderName} resolved ticket "${ticket.title}"`,
         href: `/admin/helpdesk`,
         priority: "normal",
+        ticketId,
+      }).catch(() => {});
+      break;
+
+    case "quickassist":
+      const sessionCode = `QA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      
+      await context.sendActivity(
+        `🖥️ **Quick Assist Session Started for Ticket #${ticketId}**\n\n` +
+        `**Session Code:** \`${sessionCode}\`\n\n` +
+        `Share this code with the customer to start the remote support session.\n\n` +
+        `[View in Admin Panel](https://gigitekai.com/admin/helpdesk/${ticketId})`
+      );
+      
+      await createAdminNotification({
+        type: "ticket_reply",
+        title: `Quick Assist Session Started - Ticket #${ticketId}`,
+        body: `${senderName} initiated Quick Assist session for ticket "${ticket.title}" (Code: ${sessionCode})`,
+        href: `/admin/helpdesk/${ticketId}`,
+        priority: "high",
         ticketId,
       }).catch(() => {});
       break;

@@ -16,9 +16,11 @@ import {
   CheckCircle2,
   CircleDot,
   Clock,
+  Copy,
   History,
   Loader2,
   MessageSquare,
+  Monitor,
   PauseCircle,
   PlayCircle,
   RotateCcw,
@@ -32,6 +34,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function TicketDetail() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -43,6 +46,8 @@ export default function TicketDetail() {
   const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
+  const [isQuickAssistModalOpen, setIsQuickAssistModalOpen] = useState(false);
+  const [quickAssistSession, setQuickAssistSession] = useState<{ sessionCode: string } | null>(null);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -62,6 +67,18 @@ export default function TicketDetail() {
     { enabled: isAdmin && isAuthenticated && !!ticketId && ticketId !== "0" }
   );
 
+
+  // Quick Assist mutations
+  const initiateQuickAssistMutation = trpc.quickAssist.initiateSession.useMutation({
+    onSuccess: (data) => {
+      setQuickAssistSession({ sessionCode: data.sessionCode });
+      setIsQuickAssistModalOpen(true);
+      toast.success("Quick Assist session started");
+    },
+    onError: () => {
+      toast.error("Failed to start Quick Assist session");
+    },
+  });
   // Check if survey already submitted
   const { data: existingSurvey } = trpc.helpdeskSurvey.getSurvey.useQuery(
     { ticketId: ticketIdNum },
@@ -464,12 +481,62 @@ export default function TicketDetail() {
                         <Zap className="w-3.5 h-3.5 mr-1.5" />
                         Merge
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => initiateQuickAssistMutation.mutate({ ticketId: ticketIdNum })}
+                        disabled={initiateQuickAssistMutation.isPending}
+                        className="border-green-500/30 text-green-400 hover:bg-green-500/10 text-xs"
+                        title="Start Quick Assist remote support session"
+                      >
+                        <Monitor className="w-3.5 h-3.5 mr-1.5" />
+                        Quick Assist
+                      </Button>
                     </>
                   )}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Quick Assist Modal */}
+          <Dialog open={isQuickAssistModalOpen} onOpenChange={setIsQuickAssistModalOpen}>
+            <DialogContent className="bg-gray-900/95 border border-green-500/20 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-green-400">Quick Assist Session</DialogTitle>
+              </DialogHeader>
+              {quickAssistSession && (
+                <div className="space-y-4">
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+                    <p className="text-xs text-gray-400 mb-2">Session Code:</p>
+                    <div className="flex items-center gap-2">
+                      <code className="text-lg font-mono text-green-400 flex-1">{quickAssistSession.sessionCode}</code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(quickAssistSession.sessionCode);
+                          toast.success("Session code copied to clipboard");
+                        }}
+                        className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="bg-blue-900/20 border border-blue-500/30 p-3 rounded-lg">
+                    <p className="text-xs text-blue-300">💡 Share this code with your customer to start the Quick Assist session.</p>
+                  </div>
+                  <Button
+                    onClick={() => setIsQuickAssistModalOpen(false)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Done
+                  </Button>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
 
           {/* Agent Assignment Modal */}
           {isAdmin && (
