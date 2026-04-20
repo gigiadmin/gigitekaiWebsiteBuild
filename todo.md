@@ -3155,3 +3155,10 @@
 - [x] LinkedIn OAuth error: "redirect_uri does not match the registered value" - Fixed with dynamic origin-based redirect URIs
 - [x] Twitter/X OAuth error: "Desktop applications only support the oauth_callback value 'oob'" - Fixed with dynamic origin-based redirect URIs
 - [x] Facebook OAuth works - Verified and updated to use same dynamic origin pattern for consistency
+
+
+## Follow-up Enhancements Round 5 (Apr 20, 2026)
+- [x] Create reusable QA audit skill with /skill-creator documenting the bug-fixing process — skill created and validated
+- [x] Add loading animation to Agent Dashboard for better UX during metrics fetch — animated skeleton loaders added
+- [x] Add KB share buttons to easily share articles on LinkedIn, Twitter/X, and Facebook — share buttons implemented
+- [x] Add M365 Service Health filtering to show/hide specific Microsoft services — filter dropdown added for status and service names

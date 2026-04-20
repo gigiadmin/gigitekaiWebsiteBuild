@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft } from "lucide-react";
+import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
 
@@ -292,8 +292,66 @@ export default function KBPublic() {
                           <KBArticleContent content={selectedArticle.content} />
                         </div>
 
-                        {/* Feedback Section */}
+                        {/* Share Section */}
                         <div className="mt-8 pt-6 border-t border-slate-700">
+                          <p className="text-sm text-gray-400 mb-3">Share this article</p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const url = window.location.href;
+                                const text = `Check out this KB article: ${selectedArticle.title}`;
+                                window.open(
+                                  `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+                                  '_blank',
+                                  'width=600,height=400'
+                                );
+                              }}
+                              className="gap-2 text-blue-400 hover:text-blue-300 border-blue-500/50 hover:bg-blue-500/10"
+                              title="Share on LinkedIn"
+                            >
+                              <Linkedin className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const url = window.location.href;
+                                const text = `Check out this KB article: ${selectedArticle.title}`;
+                                window.open(
+                                  `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+                                  '_blank',
+                                  'width=600,height=400'
+                                );
+                              }}
+                              className="gap-2 text-cyan-400 hover:text-cyan-300 border-cyan-500/50 hover:bg-cyan-500/10"
+                              title="Share on Twitter/X"
+                            >
+                              <Twitter className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const url = window.location.href;
+                                const quote = `Check out this KB article: ${selectedArticle.title}`;
+                                window.open(
+                                  `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(quote)}`,
+                                  '_blank',
+                                  'width=600,height=400'
+                                );
+                              }}
+                              className="gap-2 text-blue-500 hover:text-blue-400 border-blue-600/50 hover:bg-blue-600/10"
+                              title="Share on Facebook"
+                            >
+                              <Facebook className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Feedback Section */}
+                        <div className="mt-6 pt-6 border-t border-slate-700">
                           <p className="text-sm text-gray-400 mb-3">Was this article helpful?</p>
                           <div className="flex gap-2">
                             <Button

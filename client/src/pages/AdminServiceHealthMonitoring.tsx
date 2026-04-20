@@ -39,6 +39,7 @@ export default function AdminServiceHealthMonitoring() {
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
   const [expandedM365, setExpandedM365] = useState(false);
   const [activeTab, setActiveTab] = useState<DashboardTab>("health");
+  const [m365ServiceFilter, setM365ServiceFilter] = useState<string>("all"); // Filter by service name or status
 
   // Query health dashboard
   const { data: dashboard, isLoading, refetch } = trpc.serviceHealthMonitoring.getSystemHealthDashboard.useQuery(
@@ -432,9 +433,42 @@ export default function AdminServiceHealthMonitoring() {
           </button>
 
           {expandedM365 && (
-            <div className="mt-4 pt-4 border-t border-yellow-500/30">
+            <div className="mt-4 pt-4 border-t border-yellow-500/30 space-y-4">
+              {/* Filter Controls */}
+              <div className="flex gap-3 items-center flex-wrap">
+                <label className="text-sm text-gray-400">Filter by:</label>
+                <select
+                  value={m365ServiceFilter}
+                  onChange={(e) => setM365ServiceFilter(e.target.value)}
+                  className="px-3 py-1 bg-gray-900 border border-gray-700 rounded text-sm text-gray-300 cursor-pointer"
+                >
+                  <option value="all">All Services</option>
+                  <option value="degraded">Degraded</option>
+                  <option value="interrupted">Interrupted</option>
+                  <option value="extended_recovery">Extended Recovery</option>
+                  {Array.from(
+                    new Set(
+                      m365Degradations?.map((d: any) => d.serviceName) || []
+                    )
+                  ).map((serviceName: any) => (
+                    <option key={serviceName} value={`service:${serviceName}`}>
+                      {serviceName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Filtered Degradations */}
               <M365ServiceDegradations
-                degradations={m365Degradations}
+                degradations={(
+                  m365Degradations?.filter((d: any) => {
+                    if (m365ServiceFilter === "all") return true;
+                    if (m365ServiceFilter.startsWith("service:")) {
+                      return d.serviceName === m365ServiceFilter.replace("service:", "");
+                    }
+                    return d.status === m365ServiceFilter;
+                  }) || []
+                )}
                 isLoading={m365Loading}
               />
             </div>

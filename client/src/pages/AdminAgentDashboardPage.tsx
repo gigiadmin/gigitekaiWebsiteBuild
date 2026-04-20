@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Clock, CheckCircle2, TrendingUp, AlertCircle, Users2 } from "lucide-react";
+import { Clock, CheckCircle2, TrendingUp, AlertCircle, Users2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/Breadcrumb";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
@@ -109,9 +109,37 @@ export default function AdminAgentDashboardPage() {
             <h1 className="text-3xl font-bold">Agent Dashboard</h1>
             <p className="text-slate-400 mt-1">Individual agent performance metrics</p>
           </div>
-          <Card className="bg-slate-900/60 border-slate-700/50 p-8 text-center">
-            <p className="text-slate-400">Loading agent metrics...</p>
-          </Card>
+          
+          {/* Loading animation */}
+          <div className="space-y-6">
+            {/* Header skeleton */}
+            <div className="space-y-2">
+              <div className="h-8 bg-slate-800/50 rounded w-1/3 animate-pulse"></div>
+              <div className="h-4 bg-slate-800/50 rounded w-1/2 animate-pulse"></div>
+            </div>
+            
+            {/* Metrics grid skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="bg-slate-900/60 border-slate-700/50 p-6">
+                  <div className="h-4 bg-slate-800/50 rounded w-1/2 mb-3 animate-pulse"></div>
+                  <div className="h-8 bg-slate-800/50 rounded w-1/3 animate-pulse"></div>
+                </Card>
+              ))}
+            </div>
+            
+            {/* Chart skeleton */}
+            <Card className="bg-slate-900/60 border-slate-700/50 p-6">
+              <div className="h-6 bg-slate-800/50 rounded w-1/4 mb-4 animate-pulse"></div>
+              <div className="h-64 bg-slate-800/50 rounded animate-pulse"></div>
+            </Card>
+            
+            {/* Loading indicator */}
+            <div className="flex items-center justify-center gap-2 text-slate-400 py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-cyan-500" />
+              <span>Loading agent metrics...</span>
+            </div>
+          </div>
         </div>
       </AdminLayoutWithSidebar>
     );
