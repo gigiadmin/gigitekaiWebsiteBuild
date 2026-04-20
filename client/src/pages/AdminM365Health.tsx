@@ -2,6 +2,7 @@
  * Admin M365 Health Dashboard
  * Real-time Microsoft 365 service status monitoring
  * Shows all services with status, search, filtering, and critical alerts
+ * Click on degraded/down services to see detailed incident information
  */
 
 import { useState, useMemo } from "react";
@@ -10,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle2, AlertTriangle, Clock, Search, RefreshCw, Filter } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertCircle, CheckCircle2, AlertTriangle, Clock, Search, RefreshCw, Filter, AlertOctagon, Wrench } from "lucide-react";
 import { toast } from "sonner";
 
 type ServiceHealthStatus = 
@@ -37,6 +39,18 @@ interface ServiceHealth {
   id: string;
   service: string;
   status: ServiceHealthStatus;
+}
+
+interface ServiceHealthIssue {
+  id: string;
+  title: string;
+  description: string;
+  startDateTime: string;
+  endDateTime?: string;
+  lastModifiedDateTime: string;
+  severity: "critical" | "major" | "minor" | "informational";
+  status: ServiceHealthStatus;
+  affectedServices: string[];
 }
 
 // Status display configuration
@@ -151,16 +165,32 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
   },
 };
 
+function isCriticalStatus(status: ServiceHealthStatus): boolean {
+  return (
+    status === "serviceInterruption" ||
+    status === "serviceDegradation" ||
+    status === "extendedRecovery" ||
+    status === "investigating"
+  );
+}
+
 export default function AdminM365Health() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ServiceHealthStatus | "all">("all");
   const [expandedService, setExpandedService] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
 
   // Fetch service health
   const { data: services, isLoading, refetch } = trpc.m365Health.getServiceHealth.useQuery();
   
   // Fetch critical issues for admin
   const { data: criticalIssues } = trpc.m365Health.getCriticalIssues.useQuery();
+
+  // Fetch issues for selected service
+  const { data: serviceIssues, isLoading: issuesLoading } = trpc.m365Health.getServiceIssues.useQuery(
+    { serviceId: selectedService || "" },
+    { enabled: !!selectedService }
+  );
 
   // Filter and search services
   const filteredServices = useMemo(() => {
@@ -205,6 +235,8 @@ export default function AdminM365Health() {
     toast.dismiss();
     toast.success("Service health updated");
   };
+
+  const selectedServiceData = services?.find(s => s.id === selectedService);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A] p-6">
@@ -338,6 +370,131 @@ export default function AdminM365Health() {
           </div>
         </div>
 
+        {/* Service Detail Modal */}
+        {selectedService && selectedServiceData && (
+          <Dialog open={!!selectedService} onOpenChange={(open) => !open && setSelectedService(null)}>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#1a1f3a] border-[#00D4FF]/20">
+              <DialogHeader>
+                <DialogTitle className="text-white text-xl flex items-center gap-2">
+                  {STATUS_CONFIG[selectedServiceData.status as ServiceHealthStatus]?.icon}
+                  {selectedServiceData.service}
+                </DialogTitle>
+              </DialogHeader>
+              
+              {issuesLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">Loading incident details...</p>
+                </div>
+              ) : serviceIssues && serviceIssues.length > 0 ? (
+                <div className="space-y-6">
+                  {serviceIssues.map((issue) => (
+                    <div key={issue.id} className="space-y-4 pb-4 border-b border-[#00D4FF]/10 last:border-b-0">
+                      {/* Issue Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold text-lg mb-2">{issue.title}</h3>
+                          <p className="text-gray-400 text-sm mb-3">{issue.description}</p>
+                        </div>
+                        <Badge className={`${
+                          issue.severity === "critical" ? "bg-red-500/20 text-red-400" :
+                          issue.severity === "major" ? "bg-orange-500/20 text-orange-400" :
+                          issue.severity === "minor" ? "bg-yellow-500/20 text-yellow-400" :
+                          "bg-blue-500/20 text-blue-400"
+                        }`}>
+                          {issue.severity.charAt(0).toUpperCase() + issue.severity.slice(1)}
+                        </Badge>
+                      </div>
+                      
+                      {/* Timeline */}
+                      <div className="bg-[#0F1428] rounded-lg p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-[#00D4FF]">
+                          <Clock size={16} />
+                          <span className="font-semibold">Timeline</span>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Started:</span>
+                            <span className="text-white">{new Date(issue.startDateTime).toLocaleString()}</span>
+                          </div>
+                          {issue.endDateTime && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Resolved:</span>
+                              <span className="text-green-400">{new Date(issue.endDateTime).toLocaleString()}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Last Updated:</span>
+                            <span className="text-white">{new Date(issue.lastModifiedDateTime).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Affected Services */}
+                      {issue.affectedServices && issue.affectedServices.length > 0 && (
+                        <div className="bg-[#0F1428] rounded-lg p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-orange-400">
+                            <AlertOctagon size={16} />
+                            <span className="font-semibold">Affected Features</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {issue.affectedServices.map((service) => (
+                              <Badge key={service} className="bg-orange-500/20 text-orange-400 border-0">
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Workarounds */}
+                      <div className="bg-[#0F1428] rounded-lg p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-green-400">
+                          <Wrench size={16} />
+                          <span className="font-semibold">Workarounds & Recommendations</span>
+                        </div>
+                        <ul className="space-y-2 text-sm text-gray-300">
+                          <li className="flex gap-2">
+                            <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                            <span>Monitor the Microsoft 365 status page for real-time updates</span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                            <span>Check your organization's admin center for any additional guidance</span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                            <span>Contact Microsoft Support if the issue persists after resolution</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      {/* Status Info */}
+                      <div className="bg-[#0F1428] rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400">Current Status:</span>
+                          <Badge className={`${
+                            issue.status === "serviceOperational" ? "bg-green-500/20 text-green-400" :
+                            issue.status === "investigating" ? "bg-yellow-500/20 text-yellow-400" :
+                            issue.status === "serviceDegradation" ? "bg-orange-500/20 text-orange-400" :
+                            issue.status === "serviceInterruption" ? "bg-red-500/20 text-red-400" :
+                            "bg-blue-500/20 text-blue-400"
+                          }`}>
+                            {STATUS_CONFIG[issue.status as ServiceHealthStatus]?.label || issue.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">No active incidents for this service</p>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        )}
+
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {isLoading ? (
@@ -352,6 +509,7 @@ export default function AdminM365Health() {
             filteredServices.map((service) => {
               const config = STATUS_CONFIG[service.status];
               const isExpanded = expandedService === service.id;
+              const isCritical = isCriticalStatus(service.status);
 
               return (
                 <Card
@@ -360,8 +518,14 @@ export default function AdminM365Health() {
                     isExpanded
                       ? `border-[#00D4FF] ${config.bgColor}`
                       : `border-[#00D4FF]/20 hover:border-[#00D4FF]/50`
-                  }`}
-                  onClick={() => setExpandedService(isExpanded ? null : service.id)}
+                  } ${isCritical ? "ring-1 ring-red-500/50" : ""}`}
+                  onClick={() => {
+                    if (isCritical) {
+                      setSelectedService(service.id);
+                    } else {
+                      setExpandedService(isExpanded ? null : service.id);
+                    }
+                  }}
                 >
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-3">
@@ -381,6 +545,9 @@ export default function AdminM365Health() {
                         <p className="text-xs text-gray-400">
                           Last updated: {new Date().toLocaleTimeString()}
                         </p>
+                        {isCritical && (
+                          <p className="text-xs text-[#00D4FF] mt-2 font-semibold">Click for details →</p>
+                        )}
                       </div>
                     )}
                   </CardContent>
