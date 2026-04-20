@@ -93,9 +93,11 @@ import ContactCard from "./pages/ContactCard";
 
 // Announcement bar
 import AnnouncementBar from "./components/AnnouncementBar";
+import CookieConsent from "./components/CookieConsent";
 
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
+import FloatingContactDial from "./components/FloatingContactDial";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { CopilotChat } from "./components/CopilotChat";
@@ -246,6 +248,8 @@ function App() {
           <Toaster />
           {!hideWidgets && <AnnouncementBar />}
           <Router />
+          {!hideWidgets && <CookieConsent />}
+          {!hideWidgets && <FloatingContactDial />}
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}
           {!hideWidgets && <CopilotChat />}

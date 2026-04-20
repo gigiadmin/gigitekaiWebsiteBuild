@@ -3099,3 +3099,15 @@
 - [ ] Add animated social proof stats section to homepage
 - [ ] Add exit-intent trigger to LeadCapturePopup
 - [ ] Update gigitekai-qa-audit skill with Round 3 patterns
+
+## Round 4 Enhancements
+- [x] Cookie consent banner (GDPR/CCPA compliant)
+- [x] Newsletter signup section on homepage and footer
+- [x] Upgrade testimonials with avatar initials and star ratings
+- [x] Floating live chat / contact quick-action widget
+
+## Round 4 Enhancements
+- [x] Cookie consent banner (GDPR/CCPA compliant)
+- [x] Newsletter signup section on homepage and footer
+- [x] Upgrade testimonials with avatar initials and star ratings
+- [x] Floating live chat / contact quick-action widget
