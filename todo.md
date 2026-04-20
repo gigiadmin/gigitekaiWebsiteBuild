@@ -3085,4 +3085,11 @@
 - [x] Lead-capture consultation pop-up component (LeadCapturePopup.tsx) — shown on blog and services pages after 30s or 50% scroll
 - [x] Scroll-to-top button — ensure all long-form pages (blog, services, industries, about-us, partners, privacy, terms) have it
 - [x] Site-wide search bar in navigation header — searches blog posts and KB articles
-- [ ] QA audit reusable skill via skill-creator
+- [x] QA audit reusable skill via skill-creator
+
+## Follow-up Enhancements Round 2 (Apr 2026)
+
+- [x] Add "What's New" section to homepage with 3 most recent blog posts
+- [x] Enhance lead-capture popup with "How did you hear about us?" dropdown field
+- [x] Add subtle animation to scroll-to-top button (pulse ring + bounce)
+- [ ] Update gigitekai-qa-audit skill with new enhancements

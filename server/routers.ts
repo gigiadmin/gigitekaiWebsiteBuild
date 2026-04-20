@@ -224,6 +224,7 @@ export const appRouter = router({
           email: z.string().email("Valid email is required"),
           company: z.string().optional(),
           message: z.string().min(1, "Message is required"),
+          hearAboutUs: z.string().optional(), // How did you hear about us?
           // Honeypot fields - bots fill these, real users don't see them
           website: z.string().optional(), // hidden field
           phone2: z.string().optional(),  // hidden field
@@ -256,6 +257,7 @@ export const appRouter = router({
             email: input.email,
             company: input.company,
             message: input.message,
+            hearAboutUs: input.hearAboutUs,
           });
 
           // Notify owner in Manus dashboard
@@ -265,6 +267,7 @@ export const appRouter = router({
 **Name:** ${input.name}
 **Email:** ${input.email}
 **Company:** ${input.company || "Not provided"}
+**How did you hear about us:** ${input.hearAboutUs || "Not provided"}
 
 **Message:**
 ${input.message}
@@ -289,6 +292,7 @@ Submitted from GigitekAI website contact form.
                   <p><strong>Name:</strong> ${input.name}</p>
                   <p><strong>Email:</strong> <a href="mailto:${input.email}">${input.email}</a></p>
                   <p><strong>Company:</strong> ${input.company || "Not provided"}</p>
+                  <p><strong>How did you hear about us:</strong> ${input.hearAboutUs || "Not provided"}</p>
                   <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
                   <h3>Message:</h3>
                   <p>${input.message.replace(/\n/g, "<br>")}</p>

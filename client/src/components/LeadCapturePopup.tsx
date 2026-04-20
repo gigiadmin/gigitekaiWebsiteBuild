@@ -21,7 +21,7 @@ interface LeadCapturePopupProps {
 export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", company: "" });
+  const [form, setForm] = useState({ name: "", email: "", company: "", hearAboutUs: "" });
 
   const dismiss = useCallback(() => {
     setVisible(false);
@@ -84,6 +84,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
       name: form.name,
       email: form.email,
       company: form.company || undefined,
+      hearAboutUs: form.hearAboutUs || undefined,
       message: `Free consultation request via lead popup${context ? ` (${context})` : ""}.`,
     });
   };
@@ -190,6 +191,23 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                   onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-all"
                 />
+                <select
+                  value={form.hearAboutUs}
+                  onChange={(e) => setForm((f) => ({ ...f, hearAboutUs: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg bg-[#0A0E1A] border border-white/10 text-sm focus:outline-none focus:border-[#00D4FF]/50 transition-all"
+                  style={{ color: form.hearAboutUs ? '#fff' : '#6b7280' }}
+                >
+                  <option value="" disabled>How did you hear about us?</option>
+                  <option value="Google Search">Google Search</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="Referral / Word of Mouth">Referral / Word of Mouth</option>
+                  <option value="Microsoft Partner Network">Microsoft Partner Network</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Blog / Article">Blog / Article</option>
+                  <option value="Email Campaign">Email Campaign</option>
+                  <option value="Event / Conference">Event / Conference</option>
+                  <option value="Other">Other</option>
+                </select>
                 <button
                   type="submit"
                   disabled={submitMutation.isPending}

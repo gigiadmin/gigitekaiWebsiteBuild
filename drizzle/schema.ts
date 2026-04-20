@@ -74,6 +74,7 @@ export const contactSubmissions = mysqlTable("contactSubmissions", {
   email: varchar("email", { length: 320 }).notNull(),
   company: varchar("company", { length: 255 }),
   message: text("message").notNull(),
+  hearAboutUs: varchar("hearAboutUs", { length: 100 }), // How did you hear about us?
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
