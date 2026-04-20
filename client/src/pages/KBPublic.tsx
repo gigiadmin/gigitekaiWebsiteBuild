@@ -251,7 +251,7 @@ export default function KBPublic() {
 
             {/* Desktop Modal with Left Sidebar */}
             {selectedArticle && (
-              <div className="hidden lg:fixed lg:inset-0 lg:bg-black/80 lg:z-50 lg:flex">
+              <div className="hidden lg:fixed lg:inset-0 lg:bg-black/80 lg:z-[9999] lg:flex">
                 <div className="lg:flex w-full h-full">
                   {/* Left Sidebar - Article List */}
                   <div className="lg:w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col">
@@ -493,7 +493,7 @@ export default function KBPublic() {
 
       {/* Email Dialog */}
       {emailOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 z-[9998] flex items-center justify-center p-4">
           <Card className="bg-slate-900 border-slate-700 p-6 max-w-md w-full">
             <h2 className="text-xl font-bold text-white mb-4">Email Article</h2>
             <p className="text-gray-400 text-sm mb-4">Send "{selectedArticle.title}" to:</p>

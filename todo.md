@@ -3167,3 +3167,7 @@
 ## Critical Issues - KB Page (Apr 20, 2026)
 - [x] KB preview not opening in full-screen modal - clicking Preview should open full modal, not inline grid preview (fixed with modal dialog)
 - [x] Add email KB option - users should be able to email KB articles to themselves or others (implemented with tRPC endpoint and email button)
+
+
+## Critical Bug - KB Modal Back Button (Apr 20, 2026)
+- [x] Back button blocked by "Claim Yours" banner - z-index issue in KB modal, fixed by increasing modal z-index to z-[9999]
