@@ -1323,3 +1323,44 @@ export const uptimeStatistics = mysqlTable("uptimeStatistics", {
 
 export type UptimeStatistic = typeof uptimeStatistics.$inferSelect;
 export type InsertUptimeStatistic = typeof uptimeStatistics.$inferInsert;
+
+// Service Status Subscriptions — users can subscribe to status updates for specific services
+export const serviceStatusSubscriptions = mysqlTable("serviceStatusSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(), // Subscriber email (can be non-user)
+  service: varchar("service", { length: 100 }).notNull(), // "Email API", "Helpdesk System", "M365 Service Health"
+  
+  // Notification preferences
+  notifyOnHealthy: boolean("notifyOnHealthy").default(false).notNull(), // Alert when service recovers
+  notifyOnDegraded: boolean("notifyOnDegraded").default(true).notNull(), // Alert on degradation
+  notifyOnCritical: boolean("notifyOnCritical").default(true).notNull(), // Alert on critical issues
+  notifyOnOffline: boolean("notifyOnOffline").default(true).notNull(), // Alert when offline
+  
+  // Subscription management
+  isActive: boolean("isActive").default(true).notNull(),
+  unsubscribeToken: varchar("unsubscribeToken", { length: 64 }).unique(), // One-click unsubscribe token
+  
+  // Tracking
+  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
+  lastNotificationSentAt: timestamp("lastNotificationSentAt"),
+  unsubscribedAt: timestamp("unsubscribedAt"),
+  
+  // Unique constraint: one subscription per email+service combo
+});
+
+export type ServiceStatusSubscription = typeof serviceStatusSubscriptions.$inferSelect;
+export type InsertServiceStatusSubscription = typeof serviceStatusSubscriptions.$inferInsert;
+
+// Service Status Change Log — track all status changes for audit trail
+export const serviceStatusChanges = mysqlTable("serviceStatusChanges", {
+  id: int("id").autoincrement().primaryKey(),
+  service: varchar("service", { length: 100 }).notNull(),
+  previousStatus: mysqlEnum("previousStatus", ["healthy", "degraded", "critical", "offline"]).notNull(),
+  newStatus: mysqlEnum("newStatus", ["healthy", "degraded", "critical", "offline"]).notNull(),
+  message: text("message"),
+  notificationsSent: int("notificationsSent").default(0).notNull(), // Count of emails sent
+  changedAt: timestamp("changedAt").defaultNow().notNull(),
+});
+
+export type ServiceStatusChange = typeof serviceStatusChanges.$inferSelect;
+export type InsertServiceStatusChange = typeof serviceStatusChanges.$inferInsert;

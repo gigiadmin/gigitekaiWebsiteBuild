@@ -57,6 +57,7 @@ import { aiTrainingRouter } from "./routers/ai-training";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
 import { serviceHealthMonitoringRouter } from "./routers/service-health-monitoring";
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
+import { serviceStatusSubscriptionRouter } from "./routers/service-status-subscriptions";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -64,6 +65,7 @@ export const appRouter = router({
   m365Health: m365HealthRouter,
   serviceHealthMonitoring: serviceHealthMonitoringRouter,
   serviceHealthThresholds: serviceHealthThresholdsRouter,
+  serviceStatusSubscriptions: serviceStatusSubscriptionRouter,
   aiTicketCategorization: aiTicketCategorization,
   kbSeeding: kbSeedingRouter,
   aiTraining: aiTrainingRouter,

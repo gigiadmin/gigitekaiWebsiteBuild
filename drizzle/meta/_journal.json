@@ -323,6 +323,13 @@
       "when": 1776647456264,
       "tag": "0045_robust_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "5",
+      "when": 1776652033097,
+      "tag": "0046_nosy_gateway",
+      "breakpoints": true
     }
   ]
 }
