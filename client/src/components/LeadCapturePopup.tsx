@@ -1,7 +1,9 @@
 /*
   GigitekAI Lead Capture Popup
-  Shown after 30 seconds OR when user scrolls 50% down the page
-  Offers a free consultation — collects name, email, company
+  Triggers on ANY of these conditions:
+  1. After 30 seconds AND 50% scroll depth (both required)
+  2. Exit-intent: mouse moves toward top of viewport (browser chrome / close button)
+  Offers a free consultation — collects name, email, company, hearAboutUs
   Uses contact.submit tRPC mutation
   Respects session storage so it only shows once per session
 */
@@ -36,9 +38,13 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
 
     let timerFired = false;
     let scrollFired = false;
+    let shown = false;
 
-    const show = () => {
-      if (!timerFired || !scrollFired) return; // wait for both conditions
+    const show = (reason?: string) => {
+      if (shown) return;
+      // Exit-intent fires immediately; scroll+timer require both
+      if (reason !== "exit-intent" && (!timerFired || !scrollFired)) return;
+      shown = true;
       setVisible(true);
     };
 
@@ -60,9 +66,21 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
 
+    // Condition 3: Exit-intent — mouse leaves toward browser chrome
+    // Only fires after user has been on page for at least 5 seconds
+    let pageAgeMs = 0;
+    const pageAgeInterval = setInterval(() => { pageAgeMs += 500; }, 500);
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (pageAgeMs < 5000) return; // ignore if user just landed
+      if (e.clientY <= 20) show("exit-intent"); // heading toward top chrome
+    };
+    document.addEventListener("mouseleave", handleMouseLeave);
+
     return () => {
       clearTimeout(timer);
+      clearInterval(pageAgeInterval);
       window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 

@@ -91,6 +91,9 @@ import Contact from "./pages/Contact";
 import ContactHarry from "./pages/ContactHarry";
 import ContactCard from "./pages/ContactCard";
 
+// Announcement bar
+import AnnouncementBar from "./components/AnnouncementBar";
+
 // Widgets
 import AIChatWidget from "./components/AIChatWidget";
 import UserChatWidget from "./components/UserChatWidget";
@@ -241,6 +244,7 @@ function App() {
             Skip to main content
           </a>
           <Toaster />
+          {!hideWidgets && <AnnouncementBar />}
           <Router />
           {!hideWidgets && <AIChatWidget />}
           {!hideWidgets && <UserChatWidget />}

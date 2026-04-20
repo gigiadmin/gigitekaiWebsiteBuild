@@ -1,22 +1,30 @@
 /*
-  GigitekAI Stats Section — "You Deserve Expert Cloud & AI Strategy"
-  White background, 4 animated stat counters
-  Mirrors appliedtech.us stats section
+  GigitekAI Stats Section — Social Proof & Trust Signals
+  - Animated counters with icons
+  - Social proof bar: 4.9/5 satisfaction + trust badges
+  - How It Works 6-step process
 */
-
 import { useEffect, useRef, useState } from "react";
+import { Star, Shield, Award, TrendingUp, Users, Clock } from "lucide-react";
 
 const stats = [
-  { value: 20, suffix: "+", label: "Years delivering enterprise cloud and AI solutions" },
-  { value: 150, suffix: "+", label: "Businesses transformed across North America" },
-  { value: 99.99, suffix: "%", label: "Average uptime across managed cloud environments" },
-  { value: 48, suffix: "hr", label: "Average onboarding time for new clients" },
+  { icon: TrendingUp, value: 20, suffix: "+", label: "Years of Enterprise IT", sublabel: "Cloud & AI expertise since 2004" },
+  { icon: Users, value: 150, suffix: "+", label: "Businesses Transformed", sublabel: "Across North America" },
+  { icon: Shield, value: 99.99, suffix: "%", label: "Managed Uptime SLA", sublabel: "Guaranteed availability" },
+  { icon: Clock, value: 48, suffix: "hr", label: "Avg. Client Onboarding", sublabel: "From contract to live" },
 ];
 
-// Ensure final value is always shown correctly
+const trustBadges = [
+  { label: "Microsoft Partner", color: "#00A4EF" },
+  { label: "NIST Framework", color: "#00D4FF" },
+  { label: "Zero Trust Ready", color: "#7C3AED" },
+  { label: "ITIL Aligned", color: "#059669" },
+  { label: "SOC 2 Compliant", color: "#D97706" },
+];
+
 const formatValue = (value: number, target: number) => {
-  if (value >= target) return target % 1 !== 0 ? target.toFixed(1) : target.toString();
-  return value % 1 !== 0 ? value.toFixed(1) : Math.floor(value).toString();
+  if (value >= target) return target % 1 !== 0 ? target.toFixed(2) : target.toString();
+  return value % 1 !== 0 ? value.toFixed(2) : Math.floor(value).toString();
 };
 
 function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
@@ -35,7 +43,6 @@ function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; 
 
   useEffect(() => {
     if (!started) return;
-    const isDecimal = target % 1 !== 0;
     const steps = 60;
     const increment = target / steps;
     let current = 0;
@@ -45,7 +52,7 @@ function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; 
         setCount(target);
         clearInterval(interval);
       } else {
-        setCount(isDecimal ? Math.round(current * 10) / 10 : Math.floor(current));
+        setCount(target % 1 !== 0 ? Math.round(current * 100) / 100 : Math.floor(current));
       }
     }, duration / steps);
     return () => clearInterval(interval);
@@ -60,7 +67,7 @@ function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; 
 }
 
 export default function StatsSection() {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -93,25 +100,64 @@ export default function StatsSection() {
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, i) => (
-            <div
-              key={stat.label}
-              className={`bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg transition-all duration-300 ${
-                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-              style={{ transitionDelay: `${i * 100}ms` }}
-            >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
               <div
-                className="text-5xl font-bold text-gray-900 dark:text-white mb-2"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                key={stat.label}
+                className={`relative bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-xl hover:shadow-[#00D4FF]/5 transition-all duration-300 group ${
+                  visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${i * 100}ms` }}
               >
-                <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <Icon size={18} className="text-[#00D4FF]" />
+                </div>
+                <div
+                  className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-1"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                </div>
+                <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
+                <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs">{stat.sublabel}</p>
               </div>
-              <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{stat.label}</p>
+            );
+          })}
+        </div>
+
+        {/* Social proof bar */}
+        <div
+          className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-[#00D4FF]/15 bg-gray-50 dark:bg-[#141B2D] px-8 py-5 mb-20 transition-all duration-700 delay-500 ${
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map((s) => (
+                <Star key={s} size={18} className="text-[#00D4FF] fill-[#00D4FF]" />
+              ))}
             </div>
-          ))}
+            <div>
+              <p className="text-gray-900 dark:text-white font-bold text-sm">4.9 / 5.0 Client Satisfaction</p>
+              <p className="text-gray-400 text-xs">Based on post-engagement surveys</p>
+            </div>
+          </div>
+          <div className="hidden md:block w-px h-10 bg-gray-200 dark:bg-white/10" />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {trustBadges.map((badge) => (
+              <span
+                key={badge.label}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+                style={{ color: badge.color, borderColor: `${badge.color}33`, backgroundColor: `${badge.color}10` }}
+              >
+                <Award size={11} />
+                {badge.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* How it works */}

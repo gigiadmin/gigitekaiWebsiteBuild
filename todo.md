@@ -3093,3 +3093,9 @@
 - [x] Enhance lead-capture popup with "How did you hear about us?" dropdown field
 - [x] Add subtle animation to scroll-to-top button (pulse ring + bounce)
 - [ ] Update gigitekai-qa-audit skill with new enhancements
+
+## Follow-up Enhancements Round 3 (Apr 2026)
+- [ ] Add sticky dismissible announcement bar to top of site
+- [ ] Add animated social proof stats section to homepage
+- [ ] Add exit-intent trigger to LeadCapturePopup
+- [ ] Update gigitekai-qa-audit skill with Round 3 patterns
