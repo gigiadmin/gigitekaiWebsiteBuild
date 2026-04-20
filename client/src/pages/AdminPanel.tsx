@@ -52,7 +52,7 @@ import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
 import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
 
-type AdminTab = "tickets" | "users" | "surveys" | "workload" | "m365health" | "service-health";
+type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -356,50 +356,7 @@ export default function AdminPanel() {
               </span>
             )}
           </button>
-          <button
-            onClick={() => setActiveTab("surveys")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === "surveys"
-                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <Star className="w-4 h-4" />
-            Surveys
-          </button>
-          <button
-            onClick={() => setActiveTab("workload")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === "workload"
-                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <Zap className="w-4 h-4" />
-            Workload
-          </button>
-          <button
-            onClick={() => setActiveTab("m365health")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === "m365health"
-                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <Cloud className="w-4 h-4" />
-            M365 Health
-          </button>
-          <button
-            onClick={() => setActiveTab("service-health")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === "service-health"
-                ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <AlertCircle className="w-4 h-4" />
-            Service Health
-          </button>
+
         </div>
 
         {activeTab === "tickets" && (
@@ -1094,29 +1051,6 @@ export default function AdminPanel() {
         />
       )}
 
-        {/* Surveys Tab */}
-        {activeTab === "surveys" && (
-          <div className="space-y-6">
-            <SurveyAnalyticsDashboard />
-          </div>
-        )}
-
-        {/* Workload Tab */}
-        {activeTab === "workload" && (
-          <div className="space-y-6">
-            <AgentWorkloadOptimizer />
-          </div>
-        )}
-
-        {/* M365 Health Tab */}
-        {activeTab === "m365health" && (
-          <AdminM365Health />
-        )}
-
-        {/* Service Health Monitoring Tab */}
-        {activeTab === "service-health" && (
-          <AdminServiceHealthMonitoring />
-        )}
     </div>
   );
 }

@@ -74,6 +74,14 @@ import AdminCopilot from "./pages/AdminCopilot";
 import AdminCopilotM365 from "./pages/AdminCopilotM365";
 import KBPublic from "./pages/KBPublic";
 import Dashboard from "./pages/Dashboard";
+// QA stub pages
+import AdminSurveysPage from "./pages/AdminSurveysPage";
+import AdminWorkloadPage from "./pages/AdminWorkloadPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
+// Service health & M365 monitoring
+import AdminServiceHealthMonitoring from "./pages/AdminServiceHealthMonitoring";
+import AdminM365Health from "./pages/AdminM365Health";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -194,6 +202,15 @@ function Router() {
       <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
       {/* Copilot M365 Intelligence */}
       <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
+      {/* Analytics */}
+      <Route path={"/admin/surveys"}>{() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>
+      {/* Settings & Users */}
+      <Route path={"/admin/users"}>{() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>}</Route>
+      <Route path={"/admin/settings"}>{() => <ApprovalGuard><AdminSettingsPage /></ApprovalGuard>}</Route>
+      {/* Service Health Monitoring */}
+      <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
+      <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />
