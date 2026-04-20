@@ -1,0 +1,1 @@
+ALTER TABLE `customerInvites` ADD `reminderSent` boolean DEFAULT false NOT NULL;

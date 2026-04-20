@@ -330,6 +330,13 @@
       "when": 1776652033097,
       "tag": "0046_nosy_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "5",
+      "when": 1776653321428,
+      "tag": "0047_right_gideon",
+      "breakpoints": true
     }
   ]
 }

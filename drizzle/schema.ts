@@ -356,6 +356,7 @@ export const customerInvites = mysqlTable("customerInvites", {
   status: mysqlEnum("status", ["pending", "accepted", "expired", "revoked"]).default("pending").notNull(),
   acceptedBy: int("acceptedBy"), // User ID who accepted (after signup)
   expiresAt: timestamp("expiresAt").notNull(), // Invite expires after 72 hours
+  reminderSent: boolean("reminderSent").default(false).notNull(), // Whether expiration reminder was sent
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   acceptedAt: timestamp("acceptedAt"),
 });

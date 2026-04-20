@@ -494,4 +494,59 @@ export const socialRouter = router({
         .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "scheduled")));
       return { success: true };
     }),
+
+  /** Generate platform-specific social copy from blog content using AI */
+  generateSocialCopy: adminProcedure
+    .input(z.object({
+      title: z.string().min(1),
+      excerpt: z.string().min(1),
+      content: z.string().min(1),
+      url: z.string().url(),
+    }))
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+
+      const prompt = `You are a social media expert for GigitekAI, a Microsoft 365 and AI solutions company.
+
+Generate platform-specific social media posts from the following blog article:
+
+Title: ${input.title}
+Excerpt: ${input.excerpt}
+Content: ${input.content}
+URL: ${input.url}
+
+Return a JSON object with three keys: "linkedin", "twitter", "facebook"
+
+Rules:
+- LinkedIn (max 1300 chars): Professional, thought-leadership tone. Include 2-3 relevant hashtags. Add the URL at the end.
+- Twitter/X (max 280 chars): Catchy, engaging, conversational. Include 1-2 hashtags. Add shortened URL or "Read more: [URL]".
+- Facebook (max 500 chars): Friendly, accessible tone. Include a call-to-action. Add the URL.
+
+Return ONLY valid JSON, no markdown formatting.`;
+
+      try {
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+        });
+
+        const rawContent = response.choices[0]?.message?.content;
+        const content = typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent);
+        const parsed = JSON.parse(content);
+
+        return {
+          success: true,
+          linkedin: parsed.linkedin || "",
+          twitter: parsed.twitter || "",
+          facebook: parsed.facebook || "",
+        };
+      } catch (error) {
+        console.error("[Social Copy Generation] Error:", error);
+        throw new Error("Failed to generate social copy. Please try again.");
+      }
+    }),
 });
