@@ -146,7 +146,8 @@ export default function AdminLeadsPage() {
   }
 
   return (
-    <AdminLayout title="Leads">
+    
+    <AdminLayout><AdminLayout title="Leads">
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -402,5 +403,6 @@ export default function AdminLeadsPage() {
         </DialogContent>
       </Dialog>
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

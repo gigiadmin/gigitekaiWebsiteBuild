@@ -134,7 +134,8 @@ export default function AdminHome() {
   ];
 
   return (
-    <AdminLayout title="Dashboard">
+    
+    <AdminLayout><AdminLayout title="Dashboard">
       <div className="space-y-6">
         {/* Welcome header */}
         <div className="flex items-center justify-between">
@@ -309,5 +310,6 @@ export default function AdminHome() {
         </div>
       </div>
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

@@ -6,8 +6,10 @@ import AdminGuide from "./AdminGuide";
 
 export default function AdminGuidePage() {
   return (
-    <AdminLayout title="Admin Guide" noPadding>
+    
+    <AdminLayout><AdminLayout title="Admin Guide" noPadding>
       <AdminGuide />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

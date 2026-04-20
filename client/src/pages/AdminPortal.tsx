@@ -20,6 +20,7 @@ import AdminAccountManagement from "./AdminAccountManagement";
 import AdminBlog from "./AdminBlog";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminKB from "./AdminKB";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminPortal() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -61,6 +62,7 @@ export default function AdminPortal() {
 
   if (isLoading) {
     return (
+    <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
       </div>
@@ -389,5 +391,6 @@ export default function AdminPortal() {
         </Tabs>
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

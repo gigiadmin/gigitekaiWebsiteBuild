@@ -6,8 +6,10 @@ import AdminMetrics from "./AdminMetrics";
 
 export default function AdminMetricsPage() {
   return (
-    <AdminLayout title="Metrics" noPadding>
+    
+    <AdminLayout><AdminLayout title="Metrics" noPadding>
       <AdminMetrics />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { Clock, AlertCircle, CheckCircle2, TrendingUp, Download } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumb from "@/components/Breadcrumb";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminHelpdeskMetricsPage() {
   // Fetch all tickets for analysis
@@ -147,6 +148,7 @@ export default function AdminHelpdeskMetricsPage() {
   ];
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       <Breadcrumb items={breadcrumbs} />
       {/* Header */}
@@ -293,5 +295,6 @@ export default function AdminHelpdeskMetricsPage() {
         </Card>
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

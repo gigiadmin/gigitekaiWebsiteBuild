@@ -10,7 +10,8 @@ export default function AdminWorkloadPage() {
   };
 
   return (
-    <AdminLayoutWithSidebar currentPage="workload">
+    
+    <AdminLayout><AdminLayoutWithSidebar currentPage="workload">
       <div className="p-6 bg-[#0A0E1A] min-h-full">
         {/* Header */}
         <div className="mb-8">
@@ -72,5 +73,6 @@ export default function AdminWorkloadPage() {
         </div>
       </div>
     </AdminLayoutWithSidebar>
-  );
+  
+    </AdminLayout>);
 }

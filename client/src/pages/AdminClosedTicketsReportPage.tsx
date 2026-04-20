@@ -62,7 +62,9 @@ export default function AdminClosedTicketsReportPage() {
     results.sort((a, b) => {
       if (sortBy === "priority") {
         const priorityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-        return (priorityOrder[a.priority] || 99) - (priorityOrder[b.priority] || 99);
+        return (
+    <AdminLayout>priorityOrder[a.priority] || 99
+    </AdminLayout>) - (priorityOrder[b.priority] || 99);
       }
       if (sortBy === "date") {
         return new Date(b.closedAt).getTime() - new Date(a.closedAt).getTime();

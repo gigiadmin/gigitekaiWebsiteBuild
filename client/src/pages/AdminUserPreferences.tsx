@@ -2,12 +2,14 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users, Mail, Bell } from "lucide-react";
 import { PushNotificationSettings } from "@/components/PushNotificationSettings";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminUserPreferences() {
   // Fetch all user preferences
   const { data: allPreferences, isLoading } = trpc.emailDigest.getAllUserPreferences.useQuery();
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div>
@@ -114,5 +116,6 @@ export default function AdminUserPreferences() {
         </Card>
       )}
     </div>
-  );
+  
+    </AdminLayout>);
 }

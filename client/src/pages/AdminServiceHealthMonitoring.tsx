@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card";
 import { M365ServiceDegradations } from "@/components/M365ServiceDegradations";
 import { UptimeDashboard } from "@/components/UptimeDashboard";
 import { AlertThresholdConfig } from "@/components/AlertThresholdConfig";
+import AdminLayout from "@/components/AdminLayout";
 
 enum ServiceHealthStatus {
   HEALTHY = "healthy",
@@ -138,6 +139,7 @@ export default function AdminServiceHealthMonitoring() {
 
   if (isLoading) {
     return (
+    <AdminLayout>
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-cyan-500" />
@@ -499,5 +501,6 @@ export default function AdminServiceHealthMonitoring() {
         </div>
       )}
     </div>
-  );
+  
+    </AdminLayout>);
 }

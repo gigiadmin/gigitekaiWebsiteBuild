@@ -6,8 +6,10 @@ import EmailDigestSettings from "./EmailDigestSettings";
 
 export default function AdminEmailDigestPage() {
   return (
-    <AdminLayout title="Email Digest">
+    
+    <AdminLayout><AdminLayout title="Email Digest">
       <EmailDigestSettings />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

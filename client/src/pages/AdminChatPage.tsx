@@ -6,8 +6,10 @@ import AdminChat from "./AdminChat";
 
 export default function AdminChatPage() {
   return (
-    <AdminLayout title="Live Chat" noPadding>
+    
+    <AdminLayout><AdminLayout title="Live Chat" noPadding>
       <AdminChat />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

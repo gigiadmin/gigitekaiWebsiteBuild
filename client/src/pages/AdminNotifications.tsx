@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Bell, Mail, MessageSquare, AlertCircle, CheckCircle, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminNotifications() {
   const [filter, setFilter] = useState<"all" | "contact" | "lead" | "ticket">("all");
@@ -38,6 +39,7 @@ export default function AdminNotifications() {
   };
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-[#0A0E1A] text-white">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-[#0A0E1A]/95 backdrop-blur border-b border-[rgba(0,212,255,0.1)] py-4">
@@ -133,5 +135,6 @@ export default function AdminNotifications() {
         )}
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

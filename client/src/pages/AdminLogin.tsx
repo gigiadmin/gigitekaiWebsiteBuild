@@ -47,7 +47,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0D1117] to-[#161B22] flex items-center justify-center p-4">
+    
+    <AdminLayout><div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0D1117] to-[#161B22] flex items-center justify-center p-4">
       {/* Background grid effect */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -152,5 +153,6 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, TrendingUp, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import AdminLayout from "@/components/AdminLayout";
 
 /**
  * Admin Copilot Dashboard
@@ -39,6 +40,7 @@ export default function AdminCopilot() {
   const insights = insightsQuery.data;
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -365,5 +367,6 @@ export default function AdminCopilot() {
         </Dialog>
       )}
     </div>
-  );
+  
+    </AdminLayout>);
 }

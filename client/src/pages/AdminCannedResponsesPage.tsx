@@ -179,7 +179,8 @@ export default function AdminCannedResponsesPage() {
   }
 
   return (
-    <AdminLayout title="Canned Responses">
+    
+    <AdminLayout><AdminLayout title="Canned Responses">
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -434,5 +435,6 @@ export default function AdminCannedResponsesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

@@ -33,6 +33,7 @@ import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X, Mai
 import RichTextEditor from "@/components/RichTextEditor";
 import DragDropImageUploader from "@/components/DragDropImageUploader";
 import { useEditor } from "@tiptap/react";
+import AdminLayout from "@/components/AdminLayout";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -228,6 +229,7 @@ export default function AdminBlog() {
   const isSaving = createPost.isPending || updatePost.isPending;
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -631,5 +633,6 @@ export default function AdminBlog() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  
+    </AdminLayout>);
 }

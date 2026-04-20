@@ -6,8 +6,10 @@ import AdminAgents from "./AdminAgents";
 
 export default function AdminAgentsPage() {
   return (
-    <AdminLayout title="AI Agents">
+    
+    <AdminLayout><AdminLayout title="AI Agents">
       <AdminAgents />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

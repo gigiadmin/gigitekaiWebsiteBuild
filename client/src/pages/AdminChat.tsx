@@ -29,6 +29,7 @@ import QuickReplyModal from "@/components/QuickReplyModal";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import AdminLayout from "@/components/AdminLayout";
 
 interface OnlineUser {
   userId: number;
@@ -191,7 +192,8 @@ export default function AdminChat() {
 
     wsRef.current = ws;
 
-    return () => {
+    return (
+    <AdminLayout>) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
@@ -980,5 +982,6 @@ export default function AdminChat() {
         />
       )}
     </div>
-  );
+  
+    </AdminLayout>);
 }

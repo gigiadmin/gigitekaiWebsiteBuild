@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import AdminLayout from "@/components/AdminLayout";
 import {
   Users,
   Shield,
@@ -128,6 +129,7 @@ export default function AdminAccountManagement() {
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
     return (
+    <AdminLayout>
       (u.name ?? "").toLowerCase().includes(q) ||
       (u.email ?? "").toLowerCase().includes(q) ||
       (u.role ?? "").toLowerCase().includes(q)
@@ -384,5 +386,6 @@ export default function AdminAccountManagement() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  
+    </AdminLayout>);
 }

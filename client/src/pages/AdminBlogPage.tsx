@@ -6,8 +6,10 @@ import AdminBlog from "./AdminBlog";
 
 export default function AdminBlogPage() {
   return (
-    <AdminLayout title="Blog">
+    
+    <AdminLayout><AdminLayout title="Blog">
       <AdminBlog />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

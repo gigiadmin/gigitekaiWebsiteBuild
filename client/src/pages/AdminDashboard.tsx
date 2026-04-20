@@ -4,6 +4,7 @@ import { AlertCircle, MessageSquare, Ticket, Bell } from "lucide-react";
 import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminNotifications from "./AdminNotifications";
+import AdminLayout from "@/components/AdminLayout";
 
 type TabType = "chat" | "helpdesk" | "notifications";
 
@@ -13,6 +14,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
+    <AdminLayout>
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin mb-4">
@@ -79,5 +81,6 @@ export default function AdminDashboard() {
         {activeTab === "notifications" && <AdminNotifications />}
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

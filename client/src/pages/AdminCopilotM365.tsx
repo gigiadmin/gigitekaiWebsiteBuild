@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Users, Mail, Calendar, FileText, BarChart3, AlertCircle } from "lucide-react";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminCopilotM365() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -46,6 +47,7 @@ export default function AdminCopilotM365() {
   );
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -353,5 +355,6 @@ export default function AdminCopilotM365() {
         </Tabs>
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

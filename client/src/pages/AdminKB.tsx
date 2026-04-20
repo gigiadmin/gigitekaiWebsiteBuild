@@ -11,6 +11,7 @@ import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
 import { ShareKBModal } from "@/components/ShareKBModal";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminKB() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,6 +75,7 @@ export default function AdminKB() {
   };
 
   return (
+    <AdminLayout>
     <>
       {/* Full Screen Modal */}
       {fullScreenArticle && (
@@ -329,5 +331,6 @@ export default function AdminKB() {
       />
     )}
     </>
-  );
+  
+    </AdminLayout>);
 }

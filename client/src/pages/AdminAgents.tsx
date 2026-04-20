@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Users, Plus, Trash2, Activity, ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminAgents() {
   const [showAddAgent, setShowAddAgent] = useState(false);
@@ -79,6 +80,7 @@ export default function AdminAgents() {
   };
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -341,5 +343,6 @@ export default function AdminAgents() {
         </Card>
       )}
     </div>
-  );
+  
+    </AdminLayout>);
 }

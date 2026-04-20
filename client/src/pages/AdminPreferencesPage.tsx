@@ -6,8 +6,10 @@ import AdminUserPreferences from "./AdminUserPreferences";
 
 export default function AdminPreferencesPage() {
   return (
-    <AdminLayout title="Preferences">
+    
+    <AdminLayout><AdminLayout title="Preferences">
       <AdminUserPreferences />
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

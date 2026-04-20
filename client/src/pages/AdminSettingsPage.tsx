@@ -56,7 +56,8 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <AdminLayoutWithSidebar currentPage="settings">
+    
+    <AdminLayout><AdminLayoutWithSidebar currentPage="settings">
       <div className="p-6 bg-[#0A0E1A] min-h-full">
         {/* Header */}
         <div className="mb-8">
@@ -115,5 +116,6 @@ export default function AdminSettingsPage() {
         </div>
       </div>
     </AdminLayoutWithSidebar>
-  );
+  
+    </AdminLayout>);
 }

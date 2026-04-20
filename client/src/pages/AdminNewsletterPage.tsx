@@ -14,7 +14,8 @@ export default function AdminNewsletterPage() {
   const [tab, setTab] = useState<Tab>("subscribers");
 
   return (
-    <AdminLayout title="Newsletter">
+    
+    <AdminLayout><AdminLayout title="Newsletter">
       <div className="space-y-4">
         {/* Sub-tabs */}
         <div className="flex gap-1 bg-slate-800/50 p-1 rounded-lg w-fit">
@@ -41,5 +42,6 @@ export default function AdminNewsletterPage() {
         {tab === "broadcast" && <AdminNewsletterBroadcast />}
       </div>
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }

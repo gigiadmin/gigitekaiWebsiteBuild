@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { KBAnalyticsDashboard } from "@/components/KBAnalyticsDashboard";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { TrendingUp, MessageSquare, ThumbsUp, ThumbsDown } from "lucide-react";
+import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminKBAnalytics() {
   const [useNewDashboard, setUseNewDashboard] = useState(true);
@@ -12,6 +13,7 @@ export default function AdminKBAnalytics() {
   // Show new analytics dashboard
   if (useNewDashboard) {
     return (
+    <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -307,5 +309,6 @@ export default function AdminKBAnalytics() {
         )}
       </div>
     </div>
-  );
+  
+    </AdminLayout>);
 }

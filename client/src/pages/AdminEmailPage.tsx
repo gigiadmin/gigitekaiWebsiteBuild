@@ -145,7 +145,8 @@ export default function AdminEmailPage() {
   const receivedCount = inbox.filter((e) => e.direction === "received").length;
 
   return (
-    <AdminLayout title="Email Management">
+    
+    <AdminLayout><AdminLayout title="Email Management">
       <div className="space-y-6">
         {/* Email detail modal */}
         {selectedEmail && (
@@ -462,5 +463,6 @@ export default function AdminEmailPage() {
         </Tabs>
       </div>
     </AdminLayout>
-  );
+  
+    </AdminLayout>);
 }
