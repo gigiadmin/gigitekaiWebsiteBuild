@@ -3171,3 +3171,7 @@
 
 ## Critical Bug - KB Modal Back Button (Apr 20, 2026)
 - [x] Back button blocked by "Claim Yours" banner - z-index issue in KB modal, fixed by increasing modal z-index to z-[9999]
+
+
+## Critical Bug - KB Left Sidebar Not Showing (Apr 20, 2026)
+- [x] KB modal left sidebar menu not visible - fixed by removing lg: breakpoint restrictions, now visible on all screen sizes with w-80 width

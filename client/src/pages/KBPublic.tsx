@@ -251,10 +251,10 @@ export default function KBPublic() {
 
             {/* Desktop Modal with Left Sidebar */}
             {selectedArticle && (
-              <div className="hidden lg:fixed lg:inset-0 lg:bg-black/80 lg:z-[9999] lg:flex">
-                <div className="lg:flex w-full h-full">
+              <div className="fixed inset-0 bg-black/80 z-[9999] flex">
+                <div className="flex w-full h-full">
                   {/* Left Sidebar - Article List */}
-                  <div className="lg:w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col">
+                  <div className="w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col">
                     <div className="p-4 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
                       <button
                         onClick={() => setSelectedArticle(null)}
@@ -302,7 +302,7 @@ export default function KBPublic() {
                   </div>
 
                   {/* Right Content Area */}
-                  <div className="flex-1 bg-slate-900 overflow-y-auto flex flex-col">
+                  <div className="flex-1 bg-slate-900 overflow-y-auto flex flex-col min-w-0">
                     <div className="p-8 flex-1">
                       <div className="max-w-4xl mx-auto">
                         <div className="mb-6">
