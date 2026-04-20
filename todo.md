@@ -3183,3 +3183,12 @@
 - [ ] Add Quick Assist button to Teams channel integration
 - [ ] Add session tracking and logging to database
 - [ ] Test all Quick Assist features
+
+## Intune Remote Help Frontend Implementation
+- [ ] Add "Start Remote Help" button to helpdesk ticket detail page
+- [ ] Add remote help modal with session code display and copy-to-clipboard
+- [ ] Add "End Remote Help" button to stop active sessions
+- [ ] Add remote help session history to ticket detail
+- [ ] Add Intune Remote Help button to Teams channel integration
+- [ ] Add Teams adaptive card for remote help requests
+- [ ] Test remote help flow end-to-end
