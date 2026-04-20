@@ -18,7 +18,6 @@ const footerLinks = {
     "About Us",
     "Our Team",
     "Partners",
-    "Careers",
     "Contact Us",
   ],
   Resources: [
@@ -52,7 +51,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
-            <a href="#" className="flex items-center gap-2 mb-4">
+            <a href="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-md bg-[#00D4FF] flex items-center justify-center">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-label="GigitekAI logo">
                   <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" fill="#0A0E1A" />
@@ -95,10 +94,15 @@ export default function Footer() {
                   if (link === "About Us") href = "/about-us";
                   if (link === "Our Team") href = "/our-team";
                   if (link === "Partners") href = "/partners";
-                  if (link === "Careers") href = "/careers";
-                  if (link === "Contact Us") href = "/#contact";
-                  if (link === "Insights Blog") href = "/kb";
+                  if (link === "Contact Us") href = "/contact";
+                  if (link === "Insights Blog") href = "/blog";
                   if (link === "Support Portal") href = "/helpdesk";
+                  if (link === "Cloud Infrastructure") href = "/services/cloud";
+                  if (link === "AI & Machine Learning") href = "/services/ai";
+                  if (link === "Managed IT Services") href = "/services/managed";
+                  if (link === "Cybersecurity") href = "/services/security";
+                  if (link === "Data Analytics") href = "/services/data";
+                  if (link === "IT Strategy") href = "/services/strategy";
                   if (link === "Healthcare") href = "/industries/healthcare";
                   if (link === "Financial Services") href = "/industries/financial-services";
                   if (link === "Manufacturing") href = "/industries/manufacturing";

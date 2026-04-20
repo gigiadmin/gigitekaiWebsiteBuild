@@ -9,7 +9,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
-import About from "./pages/About";
 import AboutUs from "./pages/AboutUs";
 import OurTeam from "./pages/OurTeam";
 import Partners from "./pages/Partners";
@@ -19,7 +18,6 @@ import IndustryManufacturing from "./pages/IndustryManufacturing";
 import IndustryRetail from "./pages/IndustryRetail";
 import IndustryGovernment from "./pages/IndustryGovernment";
 import IndustryEducation from "./pages/IndustryEducation";
-import Careers from "./pages/Careers";
 import ServiceDetail from "./pages/ServiceDetail";
 import Pricing from "./pages/Pricing";
 import ROICalculatorPage from "./pages/ROICalculatorPage";
@@ -113,11 +111,10 @@ function Router() {
       <Route path={"/roi-calculator"} component={ROICalculatorPage} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:slug"} component={BlogDetail} />
-      <Route path={"/about"} component={About} />
+      <Route path={"/about"}>{() => { window.location.replace("/about-us"); return null; }}</Route>
       <Route path={"/about-us"} component={AboutUs} />
       <Route path={"/our-team"} component={OurTeam} />
       <Route path={"/partners"} component={Partners} />
-      <Route path={"/careers"} component={Careers} />
       <Route path={"/industries/healthcare"} component={IndustryHealthcare} />
       <Route path={"/industries/financial-services"} component={IndustryFinancial} />
       <Route path={"/industries/manufacturing"} component={IndustryManufacturing} />

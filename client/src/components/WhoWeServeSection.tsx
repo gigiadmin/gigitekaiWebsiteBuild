@@ -61,7 +61,7 @@ export default function WhoWeServeSection() {
             <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
               Whether you're a startup scaling fast, an enterprise modernizing legacy systems, or a regulated business navigating compliance — we have the cloud and AI expertise to match your exact needs.
             </p>
-            <a href="#contact" className="btn-outline-cyan text-sm">
+            <a href="/contact" className="btn-outline-cyan text-sm">
               Find Your Solution
             </a>
           </div>
@@ -93,7 +93,7 @@ export default function WhoWeServeSection() {
                         {option.description}
                       </p>
                       <a
-                        href="#contact"
+                        href="/contact"
                         className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >

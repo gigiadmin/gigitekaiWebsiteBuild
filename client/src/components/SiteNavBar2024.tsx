@@ -7,7 +7,6 @@
 
 import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar } from "lucide-react";
-import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SiteNavBar2024() {
@@ -17,11 +16,12 @@ export default function SiteNavBar2024() {
   const { theme, toggleTheme } = useTheme();
 
   const services = [
-    { label: "Cloud Infrastructure", href: "#cloud" },
-    { label: "AI & Machine Learning", href: "#ai" },
-    { label: "Managed IT Services", href: "#managed" },
-    { label: "Cybersecurity", href: "#security" },
-    { label: "Data Analytics", href: "#data" },
+    { label: "Cloud Infrastructure", href: "/services/cloud" },
+    { label: "AI & Machine Learning", href: "/services/ai" },
+    { label: "Managed IT Services", href: "/services/managed" },
+    { label: "Cybersecurity", href: "/services/security" },
+    { label: "Data Analytics", href: "/services/data" },
+    { label: "IT Strategy", href: "/services/strategy" },
   ];
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function SiteNavBar2024() {
             GigitekAI — Powering the Next Generation of Enterprise Technology
           </span>
           <div className="flex items-center gap-6">
-            <a href="/about" className="hover:text-[#00D4FF] transition-colors">About Us</a>
+            <a href="/about-us" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
             <a href="/helpdesk-pricing" className="hover:text-[#00D4FF] transition-colors">Pricing</a>
             <div className="flex items-center gap-4">
@@ -107,10 +107,10 @@ export default function SiteNavBar2024() {
             </div>
 
             {[
-              { label: "Industries", href: "#industries" },
+              { label: "Industries", href: "/industries/healthcare" },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing" },
               { label: "ROI Calculator", href: "/roi-calculator" },
-              { label: "About Us", href: "/about" },
+              { label: "About Us", href: "/about-us" },
               { label: "Insights", href: "/blog" },
             ].map((item) => (
               <a
@@ -162,7 +162,7 @@ export default function SiteNavBar2024() {
               </button>
             )}
             <a
-              href="/#contact"
+              href="/contact"
               className="btn-cyan text-sm"
             >
               Get In Touch
@@ -195,18 +195,8 @@ export default function SiteNavBar2024() {
               <a
                 key={s.href}
                 href={s.href}
-                className="block py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const id = s.href.replace('#', '');
-                  setMobileOpen(false);
-                  setTimeout(() => {
-                    const element = document.getElementById(id);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                }}
+                className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
+                onClick={() => setMobileOpen(false)}
               >
                 {s.label}
               </a>
@@ -215,8 +205,8 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
-                { label: "Industries", href: "#industries", id: "nav-industries" },
-                { label: "About Us", href: "/about", id: "nav-about" },
+                { label: "Industries", href: "/industries/healthcare", id: "nav-industries" },
+                { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
               ].map((item) => (
                 <a
@@ -224,21 +214,7 @@ export default function SiteNavBar2024() {
                   href={item.href}
                   data-nav-id={item.id}
                   className="block py-2 text-sm text-white hover:text-[#00D4FF] transition-colors"
-                  onClick={(e) => {
-                    if (item.href.startsWith('#')) {
-                      e.preventDefault();
-                      const id = item.href.replace('#', '');
-                      setMobileOpen(false);
-                      setTimeout(() => {
-                        const element = document.getElementById(id);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                      }, 100);
-                    } else {
-                      setMobileOpen(false);
-                    }
-                  }}
+                  onClick={() => setMobileOpen(false)}
                 >
                   {item.label}
                 </a>
@@ -278,18 +254,9 @@ export default function SiteNavBar2024() {
             </div>
             <div className="pt-2">
               <a
-                href="#contact"
+                href="/contact"
                 className="btn-cyan w-full justify-center text-sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setMobileOpen(false);
-                  setTimeout(() => {
-                    const element = document.getElementById('contact');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }, 100);
-                }}
+                onClick={() => setMobileOpen(false)}
               >
                 Get In Touch
               </a>

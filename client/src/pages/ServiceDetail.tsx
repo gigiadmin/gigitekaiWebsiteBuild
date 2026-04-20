@@ -214,7 +214,7 @@ export default function ServiceDetail() {
               Service Not Found
             </h1>
             <p className="text-gray-400 mb-6">The service you're looking for doesn't exist.</p>
-            <a href="/#services" className="btn-cyan text-sm">
+            <a href="/" className="btn-cyan text-sm">
               <ArrowLeft size={16} /> Back to Services
             </a>
           </div>
@@ -227,7 +227,7 @@ export default function ServiceDetail() {
   const Icon = service.icon;
   const breadcrumbs = [
     { label: "Home", href: "/" },
-    { label: "Services", href: "/#services" },
+    { label: "Services", href: "/" },
     { label: service.title },
   ];
 
@@ -267,7 +267,7 @@ export default function ServiceDetail() {
                   {service.heroDescription}
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="/#contact" className="btn-cyan">
+                  <a href="/contact" className="btn-cyan">
                     {service.ctaText} <ArrowRight size={16} />
                   </a>
                   <a
@@ -405,11 +405,11 @@ export default function ServiceDetail() {
               Schedule a free consultation with our experts today.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="/#contact" className="btn-cyan">
+              <a href="/contact" className="btn-cyan">
                 Schedule a Consultation <ArrowRight size={16} />
               </a>
               <a
-                href="/#services"
+                href="/"
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white border border-gray-700 rounded-lg hover:border-[#00D4FF]/50 hover:text-[#00D4FF] transition-all"
               >
                 Explore All Services

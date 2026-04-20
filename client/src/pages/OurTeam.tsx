@@ -214,10 +214,10 @@ export default function OurTeam() {
               We're always looking for talented professionals to join our mission of transforming enterprise technology.
             </p>
             <a
-              href="/careers"
+              href="/contact"
               className="inline-block px-8 py-3 bg-cyan-500 text-white font-semibold rounded-lg hover:bg-cyan-600 transition"
             >
-              View Open Positions
+              Get In Touch
             </a>
           </div>
         </section>
