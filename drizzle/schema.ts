@@ -1365,3 +1365,21 @@ export const serviceStatusChanges = mysqlTable("serviceStatusChanges", {
 
 export type ServiceStatusChange = typeof serviceStatusChanges.$inferSelect;
 export type InsertServiceStatusChange = typeof serviceStatusChanges.$inferInsert;
+
+
+// Microsoft Quick Assist Sessions — track remote support sessions
+export const quickAssistSessions = mysqlTable("quickAssistSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionCode: varchar("sessionCode", { length: 10 }).notNull().unique(), // 6-digit code
+  ticketId: int("ticketId"), // Link to helpdesk ticket
+  customerId: int("customerId"), // Link to customer
+  initiatedBy: int("initiatedBy").notNull(), // User who started the session
+  description: text("description"), // Session notes
+  status: mysqlEnum("status", ["active", "ended", "expired"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // 24 hour expiry
+  endedAt: timestamp("endedAt"), // When session ended
+});
+
+export type QuickAssistSession = typeof quickAssistSessions.$inferSelect;
+export type InsertQuickAssistSession = typeof quickAssistSessions.$inferInsert;
