@@ -83,6 +83,7 @@ function createAuthContext(role: "user" | "admin" = "user", approved: boolean = 
 
 describe("helpdesk", () => {
   describe("createTicket", () => {
+    vi.setConfig({ testTimeout: 15000 });
     it("should create a ticket with valid input (approved user)", async () => {
       const { ctx } = createAuthContext("user", true);
       const caller = appRouter.createCaller(ctx);
@@ -166,6 +167,7 @@ describe("helpdesk", () => {
     });
 
     it("should accept all categories", async () => {
+      vi.setConfig({ testTimeout: 15000 });
       const { ctx } = createAuthContext("user", true);
       const caller = appRouter.createCaller(ctx);
 

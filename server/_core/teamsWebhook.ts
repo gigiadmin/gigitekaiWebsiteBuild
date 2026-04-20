@@ -17,6 +17,7 @@ import { tickets, ticketReplies, users } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { createAdminNotification } from "../routers/adminNotifications";
 import { getUnassignedTicketsSummary } from "./teamsDigest";
+import { buildQuickAssistCard } from "../teamsBot.adaptiveCard";
 
 // Bot Framework configuration using Azure Bot credentials
 // Gracefully handle missing credentials to prevent server crash
@@ -272,26 +273,43 @@ async function handleBotCommand(
       }).catch(() => {});
       break;
 
-    case "quickassist":
-      const sessionCode = `QA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      
-      await context.sendActivity(
-        `🖥️ **Quick Assist Session Started for Ticket #${ticketId}**\n\n` +
-        `**Session Code:** \`${sessionCode}\`\n\n` +
-        `Share this code with the customer to start the remote support session.\n\n` +
-        `[View in Admin Panel](https://gigitekai.com/admin/helpdesk/${ticketId})`
-      );
-      
-      await createAdminNotification({
-        type: "ticket_reply",
-        title: `Quick Assist Session Started - Ticket #${ticketId}`,
-        body: `${senderName} initiated Quick Assist session for ticket "${ticket.title}" (Code: ${sessionCode})`,
-        href: `/admin/helpdesk/${ticketId}`,
-        priority: "high",
-        ticketId,
-      }).catch(() => {});
+    case "quickassist": {
+      try {
+        // Call the quickAssistRouter to create a persistent session
+        const { appRouter } = await import("../routers");
+        const caller = appRouter.createCaller({ user: null } as any);
+        
+        const session = await caller.quickAssist.initiateSession({
+          ticketId,
+          description: `Quick Assist session initiated from Teams by ${senderName}`,
+        });
+        
+        // Send adaptive card with Quick Assist link and instructions
+        const card = buildQuickAssistCard(
+          ticketId,
+          ticket.title,
+          session.sessionCode,
+          "https://gigitekai.com"
+        );
+        
+        await context.sendActivity(card as any);
+        
+        await createAdminNotification({
+          type: "ticket_reply",
+          title: `Quick Assist Session Started - Ticket #${ticketId}`,
+          body: `${senderName} initiated Quick Assist session for ticket "${ticket.title}" (Code: ${session.sessionCode})`,
+          href: `/admin/helpdesk/${ticketId}`,
+          priority: "high",
+          ticketId,
+        }).catch(() => {});
+      } catch (error) {
+        console.error("[Teams Bot] Error initiating Quick Assist:", error);
+        await context.sendActivity(
+          `❌ Failed to initiate Quick Assist session. Please try again or contact support.`
+        );
+      }
       break;
-
+    }
     default:
       await context.sendActivity(
         `❓ Unknown command: \`${cmd}\`\n\n` +

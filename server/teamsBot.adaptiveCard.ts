@@ -348,6 +348,122 @@ export function buildStatusUpdateCard(
 }
 
 /**
+ * Build Quick Assist remote help card for Teams
+ */
+export function buildQuickAssistCard(
+  ticketId: number,
+  ticketTitle: string,
+  sessionCode: string,
+  baseUrl: string = "https://gigitekai.com"
+): Record<string, any> {
+  const quickAssistUrl = `https://aka.ms/remotehelp?code=${sessionCode}`;
+  const adminTicketUrl = `${baseUrl}/admin/helpdesk?ticket=${ticketId}`;
+
+  return {
+    type: "message",
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        contentUrl: null,
+        content: {
+          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+          type: "AdaptiveCard",
+          version: "1.4",
+          body: [
+            {
+              type: "Container",
+              style: "emphasis",
+              bleed: true,
+              items: [
+                {
+                  type: "TextBlock",
+                  text: "🖥️ Quick Assist Remote Support Session",
+                  weight: "Bolder",
+                  size: "Large",
+                  color: "Accent",
+                },
+              ],
+            },
+            {
+              type: "Container",
+              items: [
+                {
+                  type: "TextBlock",
+                  text: `Ticket #${ticketId}: ${ticketTitle}`,
+                  weight: "Bolder",
+                  size: "Medium",
+                  wrap: true,
+                },
+                {
+                  type: "TextBlock",
+                  text: "A remote support session has been initiated. Share the session code with the customer to begin.",
+                  wrap: true,
+                  size: "Small",
+                  spacing: "Medium",
+                },
+              ],
+            },
+            {
+              type: "Container",
+              style: "good",
+              items: [
+                {
+                  type: "TextBlock",
+                  text: "Session Code:",
+                  weight: "Bolder",
+                  size: "Small",
+                },
+                {
+                  type: "TextBlock",
+                  text: sessionCode,
+                  weight: "Bolder",
+                  size: "ExtraLarge",
+                  color: "Accent",
+                  fontType: "Monospace",
+                },
+              ],
+            },
+            {
+              type: "Container",
+              items: [
+                {
+                  type: "TextBlock",
+                  text: "📋 Instructions:",
+                  weight: "Bolder",
+                  size: "Small",
+                  spacing: "Medium",
+                },
+                {
+                  type: "TextBlock",
+                  text: "1. Share the session code with the customer\n2. Customer visits https://aka.ms/remotehelp and enters the code\n3. You will receive a connection request\n4. Accept to start the remote session",
+                  wrap: true,
+                  size: "Small",
+                  spacing: "Small",
+                },
+              ],
+            },
+          ],
+          actions: [
+            {
+              type: "Action.OpenUrl",
+              title: "🔗 Start Remote Session",
+              url: quickAssistUrl,
+              style: "positive",
+            },
+            {
+              type: "Action.OpenUrl",
+              title: "🎫 View Ticket",
+              url: adminTicketUrl,
+              style: "default",
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
+/**
  * Format date for Teams card
  */
 function formatDate(date: Date): string {
