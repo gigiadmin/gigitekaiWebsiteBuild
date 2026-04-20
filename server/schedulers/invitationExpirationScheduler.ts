@@ -145,7 +145,7 @@ async function sendExpiringReminders() {
               <a href="https://gigitekai.com/admin/customers" style="background-color: #00D4FF; color: #0A0E1A; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Go to Admin Panel</a>
             </div>
             <hr style="border-color: #21262d; margin: 24px 0;"/>
-            <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call 609-676-4483</p>
+            <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
           </div>
         `,
       });

@@ -202,11 +202,11 @@ export const leadgenRouter = router({
               <div style="text-align: center; margin: 28px 0;">
                 <a href="https://gigitekai.com" style="background: #00d4ff; color: #0a0e1a; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 700; font-size: 15px;">Schedule a Free Strategy Call</a>
               </div>
-              <p style="color: #555; font-size: 14px; line-height: 1.6;">Questions? Reply to this email or call us at <strong>609-676-4483</strong>. We're here to help.</p>
+              <p style="color: #555; font-size: 14px; line-height: 1.6;">Questions? Reply to this email or call us at <strong>+1 727 382 6909</strong>. We're here to help.</p>
             </div>
             <!-- Footer -->
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; 609-676-4483 &nbsp;|&nbsp; support@gigitekai.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; +1 727 382 6909 &nbsp;|&nbsp; support@gigitekai.com</p>
               <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
             </div>
           </div>

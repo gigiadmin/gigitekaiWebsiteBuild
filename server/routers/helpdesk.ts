@@ -178,7 +178,7 @@ export const helpdeskRouter = router({
         if (input.priority === "critical" && ticket?.id) {
           try {
             await sendSMS({
-              to: "609-676-4483",
+              to: "+1 727 382 6909",
               message: `CRITICAL TICKET #${ticket.id}\n${input.title}\nFrom: ${ctx.user.name}\nCategory: ${input.category}`,
             });
           } catch (smsError) {
@@ -495,7 +495,7 @@ export const helpdeskRouter = router({
     </div>
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
-      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • +1 727 382 6909</p>
       <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(user.email)}" style="color: #999; text-decoration: none;">Unsubscribe from ticket notifications</a></p>
     </div>
   </div>

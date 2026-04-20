@@ -396,11 +396,11 @@ Submitted from GigitekAI website contact form.
       <p style="text-align: center;">
         <a href="https://gigitekai.com/admin" class="cta-button">Access Support Center</a>
       </p>
-      <p>If you have any questions or need assistance, feel free to reach out to our team at support@gigitekai.com or call 609-676-4483.</p>
+      <p>If you have any questions or need assistance, feel free to reach out to our team at support@gigitekai.com or call +1 727 382 6909.</p>
     </div>
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
-      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • +1 727 382 6909</p>
       <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(user.email)}" style="color: #999; text-decoration: none;">Unsubscribe from account notifications</a></p>
     </div>
   </div>
@@ -464,12 +464,12 @@ Submitted from GigitekAI website contact form.
       <p>If you believe this is an error or would like to request access again, please contact our support team:</p>
       <p>
         <strong>Email:</strong> support@gigitekai.com<br/>
-        <strong>Phone:</strong> 609-676-4483
+        <strong>Phone:</strong> +1 727 382 6909
       </p>
     </div>
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
-      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • +1 727 382 6909</p>
       <p style="margin: 8px 0 0; font-size: 11px;"><a href="https://gigitekai.com/unsubscribe?email=${encodeURIComponent(user.email)}" style="color: #999; text-decoration: none;">Unsubscribe from account notifications</a></p>
     </div>
   </div>
@@ -545,7 +545,7 @@ Submitted from GigitekAI website contact form.
     </div>
     <div class="footer">
       <p style="margin: 0;">GigitekAI • Cloud & AI Solutions</p>
-      <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
+      <p style="margin: 4px 0 0;">support@gigitekai.com • +1 727 382 6909</p>
     </div>
   </div>
 </body>

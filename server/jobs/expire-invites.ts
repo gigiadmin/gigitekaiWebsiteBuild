@@ -75,7 +75,7 @@ export async function expireOldInvites() {
               </ul>
               <p style="color: #c9d1d9;">If you'd like to send a new invitation, please use the Admin Portal.</p>
               <hr style="border-color: #21262d; margin: 24px 0;"/>
-              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call 609-676-4483</p>
+              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
             </div>
           `,
         });

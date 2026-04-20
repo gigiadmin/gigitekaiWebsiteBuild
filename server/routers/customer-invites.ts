@@ -72,7 +72,7 @@ export const customerInvitesRouter = router({
               <p style="color: #8892a4; font-size: 13px;">This invite expires on ${result.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
               <p style="color: #8892a4; font-size: 13px;">If the button doesn't work, copy and paste this link into your browser:<br/><a href="${inviteLink}" style="color: #00D4FF;">${inviteLink}</a></p>
               <hr style="border-color: #21262d; margin: 24px 0;"/>
-              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call 609-676-4483</p>
+              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
             </div>
           `
         });
@@ -223,7 +223,7 @@ export const customerInvitesRouter = router({
               <p style="color: #8892a4; font-size: 13px;">This invite expires on ${invite.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
               <p style="color: #8892a4; font-size: 13px;">If the button doesn't work, copy and paste this link:<br/><a href="${inviteLink}" style="color: #00D4FF;">${inviteLink}</a></p>
               <hr style="border-color: #21262d; margin: 24px 0;"/>
-              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call 609-676-4483</p>
+              <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
             </div>
           `
         });

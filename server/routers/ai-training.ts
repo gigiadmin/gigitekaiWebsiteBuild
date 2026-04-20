@@ -164,7 +164,7 @@ export const GIGITEKAI_TRAINING_DATA = {
     mission: 'Replace manual IT support with AI-powered intelligent agents',
     website: 'https://gigitekai.com',
     email: 'support@gigitek.com',
-    phone: '609-676-4483',
+    phone: '+1 727 382 6909',
   },
 
   services: [
