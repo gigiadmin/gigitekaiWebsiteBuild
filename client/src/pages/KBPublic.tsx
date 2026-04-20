@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook } from "lucide-react";
+import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook, Mail } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
 
@@ -18,6 +18,9 @@ export default function KBPublic() {
   const [feedbackMessageId, setFeedbackMessageId] = useState<number | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollStartY, setScrollStartY] = useState(0);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
 
   // Scroll to top when modal opens
   useEffect(() => {
@@ -57,6 +60,30 @@ export default function KBPublic() {
     { includeUnpublished: false },
     { enabled: true }
   );
+
+  // Email KB article handler using tRPC
+  const emailMutation = trpc.kb.emailArticle.useMutation();
+  const handleEmailArticle = async () => {
+    if (!emailAddress || !selectedArticle) return;
+    setEmailLoading(true);
+    try {
+      await emailMutation.mutateAsync({
+        recipientEmail: emailAddress,
+        articleId: selectedArticle.id,
+        articleTitle: selectedArticle.title,
+        articleContent: selectedArticle.content,
+        articleCategory: selectedArticle.category,
+      });
+      alert(`KB article sent to ${emailAddress}`);
+      setEmailOpen(false);
+      setEmailAddress("");
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Error sending email. Please try again.');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
 
   // Filter articles
   const filteredArticles = articles?.filter((article: any) => {
@@ -347,6 +374,15 @@ export default function KBPublic() {
                             >
                               <Facebook className="w-4 h-4" />
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEmailOpen(true)}
+                              className="gap-2 text-amber-400 hover:text-amber-300 border-amber-500/50 hover:bg-amber-500/10"
+                              title="Email this article"
+                            >
+                              <Mail className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
 
@@ -454,6 +490,42 @@ export default function KBPublic() {
           </>
         )}
       </div>
+
+      {/* Email Dialog */}
+      {emailOpen && selectedArticle && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <Card className="bg-slate-900 border-slate-700 p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold text-white mb-4">Email Article</h2>
+            <p className="text-gray-400 text-sm mb-4">Send "{selectedArticle.title}" to:</p>
+            <Input
+              type="email"
+              placeholder="recipient@example.com"
+              value={emailAddress}
+              onChange={(e) => setEmailAddress(e.target.value)}
+              className="mb-4 bg-slate-800 border-slate-700 text-white placeholder-gray-500"
+            />
+            <div className="flex gap-2">
+              <Button
+                onClick={handleEmailArticle}
+                disabled={emailLoading || !emailAddress}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                {emailLoading ? "Sending..." : "Send"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setEmailOpen(false);
+                  setEmailAddress("");
+                }}
+                variant="outline"
+                className="flex-1 text-gray-400 border-slate-700"
+              >
+                Cancel
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Feedback Dialog */}
       {feedbackArticleId && feedbackMessageId && (

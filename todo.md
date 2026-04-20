@@ -3162,3 +3162,8 @@
 - [x] Add loading animation to Agent Dashboard for better UX during metrics fetch — animated skeleton loaders added
 - [x] Add KB share buttons to easily share articles on LinkedIn, Twitter/X, and Facebook — share buttons implemented
 - [x] Add M365 Service Health filtering to show/hide specific Microsoft services — filter dropdown added for status and service names
+
+
+## Critical Issues - KB Page (Apr 20, 2026)
+- [x] KB preview not opening in full-screen modal - clicking Preview should open full modal, not inline grid preview (fixed with modal dialog)
+- [x] Add email KB option - users should be able to email KB articles to themselves or others (implemented with tRPC endpoint and email button)

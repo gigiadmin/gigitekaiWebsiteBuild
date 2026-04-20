@@ -3,6 +3,7 @@ import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles } from "../../drizzle/schema";
 import { eq, like, or, desc, and } from "drizzle-orm";
+import { sendEmail } from "../_core/email";
 
 export const kbRouter = router({
   /** List all KB articles (admin: all; public: published only) */
@@ -125,5 +126,50 @@ export const kbRouter = router({
       if (!db) throw new Error("Database not available");
       await db.delete(kbArticles).where(eq(kbArticles.id, input.id));
       return { success: true };
+    }),
+
+  /** Email a KB article to a recipient */
+  emailArticle: publicProcedure
+    .input(z.object({
+      recipientEmail: z.string().email(),
+      articleId: z.number().int().positive(),
+      articleTitle: z.string(),
+      articleContent: z.string(),
+      articleCategory: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const htmlContent = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+            <div style="background-color: #0f172a; color: #00d4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h1 style="margin: 0; font-size: 24px;">${input.articleTitle}</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.8; font-size: 14px;">${input.articleCategory}</p>
+            </div>
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #00d4ff;">
+              ${input.articleContent}
+            </div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
+              <p>This article was shared from GigitekAI Knowledge Base</p>
+              <p><a href="https://gigitekai.com/admin/kb" style="color: #00d4ff; text-decoration: none;">View in Knowledge Base</a></p>
+            </div>
+          </div>
+        `;
+
+        const success = await sendEmail({
+          to: input.recipientEmail,
+          subject: `KB Article: ${input.articleTitle}`,
+          html: htmlContent,
+          fromName: "GigitekAI Support",
+        });
+
+        if (!success) {
+          throw new Error("Failed to send email");
+        }
+
+        return { success: true, message: `Article sent to ${input.recipientEmail}` };
+      } catch (error) {
+        console.error("[KB Email] Error sending article:", error);
+        throw new Error("Failed to send KB article via email");
+      }
     }),
 });
