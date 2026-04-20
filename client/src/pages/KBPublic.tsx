@@ -222,6 +222,113 @@ export default function KBPublic() {
               </div>
             )}
 
+            {/* Desktop Modal with Left Sidebar */}
+            {selectedArticle && (
+              <div className="hidden lg:fixed lg:inset-0 lg:bg-black/80 lg:z-50 lg:flex">
+                <div className="lg:flex w-full h-full">
+                  {/* Left Sidebar - Article List */}
+                  <div className="lg:w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col">
+                    <div className="p-4 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
+                      <button
+                        onClick={() => setSelectedArticle(null)}
+                        className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors font-medium text-sm"
+                        aria-label="Close KB preview"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span>Back to KB</span>
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      {filteredArticles.map((article: any) => (
+                        <div
+                          key={article.id}
+                          onPointerDown={handlePointerDown}
+                          onPointerUp={(e) => handlePointerUp(e, article)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedArticle(article);
+                            }
+                          }}
+                          className={`p-4 cursor-pointer transition-all border-l-4 select-none ${
+                            selectedArticle?.id === article.id
+                              ? "bg-slate-700 border-l-cyan-500"
+                              : "bg-slate-800 border-l-transparent hover:bg-slate-700/50"
+                          }`}
+                        >
+                          <h3 className="font-semibold text-white text-sm line-clamp-2">
+                            {article.title}
+                          </h3>
+                          <Badge
+                            className={`mt-2 text-xs border ${
+                              categoryColors[article.category] ||
+                              "bg-slate-700 text-gray-400"
+                            }`}
+                          >
+                            {article.category}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Content Area */}
+                  <div className="flex-1 bg-slate-900 overflow-y-auto flex flex-col">
+                    <div className="p-8 flex-1">
+                      <div className="max-w-4xl mx-auto">
+                        <div className="mb-6">
+                          <h2 className="text-3xl font-bold text-white mb-3">
+                            {selectedArticle.title}
+                          </h2>
+                          <Badge className={`text-xs border ${categoryColors[selectedArticle.category]}`}>
+                            {selectedArticle.category}
+                          </Badge>
+                        </div>
+
+                        {/* Article Content */}
+                        <div className="prose prose-invert max-w-none mb-8">
+                          <KBArticleContent content={selectedArticle.content} />
+                        </div>
+
+                        {/* Feedback Section */}
+                        <div className="mt-8 pt-6 border-t border-slate-700">
+                          <p className="text-sm text-gray-400 mb-3">Was this article helpful?</p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setFeedbackArticleId(selectedArticle.id);
+                                setFeedbackMessageId(selectedArticle.id);
+                                setFeedbackOpen(true);
+                              }}
+                              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <ThumbsUp className="w-4 h-4" />
+                              Yes
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setFeedbackArticleId(selectedArticle.id);
+                                setFeedbackMessageId(selectedArticle.id);
+                                setFeedbackOpen(true);
+                              }}
+                              className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+                            >
+                              <ThumbsDown className="w-4 h-4" />
+                              No
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Article List */}
             <div className="lg:col-span-1 space-y-3 max-h-96 overflow-y-auto pr-2" onScroll={handleScroll}>

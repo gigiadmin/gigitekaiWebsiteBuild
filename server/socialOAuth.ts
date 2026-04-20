@@ -18,18 +18,23 @@ import { socialConnections } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { createHmac, randomBytes } from "crypto";
 
-const REDIRECT_BASE = "https://gigitekai.com/admin/social";
-
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEnv(key: string): string {
   return process.env[key] ?? "";
 }
 
-function oauthRedirect(res: Response, platform: string, error?: string) {
+function getOrigin(req: Request): string {
+  // Get origin from request headers, fallback to environment
+  const origin = req.get('origin') || req.get('referer')?.split('/').slice(0, 3).join('/') || 'https://gigitekai.com';
+  return origin.replace(/\/$/, ''); // Remove trailing slash
+}
+
+function oauthRedirect(res: Response, platform: string, error?: string, origin?: string) {
+  const redirectBase = origin ? `${origin}/admin/social` : 'https://gigitekai.com/admin/social';
   const url = error
-    ? `${REDIRECT_BASE}?error=${encodeURIComponent(error)}&platform=${platform}`
-    : `${REDIRECT_BASE}?connected=${platform}`;
+    ? `${redirectBase}?error=${encodeURIComponent(error)}&platform=${platform}`
+    : `${redirectBase}?connected=${platform}`;
   res.redirect(url);
 }
 
@@ -40,10 +45,12 @@ export async function linkedinConnect(req: Request, res: Response) {
   if (!clientId) {
     return res.status(500).send("LINKEDIN_CLIENT_ID not configured");
   }
-  const redirectUri = `https://gigitekai.com/api/social/linkedin/callback`;
+  const origin = getOrigin(req);
+  const redirectUri = `${origin}/api/social/linkedin/callback`;
   const state = randomBytes(16).toString("hex");
   // Store state in session cookie for CSRF protection
   res.cookie("li_oauth_state", state, { httpOnly: true, maxAge: 600_000 });
+  res.cookie("li_oauth_origin", origin, { httpOnly: true, maxAge: 600_000 });
 
   const params = new URLSearchParams({
     response_type: "code",
@@ -59,17 +66,19 @@ export async function linkedinConnect(req: Request, res: Response) {
 export async function linkedinCallback(req: Request, res: Response) {
   const { code, state, error } = req.query as Record<string, string>;
 
-  if (error) return oauthRedirect(res, "linkedin", error);
+  const origin = (req.cookies as Record<string, string>)?.li_oauth_origin || getOrigin(req);
+  if (error) return oauthRedirect(res, "linkedin", error, origin);
 
   const storedState = (req.cookies as Record<string, string>)?.li_oauth_state;
   if (!storedState || storedState !== state) {
-    return oauthRedirect(res, "linkedin", "State mismatch — possible CSRF");
+    return oauthRedirect(res, "linkedin", "State mismatch — possible CSRF", origin);
   }
   res.clearCookie("li_oauth_state");
+  res.clearCookie("li_oauth_origin");
 
   const clientId = getEnv("LINKEDIN_CLIENT_ID");
   const clientSecret = getEnv("LINKEDIN_CLIENT_SECRET");
-  const redirectUri = `https://gigitekai.com/api/social/linkedin/callback`;
+  const redirectUri = `${origin}/api/social/linkedin/callback`;
 
   try {
     // Exchange code for access token
@@ -191,7 +200,8 @@ export async function twitterConnect(req: Request, res: Response) {
     return res.status(500).send("Twitter API credentials not configured");
   }
 
-  const callbackUrl = `https://gigitekai.com/api/social/twitter/callback`;
+  const origin = getOrigin(req);
+  const callbackUrl = `${origin}/api/social/twitter/callback`;
   const requestTokenUrl = "https://api.twitter.com/oauth/request_token";
 
   const authHeader = buildOAuth1Header(
@@ -201,6 +211,9 @@ export async function twitterConnect(req: Request, res: Response) {
     apiKey,
     apiSecret
   );
+  
+  // Store origin in session for callback
+  res.cookie("tw_oauth_origin", origin, { httpOnly: true, maxAge: 600_000 });
 
   try {
     const r = await fetch(requestTokenUrl, {
@@ -226,8 +239,9 @@ export async function twitterConnect(req: Request, res: Response) {
 
 export async function twitterCallback(req: Request, res: Response) {
   const { oauth_token, oauth_verifier, denied } = req.query as Record<string, string>;
+  const origin = (req.cookies as Record<string, string>)?.tw_oauth_origin || getOrigin(req);
 
-  if (denied) return oauthRedirect(res, "twitter", "Authorization denied");
+  if (denied) return oauthRedirect(res, "twitter", "Authorization denied", origin);
 
   const apiKey = getEnv("TWITTER_API_KEY");
   const apiSecret = getEnv("TWITTER_API_SECRET");
@@ -250,7 +264,7 @@ export async function twitterCallback(req: Request, res: Response) {
       headers: { Authorization: authHeader },
     });
     const body = await r.text();
-    if (!r.ok) return oauthRedirect(res, "twitter", `Access token failed: ${body}`);
+    if (!r.ok) return oauthRedirect(res, "twitter", `Access token failed: ${body}`, origin);
 
     const parsed = Object.fromEntries(new URLSearchParams(body));
     const accessToken = parsed.oauth_token;
@@ -258,7 +272,10 @@ export async function twitterCallback(req: Request, res: Response) {
     const screenName = parsed.screen_name ?? "Twitter User";
 
     const db = await getDb();
-    if (!db) return oauthRedirect(res, "twitter", "Database unavailable");
+    if (!db) return oauthRedirect(res, "twitter", "Database unavailable", origin);
+    
+    // Clear origin cookie
+    res.clearCookie("tw_oauth_origin");
 
     const existing = await db
       .select()
@@ -297,9 +314,11 @@ export async function facebookConnect(req: Request, res: Response) {
   const appId = getEnv("FACEBOOK_APP_ID");
   if (!appId) return res.status(500).send("FACEBOOK_APP_ID not configured");
 
-  const redirectUri = `https://gigitekai.com/api/social/facebook/callback`;
+  const origin = getOrigin(req);
+  const redirectUri = `${origin}/api/social/facebook/callback`;
   const state = randomBytes(16).toString("hex");
   res.cookie("fb_oauth_state", state, { httpOnly: true, maxAge: 600_000 });
+  res.cookie("fb_oauth_origin", origin, { httpOnly: true, maxAge: 600_000 });
 
   const params = new URLSearchParams({
     client_id: appId,
@@ -313,18 +332,20 @@ export async function facebookConnect(req: Request, res: Response) {
 
 export async function facebookCallback(req: Request, res: Response) {
   const { code, state, error } = req.query as Record<string, string>;
+  const origin = (req.cookies as Record<string, string>)?.fb_oauth_origin || getOrigin(req);
 
-  if (error) return oauthRedirect(res, "facebook", error);
+  if (error) return oauthRedirect(res, "facebook", error, origin);
 
   const storedState = (req.cookies as Record<string, string>)?.fb_oauth_state;
   if (!storedState || storedState !== state) {
-    return oauthRedirect(res, "facebook", "State mismatch — possible CSRF");
+    return oauthRedirect(res, "facebook", "State mismatch — possible CSRF", origin);
   }
   res.clearCookie("fb_oauth_state");
+  res.clearCookie("fb_oauth_origin");
 
   const appId = getEnv("FACEBOOK_APP_ID");
   const appSecret = getEnv("FACEBOOK_APP_SECRET");
-  const redirectUri = `https://gigitekai.com/api/social/facebook/callback`;
+  const redirectUri = `${origin}/api/social/facebook/callback`;
 
   try {
     // Exchange code for user access token
@@ -339,7 +360,7 @@ export async function facebookCallback(req: Request, res: Response) {
     );
     if (!tokenRes.ok) {
       const err = await tokenRes.text();
-      return oauthRedirect(res, "facebook", `Token exchange failed: ${err}`);
+      return oauthRedirect(res, "facebook", `Token exchange failed: ${err}`, origin);
     }
     const tokenData = await tokenRes.json() as { access_token: string };
     const userToken = tokenData.access_token;

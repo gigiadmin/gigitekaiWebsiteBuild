@@ -3146,3 +3146,12 @@
 - Uptime statistics and trend analysis
 - Comprehensive QA audit and bug fixes
 - All admin and public-facing functions production-ready
+
+
+## CRITICAL BUGS - FIXED (Apr 20, 2026)
+- [x] M365 Service Health tab missing from admin panel - Added to sidebar navigation in ANALYTICS section
+- [x] Agent Dashboard hanging - Fixed by wrapping loading state with AdminLayoutWithSidebar for persistent navigation
+- [x] KB Preview should open in modal/larger window with left navigation sidebar - Implemented full-screen modal with left sidebar on desktop
+- [x] LinkedIn OAuth error: "redirect_uri does not match the registered value" - Fixed with dynamic origin-based redirect URIs
+- [x] Twitter/X OAuth error: "Desktop applications only support the oauth_callback value 'oob'" - Fixed with dynamic origin-based redirect URIs
+- [x] Facebook OAuth works - Verified and updated to use same dynamic origin pattern for consistency

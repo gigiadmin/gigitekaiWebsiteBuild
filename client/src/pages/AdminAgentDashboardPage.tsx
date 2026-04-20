@@ -103,15 +103,17 @@ export default function AdminAgentDashboardPage() {
 
   if (!metrics) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Agent Dashboard</h1>
-          <p className="text-slate-400 mt-1">Individual agent performance metrics</p>
+      <AdminLayoutWithSidebar currentPage="agent-dashboard">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Agent Dashboard</h1>
+            <p className="text-slate-400 mt-1">Individual agent performance metrics</p>
+          </div>
+          <Card className="bg-slate-900/60 border-slate-700/50 p-8 text-center">
+            <p className="text-slate-400">Loading agent metrics...</p>
+          </Card>
         </div>
-        <Card className="bg-slate-900/60 border-slate-700/50 p-8 text-center">
-          <p className="text-slate-400">Loading agent metrics...</p>
-        </Card>
-      </div>
+      </AdminLayoutWithSidebar>
     );
   }
 
