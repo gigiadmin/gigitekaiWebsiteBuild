@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import {
   LayoutDashboard,
@@ -48,8 +48,19 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
   const [, navigate] = useLocation();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [expandedSection, setExpandedSection] = useState<string | null>("OPERATIONS");
+  // Auto-expand ANALYTICS if on M365 Health page
+  const [expandedSection, setExpandedSection] = useState<string | null>(() => {
+    if (currentPage === "m365-health") return "ANALYTICS";
+    return "OPERATIONS";
+  });
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Auto-expand ANALYTICS when navigating to M365 Health
+  useEffect(() => {
+    if (currentPage === "m365-health") {
+      setExpandedSection("ANALYTICS");
+    }
+  }, [currentPage]);
 
   const handleLogout = async () => {
     await logout();
