@@ -252,9 +252,9 @@ export default function KBPublic() {
             {/* Desktop Modal with Left Sidebar */}
             {selectedArticle && (
               <div className="fixed inset-0 bg-black/80 z-[9999] flex">
-                <div className="flex w-full h-full">
+                <div className="flex w-full h-full flex-col md:flex-row">
                   {/* Left Sidebar - Article List */}
-                  <div className="w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col">
+                  <div className="w-full md:w-80 bg-slate-800 border-r border-slate-700 overflow-y-auto flex flex-col max-h-[40vh] md:max-h-full">
                     <div className="p-4 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
                       <button
                         onClick={() => setSelectedArticle(null)}
@@ -303,10 +303,10 @@ export default function KBPublic() {
 
                   {/* Right Content Area */}
                   <div className="flex-1 bg-slate-900 overflow-y-auto flex flex-col min-w-0">
-                    <div className="p-8 flex-1">
-                      <div className="max-w-4xl mx-auto">
+                    <div className="p-4 md:p-8 flex-1 w-full">
+                      <div className="max-w-full md:max-w-4xl mx-auto">
                         <div className="mb-6">
-                          <h2 className="text-3xl font-bold text-white mb-3">
+                          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 break-words">
                             {selectedArticle.title}
                           </h2>
                           <Badge className={`text-xs border ${categoryColors[selectedArticle.category]}`}>
@@ -315,7 +315,7 @@ export default function KBPublic() {
                         </div>
 
                         {/* Article Content */}
-                        <div className="prose prose-invert max-w-none mb-8">
+                        <div className="prose prose-invert max-w-none mb-8 prose-sm md:prose-base overflow-x-hidden">
                           <KBArticleContent content={selectedArticle.content} />
                         </div>
 

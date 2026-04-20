@@ -3192,3 +3192,7 @@
 - [ ] Add Intune Remote Help button to Teams channel integration
 - [ ] Add Teams adaptive card for remote help requests
 - [ ] Test remote help flow end-to-end
+
+
+## KB Mobile Responsiveness Issue (Apr 20, 2026)
+- [x] KB content cut off on mobile view - fixed with responsive layout (flex-col on mobile, flex-row on desktop), text wrapping (break-words), and proper padding
