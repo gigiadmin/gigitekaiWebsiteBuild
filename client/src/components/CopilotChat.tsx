@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Send, X, MessageCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -25,9 +24,12 @@ export function CopilotChat() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(() => `session-${Date.now()}`);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const initInProgress = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const getOrCreateSession = trpc.aibot.getOrCreateSession.useMutation();
   const sendMessage = trpc.aibot.sendMessage.useMutation();
 
   useEffect(() => {
@@ -36,8 +38,36 @@ export function CopilotChat() {
     }
   }, [messages]);
 
+  // Initialize a real DB session when the chat opens
+  useEffect(() => {
+    if (!isOpen || sessionReady || initInProgress.current) return;
+    initInProgress.current = true;
+    const init = async () => {
+      try {
+        const storedId = localStorage.getItem("copilotSessionId") || undefined;
+        const result = await Promise.race([
+          getOrCreateSession.mutateAsync({ sessionId: storedId }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+        ]);
+        setSessionId(result.sessionId);
+        localStorage.setItem("copilotSessionId", result.sessionId);
+      } catch {
+        // Retry without stored ID
+        try {
+          const result = await getOrCreateSession.mutateAsync({});
+          setSessionId(result.sessionId);
+          localStorage.setItem("copilotSessionId", result.sessionId);
+        } catch { /* session will remain null; error shown on send */ }
+      } finally {
+        setSessionReady(true);
+        initInProgress.current = false;
+      }
+    };
+    init();
+  }, [isOpen, sessionReady]);
+
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -51,9 +81,10 @@ export function CopilotChat() {
     setIsLoading(true);
 
     try {
+      if (!sessionId) throw new Error("Session not ready");
       const response = await sendMessage.mutateAsync({
         sessionId,
-        message: input,
+        message: userMessage.content,
       });
 
       const assistantMessage: Message = {
@@ -68,7 +99,7 @@ export function CopilotChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error. Please try again later.",
+        content: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitekai.com.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -95,7 +126,10 @@ export function CopilotChat() {
       <div className="bg-gradient-to-r from-cyan-600 to-cyan-500 text-white p-4 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageCircle className="w-5 h-5" />
-          <h3 className="font-semibold">Aria - AI Assistant</h3>
+          <div>
+            <h3 className="font-semibold leading-tight">Aria - AI Assistant</h3>
+            <p className="text-xs text-cyan-100 leading-tight">{sessionReady ? "Online" : "Connecting..."}</p>
+          </div>
         </div>
         <button
           onClick={() => setIsOpen(false)}
@@ -149,7 +183,7 @@ export function CopilotChat() {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSendMessage();
