@@ -6,13 +6,15 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Bell, Calendar, Search } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import SiteSearch from "@/components/SiteSearch";
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   const services = [
@@ -139,6 +141,16 @@ export default function SiteNavBar2024() {
 
           {/* CTA + Notifications + Theme Toggle */}
           <div className="hidden lg:flex items-center gap-2">
+            {/* Search Button */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+              title="Search"
+              aria-label="Search site"
+            >
+              <Search size={18} />
+            </button>
+
             {/* Notifications Bell */}
             <a
               href="/admin/notifications"
@@ -265,6 +277,7 @@ export default function SiteNavBar2024() {
           </>
         )}
       </nav>
+      <SiteSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

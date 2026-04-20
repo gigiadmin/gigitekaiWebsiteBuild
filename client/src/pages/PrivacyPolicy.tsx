@@ -1,3 +1,4 @@
+import ScrollToTop from "@/components/ScrollToTop";
 import React from 'react';
 import Navbar from '@/components/SiteNavBar2024';
 import Footer from '@/components/Footer';
@@ -280,6 +281,7 @@ export default function PrivacyPolicy() {
         </div>
       </main>
       <Footer />
-    </div>
+          <ScrollToTop />
+      </div>
   );
 }

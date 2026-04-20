@@ -1,3 +1,4 @@
+import ScrollToTop from "@/components/ScrollToTop";
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -303,6 +304,7 @@ export default function KBPublic() {
           articleTitle={selectedArticle?.title || "Article"}
         />
       )}
-    </div>
+          <ScrollToTop />
+      </div>
   );
 }

@@ -6,6 +6,7 @@ import { useLocation, useRoute } from "wouter";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import LeadCapturePopup from "@/components/LeadCapturePopup";
 import ShareButtons from "@/components/ShareButtons";
 import AuthorBioCard from "@/components/AuthorBioCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
@@ -257,6 +258,7 @@ export default function BlogDetail() {
         </section>
       </main>
       <Footer />
+      <LeadCapturePopup context="Blog" />
       <ScrollToTop />
     </div>
   );

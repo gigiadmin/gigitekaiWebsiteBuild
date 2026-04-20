@@ -1,3 +1,4 @@
+import ScrollToTop from "@/components/ScrollToTop";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ROICalculator from "@/components/ROICalculator";
@@ -13,6 +14,7 @@ export default function ROICalculatorPage() {
         <ROICalculator />
       </main>
       <Footer />
-    </div>
+          <ScrollToTop />
+      </div>
   );
 }

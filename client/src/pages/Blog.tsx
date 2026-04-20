@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import LeadCapturePopup from "@/components/LeadCapturePopup";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import NewsletterSignup from "@/components/NewsletterSignup";
@@ -181,6 +182,7 @@ export default function Blog() {
         </section>
       </main>
       <Footer />
+      <LeadCapturePopup />
       <ScrollToTop />
     </div>
   );

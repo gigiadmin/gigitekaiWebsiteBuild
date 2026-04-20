@@ -3079,3 +3079,10 @@
 - [ ] Test M365 API response parsing
 - [ ] Performance test with 7 days of health data
 - [ ] Deploy to production
+
+## QA Follow-up Enhancements (Apr 2026)
+
+- [x] Lead-capture consultation pop-up component (LeadCapturePopup.tsx) — shown on blog and services pages after 30s or 50% scroll
+- [x] Scroll-to-top button — ensure all long-form pages (blog, services, industries, about-us, partners, privacy, terms) have it
+- [x] Site-wide search bar in navigation header — searches blog posts and KB articles
+- [ ] QA audit reusable skill via skill-creator

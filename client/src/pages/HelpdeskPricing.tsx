@@ -1,3 +1,4 @@
+import ScrollToTop from "@/components/ScrollToTop";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HelpdeskPricingComponent from "@/components/HelpdeskPricing";
 import Footer from "@/components/Footer";
@@ -10,6 +11,7 @@ export default function HelpdeskPricingPage() {
         <HelpdeskPricingComponent />
       </main>
       <Footer />
-    </div>
+          <ScrollToTop />
+      </div>
   );
 }
