@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, CheckCircle2, AlertTriangle, Clock, Search, RefreshCw, Filter, AlertOctagon, Wrench } from "lucide-react";
+import { AlertCircle, CheckCircle2, AlertTriangle, Clock, Search, RefreshCw, Filter, AlertOctagon, Wrench, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 type ServiceHealthStatus = 
@@ -375,10 +375,36 @@ export default function AdminM365Health() {
           <Dialog open={!!selectedService} onOpenChange={(open) => !open && setSelectedService(null)}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-[#1a1f3a] border-[#00D4FF]/20">
               <DialogHeader>
-                <DialogTitle className="text-white text-xl flex items-center gap-2">
-                  {STATUS_CONFIG[selectedServiceData.status as ServiceHealthStatus]?.icon}
-                  {selectedServiceData.service}
-                </DialogTitle>
+                <div className="flex items-center justify-between w-full">
+                  <DialogTitle className="text-white text-xl flex items-center gap-2">
+                    {STATUS_CONFIG[selectedServiceData.status as ServiceHealthStatus]?.icon}
+                    {selectedServiceData.service}
+                  </DialogTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        window.open(
+                          `https://status.cloud.microsoft/m365/en-US/status/history?serviceName=${selectedServiceData.id}`,
+                          "_blank"
+                        );
+                      }}
+                      className="text-xs"
+                    >
+                      View on Status Page
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => refetch()}
+                      className="text-xs"
+                    >
+                      <RefreshCw size={14} className="mr-1" />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
               </DialogHeader>
               
               {issuesLoading ? (
@@ -386,7 +412,7 @@ export default function AdminM365Health() {
                   <p className="text-gray-400">Loading incident details...</p>
                 </div>
               ) : serviceIssues && serviceIssues.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-6 pb-4">
                   {serviceIssues.map((issue) => (
                     <div key={issue.id} className="space-y-4 pb-4 border-b border-[#00D4FF]/10 last:border-b-0">
                       {/* Issue Header */}
@@ -487,8 +513,71 @@ export default function AdminM365Health() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-400">No active incidents for this service</p>
+                <div className="space-y-6">
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 mb-4">No active incidents for this service</p>
+                    <p className="text-sm text-gray-500 mb-6">The service may be experiencing issues that haven't been reported yet, or the incident details are being updated.</p>
+                  </div>
+                  
+                  {/* Service Details Card */}
+                  <div className="bg-[#0F1428] rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-2 text-[#00D4FF]">
+                      <Clock size={16} />
+                      <span className="font-semibold">Service Information</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Service Name:</span>
+                        <span className="text-white font-medium">{selectedServiceData.service}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Service ID:</span>
+                        <span className="text-white font-mono text-xs">{selectedServiceData.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Current Status:</span>
+                        <Badge className={`${
+                          selectedServiceData.status === "serviceOperational" ? "bg-green-500/20 text-green-400" :
+                          selectedServiceData.status === "investigating" ? "bg-yellow-500/20 text-yellow-400" :
+                          selectedServiceData.status === "serviceDegradation" ? "bg-orange-500/20 text-orange-400" :
+                          selectedServiceData.status === "serviceInterruption" ? "bg-red-500/20 text-red-400" :
+                          "bg-blue-500/20 text-blue-400"
+                        }`}>
+                          {STATUS_CONFIG[selectedServiceData.status as ServiceHealthStatus]?.label || selectedServiceData.status}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Last Checked:</span>
+                        <span className="text-white">{new Date().toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Recommendations */}
+                  <div className="bg-[#0F1428] rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-2 text-green-400">
+                      <Wrench size={16} />
+                      <span className="font-semibold">Recommended Actions</span>
+                    </div>
+                    <ul className="space-y-2 text-sm text-gray-300">
+                      <li className="flex gap-2">
+                        <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                        <span>Check the Microsoft 365 status page for real-time updates</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                        <span>Monitor your organization's admin center for guidance</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                        <span>Contact Microsoft Support if you experience service issues</span>
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="text-[#00D4FF] flex-shrink-0">•</span>
+                        <span>Refresh this page to get the latest incident information</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </DialogContent>
