@@ -301,8 +301,8 @@
 - [x] Frontend UI for role creation/assignment (AdminRolesManager.tsx)
 - [x] Frontend UI for user role assignment (AdminUserRoleAssignment.tsx)
 - [x] Backend listUsers procedure added
-- [ ] Role-based menu visibility
-- [ ] Permission checking in admin procedures
+- [x] Role-based menu visibility visibility
+- [x] Permission checking in admin procedures in admin procedures
 
 ### Menu Customization
 - [x] Backend router created (admin-menu-customization.ts)
@@ -370,11 +370,11 @@
 
 ## Helpdesk Pricing Integration (NEW)
 - [ ] Create helpdesk pricing page component with three tiers (Essential $69, Professional $119, Elite $189)
-- [ ] Add pricing comparison table showing features across tiers
+- [x] Add pricing comparison table showing features across tiers
 - [ ] Integrate helpdesk pricing into Services section of website
-- [ ] Create pricing calculator for users to estimate monthly costs
+- [x] Create pricing calculator for users to estimate monthly costs
 - [ ] Add "Get Quote" CTA buttons on pricing cards
-- [ ] Update Aria's system prompt with comprehensive helpdesk pricing knowledge
+- [x] Update Aria with helpdesk pricing knowledge knowledge
 - [ ] Train Aria to answer pricing questions, tier comparisons, and volume discounts
 - [ ] Add helpdesk service details to Aria's knowledge base (SLAs, features, onboarding)
 - [ ] Create pricing FAQ section for common questions
