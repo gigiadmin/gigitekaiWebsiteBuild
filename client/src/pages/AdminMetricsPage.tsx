@@ -2,14 +2,18 @@
  * AdminMetricsPage — Metrics module inside unified AdminLayout
  */
 import AdminLayout from "@/components/AdminLayout";
+import MobileAdminMenu from "@/components/MobileAdminMenu";
 import AdminMetrics from "./AdminMetrics";
 
 export default function AdminMetricsPage() {
   return (
     
-    <AdminLayout><AdminLayout title="Metrics" noPadding>
+    
+    <>
+      <MobileAdminMenu /><AdminLayout><AdminLayout title="Metrics" noPadding>
       <AdminMetrics />
     </AdminLayout>
   
-    </AdminLayout>);
+    </AdminLayout>
+    </>);
 }

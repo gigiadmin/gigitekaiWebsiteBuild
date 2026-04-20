@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
+import MobileAdminMenu from "@/components/MobileAdminMenu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -135,7 +136,9 @@ export default function AdminHome() {
 
   return (
     
-    <AdminLayout><AdminLayout title="Dashboard">
+    
+    <>
+      <MobileAdminMenu /><AdminLayout><AdminLayout title="Dashboard">
       <div className="space-y-6">
         {/* Welcome header */}
         <div className="flex items-center justify-between">
@@ -311,5 +314,6 @@ export default function AdminHome() {
       </div>
     </AdminLayout>
   
-    </AdminLayout>);
+    </AdminLayout>
+    </>);
 }

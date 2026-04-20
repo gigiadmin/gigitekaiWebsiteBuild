@@ -8,6 +8,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
+import MobileAdminMenu from "@/components/MobileAdminMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -240,8 +241,10 @@ export default function AdminM365Health() {
   const selectedServiceData = services?.find(s => s.id === selectedService);
 
   return (
-    <AdminLayout>
-      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A] p-6">
+    <>
+      <MobileAdminMenu />
+      <AdminLayout>
+        <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -662,8 +665,9 @@ export default function AdminM365Health() {
             </a>
           </p>
         </div>
+        </div>
       </div>
-    </div>
-    </AdminLayout>
+      </AdminLayout>
+    </>
   );
 }

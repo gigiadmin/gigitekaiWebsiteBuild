@@ -3,6 +3,7 @@
  * Shows both Subscribers and Broadcast tabs
  */
 import AdminLayout from "@/components/AdminLayout";
+import MobileAdminMenu from "@/components/MobileAdminMenu";
 import AdminNewsletter from "./AdminNewsletter";
 import AdminNewsletterBroadcast from "./AdminNewsletterBroadcast";
 import { useState } from "react";
@@ -15,7 +16,9 @@ export default function AdminNewsletterPage() {
 
   return (
     
-    <AdminLayout><AdminLayout title="Newsletter">
+    
+    <>
+      <MobileAdminMenu /><AdminLayout><AdminLayout title="Newsletter">
       <div className="space-y-4">
         {/* Sub-tabs */}
         <div className="flex gap-1 bg-slate-800/50 p-1 rounded-lg w-fit">
@@ -43,5 +46,6 @@ export default function AdminNewsletterPage() {
       </div>
     </AdminLayout>
   
-    </AdminLayout>);
+    </AdminLayout>
+    </>);
 }
