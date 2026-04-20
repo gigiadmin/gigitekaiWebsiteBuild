@@ -84,6 +84,12 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "Analytics",
+    items: [
+      { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
+    ],
+  },
+  {
     title: "Customers",
     items: [
       { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
