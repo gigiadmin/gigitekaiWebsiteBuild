@@ -3095,10 +3095,10 @@
 - [ ] Update gigitekai-qa-audit skill with new enhancements
 
 ## Follow-up Enhancements Round 3 (Apr 2026)
-- [ ] Add sticky dismissible announcement bar to top of site
-- [ ] Add animated social proof stats section to homepage
-- [ ] Add exit-intent trigger to LeadCapturePopup
-- [ ] Update gigitekai-qa-audit skill with Round 3 patterns
+- [x] Add sticky dismissible announcement bar to top of site
+- [x] Add animated social proof stats section to homepage
+- [x] Add exit-intent trigger to LeadCapturePopup
+- [x] Update gigitekai-qa-audit skill with Round 3 patterns
 
 ## Round 4 Enhancements
 - [x] Cookie consent banner (GDPR/CCPA compliant)
