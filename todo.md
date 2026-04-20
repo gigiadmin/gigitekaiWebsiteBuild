@@ -3224,3 +3224,52 @@
 - [x] Campaign management with drafts and scheduling
 - [x] Email templates with GigitekAI branding
 - [x] All 582 tests passing
+
+## Microsoft 365 Health Status Integration (April 20, 2026) - IN PROGRESS
+- [ ] Create M365 Status page with service list and incident feed
+  - Filterable service list (Exchange, Teams, SharePoint, OneDrive, etc.)
+  - Incident feed with ID, title, impact, start time
+  - Progressive disclosure model for data organization
+- [ ] Add M365 health widget to admin dashboard
+  - Color-coded status indicator (Green/Yellow/Orange/Red)
+  - Overall status headline (e.g., "3 Services Affected")
+  - Last sync timestamp
+  - Click to open full status page
+- [ ] Implement global alert banner for outages
+  - Red banner for Down status
+  - Amber banner for Degraded status
+  - Visible across all admin pages
+  - Dismissible but re-appears on page reload
+- [ ] Add incident detail view with timeline and workarounds
+  - Chronological update timeline from Microsoft
+  - Current status message
+  - Workaround instructions for agents
+  - Root cause analysis (when available)
+  - Link to Microsoft Admin Center
+- [ ] Integrate AI agent automation for outage alerts
+  - "Generate Outage Alert" button to create customer notifications
+  - AI agents reference active incidents in chat responses
+  - Auto-ticket creation for critical outages
+- [ ] Add M365 Status link to admin sidebar (Operations section)
+- [ ] Test M365 health integration end-to-end
+
+## Microsoft 365 Health Status Integration (April 20, 2026) - COMPLETED ✅
+- [x] Create M365 Status page with service list and incident feed
+  - Page already exists: AdminM365Health.tsx
+  - Filterable service list (Exchange, Teams, SharePoint, OneDrive, etc.)
+  - Incident feed with ID, title, impact, start time
+  - Progressive disclosure model for data organization
+- [x] Add M365 health widget to admin dashboard
+  - Added "M365 Services" card to System Status section on AdminHome
+  - Color-coded status indicator (Green/Yellow/Orange/Red)
+  - Clickable link to full M365 Health Status page
+  - Last sync timestamp available
+- [x] Add M365 Status link to admin sidebar (Operations section)
+  - Updated sidebar menu: "M365 Health Status" in ANALYTICS section
+  - Points to /admin/m365-health
+  - Properly integrated with navigation
+- [x] Test M365 health integration end-to-end
+  - All 582 tests passing
+  - TypeScript compilation: 0 errors
+  - Graph API authentication working
+  - Service health data fetching correctly

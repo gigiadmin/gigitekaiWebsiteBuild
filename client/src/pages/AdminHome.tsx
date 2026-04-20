@@ -243,8 +243,15 @@ export default function AdminHome() {
                   status: "operational",
                   detail: "support@gigitekai.com · Verified",
                 },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
+                {
+                  label: "M365 Services",
+                  status: "operational",
+                  detail: "View health status",
+                  href: "/admin/m365-health",
+                },
+              ].map((item: any) => (
+                <Link key={item.label} href={item.href || "#"}>
+                  <div className="flex items-center justify-between hover:opacity-80 transition-opacity cursor-pointer">
                   <div className="flex items-center gap-2.5">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                       item.status === "operational" ? "bg-emerald-400" :
@@ -253,8 +260,9 @@ export default function AdminHome() {
                     }`} />
                     <span className="text-slate-300 text-xs">{item.label}</span>
                   </div>
-                  <span className="text-slate-500 text-xs">{item.detail}</span>
-                </div>
+                    <span className="text-slate-500 text-xs">{item.detail}</span>
+                  </div>
+                </Link>
               ))}
             </CardContent>
           </Card>
