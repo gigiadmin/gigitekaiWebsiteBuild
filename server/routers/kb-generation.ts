@@ -216,12 +216,21 @@ Focus on:
     .input(
       z.object({
         generationId: z.number().int().positive(),
-        reason: z.string().min(5),
+        reason: z.string().min(3),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+
+      // Verify generation exists before rejecting
+      const [existing] = await db
+        .select({ id: kbGenerations.id })
+        .from(kbGenerations)
+        .where(eq(kbGenerations.id, input.generationId))
+        .limit(1);
+
+      if (!existing) throw new Error("Generation not found");
 
       await db
         .update(kbGenerations)
@@ -335,7 +344,7 @@ Focus on:
   getMetrics: adminProcedure
     .input(
       z.object({
-        days: z.number().int().positive().default(30),
+        days: z.number().int().min(1).max(365).default(30),
       })
     )
     .query(async ({ input }) => {

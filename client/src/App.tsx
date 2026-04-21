@@ -61,6 +61,7 @@ import AdminPreferencesPage from "./pages/AdminPreferencesPage";
 import AdminEmailDigestPage from "./pages/AdminEmailDigestPage";
 import AdminGuidePage from "./pages/AdminGuidePage";
 import KnowledgeBase from "./pages/KnowledgeBase";
+import AdminKbGenerationPage from "./pages/AdminKbGenerationPage";
 import AdminSocialPage from "./pages/AdminSocialPage";
 import AdminLeadsPage from "./pages/AdminLeadsPage";
 import AdminContactsPage from "./pages/AdminContactsPage";
@@ -184,6 +185,8 @@ function Router() {
       <Route path={"/admin/guide"}>{() => <ApprovalGuard><AdminGuidePage /></ApprovalGuard>}</Route>
       {/* Knowledge Base */}
       <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
+      {/* KB Generation — Copilot auto-generation from tickets */}
+      <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
       {/* Social Publishing Hub */}
       <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
       {/* Leads & CRM */}

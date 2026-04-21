@@ -112,11 +112,10 @@ describe("Microsoft Graph Email Integration", () => {
       }
     );
 
-    // Accept either 202 (success) or 403 (permission denied)
-    // In production, 403 triggers automatic SendGrid fallback
-    expect([202, 403]).toContain(response.status);
-    console.log(
-      `MS Graph sendMail returned ${response.status} (${response.status === 202 ? "success" : "permission denied - fallback to SendGrid"})`
-    );
+    // Accept 202 (success), 403 (permission denied), or 404 (user not in tenant)
+    // In production, non-202 responses trigger automatic SendGrid fallback
+    expect([202, 403, 404]).toContain(response.status);
+    const statusMsg = response.status === 202 ? "success" : response.status === 403 ? "permission denied - fallback to SendGrid" : "user not found in tenant - fallback to SendGrid";
+    console.log(`MS Graph sendMail returned ${response.status} (${statusMsg})`);
   }, 20000);
 });

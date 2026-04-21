@@ -2,6 +2,7 @@
  * CloseTicketDialog
  * Intercepts the "Close" action on a ticket and requires the admin to enter
  * closing notes (min 10 chars) before the ticket can be set to "closed".
+ * After closing, offers Copilot KB generation via KbAwarenessPanel.
  */
 import { useState } from "react";
 import {
@@ -20,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { XCircle, FileText, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import KbAwarenessPanel from "./KbAwarenessPanel";
 
 interface CloseTicketDialogProps {
   open: boolean;
@@ -42,6 +44,7 @@ export default function CloseTicketDialog({
   onSuccess,
 }: CloseTicketDialogProps) {
   const [notes, setNotes] = useState("");
+  const [isClosed, setIsClosed] = useState(false);
   const utils = trpc.useUtils();
 
   const closeTicket = trpc.helpdesk.closeTicket.useMutation({
@@ -49,8 +52,7 @@ export default function CloseTicketDialog({
       toast.success(`Ticket #${ticketId} closed successfully`);
       utils.helpdesk.getAllTickets.invalidate();
       utils.helpdesk.getMetrics.invalidate();
-      setNotes("");
-      onOpenChange(false);
+      setIsClosed(true);
       onSuccess?.();
     },
     onError: (err) => {
@@ -69,6 +71,7 @@ export default function CloseTicketDialog({
 
   const handleCancel = () => {
     setNotes("");
+    setIsClosed(false);
     onOpenChange(false);
   };
 
@@ -141,22 +144,33 @@ export default function CloseTicketDialog({
           </div>
         </div>
 
+        {/* KB Awareness Panel — shown after ticket is closed */}
+        {isClosed && (
+          <KbAwarenessPanel
+            ticketId={ticketId}
+            ticketTitle={ticketTitle}
+            ticketStatus="closed"
+          />
+        )}
+
         <AlertDialogFooter className="gap-2 sm:gap-2">
           <AlertDialogCancel
             onClick={handleCancel}
             className="bg-transparent border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white"
             disabled={isSubmitting}
           >
-            Keep Open
+            {isClosed ? "Done" : "Keep Open"}
           </AlertDialogCancel>
-          <Button
-            onClick={handleClose}
-            disabled={!isValid || isSubmitting}
-            className="bg-red-600 hover:bg-red-700 text-white border-0 gap-2"
-          >
-            <XCircle size={14} />
-            {isSubmitting ? "Closing..." : "Close Ticket"}
-          </Button>
+          {!isClosed && (
+            <Button
+              onClick={handleClose}
+              disabled={!isValid || isSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white border-0 gap-2"
+            >
+              <XCircle size={14} />
+              {isSubmitting ? "Closing..." : "Close Ticket"}
+            </Button>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
