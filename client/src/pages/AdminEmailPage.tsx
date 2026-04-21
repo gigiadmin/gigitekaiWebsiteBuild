@@ -83,10 +83,17 @@ export default function AdminEmailPage() {
   const syncInboxMutation = trpc.email.syncInbox.useMutation({
     onSuccess: (result) => {
       refetchInbox();
+      const messages = [];
       if (result.synced > 0) {
-        toast.success(`Synced ${result.synced} new message${result.synced !== 1 ? "s" : ""} from Exchange Online`);
+        messages.push(`${result.synced} new message${result.synced !== 1 ? "s" : ""}`);
+      }
+      if (result.removed && result.removed > 0) {
+        messages.push(`${result.removed} deleted message${result.removed !== 1 ? "s" : ""}`);
+      }
+      if (messages.length > 0) {
+        toast.success(`Synced: ${messages.join(" • ")} from Exchange Online`);
       } else {
-        toast.info("Inbox is up to date — no new messages found");
+        toast.info("Inbox is up to date — no changes found");
       }
     },
     onError: (err) => {

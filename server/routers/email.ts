@@ -298,6 +298,7 @@ export const emailRouter = router({
     .input(
       z.object({
         limit: z.number().default(50),
+        reconcile: z.boolean().default(true), // Reconcile removes emails deleted in Outlook
       })
     )
     .mutation(async ({ input }) => {
@@ -307,10 +308,12 @@ export const emailRouter = router({
 
         // Fetch messages from Exchange Online via MS Graph
         const msMessages = await fetchInboxFromMsGraph(input.limit);
-        if (!msMessages.length) return { synced: 0, total: 0 };
+        if (!msMessages.length) return { synced: 0, total: 0, removed: 0 };
 
         let synced = 0;
+        let removed = 0;
 
+        // ── Step 1: Add new messages from Outlook ──
         for (const msg of msMessages) {
           // Skip if already stored (dedup by messageId)
           const existing = await db
@@ -353,7 +356,32 @@ export const emailRouter = router({
           synced++;
         }
 
-        return { synced, total: msMessages.length };
+        // ── Step 2: Reconcile — remove emails that are no longer in Outlook ──
+        if (input.reconcile) {
+          // Get all received emails with messageIds from the portal
+          const cachedEmails = await db
+            .select({ id: emailMessages.id, messageId: emailMessages.messageId })
+            .from(emailMessages)
+            .where(
+              and(
+                eq(emailMessages.direction, "received"),
+                // Only reconcile emails that have a messageId (synced from Graph)
+              )
+            );
+
+          // Build a set of current message IDs in Outlook
+          const outlookMessageIds = new Set(msMessages.map((m) => m.id));
+
+          // Remove emails from portal that are no longer in Outlook
+          for (const cached of cachedEmails) {
+            if (cached.messageId && !outlookMessageIds.has(cached.messageId)) {
+              await db.delete(emailMessages).where(eq(emailMessages.id, cached.id));
+              removed++;
+            }
+          }
+        }
+
+        return { synced, total: msMessages.length, removed };
       } catch (error) {
         console.error("[Email] Inbox sync failed:", error);
 
