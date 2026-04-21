@@ -25,6 +25,9 @@ import {
   RefreshCw,
   MessageSquare,
   Copy,
+  Download,
+  FileText,
+  Phone,
 } from "lucide-react";
 
 export default function AdminContactsPage() {
@@ -43,6 +46,7 @@ export default function AdminContactsPage() {
       s.name.toLowerCase().includes(q) ||
       s.email.toLowerCase().includes(q) ||
       (s.company ?? "").toLowerCase().includes(q) ||
+      (s.phone ?? "").toLowerCase().includes(q) ||
       s.message.toLowerCase().includes(q)
     );
   });
@@ -52,6 +56,11 @@ export default function AdminContactsPage() {
   function copyEmail(email: string) {
     navigator.clipboard.writeText(email);
     toast.success("Email copied to clipboard");
+  }
+
+  function copyPhone(phone: string) {
+    navigator.clipboard.writeText(phone);
+    toast.success("Phone copied to clipboard");
   }
 
   return (
@@ -65,7 +74,7 @@ export default function AdminContactsPage() {
               Contact Submissions
             </h1>
             <p className="text-gray-400 text-sm mt-1">
-              All messages submitted via the public contact form
+              All messages submitted via the public contact form with file uploads
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -86,7 +95,7 @@ export default function AdminContactsPage() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Search by name, email, company, or message..."
+            placeholder="Search by name, email, phone, company..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 bg-[#141B2D] border-gray-700 text-white placeholder:text-gray-500"
@@ -109,8 +118,9 @@ export default function AdminContactsPage() {
                   <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
                     <th className="text-left px-4 py-3">Name</th>
                     <th className="text-left px-4 py-3">Email</th>
+                    <th className="text-left px-4 py-3">Phone</th>
                     <th className="text-left px-4 py-3">Company</th>
-                    <th className="text-left px-4 py-3">Message Preview</th>
+                    <th className="text-left px-4 py-3">File</th>
                     <th className="text-left px-4 py-3">Date</th>
                     <th className="text-left px-4 py-3">Actions</th>
                   </tr>
@@ -136,6 +146,23 @@ export default function AdminContactsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
+                        {sub.phone ? (
+                          <div className="flex items-center gap-1.5 text-gray-400">
+                            <Phone size={12} className="text-gray-600" />
+                            <span className="truncate">{sub.phone}</span>
+                            <button
+                              onClick={() => copyPhone(sub.phone!)}
+                              className="text-gray-600 hover:text-cyan-400 transition-colors"
+                              title="Copy phone"
+                            >
+                              <Copy size={11} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-600">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
                         {sub.company ? (
                           <div className="flex items-center gap-1.5 text-gray-400">
                             <Building2 size={12} className="text-gray-600" />
@@ -146,7 +173,16 @@ export default function AdminContactsPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-gray-400 text-xs truncate max-w-[220px]">{sub.message}</p>
+                        {sub.fileName ? (
+                          <div className="flex items-center gap-1.5">
+                            <FileText size={12} className="text-cyan-400" />
+                            <span className="text-gray-300 text-xs truncate max-w-[100px]" title={sub.fileName}>
+                              {sub.fileName}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-600 text-xs">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 text-gray-500 text-xs">
@@ -220,12 +256,58 @@ export default function AdminContactsPage() {
                   </button>
                 </div>
               </div>
+              {selectedItem.phone && (
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Phone</p>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`tel:${selectedItem.phone}`}
+                      className="text-cyan-400 hover:underline font-medium"
+                    >
+                      {selectedItem.phone}
+                    </a>
+                    <button
+                      onClick={() => copyPhone(selectedItem.phone!)}
+                      className="text-gray-600 hover:text-cyan-400 transition-colors"
+                      title="Copy phone"
+                    >
+                      <Copy size={12} />
+                    </button>
+                  </div>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Message</p>
                 <div className="bg-[#0A0E1A] border border-gray-800 rounded-lg p-4 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
                   {selectedItem.message}
                 </div>
               </div>
+              {selectedItem.fileName && selectedItem.fileUrl && (
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Attached File</p>
+                  <div className="bg-[#0A0E1A] border border-gray-800 rounded-lg p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText size={16} className="text-cyan-400" />
+                      <div>
+                        <p className="text-white text-sm font-medium">{selectedItem.fileName}</p>
+                        <p className="text-gray-500 text-xs">
+                          {selectedItem.fileSize ? `${(selectedItem.fileSize / 1024).toFixed(1)} KB` : "Unknown size"}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={selectedItem.fileUrl}
+                      download={selectedItem.fileName}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                      title="Download file"
+                    >
+                      <Download size={16} />
+                    </a>
+                  </div>
+                </div>
+              )}
               <div className="flex gap-2 justify-end pt-2">
                 <Button
                   variant="outline"

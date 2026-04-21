@@ -251,6 +251,7 @@ export const leadgenRouter = router({
         needsHelpdesk: z.boolean().default(false),
         needsAI: z.boolean().default(false),
         otherNeeds: z.string().optional(),
+        file: z.instanceof(File).optional(), // Optional file upload
       })
     )
     .mutation(async ({ input }) => {
@@ -269,6 +270,32 @@ export const leadgenRouter = router({
         let leadQuality: "hot" | "warm" | "cold" = "cold";
         if (needsCount >= 3) leadQuality = "hot";
         else if (needsCount >= 2) leadQuality = "warm";
+
+        // Handle file upload if provided
+        let fileKey: string | null = null;
+        let fileName: string | null = null;
+        let fileSize: number | null = null;
+        let fileMimeType: string | null = null;
+        let fileUrl: string | null = null;
+
+        if (input.file) {
+          const { storagePut } = await import("../storage");
+          const buffer = await input.file.arrayBuffer();
+          const ext = input.file.name.split('.').pop() || 'bin';
+          fileKey = `contact-forms/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+          
+          try {
+            const result = await storagePut(fileKey, Buffer.from(buffer), input.file.type);
+            fileUrl = result.url;
+            fileName = input.file.name;
+            fileSize = input.file.size;
+            fileMimeType = input.file.type;
+          } catch (error) {
+            console.error('[LeadGen] File upload failed:', error);
+            // Continue without file if upload fails
+            fileKey = null;
+          }
+        }
 
         // Store form submission
         const result = await db
@@ -289,6 +316,11 @@ export const leadgenRouter = router({
             formCompletedAt: new Date(),
             leadQuality,
             status: "new",
+            fileKey: fileKey || undefined,
+            fileName: fileName || undefined,
+            fileSize: fileSize || undefined,
+            fileMimeType: fileMimeType || undefined,
+            fileUrl: fileUrl || undefined,
           })
           .$returningId();
 

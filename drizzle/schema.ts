@@ -72,9 +72,15 @@ export const contactSubmissions = mysqlTable("contactSubmissions", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }), // E.164 format: +1234567890
   company: varchar("company", { length: 255 }),
   message: text("message").notNull(),
   hearAboutUs: varchar("hearAboutUs", { length: 100 }), // How did you hear about us?
+  fileKey: varchar("fileKey", { length: 255 }), // S3 key for uploaded file
+  fileName: varchar("fileName", { length: 255 }), // Original filename
+  fileSize: int("fileSize"), // File size in bytes
+  fileMimeType: varchar("fileMimeType", { length: 100 }), // MIME type (pdf, doc, xls, etc)
+  fileUrl: text("fileUrl"), // Presigned S3 URL for download
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -782,6 +788,12 @@ export const multiStepFormSubmissions = mysqlTable("multiStepFormSubmissions", {
   needsHelpdesk: boolean("needsHelpdesk").default(false),
   needsAI: boolean("needsAI").default(false),
   otherNeeds: varchar("otherNeeds", { length: 500 }),
+  // File upload fields
+  fileKey: varchar("fileKey", { length: 255 }), // S3 key for uploaded file
+  fileName: varchar("fileName", { length: 255 }), // Original filename
+  fileSize: int("fileSize"), // File size in bytes
+  fileMimeType: varchar("fileMimeType", { length: 100 }), // MIME type
+  fileUrl: text("fileUrl"), // Presigned S3 URL for download
   // Metadata
   formCompletedAt: timestamp("formCompletedAt"),
   leadQuality: varchar("leadQuality", { length: 20 }), // "hot", "warm", "cold"

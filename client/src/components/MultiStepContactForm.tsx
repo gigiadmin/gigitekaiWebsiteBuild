@@ -1,13 +1,14 @@
 /**
  * Multi-Step Contact Form Component
- * 3-step guided form with higher conversion rates
+ * 3-step guided form with file upload and phone validation
  */
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox as CheckboxUI } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 const Checkbox = ({ checked, onChange, className }: { checked: boolean; onChange: (checked: boolean) => void; className?: string }) => (
   <CheckboxUI
@@ -16,7 +17,27 @@ const Checkbox = ({ checked, onChange, className }: { checked: boolean; onChange
     className={className}
   />
 );
-import { ChevronRight, CheckCircle } from "lucide-react";
+import { ChevronRight, CheckCircle, Upload, X } from "lucide-react";
+
+// Phone number formatting and validation
+function formatPhoneNumber(value: string): string {
+  const cleaned = value.replace(/\D/g, '');
+  if (cleaned.length === 0) return '';
+  if (cleaned.length <= 3) return cleaned;
+  if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+  return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+}
+
+function isValidPhoneNumber(phone: string): boolean {
+  const cleaned = phone.replace(/\D/g, '');
+  return cleaned.length === 10;
+}
+
+function toE164Format(phone: string): string {
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.length !== 10) return '';
+  return `+1${cleaned}`;
+}
 
 type FormStep = "needs" | "company" | "contact" | "success";
 
@@ -33,6 +54,7 @@ interface FormState {
   email: string;
   phone: string;
   companyName: string;
+  file?: File;
 }
 
 const INITIAL_STATE: FormState = {
@@ -48,12 +70,15 @@ const INITIAL_STATE: FormState = {
   email: "",
   phone: "",
   companyName: "",
+  file: undefined,
 };
 
 export function MultiStepContactForm() {
   const [step, setStep] = useState<FormStep>("needs");
   const [state, setState] = useState<FormState>(INITIAL_STATE);
   const [results, setResults] = useState<any>(null);
+  const [phoneError, setPhoneError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const submitMutation = trpc.leadgen.submitMultiStepForm.useMutation();
 
@@ -65,7 +90,7 @@ export function MultiStepContactForm() {
       state.needsAI ||
       state.otherNeeds;
     if (!hasNeeds) {
-      alert("Please select at least one service");
+      toast.error("Please select at least one service");
       return;
     }
     setStep("company");
@@ -73,26 +98,73 @@ export function MultiStepContactForm() {
 
   const handleStep2Next = () => {
     if (!state.employeeCount) {
-      alert("Please select employee count");
+      toast.error("Please select employee count");
       return;
     }
     setStep("contact");
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only PDF, DOC, DOCX, XLS, and XLSX files are allowed");
+      return;
+    }
+
+    setState({ ...state, file });
+    toast.success(`File selected: ${file.name}`);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setState({ ...state, phone: formatted });
+    
+    if (formatted && !isValidPhoneNumber(formatted)) {
+      setPhoneError("Please enter a valid 10-digit phone number");
+    } else {
+      setPhoneError("");
+    }
+  };
+
   const handleStep3Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!state.firstName || !state.lastName || !state.email || !state.phone || !state.companyName) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (!isValidPhoneNumber(state.phone)) {
+      toast.error("Please enter a valid 10-digit phone number");
       return;
     }
 
     try {
-      const response = await submitMutation.mutateAsync(state);
+      const response = await submitMutation.mutateAsync({
+        ...state,
+        phone: toE164Format(state.phone),
+      });
       setResults(response);
       setStep("success");
+      toast.success("Form submitted successfully!");
     } catch (error) {
       console.error("Form submission failed:", error);
-      alert("Failed to submit form. Please try again.");
+      toast.error("Failed to submit form. Please try again.");
     }
   };
 
@@ -256,13 +328,20 @@ export function MultiStepContactForm() {
               className="bg-slate-700 border-slate-600 text-white"
             />
 
-            <Input
-              placeholder="Phone Number *"
-              value={state.phone}
-              onChange={(e) => setState({ ...state, phone: e.target.value })}
-              required
-              className="bg-slate-700 border-slate-600 text-white"
-            />
+            <div>
+              <Input
+                placeholder="Phone Number * (10 digits)"
+                value={state.phone}
+                onChange={handlePhoneChange}
+                required
+                className={`bg-slate-700 border-slate-600 text-white ${
+                  phoneError ? "border-red-500" : ""
+                }`}
+              />
+              {phoneError && (
+                <p className="text-red-400 text-sm mt-1">{phoneError}</p>
+              )}
+            </div>
 
             <Input
               placeholder="Company Name *"
@@ -271,6 +350,40 @@ export function MultiStepContactForm() {
               required
               className="bg-slate-700 border-slate-600 text-white"
             />
+
+            {/* File Upload Field */}
+            <div>
+              <label className="block text-white font-medium mb-2">Attach File (Optional)</label>
+              <div className="relative">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx,.xls,.xlsx"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full p-3 border-2 border-dashed border-slate-600 rounded-lg hover:border-cyan-500 transition-colors flex items-center justify-center gap-2 text-gray-400 hover:text-cyan-400"
+                >
+                  <Upload size={20} />
+                  {state.file ? state.file.name : "Click to upload (PDF, DOC, XLS - max 5MB)"}
+                </button>
+              </div>
+              {state.file && (
+                <div className="mt-2 flex items-center justify-between bg-slate-700 p-2 rounded">
+                  <span className="text-sm text-gray-300">{state.file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setState({ ...state, file: undefined })}
+                    className="text-red-400 hover:text-red-500"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-3">
