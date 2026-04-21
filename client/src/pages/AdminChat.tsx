@@ -192,8 +192,7 @@ export default function AdminChat() {
 
     wsRef.current = ws;
 
-    return (
-    <AdminLayout>) => {
+    return () => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
@@ -485,6 +484,7 @@ export default function AdminChat() {
   }
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] text-white">
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         {/* Header */}
@@ -983,5 +983,6 @@ export default function AdminChat() {
       )}
     </div>
   
-    </AdminLayout>);
+    </AdminLayout>
+  );
 }

@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 import { Star, BarChart2, Users, TrendingUp } from "lucide-react";
 import { toast } from "sonner";

@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 import { Users, Shield, ShieldOff, Search, UserCheck, UserX, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";

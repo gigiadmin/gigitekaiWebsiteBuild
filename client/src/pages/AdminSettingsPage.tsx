@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 import { Settings, Mail, Shield, Globe, Bell, Database, ChevronRight } from "lucide-react";
 import { toast } from "sonner";

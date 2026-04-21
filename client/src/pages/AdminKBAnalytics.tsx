@@ -13,7 +13,7 @@ export default function AdminKBAnalytics() {
   // Show new analytics dashboard
   if (useNewDashboard) {
     return (
-    <AdminLayout>
+      <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -31,6 +31,7 @@ export default function AdminKBAnalytics() {
           <KBAnalyticsDashboard />
         </div>
       </div>
+      </AdminLayout>
     );
   }
 
@@ -74,6 +75,7 @@ export default function AdminKBAnalytics() {
   const isLoading = analyticsLoading || summaryLoading || reasonsLoading;
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -310,5 +312,6 @@ export default function AdminKBAnalytics() {
       </div>
     </div>
   
-    </AdminLayout>);
+    </AdminLayout>
+  );
 }

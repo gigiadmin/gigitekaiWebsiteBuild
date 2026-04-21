@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 import { Zap, Users, Clock, Activity } from "lucide-react";
 import { toast } from "sonner";

@@ -129,7 +129,6 @@ export default function AdminAccountManagement() {
   const filtered = users.filter((u) => {
     const q = search.toLowerCase();
     return (
-    <AdminLayout>
       (u.name ?? "").toLowerCase().includes(q) ||
       (u.email ?? "").toLowerCase().includes(q) ||
       (u.role ?? "").toLowerCase().includes(q)
@@ -156,6 +155,7 @@ export default function AdminAccountManagement() {
   };
 
   return (
+    <AdminLayout>
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -387,5 +387,6 @@ export default function AdminAccountManagement() {
       </AlertDialog>
     </div>
   
-    </AdminLayout>);
+    </AdminLayout>
+  );
 }

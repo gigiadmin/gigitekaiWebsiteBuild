@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminCustomers — Customer Accounts & Invites management
  * Uses AdminLayout — no standalone page wrapper needed

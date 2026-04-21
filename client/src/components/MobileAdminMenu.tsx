@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Home, BarChart3, Settings, LogOut, Users, FileText, MessageSquare, Zap, Bell, Globe, TrendingUp } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useLocation, useNavigate } from "wouter";
+import { useLocation } from "wouter";
 
 const menuSections = [
   {
@@ -46,11 +46,10 @@ const menuSections = [
 export default function MobileAdminMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [, navigate] = useLocation();
-  const router = useNavigate();
   const { logout } = useAuth();
 
   const handleNavigation = (path: string) => {
-    router(path);
+    navigate(path);
     setIsOpen(false);
   };
 

@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminLogin — Temporary Admin Portal Login
  * Email/password authentication (bypasses OAuth while waiting for redirect URI setup)
