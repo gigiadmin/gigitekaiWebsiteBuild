@@ -46,6 +46,7 @@ import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
 import { helpdeskSurveyRouter } from "./routers/helpdesk-survey";
 import { kbSharingRouter } from "./routers/kb-sharing";
 import { kbAnalyticsRouter } from "./routers/kb-analytics";
+import { kbGenerationRouter } from "./routers/kb-generation";
 import { customerPortalRouter } from "./routers/customer-portal";
 import { notificationsRouter } from "./routers/notifications";
 import { adminRolesRouter } from "./routers/admin-roles-permissions";
@@ -114,6 +115,7 @@ export const appRouter = router({
   helpdeskSurvey: helpdeskSurveyRouter,
   kbSharing: kbSharingRouter,
   kbAnalytics: kbAnalyticsRouter,
+  kbGeneration: kbGenerationRouter,
   customerPortal: customerPortalRouter,
   notifications: notificationsRouter,
   adminRoles: adminRolesRouter,

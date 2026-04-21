@@ -1416,3 +1416,79 @@ export const blogPostTags = mysqlTable("blogPostTags", {
 });
 export type BlogPostTag = typeof blogPostTags.$inferSelect;
 export type InsertBlogPostTag = typeof blogPostTags.$inferInsert;
+
+// KB Generation — tracks auto-generated KB articles from tickets
+export const kbGenerations = mysqlTable("kbGenerations", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
+  sourceTicketTitle: varchar("sourceTicketTitle", { length: 500 }).notNull(),
+  sourceTicketContent: text("sourceTicketContent").notNull(),
+  generatedTitle: varchar("generatedTitle", { length: 500 }).notNull(),
+  generatedContent: text("generatedContent").notNull(), // Markdown
+  suggestedCategory: varchar("suggestedCategory", { length: 100 }).default("general"),
+  suggestedTags: varchar("suggestedTags", { length: 500 }), // comma-separated
+  status: mysqlEnum("status", ["draft", "pending_approval", "approved", "published", "rejected"]).default("draft").notNull(),
+  confidence: int("confidence").default(0), // 0-100 confidence score
+  generatedBy: varchar("generatedBy", { length: 50 }).default("copilot"), // "copilot", "agent", "manual"
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  approvedBy: int("approvedBy"), // userId who approved
+  approvedAt: timestamp("approvedAt"),
+  rejectionReason: text("rejectionReason"),
+  rejectedBy: int("rejectedBy"),
+  rejectedAt: timestamp("rejectedAt"),
+  publishedArticleId: int("publishedArticleId"), // references kbArticles.id if published
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type KbGeneration = typeof kbGenerations.$inferSelect;
+export type InsertKbGeneration = typeof kbGenerations.$inferInsert;
+
+// KB Generation Queue — tracks pending KB generation jobs
+export const kbGenerationQueue = mysqlTable("kbGenerationQueue", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  priority: int("priority").default(0), // higher = more urgent
+  errorMessage: text("errorMessage"),
+  attemptCount: int("attemptCount").default(0),
+  maxAttempts: int("maxAttempts").default(3),
+  nextRetryAt: timestamp("nextRetryAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type KbGenerationQueue = typeof kbGenerationQueue.$inferSelect;
+export type InsertKbGenerationQueue = typeof kbGenerationQueue.$inferInsert;
+
+// KB Suggestions for Tickets — suggests relevant KB articles when creating/viewing tickets
+export const ticketKbSuggestions = mysqlTable("ticketKbSuggestions", {
+  id: int("id").autoincrement().primaryKey(),
+  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
+  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
+  relevanceScore: int("relevanceScore").default(0), // 0-100 relevance score
+  suggestedBy: mysqlEnum("suggestedBy", ["ai", "agent"]).default("ai").notNull(),
+  suggestedAt: timestamp("suggestedAt").defaultNow().notNull(),
+  viewedAt: timestamp("viewedAt"), // when agent viewed the suggestion
+  usedAt: timestamp("usedAt"), // when agent used the suggestion to resolve ticket
+  helpful: boolean("helpful"), // agent feedback
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TicketKbSuggestion = typeof ticketKbSuggestions.$inferSelect;
+export type InsertTicketKbSuggestion = typeof ticketKbSuggestions.$inferInsert;
+
+// KB Generation Metrics — analytics on KB generation performance
+export const kbGenerationMetrics = mysqlTable("kbGenerationMetrics", {
+  id: int("id").autoincrement().primaryKey(),
+  date: date("date").notNull().unique(),
+  totalGenerated: int("totalGenerated").default(0),
+  totalApproved: int("totalApproved").default(0),
+  totalPublished: int("totalPublished").default(0),
+  totalRejected: int("totalRejected").default(0),
+  avgConfidenceScore: int("avgConfidenceScore").default(0),
+  avgApprovalTime: int("avgApprovalTime").default(0), // in minutes
+  suggestionsShown: int("suggestionsShown").default(0),
+  suggestionsUsed: int("suggestionsUsed").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbGenerationMetric = typeof kbGenerationMetrics.$inferSelect;
+export type InsertKbGenerationMetric = typeof kbGenerationMetrics.$inferInsert;

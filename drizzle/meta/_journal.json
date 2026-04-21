@@ -365,6 +365,13 @@
       "when": 1776740107048,
       "tag": "0051_parched_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "5",
+      "when": 1776741042560,
+      "tag": "0052_worried_pride",
+      "breakpoints": true
     }
   ]
 }
