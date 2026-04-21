@@ -60,6 +60,8 @@ import { serviceHealthMonitoringRouter } from "./routers/service-health-monitori
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
 import { serviceStatusSubscriptionRouter } from "./routers/service-status-subscriptions";
 import { quickAssistRouter } from "./routers/quickAssist";
+import { teamsChannelsRouter } from "./routers/teams-channels";
+import { teamsMeetingEscalationRouter } from "./routers/teams-meeting-escalation";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -69,6 +71,8 @@ export const appRouter = router({
   serviceHealthThresholds: serviceHealthThresholdsRouter,
   serviceStatusSubscriptions: serviceStatusSubscriptionRouter,
   quickAssist: quickAssistRouter,
+  teamsChannels: teamsChannelsRouter,
+  teamsMeetingEscalation: teamsMeetingEscalationRouter,
   aiTicketCategorization: aiTicketCategorization,
   kbSeeding: kbSeedingRouter,
   aiTraining: aiTrainingRouter,

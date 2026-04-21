@@ -1492,3 +1492,47 @@ export const kbGenerationMetrics = mysqlTable("kbGenerationMetrics", {
 });
 export type KbGenerationMetric = typeof kbGenerationMetrics.$inferSelect;
 export type InsertKbGenerationMetric = typeof kbGenerationMetrics.$inferInsert;
+
+// ─── Companies / Clients ──────────────────────────────────────────────────────
+
+export const companies = mysqlTable("companies", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  domain: varchar("domain", { length: 255 }),
+  contactEmail: varchar("contactEmail", { length: 255 }),
+  contactPhone: varchar("contactPhone", { length: 50 }),
+  industry: varchar("industry", { length: 100 }),
+  tier: mysqlEnum("tier", ["starter", "professional", "enterprise"]).default("starter"),
+  // Teams per-client channel
+  teamsChannelId: varchar("teamsChannelId", { length: 255 }),
+  teamsChannelName: varchar("teamsChannelName", { length: 255 }),
+  teamsChannelWebhookUrl: varchar("teamsChannelWebhookUrl", { length: 1024 }),
+  teamsChannelCreatedAt: timestamp("teamsChannelCreatedAt"),
+  // Metadata
+  notes: text("notes"),
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = typeof companies.$inferInsert;
+
+// Per-client Teams channel provisioning log
+export const teamsClientChannels = mysqlTable("teamsClientChannels", {
+  id: int("id").primaryKey().autoincrement(),
+  companyId: int("companyId").notNull(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  teamsTeamId: varchar("teamsTeamId", { length: 255 }).notNull(),
+  teamsChannelId: varchar("teamsChannelId", { length: 255 }).notNull(),
+  teamsChannelName: varchar("teamsChannelName", { length: 255 }).notNull(),
+  webhookUrl: varchar("webhookUrl", { length: 1024 }),
+  provisionedBy: int("provisionedBy"),
+  provisionedAt: timestamp("provisionedAt").defaultNow(),
+  isActive: boolean("isActive").default(true),
+  lastNotificationAt: timestamp("lastNotificationAt"),
+  notificationCount: int("notificationCount").default(0),
+});
+
+export type TeamsClientChannel = typeof teamsClientChannels.$inferSelect;
+export type InsertTeamsClientChannel = typeof teamsClientChannels.$inferInsert;

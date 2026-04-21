@@ -33,8 +33,9 @@ import {
   PlayCircle,
   UserPlus,
   BellOff,
-  Star,
+  Video,
   Cloud,
+  Star,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -47,6 +48,7 @@ import { TicketTemplateManager } from "@/components/TicketTemplateManager";
 import { SLATimer } from "@/components/SLATimer";
 import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import CloseTicketDialog from "@/components/CloseTicketDialog";
+import EscalateToMeetingDialog from "@/components/EscalateToMeetingDialog";
 import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard";
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
@@ -99,6 +101,8 @@ export default function AdminPanel() {
   const [assignmentModalTicketId, setAssignmentModalTicketId] = useState<number | null>(null);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [closeDialogTicket, setCloseDialogTicket] = useState<{ id: number; title: string; status: string } | null>(null);
+  const [escalateDialogOpen, setEscalateDialogOpen] = useState(false);
+  const [escalateTicket, setEscalateTicket] = useState<{ id: number; title: string } | null>(null);
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
   const [expandedTicketIds, setExpandedTicketIds] = useState<Set<number>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -750,6 +754,19 @@ export default function AdminPanel() {
                             <XCircle className="w-3 h-3 mr-1" />
                             Close
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEscalateTicket({ id: ticket.id, title: ticket.title });
+                              setEscalateDialogOpen(true);
+                            }}
+                            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            title="Escalate to Teams meeting"
+                          >
+                            <Video className="w-3 h-3 mr-1" />
+                            Meeting
+                          </Button>
                         </>
                       ) : ticket.status === "on_hold" ? (
                         <Button
@@ -1109,6 +1126,19 @@ export default function AdminPanel() {
             setCloseDialogTicket(null);
             refetch();
           }}
+        />
+      )}
+
+      {/* Escalate to Meeting Dialog */}
+      {escalateTicket && (
+        <EscalateToMeetingDialog
+          open={escalateDialogOpen}
+          onOpenChange={(open) => {
+            setEscalateDialogOpen(open);
+            if (!open) setEscalateTicket(null);
+          }}
+          ticketId={escalateTicket.id}
+          ticketTitle={escalateTicket.title}
         />
       )}
 

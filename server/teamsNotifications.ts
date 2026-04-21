@@ -1,10 +1,11 @@
 /**
  * Teams Notifications Service
- * Sends adaptive cards to Teams Help Desk channel for ticket events
- * Non-blocking: failures don't interrupt ticket operations
+ * Sends adaptive cards to Teams Help Desk channel for ticket events.
+ * Uses retry logic and per-category channel routing via teamsWebhookUtils.
  */
 
 import type { Ticket } from "../drizzle/schema";
+import { sendToTeamsWithRetry, resolveWebhookUrl } from "./_core/teamsWebhookUtils";
 
 interface AdaptiveCard {
   type: string;
@@ -21,33 +22,25 @@ interface AdaptiveCard {
   }>;
 }
 
-const WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 const BASE_URL = process.env.VITE_APP_ID ? `https://gigitekai.com` : `http://localhost:3000`;
 
 /**
- * Send ticket notification to Teams
+ * Send ticket notification to Teams (with retry + channel routing)
  * Handles new tickets, escalations, and status changes
  */
 export async function sendTicketNotificationToTeams(
   ticket: Partial<Ticket>,
   eventType: "created" | "escalated" | "status_changed" | "resolved"
 ): Promise<void> {
-  if (!WEBHOOK_URL) {
-    console.warn("[Teams] TEAMS_WEBHOOK_URL not configured, skipping notification");
-    return;
-  }
-
   try {
     const card = buildTicketCard(ticket, eventType);
-    const response = await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(card),
-    });
-
-    if (!response.ok) {
-      console.warn(`[Teams] Webhook failed with status ${response.status}`);
-    }
+    // Route to category-specific channel if configured, else default
+    const webhookUrl = resolveWebhookUrl(ticket.category as string | undefined);
+    await sendToTeamsWithRetry(
+      webhookUrl,
+      card,
+      `ticket #${ticket.id} ${eventType}`
+    );
   } catch (error) {
     // Non-blocking: log but don't throw
     console.warn("[Teams] Notification failed:", error);
@@ -61,13 +54,6 @@ function buildTicketCard(
   ticket: Partial<Ticket>,
   eventType: "created" | "escalated" | "status_changed" | "resolved"
 ): AdaptiveCard {
-  const priorityColor: Record<string, string> = {
-    critical: "attention",
-    high: "warning",
-    medium: "accent",
-    low: "good",
-  };
-
   const statusEmoji: Record<string, string> = {
     open: "🆕",
     in_progress: "⏳",
@@ -221,12 +207,19 @@ function getCategoryLabel(category?: string): string {
     feature_request: "✨ Feature Request",
     general_support: "💬 General Support",
     billing: "💳 Billing",
+    security: "🔒 Security",
+    m365: "☁️ Microsoft 365",
+    network: "🌐 Network",
+    hardware: "🖥️ Hardware",
+    software: "💿 Software",
+    email: "📧 Email",
+    account_access: "🔑 Account Access",
   };
   return labels[category?.toLowerCase() || "general_support"] || "💬 General Support";
 }
 
 /**
- * Send daily digest to Teams
+ * Send daily digest to Teams (with retry)
  */
 export async function sendTeamsDailyDigest(stats: {
   totalOpen: number;
@@ -235,58 +228,53 @@ export async function sendTeamsDailyDigest(stats: {
   unassignedCount: number;
   escalatedCount: number;
 }): Promise<void> {
-  if (!WEBHOOK_URL) return;
+  const webhookUrl = resolveWebhookUrl();
+  if (!webhookUrl) return;
 
-  try {
-    const card: AdaptiveCard = {
-      type: "message",
-      attachments: [
-        {
-          contentType: "application/vnd.microsoft.card.adaptive",
-          contentUrl: null,
-          content: {
-            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-            type: "AdaptiveCard",
-            version: "1.4",
-            body: [
-              {
-                type: "Container",
-                style: "emphasis",
-                items: [
-                  {
-                    type: "TextBlock",
-                    text: "📊 Daily Helpdesk Digest",
-                    weight: "bolder",
-                    size: "large",
-                    color: "0078D4",
-                  },
-                ],
-              },
-              {
-                type: "FactSet",
-                facts: [
-                  { name: "Open Tickets", value: stats.totalOpen.toString() },
-                  { name: "In Progress", value: stats.totalInProgress.toString() },
-                  { name: "Unassigned", value: stats.unassignedCount.toString() },
-                  { name: "Escalated", value: stats.escalatedCount.toString() },
-                  {
-                    name: "Avg Response Time",
-                    value: `${Math.round(stats.avgResponseTime)} minutes`,
-                  },
-                ],
-              },
-            ],
-          },
+  const card: AdaptiveCard = {
+    type: "message",
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        contentUrl: null,
+        content: {
+          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+          type: "AdaptiveCard",
+          version: "1.4",
+          body: [
+            {
+              type: "Container",
+              style: "emphasis",
+              items: [
+                {
+                  type: "TextBlock",
+                  text: "📊 Daily Helpdesk Digest",
+                  weight: "bolder",
+                  size: "large",
+                  color: "0078D4",
+                },
+              ],
+            },
+            {
+              type: "FactSet",
+              facts: [
+                { name: "Open Tickets", value: stats.totalOpen.toString() },
+                { name: "In Progress", value: stats.totalInProgress.toString() },
+                { name: "Unassigned", value: stats.unassignedCount.toString() },
+                { name: "Escalated", value: stats.escalatedCount.toString() },
+                {
+                  name: "Avg Response Time",
+                  value: `${Math.round(stats.avgResponseTime)} minutes`,
+                },
+              ],
+            },
+          ],
         },
-      ],
-    };
+      },
+    ],
+  };
 
-    await fetch(WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(card),
-    });
-  } catch (error) {
+  await sendToTeamsWithRetry(webhookUrl, card, "daily digest").catch((error) => {
     console.warn("[Teams] Daily digest failed:", error);
-  }
+  });
 }

@@ -81,6 +81,8 @@ import AdminSettingsPage from "./pages/AdminSettingsPage";
 // Service health & M365 monitoring
 import AdminServiceHealthMonitoring from "./pages/AdminServiceHealthMonitoring";
 import AdminM365Health from "./pages/AdminM365Health";
+// Teams Channels management
+import AdminTeamsChannelsPage from "./pages/AdminTeamsChannelsPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -216,6 +218,8 @@ function Router() {
       {/* Service Health Monitoring */}
       <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
       <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
+      {/* Teams Channels — per-client channel management */}
+      <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

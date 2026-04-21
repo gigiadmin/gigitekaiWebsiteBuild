@@ -8,31 +8,19 @@ import type { Ticket, TicketReply } from "../drizzle/schema";
 import { getDb } from "./db";
 import { tickets, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendToTeamsWithRetry, resolveWebhookUrl } from "./_core/teamsWebhookUtils";
 
-const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
 const BASE_URL = "https://gigitekai.com";
 
 /**
- * Send a message to Teams via Incoming Webhook
+ * Send a message to Teams via Incoming Webhook (with retry + channel routing)
  */
-async function sendToTeamsWebhook(payload: object): Promise<void> {
-  if (!TEAMS_WEBHOOK_URL) {
-    throw new Error("[Teams Bot] TEAMS_WEBHOOK_URL is not configured");
+async function sendToTeamsWebhook(payload: object, category?: string, context = "Teams notification"): Promise<void> {
+  const url = resolveWebhookUrl(category);
+  const result = await sendToTeamsWithRetry(url, payload, context);
+  if (!result.success) {
+    console.warn(`[Teams Bot] Notification failed after ${result.attempts} attempts: ${result.error}`);
   }
-
-  const response = await fetch(TEAMS_WEBHOOK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`[Teams Bot] Webhook error: ${response.status} - ${text}`);
-  }
-
-  const result = await response.text();
-  console.log(`[Teams Bot] Webhook response: ${result}`);
 }
 
 /**
@@ -534,4 +522,4 @@ export function parseTeamsWebhookMessage(body: any): {
   return { text: cleanText, ticketId, command };
 }
 
-console.log(`[Teams Bot] Webhook endpoint configured: ${TEAMS_WEBHOOK_URL ? "✅ Ready" : "❌ Missing TEAMS_WEBHOOK_URL"}`);
+console.log(`[Teams Bot] Webhook endpoint configured: ${process.env.TEAMS_WEBHOOK_URL ? "✅ Ready" : "❌ Missing TEAMS_WEBHOOK_URL"}`);

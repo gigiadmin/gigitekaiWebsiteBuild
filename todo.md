@@ -3299,3 +3299,41 @@
 - [ ] Apply expandable rows to AdminPanel tickets table
 - [ ] Apply pull-to-refresh to AdminChat page
 - [ ] Apply expandable rows to AdminChat sessions table
+
+## Teams Integration Optimizations (April 2026)
+
+### Webhook Reliability
+- [x] Implement webhook retry logic with exponential backoff (3 attempts, 1s/2s/4s delays)
+- [ ] Add dead-letter queue logging for permanently failed webhook notifications
+- [ ] Add webhook health monitoring (hourly ping, alert admin on failure)
+
+### Multi-Channel Routing
+- [ ] Add channelRouting table to database schema (category → Teams channel URL mapping)
+- [ ] Implement multi-channel routing logic in teamsBot.ts by ticket category
+- [ ] Add admin UI for managing channel routing rules (/admin/teams-routing)
+- [ ] Add route and nav entry for Teams Channel Routing admin page
+
+### Per-Client Dedicated Teams Channels
+- [ ] Add teamsChannelId column to companies table in schema
+- [ ] Implement Graph API channel creation on company signup (POST /teams/{teamId}/channels)
+- [ ] Add channel member management (add/remove agents and customer contacts)
+- [ ] Store Teams channel ID per company in database
+- [ ] Send ticket notifications to company-specific channel when available
+- [ ] Add admin UI to view/manage per-company Teams channels
+
+### Teams Meeting Escalation
+- [ ] Add "Schedule Teams Call" button to ticket adaptive cards
+- [ ] Implement Graph API online meeting creation (POST /me/onlineMeetings)
+- [ ] Send meeting invite to customer and assigned agent via email
+- [ ] Store meeting URL in ticket record for reference
+- [ ] Add meeting link to ticket detail view in helpdesk portal
+
+### TeamViewer Integration in Teams Cards
+- [ ] Add "Remote Session" button to ticket adaptive cards
+- [ ] Implement TeamViewer session URL generation from ticket ID
+- [ ] Log remote session initiation as ticket activity
+
+### Teams Integration Skill
+- [x] Create reusable Teams integration skill using skill-creator workflow
+- [ ] Document webhook setup, Bot Framework config, Graph API permissions
+- [ ] Include adaptive card templates and retry logic patterns

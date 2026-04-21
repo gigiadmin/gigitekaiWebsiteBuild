@@ -40,6 +40,7 @@ import {
   MessageSquareText,
   Clock,
   Trash2,
+  Video,
 } from "lucide-react";
 
 interface NavItem {
@@ -99,6 +100,12 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
       { label: "Invites", icon: <Send size={16} />, href: "/admin/invites" },
       { label: "Email", icon: <Mail size={16} />, href: "/admin/email" },
+    ],
+  },
+  {
+    title: "Integrations",
+    items: [
+      { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
     ],
   },
   {
