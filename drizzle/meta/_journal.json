@@ -344,6 +344,13 @@
       "when": 1776660371780,
       "tag": "0048_moaning_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "5",
+      "when": 1776739256289,
+      "tag": "0049_bumpy_stature",
+      "breakpoints": true
     }
   ]
 }

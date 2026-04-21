@@ -7,8 +7,8 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { blogPosts } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { blogPosts, blogTags, blogPostTags } from "../../drizzle/schema";
+import { eq, desc, and, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
 import { sendEmail } from "../_core/email";
@@ -214,6 +214,104 @@ export const blogRouter = router({
         .set({ published: input.published, publishedAt })
         .where(eq(blogPosts.id, input.id));
       return { success: true };
+    }),
+
+  /** Get all blog tags (public) */
+  getTags: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const tags = await db
+      .select()
+      .from(blogTags)
+      .orderBy(blogTags.name);
+    return tags;
+  }),
+
+  /** Get posts by category (public) */
+  getByCategory: publicProcedure
+    .input(z.object({ category: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const posts = await db
+        .select({
+          id: blogPosts.id,
+          slug: blogPosts.slug,
+          title: blogPosts.title,
+          excerpt: blogPosts.excerpt,
+          category: blogPosts.category,
+          readTime: blogPosts.readTime,
+          authorName: blogPosts.authorName,
+          featuredImage: blogPosts.featuredImage,
+          publishedAt: blogPosts.publishedAt,
+          createdAt: blogPosts.createdAt,
+        })
+        .from(blogPosts)
+        .where(and(eq(blogPosts.published, true), eq(blogPosts.category, input.category)))
+        .orderBy(desc(blogPosts.publishedAt));
+      return posts;
+    }),
+
+  /** Get posts by tag (public) */
+  getByTag: publicProcedure
+    .input(z.object({ tagSlug: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const [tag] = await db.select().from(blogTags).where(eq(blogTags.slug, input.tagSlug)).limit(1);
+      if (!tag) return [];
+      const postIds = await db
+        .select({ postId: blogPostTags.postId })
+        .from(blogPostTags)
+        .where(eq(blogPostTags.tagId, tag.id));
+      if (postIds.length === 0) return [];
+      const posts = await db
+        .select({
+          id: blogPosts.id,
+          slug: blogPosts.slug,
+          title: blogPosts.title,
+          excerpt: blogPosts.excerpt,
+          category: blogPosts.category,
+          readTime: blogPosts.readTime,
+          authorName: blogPosts.authorName,
+          featuredImage: blogPosts.featuredImage,
+          publishedAt: blogPosts.publishedAt,
+          createdAt: blogPosts.createdAt,
+        })
+        .from(blogPosts)
+        .where(and(eq(blogPosts.published, true), inArray(blogPosts.id, postIds.map(p => p.postId))))
+        .orderBy(desc(blogPosts.publishedAt));
+      return posts;
+    }),
+
+  /** Search blog posts (public) */
+  search: publicProcedure
+    .input(z.object({ query: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const searchTerm = `%${input.query}%`;
+      const posts = await db
+        .select({
+          id: blogPosts.id,
+          slug: blogPosts.slug,
+          title: blogPosts.title,
+          excerpt: blogPosts.excerpt,
+          category: blogPosts.category,
+          readTime: blogPosts.readTime,
+          authorName: blogPosts.authorName,
+          featuredImage: blogPosts.featuredImage,
+          publishedAt: blogPosts.publishedAt,
+          createdAt: blogPosts.createdAt,
+        })
+        .from(blogPosts)
+        .where(and(eq(blogPosts.published, true)))
+        .orderBy(desc(blogPosts.publishedAt));
+      // Filter in-memory for title and excerpt matches
+      return posts.filter(p => 
+        p.title.toLowerCase().includes(input.query.toLowerCase()) ||
+        p.excerpt.toLowerCase().includes(input.query.toLowerCase())
+      );
     }),
 
   /** Send blog post via email (admin only) */

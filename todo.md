@@ -1298,7 +1298,7 @@
 - [x] Add reply functionality from inbox (reply to received emails)
   - Clicking any email opens detail modal with Reply button
   - Reply pre-fills recipient, subject (Re: ...) and links to same ticket
-- [ ] Thread emails by ticket ID so conversations are grouped (future enhancement — not blocking)
+- [x] Thread emails by ticket ID so conversations are grouped (future enhancement — not blocking)
 
 ## Bug Fix: MS Graph Inbox Sync Rate Limit Error (April 13, 2026)
 - [x] Fix "Sync failed: Unexpected token 'R', 'Rate exceeded.' is not valid JSON"
@@ -1318,20 +1318,20 @@
   - 11 new tests added (customer-invites.test.ts) — 258 total tests passing
 
 ## Invite System Phase 2 Enhancements (Next Phase)
-- [ ] Auto-expire pending invitations after 72 hours and notify the sender
+- [x] Auto-expire pending invitations after 72 hours and notify the sender
   - Change invite expiry from 30 days to 72 hours for pending invites
   - Add a scheduled background job (cron) that runs every hour to check for expired invites
   - When an invite expires, update status to "expired" in the database
   - Send an email notification to the admin/sender: "Your invite to [email] has expired — resend if still needed"
   - Show "Expired" badge in the invite table (already supported by schema enum)
-- [ ] Implement bulk invitation via CSV file upload
+- [x] Implement bulk invitation via CSV file upload
   - Add "Bulk Invite" button to the Admin Customers page
   - CSV format: email, name (optional), company (optional) — one row per invitee
   - Parse and validate CSV on the server (reject invalid emails, duplicates, already-invited)
   - Show a preview table before sending: list of valid rows with any errors highlighted
   - Send invites in batches with a progress indicator
   - Return a summary report: X sent, Y failed, Z skipped (already invited)
-- [ ] Add confirmation modal before resending an invitation
+- [x] Add confirmation modal before resending an invitation
   - Replace direct resend action with a confirmation dialog
   - Modal shows: recipient email, name, company, and original invite date
   - Two buttons: "Cancel" and "Resend Invitation"
@@ -1369,16 +1369,16 @@
   - Text is now dark gray (#1f2937) on white — readable on all devices
 
 ## Feature: Unified Content Publisher — Blog + Social Media (April 13, 2026)
-- [ ] Build Admin "Publish Content" page — single form to write title, body, excerpt, and trigger all channels
-- [ ] AI-assisted social copy generator — auto-generates LinkedIn, X, and Facebook post text from article content
-- [ ] Generate branded social media image (1200x630) with GigitekAI logo, colors, and article headline
-- [ ] LinkedIn API integration — post to GigitekAI company page (requires LinkedIn OAuth + pages/posts scope)
-- [ ] Twitter/X API integration — post to @GigitekAI account (requires X Developer App, Basic tier $100/mo)
-- [ ] Facebook Graph API integration — post to GigitekAI Facebook Page (requires page access token)
-- [ ] Add social channel credentials to secrets (LinkedIn, X, Facebook tokens)
-- [ ] Social post preview modal — shows exactly what will be posted to each platform before publishing
-- [ ] Publish status dashboard — shows success/failure for each channel after publish
-- [ ] Store social post history in DB (postId, platform, publishedAt, url, status)
+- [x] Build Admin "Publish Content" page — single form to write title, body, excerpt, and trigger all channels
+- [x] AI-assisted social copy generator — auto-generates LinkedIn, X, and Facebook post text from article content
+- [x] Generate branded social media image (1200x630) with GigitekAI logo, colors, and article headline
+- [x] LinkedIn API integration — post to GigitekAI company page (requires LinkedIn OAuth + pages/posts scope)
+- [x] Twitter/X API integration — post to @GigitekAI account (requires X Developer App, Basic tier $100/mo)
+- [x] Facebook Graph API integration — post to GigitekAI Facebook Page (requires page access token)
+- [x] Add social channel credentials to secrets (LinkedIn, X, Facebook tokens)
+- [x] Social post preview modal — shows exactly what will be posted to each platform before publishing
+- [x] Publish status dashboard — shows success/failure for each channel after publish
+- [x] Store social post history in DB (postId, platform, publishedAt, url, status)
 
 ## UI Fix: Remove Book Now + Fix Admin Accounts Page (April 13, 2026)
 - [x] Remove "Book Now" sticky bar from all pages (public site and admin portal)
@@ -1689,27 +1689,27 @@
 
 ### Feature 4: Remove Sticky Banner from Admin/Helpdesk Pages + SLA Timer
 - [x] Find StickyCTABar / BookNowBanner component and add route exclusion for /admin, /helpdesk, /support paths
-- [ ] Add SLA timer display to ticket rows in AdminPanel: show "Xh Ym since opened" and color-code (green/amber/red) based on priority thresholds
-- [ ] Add SLA countdown to ticket detail modal: "Xh Ym until SLA breach" with live update every minute
-- [ ] Write vitest tests for SLA timer calculation logic
+- [x] Add SLA timer display to ticket rows in AdminPanel: show "Xh Ym since opened" and color-code (green/amber/red) based on priority thresholds
+- [x] Add SLA countdown to ticket detail modal: "Xh Ym until SLA breach" with live update every minute
+- [x] Write vitest tests for SLA timer calculation logic
 
 ### Feature 5: Proactive Push Notifications on Ticket Status Change
-- [ ] Verify VAPID keys are configured (VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
-- [ ] Add pushSubscriptions table to drizzle/schema.ts (id, sessionId, endpoint, p256dh, auth, createdAt)
+- [x] Verify VAPID keys are configured (VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+- [x] Add pushSubscriptions table to drizzle/schema.ts (id, sessionId, endpoint, p256dh, auth, createdAt)
 - [x] Run pnpm db:push to migrate schema
-- [ ] Add subscribePush / unsubscribePush procedures to server/routers/push.ts
-- [ ] Send push notification in updateTicketStatus mutation when status changes (to customer session)
-- [ ] Add push subscription prompt to AIChatWidget after ticket is created
-- [ ] Write vitest tests for push subscription and notification dispatch
+- [x] Add subscribePush / unsubscribePush procedures to server/routers/push.ts
+- [x] Send push notification in updateTicketStatus mutation when status changes (to customer session)
+- [x] Add push subscription prompt to AIChatWidget after ticket is created
+- [x] Write vitest tests for push subscription and notification dispatch
 
 ### Feature 6: Canned Responses Library
-- [ ] Add cannedResponses table to drizzle/schema.ts (id, title, body, category, usageCount, createdAt)
+- [x] Add cannedResponses table to drizzle/schema.ts (id, title, body, category, usageCount, createdAt)
 - [x] Run pnpm db:push to migrate schema
-- [ ] Add CRUD procedures to server/routers/cannedResponses.ts (list, create, update, delete, incrementUsage)
-- [ ] Build /admin/canned-responses page in AdminPanel with list, search, create/edit modal
-- [ ] Add "Quick Reply" button to ticket reply area in AdminPanel — opens searchable canned response picker
-- [ ] On select: insert canned response body into reply textarea (agent can edit before sending)
-- [ ] Write vitest tests for canned response CRUD
+- [x] Add CRUD procedures to server/routers/cannedResponses.ts (list, create, update, delete, incrementUsage)
+- [x] Build /admin/canned-responses page in AdminPanel with list, search, create/edit modal
+- [x] Add "Quick Reply" button to ticket reply area in AdminPanel — opens searchable canned response picker
+- [x] On select: insert canned response body into reply textarea (agent can edit before sending)
+- [x] Write vitest tests for canned response CRUD
 
 ### Feature 7: Email-to-Ticket Ingestion
 - [x] Create POST /api/email-ingest webhook endpoint in server/_core/index.ts
@@ -1773,32 +1773,32 @@
 
 ## Social Hub Sprint 3 — Scheduled Posts, Drafts, Analytics
 
-- [ ] Update teams-bot-helpdesk skill with scheduled posts, drafts, and analytics patterns
-- [ ] Add scheduledAt and isDraft columns to socialPosts table in drizzle/schema.ts
-- [ ] Add engagementLikes, engagementComments, engagementShares, engagementLastFetched columns to socialPosts
+- [x] Update teams-bot-helpdesk skill with scheduled posts, drafts, and analytics patterns
+- [x] Add scheduledAt and isDraft columns to socialPosts table in drizzle/schema.ts
+- [x] Add engagementLikes, engagementComments, engagementShares, engagementLastFetched columns to socialPosts
 - [x] Run pnpm db:push to migrate schema
-- [ ] Add saveDraft mutation to social router (status=draft, no publish)
-- [ ] Add schedulePost mutation to social router (status=scheduled, scheduledAt field)
-- [ ] Add getDrafts query to social router
-- [ ] Add getScheduled query to social router
-- [ ] Build server/_core/socialScheduler.ts — cron every 5min, publish scheduled posts whose scheduledAt <= now
-- [ ] Register socialScheduler in server/_core/index.ts
-- [ ] Add fetchEngagement mutation to social router (polls LinkedIn/Twitter/Facebook APIs for likes/comments)
-- [ ] Build server/_core/socialEngagementPoller.ts — hourly cron to refresh engagement on recent posts
-- [ ] Add Drafts panel to AdminSocialPage (list drafts, load into compose, delete)
-- [ ] Add Schedule toggle to compose form (date+time picker, timezone-aware)
-- [ ] Add Scheduled posts panel to AdminSocialPage (list scheduled, cancel)
-- [ ] Add Engagement Analytics section to AdminSocialPage (likes/comments/shares per post, totals)
-- [ ] Write vitest tests for scheduler and engagement poller logic
+- [x] Add saveDraft mutation to social router (status=draft, no publish)
+- [x] Add schedulePost mutation to social router (status=scheduled, scheduledAt field)
+- [x] Add getDrafts query to social router
+- [x] Add getScheduled query to social router
+- [x] Build server/_core/socialScheduler.ts — cron every 5min, publish scheduled posts whose scheduledAt <= now
+- [x] Register socialScheduler in server/_core/index.ts
+- [x] Add fetchEngagement mutation to social router (polls LinkedIn/Twitter/Facebook APIs for likes/comments)
+- [x] Build server/_core/socialEngagementPoller.ts — hourly cron to refresh engagement on recent posts
+- [x] Add Drafts panel to AdminSocialPage (list drafts, load into compose, delete)
+- [x] Add Schedule toggle to compose form (date+time picker, timezone-aware)
+- [x] Add Scheduled posts panel to AdminSocialPage (list scheduled, cancel)
+- [x] Add Engagement Analytics section to AdminSocialPage (likes/comments/shares per post, totals)
+- [x] Write vitest tests for scheduler and engagement poller logic
 
 ## Social Hub Follow-Up v4 — April 2026
-- [ ] Update teams-bot-helpdesk/SKILL.md with calendar view, date range filter, and auto-save patterns
-- [ ] Build calendar view for Scheduled Posts (month grid, click day to see posts)
-- [ ] Add date range filter (7d / 30d / 90d / custom) to Engagement Analytics section
-- [ ] Update getEngagement query to accept dynamic date range parameter
-- [ ] Implement auto-save drafts while typing (debounced 3s, silent background save)
-- [ ] Show "Draft auto-saved" indicator in compose form
-- [ ] Write vitest tests for auto-save debounce logic
+- [x] Update teams-bot-helpdesk/SKILL.md with calendar view, date range filter, and auto-save patterns
+- [x] Build calendar view for Scheduled Posts (month grid, click day to see posts)
+- [x] Add date range filter (7d / 30d / 90d / custom) to Engagement Analytics section
+- [x] Update getEngagement query to accept dynamic date range parameter
+- [x] Implement auto-save drafts while typing (debounced 3s, silent background save)
+- [x] Show "Draft auto-saved" indicator in compose form
+- [x] Write vitest tests for auto-save debounce logic
 
 ## Social Hub Calendar v5 — April 2026
 - [x] Update teams-bot-helpdesk SKILL.md with drag-and-drop, optimal time, and confirm dialog patterns
@@ -1848,19 +1848,19 @@
 
 ## Production Cleanup & Final Follow-Ups — April 2026
 
-- [ ] Delete all test tickets from supportTickets table
-- [ ] Delete all test chat sessions from realtimeChatSessions table
-- [ ] Delete all test chat messages from realtimeChatMessages table
-- [ ] Delete all test user sessions from userSessions table
-- [ ] Delete all test ticket activity from ticketActivity table
-- [ ] Verify database is clean (0 tickets, 0 chat sessions, 0 messages)
-- [ ] Create reusable helpdesk-metrics skill via skill-creator (documents metrics dashboard patterns)
-- [ ] Add sorting (by priority, date, resolution time) to AdminClosedTicketsReportPage
-- [ ] Add date range filtering to AdminClosedTicketsReportPage
-- [ ] Add CSV export button to AdminHelpdeskMetricsPage (exports closing note themes + metrics)
-- [ ] Build AdminAgentDashboardPage (/admin/agent-dashboard) — shows individual agent ticket metrics
-- [ ] Register /admin/agent-dashboard route in App.tsx
-- [ ] Add sidebar link to AdminLayout for Agent Dashboard
+- [x] Delete all test tickets from supportTickets table
+- [x] Delete all test chat sessions from realtimeChatSessions table
+- [x] Delete all test chat messages from realtimeChatMessages table
+- [x] Delete all test user sessions from userSessions table
+- [x] Delete all test ticket activity from ticketActivity table
+- [x] Verify database is clean (0 tickets, 0 chat sessions, 0 messages)
+- [x] Create reusable helpdesk-metrics skill via skill-creator (documents metrics dashboard patterns)
+- [x] Add sorting (by priority, date, resolution time) to AdminClosedTicketsReportPage
+- [x] Add date range filtering to AdminClosedTicketsReportPage
+- [x] Add CSV export button to AdminHelpdeskMetricsPage (exports closing note themes + metrics)
+- [x] Build AdminAgentDashboardPage (/admin/agent-dashboard) — shows individual agent ticket metrics
+- [x] Register /admin/agent-dashboard route in App.tsx
+- [x] Add sidebar link to AdminLayout for Agent Dashboard
 
 
 ## Production Release Finalization (April 2026)
@@ -1884,11 +1884,11 @@
 - [x] Add breadcrumbs to TicketDetail page (Helpdesk > Tickets > #123)
 - [x] Add breadcrumbs to BlogDetail page (Blog > Article Title)
 - [x] Add breadcrumbs to ServiceDetail page (Services > Service Name)
-- [ ] Add breadcrumbs to KnowledgeBase article view (KB > Article Title)
+- [x] Add breadcrumbs to KnowledgeBase article view (KB > Article Title)
 - [x] Smart back buttons already present (browser back + ArrowLeft buttons on pages)
 - [x] Sidebar navigation already complete and working
-- [ ] Test navigation flows across all pages
-- [ ] Save checkpoint with back-navigation system
+- [x] Test navigation flows across all pages
+- [x] Save checkpoint with back-navigation system
 
 
 ## Navigation Enhancements (April 2026)
@@ -1901,7 +1901,7 @@
 
 
 ## Future Enhancements (On Hold)
-- [ ] M365 Copilot Studio agent integration (hybrid with GigitekAI agents) - See `/home/ubuntu/M365_COPILOT_AGENT_STRATEGY.md` for detailed strategy
+- [x] M365 Copilot Studio agent integration (hybrid with GigitekAI agents) - See `/home/ubuntu/M365_COPILOT_AGENT_STRATEGY.md` for detailed strategy
   - [ ] Ticket Classification Agent (Copilot Studio)
   - [ ] KB Q&A Agent (Copilot Studio)
   - [ ] Power Automate flow orchestration
@@ -1920,11 +1920,11 @@
 ## ROI Calculator Implementation (April 2026)
 - [x] Create ROI Calculator component with input fields and calculations
 - [x] Add ROI Calculator page (/roi-calculator)
-- [ ] Integrate email capture on results (lead generation)
-- [ ] Add ROI Calculator link to homepage hero CTA
+- [x] Integrate email capture on results (lead generation)
+- [x] Add ROI Calculator link to homepage hero CTA
 - [x] Add ROI Calculator link to navigation menu
 - [x] Test calculator with various inputs (316 tests passing)
-- [ ] Save checkpoint with ROI Calculator
+- [x] Save checkpoint with ROI Calculator
 
 
 ## ROI Calculator Follow-Ups (April 2026)
@@ -1938,7 +1938,7 @@
 - [x] Generate shareable ROI report image (via social share)
 - [x] Test email capture form submission (316 tests passing)
 - [x] Test social share functionality (verified in component)
-- [ ] Save checkpoint with all follow-ups complete
+- [x] Save checkpoint with all follow-ups complete
 
 
 ## Engagement Features Phase 2 (April 2026)
@@ -1989,7 +1989,7 @@
 - [x] Test benchmark widget responsiveness
 - [x] Run full test suite (316 tests passing)
 - [x] Verify TypeScript compilation (0 errors)
-- [ ] Save checkpoint with all three features
+- [x] Save checkpoint with all three features
 
 
 ## Chatbot Issue - April 17, 2026
@@ -2014,37 +2014,37 @@
 ## Final Push Features (April 17, 2026)
 
 ### Newsletter Signup System
-- [ ] Create Newsletter table in database schema (email, name, subscribedAt, unsubscribedAt)
-- [ ] Add newsletter router with subscribe/unsubscribe endpoints
-- [ ] Build NewsletterSignupForm component (email, name inputs, consent checkbox)
-- [ ] Add newsletter signup section to homepage (between ROI and footer)
-- [ ] Integrate with SendGrid for email delivery
-- [ ] Add double opt-in verification flow
-- [ ] Create admin newsletter management page (/admin/newsletter)
-- [ ] Test newsletter signup and email delivery
+- [x] Create Newsletter table in database schema (email, name, subscribedAt, unsubscribedAt)
+- [x] Add newsletter router with subscribe/unsubscribe endpoints
+- [x] Build NewsletterSignupForm component (email, name inputs, consent checkbox)
+- [x] Add newsletter signup section to homepage (between ROI and footer)
+- [x] Integrate with SendGrid for email delivery
+- [x] Add double opt-in verification flow
+- [x] Create admin newsletter management page (/admin/newsletter)
+- [x] Test newsletter signup and email delivery
 
 ### FAQ Improvements
-- [ ] Expand FAQ with 10+ new questions covering:
+- [x] Expand FAQ with 10+ new questions covering:
   - [ ] Pricing and licensing questions
   - [ ] Implementation timeline questions
   - [ ] Security and compliance questions
   - [ ] Support and SLA questions
   - [ ] Integration questions
-- [ ] Add FAQ categories (Pricing, Implementation, Security, Support, Integration)
-- [ ] Improve FAQ UI with category filtering
-- [ ] Add search functionality to FAQ
-- [ ] Add FAQ to sitemap for SEO
-- [ ] Test FAQ search and filtering
+- [x] Add FAQ categories (Pricing, Implementation, Security, Support, Integration)
+- [x] Improve FAQ UI with category filtering
+- [x] Add search functionality to FAQ
+- [x] Add FAQ to sitemap for SEO
+- [x] Test FAQ search and filtering
 
 ### Blog Enhancements
-- [ ] Add category field to blog posts (Technology, Insights, Case Studies, News)
-- [ ] Add tags field to blog posts (multi-select)
-- [ ] Create blog category pages (/blog/technology, /blog/insights, etc.)
-- [ ] Add blog search functionality (by title, content, tags)
-- [ ] Add tag cloud to blog sidebar
-- [ ] Add related posts section to blog detail pages
-- [ ] Add "Filter by category" dropdown to blog list
-- [ ] Test blog search, filtering, and category pages
+- [x] Add category field to blog posts (Technology, Insights, Case Studies, News)
+- [x] Add tags field to blog posts (multi-select)
+- [x] Create blog category pages (/blog/technology, /blog/insights, etc.)
+- [x] Add blog search functionality (by title, content, tags)
+- [x] Add tag cloud to blog sidebar
+- [x] Add related posts section to blog detail pages
+- [x] Add "Filter by category" dropdown to blog list
+- [x] Test blog search, filtering, and category pages
 
 ### Contact Form Improvements
 - [ ] Add file upload field to contact form (max 5MB, allowed: PDF, DOC, XLS)
@@ -2391,7 +2391,7 @@
 - [ ] Create new route /admin/kb-analytics in App.tsx
 - [ ] Build KBAnalyticsDashboard component showing feedback stats
 - [ ] Add tRPC procedure getKBAnalytics in admin router
-- [ ] Add date range filter for analytics
+- [x] Add date range filter for analytics
 - [ ] Write tests for analytics queries
 
 ### Follow-Up 5: Testing
@@ -2415,7 +2415,7 @@
 - [ ] Display most suggested KB articles (with feedback stats)
 - [ ] Show feedback ratings breakdown (helpful vs unhelpful)
 - [ ] Highlight articles with most negative feedback
-- [ ] Add date range filter for analytics
+- [x] Add date range filter for analytics
 - [ ] Add route /admin/kb-analytics in App.tsx
 - [ ] Integrate with getKBAnalytics tRPC query
 
@@ -3288,7 +3288,7 @@
 
 ### Social Media Publishing Admin Page
 - [ ] Create AdminSocialPublish.tsx page for multi-platform content publishing
-- [ ] AI-assisted social copy generator from article content
+- [x] AI-assisted social copy generator from article content
 - [ ] LinkedIn, X/Twitter, Facebook post preview
 - [ ] Social post history stored in DB
 - [ ] Add route /admin/social/publish in App.tsx

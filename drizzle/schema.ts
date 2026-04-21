@@ -1383,3 +1383,24 @@ export const quickAssistSessions = mysqlTable("quickAssistSessions", {
 
 export type QuickAssistSession = typeof quickAssistSessions.$inferSelect;
 export type InsertQuickAssistSession = typeof quickAssistSessions.$inferInsert;
+
+// Blog Tags — tags for blog posts
+export const blogTags = mysqlTable("blogTags", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(), // URL-friendly version
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BlogTag = typeof blogTags.$inferSelect;
+export type InsertBlogTag = typeof blogTags.$inferInsert;
+
+// Blog Post Tags — junction table for many-to-many relationship
+export const blogPostTags = mysqlTable("blogPostTags", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("postId").notNull().references(() => blogPosts.id, { onDelete: "cascade" }),
+  tagId: int("tagId").notNull().references(() => blogTags.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type BlogPostTag = typeof blogPostTags.$inferSelect;
+export type InsertBlogPostTag = typeof blogPostTags.$inferInsert;
