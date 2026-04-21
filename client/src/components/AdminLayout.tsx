@@ -212,8 +212,13 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             <div className="space-y-0.5">
               {section.items.map((item) => {
                 const active = isActive(item.href);
+                // Use anchor tag for external/public routes, Link for admin routes
+                const isExternalRoute = !item.href.startsWith("/admin");
+                const NavElement = isExternalRoute ? "a" : Link;
+                const navProps = isExternalRoute ? { href: item.href, target: "_self" } : { href: item.href };
+
                 return (
-                  <Link key={item.href} href={item.href}>
+                  <NavElement key={item.href} {...navProps}>
                     <div
                       className={`
                         flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all duration-150 group relative
@@ -233,7 +238,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
                       )}
 
                     </div>
-                  </Link>
+                  </NavElement>
                 );
               })}
             </div>
