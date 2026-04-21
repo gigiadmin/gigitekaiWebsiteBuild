@@ -2,8 +2,9 @@
  * AdminLeadsPage — Lead pipeline management
  * Shows all leads from multi-step forms, security assessments, and exit-intent popups.
  * Allows status updates and notes per lead.
+ * Features: Pull-to-refresh gesture on mobile, expandable rows to show hidden columns
  */
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +91,10 @@ export default function AdminLeadsPage() {
   const [editStatus, setEditStatus] = useState<LeadStatus>("new");
   const [editNotes, setEditNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const startYRef = useRef(0);
 
   const { data: leads = [], isLoading, refetch } = trpc.leadgen.getRecentLeads.useQuery(
     { limit: 100, type: "all" },
@@ -145,6 +150,56 @@ export default function AdminLeadsPage() {
     }
   }
 
+  function toggleRowExpanded(leadId: string) {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(leadId)) {
+      newExpanded.delete(leadId);
+    } else {
+      newExpanded.add(leadId);
+    }
+    setExpandedRows(newExpanded);
+  }
+
+  // Pull-to-refresh handler
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (container.scrollTop === 0) {
+        startYRef.current = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (container.scrollTop === 0 && startYRef.current > 0) {
+        const currentY = e.touches[0].clientY;
+        const diff = currentY - startYRef.current;
+        if (diff > 80 && !isRefreshing) {
+          setIsRefreshing(true);
+          refetch().finally(() => {
+            setIsRefreshing(false);
+            startYRef.current = 0;
+          });
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      startYRef.current = 0;
+    };
+
+    container.addEventListener("touchstart", handleTouchStart);
+    container.addEventListener("touchmove", handleTouchMove);
+    container.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isRefreshing, refetch]);
+
   return (
     
     <AdminLayout title="Leads">
@@ -164,7 +219,7 @@ export default function AdminLeadsPage() {
             onClick={() => refetch()}
             className="border-gray-700 text-gray-400 hover:text-white flex-shrink-0"
           >
-            <RefreshCw size={14} className="mr-1.5" />
+            <RefreshCw size={14} className={`mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -232,7 +287,7 @@ export default function AdminLeadsPage() {
               <p>No leads found</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" ref={scrollContainerRef} style={{ maxHeight: "calc(100vh - 400px)", overflowY: "auto" }}>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
@@ -248,6 +303,8 @@ export default function AdminLeadsPage() {
                 </thead>
                 <tbody>
                   {filtered.map((lead) => {
+                    const leadKey = `${lead.type}-${lead.id}`;
+                    const isExpanded = expandedRows.has(leadKey);
                     const status = (lead.status as LeadStatus) || "new";
                     const statusCfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.new;
                     const qualityCfg = lead.leadQuality ? QUALITY_CONFIG[lead.leadQuality] : null;
@@ -259,89 +316,164 @@ export default function AdminLeadsPage() {
                     ].filter(Boolean) as string[];
 
                     return (
-                      <tr
-                        key={`${lead.type}-${lead.id}`}
-                        className="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors"
-                      >
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-white">
-                            {lead.firstName && lead.lastName
-                              ? `${lead.firstName} ${lead.lastName}`
-                              : lead.email}
-                          </div>
-                          <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
-                            <Mail size={10} />
-                            {lead.email}
-                          </div>
-                          {lead.phone && (
+                      <>
+                        <tr
+                          key={leadKey}
+                          className="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors"
+                        >
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-white">
+                              {lead.firstName && lead.lastName
+                                ? `${lead.firstName} ${lead.lastName}`
+                                : lead.email}
+                            </div>
                             <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
-                              <Phone size={10} />
-                              {lead.phone}
+                              <Mail size={10} />
+                              {lead.email}
                             </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 hidden sm:table-cell">
-                          {lead.companyName ? (
-                            <div className="flex items-center gap-1.5 text-gray-300">
-                              <Building2 size={12} className="text-gray-500" />
-                              {lead.companyName}
-                            </div>
-                          ) : (
-                            <span className="text-gray-600">—</span>
-                          )}
-                          {lead.employeeCount && (
-                            <div className="text-gray-500 text-xs mt-0.5">{lead.employeeCount} employees</div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 hidden md:table-cell">
-                          <span className="text-xs px-2 py-1 rounded-md bg-gray-800 text-gray-400">
-                            {TYPE_LABELS[lead.type] ?? lead.type}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 hidden lg:table-cell">
-                          {qualityCfg ? (
-                            <span className={`flex items-center gap-1 text-xs font-semibold ${qualityCfg.color}`}>
-                              {qualityCfg.icon}
-                              {qualityCfg.label}
+                            {lead.phone && (
+                              <div className="text-gray-500 text-xs flex items-center gap-1 mt-0.5">
+                                <Phone size={10} />
+                                {lead.phone}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 hidden sm:table-cell">
+                            {lead.companyName ? (
+                              <div className="flex items-center gap-1.5 text-gray-300">
+                                <Building2 size={12} className="text-gray-500" />
+                                {lead.companyName}
+                              </div>
+                            ) : (
+                              <span className="text-gray-600">—</span>
+                            )}
+                            {lead.employeeCount && (
+                              <div className="text-gray-500 text-xs mt-0.5">{lead.employeeCount} employees</div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 hidden md:table-cell">
+                            <span className="text-xs px-2 py-1 rounded-md bg-gray-800 text-gray-400">
+                              {TYPE_LABELS[lead.type] ?? lead.type}
                             </span>
-                          ) : (
-                            <span className="text-gray-600 text-xs">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}>
-                            {statusCfg.label}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 hidden lg:table-cell">
-                          <div className="flex flex-wrap gap-1">
-                            {needs.length > 0
-                              ? needs.map((n) => (
-                                  <span key={n} className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                                    {n}
-                                  </span>
-                                ))
-                              : <span className="text-gray-600 text-xs">—</span>}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 hidden md:table-cell">
-                          <div className="flex items-center gap-1 text-gray-500 text-xs">
-                            <Calendar size={10} />
-                            {new Date(lead.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEdit(lead)}
-                            className="border-gray-700 text-gray-400 hover:text-cyan-400 hover:border-cyan-500/30 text-xs h-7 px-2"
-                          >
-                            <ChevronDown size={12} className="mr-1" />
-                            Update
-                          </Button>
-                        </td>
-                      </tr>
+                          </td>
+                          <td className="px-4 py-3 hidden lg:table-cell">
+                            {qualityCfg ? (
+                              <span className={`flex items-center gap-1 text-xs font-semibold ${qualityCfg.color}`}>
+                                {qualityCfg.icon}
+                                {qualityCfg.label}
+                              </span>
+                            ) : (
+                              <span className="text-gray-600 text-xs">—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border ${statusCfg.bg} ${statusCfg.text} ${statusCfg.border}`}>
+                              {statusCfg.label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 hidden lg:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {needs.length > 0
+                                ? needs.map((n) => (
+                                    <span key={n} className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                      {n}
+                                    </span>
+                                  ))
+                                : <span className="text-gray-600 text-xs">—</span>}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 hidden md:table-cell">
+                            <div className="flex items-center gap-1 text-gray-500 text-xs">
+                              <Calendar size={10} />
+                              {new Date(lead.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => toggleRowExpanded(leadKey)}
+                              className="border-gray-700 text-gray-400 hover:text-cyan-400 hover:border-cyan-500/30 text-xs h-7 px-2"
+                            >
+                              <ChevronDown size={12} className={`mr-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                              {isExpanded ? 'Hide' : 'Show'}
+                            </Button>
+                          </td>
+                        </tr>
+                        {isExpanded && (
+                          <tr className="border-b border-gray-800/50 bg-gray-900/30">
+                            <td colSpan={8} className="px-4 py-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide mb-1">Company</div>
+                                  <div className="text-white">
+                                    {lead.companyName ? (
+                                      <div className="flex items-center gap-1.5 text-gray-300">
+                                        <Building2 size={12} className="text-gray-500" />
+                                        {lead.companyName}
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-600">—</span>
+                                    )}
+                                    {lead.employeeCount && (
+                                      <div className="text-gray-500 text-xs mt-1">{lead.employeeCount} employees</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide mb-1">Source</div>
+                                  <div className="text-white">
+                                    <span className="text-xs px-2 py-1 rounded-md bg-gray-800 text-gray-400">
+                                      {TYPE_LABELS[lead.type] ?? lead.type}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide mb-1">Quality</div>
+                                  <div className="text-white">
+                                    {qualityCfg ? (
+                                      <span className={`flex items-center gap-1 text-xs font-semibold ${qualityCfg.color}`}>
+                                        {qualityCfg.icon}
+                                        {qualityCfg.label}
+                                      </span>
+                                    ) : (
+                                      <span className="text-gray-600 text-xs">—</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide mb-1">Date Added</div>
+                                  <div className="text-white flex items-center gap-1 text-xs">
+                                    <Calendar size={10} />
+                                    {new Date(lead.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                  </div>
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide mb-1">Needs</div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {needs.length > 0
+                                      ? needs.map((n) => (
+                                          <span key={n} className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                            {n}
+                                          </span>
+                                        ))
+                                      : <span className="text-gray-600 text-xs">—</span>}
+                                  </div>
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => openEdit(lead)}
+                                    className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold text-xs h-8"
+                                  >
+                                    Edit Lead
+                                  </Button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     );
                   })}
                 </tbody>
@@ -353,53 +485,63 @@ export default function AdminLeadsPage() {
 
       {/* Edit Lead Dialog */}
       <Dialog open={!!editLead} onOpenChange={() => setEditLead(null)}>
-        <DialogContent className="max-w-md bg-[#141B2D] border-gray-700">
+        <DialogContent className="bg-[#0A0E1A] border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center gap-2">
-              <StickyNote size={16} className="text-cyan-400" />
-              Update Lead
-            </DialogTitle>
+            <DialogTitle className="text-white">Edit Lead</DialogTitle>
             <DialogDescription className="text-gray-400">
-              {editLead?.firstName} {editLead?.lastName} — {editLead?.companyName ?? editLead?.email}
+              Update lead status and notes
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div>
-              <label className="text-sm font-medium text-gray-300 block mb-1.5">Status</label>
-              <Select value={editStatus} onValueChange={(v) => setEditStatus(v as LeadStatus)}>
-                <SelectTrigger className="bg-[#0A0E1A] border-gray-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                    <SelectItem key={k} value={k}>{v.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {editLead && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-2 block">Lead Name</label>
+                <div className="text-white">
+                  {editLead.firstName && editLead.lastName
+                    ? `${editLead.firstName} ${editLead.lastName}`
+                    : editLead.email}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-2 block">Status</label>
+                <Select value={editStatus} onValueChange={(v) => setEditStatus(v as LeadStatus)}>
+                  <SelectTrigger className="bg-[#141B2D] border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>{v.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300 mb-2 block">Notes</label>
+                <Textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  placeholder="Add notes about this lead..."
+                  className="bg-[#141B2D] border-gray-700 text-white placeholder:text-gray-500 min-h-[100px]"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditLead(null)}
+                  className="border-gray-700 text-gray-400"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold"
+                >
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 block mb-1.5">Notes</label>
-              <Textarea
-                value={editNotes}
-                onChange={(e) => setEditNotes(e.target.value)}
-                placeholder="Add notes about this lead..."
-                rows={4}
-                className="bg-[#0A0E1A] border-gray-700 text-white placeholder:text-gray-600 resize-none"
-              />
-            </div>
-            <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setEditLead(null)} className="border-gray-700 text-gray-400">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold"
-              >
-                {isSaving ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
     </AdminLayout>
