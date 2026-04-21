@@ -30,11 +30,9 @@ export default function AdminUsersPage() {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      
-    <AdminLayout>u.email?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
       u.name?.toLowerCase().includes(q)
-    
-    </AdminLayout>);
+    );
   }) ?? [];
 
   const totalUsers = users?.length ?? 0;

@@ -229,7 +229,6 @@ export default function AdminBlog() {
   const isSaving = createPost.isPending || updatePost.isPending;
 
   return (
-    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -633,6 +632,5 @@ export default function AdminBlog() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  
-    </AdminLayout>);
+  );
 }

@@ -29,7 +29,6 @@ import QuickReplyModal from "@/components/QuickReplyModal";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import AdminLayout from "@/components/AdminLayout";
 
 interface OnlineUser {
   userId: number;
@@ -484,7 +483,6 @@ export default function AdminChat() {
   }
 
   return (
-    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] text-white">
       <div className="max-w-7xl mx-auto p-4 md:p-6">
         {/* Header */}
@@ -982,7 +980,5 @@ export default function AdminChat() {
         />
       )}
     </div>
-  
-    </AdminLayout>
   );
 }

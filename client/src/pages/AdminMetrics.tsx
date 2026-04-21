@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { Clock, CheckCircle, AlertCircle, MessageSquare, RefreshCw, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminMetrics() {
   const { data: metrics, isLoading, error, refetch } = trpc.helpdesk.getMetrics.useQuery(undefined, {
@@ -11,31 +10,27 @@ export default function AdminMetrics() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-8 flex items-center justify-center">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin mx-auto mb-3" />
-            <p className="text-slate-400">Loading live metrics...</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin mx-auto mb-3" />
+          <p className="text-slate-400">Loading live metrics...</p>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <AdminLayout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-8 flex items-center justify-center">
-          <div className="text-center">
-            <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-            <p className="text-red-400 font-semibold mb-1">Failed to load metrics</p>
-            <p className="text-slate-500 text-sm mb-4">{error.message}</p>
-            <button onClick={() => refetch()} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm transition-colors">
-              Retry
-            </button>
-          </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+          <p className="text-red-400 font-semibold mb-1">Failed to load metrics</p>
+          <p className="text-slate-500 text-sm mb-4">{error.message}</p>
+          <button onClick={() => refetch()} className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm transition-colors">
+            Retry
+          </button>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
@@ -80,7 +75,6 @@ export default function AdminMetrics() {
   const totalRatings = sat?.total ?? 0;
 
   return (
-    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -278,6 +272,5 @@ export default function AdminMetrics() {
         </div>
       </div>
     </div>
-    </AdminLayout>
   );
 }

@@ -25,7 +25,6 @@ import {
   History, FileText, CalendarClock, Save, Trash2, Calendar, Edit,
 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
-import AdminLayout from "@/components/AdminLayout";
 
 const EMPTY_FORM = { subject: "", bodyHtml: "", editingId: null as number | null };
 
@@ -173,7 +172,6 @@ export default function AdminNewsletterBroadcast() {
   const minDateTime = new Date(Date.now() + 5 * 60_000).toISOString().slice(0, 16);
 
   return (
-    <AdminLayout>
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-[#0A0E1A] border border-[rgba(0,212,255,0.15)]">
@@ -479,6 +477,5 @@ export default function AdminNewsletterBroadcast() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  
-    </AdminLayout>);
+  );
 }

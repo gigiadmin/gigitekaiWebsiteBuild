@@ -104,8 +104,7 @@ export default function AdminAgentDashboardPage() {
 
   if (!metrics) {
     return (
-      
-    <AdminLayout><AdminLayoutWithSidebar currentPage="agent-dashboard">
+      <AdminLayoutWithSidebar currentPage="agent-dashboard">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Agent Dashboard</h1>
@@ -144,8 +143,7 @@ export default function AdminAgentDashboardPage() {
           </div>
         </div>
       </AdminLayoutWithSidebar>
-    
-    </AdminLayout>);
+    );
   }
 
   const breadcrumbs = [

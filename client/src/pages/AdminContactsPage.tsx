@@ -40,13 +40,11 @@ export default function AdminContactsPage() {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      
-    <AdminLayout>s.name.toLowerCase().includes(q) ||
+      s.name.toLowerCase().includes(q) ||
       s.email.toLowerCase().includes(q) ||
       (s.company ?? "").toLowerCase().includes(q) ||
       s.message.toLowerCase().includes(q)
-    
-    </AdminLayout>);
+    );
   });
 
   const selectedItem = submissions.find((s) => s.id === selected) ?? null;

@@ -51,7 +51,6 @@ import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard"
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
 import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
-import AdminLayout from "@/components/AdminLayout";
 
 type AdminTab = "tickets" | "users";
 
@@ -303,11 +302,9 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
-          <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin" />
-        </div>
-      </AdminLayout>
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin" />
+      </div>
     );
   }
 

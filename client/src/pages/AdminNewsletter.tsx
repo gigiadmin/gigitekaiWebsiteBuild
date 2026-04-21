@@ -21,7 +21,6 @@ import {
 import { toast } from "sonner";
 import { useState } from "react";
 import { Mail, Trash2, Download, Loader2, Users } from "lucide-react";
-import AdminLayout from "@/components/AdminLayout";
 
 function SubscribersList() {
   const utils = trpc.useUtils();
@@ -196,7 +195,6 @@ function SubscribersList() {
 
 export default function AdminNewsletter() {
   return (
-    <AdminLayout>
     <div className="space-y-4">
       <Tabs defaultValue="subscribers">
         <TabsList className="bg-[#0A0E1A] border border-[rgba(0,212,255,0.15)]">
@@ -221,6 +219,5 @@ export default function AdminNewsletter() {
         </TabsContent>
       </Tabs>
     </div>
-  
-    </AdminLayout>);
+  );
 }
