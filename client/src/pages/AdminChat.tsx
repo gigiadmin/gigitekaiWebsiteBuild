@@ -117,6 +117,9 @@ export default function AdminChat() {
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isChatRefreshing, setIsChatRefreshing] = useState(false);
+  const chatListScrollRef = useRef<HTMLDivElement>(null);
+  const chatTouchStartYRef = useRef(0);
 
   // tRPC queries
   const { data: adminSessions } = trpc.chat.getAdminSessions.useQuery(undefined, {
@@ -151,6 +154,37 @@ export default function AdminChat() {
       window.location.href = getLoginUrl();
     }
   }, [isAuthenticated, loading]);
+
+  // Pull-to-refresh for mobile chat sessions list
+  useEffect(() => {
+    const container = chatListScrollRef.current;
+    if (!container) return;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (container.scrollTop === 0) chatTouchStartYRef.current = e.touches[0].clientY;
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (container.scrollTop === 0 && chatTouchStartYRef.current > 0) {
+        const diff = e.touches[0].clientY - chatTouchStartYRef.current;
+        if (diff > 80 && !isChatRefreshing) {
+          setIsChatRefreshing(true);
+          // Re-connect WebSocket to get fresh online users
+          if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+            wsRef.current.send(JSON.stringify({ type: 'get_online_users' }));
+          }
+          setTimeout(() => { setIsChatRefreshing(false); chatTouchStartYRef.current = 0; }, 1000);
+        }
+      }
+    };
+    const handleTouchEnd = () => { chatTouchStartYRef.current = 0; };
+    container.addEventListener('touchstart', handleTouchStart);
+    container.addEventListener('touchmove', handleTouchMove);
+    container.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isChatRefreshing]);
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -545,8 +579,13 @@ export default function AdminChat() {
                 <User className="w-5 h-5 text-[#00D4FF]" />
                 Online Users ({onlineUsers.length})
               </h2>
-
-              <div className="space-y-2">
+              {isChatRefreshing && (
+                <div className="flex items-center justify-center gap-2 py-1 mb-2 text-[#00D4FF] text-xs border border-[#00D4FF]/20 rounded-lg">
+                  <div className="w-3 h-3 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
+                  Refreshing...
+                </div>
+              )}
+              <div className="space-y-2" ref={chatListScrollRef} style={{ maxHeight: '300px', overflowY: 'auto' }}>
                 {onlineUsers.length === 0 ? (
                   <p className="text-gray-400 text-sm">No users online</p>
                 ) : (

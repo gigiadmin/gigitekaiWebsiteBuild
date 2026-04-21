@@ -3273,3 +3273,29 @@
   - TypeScript compilation: 0 errors
   - Graph API authentication working
   - Service health data fetching correctly
+
+## April 2026 Sprint — Three Feature Batch
+
+### Helpdesk Pricing Page
+- [x] Create HelpdeskPricing.tsx component with Essential ($69), Professional ($119), Elite ($189) tiers
+- [x] Highlight Professional plan as most popular with cyan border/ribbon
+- [x] Add annual pricing calculation note
+- [x] Add volume discount info (25-50 users: 8%, annual pre-pay: 10%)
+- [ ] Add "Get Quote" CTA buttons on pricing cards
+- [ ] Integrate helpdesk pricing into Services section of website
+- [x] Add pricing FAQ section
+- [x] Create /helpdesk-pricing route in App.tsx
+
+### Social Media Publishing Admin Page
+- [ ] Create AdminSocialPublish.tsx page for multi-platform content publishing
+- [ ] AI-assisted social copy generator from article content
+- [ ] LinkedIn, X/Twitter, Facebook post preview
+- [ ] Social post history stored in DB
+- [ ] Add route /admin/social/publish in App.tsx
+- [ ] Add "Publish Content" to admin sidebar navigation
+
+### Mobile Enhancements — Admin Pages
+- [ ] Apply pull-to-refresh to AdminPanel (tickets) page
+- [ ] Apply expandable rows to AdminPanel tickets table
+- [ ] Apply pull-to-refresh to AdminChat page
+- [ ] Apply expandable rows to AdminChat sessions table

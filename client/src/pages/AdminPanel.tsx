@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { toast } from "sonner";
 
 import {
@@ -100,6 +100,16 @@ export default function AdminPanel() {
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [closeDialogTicket, setCloseDialogTicket] = useState<{ id: number; title: string; status: string } | null>(null);
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
+  const [expandedTicketIds, setExpandedTicketIds] = useState<Set<number>>(new Set());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const ticketScrollRef = useRef<HTMLDivElement>(null);
+  const touchStartYRef = useRef(0);
+
+  function toggleTicketExpanded(id: number) {
+    const next = new Set(expandedTicketIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setExpandedTicketIds(next);
+  }
 
   const { data: allTickets, isLoading, refetch } = trpc.helpdesk.getAllTickets.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -230,6 +240,33 @@ export default function AdminPanel() {
     localStorage.setItem("ticket-filter-presets", JSON.stringify(updated));
     toast.success(`Preset '${name}' deleted`);
   };
+
+  // Pull-to-refresh for mobile tickets table
+  useEffect(() => {
+    const container = ticketScrollRef.current;
+    if (!container) return;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (container.scrollTop === 0) touchStartYRef.current = e.touches[0].clientY;
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (container.scrollTop === 0 && touchStartYRef.current > 0) {
+        const diff = e.touches[0].clientY - touchStartYRef.current;
+        if (diff > 80 && !isRefreshing) {
+          setIsRefreshing(true);
+          refetch().finally(() => { setIsRefreshing(false); touchStartYRef.current = 0; });
+        }
+      }
+    };
+    const handleTouchEnd = () => { touchStartYRef.current = 0; };
+    container.addEventListener("touchstart", handleTouchStart);
+    container.addEventListener("touchmove", handleTouchMove);
+    container.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isRefreshing, refetch]);
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
@@ -477,8 +514,15 @@ export default function AdminPanel() {
           </div>
         ) : filteredTickets.length > 0 ? (
           <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden w-full">
+            {/* Pull-to-refresh indicator */}
+            {isRefreshing && (
+              <div className="flex items-center justify-center gap-2 py-2 text-[#00D4FF] text-xs border-b border-gray-800/40">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Refreshing tickets...
+              </div>
+            )}
             {/* Table Wrapper with Horizontal Scroll */}
-            <div className="overflow-x-auto w-full">
+            <div className="overflow-x-auto w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto" }}>
               {/* Table Header */}
               <div className="hidden md:grid grid-cols-[40px_60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full min-w-fit">
                 <span></span>
@@ -564,6 +608,40 @@ export default function AdminPanel() {
                         status={ticket.status}
                       />
                     </div>
+
+                    {/* Mobile expand toggle */}
+                    <button
+                      onClick={() => toggleTicketExpanded(ticket.id)}
+                      className="md:hidden flex items-center gap-1 text-xs text-gray-500 hover:text-[#00D4FF] mt-2 mb-1"
+                    >
+                      <ChevronRight className={`w-3 h-3 transition-transform ${expandedTicketIds.has(ticket.id) ? 'rotate-90' : ''}`} />
+                      {expandedTicketIds.has(ticket.id) ? 'Less' : 'Details'}
+                    </button>
+
+                    {/* Expandable detail section for mobile */}
+                    {expandedTicketIds.has(ticket.id) && (
+                      <div className="md:hidden bg-gray-900/40 rounded-lg p-3 mb-2 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Priority</span>
+                          <span className={`font-medium ${priorityConfig.text}`}>{priorityConfig.label}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Category</span>
+                          <span className="text-gray-300 capitalize">{ticket.category.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Customer</span>
+                          <span className="text-gray-300">{ticket.customerName || ticket.customerEmail}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Created</span>
+                          <span className="text-gray-300">{new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        <div className="pt-1">
+                          <SLATimer priority={ticket.priority} createdAt={ticket.createdAt} status={ticket.status} />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap">
