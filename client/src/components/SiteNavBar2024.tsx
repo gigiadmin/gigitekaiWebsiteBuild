@@ -43,6 +43,7 @@ export default function SiteNavBar2024() {
           <div className="flex items-center gap-6">
             <a href="/about-us" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
+            <a href="/AIStrategicBriefing" className="hover:text-[#00D4FF] transition-colors font-semibold">⚡ AI Briefing</a>
             <a href="/helpdesk-pricing" className="hover:text-[#00D4FF] transition-colors">Pricing</a>
             <div className="flex items-center gap-4">
               <a href="tel:+17273825776" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-5776">
@@ -114,6 +115,7 @@ export default function SiteNavBar2024() {
               { label: "ROI Calculator", href: "/roi-calculator" },
               { label: "About Us", href: "/about-us" },
               { label: "Insights", href: "/blog" },
+              { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -220,6 +222,7 @@ export default function SiteNavBar2024() {
                 { label: "Industries", href: "/industries/healthcare", id: "nav-industries" },
                 { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
+                { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
               ].map((item) => (
                 <a
                   key={item.href}

@@ -1535,4 +1535,3 @@ export const teamsClientChannels = mysqlTable("teamsClientChannels", {
 });
 
 export type TeamsClientChannel = typeof teamsClientChannels.$inferSelect;
-export type InsertTeamsClientChannel = typeof teamsClientChannels.$inferInsert;

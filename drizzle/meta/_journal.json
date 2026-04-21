@@ -379,6 +379,20 @@
       "when": 1776745394681,
       "tag": "0053_giant_mystique",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "5",
+      "when": 1776748131108,
+      "tag": "0054_real_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "5",
+      "when": 1776749284725,
+      "tag": "0055_huge_princess_powerful",
+      "breakpoints": true
     }
   ]
 }
