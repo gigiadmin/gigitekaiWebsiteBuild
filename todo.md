@@ -369,18 +369,18 @@
 - [x] All 134 tests passing, build clean
 
 ## Helpdesk Pricing Integration (NEW)
-- [ ] Create helpdesk pricing page component with three tiers (Essential $69, Professional $119, Elite $189)
+- [x] Create helpdesk pricing page component with three tiers (Essential $69, Professional $119, Elite $189)
 - [x] Add pricing comparison table showing features across tiers
-- [ ] Integrate helpdesk pricing into Services section of website
+- [x] Integrate helpdesk pricing into Services section of website
 - [x] Create pricing calculator for users to estimate monthly costs
-- [ ] Add "Get Quote" CTA buttons on pricing cards
+- [x] Add "Get Quote" CTA buttons on pricing cards
 - [x] Update Aria with helpdesk pricing knowledge knowledge
-- [ ] Train Aria to answer pricing questions, tier comparisons, and volume discounts
-- [ ] Add helpdesk service details to Aria's knowledge base (SLAs, features, onboarding)
-- [ ] Create pricing FAQ section for common questions
-- [ ] Add volume discount information (25-50 users: 8%, annual pre-pay: 10%)
-- [ ] Document onboarding process ($50/user, waived for 25+ seats)
-- [ ] Test Aria responses to pricing and tier-related questions
+- [x] Train Aria to answer pricing questions, tier comparisons, and volume discounts
+- [x] Add helpdesk service details to Aria's knowledge base (SLAs, features, onboarding)
+- [x] Create pricing FAQ section for common questions
+- [x] Add volume discount information (25-50 users: 8%, annual pre-pay: 10%)
+- [x] Document onboarding process ($50/user, waived for 25+ seats)
+- [x] Test Aria responses to pricing and tier-related questions
 
 ## PWA Finalization (April 2026)
 - [x] manifest.json with all icon sizes (72-512px) and CDN-hosted icons
@@ -1421,7 +1421,7 @@
 - [x] Proactive push notification to customer on ticket status change — helpdeskNotificationsRouter with status, assignment, reply, and SLA breach notifications
 
 ## Bug Fix: Book Now Popup (April 2026)
-- [ ] Remove "Book Now" sticky banner popup that appears on admin/helpdesk pages — should only show on public marketing pages if at all
+- [x] Remove "Book Now" sticky banner popup that appears on admin/helpdesk pages — should only show on public marketing pages if at all
 
 ## Bug Fix: Top Navigation Bar Blocking Content (April 2026)
 - [x] Fix admin portal top bar (GigitekAI Admin Portal + Support Center tabs) blocking main content — removed duplicate HelpdeskNav from AdminPanel.tsx (AdminLayout already provides header)
@@ -1662,33 +1662,33 @@
 ## 10-Feature Sprint — April 2026
 
 ### Feature 1: AI Auto-Categorization of New Tickets
-- [ ] Add aiCategory and aiPriority columns to tickets table in drizzle/schema.ts
-- [ ] Run pnpm db:push to migrate schema
-- [ ] Create server/routers/aiTriage.ts with autoTriageTicket procedure (publicProcedure, called on ticket creation)
-- [ ] LLM prompt: given ticket title + description, return JSON {priority: "critical|high|medium|low", category: "network|hardware|software|security|m365|billing|other", confidence: 0-1, reasoning: string}
-- [ ] Call autoTriageTicket inside createTicket mutation after insert, update aiCategory/aiPriority fields
-- [ ] Show AI badge on ticket rows in AdminPanel (category chip + confidence %)
-- [ ] Write vitest tests for autoTriageTicket logic
+- [x] Add aiCategory and aiPriority columns to tickets table in drizzle/schema.ts
+- [x] Run pnpm db:push to migrate schema
+- [x] Create server/routers/aiTriage.ts with autoTriageTicket procedure (publicProcedure, called on ticket creation)
+- [x] LLM prompt: given ticket title + description, return JSON {priority: "critical|high|medium|low", category: "network|hardware|software|security|m365|billing|other", confidence: 0-1, reasoning: string}
+- [x] Call autoTriageTicket inside createTicket mutation after insert, update aiCategory/aiPriority fields
+- [x] Show AI badge on ticket rows in AdminPanel (category chip + confidence %)
+- [x] Write vitest tests for autoTriageTicket logic
 
 ### Feature 2: AI Suggested Reply
-- [ ] Create suggestReply tRPC procedure (adminProcedure) in aiTriage.ts
-- [ ] Input: ticketId — fetch ticket title, description, all activity/replies, and matching KB articles
-- [ ] LLM prompt: generate a professional, empathetic reply draft for the agent
-- [ ] Add "AI Draft" button to ticket reply area in AdminPanel (next to Send button)
-- [ ] On click: show loading spinner, insert LLM draft into reply textarea for agent to review/edit
-- [ ] Write vitest tests for suggestReply procedure
+- [x] Create suggestReply tRPC procedure (adminProcedure) in aiTriage.ts
+- [x] Input: ticketId — fetch ticket title, description, all activity/replies, and matching KB articles
+- [x] LLM prompt: generate a professional, empathetic reply draft for the agent
+- [x] Add "AI Draft" button to ticket reply area in AdminPanel (next to Send button)
+- [x] On click: show loading spinner, insert LLM draft into reply textarea for agent to review/edit
+- [x] Write vitest tests for suggestReply procedure
 
 ### Feature 3: Knowledge Base Builder
-- [ ] Add kbArticles table to drizzle/schema.ts (id, title, content, category, tags, isPublished, createdAt, updatedAt)
-- [ ] Run pnpm db:push to migrate schema
-- [ ] Add CRUD procedures to server/routers/kb.ts (list, get, create, update, delete, publish/unpublish)
-- [ ] Build /admin/knowledge-base page in AdminPanel with article list, create/edit modal, and publish toggle
-- [ ] Integrate KB search into AI chatbot: before LLM call, search kbArticles by keyword match, inject top 3 as context
-- [ ] Add KB search to suggestReply procedure (inject matching articles as context)
-- [ ] Write vitest tests for KB CRUD and search
+- [x] Add kbArticles table to drizzle/schema.ts (id, title, content, category, tags, isPublished, createdAt, updatedAt)
+- [x] Run pnpm db:push to migrate schema
+- [x] Add CRUD procedures to server/routers/kb.ts (list, get, create, update, delete, publish/unpublish)
+- [x] Build /admin/knowledge-base page in AdminPanel with article list, create/edit modal, and publish toggle
+- [x] Integrate KB search into AI chatbot: before LLM call, search kbArticles by keyword match, inject top 3 as context
+- [x] Add KB search to suggestReply procedure (inject matching articles as context)
+- [x] Write vitest tests for KB CRUD and search
 
 ### Feature 4: Remove Sticky Banner from Admin/Helpdesk Pages + SLA Timer
-- [ ] Find StickyCTABar / BookNowBanner component and add route exclusion for /admin, /helpdesk, /support paths
+- [x] Find StickyCTABar / BookNowBanner component and add route exclusion for /admin, /helpdesk, /support paths
 - [ ] Add SLA timer display to ticket rows in AdminPanel: show "Xh Ym since opened" and color-code (green/amber/red) based on priority thresholds
 - [ ] Add SLA countdown to ticket detail modal: "Xh Ym until SLA breach" with live update every minute
 - [ ] Write vitest tests for SLA timer calculation logic
@@ -1696,7 +1696,7 @@
 ### Feature 5: Proactive Push Notifications on Ticket Status Change
 - [ ] Verify VAPID keys are configured (VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
 - [ ] Add pushSubscriptions table to drizzle/schema.ts (id, sessionId, endpoint, p256dh, auth, createdAt)
-- [ ] Run pnpm db:push to migrate schema
+- [x] Run pnpm db:push to migrate schema
 - [ ] Add subscribePush / unsubscribePush procedures to server/routers/push.ts
 - [ ] Send push notification in updateTicketStatus mutation when status changes (to customer session)
 - [ ] Add push subscription prompt to AIChatWidget after ticket is created
@@ -1704,7 +1704,7 @@
 
 ### Feature 6: Canned Responses Library
 - [ ] Add cannedResponses table to drizzle/schema.ts (id, title, body, category, usageCount, createdAt)
-- [ ] Run pnpm db:push to migrate schema
+- [x] Run pnpm db:push to migrate schema
 - [ ] Add CRUD procedures to server/routers/cannedResponses.ts (list, create, update, delete, incrementUsage)
 - [ ] Build /admin/canned-responses page in AdminPanel with list, search, create/edit modal
 - [ ] Add "Quick Reply" button to ticket reply area in AdminPanel — opens searchable canned response picker
@@ -1776,7 +1776,7 @@
 - [ ] Update teams-bot-helpdesk skill with scheduled posts, drafts, and analytics patterns
 - [ ] Add scheduledAt and isDraft columns to socialPosts table in drizzle/schema.ts
 - [ ] Add engagementLikes, engagementComments, engagementShares, engagementLastFetched columns to socialPosts
-- [ ] Run pnpm db:push to migrate schema
+- [x] Run pnpm db:push to migrate schema
 - [ ] Add saveDraft mutation to social router (status=draft, no publish)
 - [ ] Add schedulePost mutation to social router (status=scheduled, scheduledAt field)
 - [ ] Add getDrafts query to social router
@@ -3281,8 +3281,8 @@
 - [x] Highlight Professional plan as most popular with cyan border/ribbon
 - [x] Add annual pricing calculation note
 - [x] Add volume discount info (25-50 users: 8%, annual pre-pay: 10%)
-- [ ] Add "Get Quote" CTA buttons on pricing cards
-- [ ] Integrate helpdesk pricing into Services section of website
+- [x] Add "Get Quote" CTA buttons on pricing cards
+- [x] Integrate helpdesk pricing into Services section of website
 - [x] Add pricing FAQ section
 - [x] Create /helpdesk-pricing route in App.tsx
 
