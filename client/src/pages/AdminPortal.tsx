@@ -62,10 +62,11 @@ export default function AdminPortal() {
 
   if (isLoading) {
     return (
-    <AdminLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-      </div>
+      <AdminLayout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AdminLayout>
     );
   }
 
@@ -103,6 +104,7 @@ export default function AdminPortal() {
   const isAgent = activeUser.role === "agent" || isAdmin;
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
       <div className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
@@ -391,6 +393,6 @@ export default function AdminPortal() {
         </Tabs>
       </div>
     </div>
-  
-    </AdminLayout>);
+    </AdminLayout>
+  );
 }

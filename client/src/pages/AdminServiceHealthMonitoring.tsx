@@ -139,28 +139,32 @@ export default function AdminServiceHealthMonitoring() {
 
   if (isLoading) {
     return (
-    <AdminLayout>
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-cyan-500" />
-          <p className="text-gray-400">Loading service health...</p>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-cyan-500" />
+            <p className="text-gray-400">Loading service health...</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   if (!dashboard) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
-          <p className="text-gray-400">Failed to load service health data</p>
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
+            <p className="text-gray-400">Failed to load service health data</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
+    <AdminLayout>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -501,6 +505,6 @@ export default function AdminServiceHealthMonitoring() {
         </div>
       )}
     </div>
-  
-    </AdminLayout>);
+    </AdminLayout>
+  );
 }
