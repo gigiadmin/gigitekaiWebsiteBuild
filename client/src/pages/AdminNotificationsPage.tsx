@@ -7,9 +7,8 @@ import AdminNotifications from "./AdminNotifications";
 export default function AdminNotificationsPage() {
   return (
     
-    <AdminLayout><AdminLayout title="Notifications" noPadding>
+    <AdminLayout title="Notifications" noPadding>
       <AdminNotifications />
     </AdminLayout>
-  
-    </AdminLayout>);
+  );
 }

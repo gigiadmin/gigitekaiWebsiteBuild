@@ -7,9 +7,8 @@ import AdminAccountManagement from "./AdminAccountManagement";
 export default function AdminAccountsPage() {
   return (
     
-    <AdminLayout><AdminLayout title="Accounts" noPadding>
+    <AdminLayout title="Accounts" noPadding>
       <AdminAccountManagement />
     </AdminLayout>
-  
-    </AdminLayout>);
+  );
 }

@@ -147,10 +147,10 @@ export default function AdminLeadsPage() {
 
   return (
     
-    <AdminLayout><AdminLayout title="Leads">
+    <AdminLayout title="Leads">
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <Users className="text-cyan-400" size={22} />
@@ -162,7 +162,7 @@ export default function AdminLeadsPage() {
             variant="outline"
             size="sm"
             onClick={() => refetch()}
-            className="border-gray-700 text-gray-400 hover:text-white"
+            className="border-gray-700 text-gray-400 hover:text-white flex-shrink-0"
           >
             <RefreshCw size={14} className="mr-1.5" />
             Refresh
@@ -237,12 +237,12 @@ export default function AdminLeadsPage() {
                 <thead>
                   <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
                     <th className="text-left px-4 py-3">Lead</th>
-                    <th className="text-left px-4 py-3">Company</th>
-                    <th className="text-left px-4 py-3">Source</th>
-                    <th className="text-left px-4 py-3">Quality</th>
+                    <th className="text-left px-4 py-3 hidden sm:table-cell">Company</th>
+                    <th className="text-left px-4 py-3 hidden md:table-cell">Source</th>
+                    <th className="text-left px-4 py-3 hidden lg:table-cell">Quality</th>
                     <th className="text-left px-4 py-3">Status</th>
-                    <th className="text-left px-4 py-3">Needs</th>
-                    <th className="text-left px-4 py-3">Date</th>
+                    <th className="text-left px-4 py-3 hidden lg:table-cell">Needs</th>
+                    <th className="text-left px-4 py-3 hidden md:table-cell">Date</th>
                     <th className="text-left px-4 py-3">Actions</th>
                   </tr>
                 </thead>
@@ -280,7 +280,7 @@ export default function AdminLeadsPage() {
                             </div>
                           )}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden sm:table-cell">
                           {lead.companyName ? (
                             <div className="flex items-center gap-1.5 text-gray-300">
                               <Building2 size={12} className="text-gray-500" />
@@ -293,12 +293,12 @@ export default function AdminLeadsPage() {
                             <div className="text-gray-500 text-xs mt-0.5">{lead.employeeCount} employees</div>
                           )}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden md:table-cell">
                           <span className="text-xs px-2 py-1 rounded-md bg-gray-800 text-gray-400">
                             {TYPE_LABELS[lead.type] ?? lead.type}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden lg:table-cell">
                           {qualityCfg ? (
                             <span className={`flex items-center gap-1 text-xs font-semibold ${qualityCfg.color}`}>
                               {qualityCfg.icon}
@@ -313,7 +313,7 @@ export default function AdminLeadsPage() {
                             {statusCfg.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden lg:table-cell">
                           <div className="flex flex-wrap gap-1">
                             {needs.length > 0
                               ? needs.map((n) => (
@@ -324,7 +324,7 @@ export default function AdminLeadsPage() {
                               : <span className="text-gray-600 text-xs">—</span>}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 hidden md:table-cell">
                           <div className="flex items-center gap-1 text-gray-500 text-xs">
                             <Calendar size={10} />
                             {new Date(lead.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
@@ -403,6 +403,5 @@ export default function AdminLeadsPage() {
         </DialogContent>
       </Dialog>
     </AdminLayout>
-  
-    </AdminLayout>);
+  );
 }

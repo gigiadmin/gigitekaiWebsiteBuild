@@ -180,10 +180,10 @@ export default function AdminCannedResponsesPage() {
 
   return (
     
-    <AdminLayout><AdminLayout title="Canned Responses">
+    <AdminLayout title="Canned Responses">
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <MessageSquareText className="text-cyan-400" size={22} />
@@ -193,7 +193,7 @@ export default function AdminCannedResponsesPage() {
               Pre-written reply templates for faster helpdesk responses
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -435,6 +435,5 @@ export default function AdminCannedResponsesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </AdminLayout>
-  
-    </AdminLayout>);
+  );
 }

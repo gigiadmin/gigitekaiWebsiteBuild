@@ -7,9 +7,8 @@ import AdminCustomers from "./AdminCustomers";
 export default function AdminInvitesPage() {
   return (
     
-    <AdminLayout><AdminLayout title="Invites">
+    <AdminLayout title="Invites">
       <AdminCustomers />
     </AdminLayout>
-  
-    </AdminLayout>);
+  );
 }

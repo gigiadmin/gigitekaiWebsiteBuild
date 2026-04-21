@@ -6,8 +6,6 @@
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminNewsletterBroadcast from "./AdminNewsletterBroadcast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -196,28 +194,7 @@ function SubscribersList() {
 export default function AdminNewsletter() {
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="subscribers">
-        <TabsList className="bg-[#0A0E1A] border border-[rgba(0,212,255,0.15)]">
-          <TabsTrigger
-            value="subscribers"
-            className="data-[state=active]:bg-[#00D4FF] data-[state=active]:text-[#0A0E1A] text-gray-400"
-          >
-            Subscribers
-          </TabsTrigger>
-          <TabsTrigger
-            value="broadcast"
-            className="data-[state=active]:bg-[#00D4FF] data-[state=active]:text-[#0A0E1A] text-gray-400"
-          >
-            Broadcast
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="subscribers" className="mt-4">
-          <SubscribersList />
-        </TabsContent>
-        <TabsContent value="broadcast" className="mt-4">
-          <AdminNewsletterBroadcast />
-        </TabsContent>
-      </Tabs>
+      <SubscribersList />
     </div>
   );
 }
