@@ -20,6 +20,7 @@ import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
+import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
 import {
   linkedinConnect, linkedinCallback,
   twitterConnect, twitterCallback,
@@ -110,6 +111,11 @@ async function startServer() {
   app.post("/api/webhooks/teams", handleTeamsWebhook);
   app.get("/api/webhooks/teams/health", handleTeamsHealthCheck);
   
+  // Mail Manus webhook for automated email-to-ticket creation
+  // Configure in Manus: Mail Manus → Settings → Webhook → POST to https://gigitekai.com/api/webhooks/mail-manus
+  app.post("/api/webhooks/mail-manus", handleMailManusWebhook);
+  app.get("/api/webhooks/mail-manus/health", handleMailManusHealthCheck);
+  
   // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
   // app.post("/api/webhooks/sendgrid", handleSendGridWebhook);
 
@@ -169,8 +175,12 @@ async function startServer() {
     startInviteExpiryScheduler();
     // Start health check scheduler (every 5 minutes)
     startHealthCheckScheduler(5 * 60 * 1000);
-    // Log Teams webhook endpoint
+    // Log Mail Manus webhook setup instructions
+    console.log("[Mail Manus] Setup: Configure email forwarding from support@gigitekai.com to Mail Manus");
+    console.log("[Mail Manus] Webhook will automatically create tickets from incoming emails with AI classification");
+    // Log webhook endpoints
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
+    console.log(`[Mail Manus] Webhook endpoint: http://localhost:${port}/api/webhooks/mail-manus`);
   });
 }
 

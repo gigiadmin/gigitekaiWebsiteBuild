@@ -3391,3 +3391,24 @@
   - TicketDetail component now displays agent name or "Name (Specialization)" format
   - Falls back to "Agent #ID" if agent info is not found
   - Shows "Unassigned" if no agent is assigned
+
+- [ ] Fix skeleton loaders stuck in AI chat box
+  - Skeleton placeholders are showing at the bottom of chat interface
+  - Should be removed or properly hidden when not loading
+  - Update AIChatBox component to handle skeleton state correctly
+
+## Mail Manus AI-Powered Email Automation (COMPLETE)
+- [x] Set up Mail Manus webhook for automated email-to-ticket creation
+  - Created mailManusWebhook.ts with AI-powered email classification
+  - Webhook endpoint: /api/webhooks/mail-manus
+  - Features:
+    * Automatic ticket creation from incoming emails
+    * AI classification of priority (critical/high/medium/low)
+    * AI categorization (bug_report/feature_request/general_support/billing)
+    * Auto-response emails to customers
+    * SMS alerts for critical tickets
+    * Teams bot notifications
+    * Admin notification system integration
+  - Registered webhook routes in Express server
+  - Tests created: mailManusWebhook.test.ts
+  - Next: Configure Mail Manus in Manus dashboard to forward emails to webhook
