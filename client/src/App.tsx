@@ -23,6 +23,7 @@ import Pricing from "./pages/Pricing";
 import ROICalculatorPage from "./pages/ROICalculatorPage";
 import HelpdeskPricingPage from "./pages/HelpdeskPricing";
 import AIStrategicBriefingPage from "./pages/AIStrategicBriefingPage";
+import CaseStudiesPage from "./pages/CaseStudiesPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
@@ -115,10 +116,11 @@ function Router() {
         <Switch>
       {/* ── Public ── */}
       <Route path={"/"} component={Home} />
-      <Route path={"/pricing"} component={Pricing} />
+       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
       <Route path={"/roi-calculator"} component={ROICalculatorPage} />
       <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
+      <Route path={"/case-studies"} component={CaseStudiesPage} />
       <Route path={"/blog"} component={Blog} />
       <Route path={"/blog/:slug"} component={BlogDetail} />
       <Route path={"/about"}>{() => { window.location.replace("/about-us"); return null; }}</Route>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { briefingData } from "@/data/briefing-april-2026";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 type SectionId = "executive-summary" | "ma-funding" | "model-releases" | "startups" | "implications" | "vendor-stack";
 
@@ -285,10 +286,14 @@ export default function AIStrategicBriefingPage() {
             GigitekAI helps MSPs deploy AI agents, automate workflows, and modernize IT operations.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Button className="bg-cyan-600 hover:bg-cyan-700 text-sm sm:text-base">
+            <Button
+              onClick={() => (window.location.href = "/contact")}
+              className="bg-cyan-600 hover:bg-cyan-700 text-sm sm:text-base"
+            >
               Schedule Consultation
             </Button>
             <Button
+              onClick={() => (window.location.href = "/case-studies")}
               variant="outline"
               className="border-cyan-600 text-cyan-400 hover:bg-cyan-600/10 text-sm sm:text-base"
             >
