@@ -128,10 +128,12 @@ export function AgentAssignmentModal({
                                 : "bg-gray-500"
                           }`}
                         />
-                        <span>{`Agent #${agent.id}`}</span>
+                        <span>
+                          {agent.specialization || `Agent #${agent.id}`}
+                        </span>
                         {agent.status && (
                           <span className="text-xs text-gray-400">
-                            ({agent.status})
+                            {agent.status}
                           </span>
                         )}
                       </div>

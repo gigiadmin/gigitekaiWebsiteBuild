@@ -3369,3 +3369,9 @@
 ## Bug Fixes — April 2026
 - [x] Fix: Top promotional banner ("Claim Yours") blocking hamburger menu on mobile — z-index/positioning conflict
 - [x] Fix: AI chatbot not responding — stuck showing loading skeletons after tapping quick action buttons
+
+- [x] Fix agent names display in "Assign Ticket to Agent" dropdown
+  - Updated AgentAssignmentModal to display agent.name or agent.specialization
+  - Falls back to "Agent #ID" if name is not available
+  - Shows specialization in parentheses (e.g., "John Smith (Microsoft 365)")
+  - All 611 tests passing
