@@ -3375,3 +3375,13 @@
   - Falls back to "Agent #ID" if name is not available
   - Shows specialization in parentheses (e.g., "John Smith (Microsoft 365)")
   - All 611 tests passing
+
+- [x] Fix Agent Dashboard mobile responsiveness
+  - Content is getting cut off on the right side on mobile
+  - Sidebar now starts closed on mobile and opens as overlay
+  - Main content area is fully viewable on mobile devices
+  - Changes:
+    - AdminLayoutWithSidebar: sidebar starts closed, uses fixed positioning on mobile
+    - Added mobile overlay to prevent interaction when sidebar is open
+    - Responsive padding on top bar (px-4 sm:px-6)
+    - AdminLayout: responsive padding on main content (p-4 sm:p-6)

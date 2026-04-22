@@ -47,7 +47,7 @@ interface MenuSection {
 export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutProps) {
   const [, navigate] = useLocation();
   const { user, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
   // Auto-expand ANALYTICS if on M365 Health page
   const [expandedSection, setExpandedSection] = useState<string | null>(() => {
     if (currentPage === "m365-health") return "ANALYTICS";
@@ -124,12 +124,20 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
   };
 
   return (
-    <div className="flex h-screen bg-[#0A0E1A]">
+    <div className="flex h-screen bg-[#0A0E1A] overflow-hidden">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <div
         className={`${
           sidebarOpen ? "w-64" : "w-0"
-        } bg-[#0F1419] border-r border-gray-800/40 transition-all duration-300 overflow-hidden flex flex-col`}
+        } bg-[#0F1419] border-r border-gray-800/40 transition-all duration-300 overflow-hidden flex flex-col fixed lg:static h-full z-50 lg:z-auto`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-800/40">
@@ -228,9 +236,9 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Top Bar */}
-        <div className="bg-[#0F1419] border-b border-gray-800/40 px-6 py-4 flex items-center justify-between">
+        <div className="bg-[#0F1419] border-b border-gray-800/40 px-4 sm:px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="text-gray-400 hover:text-white transition-colors"
@@ -246,7 +254,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
         </div>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto w-full">
           {children}
         </div>
       </div>
