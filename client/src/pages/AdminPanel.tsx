@@ -36,6 +36,8 @@ import {
   Video,
   Cloud,
   Star,
+  Plus,
+  X,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -103,6 +105,15 @@ export default function AdminPanel() {
   const [closeDialogTicket, setCloseDialogTicket] = useState<{ id: number; title: string; status: string } | null>(null);
   const [escalateDialogOpen, setEscalateDialogOpen] = useState(false);
   const [escalateTicket, setEscalateTicket] = useState<{ id: number; title: string } | null>(null);
+  const [showCreateTicket, setShowCreateTicket] = useState(false);
+  const [createTicketForm, setCreateTicketForm] = useState({
+    title: "",
+    description: "",
+    priority: "medium" as "low" | "medium" | "high" | "critical",
+    category: "general_support" as "bug_report" | "feature_request" | "general_support" | "billing",
+    customerEmail: "",
+    customerName: "",
+  });
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
   const [expandedTicketIds, setExpandedTicketIds] = useState<Set<number>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -156,6 +167,35 @@ export default function AdminPanel() {
     },
     onError: (error: any) => toast.error(error.message || "Failed to update user role"),
   });
+
+  const adminCreateTicketMutation = trpc.helpdesk.adminCreateTicket.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Ticket #${data.ticketId} created successfully!`);
+      setShowCreateTicket(false);
+      setCreateTicketForm({ title: "", description: "", priority: "medium", category: "general_support", customerEmail: "", customerName: "" });
+      refetch();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to create ticket"),
+  });
+
+  const handleAdminCreateTicket = () => {
+    if (!createTicketForm.title.trim() || createTicketForm.title.trim().length < 5) {
+      toast.error("Title must be at least 5 characters");
+      return;
+    }
+    if (!createTicketForm.description.trim() || createTicketForm.description.trim().length < 10) {
+      toast.error("Description must be at least 10 characters");
+      return;
+    }
+    adminCreateTicketMutation.mutate({
+      title: createTicketForm.title.trim(),
+      description: createTicketForm.description.trim(),
+      priority: createTicketForm.priority,
+      category: createTicketForm.category,
+      customerEmail: createTicketForm.customerEmail.trim() || undefined,
+      customerName: createTicketForm.customerName.trim() || undefined,
+    });
+  };
 
   const snoozeSlaBreachMutation = trpc.helpdesk.snoozeSlaBreach.useMutation({
     onSuccess: (data) => {
@@ -360,11 +400,17 @@ export default function AdminPanel() {
             </h1>
             <p className="text-gray-400 text-sm">Manage all customer support tickets and user access</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-400">
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-gray-400 hidden sm:block">
               <span className="text-[#00D4FF]">{user?.email}</span>
             </div>
-
+            <button
+              onClick={() => setShowCreateTicket(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] text-black font-semibold text-sm rounded-xl transition-all shadow-lg shadow-[#00D4FF]/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Ticket</span>
+            </button>
           </div>
         </div>
 
@@ -1140,6 +1186,134 @@ export default function AdminPanel() {
           ticketId={escalateTicket.id}
           ticketTitle={escalateTicket.title}
         />
+      )}
+
+      {/* Create Ticket Modal */}
+      {showCreateTicket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#0D1321] border border-gray-800 rounded-2xl shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-[#00D4FF]" />
+                </div>
+                <div>
+                  <h2 className="text-white font-semibold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Create Ticket</h2>
+                  <p className="text-gray-500 text-xs">Create a support ticket on behalf of a customer</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCreateTicket(false)}
+                className="text-gray-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-5 space-y-4">
+              {/* Customer Info Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Customer Email <span className="text-gray-600">(optional)</span></label>
+                  <input
+                    type="email"
+                    placeholder="customer@company.com"
+                    value={createTicketForm.customerEmail}
+                    onChange={(e) => setCreateTicketForm(f => ({ ...f, customerEmail: e.target.value }))}
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Customer Name <span className="text-gray-600">(optional)</span></label>
+                  <input
+                    type="text"
+                    placeholder="John Smith"
+                    value={createTicketForm.customerName}
+                    onChange={(e) => setCreateTicketForm(f => ({ ...f, customerName: e.target.value }))}
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Subject / Title <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  placeholder="Brief description of the issue..."
+                  value={createTicketForm.title}
+                  onChange={(e) => setCreateTicketForm(f => ({ ...f, title: e.target.value }))}
+                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                />
+              </div>
+
+              {/* Priority & Category Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Priority <span className="text-red-400">*</span></label>
+                  <select
+                    value={createTicketForm.priority}
+                    onChange={(e) => setCreateTicketForm(f => ({ ...f, priority: e.target.value as any }))}
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                  >
+                    <option value="low">🟢 Low</option>
+                    <option value="medium">🟡 Medium</option>
+                    <option value="high">🟠 High</option>
+                    <option value="critical">🔴 Critical</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Category <span className="text-red-400">*</span></label>
+                  <select
+                    value={createTicketForm.category}
+                    onChange={(e) => setCreateTicketForm(f => ({ ...f, category: e.target.value as any }))}
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                  >
+                    <option value="general_support">General Support</option>
+                    <option value="bug_report">Bug Report</option>
+                    <option value="feature_request">Feature Request</option>
+                    <option value="billing">Billing</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Description <span className="text-red-400">*</span></label>
+                <textarea
+                  rows={4}
+                  placeholder="Detailed description of the issue or request..."
+                  value={createTicketForm.description}
+                  onChange={(e) => setCreateTicketForm(f => ({ ...f, description: e.target.value }))}
+                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 pb-6 pt-2">
+              <button
+                onClick={() => setShowCreateTicket(false)}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAdminCreateTicket}
+                disabled={adminCreateTicketMutation.isPending}
+                className="flex items-center gap-2 px-5 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold text-sm rounded-xl transition-all shadow-lg shadow-[#00D4FF]/20"
+              >
+                {adminCreateTicketMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Creating...</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> Create Ticket</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Agent Assignment Modal */}

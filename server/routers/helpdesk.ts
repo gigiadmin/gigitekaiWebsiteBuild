@@ -909,6 +909,97 @@ export const helpdeskRouter = router({
       }
     }),
 
+  // Admin-side ticket creation: create a ticket on behalf of a customer (admin only)
+  adminCreateTicket: adminProcedure
+    .input(
+      z.object({
+        title: z.string().min(5, "Title must be at least 5 characters"),
+        description: z.string().min(10, "Description must be at least 10 characters"),
+        priority: z.enum(["low", "medium", "high", "critical"]),
+        category: z.enum(["bug_report", "feature_request", "general_support", "billing"]),
+        customerEmail: z.string().email("Invalid email address").optional(),
+        customerName: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        // Resolve userId: look up user by email, or fall back to admin's own id
+        let targetUserId = ctx.user.id;
+        let resolvedEmail = ctx.user.email || "support@gigitekai.com";
+        let resolvedName = ctx.user.name || "Admin";
+
+        if (input.customerEmail) {
+          const found = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, input.customerEmail))
+            .limit(1);
+          if (found.length > 0) {
+            targetUserId = found[0].id;
+            resolvedEmail = found[0].email || input.customerEmail;
+            resolvedName = found[0].name || input.customerName || input.customerEmail;
+          } else {
+            // No matching user — use userId 0 (external/walk-in)
+            targetUserId = 0;
+            resolvedEmail = input.customerEmail;
+            resolvedName = input.customerName || input.customerEmail;
+          }
+        }
+
+        const ticket = await createTicket({
+          userId: targetUserId,
+          title: input.title,
+          description: input.description,
+          priority: input.priority,
+          category: input.category,
+          status: "open",
+        });
+
+        // Log activity
+        if (ticket?.id) {
+          await db.insert(ticketActivity).values({
+            ticketId: ticket.id,
+            actorId: ctx.user.id,
+            actorName: ctx.user.name || ctx.user.email || "Admin",
+            action: "created_by_admin",
+            toValue: `On behalf of ${resolvedName} (${resolvedEmail})`,
+          }).catch(() => {});
+        }
+
+        // Notify owner
+        await notifyOwner({
+          title: `[Admin Created] Ticket: ${input.title}`,
+          content: `Created by admin: ${ctx.user.name || ctx.user.email}\nFor: ${resolvedName} (${resolvedEmail})\nCategory: ${input.category}\nPriority: ${input.priority}\n\n${input.description}`,
+        });
+
+        // Send Teams notification (non-blocking)
+        if (ticket?.id) {
+          sendTicketNotificationToTeams(ticket)
+            .catch((e: any) => console.warn("[Helpdesk] Admin-created ticket Teams notification failed:", e));
+        }
+
+        // Create admin portal notification
+        if (ticket?.id) {
+          createAdminNotification({
+            type: "new_ticket",
+            title: `Admin Created Ticket: ${input.title}`,
+            body: `For: ${resolvedName} · Priority: ${input.priority} · ${input.category.replace(/_/g, " ")}`,
+            href: `/admin/helpdesk`,
+            priority: input.priority === "critical" ? "critical" : input.priority === "high" ? "high" : "normal",
+            ticketId: ticket.id,
+          }).catch((e: any) => console.warn("[Helpdesk] Admin notification failed:", e));
+        }
+
+        return { success: true, ticketId: ticket?.id || null };
+      } catch (error) {
+        console.error("Failed to admin-create ticket:", error);
+        throw error;
+      }
+    }),
+
   closeTicket: adminProcedure
     .input(
       z.object({
