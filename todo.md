@@ -3385,3 +3385,9 @@
     - Added mobile overlay to prevent interaction when sidebar is open
     - Responsive padding on top bar (px-4 sm:px-6)
     - AdminLayout: responsive padding on main content (p-4 sm:p-6)
+
+- [x] Display agent name/specialization on user-facing ticket detail page
+  - Updated getTicket procedure to fetch agent name and specialization
+  - TicketDetail component now displays agent name or "Name (Specialization)" format
+  - Falls back to "Agent #ID" if agent info is not found
+  - Shows "Unassigned" if no agent is assigned

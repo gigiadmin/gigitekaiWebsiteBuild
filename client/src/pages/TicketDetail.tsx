@@ -270,7 +270,7 @@ export default function TicketDetail() {
     );
   }
 
-  const { ticket, replies } = ticketData;
+  const { ticket, replies, agentInfo } = ticketData;
   const statusConfig = getStatusConfig(ticket.status);
   const priorityConfig = getPriorityConfig(ticket.priority);
 
@@ -334,7 +334,17 @@ export default function TicketDetail() {
               <MetaItem
                 icon={<User className="w-4 h-4" />}
                 label="Assigned To"
-                value={<span className="text-white font-medium">{ticket.assignedTo ? "Agent #" + ticket.assignedTo : "Unassigned"}</span>}
+                value={
+                  <span className="text-white font-medium">
+                    {ticket.assignedTo
+                      ? agentInfo
+                        ? agentInfo.specialization
+                          ? `${agentInfo.name} (${agentInfo.specialization})`
+                          : agentInfo.name
+                        : `Agent #${ticket.assignedTo}`
+                      : "Unassigned"}
+                  </span>
+                }
               />
 
             </div>

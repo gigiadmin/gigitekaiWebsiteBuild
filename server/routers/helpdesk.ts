@@ -8,7 +8,7 @@ import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { sendPushToUser } from "../_core/pushHelper";
 import { searchKnowledgeBase } from "../db";
-import { users } from "../../drizzle/schema";
+import { users, agents } from "../../drizzle/schema";
 import { ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes } from "../../drizzle/schema";
 import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
 
@@ -305,8 +305,29 @@ export const helpdeskRouter = router({
           throw new Error("Unauthorized");
         }
 
+        // Fetch agent information if ticket is assigned
+        let agentInfo = null;
+        if (ticket.assignedTo) {
+          const db = await getDb();
+          if (db) {
+            const agentResult = await db
+              .select({
+                id: agents.id,
+                name: users.name,
+                specialization: agents.specialization,
+              })
+              .from(agents)
+              .innerJoin(users, eq(agents.userId, users.id))
+              .where(eq(agents.id, ticket.assignedTo))
+              .limit(1);
+            if (agentResult.length > 0) {
+              agentInfo = agentResult[0];
+            }
+          }
+        }
+
         const replies = await getTicketReplies(input.ticketId);
-        return { ticket, replies };
+        return { ticket, replies, agentInfo };
       } catch (error) {
         console.error("Failed to get ticket:", error);
         throw error;
