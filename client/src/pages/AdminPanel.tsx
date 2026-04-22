@@ -574,7 +574,7 @@ export default function AdminPanel() {
             {/* Table Wrapper with Horizontal Scroll */}
             <div className="overflow-x-auto w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto" }}>
               {/* Table Header */}
-              <div className="hidden md:grid grid-cols-[40px_60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full min-w-fit">
+              <div className="hidden md:grid grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10">
                 <span></span>
                 <span>ID</span>
                 <span>Title</span>
@@ -593,7 +593,7 @@ export default function AdminPanel() {
                   return (
                     <div
                       key={ticket.id}
-                      className="group md:grid md:grid-cols-[40px_60px_1fr_120px_100px_120px_100px_200px] gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full min-w-fit"
+                      className="group md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full border-b border-gray-800/40"
                     >
                     {/* Checkbox */}
                     <input

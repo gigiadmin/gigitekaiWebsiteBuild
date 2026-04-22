@@ -3412,3 +3412,8 @@
   - Registered webhook routes in Express server
   - Tests created: mailManusWebhook.test.ts
   - Next: Configure Mail Manus in Manus dashboard to forward emails to webhook
+
+- [ ] Fix admin helpdesk ticket list layout
+  - Detail panel is overlaying ticket list causing data mash-up
+  - Need to separate detail view from list view properly
+  - Should use modal or side panel instead of overlay
