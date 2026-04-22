@@ -16,6 +16,8 @@ import {
   Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AdminLayout from "@/components/AdminLayout";
+import { KBFullScreenModal } from "@/components/KBFullScreenModal";
 
 interface ArticleForm {
   title: string;
@@ -130,8 +132,10 @@ export default function KnowledgeBase() {
   }
 
   const previewArticle = displayed.find((a: any) => a.id === preview);
+  const [fullscreenPreview, setFullscreenPreview] = useState<any>(null);
 
   return (
+    <AdminLayout title="Knowledge Base">
     <div className="min-h-screen bg-[#0A0E1A] text-white p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -231,8 +235,9 @@ export default function KnowledgeBase() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setPreview(preview === a.id ? null : a.id)}
+                  onClick={() => setFullscreenPreview(a)}
                   className="border-gray-700 text-gray-400 hover:text-[#00D4FF] text-xs h-7 px-2 rounded-lg"
+                  title="Open in fullscreen"
                 >
                   <Eye className="w-3 h-3 mr-1" /> Preview
                 </Button>
@@ -351,6 +356,15 @@ export default function KnowledgeBase() {
           </div>
         </div>
       )}
+      
+      {/* Fullscreen Preview Modal */}
+      <KBFullScreenModal
+        article={fullscreenPreview}
+        isOpen={!!fullscreenPreview}
+        onClose={() => setFullscreenPreview(null)}
+        isAdmin={isAdmin}
+      />
     </div>
+    </AdminLayout>
   );
 }

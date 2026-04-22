@@ -118,6 +118,19 @@
   - All 103 tests passing
 
 
+## KB Usability Improvements (COMPLETE)
+- [x] Add fullscreen/expand modal for KB article previews (click Preview → opens large window)
+  - Integrated KBFullScreenModal component with max-w-4xl max-h-[90vh] for large reading surface
+  - Preview button now opens fullscreen modal instead of inline card preview
+  - Modal includes copy link, copy markdown, share, email, and edit actions
+- [x] Add menu/navigation to KB page (currently missing)
+  - Wrapped KnowledgeBase.tsx with AdminLayout component
+  - Now displays full admin sidebar menu and breadcrumb navigation
+- [x] Make KB articles readable in full-screen view with proper formatting
+  - Uses KBArticleContent component for proper markdown rendering
+  - Sticky header and footer for easy navigation
+  - All 611 tests passing
+
 ## Current Issues
 - [x] Fix admin helpdesk route - /admin/helpdesk returns 404
   - Added missing useAuth import to AdminPanel.tsx
