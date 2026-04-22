@@ -21,7 +21,7 @@ FN:Harry Henry Santiago
 TITLE:CEO & Founder
 ORG:GigitekAI
 EMAIL:harry@gigitekai.com
-TEL:+1-727-382-5776
+TEL:+1-727-382-6909
 URL:https://gigitekai.com
 END:VCARD`;
 
@@ -85,13 +85,13 @@ END:VCARD`;
 
               {/* Phone */}
               <a
-                href="tel:+17273825776"
+                href="tel:+17273826909"
                 className="flex items-center gap-3 p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg transition-colors group"
               >
                 <Phone className="w-5 h-5 text-cyan-400 group-hover:text-cyan-300" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-400">Phone</p>
-                  <p className="text-white text-sm">(727) 382-5776</p>
+                  <p className="text-white text-sm">(727) 382-6909</p>
                 </div>
               </a>
 

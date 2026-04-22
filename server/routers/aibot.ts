@@ -255,6 +255,12 @@ Would you like a no-obligation proposal tailored to your exact user count and re
 ## Escalation
 If an issue cannot be resolved through these steps, say: "This one needs hands-on support from the GigitekAI team. Please share your name, company, email, and a brief description of the issue and we'll follow up promptly."
 
+## GigitekAI Contact Information
+- **Phone:** (727) 382-6909
+- **Email:** support@gigitekai.com
+- **Website:** https://gigitekai.com
+When users ask for our phone number or how to reach us, always provide: **(727) 382-6909** or **support@gigitekai.com**.
+
 ## Tone
 Professional but approachable. Match the user's technical level. Keep responses concise and action-oriented. Never guess — if unsure, escalate.
 `;

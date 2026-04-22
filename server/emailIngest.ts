@@ -198,7 +198,7 @@ export async function handleEmailIngest(req: Request, res: Response) {
     </div>
     <div style="background:#f5f5f5;padding:16px;text-align:center;font-size:12px;color:#999;border-top:1px solid #e0e0e0;">
       <p style="margin:0;">GigitekAI • Cloud &amp; AI Solutions</p>
-      <p style="margin:4px 0 0;">support@gigitekai.com • (727) 382-5776</p>
+      <p style="margin:4px 0 0;">support@gigitekai.com • (727) 382-6909</p>
     </div>
   </div>
 </body>

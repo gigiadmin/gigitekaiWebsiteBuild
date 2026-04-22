@@ -112,10 +112,10 @@ export default function Contact() {
                     Phone
                   </p>
                   <a
-                    href="tel:7273825776"
+                    href="tel:7273826909"
                     className="text-white hover:text-[#00d4ff] transition-colors font-medium"
                   >
-                    (727) 382-5776
+                    (727) 382-6909
                   </a>
                 </div>
               </div>
@@ -344,10 +344,10 @@ export default function Contact() {
                       <br />
                       For urgent support, call{" "}
                       <a
-                        href="tel:7273825776"
+                        href="tel:7273826909"
                         className="text-[#00d4ff] hover:underline"
                       >
-                        (727) 382-5776
+                        (727) 382-6909
                       </a>
                     </p>
                   </form>

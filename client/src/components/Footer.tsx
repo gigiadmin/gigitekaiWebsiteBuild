@@ -137,8 +137,8 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Contact Info */}
             <div className="flex items-center gap-4 text-xs text-gray-600">
-              <a href="tel:+17273825776" className="hover:text-[#00D4FF] transition-colors">
-                (727) 382-5776
+              <a href="tel:+17273826909" className="hover:text-[#00D4FF] transition-colors">
+                (727) 382-6909
               </a>
               <span>|</span>
               <a href="mailto:support@gigitekai.com" className="hover:text-[#00D4FF] transition-colors">

@@ -257,7 +257,7 @@ export default function TermsOfService() {
               <div className="bg-gray-100 dark:bg-[#141B2D] p-6 rounded-lg text-gray-700 dark:text-gray-300">
                 <p className="mb-2"><strong>GigitekAI LLC</strong></p>
                 <p className="mb-2">Email: support@gigitekai.com</p>
-                <p className="mb-2">Phone: (727) 382-5776</p>
+                <p className="mb-2">Phone: (727) 382-6909</p>
                 <p>Website: https://gigitekai.com</p>
               </div>
             </section>

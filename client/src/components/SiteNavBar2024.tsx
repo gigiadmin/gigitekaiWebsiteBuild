@@ -46,9 +46,9 @@ export default function SiteNavBar2024() {
             <a href="/AIStrategicBriefing" className="hover:text-[#00D4FF] transition-colors font-semibold">⚡ AI Briefing</a>
             <a href="/helpdesk-pricing" className="hover:text-[#00D4FF] transition-colors">Pricing</a>
             <div className="flex items-center gap-4">
-              <a href="tel:+17273825776" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-5776">
+              <a href="tel:+17273826909" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-6909">
                 <Phone size={12} aria-hidden="true" />
-                (727) 382-5776
+                (727) 382-6909
               </a>
             </div>
           </div>
