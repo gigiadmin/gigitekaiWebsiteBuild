@@ -293,15 +293,31 @@ export const aibotRouter = router({
       message: z.string().min(1),
     }))
     .mutation(async ({ input }) => {
-      const { sessionId, message } = input;
+      let { sessionId, message } = input;
 
-      // Get chat history
-      const history = await getChatMessages(sessionId);
-      const session = await getChatSession(sessionId);
+      // If this is a local fallback ID (starts with 'local-') or the session doesn't exist,
+      // create a real DB session so the LLM call can proceed
+      let session = await getChatSession(sessionId);
+      if (!session) {
+        // Create a new real session (use nanoid for proper DB sessions)
+        const realSessionId = nanoid();
+        await createChatSession({
+          sessionId: realSessionId,
+          visitorName: null,
+          visitorEmail: null,
+          visitorCompany: null,
+          status: "active",
+        });
+        sessionId = realSessionId;
+        session = await getChatSession(sessionId);
+      }
 
       if (!session) {
         throw new Error("Session not found");
       }
+
+      // Get chat history
+      const history = await getChatMessages(sessionId);
 
       // Save user message
       const userMsgResult = await saveChatMessage({
