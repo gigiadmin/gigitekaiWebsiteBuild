@@ -3355,3 +3355,4 @@
 
 ## Bug Fixes — April 2026
 - [x] Fix: Top promotional banner ("Claim Yours") blocking hamburger menu on mobile — z-index/positioning conflict
+- [x] Fix: AI chatbot not responding — stuck showing loading skeletons after tapping quick action buttons

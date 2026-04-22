@@ -194,15 +194,33 @@ export default function AIChatWidget() {
   // ─── Message Handlers ────────────────────────────────────────────────────────
 
   const sendQuickMessage = async (quickMessage: string) => {
-    if (!sessionId) return;
     setHasInteracted(true);
     setMessages((prev) => [...prev, { role: "user", message: quickMessage, timestamp: Date.now() }]);
     setIsLoading(true);
+
+    // Ensure session exists (same pattern as handleSendMessage)
+    let ensuredSessionId = sessionId;
+    if (!ensuredSessionId) {
+      console.log("[Chat] Quick message: session not ready, initializing...");
+      try {
+        const result = await getOrCreateSession.mutateAsync({});
+        ensuredSessionId = result.sessionId;
+        setSessionId(ensuredSessionId);
+        localStorage.setItem("chatSessionId", ensuredSessionId);
+      } catch (error) {
+        console.error("[Chat] Quick message: failed to init session:", error);
+        // Use fallback session so chat is still usable
+        ensuredSessionId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        setSessionId(ensuredSessionId);
+        localStorage.setItem("chatSessionId", ensuredSessionId);
+      }
+    }
+
     try {
-      const response = await sendMessageMutation.mutateAsync({ sessionId, message: quickMessage });
+      const response = await sendMessageMutation.mutateAsync({ sessionId: ensuredSessionId, message: quickMessage });
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
     } catch {
-      toast.error("Failed to send message. Please try again.");
+      setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitekai.com or call 609-676-4483.", timestamp: Date.now() }]);
     } finally {
       setIsLoading(false);
     }
