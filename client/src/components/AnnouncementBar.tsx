@@ -4,6 +4,7 @@
   - Dismissible (persists dismissal in sessionStorage)
   - Configurable message and CTA link
   - Cyan gradient on dark background, matches brand palette
+  - Mobile-safe: CTA hidden on small screens, dismiss button properly positioned
 */
 import { useState } from "react";
 import { X, Zap } from "lucide-react";
@@ -35,27 +36,27 @@ export default function AnnouncementBar({
 
   return (
     <div
-      className="relative z-[60] w-full bg-gradient-to-r from-[#001A2E] via-[#00111F] to-[#001A2E] border-b border-[#00D4FF]/20"
+      className="relative z-40 w-full bg-gradient-to-r from-[#001A2E] via-[#00111F] to-[#001A2E] border-b border-[#00D4FF]/20"
       role="banner"
       aria-label="Site announcement"
     >
       {/* Subtle animated shimmer line */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#00D4FF]/40 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-3 text-sm">
+      <div className="max-w-7xl mx-auto px-4 py-2 pr-10 flex items-center justify-center gap-3 text-sm">
         {/* Icon */}
         <Zap size={14} className="text-[#00D4FF] shrink-0 hidden sm:block" />
 
-        {/* Message */}
-        <span className="text-gray-300 text-center leading-snug">
+        {/* Message — truncated on mobile to prevent overlap */}
+        <span className="text-gray-300 text-center leading-snug line-clamp-1 sm:line-clamp-none">
           {message}
         </span>
 
-        {/* CTA */}
+        {/* CTA — hidden on mobile to prevent blocking hamburger menu */}
         {ctaHref && ctaText && (
           <Link
             href={ctaHref}
-            className="shrink-0 text-[#00D4FF] font-semibold hover:text-white transition-colors whitespace-nowrap"
+            className="shrink-0 text-[#00D4FF] font-semibold hover:text-white transition-colors whitespace-nowrap hidden sm:inline"
           >
             {ctaText}
           </Link>
@@ -70,6 +71,18 @@ export default function AnnouncementBar({
           <X size={14} />
         </button>
       </div>
+
+      {/* Mobile-only CTA below the message */}
+      {ctaHref && ctaText && (
+        <div className="sm:hidden text-center pb-1.5 -mt-0.5">
+          <Link
+            href={ctaHref}
+            className="text-[#00D4FF] font-semibold text-xs hover:text-white transition-colors"
+          >
+            {ctaText}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

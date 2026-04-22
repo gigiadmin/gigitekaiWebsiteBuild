@@ -3337,3 +3337,21 @@
 - [x] Create reusable Teams integration skill using skill-creator workflow
 - [ ] Document webhook setup, Bot Framework config, Graph API permissions
 - [ ] Include adaptive card templates and retry logic patterns
+
+## Track 5 — Custom AI Call Pipeline (Azure Function App)
+- [ ] Resume Azure Function App creation — Azure resource providers (Microsoft.Storage, Microsoft.Web) were still registering when paused
+  - Subscription ID: fe541b42-6232-405c-9588-59a45063ca49
+  - Resource Group already created: GigitekAI-CallPipeline (East US)
+  - App Registration already created: GigitekAI-CallPipeline (App ID: f672ff8c-658b-42c6-8110-91055c0e874c)
+  - Client Secret saved in NordPass: RJz8Q~lmj8SZU~PbDJJalhST4gcLsQeiojmUvcuh (expires 2 years)
+  - All 4 Graph API permissions granted: CallRecords.Read.All, OnlineMeetingTranscript.Read.All, User.Read.All, Calls.Read.All
+  - Next step: Verify providers are Registered, then create storage account "ggpipeline2026" and Function App "gigitekai-call-pipeline"
+- [ ] Deploy PowerShell webhook handler to Azure Function App
+- [ ] Register Graph API subscription for callRecords pointing to Function App URL
+- [ ] Build Copilot Studio agent (GigitekAI Call Analyzer) with system prompt and Direct Line endpoint
+- [ ] Configure Teams Adaptive Card notification to harry@gigitekai.com
+- [ ] Schedule Phase3-WebhookRenewal.ps1 every 2 days in Task Scheduler or Azure Automation
+- [ ] End-to-end test: call +1 727-382-6909 → verify Teams card appears within 90 seconds
+
+## Bug Fixes — April 2026
+- [x] Fix: Top promotional banner ("Claim Yours") blocking hamburger menu on mobile — z-index/positioning conflict
