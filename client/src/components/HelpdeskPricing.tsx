@@ -194,14 +194,17 @@ export default function HelpdeskPricing() {
             <div className="flex items-center gap-3 mb-4">
               <input
                 type="number"
-                min="10"
+                min="1"
                 max="1000"
                 value={userCount}
-                onChange={(e) => setUserCount(Math.max(10, parseInt(e.target.value) || 10))}
+                onChange={(e) => setUserCount(Math.max(1, parseInt(e.target.value) || 1))}
                 className="flex-1 px-3 py-2 bg-background border border-border rounded text-foreground text-center"
               />
               <span className="text-sm text-muted-foreground">users</span>
             </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Minimum 10 users for standard plans. Contact us for smaller teams.
+            </p>
             {userCount >= 25 && (
               <div className="text-xs text-cyan-400 mb-3">
                 ✓ Volume discount (8%) applied at {userCount} users
