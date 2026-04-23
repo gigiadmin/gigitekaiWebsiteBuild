@@ -12,9 +12,9 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   // In development: keep them for Vite HMR to work
   const cspDirectives = [
     "default-src 'self'",
-    isProd
-      ? "script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com"
-      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com",
+    // Allow inline scripts (needed for bootstrap loader, analytics, and manus-runtime)
+    // and all CDN sources used by the app
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://files.manuscdn.com https://manus-analytics.com https://plausible.io https://umami.is",
     // Styles: inline is required for Tailwind CSS (CSS-in-JS) in both environments
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     // Fonts: self + Google Fonts CDN
