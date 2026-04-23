@@ -1,6 +1,7 @@
 /*
   GigitekAI Stats Section — Social Proof & Trust Signals
-  - Animated counters with icons
+  - Stats render as static text immediately (SEO + accessibility)
+  - Optional count-up animation when section scrolls into view
   - Social proof bar: 4.9/5 satisfaction + trust badges
   - How It Works 6-step process
 */
@@ -27,49 +28,46 @@ const formatValue = (value: number, target: number) => {
   return value % 1 !== 0 ? value.toFixed(2) : Math.floor(value).toString();
 };
 
-function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
-  // Initialize with target value so crawlers/Googlebot see the real number on first render
-  const [count, setCount] = useState(target);
+function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
+  // Always start with the real target value — never "0"
+  const [displayValue, setDisplayValue] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
-  const [started, setStarted] = useState(false);
-  const [animationReady, setAnimationReady] = useState(false);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !started) setStarted(true); },
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          // Run count-up animation from 0 → target
+          const steps = 60;
+          const increment = target / steps;
+          let current = 0;
+          setDisplayValue(0);
+          const interval = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              setDisplayValue(target);
+              clearInterval(interval);
+            } else {
+              setDisplayValue(target % 1 !== 0 ? Math.round(current * 100) / 100 : Math.floor(current));
+            }
+          }, duration / steps);
+        }
+      },
       { threshold: 0.5 }
     );
-    if (ref.current) observer.observe(ref.current);
+    observer.observe(el);
     return () => observer.disconnect();
-  }, [started]);
+  }, [target, duration]);
 
-  // Reset to 0 on mount so animation can count up (only in browser)
-  useEffect(() => {
-    setCount(0);
-    setAnimationReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!started || !animationReady) return;
-    const steps = 60;
-    const increment = target / steps;
-    let current = 0;
-    const interval = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(interval);
-      } else {
-        setCount(target % 1 !== 0 ? Math.round(current * 100) / 100 : Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(interval);
-  }, [started, animationReady, target, duration]);
-
+  // The static text is always the real number in the HTML
   return (
-    <span ref={ref} data-value={`${target}${suffix}`}>
-      {formatValue(count, target)}
-      {suffix}
+    <span ref={ref}>
+      {formatValue(displayValue, target)}{suffix}
     </span>
   );
 }
@@ -126,7 +124,7 @@ export default function StatsSection() {
                   className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-1"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  <StatNumber target={stat.value} suffix={stat.suffix} />
                 </div>
                 <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
                 <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
