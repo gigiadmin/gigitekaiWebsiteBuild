@@ -2,8 +2,12 @@ import { useState } from "react";
 import { ArrowRight, CheckCircle2, TrendingUp, Zap, Shield, Users, BarChart3, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function CaseStudiesPage() {
+  useSEO({ ...SEO_CONFIG["/case-studies"], path: "/case-studies" });
+
   const [selectedCase, setSelectedCase] = useState<number | null>(null);
 
   const caseStudies = [

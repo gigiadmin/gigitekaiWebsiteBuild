@@ -5,6 +5,8 @@
 
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -14,6 +16,7 @@ import { trpc } from "@/lib/trpc";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
 export default function Blog() {
+  useSEO({ ...SEO_CONFIG["/blog"], path: "/blog" });
   const [, navigate] = useLocation();
   const { data: posts, isLoading, error } = trpc.blog.listPosts.useQuery();
 

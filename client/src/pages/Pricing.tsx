@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import PricingFAQ from "@/components/PricingFAQ";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function Pricing() {
+  useSEO({ ...SEO_CONFIG["/pricing"], path: "/pricing" });
+
   const [billingCycle, setBillingCycle] = useState<"annual" | "monthly">("annual");
   const [showCalculator, setShowCalculator] = useState(false);
   const [calculatorData, setCalculatorData] = useState({

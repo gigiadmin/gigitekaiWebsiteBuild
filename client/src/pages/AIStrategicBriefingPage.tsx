@@ -5,10 +5,14 @@ import { Input } from "@/components/ui/input";
 import { briefingData } from "@/data/briefing-april-2026";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 type SectionId = "executive-summary" | "ma-funding" | "model-releases" | "startups" | "implications" | "vendor-stack";
 
 export default function AIStrategicBriefingPage() {
+  useSEO({ ...SEO_CONFIG["/AIStrategicBriefing"], path: "/AIStrategicBriefing" });
+
   const [activeSection, setActiveSection] = useState<SectionId>("executive-summary");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("all");

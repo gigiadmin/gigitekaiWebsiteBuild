@@ -15,8 +15,12 @@ import {
   Home,
   Headphones,
 } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function HelpDesk() {
+  useSEO({ ...SEO_CONFIG["/helpdesk"], path: "/helpdesk" });
+
   const { user, isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
 

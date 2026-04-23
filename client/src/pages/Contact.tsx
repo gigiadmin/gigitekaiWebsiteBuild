@@ -22,6 +22,8 @@ import {
   MessageSquare,
   Shield,
 } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 interface ContactFormData {
   name: string;
@@ -33,6 +35,8 @@ interface ContactFormData {
 }
 
 export default function Contact() {
+  useSEO({ ...SEO_CONFIG["/contact"], path: "/contact" });
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",

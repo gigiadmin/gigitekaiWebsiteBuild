@@ -5,8 +5,12 @@
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function IndustryFinancial() {
+  useSEO({ ...SEO_CONFIG["/industries/financial-services"], path: "/industries/financial-services" });
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#0A0E1A] to-[#0F1428]">
       <SiteNavBar2024 />

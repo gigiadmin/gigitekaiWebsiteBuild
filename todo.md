@@ -3417,3 +3417,21 @@
   - Detail panel is overlaying ticket list causing data mash-up
   - Need to separate detail view from list view properly
   - Should use modal or side panel instead of overlay
+
+## Email Flow Issues (CRITICAL)
+- [ ] Fix Mail Manus webhook email flow
+  - No confirmation/auto-response emails being sent to customers
+  - Email forwarding from support@gigitekai.com not working with webhook
+  - Webhook not receiving emails from M365 scheduled task
+  - Need to verify: webhook logs, email forwarding rule, auto-response sending
+
+## Phase 1: Audit Remediation — Launch Blockers
+- [x] 1.1 Fix canonical tags — each page must self-reference its own URL
+- [x] 1.2 Add unique meta titles for every page (50-60 chars, keyword + brand)
+- [x] 1.3 Add unique meta descriptions for every page (150-160 chars)
+- [x] 1.4 Fix homepage SLA stat (corrected to 99.9%)
+- [x] 1.5 Resolve founding year contradiction (removed "since 2004", kept "Founded 2024")
+- [x] 1.6 Remove admin notification bell from public-facing header/nav
+- [x] 1.7 Standardize geographic service area ("North America & Canada")
+- [x] 1.8 Fix iOS PWA start URL (changed to /), updated manifest.json
+- [x] 1.9 Fix animated stat counters to show real values for Googlebot (init with target)

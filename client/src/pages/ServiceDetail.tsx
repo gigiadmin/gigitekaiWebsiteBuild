@@ -12,6 +12,8 @@ import LeadCapturePopup from "@/components/LeadCapturePopup";
 import Breadcrumb from "@/components/Breadcrumb";
 import HelpdeskPricing from "@/components/HelpdeskPricing";
 import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 const serviceData: Record<string, {
   icon: any;
@@ -204,6 +206,14 @@ export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [, navigate] = useLocation();
   const service = slug ? serviceData[slug] : null;
+
+  // Dynamic SEO based on service slug
+  const seoPath = `/services/${slug ?? ""}`;
+  const seoConfig = SEO_CONFIG[seoPath] ?? {
+    title: `${service?.title ?? "Services"} | GigitekAI`,
+    description: service?.heroDescription?.slice(0, 160) ?? "Enterprise IT solutions from GigitekAI.",
+  };
+  useSEO({ ...seoConfig, path: seoPath });
 
   if (!service) {
     return (

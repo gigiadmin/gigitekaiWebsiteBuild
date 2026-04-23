@@ -7,6 +7,8 @@
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 interface Partner {
   id: number;
@@ -106,6 +108,8 @@ const partners: Partner[] = [
 const categories = Array.from(new Set(partners.map((p) => p.category)));
 
 export default function Partners() {
+  useSEO({ ...SEO_CONFIG["/partners"], path: "/partners" });
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#0A0E1A] to-[#0F1428]">
       <SiteNavBar2024 />

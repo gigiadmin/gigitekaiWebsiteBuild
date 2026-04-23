@@ -5,6 +5,8 @@
   Fonts: Space Grotesk (display) + DM Sans (body)
 */
 
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
@@ -23,6 +25,8 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Home() {
+  useSEO({ ...SEO_CONFIG["/"], path: "/" });
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNavBar2024 />

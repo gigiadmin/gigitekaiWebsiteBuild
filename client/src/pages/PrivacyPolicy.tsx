@@ -2,8 +2,12 @@ import ScrollToTop from "@/components/ScrollToTop";
 import React from 'react';
 import Navbar from '@/components/SiteNavBar2024';
 import Footer from '@/components/Footer';
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function PrivacyPolicy() {
+  useSEO({ ...SEO_CONFIG["/privacy-policy"], path: "/privacy-policy" });
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#0A0E1A]">
       <Navbar />

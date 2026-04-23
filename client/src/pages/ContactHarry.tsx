@@ -7,8 +7,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, Globe, Download } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function ContactHarry() {
+  useSEO({ ...SEO_CONFIG["/hh"], path: "/hh" });
+
   const [downloadReady] = useState(true);
 
   const headshot = "/manus-storage/harry-headshot_7c4b2215.jpg";

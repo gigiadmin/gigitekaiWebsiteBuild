@@ -1,8 +1,8 @@
 {
-  "name": "GigitekAI Admin Portal",
+  "name": "GigitekAI — Cloud & AI Solutions",
   "short_name": "GigitekAI",
-  "description": "Enterprise admin portal for managing support tickets, live chat, email, and customer accounts",
-  "start_url": "/admin",
+  "description": "Enterprise-grade cloud infrastructure and AI solutions that transform how businesses operate, scale, and compete.",
+  "start_url": "/",
   "display": "standalone",
   "scope": "/",
   "background_color": "#0A0E1A",

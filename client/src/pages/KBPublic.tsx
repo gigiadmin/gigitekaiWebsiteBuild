@@ -8,8 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook, Mail } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
+import { useSEO } from "@/hooks/useSEO";
+import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function KBPublic() {
+  useSEO({ ...SEO_CONFIG["/kb"], path: "/kb" });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
