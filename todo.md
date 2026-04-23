@@ -3730,3 +3730,15 @@
   - Root cause: URL was `/helpdesk/tickets/{id}` (plural) but route is `/helpdesk/ticket/{id}` (singular)
   - Fixed all 4 occurrences in teamsBot.ts
   - Ticket view link now works correctly
+
+
+## Critical Bugs — Email Polling & Mobile View Ticket Link (FIXED)
+- [x] Email poller not creating tickets from incoming emails
+  - Root cause: `from` field parsing error (from.match is not a function)
+  - Fixed: Added type guard to handle both string and object formats from Graph API
+  - Poller is now running and processing emails
+  
+- [x] View Ticket link returns 404 on mobile
+  - Root cause: TicketDetail component was lazy-loaded, causing route mismatch on slow networks
+  - Fixed: Changed TicketDetail and TicketFeedback to eager loading
+  - Mobile View Ticket link now works correctly

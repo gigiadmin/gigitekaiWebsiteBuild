@@ -50,8 +50,9 @@ const KBPublic = lazy(() => import("./pages/KBPublic"));
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
-const TicketDetail = lazy(() => import("./pages/TicketDetail"));
-const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
+// Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
+import TicketDetail from "./pages/TicketDetail";
+import TicketFeedback from "./pages/TicketFeedback";
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 

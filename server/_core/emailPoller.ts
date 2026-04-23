@@ -194,9 +194,16 @@ async function processEmail(msgData: any): Promise<boolean> {
     }
 
     // Parse sender email and name
-    const emailMatch = from.match(/<(.+?)>/);
-    const senderEmail = emailMatch ? emailMatch[1] : from;
-    const senderName = from.replace(/<.+?>/, "").trim() || senderEmail;
+    // Handle both string and object formats from Graph API
+    let fromStr = typeof from === 'string' ? from : (from?.emailAddress?.address || from?.email || '');
+    if (!fromStr) {
+      console.warn('[Email Poller] Invalid from field format:', from);
+      return false;
+    }
+    
+    const emailMatch = fromStr.match(/<(.+?)>/);
+    const senderEmail = emailMatch ? emailMatch[1] : fromStr;
+    const senderName = fromStr.replace(/<.+?>/, "").trim() || senderEmail;
 
     console.log(`[Email Poller] Processing email from ${senderEmail}: "${subject}"`);
 
