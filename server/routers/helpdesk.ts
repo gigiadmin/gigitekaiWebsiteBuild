@@ -549,6 +549,33 @@ export const helpdeskRouter = router({
           console.warn("[Helpdesk] Failed to send ticket status email:", emailError);
         }
 
+        // Auto-generate KB article when ticket is resolved or closed
+        if ((input.status === "resolved" || input.status === "closed") && ticket.status !== input.status) {
+          try {
+            const db = await getDb();
+            if (db) {
+              const { kbGenerations } = await import("../../drizzle/schema");
+              const { eq: eqImport } = await import("drizzle-orm");
+              const existing = await db
+                .select()
+                .from(kbGenerations)
+                .where(eqImport(kbGenerations.ticketId, input.ticketId))
+                .limit(1);
+              if (!existing || existing.length === 0) {
+                const { kbGenerationQueue } = await import("../../drizzle/schema");
+                await db.insert(kbGenerationQueue).values({
+                  ticketId: input.ticketId,
+                  status: "pending",
+                  createdAt: new Date(),
+                });
+                console.log(`[KB Generation] Queued generation for resolved ticket #${input.ticketId}`);
+              }
+            }
+          } catch (kbErr) {
+            console.warn("[KB Generation] Failed to queue KB generation:", kbErr);
+          }
+        }
+
         return { success: true };
       } catch (error) {
         console.error("Failed to update ticket status:", error);

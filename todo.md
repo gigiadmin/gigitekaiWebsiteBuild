@@ -3668,3 +3668,20 @@
 
 ## Bug Fix — KB Page Crash
 - [x] Fix /admin/kb crash: null is not an object (evaluating 't.title') — added null guard to KBFullScreenModal and AdminKB article filter
+
+
+## KB Generation Improvements — April 23, 2026
+
+- [x] Auto-generate KB articles when ticket status changes to resolved/closed
+  - Added trigger in helpdesk updateStatus mutation
+  - Queues generation asynchronously without blocking ticket close
+  
+- [x] Bulk generate KB articles from existing resolved tickets
+  - Added bulkGenerateFromResolved procedure to kb-generation router
+  - Added "Generate from All Resolved" button to KB Generation page header
+  - Shows count of queued items in success toast
+  
+- [x] Add "Generate KB" button to ticket detail page
+  - Added button to mobile expanded ticket detail panel
+  - Only shows for resolved/closed tickets
+  - Links to KB Generation page with ticket context

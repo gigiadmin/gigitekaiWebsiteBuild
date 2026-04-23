@@ -839,6 +839,14 @@ export default function AdminPanel() {
                           >
                             <Mail className="w-3 h-3" /> Reply
                           </button>
+                          {(ticket.status === "resolved" || ticket.status === "closed") && (
+                            <button
+                              onClick={() => navigate(`/admin/kb-generation?ticketId=${ticket.id}`)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-900/40 text-emerald-400 border border-emerald-700/40 rounded-lg text-xs font-medium"
+                            >
+                              <Sparkles className="w-3 h-3" /> Generate KB
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}

@@ -51,6 +51,14 @@ export default function AdminKbGenerationPage() {
   const { data: metricsData } = trpc.kbGeneration.getMetrics.useQuery({ days: 30 });
 
   // Mutations
+  const bulkGenerateMutation = trpc.kbGeneration.bulkGenerateFromResolved.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Queued ${result.queued} KB generations from ${result.total} resolved tickets`);
+      refetch();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const approveMutation = trpc.kbGeneration.approve.useMutation({
     onSuccess: (_, vars) => {
       toast.success(vars.publish ? "KB article approved & published!" : "KB article approved");
@@ -102,15 +110,27 @@ export default function AdminKbGenerationPage() {
               AI-powered knowledge base articles auto-generated from resolved support tickets
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="border-gray-700 text-gray-400 hover:text-white"
-          >
-            <RefreshCw size={14} className="mr-1.5" />
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => bulkGenerateMutation.mutate()}
+              disabled={bulkGenerateMutation.isPending}
+              className="border-cyan-600/40 text-cyan-400 hover:bg-cyan-900/20"
+            >
+              <Zap size={14} className="mr-1.5" />
+              {bulkGenerateMutation.isPending ? "Generating..." : "Generate from All Resolved"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="border-gray-700 text-gray-400 hover:text-white"
+            >
+              <RefreshCw size={14} className="mr-1.5" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Stats Row */}

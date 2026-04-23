@@ -387,6 +387,56 @@ Focus on:
     }),
 
   /**
+   * Bulk generate KB articles from all unprocessed resolved tickets
+   */
+  bulkGenerateFromResolved: adminProcedure
+    .mutation(async () => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get all resolved/closed tickets that don't have a KB generation yet
+      const { or } = require("drizzle-orm");
+      const resolvedTickets = await db
+        .select()
+        .from(tickets)
+        .where(
+          or(
+            eq(tickets.status, "resolved"),
+            eq(tickets.status, "closed")
+          )
+        );
+
+      let queued = 0;
+      for (const ticket of resolvedTickets) {
+        const [existing] = await db
+          .select()
+          .from(kbGenerations)
+          .where(eq(kbGenerations.ticketId, ticket.id))
+          .limit(1);
+
+        if (!existing) {
+          try {
+            await db.insert(kbGenerations).values({
+              ticketId: ticket.id,
+              title: "",
+              content: "",
+              category: "general",
+              tags: "",
+              confidenceScore: 0,
+              status: "pending",
+              createdAt: new Date(),
+            });
+            queued++;
+          } catch (err) {
+            console.warn(`Failed to queue KB generation for ticket ${ticket.id}:`, err);
+          }
+        }
+      }
+
+      return { queued, total: resolvedTickets.length };
+    }),
+
+  /**
    * Mark KB suggestion as helpful/unhelpful
    */
   rateSuggestion: protectedProcedure
