@@ -87,7 +87,7 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
     const priorityIcon = getPriorityColor(ticket.priority);
     const priorityColor = getPriorityCardColor(ticket.priority);
     const statusIcon = getStatusEmoji(ticket.status);
-    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticket.id}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/ticket/${ticket.id}`;
     const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticket.id}`;
     const assignUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticket.id}&action=assign`;
 
@@ -220,7 +220,7 @@ export async function sendReplyNotificationToTeams(ticketId: number, reply: Tick
     const author = await db.select().from(users).where(eq(users.id, reply.userId)).limit(1);
     const authorName = author[0]?.name || "Unknown";
     const replyType = reply.isStaffReply ? "🛠️ Agent Reply" : "👤 Customer Reply";
-    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticketId}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/ticket/${ticketId}`;
     const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
 
     const payload = {
@@ -310,7 +310,7 @@ export async function sendAssignmentNotificationToTeams(
 
     const priorityIcon = getPriorityColor(ticket.priority);
     const priorityColor = getPriorityCardColor(ticket.priority);
-    const ticketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/ticket/${ticketId}`;
 
     const payload = {
       type: "message",
@@ -434,7 +434,7 @@ export async function sendStatusUpdateToTeams(
 
     const oldStatusIcon = getStatusEmoji(oldStatus);
     const newStatusIcon = getStatusEmoji(newStatus);
-    const ticketUrl = `${BASE_URL}/helpdesk/tickets/${ticketId}`;
+    const ticketUrl = `${BASE_URL}/helpdesk/ticket/${ticketId}`;
     const adminTicketUrl = `${BASE_URL}/admin/helpdesk?ticket=${ticketId}`;
 
     const payload = {

@@ -3723,3 +3723,10 @@
 - [x] Main page (/) not loading on gigitekai.com (live published site)
   - Issue resolved after browser refresh
   - Likely caused by stale service worker cache
+
+
+## Bug — Teams Ticket View Link Returns 404
+- [x] Fix 404 error when clicking "View Ticket" link from Teams notification
+  - Root cause: URL was `/helpdesk/tickets/{id}` (plural) but route is `/helpdesk/ticket/{id}` (singular)
+  - Fixed all 4 occurrences in teamsBot.ts
+  - Ticket view link now works correctly
