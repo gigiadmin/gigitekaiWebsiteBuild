@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import AdminLayout from "@/components/AdminLayout";
+// AdminLayout is provided by AdminAccountsPage wrapper — do NOT wrap again here
 import {
   Users,
   Shield,
@@ -155,7 +155,6 @@ export default function AdminAccountManagement() {
   };
 
   return (
-    <AdminLayout>
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -386,7 +385,5 @@ export default function AdminAccountManagement() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  
-    </AdminLayout>
   );
 }

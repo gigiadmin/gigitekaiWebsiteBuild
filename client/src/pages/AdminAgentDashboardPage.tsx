@@ -37,7 +37,7 @@ export default function AdminAgentDashboardPage() {
 
   // Fetch metrics for selected agent or current user
   const agentIdToFetch = selectedAgentId || (user?.id ?? null);
-  const { data: agentMetrics } = trpc.agents.getMetrics.useQuery(
+  const { data: agentMetrics, isLoading: metricsLoading } = trpc.agents.getMetrics.useQuery(
     { agentId: agentIdToFetch || 0, days: daysRange },
     { enabled: !!agentIdToFetch, refetchInterval: 60000 }
   );
@@ -102,7 +102,8 @@ export default function AdminAgentDashboardPage() {
     ].filter((item) => item.value > 0);
   }, [metrics]);
 
-  if (!metrics) {
+  // Show loading skeleton only while actually fetching
+  if (metricsLoading) {
     return (
       <AdminLayoutWithSidebar currentPage="agent-dashboard">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -110,16 +111,7 @@ export default function AdminAgentDashboardPage() {
             <h1 className="text-3xl font-bold">Agent Dashboard</h1>
             <p className="text-slate-400 mt-1">Individual agent performance metrics</p>
           </div>
-          
-          {/* Loading animation */}
           <div className="space-y-6">
-            {/* Header skeleton */}
-            <div className="space-y-2">
-              <div className="h-8 bg-slate-800/50 rounded w-1/3 animate-pulse"></div>
-              <div className="h-4 bg-slate-800/50 rounded w-1/2 animate-pulse"></div>
-            </div>
-            
-            {/* Metrics grid skeleton */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[...Array(4)].map((_, i) => (
                 <Card key={i} className="bg-slate-900/60 border-slate-700/50 p-6">
@@ -128,19 +120,42 @@ export default function AdminAgentDashboardPage() {
                 </Card>
               ))}
             </div>
-            
-            {/* Chart skeleton */}
-            <Card className="bg-slate-900/60 border-slate-700/50 p-6">
-              <div className="h-6 bg-slate-800/50 rounded w-1/4 mb-4 animate-pulse"></div>
-              <div className="h-64 bg-slate-800/50 rounded animate-pulse"></div>
-            </Card>
-            
-            {/* Loading indicator */}
             <div className="flex items-center justify-center gap-2 text-slate-400 py-4">
               <Loader2 className="w-5 h-5 animate-spin text-cyan-500" />
               <span>Loading agent metrics...</span>
             </div>
           </div>
+        </div>
+      </AdminLayoutWithSidebar>
+    );
+  }
+
+  // Show empty state when no metrics data exists
+  if (!metrics) {
+    return (
+      <AdminLayoutWithSidebar currentPage="agent-dashboard">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Agent Dashboard</h1>
+            <p className="text-slate-400 mt-1">Individual agent performance metrics</p>
+          </div>
+          <Card className="bg-slate-900/60 border-slate-700/50 p-8">
+            <div className="flex flex-col items-center justify-center text-center py-8">
+              <TrendingUp className="w-12 h-12 text-slate-600 mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No Metrics Data Yet</h3>
+              <p className="text-slate-400 max-w-md">
+                Agent performance metrics will appear here once tickets are assigned and processed.
+                Metrics are tracked automatically as agents handle tickets and chats.
+              </p>
+              <Button
+                variant="outline"
+                className="mt-6 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                onClick={() => window.location.reload()}
+              >
+                <Loader2 className="w-4 h-4 mr-2" /> Refresh
+              </Button>
+            </div>
+          </Card>
         </div>
       </AdminLayoutWithSidebar>
     );

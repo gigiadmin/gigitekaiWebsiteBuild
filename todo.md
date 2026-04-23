@@ -3618,3 +3618,9 @@
 - [x] Bootstrap script detects when app fails to mount and forces dynamic import retry
 - [x] Fallback UI shows branded loading page with refresh button after max retries
 - [ ] Verify production deployment works on all routes (/blog, /admin, /kb, etc.)
+
+## Bug Reports — April 23, 2026 (12:20 PM)
+- [x] Fix /admin/accounts crash: "null is not an object (evaluating 't.title')" — removed duplicate AdminLayout wrapper
+- [x] Fix double menu bar on mobile admin pages — removed duplicate AdminLayout from AdminGuide, AdminCustomers, AdminUserPreferences
+- [x] Fix metrics page not loading — added proper isLoading check + empty state when no data
+- [x] Fix support mailbox not syncing — added auto-sync on page load + periodic 2min sync from MS Graph

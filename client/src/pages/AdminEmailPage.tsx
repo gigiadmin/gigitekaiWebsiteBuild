@@ -8,7 +8,7 @@
  *  - Email history showing both sent and received messages
  *  - Link emails to helpdesk tickets
  */
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,7 @@ export default function AdminEmailPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
   const [inboxFilter, setInboxFilter] = useState<"all" | "sent" | "received">("all");
+  const autoSyncRef = useRef(false);
 
   // Fetch templates
   const { data: templates = [] } = trpc.email.getTemplates.useQuery({});
@@ -100,6 +101,24 @@ export default function AdminEmailPage() {
       toast.error("Sync failed: " + err.message);
     },
   });
+
+  // Auto-sync inbox on page load and every 2 minutes
+  useEffect(() => {
+    // Sync on first mount
+    if (!autoSyncRef.current) {
+      autoSyncRef.current = true;
+      syncInboxMutation.mutate({ limit: 50 });
+    }
+
+    // Set up periodic sync every 2 minutes
+    const interval = setInterval(() => {
+      if (!isSyncing) {
+        syncInboxMutation.mutate({ limit: 50 });
+      }
+    }, 120_000);
+
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle template selection — replace {{ticketId}} and other variables with real values
   function handleSelectTemplate(templateId: string) {

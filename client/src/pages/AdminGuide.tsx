@@ -6,7 +6,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import AdminLayout from "@/components/AdminLayout";
+// AdminLayout is provided by AdminGuidePage wrapper
 import {
   ArrowLeft,
   Shield,
@@ -135,7 +135,6 @@ export default function AdminGuide() {
   const [, setLocation] = useLocation();
 
   return (
-    <AdminLayout>
     <div className="min-h-screen bg-[#0A0E1A] text-white">
       {/* Top nav bar */}
       <header className="border-b border-slate-800 bg-[#0A0E1A]/95 backdrop-blur sticky top-0 z-10">
@@ -394,6 +393,5 @@ export default function AdminGuide() {
         </section>
       </main>
     </div>
-  
-    </AdminLayout>);
+  );
 }
