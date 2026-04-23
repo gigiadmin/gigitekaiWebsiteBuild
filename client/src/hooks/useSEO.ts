@@ -2,7 +2,8 @@ import { useEffect } from "react";
 
 /**
  * SEO configuration for a page.
- * Sets document title, meta description, canonical URL, and Open Graph tags.
+ * Sets document title, meta description, canonical URL, Open Graph tags,
+ * and optional WebPage structured data schema.
  */
 interface SEOConfig {
   title: string;
@@ -11,24 +12,46 @@ interface SEOConfig {
   path?: string;
   /** Optional Open Graph image URL */
   ogImage?: string;
+  /** Optional WebPage schema type override. Defaults to "WebPage". */
+  schemaType?: "WebPage" | "AboutPage" | "ContactPage" | "FAQPage" | "ItemPage";
+  /** Inject WebPage structured data. Defaults to true. */
+  injectSchema?: boolean;
 }
 
 const BASE_URL = "https://www.gigitekai.com";
 const DEFAULT_OG_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_a8893ff4.png";
 
+const ORG_SCHEMA = {
+  "@type": "Organization",
+  "@id": "https://www.gigitekai.com/#organization",
+  name: "GigitekAI",
+  url: "https://www.gigitekai.com",
+  logo: DEFAULT_OG_IMAGE,
+  telephone: "+17273825776",
+  email: "support@gigitekai.com",
+};
+
 /**
  * useSEO — Sets per-page <title>, <meta description>, <link rel="canonical">,
- * and Open Graph tags using DOM manipulation (works with react-helmet-async too).
+ * Open Graph tags, and WebPage structured data schema.
  *
  * Usage:
  *   useSEO({
  *     title: "About GigitekAI | Cloud & AI Technology Partner",
  *     description: "Learn about GigitekAI...",
  *     path: "/about-us",
+ *     schemaType: "AboutPage",
  *   });
  */
-export function useSEO({ title, description, path, ogImage }: SEOConfig) {
+export function useSEO({
+  title,
+  description,
+  path,
+  ogImage,
+  schemaType = "WebPage",
+  injectSchema = true,
+}: SEOConfig) {
   useEffect(() => {
     // Determine canonical URL
     const pagePath = path ?? window.location.pathname;
@@ -62,7 +85,37 @@ export function useSEO({ title, description, path, ogImage }: SEOConfig) {
     setMeta("twitter:title", title);
     setMeta("twitter:description", description);
     setMeta("twitter:image", ogImage ?? DEFAULT_OG_IMAGE);
-  }, [title, description, path, ogImage]);
+
+    // 6. WebPage structured data schema
+    if (injectSchema) {
+      const schemaId = "webpage-schema-useseo";
+      document.getElementById(schemaId)?.remove();
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.id = schemaId;
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": schemaType,
+        "@id": canonicalUrl,
+        url: canonicalUrl,
+        name: title,
+        description: description,
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": "https://www.gigitekai.com/#website",
+          url: "https://www.gigitekai.com",
+          name: "GigitekAI",
+        },
+        publisher: ORG_SCHEMA,
+        inLanguage: "en-US",
+      });
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      document.getElementById("webpage-schema-useseo")?.remove();
+    };
+  }, [title, description, path, ogImage, schemaType, injectSchema]);
 }
 
 /** Helper: set or create a <meta name="..."> tag */

@@ -35,7 +35,7 @@ interface ContactFormData {
 }
 
 export default function Contact() {
-  useSEO({ ...SEO_CONFIG["/contact"], path: "/contact" });
+  useSEO({ ...SEO_CONFIG["/contact"], path: "/contact", schemaType: "ContactPage" });
 
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",

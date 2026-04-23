@@ -3624,3 +3624,15 @@
 - [x] Fix double menu bar on mobile admin pages — removed duplicate AdminLayout from AdminGuide, AdminCustomers, AdminUserPreferences
 - [x] Fix metrics page not loading — added proper isLoading check + empty state when no data
 - [x] Fix support mailbox not syncing — added auto-sync on page load + periodic 2min sync from MS Graph
+
+## SEO Improvements — April 23, 2026
+- [ ] Fix ManagedITTampa useSEO called with no arguments (no title/description)
+- [ ] Add FAQ structured data (FAQPage schema) to helpdesk-pricing and pricing pages
+- [ ] Add ServiceList schema to services page
+- [ ] Fix 15 images missing alt attributes
+- [ ] Add loading="lazy" to 16 images missing it
+- [ ] Add /contact, /services, /helpdesk-pricing to sitemap.xml
+- [ ] Add dynamic blog sitemap endpoint that pulls live articles from DB
+- [ ] Add WebPage schema to About, Contact, ROI Calculator pages
+- [ ] Add BreadcrumbList schema to industry pages
+- [ ] Add useSEO to BlogDetail page (currently uses raw document.title)

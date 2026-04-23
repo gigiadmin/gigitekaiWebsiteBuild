@@ -57,7 +57,8 @@ END:VCARD`;
                 src={headshot}
                 alt="Harry Henry Santiago"
                 className="w-full h-80 object-cover rounded-xl shadow-lg"
-              />
+              loading="lazy"
+            />
             </div>
 
             {/* Name & Title */}
@@ -141,7 +142,8 @@ END:VCARD`;
                 src={qrCode}
                 alt="QR Code to this page"
                 className="w-40 h-40"
-              />
+              loading="lazy"
+            />
               <p className="text-xs text-slate-600 text-center font-medium">
                 Scan to save contact
               </p>

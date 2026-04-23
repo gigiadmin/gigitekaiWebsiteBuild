@@ -82,7 +82,12 @@ const WHY_LOCAL = [
 ];
 
 export default function ManagedITTampa() {
-  useSEO();
+  useSEO({
+    title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
+    description:
+      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-5776.",
+    path: "/managed-it-services-tampa",
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0E1A]">

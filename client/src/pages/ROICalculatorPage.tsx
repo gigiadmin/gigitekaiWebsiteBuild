@@ -7,7 +7,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 
 export default function ROICalculatorPage() {
-  useSEO({ ...SEO_CONFIG["/roi-calculator"], path: "/roi-calculator" });
+  useSEO({ ...SEO_CONFIG["/roi-calculator"], path: "/roi-calculator", schemaType: "WebPage" });
 
   // This page is public-facing, no auth required
   return (

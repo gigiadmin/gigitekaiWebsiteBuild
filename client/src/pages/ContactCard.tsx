@@ -8,7 +8,8 @@ export default function ContactCard() {
             src="https://cdn.gigitekai.com/gigitekai-logo.webp" 
             alt="GigitekAI" 
             className="w-40 h-auto mx-auto"
-          />
+              loading="lazy"
+            />
         </div>
 
         {/* QR Code */}
@@ -17,7 +18,8 @@ export default function ContactCard() {
             src="https://cdn.gigitekai.com/qr-contact-with-text.png" 
             alt="QR Code" 
             className="w-64 h-auto mx-auto border border-gray-200 rounded-lg"
-          />
+              loading="lazy"
+            />
           <p className="text-xs text-gray-500 mt-2">Scan to save contact</p>
         </div>
 

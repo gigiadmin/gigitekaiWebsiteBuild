@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
 export default function AboutUs() {
-  useSEO({ ...SEO_CONFIG["/about-us"], path: "/about-us" });
+  useSEO({ ...SEO_CONFIG["/about-us"], path: "/about-us", schemaType: "AboutPage" });
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#0A0E1A] to-[#0F1428]">
@@ -105,6 +105,7 @@ export default function AboutUs() {
                     src="/manus-storage/harry-headshot_df3577a8.jpeg"
                     alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <p className="text-cyan-400 font-semibold mt-4">Harry Henry Santiago</p>
