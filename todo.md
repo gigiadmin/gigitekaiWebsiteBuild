@@ -3610,3 +3610,8 @@
 - [x] Copilot M365: Microsoft Graph API authentication setup
 - [x] Copilot M365: Enable Copilot to access M365 tenant health data
 - [x] Copilot M365: Create tRPC endpoints for Copilot analysis queries
+
+## CRITICAL BUG: Pages Not Loading (Apr 23, 2026)
+- [ ] Identify all broken/non-loading pages on production site
+- [ ] Fix all broken pages
+- [ ] Verify all pages load correctly after fixes
