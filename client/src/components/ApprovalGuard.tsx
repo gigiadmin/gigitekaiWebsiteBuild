@@ -62,8 +62,8 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
                 <a href="mailto:Support@gigitekai.com" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
                   <Mail className="w-4 h-4" /> Support@gigitekai.com
                 </a>
-                <a href="tel:+17273826909" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
-                  <Phone className="w-4 h-4" /> (727) 382-6909
+                <a href="tel:+17273825776" className="flex items-center gap-2 text-sm text-[#00D4FF] hover:underline">
+                  <Phone className="w-4 h-4" /> (727) 382-5776
                 </a>
               </div>
             </div>

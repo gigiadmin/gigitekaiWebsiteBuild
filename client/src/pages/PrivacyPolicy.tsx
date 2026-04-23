@@ -212,7 +212,7 @@ export default function PrivacyPolicy() {
                 7.3 How to Exercise Your Rights
               </h3>
               <p className="text-gray-700 dark:text-gray-300">
-                To exercise any of these rights, please contact us at support@gigitekai.com or call (727) 382-6909. We will respond to your request within 30 days or as required by applicable law.
+                To exercise any of these rights, please contact us at support@gigitekai.com or call (727) 382-5776. We will respond to your request within 30 days or as required by applicable law.
               </p>
             </section>
 
@@ -268,7 +268,7 @@ export default function PrivacyPolicy() {
               <div className="bg-gray-100 dark:bg-[#141B2D] p-6 rounded-lg text-gray-700 dark:text-gray-300">
                 <p className="mb-2"><strong>GigitekAI LLC</strong></p>
                 <p className="mb-2">Email: support@gigitekai.com</p>
-                <p className="mb-2">Phone: (727) 382-6909</p>
+                <p className="mb-2">Phone: (727) 382-5776</p>
                 <p>Website: https://gigitekai.com</p>
               </div>
             </section>

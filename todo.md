@@ -3539,3 +3539,5 @@
 - [x] Add direct links to Privacy Policy and Terms of Service in footer (already present at /privacy-policy and /terms-of-service)
 - [x] Add schema.org JSON-LD (Organization + LocalBusiness) to homepage head
 - [x] Regenerate sitemap.xml after changes (updated homepage lastmod to 2026-04-23)
+- [x] Update all stats site-wide to: 10+ Years, 50+ Businesses, 99.99% Uptime, 48hr Onboarding
+- [x] Replace all occurrences of old phone (727) 382-6909 with correct (727) 382-5776 site-wide (42 locations updated)

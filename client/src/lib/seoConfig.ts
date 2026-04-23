@@ -11,7 +11,7 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
   "/": {
     title: "GigitekAI — Enterprise Cloud & AI Solutions | Managed IT",
     description:
-      "GigitekAI delivers enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA, 24/7 support. Free IT assessment — call (727) 382-6909.",
+      "GigitekAI delivers enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA, 24/7 support. Free IT assessment — call (727) 382-5776.",
   },
   "/about-us": {
     title: "About GigitekAI | Cloud & AI Technology Partner",
@@ -31,7 +31,7 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
   "/contact": {
     title: "Contact GigitekAI — Free IT Assessment",
     description:
-      "Get a free IT assessment from GigitekAI. Enterprise cloud, AI, and managed IT solutions. Call (727) 382-6909 or email support@gigitekai.com.",
+      "Get a free IT assessment from GigitekAI. Enterprise cloud, AI, and managed IT solutions. Call (727) 382-5776 or email support@gigitekai.com.",
   },
   "/pricing": {
     title: "IT Solutions Pricing | GigitekAI",
@@ -61,7 +61,7 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
   "/services/managed": {
     title: "Managed IT Services | GigitekAI — Tampa Bay",
     description:
-      "Proactive managed IT services for enterprise growth. 24/7 monitoring, 99.9% uptime SLA, and strategic IT consulting. Free assessment — (727) 382-6909.",
+      "Proactive managed IT services for enterprise growth. 24/7 monitoring, 99.9% uptime SLA, and strategic IT consulting. Free assessment — (727) 382-5776.",
   },
   "/services/cloud": {
     title: "Cloud Infrastructure & Migration | GigitekAI",
@@ -156,7 +156,7 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
   "/managed-it-services-tampa": {
     title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
     description:
-      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-6909.",
+      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-5776.",
   },
   "/hh": {
     title: "Contact Harry Henry Santiago | GigitekAI Founder",
