@@ -3589,3 +3589,24 @@
 - [x] Verify admin dashboard shows clean state (0 tickets, 0 metrics)
 - [x] Create cleanup script for future reference (`server/cleanup-helpdesk.ts`)
 - Helpdesk is now production-ready with clean metrics
+
+## Priority 5 Features — April 23, 2026
+- [x] Contact form: Add phone number field with E.164 format validation and auto-formatting
+- [x] Contact form: Add file upload field (max 5MB, PDF/DOC/XLS) with S3 storage
+- [x] Contact form: Display file download link in admin contact submissions page
+- [x] Contact form: Display phone number in admin contacts page
+- [x] Helpdesk UX: Add priority indicator with left border accent in ticket cards
+- [x] Helpdesk UX: Add SLA status indicator (green/yellow/red) in ticket list
+- [x] Helpdesk UX: Add quick reply suggestion templates in ticket detail view
+- [x] Helpdesk UX: Add ticket assignment display (agent name/avatar) in detail view
+- [x] Helpdesk UX: Add "Mark as Urgent" escalation button for users
+- [x] PageSpeed: Lazy load images and non-critical components
+- [x] PageSpeed: Add code splitting for route-level chunks
+- [x] PageSpeed: Optimize Tailwind CSS purging and bundle size
+- [x] PageSpeed: Add resource hints (preconnect, prefetch) for critical assets
+- [x] Teams: Webhook notifications for new ticket creation with adaptive cards
+- [x] Teams: Webhook notifications for ticket status changes
+- [x] Teams: Webhook notifications for new chat messages
+- [x] Copilot M365: Microsoft Graph API authentication setup
+- [x] Copilot M365: Enable Copilot to access M365 tenant health data
+- [x] Copilot M365: Create tRPC endpoints for Copilot analysis queries

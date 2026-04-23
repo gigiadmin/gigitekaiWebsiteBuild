@@ -3,6 +3,7 @@ import { Server } from "http";
 import { getDb } from "../db";
 import { realtimeChatMessages, realtimeChatSessions, userSessions } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { sendChatMessageNotificationToTeams } from "../teamsBot";
 
 interface WebSocketMessage {
   type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification" | "call_offer" | "call_answer" | "ice_candidate" | "call_end" | "call_reject" | "call_request";
@@ -329,6 +330,20 @@ async function handleChatMessage(
     timestamp: new Date(),
   });
 
+  // If user sent message, notify Teams so admins are alerted
+  if (senderRole === "user") {
+    try {
+      const sessions = await db
+        .select()
+        .from(realtimeChatSessions)
+        .where(eq(realtimeChatSessions.id, sessionId));
+      if (sessions.length > 0) {
+        sendChatMessageNotificationToTeams(sessions[0], message, senderId).catch(
+          (err) => console.warn("[Teams] Chat notification failed:", err)
+        );
+      }
+    } catch (_) { /* non-blocking */ }
+  }
   // If admin sent message, notify the user
   if (senderRole === "admin") {
     const sessions = await db

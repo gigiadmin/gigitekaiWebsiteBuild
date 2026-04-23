@@ -501,6 +501,67 @@ export async function sendStatusUpdateToTeams(
 }
 
 /**
+ * Send a Teams notification when a user sends a new live chat message
+ * Fires only for user-sent messages so admins are alerted to respond
+ */
+export async function sendChatMessageNotificationToTeams(
+  session: { id: number; userId: number; adminId?: number | null },
+  message: string,
+  senderId: number
+): Promise<void> {
+  try {
+    const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
+    if (!webhookUrl) return;
+    const preview = message.length > 120 ? message.slice(0, 120) + "\u2026" : message;
+    const chatUrl = `${BASE_URL}/admin/chat`;
+    const payload = {
+      type: "message",
+      attachments: [
+        {
+          contentType: "application/vnd.microsoft.card.adaptive",
+          contentUrl: null,
+          content: {
+            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+            type: "AdaptiveCard",
+            version: "1.4",
+            body: [
+              {
+                type: "TextBlock",
+                text: "\uD83D\uDCAC New Live Chat Message",
+                weight: "Bolder",
+                size: "Medium",
+                color: "Accent",
+              },
+              {
+                type: "FactSet",
+                facts: [
+                  { title: "Session:", value: `#${session.id}` },
+                  { title: "User ID:", value: `${senderId}` },
+                  { title: "Message:", value: preview },
+                  { title: "Time:", value: new Date().toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" }) + " EST" },
+                ],
+              },
+            ],
+            actions: [
+              {
+                type: "Action.OpenUrl",
+                title: "\uD83D\uDCAC Open Chat",
+                url: chatUrl,
+                style: "positive",
+              },
+            ],
+          },
+        },
+      ],
+    };
+    await sendToTeamsWebhook(payload, undefined, `chat session #${session.id}`);
+    console.log(`[Teams Bot] \u2705 Chat notification sent for session #${session.id}`);
+  } catch (error) {
+    console.warn(`[Teams Bot] \u26A0\uFE0F Chat notification failed for session #${session.id}:`, error);
+  }
+}
+
+/**
  * Handle incoming Teams webhook messages (for bot commands)
  */
 export function parseTeamsWebhookMessage(body: any): {
