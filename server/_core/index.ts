@@ -19,6 +19,7 @@ import { startSocialScheduler } from "./socialScheduler";
 import { startEngagementPoller } from "./socialEngagementPoller";
 import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
+import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
@@ -179,6 +180,8 @@ async function startServer() {
     startInviteExpiryScheduler();
     // Start health check scheduler (every 5 minutes)
     startHealthCheckScheduler(5 * 60 * 1000);
+    // Start daily E2E email flow check (8:00 AM ET)
+    startEmailFlowE2EScheduler();
     // Log Mail Manus webhook setup instructions
     console.log("[Mail Manus] Setup: Configure email forwarding from support@gigitekai.com to Mail Manus");
     console.log("[Mail Manus] Webhook will automatically create tickets from incoming emails with AI classification");

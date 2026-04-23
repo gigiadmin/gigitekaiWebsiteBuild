@@ -3478,3 +3478,9 @@
 - [x] Audit email sending infrastructure — added 401 retry with token cache invalidation
 - [x] Fix: Sender confirmation email now sends (root cause: missing Azure admin consent)
 - [x] Fix: Support mailbox receives copy via saveToSentItems + inbox sync works (200 OK)
+
+## Daily Email Flow Health Check
+- [x] Create server-side email health check function (token, send, read)
+- [x] Add scheduler to run daily at 8:00 AM ET (setTimeout + setInterval)
+- [x] Send alert to hhenry23@gmail.com on failure, Manus notification on success
+- [x] Test the health check end-to-end (8/8 vitest tests passing)
