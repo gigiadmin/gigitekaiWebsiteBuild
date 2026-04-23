@@ -140,6 +140,15 @@ export const helpdeskRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
+        // Get the architect (owner) user to auto-assign tickets
+        const db = await getDb();
+        const architectUser = await db
+          ?.select()
+          .from(users)
+          .where(eq(users.role, "admin"))
+          .limit(1);
+        const architectId = architectUser?.[0]?.id || null;
+
         const ticket = await createTicket({
           userId: ctx.user.id,
           title: input.title,
@@ -147,6 +156,7 @@ export const helpdeskRouter = router({
           priority: input.priority,
           category: input.category,
           status: "open",
+          assignedTo: architectId, // Auto-assign to architect
         });
 
         // Send branded confirmation email to customer
