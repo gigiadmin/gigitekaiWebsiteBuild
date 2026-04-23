@@ -3612,6 +3612,6 @@
 - [x] Copilot M365: Create tRPC endpoints for Copilot analysis queries
 
 ## CRITICAL BUG: Pages Not Loading (Apr 23, 2026)
-- [ ] Identify all broken/non-loading pages on production site
-- [ ] Fix all broken pages
-- [ ] Verify all pages load correctly after fixes
+- [x] Identify all broken/non-loading pages on production site — SPA fallback serving index.html for /assets/* requests
+- [x] Fix all broken pages — added fallthrough:false for /assets, robust path resolution with 3 candidate paths, immutable caching for hashed assets
+- [x] Verify all pages load correctly after fixes — 24/24 pages passing health check
