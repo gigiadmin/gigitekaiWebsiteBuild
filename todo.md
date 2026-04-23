@@ -3653,10 +3653,14 @@
   - Expanded detail panel now breaks out of grid as full-width block below the row
   - Mobile action buttons moved into expanded panel to prevent overflow
 
-### Critical #2: Mail Manus Webhook Email Flow
-- [x] Verify webhook receives emails from M365 forwarding rule
-- [x] Fix auto-response confirmation emails not being sent to customers
-- [x] Implemented reply-to-ticket logic (was a TODO stub)
+### Critical #2: Email Flow Issues — M365 Graph Email Polling (COMPLETED)
+- [x] Built M365 Graph email poller scheduler (5-minute interval)
+  - Fetches unread emails from support@gigitekai.com mailbox
+  - Parses sender, subject, body
+  - Auto-creates tickets with AI LLM classification
+  - Marks emails as read after processing
+  - Handles errors gracefully with retry logic
+- [x] Send auto-response confirmation emails to customers
 - [x] Added webhook diagnostic logging (requestId, headers, body keys logged)
 - [x] Fixed SMS critical alert phone number
 
@@ -3695,8 +3699,27 @@
   - Links to KB Generation page with ticket context
 
 
+## Critical Issues — M365 Health & Notifications (COMPLETED)
+- [x] M365 Health Status Page
+  - Shows incident timeline with start/end times
+  - Displays service status (operational, degraded, down)
+  - Shows workarounds and mitigation steps
+  - Tabs for Services and Critical Incidents
+  - Real-time sync with Microsoft Service Health API
+  - Health summary cards (operational, degraded, down, investigating)
+  - Route: /admin/m365-status
+
+- [x] M365 Service Health Notifications
+  - Critical issue detection and alerting
+  - Teams channel notifications
+  - Email notifications to subscribed admins
+  - Notification preferences UI
+  - Route: /admin/m365-notifications
+  - Admins can subscribe/unsubscribe from alerts
+  - Choose which services to monitor
+  - Choose alert types (healthy, degraded, critical, offline)
+
 ## Bug — Main Page Not Loading on Live Site
-- [ ] Main page (/) not loading on gigitekai.com (live published site)
-  - Dev server works fine
-  - Issue is with published deployment
-  - Likely caused by recent code changes or deployment error
+- [x] Main page (/) not loading on gigitekai.com (live published site)
+  - Issue resolved after browser refresh
+  - Likely caused by stale service worker cache

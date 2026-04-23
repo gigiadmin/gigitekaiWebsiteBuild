@@ -96,6 +96,8 @@ const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
 const AdminSettingsPage = lazy(() => import("./pages/AdminSettingsPage"));
 const AdminServiceHealthMonitoring = lazy(() => import("./pages/AdminServiceHealthMonitoring"));
 const AdminM365Health = lazy(() => import("./pages/AdminM365Health"));
+const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
+const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365NotificationsPreferencesPage"));
 const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage"));
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
@@ -248,6 +250,8 @@ function Router() {
           {/* Service Health Monitoring */}
           <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
           <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
+          <Route path={"/admin/m365-status"}>{() => <ApprovalGuard><M365HealthPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/m365-notifications"}>{() => <ApprovalGuard><M365NotificationsPreferencesPage /></ApprovalGuard>}</Route>
           {/* Teams Channels — per-client channel management */}
           <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
