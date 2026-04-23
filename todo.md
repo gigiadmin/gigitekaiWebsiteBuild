@@ -3542,3 +3542,8 @@
 - [x] Update all stats site-wide to: 10+ Years, 50+ Businesses, 99.99% Uptime, 48hr Onboarding
 - [x] Replace all occurrences of old phone (727) 382-6909 with correct (727) 382-5776 site-wide (42 locations updated)
 - [x] Fix stats to render as static visible text on first paint (not animation-only zeros)
+
+## SEO & Performance Improvements — April 23, 2026
+- [x] Fix canonical URL mismatch (changed from www.gigitekai.com to gigitekai.com in index.html)
+- [x] Add HTTP-to-HTTPS redirect at server middleware level (x-forwarded-proto check in Express)
+- [x] Implement route-based code splitting with React.lazy() + Suspense (5.4 MB → 2.0 MB initial bundle, 63% reduction) + Vite manualChunks for vendor splitting

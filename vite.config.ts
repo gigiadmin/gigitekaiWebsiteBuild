@@ -167,6 +167,45 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // React core — smallest possible initial chunk
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
+            return "react-core";
+          }
+          // tRPC + React Query — needed on first paint for auth
+          if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
+            return "trpc-query";
+          }
+          // Radix UI / shadcn components
+          if (id.includes("@radix-ui")) {
+            return "radix-ui";
+          }
+          // Chart libraries — only loaded on admin pages
+          if (id.includes("recharts") || id.includes("d3-") || id.includes("chart.js") || id.includes("chartjs")) {
+            return "charts";
+          }
+          // Heavy admin-only libraries
+          if (id.includes("cytoscape") || id.includes("mermaid") || id.includes("codemirror") || id.includes("@codemirror")) {
+            return "admin-heavy";
+          }
+          // Rich text editor
+          if (id.includes("tiptap") || id.includes("@tiptap") || id.includes("prosemirror")) {
+            return "rich-text";
+          }
+          // Date/utility libraries
+          if (id.includes("date-fns") || id.includes("lodash") || id.includes("zod")) {
+            return "utils";
+          }
+          // Lucide icons
+          if (id.includes("lucide-react")) {
+            return "icons";
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,
