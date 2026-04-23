@@ -100,8 +100,12 @@ export default function AboutUs() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="w-40 h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 border-2 border-cyan-500/40 flex items-center justify-center">
-                  <span className="text-5xl font-bold text-cyan-400">HHS</span>
+                <div className="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-cyan-500/40">
+                  <img
+                    src="/manus-storage/harry-headshot_df3577a8.jpeg"
+                    alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <p className="text-cyan-400 font-semibold mt-4">Harry Henry Santiago</p>
                 <p className="text-gray-400 text-sm mt-1">CEO & Founder</p>

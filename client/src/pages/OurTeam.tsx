@@ -125,8 +125,12 @@ export default function OurTeam() {
 
               {/* Avatar & Quick Facts */}
               <div className="text-center md:text-left">
-                <div className="w-36 h-36 mx-auto md:mx-0 rounded-full bg-gradient-to-br from-cyan-500/40 to-blue-700/30 border-2 border-cyan-500/50 flex items-center justify-center mb-5">
-                  <span className="text-5xl font-bold text-cyan-400">HHS</span>
+                <div className="w-40 h-40 mx-auto md:mx-0 rounded-full overflow-hidden border-2 border-cyan-500/50 mb-5">
+                  <img
+                    src="/manus-storage/harry-headshot_df3577a8.jpeg"
+                    alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-1">Harry Henry Santiago</h2>
                 <p className="text-cyan-400 font-semibold mb-1">CEO & Founder</p>
