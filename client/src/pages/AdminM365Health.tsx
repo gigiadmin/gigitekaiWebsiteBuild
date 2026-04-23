@@ -238,17 +238,32 @@ export default function AdminM365Health() {
   };
 
   const selectedServiceData = services?.find(s => s.id === selectedService);
+  // Check if we're showing demo data (permissions not yet granted)
+  const isDemo = services && services.length > 0 && (services[0] as any)._demo === true;
 
   return (
     <AdminLayout>
         <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A] p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Permission Warning Banner */}
+        {isDemo && (
+          <div className="mb-6 p-4 rounded-lg border border-yellow-500/40 bg-yellow-500/10 flex items-start gap-3">
+            <AlertCircle size={20} className="text-yellow-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-yellow-400 font-semibold text-sm">Azure Permission Required — Showing Demo Data</p>
+              <p className="text-yellow-300/80 text-xs mt-1">
+                The app registration is missing the <code className="bg-yellow-500/20 px-1 rounded">ServiceHealth.Read.All</code> permission.
+                Go to <strong>Azure Portal → App Registrations → API Permissions</strong> and grant admin consent for <code className="bg-yellow-500/20 px-1 rounded">ServiceHealth.Read.All</code> (Application permission).
+              </p>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Microsoft 365 Service Health</h1>
-              <p className="text-gray-400">Real-time monitoring of Microsoft cloud services</p>
+              <p className="text-gray-400">{isDemo ? "Demo data — connect Azure to see live status" : "Real-time monitoring of Microsoft cloud services"}</p>
             </div>
             <Button
               onClick={handleRefresh}

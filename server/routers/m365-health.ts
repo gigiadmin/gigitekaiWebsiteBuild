@@ -121,7 +121,12 @@ async function fetchServiceHealthFromGraph(): Promise<ServiceHealth[]> {
     if (!response.ok) {
       const error = await response.text();
       console.error("[M365 Health] Graph API error:", response.status, error);
-      // Return empty array instead of throwing so UI shows gracefully
+      if (response.status === 403) {
+        // Permission missing — return demo data with a flag so UI can show a helpful message
+        console.warn("[M365 Health] 403 Forbidden — App registration missing ServiceHealth.Read.All permission. Returning demo data.");
+        return DEMO_SERVICES.map(s => ({ ...s, _demo: true })) as ServiceHealth[];
+      }
+      // Return empty array for other errors
       return [];
     }
 
