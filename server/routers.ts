@@ -578,7 +578,8 @@ Submitted from GigitekAI website contact form.
   maintenance: router({
     clearTestData: adminProcedure
       .mutation(async () => {
-        const db = getDb();
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
         const emailResult = await db.delete(emailMessages);
         const metricsResult = await db.delete(agentMetrics);
         return {

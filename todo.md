@@ -3636,3 +3636,32 @@
 - [ ] Add WebPage schema to About, Contact, ROI Calculator pages
 - [ ] Add BreadcrumbList schema to industry pages
 - [ ] Add useSEO to BlogDetail page (currently uses raw document.title)
+
+## Critical & High Priority Sprint — April 23, 2026
+
+### Critical #1: Admin Helpdesk Ticket List Layout
+- [x] Fix admin helpdesk ticket list layout — detail panel overlays ticket list causing data mash-up
+  - Restructured ticket rows with proper outer wrapper div
+  - Expanded detail panel now breaks out of grid as full-width block below the row
+  - Mobile action buttons moved into expanded panel to prevent overflow
+
+### Critical #2: Mail Manus Webhook Email Flow
+- [x] Verify webhook receives emails from M365 forwarding rule
+- [x] Fix auto-response confirmation emails not being sent to customers
+- [x] Implemented reply-to-ticket logic (was a TODO stub)
+- [x] Added webhook diagnostic logging (requestId, headers, body keys logged)
+- [x] Fixed SMS critical alert phone number
+
+### High Priority #3: Social Media OAuth Fix
+- [x] Diagnosed root cause: tokens stored in DB but not validated against live API
+- [x] Added testConnection mutation — calls platform API to verify token is live
+- [x] Added LinkedIn auto-refresh using stored refresh_token
+- [x] OAuth flows for all three platforms confirmed correct
+
+### High Priority #4: Token Health Dashboard
+- [x] Built token health dashboard in Social Hub platform connection cards
+  - Shows connection status with live test result (Live ✓ / Token Invalid)
+  - Shows token expiry date with amber warning when expiring within 7 days
+  - Added Test button per platform (calls live API)
+  - Added Auto-Refresh button for LinkedIn (uses refresh_token)
+  - Added Reconnect button (re-runs OAuth flow)

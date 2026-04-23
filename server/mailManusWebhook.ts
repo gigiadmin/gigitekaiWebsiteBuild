@@ -14,7 +14,7 @@
  */
 
 import { Request, Response } from "express";
-import { getDb, createTicket } from "./db";
+import { getDb, createTicket, addTicketReply, getTicketById } from "./db";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendEmail } from "./_core/email";
@@ -244,11 +244,46 @@ async function createTicketFromEmail(
 
     // If this is a reply to an existing ticket, add it as a reply instead of creating new ticket
     if (isReply && replyToTicketId) {
-      console.log(
-        `[Mail Manus] Adding reply to existing ticket #${replyToTicketId}`
-      );
-      // TODO: Implement ticket reply logic
-      return { ticketId: replyToTicketId, success: true };
+      console.log(`[Mail Manus] Adding reply to existing ticket #${replyToTicketId}`);
+      try {
+        // Verify the ticket exists
+        const existingTicket = await getTicketById(replyToTicketId);
+        if (!existingTicket) {
+          console.warn(`[Mail Manus] Ticket #${replyToTicketId} not found, creating new ticket instead`);
+          // Fall through to create a new ticket
+        } else {
+          // Add the reply to the existing ticket
+          const cleanReplyBody = stripQuotedReplies(body);
+          await addTicketReply({
+            ticketId: replyToTicketId,
+            userId: user.id,
+            message: cleanReplyBody,
+            isStaffReply: 0, // customer reply
+          });
+          console.log(`[Mail Manus] Reply added to ticket #${replyToTicketId} from ${senderEmail}`);
+
+          // Send acknowledgment email to customer
+          try {
+            const emailSent = await sendEmail({
+              to: senderEmail,
+              subject: `Re: [Ticket #${replyToTicketId}] ${subject}`,
+              html: `<p>Hi ${user.name.split(' ')[0] || 'there'},</p><p>We received your reply to Ticket #${replyToTicketId} and it has been added to your case. Our team will respond shortly.</p><p>You can view your ticket at: <a href="${BASE_URL}/helpdesk/tickets/${replyToTicketId}">${BASE_URL}/helpdesk/tickets/${replyToTicketId}</a></p><p>— GigitekAI Support</p>`,
+              replyTo: SUPPORT_EMAIL,
+              fromName: 'GigitekAI Support',
+            });
+            if (emailSent) {
+              console.log(`[Mail Manus] Reply acknowledgment sent to ${senderEmail}`);
+            }
+          } catch (ackError) {
+            console.warn('[Mail Manus] Failed to send reply acknowledgment:', ackError);
+          }
+
+          return { ticketId: replyToTicketId, success: true };
+        }
+      } catch (replyError) {
+        console.error(`[Mail Manus] Failed to add reply to ticket #${replyToTicketId}:`, replyError);
+        // Fall through to create a new ticket as fallback
+      }
     }
 
     // Classify the email
@@ -332,7 +367,7 @@ async function createTicketFromEmail(
       try {
         const { sendSMS } = await import("./_core/sms");
         await sendSMS({
-          to: "+1 727 382 6909",
+          to: "+17273825776",
           message: `CRITICAL TICKET #${ticketId}\n${subject}\nFrom: ${senderName}\nCategory: ${classification.category}`,
         });
       } catch (smsError) {
@@ -391,7 +426,17 @@ export async function handleMailManusWebhook(
   req: Request,
   res: Response
 ): Promise<void> {
+  const requestId = Date.now().toString(36);
   try {
+    // Log all incoming webhook payloads for diagnostics
+    console.log(`[Mail Manus][${requestId}] Webhook received at ${new Date().toISOString()}`);
+    console.log(`[Mail Manus][${requestId}] Headers:`, JSON.stringify({
+      'content-type': req.headers['content-type'],
+      'user-agent': req.headers['user-agent'],
+      'x-forwarded-for': req.headers['x-forwarded-for'],
+    }));
+    console.log(`[Mail Manus][${requestId}] Body keys:`, Object.keys(req.body || {}));
+
     // Mail Manus sends email data in the request body
     const { from, subject, body, html, messageId } = req.body;
 

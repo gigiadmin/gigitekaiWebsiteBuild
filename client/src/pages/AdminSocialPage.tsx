@@ -252,6 +252,35 @@ export default function AdminSocialPage() {
   const { data: engagement, isLoading: engLoading } = trpc.social.getEngagement.useQuery({ days: engDays });
   const { data: optimalTimes } = trpc.social.getOptimalPostingTimes.useQuery();
 
+  const [testingPlatform, setTestingPlatform] = useState<string | null>(null);
+  const [tokenHealth, setTokenHealth] = useState<Record<string, { valid: boolean; error?: string; tested?: boolean }>>({});
+
+  const testConnectionMutation = trpc.social.testConnection.useMutation({
+    onSuccess: (data, vars) => {
+      setTestingPlatform(null);
+      setTokenHealth(prev => ({ ...prev, [vars.platform]: { valid: data.valid, error: data.error, tested: true } }));
+      if (data.valid) {
+        toast.success(`${vars.platform} token is valid ✓`);
+      } else {
+        toast.error(`${vars.platform} token invalid: ${data.error}`);
+      }
+    },
+    onError: (err, vars) => {
+      setTestingPlatform(null);
+      setTokenHealth(prev => ({ ...prev, [vars.platform]: { valid: false, error: err.message, tested: true } }));
+      toast.error(`Test failed: ${err.message}`);
+    },
+  });
+
+  const refreshLinkedInMutation = trpc.social.refreshLinkedInToken.useMutation({
+    onSuccess: (data) => {
+      toast.success(`LinkedIn token refreshed — expires ${new Date(data.expiresAt).toLocaleDateString()}`);
+      utils.social.getConnections.invalidate();
+      setTokenHealth(prev => ({ ...prev, linkedin: { valid: true, tested: true } }));
+    },
+    onError: (err) => toast.error(`LinkedIn refresh failed: ${err.message}`),
+  });
+
   const disconnectMutation = trpc.social.disconnect.useMutation({
     onSuccess: (_, vars) => {
       toast.success(`${vars.platform} disconnected`);
@@ -437,23 +466,60 @@ export default function AdminSocialPage() {
                   {isConnected && conn ? (
                     <>
                       <div>
-                        <p className="text-emerald-400 text-xs font-medium">Connected</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-emerald-400 text-xs font-medium">Connected</p>
+                          {tokenHealth[p.id]?.tested && (
+                            tokenHealth[p.id]?.valid
+                              ? <span className="text-emerald-400 text-xs">· Live ✓</span>
+                              : <span className="text-red-400 text-xs">· Token Invalid</span>
+                          )}
+                        </div>
                         {conn.screenName && (
                           <p className="text-gray-400 text-xs mt-0.5 truncate">{conn.screenName}</p>
                         )}
                         <p className="text-gray-600 text-xs mt-0.5">
                           Since {new Date(conn.connectedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </p>
+                        {conn.expiresAt && (
+                          <p className={`text-xs mt-0.5 ${new Date(conn.expiresAt) < new Date(Date.now() + 7 * 86400000) ? 'text-amber-400' : 'text-gray-600'}`}>
+                            Expires {new Date(conn.expiresAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </p>
+                        )}
+                        {tokenHealth[p.id]?.error && (
+                          <p className="text-red-400 text-xs mt-1 break-words">{tokenHealth[p.id]?.error}</p>
+                        )}
                       </div>
-                      <div className="flex items-center gap-3">
-                        {/* Refresh Connection */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Test Token */}
+                        <button
+                          onClick={() => { setTestingPlatform(p.id); testConnectionMutation.mutate({ platform: p.id }); }}
+                          disabled={testingPlatform === p.id}
+                          className="flex items-center gap-1.5 text-xs text-[#00D4FF] hover:text-[#00D4FF]/80 transition-colors"
+                          title="Test if token is still valid"
+                        >
+                          {testingPlatform === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                          Test
+                        </button>
+                        {/* LinkedIn-specific auto-refresh */}
+                        {p.id === 'linkedin' && conn.expiresAt && (
+                          <button
+                            onClick={() => refreshLinkedInMutation.mutate()}
+                            disabled={refreshLinkedInMutation.isPending}
+                            className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                            title="Refresh LinkedIn token using stored refresh token"
+                          >
+                            {refreshLinkedInMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            Auto-Refresh
+                          </button>
+                        )}
+                        {/* Reconnect via OAuth */}
                         <a
                           href={p.connectHref}
                           className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#00D4FF] transition-colors"
-                          title="Refresh token"
+                          title="Reconnect via OAuth"
                         >
                           <RefreshCw className="w-3 h-3" />
-                          Refresh
+                          Reconnect
                         </a>
                         <button
                           onClick={() => disconnectMutation.mutate({ platform: p.id })}

@@ -591,10 +591,9 @@ export default function AdminPanel() {
                   const statusConfig = getStatusConfig(ticket.status);
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
-                    <div
-                      key={ticket.id}
-                      className="group md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 hover:bg-white/[0.02] transition-colors items-center w-full border-b border-gray-800/40"
-                    >
+                    <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors">
+                    {/* Main row — always a grid on desktop, stacked on mobile */}
+                    <div className="group md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 items-center w-full">
                     {/* Checkbox */}
                     <input
                       type="checkbox"
@@ -668,33 +667,8 @@ export default function AdminPanel() {
                       {expandedTicketIds.has(ticket.id) ? 'Less' : 'Details'}
                     </button>
 
-                    {/* Expandable detail section for mobile */}
-                    {expandedTicketIds.has(ticket.id) && (
-                      <div className="md:hidden bg-gray-900/40 rounded-lg p-3 mb-2 space-y-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Priority</span>
-                          <span className={`font-medium ${priorityConfig.text}`}>{priorityConfig.label}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Category</span>
-                          <span className="text-gray-300 capitalize">{ticket.category.replace(/_/g, ' ')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Customer</span>
-                          <span className="text-gray-300">{ticket.customerName || ticket.customerEmail}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Created</span>
-                          <span className="text-gray-300">{new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </div>
-                        <div className="pt-1">
-                          <SLATimer priority={ticket.priority} createdAt={ticket.createdAt} status={ticket.status} />
-                        </div>
-                      </div>
-                    )}
-
                     {/* Actions */}
-                    <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap">
+                    <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap md:flex-nowrap">
                       <Button
                         size="sm"
                         variant="outline"
@@ -827,7 +801,48 @@ export default function AdminPanel() {
                         </Button>
                       ) : null}
                     </div>
-                  </div>
+                    </div>{/* end main row */}
+
+                    {/* Expandable detail panel — full width breakout, visible on mobile when expanded */}
+                    {expandedTicketIds.has(ticket.id) && (
+                      <div className="md:hidden bg-gray-900/40 border-t border-gray-800/40 px-5 py-3 space-y-2 text-xs">
+                        <div className="flex justify-between py-1 border-b border-gray-800/20">
+                          <span className="text-gray-500">Priority</span>
+                          <span className={`font-medium ${priorityConfig.text}`}>{priorityConfig.label}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-gray-800/20">
+                          <span className="text-gray-500">Category</span>
+                          <span className="text-gray-300 capitalize">{ticket.category.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-gray-800/20">
+                          <span className="text-gray-500">Customer</span>
+                          <span className="text-gray-300">{ticket.customerName || ticket.customerEmail}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-gray-800/20">
+                          <span className="text-gray-500">Created</span>
+                          <span className="text-gray-300">{new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                        <div className="pt-1">
+                          <SLATimer priority={ticket.priority} createdAt={ticket.createdAt} status={ticket.status} />
+                        </div>
+                        {/* Mobile action buttons in the expanded panel */}
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          <button
+                            onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20 rounded-lg text-xs font-medium"
+                          >
+                            <Eye className="w-3 h-3" /> View Full Ticket
+                          </button>
+                          <button
+                            onClick={() => { setQuickReplyTicketId(ticket.id); setQuickReplyEmail(ticket.customerEmail); setQuickReplyName(ticket.customerName); setShowQuickReply(true); }}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg text-xs font-medium"
+                          >
+                            <Mail className="w-3 h-3" /> Reply
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    </div>
                   );
                 })}
               </div>

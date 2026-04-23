@@ -549,4 +549,109 @@ Return ONLY valid JSON, no markdown formatting.`;
         throw new Error("Failed to generate social copy. Please try again.");
       }
     }),
+
+  /** Test if a stored token is still valid by calling the platform API */
+  testConnection: adminProcedure
+    .input(z.object({ platform: z.enum(["linkedin", "twitter", "facebook"]) }))
+    .mutation(async ({ input }) => {
+      const conn = await getConnection(input.platform);
+      if (!conn) return { valid: false, error: "Not connected" };
+
+      try {
+        if (input.platform === "linkedin") {
+          const r = await fetch("https://api.linkedin.com/v2/userinfo", {
+            headers: { Authorization: `Bearer ${conn.accessToken}` },
+          });
+          if (r.ok) {
+            const data = await r.json() as { name?: string };
+            return { valid: true, screenName: data.name ?? conn.screenName };
+          }
+          const err = await r.text();
+          return { valid: false, error: `LinkedIn API ${r.status}: ${err.slice(0, 200)}` };
+        }
+
+        if (input.platform === "twitter") {
+          const apiKey = process.env.TWITTER_API_KEY ?? "";
+          const apiSecret = process.env.TWITTER_API_SECRET ?? "";
+          const accessToken = conn.accessToken ?? "";
+          const accessTokenSecret = conn.accessTokenSecret ?? "";
+          const url = "https://api.twitter.com/1.1/account/verify_credentials.json";
+          const oauthParams: Record<string, string> = {
+            oauth_consumer_key: apiKey,
+            oauth_nonce: randomBytes(16).toString("hex"),
+            oauth_signature_method: "HMAC-SHA1",
+            oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
+            oauth_token: accessToken,
+            oauth_version: "1.0",
+          };
+          const paramStr = Object.entries(oauthParams)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          const sigBase = `GET&${encodeURIComponent(url)}&${encodeURIComponent(paramStr)}`;
+          const sigKey = `${encodeURIComponent(apiSecret)}&${encodeURIComponent(accessTokenSecret)}`;
+          const signature = createHmac("sha1", sigKey).update(sigBase).digest("base64");
+          const authHeader = "OAuth " + Object.entries({ ...oauthParams, oauth_signature: signature })
+            .map(([k, v]) => `${encodeURIComponent(k)}="${encodeURIComponent(v)}"`).join(", ");
+          const r = await fetch(url, { headers: { Authorization: authHeader } });
+          if (r.ok) {
+            const data = await r.json() as { screen_name?: string };
+            return { valid: true, screenName: data.screen_name ?? conn.screenName };
+          }
+          const err = await r.text();
+          return { valid: false, error: `Twitter API ${r.status}: ${err.slice(0, 200)}` };
+        }
+
+        if (input.platform === "facebook") {
+          const pageId = conn.pageId;
+          if (!pageId) return { valid: false, error: "No page ID stored" };
+          const r = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=name&access_token=${conn.accessToken}`);
+          if (r.ok) {
+            const data = await r.json() as { name?: string };
+            return { valid: true, screenName: data.name ?? conn.screenName };
+          }
+          const err = await r.text();
+          return { valid: false, error: `Facebook API ${r.status}: ${err.slice(0, 200)}` };
+        }
+
+        return { valid: false, error: "Unknown platform" };
+      } catch (err: any) {
+        return { valid: false, error: err?.message ?? "Unknown error" };
+      }
+    }),
+
+  /** Refresh LinkedIn token using stored refresh_token */
+  refreshLinkedInToken: adminProcedure.mutation(async () => {
+    const conn = await getConnection("linkedin");
+    if (!conn) throw new Error("LinkedIn not connected");
+    if (!conn.refreshToken) throw new Error("No refresh token stored — please reconnect LinkedIn");
+
+    const clientId = process.env.LINKEDIN_CLIENT_ID ?? "";
+    const clientSecret = process.env.LINKEDIN_CLIENT_SECRET ?? "";
+    const r = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: conn.refreshToken,
+        client_id: clientId,
+        client_secret: clientSecret,
+      }).toString(),
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      throw new Error(`LinkedIn refresh failed: ${err.slice(0, 300)}`);
+    }
+    const data = await r.json() as { access_token: string; expires_in: number; refresh_token?: string };
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+    const expiresAt = new Date(Date.now() + data.expires_in * 1000);
+    await db.update(socialConnections).set({
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token ?? conn.refreshToken,
+      expiresAt,
+      updatedAt: new Date(),
+    }).where(eq(socialConnections.platform, "linkedin"));
+    return { success: true, expiresAt };
+  }),
 });
