@@ -81,12 +81,44 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
-  <HelmetProvider>
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </trpc.Provider>
-  </HelmetProvider>
-);
+// Defensive mount: handle potential manus-runtime conflict in production
+const rootEl = document.getElementById("root");
+if (rootEl) {
+  // Clear any content that manus-runtime may have injected
+  rootEl.innerHTML = '';
+  
+  try {
+    const root = createRoot(rootEl);
+    root.render(
+      <HelmetProvider>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </trpc.Provider>
+      </HelmetProvider>
+    );
+  } catch (err) {
+    console.error('[GigitekAI] React mount failed:', err);
+    // Fallback: try again after a short delay
+    setTimeout(() => {
+      try {
+        rootEl.innerHTML = '';
+        const root = createRoot(rootEl);
+        root.render(
+          <HelmetProvider>
+            <trpc.Provider client={trpcClient} queryClient={queryClient}>
+              <QueryClientProvider client={queryClient}>
+                <App />
+              </QueryClientProvider>
+            </trpc.Provider>
+          </HelmetProvider>
+        );
+      } catch (retryErr) {
+        console.error('[GigitekAI] React mount retry failed:', retryErr);
+      }
+    }, 100);
+  }
+} else {
+  console.error('[GigitekAI] #root element not found');
+}
