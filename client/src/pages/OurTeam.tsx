@@ -18,7 +18,7 @@ export default function OurTeam() {
     {
       icon: Cloud,
       title: "Microsoft 365 Architecture",
-      desc: "10+ years designing, securing, and modernizing enterprise M365 environments. Exchange Online, Entra ID, Teams governance, and Microsoft Purview at scale.",
+      desc: "20+ years designing, securing, and modernizing enterprise M365 environments. Exchange Online, Entra ID, Teams governance, and Microsoft Purview at scale.",
     },
     {
       icon: Shield,
@@ -145,7 +145,7 @@ export default function OurTeam() {
               {/* Bio */}
               <div className="md:col-span-2 space-y-5 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-white">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 10+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
+                  <strong className="text-white">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
                 </p>
                 <p>
                   Harry has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. He brings a hands-on approach to complex infrastructure challenges — from advanced email flow troubleshooting to full tenant migrations — and serves as a trusted SME for teams that need deep Microsoft 365 expertise.

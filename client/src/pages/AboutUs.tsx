@@ -82,7 +82,7 @@ export default function AboutUs() {
             <div className="grid md:grid-cols-3 gap-8 items-start">
               <div className="md:col-span-2 space-y-4 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-cyan-400">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 10+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
+                  <strong className="text-cyan-400">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
                 </p>
                 <p>
                   Harry has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. Career highlights include serving as a <strong className="text-white">Sr. Microsoft Escalation Engineer at Microsoft</strong> (Premier Support), a <strong className="text-white">Global Messaging Consultant at HCL America</strong> supporting 100k+ users across multiple continents, and currently as <strong className="text-white">Associate Manager (Senior M365 Engineer) at Avanade</strong> — a joint venture between Accenture and Microsoft.
