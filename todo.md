@@ -3547,3 +3547,4 @@
 - [x] Fix canonical URL mismatch (changed from www.gigitekai.com to gigitekai.com in index.html)
 - [x] Add HTTP-to-HTTPS redirect at server middleware level (x-forwarded-proto check in Express)
 - [x] Implement route-based code splitting with React.lazy() + Suspense (5.4 MB → 2.0 MB initial bundle, 63% reduction) + Vite manualChunks for vendor splitting
+- [x] Replace all test@example.com with hhenry23@gmail.com across the codebase (26 occurrences in test files and components)

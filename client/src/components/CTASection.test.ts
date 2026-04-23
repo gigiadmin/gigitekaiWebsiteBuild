@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 describe("CTASection Contact Form", () => {
   describe("Form Validation", () => {
     it("should require name field", () => {
-      const form = { name: "", email: "test@example.com", company: "", message: "test" };
+      const form = { name: "", email: "hhenry23@gmail.com", company: "", message: "test" };
       expect(form.name).toBe("");
       expect(form.email).not.toBe("");
     });

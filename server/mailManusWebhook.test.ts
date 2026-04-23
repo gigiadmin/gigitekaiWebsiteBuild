@@ -86,7 +86,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should reject requests without subject", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "",
         body: "Test body",
       };
@@ -98,7 +98,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should reject requests without body or html", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Test Subject",
         // missing both body and html
       };
@@ -139,7 +139,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should prefer HTML body over plain text", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Test Subject",
         body: "Plain text body",
         html: "<p>HTML body</p>",
@@ -153,7 +153,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should handle internal server errors gracefully", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Test Subject",
         body: "Test body",
       };
@@ -181,7 +181,7 @@ describe("Mail Manus Webhook", () => {
       `;
 
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Test Subject",
         body: emailWithQuote,
       };
@@ -194,7 +194,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should handle HTML email with tags", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Test Subject",
         html: "<p>This is <strong>bold</strong> text</p><br/><p>Second paragraph</p>",
       };
@@ -209,7 +209,7 @@ describe("Mail Manus Webhook", () => {
   describe("Priority classification", () => {
     it("should handle Microsoft 365 related emails", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Microsoft Teams deployment issues with SSO",
         body: "We're trying to deploy Microsoft Teams to 500 users but hitting issues with SSO integration. This is urgent—we need it done by Friday.",
       };
@@ -250,7 +250,7 @@ describe("Mail Manus Webhook", () => {
   describe("Ticket reference detection", () => {
     it("should detect ticket reference in email body", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "Re: Support ticket",
         body: "Following up on #12345. The issue is still not resolved.",
       };
@@ -263,7 +263,7 @@ describe("Mail Manus Webhook", () => {
 
     it("should handle emails without ticket reference", async () => {
       mockReq.body = {
-        from: "test@example.com",
+        from: "hhenry23@gmail.com",
         subject: "New support request",
         body: "This is a new issue that needs help.",
       };

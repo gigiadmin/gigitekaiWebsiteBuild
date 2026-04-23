@@ -270,7 +270,7 @@ describe("Phase 2: Escalation Pattern Tracking", () => {
     await createChatSession({
       sessionId: "test-escalation-session-001",
       visitorName: "Test User",
-      visitorEmail: "test@example.com",
+      visitorEmail: "hhenry23@gmail.com",
       visitorCompany: "Test Co",
       status: "active",
     });
