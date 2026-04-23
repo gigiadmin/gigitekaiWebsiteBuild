@@ -82,7 +82,7 @@ const trpcClient = trpc.createClient({
 });
 
 // Defensive mount: handle potential manus-runtime conflict in production
-const rootEl = document.getElementById("root");
+const rootEl = document.getElementById("gigitekai-root");
 if (rootEl) {
   // Clear any content that manus-runtime may have injected
   rootEl.innerHTML = '';
