@@ -9,5 +9,5 @@ Disallow: /helpdesk/profile
 Disallow: /helpdesk/create-ticket
 Disallow: /404
 
-Sitemap: https://gigitekai.com/sitemap.xml
-Sitemap: https://gigitekai.com/api/sitemap-blog.xml
+Sitemap: https://www.gigitekai.com/sitemap.xml
+Sitemap: https://www.gigitekai.com/api/sitemap-blog.xml

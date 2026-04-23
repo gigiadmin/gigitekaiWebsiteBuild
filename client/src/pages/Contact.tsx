@@ -46,6 +46,8 @@ export default function Contact() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [formLoadTime] = useState(() => Date.now());
 
   const sendContactMutation = trpc.contact.submit.useMutation({
     onSuccess: () => {
@@ -59,6 +61,12 @@ export default function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Honeypot + timing anti-spam
+    if (honeypot) return;
+    if (Date.now() - formLoadTime < 2000) {
+      toast.error("Please wait a moment before submitting.");
+      return;
+    }
     if (!formData.name || !formData.email || !formData.message) {
       toast.error("Please fill in all required fields.");
       return;
@@ -242,6 +250,17 @@ export default function Contact() {
                     Send Us a Message
                   </h2>
                   <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Honeypot anti-spam field — hidden from humans */}
+                    <div className="absolute opacity-0 -z-10" aria-hidden="true" tabIndex={-1}>
+                      <input
+                        type="text"
+                        name="website_url"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-gray-300 text-sm">

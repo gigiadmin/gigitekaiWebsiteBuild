@@ -48,6 +48,16 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
     description:
       "Access GigitekAI's AI-powered helpdesk for fast, intelligent IT support. Create tickets, track issues, and get resolutions faster.",
   },
+  "/services": {
+    title: "Enterprise Cloud & AI Services | GigitekAI",
+    description:
+      "Explore GigitekAI's full suite of enterprise services: cloud infrastructure, AI automation, cybersecurity, managed IT, Microsoft 365, and data analytics.",
+  },
+  "/services/microsoft-365": {
+    title: "Microsoft 365 Architecture & Migration | GigitekAI",
+    description:
+      "Expert M365 architecture, Exchange Online migration, Teams deployment, and license optimization from a certified Microsoft 365 Architect. 15-30% cost savings.",
+  },
   "/services/managed": {
     title: "Managed IT Services | GigitekAI — Tampa Bay",
     description:

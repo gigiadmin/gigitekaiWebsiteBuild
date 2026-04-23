@@ -174,9 +174,9 @@ export default function TestimonialSection() {
           {/* Summary bar */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center">
             {[
-              { value: "4.9★", label: "Average Rating" },
-              { value: "150+", label: "Happy Clients" },
-              { value: "98%", label: "Retention Rate" },
+              { value: "24/7", label: "Support Coverage" },
+              { value: "99.9%", label: "Uptime SLA" },
+              { value: "<15min", label: "Response Time" },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/3 border border-white/5 rounded-xl py-3 px-2">
                 <p className="text-[#00D4FF] font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{stat.value}</p>

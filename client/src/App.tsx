@@ -19,6 +19,7 @@ import IndustryRetail from "./pages/IndustryRetail";
 import IndustryGovernment from "./pages/IndustryGovernment";
 import IndustryEducation from "./pages/IndustryEducation";
 import ServiceDetail from "./pages/ServiceDetail";
+import Services from "./pages/Services";
 import Pricing from "./pages/Pricing";
 import ROICalculatorPage from "./pages/ROICalculatorPage";
 import HelpdeskPricingPage from "./pages/HelpdeskPricing";
@@ -133,6 +134,8 @@ function Router() {
       <Route path={"/industries/retail-ecommerce"} component={IndustryRetail} />
       <Route path={"/industries/government"} component={IndustryGovernment} />
       <Route path={"/industries/education"} component={IndustryEducation} />
+      <Route path="/services" component={Services} />
+      <Route path="/ai-strategic-briefing">{() => { window.location.replace("/AIStrategicBriefing"); return null; }}</Route>
       <Route path={"/services/:slug"} component={ServiceDetail} />
 
       {/* ── Helpdesk (customer portal) ── */}

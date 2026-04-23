@@ -107,9 +107,9 @@ export default function LeadMagnetsSection() {
 
         {/* Trust Badges */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-gray-400 mb-4">Trusted by IT professionals worldwide</p>
+          <p className="text-sm text-gray-400 mb-4">Built for IT professionals</p>
           <div className="flex items-center justify-center gap-8 flex-wrap">
-            {['100K+ Downloads', 'Used by 500+ MSPs', '4.9★ Rating'].map((badge, idx) => (
+            {['Free to Download', 'Expert-Written Guides', 'No Credit Card Required'].map((badge, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#00D4FF]"></div>
                 <span className="text-sm text-gray-300">{badge}</span>

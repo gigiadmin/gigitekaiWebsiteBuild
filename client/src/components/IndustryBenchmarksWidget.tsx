@@ -104,7 +104,7 @@ export default function IndustryBenchmarksWidget({
           </h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             See how your IT spending and performance compare to industry peers. 
-            Data based on 500+ organizations.
+            Data based on published industry reports and analyst research.
           </p>
         </div>
 
@@ -227,7 +227,7 @@ export default function IndustryBenchmarksWidget({
 
         {/* Data Source */}
         <p className="text-center text-xs text-gray-500 mt-8">
-          Data based on anonymous survey of 500+ organizations (2024). Industry averages updated quarterly.
+          Data based on published industry reports and analyst research (2024). Industry averages are approximate.
         </p>
       </div>
     </section>

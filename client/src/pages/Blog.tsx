@@ -40,7 +40,7 @@ export default function Blog() {
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Header */}
-        <section className="py-16 bg-white border-b border-gray-100">
+        <section className="py-16 bg-[#0A0E1A] border-b border-white/10">
           <div className="container">
             <button
               onClick={() => navigate("/")}
@@ -50,12 +50,12 @@ export default function Blog() {
               Back to Home
             </button>
             <h1
-              className="text-5xl font-bold text-gray-900 mb-4"
+              className="text-5xl font-bold text-white mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Insights & Articles
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl">
+            <p className="text-gray-400 text-lg max-w-2xl">
               Stay ahead with the latest in cloud infrastructure, artificial intelligence, and enterprise technology.
             </p>
           </div>
@@ -65,18 +65,18 @@ export default function Blog() {
         <NewsletterSignup variant="banner" source="/blog" />
 
         {/* Blog posts */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-[#141B2D]">
           <div className="container">
             {isLoading && (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="animate-spin text-[#00D4FF] mr-3" size={28} />
-                <span className="text-gray-500 text-lg">Loading articles…</span>
+                <span className="text-gray-400 text-lg">Loading articles…</span>
               </div>
             )}
 
             {error && (
               <div className="text-center py-20">
-                <p className="text-red-500 text-lg">Failed to load articles. Please try again later.</p>
+                <p className="text-red-400 text-lg">Failed to load articles. Please try again later.</p>
               </div>
             )}
 
@@ -98,7 +98,7 @@ export default function Blog() {
                         className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
                           activeCategory === cat
                             ? "bg-[#00D4FF] text-[#0A0E1A] border-[#00D4FF] shadow-[0_0_12px_rgba(0,212,255,0.35)]"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-[#00D4FF]/50 hover:text-[#00D4FF]"
+                            : "bg-white/5 text-gray-300 border-white/10 hover:border-[#00D4FF]/50 hover:text-[#00D4FF]"
                         }`}
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
@@ -111,7 +111,7 @@ export default function Blog() {
                 {/* ── Article list ───────────────────────────────────────── */}
                 {filteredPosts.length === 0 ? (
                   <div className="text-center py-20">
-                    <p className="text-gray-500 text-lg">
+                    <p className="text-gray-400 text-lg">
                       No articles in <span className="font-semibold text-[#00D4FF]">{activeCategory}</span> yet.
                     </p>
                     <button
@@ -126,7 +126,7 @@ export default function Blog() {
                     {filteredPosts.map((post) => (
                       <article
                         key={post.id}
-                        className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-[#00D4FF]/30 hover:shadow-lg transition-all duration-300 p-8 cursor-pointer group"
+                        className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden hover:border-[#00D4FF]/30 hover:shadow-lg hover:shadow-[#00D4FF]/5 transition-all duration-300 p-8 cursor-pointer group"
                         onClick={() => navigate(`/blog/${post.slug}`)}
                       >
                         <div className="flex items-start justify-between gap-6">
@@ -145,12 +145,12 @@ export default function Blog() {
                               <span className="text-xs text-gray-400">{post.readTime}</span>
                             </div>
                             <h2
-                              className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#00D4FF] transition-colors"
+                              className="text-2xl font-bold text-white mb-3 group-hover:text-[#00D4FF] transition-colors"
                               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                             >
                               {post.title}
                             </h2>
-                            <p className="text-gray-600 text-base leading-relaxed mb-4">
+                            <p className="text-gray-400 text-base leading-relaxed mb-4">
                               {post.excerpt}
                             </p>
                             <div className="flex items-center gap-4 text-gray-400 text-sm">

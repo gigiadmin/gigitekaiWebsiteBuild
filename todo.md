@@ -3435,3 +3435,33 @@
 - [x] 1.7 Standardize geographic service area ("North America & Canada")
 - [x] 1.8 Fix iOS PWA start URL (changed to /), updated manifest.json
 - [x] 1.9 Fix animated stat counters to show real values for Googlebot (init with target)
+
+## Phase 2: Audit — High-Priority Credibility & Content
+- [x] 2.4 Fix Blog page dark theme (white bg → dark navy #0A0E1A)
+- [x] 2.5 Fix "Explore All Capabilities" CTA → link to /services
+- [x] 2.6 Remap CTAs to service funnel (service cards → detail pages → contact)
+- [x] 2.7 Add honeypot CAPTCHA + timing anti-spam to contact form
+- [x] 2.8 Downloadable resources verified (LeadMagnets system working)
+- [x] 2.9 Update service card CTA anchor text (keyword-rich per service)
+
+## Phase 3: Audit — Technical SEO Fixes
+- [x] 3.1 Routes already handle both paths (SPA routing)
+- [x] 3.2 Fix sitemap (removed fragments, duplicates, standardized www)
+- [x] 3.4 Create /services/microsoft-365 page (added to ServiceDetail)
+- [x] 3.6 Upgraded schema markup to LocalBusiness with full address/contact
+- [ ] 3.7 Create 1200x630 social share image for OG/Twitter (deferred — needs design asset)
+- [x] 3.8 Add twitter:site and twitter:creator meta tags
+
+## Phase 4: Audit — Content Expansion
+- [x] 4.1 New blog posts include internal links (existing posts updated via DB)
+- [x] 4.2 Updated all blog post author attribution to Harry Henry Santiago
+- [x] 4.3 Expand About Us page (added Founder Spotlight, Vendor Ecosystem, Frameworks)
+- [x] 4.4 Published M365 licensing optimization blog post (1500+ words)
+- [x] 4.5 Published Tampa Bay managed IT local SEO blog post (1500+ words)
+- [x] 4.6 Created /services overview page (Services.tsx + route in App.tsx)
+
+## Phase 5: Audit — Local SEO & Post-Launch
+- [x] 6.2 Heading hierarchy verified — correct (h1 in Hero, h2 per section, h3 for cards)
+- [x] 6.3 Font loading optimized (display=swap already set, added preconnect)
+- [x] 6.6 Partner badges — vendor ecosystem section added to About page
+- [x] 6.7 Removed unverifiable claims (500+ clients, 50+ team, 4.9 rating, 100K downloads)

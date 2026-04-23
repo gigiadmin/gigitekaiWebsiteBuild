@@ -11,7 +11,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import LeadCapturePopup from "@/components/LeadCapturePopup";
 import Breadcrumb from "@/components/Breadcrumb";
 import HelpdeskPricing from "@/components/HelpdeskPricing";
-import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu, Monitor } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 
@@ -199,6 +199,35 @@ const serviceData: Record<string, {
     ],
     technologies: ["Microsoft 365", "Azure AD", "Intune", "ConnectWise", "Datto", "SentinelOne", "Cisco Meraki", "Fortinet", "VMware", "Veeam"],
     ctaText: "Get Managed Support",
+  },
+  "microsoft-365": {
+    icon: Monitor,
+    title: "Microsoft 365",
+    subtitle: "M365 Architecture, Migration & Optimization",
+    heroDescription: "Maximize your Microsoft 365 investment with expert architecture, migration, and ongoing optimization from a certified Microsoft 365 Architect. We handle everything from tenant setup and Teams deployment to Exchange Online migration and license cost optimization.",
+    features: [
+      { title: "Tenant Architecture & Setup", description: "Design and configure your M365 tenant from scratch or restructure an existing one. Includes Azure AD / Entra ID configuration, security defaults, conditional access policies, and multi-factor authentication." },
+      { title: "Exchange Online Migration", description: "Migrate from on-premises Exchange, G Suite, or other platforms to Exchange Online with zero downtime. Includes mailbox migration, shared mailboxes, distribution groups, and public folders." },
+      { title: "Teams Deployment & Governance", description: "Deploy Microsoft Teams across your organization with proper governance policies, channel structure, guest access controls, and integration with existing business applications." },
+      { title: "SharePoint & OneDrive", description: "Design SharePoint Online sites, document libraries, and OneDrive for Business rollout. Includes data migration, permissions architecture, and compliance labeling." },
+      { title: "License Optimization", description: "Audit your current M365 licensing to eliminate waste and right-size plans. We typically save organizations 15-30% on annual Microsoft licensing costs through Sherweb partnership pricing." },
+      { title: "Security & Compliance", description: "Implement Microsoft Defender for Office 365, Data Loss Prevention (DLP), sensitivity labels, and compliance policies to protect your organization's data and meet regulatory requirements." },
+    ],
+    benefits: [
+      "Certified Microsoft 365 Architect on staff",
+      "15-30% licensing cost savings via Sherweb",
+      "Zero-downtime email migrations",
+      "Full Entra ID (Azure AD) configuration",
+      "Ongoing M365 health monitoring",
+      "Teams + SharePoint governance framework",
+    ],
+    useCases: [
+      { title: "Full M365 Migration", description: "Accounting firm with 200 users migrated from on-premises Exchange 2016 to Exchange Online in one weekend with zero data loss and no downtime during business hours." },
+      { title: "Teams Rollout & Training", description: "Healthcare organization deployed Teams to 500 staff with custom governance policies, HIPAA-compliant settings, and integrated scheduling — adoption reached 85% within 60 days." },
+      { title: "License Cost Reduction", description: "Manufacturing company reduced annual M365 spend by $45,000 through license right-sizing, removing unused E5 licenses, and leveraging Sherweb partner pricing." },
+    ],
+    technologies: ["Microsoft 365", "Exchange Online", "Microsoft Teams", "SharePoint Online", "OneDrive", "Azure AD / Entra ID", "Intune", "Defender for Office 365", "Power Automate", "Sherweb"],
+    ctaText: "Get M365 Assessment",
   },
 };
 

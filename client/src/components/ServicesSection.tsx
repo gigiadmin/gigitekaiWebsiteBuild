@@ -16,6 +16,7 @@ const services = [
     title: "Cloud Infrastructure",
     description: "Enterprise cloud migration and management services on AWS, Azure, and Google Cloud. Our cloud infrastructure solutions deliver scalable, resilient cloud computing with cost optimization and 24/7 support.",
     href: "/services/cloud",
+    cta: "Explore Cloud Services",
   },
   {
     id: "ai",
@@ -23,6 +24,7 @@ const services = [
     title: "AI & Machine Learning",
     description: "AI implementation and machine learning solutions including predictive analytics, business automation, and custom AI models. Transform your business with AI-powered intelligence and intelligent automation.",
     href: "/services/ai",
+    cta: "Explore AI Solutions",
   },
   {
     id: "security",
@@ -30,6 +32,7 @@ const services = [
     title: "Cybersecurity",
     description: "Enterprise cybersecurity solutions with cloud security services, threat detection, compliance management, and data protection frameworks for secure cloud infrastructure.",
     href: "/services/security",
+    cta: "Explore Cybersecurity",
   },
   {
     id: "strategy",
@@ -37,6 +40,7 @@ const services = [
     title: "IT Strategy & Growth",
     description: "Align technology investments with business goals through proactive planning, roadmapping, and vCIO advisory services.",
     href: "/services/strategy",
+    cta: "Explore IT Strategy",
   },
   {
     id: "data",
@@ -44,6 +48,7 @@ const services = [
     title: "Data & Analytics",
     description: "Data analytics and business intelligence solutions with modern data warehousing, predictive analytics, and AI-powered insights for enterprise decision-making.",
     href: "/services/data",
+    cta: "Explore Data Analytics",
   },
   {
     id: "managed",
@@ -51,6 +56,7 @@ const services = [
     title: "Managed IT Services",
     description: "Managed IT services and enterprise IT solutions with 24/7 monitoring, helpdesk support, and proactive maintenance for your cloud infrastructure and business systems.",
     href: "/services/managed",
+    cta: "Explore Managed IT",
   },
 ];
 
@@ -89,7 +95,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
         className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        Learn More <ArrowRight size={14} />
+        {service.cta} <ArrowRight size={14} />
       </a>
     </div>
   );
@@ -128,7 +134,7 @@ export default function ServicesSection() {
             <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
               GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
-            <a href="/contact" className="btn-cyan text-sm">
+            <a href="/services" className="btn-cyan text-sm">
               Explore All Capabilities <ArrowRight size={16} />
             </a>
           </div>
