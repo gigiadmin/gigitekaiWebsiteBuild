@@ -3665,3 +3665,6 @@
   - Added Test button per platform (calls live API)
   - Added Auto-Refresh button for LinkedIn (uses refresh_token)
   - Added Reconnect button (re-runs OAuth flow)
+
+## Bug Fix — KB Page Crash
+- [x] Fix /admin/kb crash: null is not an object (evaluating 't.title') — added null guard to KBFullScreenModal and AdminKB article filter

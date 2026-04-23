@@ -54,9 +54,9 @@ export default function AdminKB() {
 
   // Filter articles by search query
   const filteredArticles = articles?.filter((article: any) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.keywords.toLowerCase().includes(searchQuery.toLowerCase())
+    (article?.title ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (article?.category ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (article?.keywords ?? "").toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
   const categoryColors: Record<string, string> = {

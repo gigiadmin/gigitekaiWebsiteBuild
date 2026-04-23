@@ -26,6 +26,17 @@ export function KBFullScreenModal({
 }: KBFullScreenModalProps) {
   const [copied, setCopied] = useState(false);
 
+  // Guard: never render article content when article is null
+  if (!article) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl bg-slate-900 border-slate-700">
+          <div className="py-12 text-center text-gray-500">Loading article...</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   const handleCopyLink = () => {
     const url = `${window.location.origin}/kb/${article.id}`;
     navigator.clipboard.writeText(url);
