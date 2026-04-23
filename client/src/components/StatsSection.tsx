@@ -8,9 +8,9 @@ import { useEffect, useRef, useState } from "react";
 import { Star, Shield, Award, TrendingUp, Users, Clock } from "lucide-react";
 
 const stats = [
-  { icon: TrendingUp, value: 20, suffix: "+", label: "Years of Enterprise IT", sublabel: "Founder's hands-on experience" },
+  { icon: TrendingUp, value: 10, suffix: "+", label: "Years of Enterprise IT", sublabel: "Founder's hands-on experience" },
   { icon: Users, value: 150, suffix: "+", label: "Businesses Transformed", sublabel: "Across North America & Canada" },
-  { icon: Shield, value: 99.9, suffix: "%", label: "Managed Uptime SLA", sublabel: "Guaranteed availability" },
+  { icon: Shield, value: 99.99, suffix: "%", label: "Managed Uptime SLA", sublabel: "Guaranteed availability" },
   { icon: Clock, value: 48, suffix: "hr", label: "Avg. Client Onboarding", sublabel: "From contract to live" },
 ];
 
@@ -28,7 +28,7 @@ const formatValue = (value: number, target: number) => {
 };
 
 function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
-  // Initialize with target value so crawlers/Googlebot see the real number
+  // Initialize with target value so crawlers/Googlebot see the real number on first render
   const [count, setCount] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
   const [started, setStarted] = useState(false);
@@ -67,7 +67,7 @@ function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; 
   }, [started, animationReady, target, duration]);
 
   return (
-    <span ref={ref}>
+    <span ref={ref} data-value={`${target}${suffix}`}>
       {formatValue(count, target)}
       {suffix}
     </span>

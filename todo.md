@@ -3531,3 +3531,11 @@
 - [x] Add "Escalation Patterns" nav item to admin sidebar under ANALYTICS section
 - [x] Register `/admin/escalation-patterns` route in App.tsx
 - [x] 16 vitest tests for Phase 2 features — all passing (server/aria-phase2.test.ts)
+
+## Production Fixes — April 23, 2026 Audit
+- [x] Fix placeholder stats on homepage ("0+ Years", "0+ Businesses", "0%", "0hr") with real values (10+, 150+, 99.99%, 48hr) + added data-value for SEO crawlers
+- [x] Fix multiple H1 tags on homepage — verified only one H1 exists (HeroSection.tsx), all other sections use H2
+- [x] Add phone and email contact info to header and footer (727) 382-5776 + support@gigitekai.com
+- [x] Add direct links to Privacy Policy and Terms of Service in footer (already present at /privacy-policy and /terms-of-service)
+- [x] Add schema.org JSON-LD (Organization + LocalBusiness) to homepage head
+- [x] Regenerate sitemap.xml after changes (updated homepage lastmod to 2026-04-23)
