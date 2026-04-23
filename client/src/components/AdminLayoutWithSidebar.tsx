@@ -20,6 +20,7 @@ import {
   Bell,
   Bot,
   Mail,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -80,6 +81,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "blog", label: "Blog", section: "CONTENT", icon: FileText, path: "/admin/blog" },
     { id: "newsletter", label: "Newsletter", section: "CONTENT", icon: Mail, path: "/admin/newsletter" },
     { id: "knowledge-base", label: "Knowledge Base", section: "CONTENT", icon: BookOpen, path: "/admin/kb" },
+    { id: "ms-learn-sync", label: "MS Learn Sync", section: "CONTENT", icon: RefreshCw, path: "/admin/ms-learn-sync" },
     { id: "surveys", label: "Surveys", section: "ANALYTICS", icon: Star, path: "/admin/surveys" },
     { id: "workload", label: "Workload", section: "ANALYTICS", icon: Zap, path: "/admin/workload" },
     { id: "kb-analytics", label: "KB Analytics", section: "ANALYTICS", icon: TrendingUp, path: "/admin/kb-analytics" },

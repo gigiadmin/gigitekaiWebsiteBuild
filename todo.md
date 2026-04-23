@@ -3557,3 +3557,11 @@
 - [x] Add E2E user registration flow vitest test (8 tests: register, duplicate, bad secret, login, wrong pw, logout, session — all passing)
 - [x] Scan codebase for placeholder values — replaced all 16 via.placeholder.com logo URLs with Google Favicon service
 - [x] Staging environment: use the Manus preview URL (dev server) for UAT before each Publish
+
+## Aria Phase 3 & SEO Fixes — April 23, 2026
+- [x] Fix SEO: Add static H1/H2 tags to index.html for crawler visibility (visually hidden, accessible to crawlers)
+- [x] Aria Enhancement 1: Add full vendor stack knowledge (Afi, Commvault, ConnectSecure, DefensX, Harmony/Avanan, NordLayer, NordPass, NordStellar) to system prompt
+- [x] Aria Enhancement 2: Crawl MS Learn training catalog (learn.microsoft.com/en-us/training/) and build nightly sync job to populate KB articles
+- [x] Aria Enhancement 3: Add SLA response times, onboarding process, and client portal info to system prompt
+- [x] Aria Enhancement 4: Add Microsoft Copilot Studio and Power Platform deep knowledge to system prompt
+- [x] Write vitest tests for Aria Phase 3 features (10 tests, all passing)

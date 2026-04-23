@@ -868,6 +868,11 @@ export const kbArticles = mysqlTable("kbArticles", {
   tags: varchar("tags", { length: 500 }), // comma-separated
   isPublished: boolean("isPublished").default(false).notNull(),
   createdBy: int("createdBy"), // userId
+  // External sync fields (MS Learn, etc.)
+  sourceUrl: varchar("sourceUrl", { length: 1000 }), // Original URL (e.g. MS Learn module URL)
+  externalUid: varchar("externalUid", { length: 500 }), // External unique ID for dedup (e.g. MS Learn UID)
+  syncSource: varchar("syncSource", { length: 100 }), // 'ms-learn' | 'manual'
+  lastSyncedAt: timestamp("lastSyncedAt"), // When this article was last synced from external source
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

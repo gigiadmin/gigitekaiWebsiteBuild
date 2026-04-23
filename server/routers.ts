@@ -62,6 +62,7 @@ import { serviceStatusSubscriptionRouter } from "./routers/service-status-subscr
 import { quickAssistRouter } from "./routers/quickAssist";
 import { teamsChannelsRouter } from "./routers/teams-channels";
 import { teamsMeetingEscalationRouter } from "./routers/teams-meeting-escalation";
+import { msLearnSyncRouter } from "./routers/ms-learn-sync";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -73,6 +74,7 @@ export const appRouter = router({
   quickAssist: quickAssistRouter,
   teamsChannels: teamsChannelsRouter,
   teamsMeetingEscalation: teamsMeetingEscalationRouter,
+  msLearnSync: msLearnSyncRouter,
   aiTicketCategorization: aiTicketCategorization,
   kbSeeding: kbSeedingRouter,
   aiTraining: aiTrainingRouter,

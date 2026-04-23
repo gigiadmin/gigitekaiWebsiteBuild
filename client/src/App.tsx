@@ -98,6 +98,7 @@ const AdminServiceHealthMonitoring = lazy(() => import("./pages/AdminServiceHeal
 const AdminM365Health = lazy(() => import("./pages/AdminM365Health"));
 const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage"));
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
+const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -250,6 +251,7 @@ function Router() {
           {/* Teams Channels — per-client channel management */}
           <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/ms-learn-sync"}>{() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>}</Route>
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
