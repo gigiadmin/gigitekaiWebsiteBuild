@@ -82,6 +82,22 @@ export default function AdminEmailPage() {
     },
   });
 
+  // Clear ALL emails from portal DB
+  const clearAllEmailsMutation = trpc.email.clearAllEmails.useMutation({
+    onSuccess: (result) => {
+      refetchInbox();
+      toast.success(`Cleared ${result.deleted} email(s) from portal. Inbox is now empty.`);
+    },
+    onError: (err) => {
+      toast.error("Clear failed: " + err.message);
+    },
+  });
+
+  function handleClearAll() {
+    if (!confirm(`Clear ALL ${inbox.length} emails from the portal?\n\nThis removes them from the portal database only. Emails already deleted from Outlook won't come back.`)) return;
+    clearAllEmailsMutation.mutate();
+  }
+
   // Delete single email mutation (portal DB + Outlook mailbox)
   const deleteMessageMutation = trpc.email.deleteMessage.useMutation({
     onSuccess: (result, variables) => {
@@ -300,16 +316,30 @@ export default function AdminEmailPage() {
                   </Button>
                 ))}
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleSync}
-                disabled={isSyncing}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
-                {isSyncing ? "Syncing..." : "Sync Inbox"}
-              </Button>
+              <div className="flex gap-2">
+                {inbox.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleClearAll}
+                    disabled={clearAllEmailsMutation.isPending}
+                    className="flex items-center gap-2 text-red-400 border-red-500/30 hover:bg-red-500/10"
+                  >
+                    <Trash2 size={14} />
+                    Clear All
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSync}
+                  disabled={isSyncing}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
+                  {isSyncing ? "Syncing..." : "Sync Inbox"}
+                </Button>
+              </div>
             </div>
 
             {inbox.length === 0 ? (

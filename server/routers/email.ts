@@ -302,6 +302,15 @@ export const emailRouter = router({
       }
     }),
 
+  // ── Clear ALL emails from portal DB (does not touch Outlook) ─────────────────
+  clearAllEmails: adminProcedure
+    .mutation(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const result = await db.delete(emailMessages);
+      return { success: true, deleted: (result as any).rowsAffected ?? 0 };
+    }),
+
   // ── Delete a single email from portal DB + Outlook mailbox ─────────────────
   deleteMessage: adminProcedure
     .input(
@@ -381,7 +390,6 @@ export const emailRouter = router({
 
         // Fetch messages from Exchange Online via MS Graph
         const msMessages = await fetchInboxFromMsGraph(input.limit);
-        if (!msMessages.length) return { synced: 0, total: 0, removed: 0 };
 
         let synced = 0;
         let removed = 0;
@@ -429,23 +437,21 @@ export const emailRouter = router({
           synced++;
         }
 
-        // ── Step 2: Reconcile — remove emails that are no longer in Outlook ──
+        // ── Step 2: Reconcile — remove portal emails no longer in Outlook ──
+        // NOTE: This MUST run even when msMessages is empty (inbox was cleared).
+        // Previously the function returned early when msMessages was empty, which
+        // prevented reconciliation from running and left stale emails in the portal.
         if (input.reconcile) {
-          // Get all received emails with messageIds from the portal
+          // Get all received emails that were synced from Graph (have a messageId)
           const cachedEmails = await db
             .select({ id: emailMessages.id, messageId: emailMessages.messageId })
             .from(emailMessages)
-            .where(
-              and(
-                eq(emailMessages.direction, "received"),
-                // Only reconcile emails that have a messageId (synced from Graph)
-              )
-            );
+            .where(eq(emailMessages.direction, "received"));
 
-          // Build a set of current message IDs in Outlook
+          // Build a set of current message IDs still in Outlook
           const outlookMessageIds = new Set(msMessages.map((m) => m.id));
 
-          // Remove emails from portal that are no longer in Outlook
+          // Remove portal emails whose messageId is no longer in Outlook
           for (const cached of cachedEmails) {
             if (cached.messageId && !outlookMessageIds.has(cached.messageId)) {
               await db.delete(emailMessages).where(eq(emailMessages.id, cached.id));
