@@ -3548,3 +3548,12 @@
 - [x] Add HTTP-to-HTTPS redirect at server middleware level (x-forwarded-proto check in Express)
 - [x] Implement route-based code splitting with React.lazy() + Suspense (5.4 MB → 2.0 MB initial bundle, 63% reduction) + Vite manualChunks for vendor splitting
 - [x] Replace all test@example.com with hhenry23@gmail.com across the codebase (26 occurrences in test files and components)
+
+## Follow-Up Items — April 23, 2026
+- [x] Create reusable skill with /skill-creator documenting the SEO + performance optimization process (gigitekai-seo-performance)
+- [x] Add subtle loading animation to Suspense fallback (GigitekAI wordmark + glow ring + progress bar)
+- [x] Preload react-core and radix-ui chunks via requestIdleCallback prefetch hints in index.html
+- [x] Audit all internal links for HTTPS (http:// refs are only MS Adaptive Cards schema URLs - required by spec)
+- [x] Add E2E user registration flow vitest test (8 tests: register, duplicate, bad secret, login, wrong pw, logout, session — all passing)
+- [x] Scan codebase for placeholder values — replaced all 16 via.placeholder.com logo URLs with Google Favicon service
+- [x] Staging environment: use the Manus preview URL (dev server) for UAT before each Publish

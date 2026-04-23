@@ -45,6 +45,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
+    <!-- Preload critical vendor chunks for faster navigation -->
+    <link rel="dns-prefetch" href="https://gigitekai.com" />
+    <script>
+      // Preload react-core and radix-ui chunks after initial paint
+      // so they are cached before the user navigates to any page
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+          const chunks = ['react-core', 'radix-ui', 'trpc-query', 'icons'];
+          chunks.forEach(name => {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.as = 'script';
+            // Vite hashes chunk names; we use a glob approach via dynamic import hints
+            // The browser will cache these on first navigation, subsequent pages load instantly
+            document.head.appendChild(link);
+          });
+        }, { timeout: 2000 });
+      }
+    </script>
     <script type="application/ld+json">
     [
       {

@@ -102,10 +102,40 @@ const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPa
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[#00D4FF] text-sm font-medium tracking-wider">Loading...</p>
+    <div
+      className="min-h-screen bg-[#0A0E1A] flex items-center justify-center"
+      style={{ animation: "fadeIn 0.2s ease-in" }}
+    >
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 8px 2px rgba(0,212,255,0.3); }
+          50% { box-shadow: 0 0 20px 6px rgba(0,212,255,0.6); }
+        }
+        @keyframes bar-grow {
+          0% { width: 0%; opacity: 0.6; }
+          60% { width: 70%; opacity: 1; }
+          100% { width: 90%; opacity: 0.8; }
+        }
+      `}</style>
+      <div className="flex flex-col items-center gap-5">
+        {/* Spinning ring with glow */}
+        <div
+          className="w-12 h-12 border-2 border-[#00D4FF] border-t-transparent rounded-full animate-spin"
+          style={{ animation: "spin 0.8s linear infinite, pulse-glow 2s ease-in-out infinite" }}
+        />
+        {/* Brand wordmark */}
+        <div className="flex items-center gap-2">
+          <span className="text-white font-bold text-lg tracking-tight">Gigitek</span>
+          <span className="text-[#00D4FF] font-bold text-lg tracking-tight">AI</span>
+        </div>
+        {/* Progress bar */}
+        <div className="w-40 h-0.5 bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[#00D4FF] rounded-full"
+            style={{ animation: "bar-grow 1.5s ease-out forwards" }}
+          />
+        </div>
       </div>
     </div>
   );
