@@ -48,63 +48,18 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  // Robust path resolution: try multiple possible locations
-  const candidates = [
-    path.resolve(import.meta.dirname, "../", "dist", "public"),  // from server/_core -> dist/public
-    path.resolve(import.meta.dirname, "public"),                  // from dist/ -> dist/public
-    path.resolve(process.cwd(), "dist", "public"),                // from project root
-  ];
-
-  let distPath = candidates[0];
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate) && fs.existsSync(path.join(candidate, "index.html"))) {
-      distPath = candidate;
-      break;
-    }
-  }
-
+  const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
   if (!fs.existsSync(distPath)) {
     console.error(
       `[Server] Could not find the build directory: ${distPath}, make sure to build the client first`
     );
-    console.error(`[Server] Tried paths: ${candidates.join(", ")}`);
   } else {
     console.log(`[Server] Serving static files from: ${distPath}`);
-    const assetsDir = path.join(distPath, "assets");
-    if (fs.existsSync(assetsDir)) {
-      const assetCount = fs.readdirSync(assetsDir).length;
-      console.log(`[Server] Found ${assetCount} files in assets directory`);
-    }
   }
 
-  // Service worker and manifest: NEVER cache — must always be fresh
-  app.get("/sw.js", (_req, res) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-    res.setHeader("Content-Type", "text/javascript; charset=utf-8");
-    res.sendFile(path.resolve(distPath, "sw.js"));
-  });
+  app.use(express.static(distPath));
 
-  app.get("/manifest.json", (_req, res) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.sendFile(path.resolve(distPath, "manifest.json"));
-  });
-
-  // Serve hashed assets with long-term immutable caching
-  app.use("/assets", express.static(path.join(distPath, "assets"), {
-    maxAge: "1y",
-    immutable: true,
-    fallthrough: false, // Return 404 for missing assets instead of falling through to SPA
-  }));
-
-  // Serve other static files (favicon, robots.txt, etc.)
-  app.use(express.static(distPath, {
-    index: false, // Don't auto-serve index.html for directory requests
-  }));
-
-  // SPA fallback: only for non-asset routes (HTML pages)
+  // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
     // Prevent caching of index.html to ensure users always get the latest version
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
