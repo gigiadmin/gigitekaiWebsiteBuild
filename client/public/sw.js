@@ -1,37 +1,30 @@
-const CACHE_NAME = 'gigitekai-admin-v3';
-const RUNTIME_CACHE = 'gigitekai-admin-runtime-v3';
-const STATIC_ASSETS = [
-  '/',
-  '/admin',
-  '/index.html',
-  '/manifest.json',
-];
+// GigitekAI Service Worker v4 — Network-first for all page/asset requests
+// Only caches for offline fallback, never serves stale JS/CSS
+const CACHE_NAME = 'gigitekai-v4';
 
-// Install event - cache static assets
+// Install: skip waiting immediately to take over from old SW
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate: delete ALL old caches to prevent stale asset issues
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+        cacheNames.map((name) => {
+          console.log('[SW v4] Deleting old cache:', name);
+          return caches.delete(name);
+        })
       );
+    }).then(() => {
+      console.log('[SW v4] All old caches cleared, claiming clients');
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch event: network-first for API, cache-first for assets
+// Fetch: network-first for everything, no caching of assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -39,40 +32,36 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // API requests: network-first with cache fallback
-  if (url.pathname.startsWith('/api/')) {
+  // Skip cross-origin requests (CDN images, analytics, etc.)
+  if (url.origin !== self.location.origin) return;
+
+  // API requests: always go to network, no caching
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Hashed assets (/assets/*): always go to network
+  // These have content hashes in filenames so browser HTTP cache handles them
+  if (url.pathname.startsWith('/assets/')) return;
+
+  // HTML pages: network-first, fallback to cache for offline
+  if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
-            const cache = caches.open(RUNTIME_CACHE);
-            cache.then((c) => c.put(request, response.clone()));
-          }
+          // Cache the latest HTML for offline fallback
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
         .catch(() => {
           return caches.match(request).then((cached) => {
-            return cached || new Response('Offline - API not available', { status: 503 });
+            return cached || caches.match('/index.html');
           });
         })
     );
     return;
   }
 
-  // Static assets: cache-first with network fallback
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200) return response;
-          const cache = caches.open(RUNTIME_CACHE);
-          cache.then((c) => c.put(request, response.clone()));
-          return response;
-        })
-        .catch(() => caches.match('/index.html'));
-    })
-  );
+  // Everything else: let the browser handle it normally
 });
 
 // Handle Web Push notifications

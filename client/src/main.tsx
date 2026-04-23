@@ -9,11 +9,28 @@ import { getLoginUrl } from "./const";
 import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 
-// Register service worker for PWA
+// Register service worker for PWA — force update check on every page load
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then((registration) => {
       console.log('[PWA] Service worker registered:', registration);
+      // Force check for new SW version on every page load
+      registration.update();
+      // If a new SW is waiting, tell it to activate immediately
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated') {
+              console.log('[PWA] New service worker activated, reloading...');
+              window.location.reload();
+            }
+          });
+        }
+      });
     }).catch((error) => {
       console.warn('[PWA] Service worker registration failed:', error);
     });
