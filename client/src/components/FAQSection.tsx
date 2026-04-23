@@ -3,7 +3,8 @@
   White background, mirrors appliedtech.us FAQ section
 */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import StructuredData from "@/components/StructuredData";
 import { ChevronDown, Search } from "lucide-react";
 
 type FAQCategory = 'Pricing' | 'Implementation' | 'Security' | 'Support' | 'Integration' | 'General';
@@ -244,8 +245,22 @@ export default function FAQSection() {
     return matchesCategory && matchesSearch;
   });
 
+  const faqSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.slice(0, 10).map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  }), []);
+
   return (
     <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
+      <StructuredData data={faqSchema} id="sd-faqpage" />
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-16">
           {/* Left */}

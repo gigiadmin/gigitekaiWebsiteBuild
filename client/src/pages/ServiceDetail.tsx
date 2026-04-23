@@ -14,6 +14,8 @@ import HelpdeskPricing from "@/components/HelpdeskPricing";
 import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu, Monitor } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
+import StructuredData from "@/components/StructuredData";
+import { useMemo } from "react";
 
 const serviceData: Record<string, {
   icon: any;
@@ -267,12 +269,41 @@ export default function ServiceDetail() {
   const Icon = service.icon;
   const breadcrumbs = [
     { label: "Home", href: "/" },
-    { label: "Services", href: "/" },
+    { label: "Services", href: "/services" },
     { label: service.title },
   ];
 
+  const serviceSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: service.title,
+    description: service.heroDescription,
+    provider: {
+      "@type": "Organization",
+      name: "GigitekAI",
+      url: "https://www.gigitekai.com",
+    },
+    areaServed: [
+      { "@type": "Country", name: "United States" },
+      { "@type": "Country", name: "Canada" },
+    ],
+    serviceType: service.title,
+  }), [service]);
+
+  const breadcrumbSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.gigitekai.com" },
+      { "@type": "ListItem", position: 2, name: "Services", item: "https://www.gigitekai.com/services" },
+      { "@type": "ListItem", position: 3, name: service.title, item: `https://www.gigitekai.com/services/${slug}` },
+    ],
+  }), [service, slug]);
+
   return (
     <div className="min-h-screen flex flex-col">
+      <StructuredData data={serviceSchema} id={`sd-service-${slug}`} />
+      <StructuredData data={breadcrumbSchema} id={`sd-breadcrumb-${slug}`} />
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Hero Section */}

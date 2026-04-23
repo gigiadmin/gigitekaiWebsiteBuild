@@ -104,9 +104,9 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "Discover how AI can transform your business operations. GigitekAI's strategic briefing covers automation, cost reduction, and competitive advantage.",
   },
   "/case-studies": {
-    title: "Case Studies | GigitekAI Success Stories",
+    title: "Case Studies | GigitekAI — Real Results for Real Businesses",
     description:
-      "Real results from real businesses. See how GigitekAI helped companies reduce IT costs by 38%, improve efficiency by 68%, and achieve 240% ROI.",
+      "See how GigitekAI delivers measurable results: M365 migrations, Zero Trust security, AI helpdesk automation, and hybrid cloud modernization across industries.",
   },
   "/industries/healthcare": {
     title: "Healthcare IT Solutions | GigitekAI",
@@ -152,6 +152,11 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
     title: "Knowledge Base | GigitekAI Support",
     description:
       "Browse GigitekAI's knowledge base for IT support articles, troubleshooting guides, and best practices for cloud, AI, and Microsoft 365.",
+  },
+  "/managed-it-services-tampa": {
+    title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
+    description:
+      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-6909.",
   },
   "/hh": {
     title: "Contact Harry Henry Santiago | GigitekAI Founder",

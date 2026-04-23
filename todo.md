@@ -3449,7 +3449,7 @@
 - [x] 3.2 Fix sitemap (removed fragments, duplicates, standardized www)
 - [x] 3.4 Create /services/microsoft-365 page (added to ServiceDetail)
 - [x] 3.6 Upgraded schema markup to LocalBusiness with full address/contact
-- [ ] 3.7 Create 1200x630 social share image for OG/Twitter (deferred — needs design asset)
+- [x] 3.7 Created 1200x630 social share image for OG/Twitter and updated meta tags
 - [x] 3.8 Add twitter:site and twitter:creator meta tags
 
 ## Phase 4: Audit — Content Expansion
@@ -3484,3 +3484,13 @@
 - [x] Add scheduler to run daily at 8:00 AM ET (setTimeout + setInterval)
 - [x] Send alert to hhenry23@gmail.com on failure, Manus notification on success
 - [x] Test the health check end-to-end (8/8 vitest tests passing)
+
+## Remaining Audit Items — Batch 3
+- [x] Generate 1200x630 branded social share image for OG/Twitter
+- [x] Update og:image and twitter:image meta tags with new image
+- [x] Create /managed-it-services-tampa local SEO landing page
+- [x] Add FAQPage schema to homepage FAQ section
+- [x] Add Service schema + BreadcrumbList to each /services/* page
+- [x] Add BlogPosting schema to blog detail pages
+- [x] Add BreadcrumbList schema to service detail pages
+- [x] Rewrite case studies with 4 anonymized examples (Healthcare, Legal, MSP, Manufacturing)
