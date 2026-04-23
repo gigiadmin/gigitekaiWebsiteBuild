@@ -3,6 +3,13 @@ import { publicProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import {
+  buildTicketConfirmationEmail,
+  formatCategory,
+  getPriorityDetails,
+  formatChannel,
+  formatReceivedAt,
+} from "../emailTemplates";
 import { 
   searchKnowledgeBase,
   searchKBArticles,
@@ -574,6 +581,39 @@ export const aibotRouter = router({
 
       // Update chat session status with actual ticket ID
       await updateChatSessionStatus(sessionId, "escalated", ticketId);
+
+      // Send branded confirmation email to customer if email is available
+      if (session.visitorEmail) {
+        try {
+          const firstName = (session.visitorName || session.visitorEmail).split(" ")[0] || "there";
+          const priorityDetails = getPriorityDetails(priority);
+          const confirmationHtml = buildTicketConfirmationEmail({
+            firstName,
+            ticketNumber: ticketId,
+            ticketTitle: `Chat Escalation: ${reason.substring(0, 80)}`,
+            category: formatCategory("general_support"),
+            priority,
+            channel: formatChannel("chat"),
+            receivedAt: formatReceivedAt(new Date()),
+            slaWindow: priorityDetails.sla,
+            ticketUrl: `https://gigitekai.com/helpdesk/tickets/${ticketId}`,
+          });
+          const emailSent = await sendEmail({
+            to: session.visitorEmail,
+            subject: `[Ticket #${ticketId}] Your chat has been escalated to our support team`,
+            html: confirmationHtml,
+            replyTo: "support@gigitekai.com",
+            fromName: "GigitekAI Support",
+          });
+          if (emailSent) {
+            console.log(`[AIBot] Branded escalation confirmation sent to ${session.visitorEmail} for ticket #${ticketId}`);
+          } else {
+            console.warn(`[AIBot] Failed to send escalation confirmation to ${session.visitorEmail}`);
+          }
+        } catch (emailError) {
+          console.error("[AIBot] Exception sending escalation confirmation:", emailError);
+        }
+      }
 
       // Send notification to owner
       try {

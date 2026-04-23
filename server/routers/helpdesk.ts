@@ -3,6 +3,13 @@ import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback, getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import {
+  buildTicketConfirmationEmail,
+  formatCategory,
+  getPriorityDetails,
+  formatChannel,
+  formatReceivedAt,
+} from "../emailTemplates";
 import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
@@ -142,28 +149,35 @@ export const helpdeskRouter = router({
           status: "open",
         });
 
-        // Send confirmation email to customer
+        // Send branded confirmation email to customer
         try {
-          const ticketNum = ticket?.id ? String(ticket.id) : "pending";
-          const confirmationEmail = `
-            <h2>Ticket Confirmation</h2>
-            <p>Thank you for contacting GigitekAI Support!</p>
-            <p><strong>Ticket #${ticketNum}</strong></p>
-            <p><strong>Title:</strong> ${input.title}</p>
-            <p><strong>Priority:</strong> ${input.priority.toUpperCase()}</p>
-            <p><strong>Category:</strong> ${input.category.replace(/_/g, " ")}</p>
-            <p>Your ticket has been received and assigned to our support team. We will respond as soon as possible.</p>
-            <p>You can track your ticket status at: <a href="${BASE_URL}/customer-portal">GigitekAI Customer Portal</a></p>
-            <p>Best regards,<br/>GigitekAI Support Team</p>
-          `;
-          const ticketId = ticket?.id ? String(ticket.id) : "pending";
-          const userEmail = ctx.user.email || "support@gigitekai.com";
-          await sendEmail({
-            to: userEmail,
-            subject: `Ticket Confirmation #${ticketId}: ${input.title}`,
-            html: confirmationEmail,
-          });
-          console.log(`[Helpdesk] Confirmation email sent to ${ctx.user.email} for ticket #${ticket?.id}`);
+          if (ticket?.id && ctx.user.email) {
+            const firstName = (ctx.user.name || ctx.user.email).split(" ")[0] || "there";
+            const priorityDetails = getPriorityDetails(input.priority);
+            const confirmationHtml = buildTicketConfirmationEmail({
+              firstName,
+              ticketNumber: ticket.id,
+              ticketTitle: input.title,
+              category: formatCategory(input.category),
+              priority: input.priority,
+              channel: formatChannel("web_form"),
+              receivedAt: formatReceivedAt(new Date()),
+              slaWindow: priorityDetails.sla,
+              ticketUrl: `https://gigitekai.com/helpdesk/tickets/${ticket.id}`,
+            });
+            const emailSent = await sendEmail({
+              to: ctx.user.email,
+              subject: `[Ticket #${ticket.id}] We received your request — ${input.title}`,
+              html: confirmationHtml,
+              replyTo: "support@gigitekai.com",
+              fromName: "GigitekAI Support",
+            });
+            if (emailSent) {
+              console.log(`[Helpdesk] Branded confirmation email sent to ${ctx.user.email} for ticket #${ticket.id}`);
+            } else {
+              console.warn(`[Helpdesk] Failed to send confirmation email to ${ctx.user.email} for ticket #${ticket.id}`);
+            }
+          }
         } catch (emailError) {
           console.warn("[Helpdesk] Failed to send confirmation email:", emailError);
         }

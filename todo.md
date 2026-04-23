@@ -3494,3 +3494,26 @@
 - [x] Add BlogPosting schema to blog detail pages
 - [x] Add BreadcrumbList schema to service detail pages
 - [x] Rewrite case studies with 4 anonymized examples (Healthcare, Legal, MSP, Manufacturing)
+
+## High-Impact Roadmap — Phase 1
+
+### 1. Support Ticket Auto-Response Email
+- [x] Build HTML email template (warm, personal, branded) with dynamic ticket variables
+- [x] Wire template into all 3 ticket creation channels (email webhook, web form, chat escalation)
+- [x] Send via Microsoft Graph (Azure app) — fromName: GigitekAI Support, replyTo: support@gigitekai.com
+- [x] Includes: first name, ticket #, category, priority, channel, date/time, SLA window, direct contact, CTA button
+- [x] 27/27 vitest tests passing for emailTemplates module
+
+### 2. Aria AI Knowledge Optimization
+- [ ] Audit top 15 repeated questions and build dedicated Aria responses in KB
+- [ ] Implement intent-based routing for top 10 high-volume intents
+- [ ] Add proactive KB article surfacing (3 articles shown as user types)
+- [ ] Build escalation pattern tracker (log which intents Aria escalates)
+- [ ] Add "Did this help?" feedback loop on Aria responses
+
+### 3. Social Media Auth Fix + Token Health Dashboard
+- [ ] Diagnose LinkedIn, Facebook, X auth failures (token expiry, scope, sandbox mode)
+- [ ] Fix LinkedIn OAuth 2.0 with w_member_social scope + token refresh rotation
+- [ ] Fix Facebook/Instagram Graph API with Page Access Token + App Review check
+- [ ] Fix X OAuth 2.0 PKCE with tweet.write scope
+- [ ] Build token health dashboard in admin panel (status, expiry, reconnect button)

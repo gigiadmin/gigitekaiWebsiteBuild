@@ -22,6 +22,13 @@ import { invokeLLM } from "./_core/llm";
 import { notifyOwner } from "./_core/notification";
 import { createAdminNotification } from "./routers/adminNotifications";
 import { sendTicketNotificationToTeams } from "./teamsBot";
+import {
+  buildTicketConfirmationEmail,
+  formatCategory,
+  getPriorityDetails,
+  formatChannel,
+  formatReceivedAt,
+} from "./emailTemplates";
 
 const BASE_URL = "https://gigitekai.com";
 const SUPPORT_EMAIL = "support@gigitekai.com";
@@ -273,25 +280,28 @@ async function createTicketFromEmail(
       return { ticketId: null, success: false };
     }
 
-    // Send confirmation email to customer
+    // Send branded confirmation email to customer
     try {
-      const confirmationEmail = `
-        <h2>Ticket Confirmation</h2>
-        <p>Thank you for contacting GigitekAI Support!</p>
-        <p><strong>Ticket #${ticketId}</strong></p>
-        <p><strong>Title:</strong> ${subject}</p>
-        <p><strong>Priority:</strong> ${classification.priority.toUpperCase()}</p>
-        <p><strong>Category:</strong> ${classification.category.replace(/_/g, " ")}</p>
-        <p>Your ticket has been received and assigned to our support team. We will respond as soon as possible.</p>
-        <p>You can track your ticket status at: <a href="${BASE_URL}/helpdesk/tickets/${ticketId}">View Ticket</a></p>
-        <p>Best regards,<br/>GigitekAI Support Team</p>
-      `;
+      const firstName = senderName.split(" ")[0] || senderName || "there";
+      const priorityDetails = getPriorityDetails(classification.priority);
+      const confirmationEmail = buildTicketConfirmationEmail({
+        firstName,
+        ticketNumber: ticketId,
+        ticketTitle: subject,
+        category: formatCategory(classification.category),
+        priority: classification.priority,
+        channel: formatChannel("email"),
+        receivedAt: formatReceivedAt(new Date()),
+        slaWindow: priorityDetails.sla,
+        ticketUrl: `${BASE_URL}/helpdesk/tickets/${ticketId}`,
+      });
 
       const emailSent = await sendEmail({
         to: senderEmail,
-        subject: `Ticket Confirmation #${ticketId}: ${subject}`,
+        subject: `[Ticket #${ticketId}] We received your request — ${subject}`,
         html: confirmationEmail,
         replyTo: SUPPORT_EMAIL,
+        fromName: "GigitekAI Support",
       });
 
       if (emailSent) {
