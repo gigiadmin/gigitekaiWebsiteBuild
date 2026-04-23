@@ -38,6 +38,9 @@ import {
   Eye,
   X,
   Trash2,
+  Zap,
+  Clock,
+  Activity,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import RecipientGroupsManager from "@/components/RecipientGroupsManager";
@@ -216,6 +219,25 @@ export default function AdminEmailPage() {
     });
   }
 
+  // Email Poller Status
+  const { data: pollerStatus, refetch: refetchPollerStatus } = trpc.system.getEmailPollerStatus.useQuery(undefined, {
+    refetchInterval: 30_000, // refresh every 30s
+  });
+  const triggerPollMutation = trpc.system.triggerEmailPoller.useMutation({
+    onSuccess: (result) => {
+      refetchPollerStatus();
+      refetchInbox();
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    },
+    onError: (err) => {
+      toast.error("Failed to trigger poll: " + err.message);
+    },
+  });
+
   const sentCount = inbox.filter((e) => e.direction === "sent").length;
   const receivedCount = inbox.filter((e) => e.direction === "received").length;
 
@@ -223,6 +245,59 @@ export default function AdminEmailPage() {
     
     <AdminLayout title="Email Management">
       <div className="space-y-6">
+        {/* Email Poller Status Bar */}
+        <div className="bg-slate-900/60 border border-slate-700/50 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <Activity size={14} className={pollerStatus?.isRunning ? "text-cyan-400 animate-pulse" : "text-green-400"} />
+                <span className="text-xs font-medium text-slate-300">
+                  Email Poller: {pollerStatus?.isRunning ? "Running..." : "Idle"}
+                </span>
+              </div>
+              {pollerStatus?.lastSyncTime && (
+                <div className="flex items-center gap-1.5">
+                  <Clock size={12} className="text-slate-500" />
+                  <span className="text-xs text-slate-400">
+                    Last sync: {formatDistanceToNow(new Date(pollerStatus.lastSyncTime), { addSuffix: true })}
+                  </span>
+                </div>
+              )}
+              {pollerStatus?.nextSyncTime && !pollerStatus?.isRunning && (
+                <div className="flex items-center gap-1.5">
+                  <Clock size={12} className="text-slate-500" />
+                  <span className="text-xs text-slate-400">
+                    Next: {formatDistanceToNow(new Date(pollerStatus.nextSyncTime), { addSuffix: true })}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <Mail size={12} className="text-slate-500" />
+                <span className="text-xs text-slate-400">
+                  Today: {pollerStatus?.emailsProcessedToday ?? 0} processed
+                </span>
+              </div>
+              {pollerStatus?.lastError && (
+                <div className="flex items-center gap-1.5">
+                  <AlertCircle size={12} className="text-red-400" />
+                  <span className="text-xs text-red-400 truncate max-w-[200px]" title={pollerStatus.lastError}>
+                    {pollerStatus.lastError}
+                  </span>
+                </div>
+              )}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => triggerPollMutation.mutate()}
+              disabled={triggerPollMutation.isPending || pollerStatus?.isRunning}
+              className="flex items-center gap-2 text-xs h-7"
+            >
+              <Zap size={12} className={triggerPollMutation.isPending ? "animate-spin" : ""} />
+              {triggerPollMutation.isPending ? "Polling..." : "Poll Now"}
+            </Button>
+          </div>
+        </div>
         {/* Email detail modal */}
         {selectedEmail && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setSelectedEmail(null)}>

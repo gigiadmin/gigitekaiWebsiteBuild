@@ -681,7 +681,7 @@ export const aibotRouter = router({
             channel: formatChannel("chat"),
             receivedAt: formatReceivedAt(new Date()),
             slaWindow: priorityDetails.sla,
-            ticketUrl: `https://gigitekai.com/helpdesk/tickets/${ticketId}`,
+            ticketUrl: `https://gigitekai.com/helpdesk/ticket/${ticketId}`,
           });
           const emailSent = await sendEmail({
             to: session.visitorEmail,

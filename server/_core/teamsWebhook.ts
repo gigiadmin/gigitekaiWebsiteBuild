@@ -380,7 +380,7 @@ async function handleTicketReply(
 
   await context.sendActivity(
     `✅ Your reply has been added to **Ticket #${ticketId}: ${ticket.title}**\n\n` +
-    `The customer will be notified. [View ticket](https://gigitekai.com/helpdesk/tickets/${ticketId})`
+    `The customer will be notified. [View ticket](https://gigitekai.com/helpdesk/ticket/${ticketId})`
   );
 
   console.log(`[Teams Bot] ✅ Reply synced to ticket #${ticketId} from ${senderName}`);

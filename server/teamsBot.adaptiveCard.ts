@@ -85,7 +85,7 @@ function getStatusEmoji(status: string): string {
  */
 export function buildTicketCard(options: TicketCardOptions): Record<string, any> {
   const baseUrl = options.baseUrl || "https://gigitekai.com";
-  const ticketUrl = `${baseUrl}/helpdesk/tickets/${options.ticketId}`;
+  const ticketUrl = `${baseUrl}/helpdesk/ticket/${options.ticketId}`;
   const adminTicketUrl = `${baseUrl}/admin/helpdesk?ticket=${options.ticketId}`;
 
   const defaultActions: AdaptiveCardAction[] = [
@@ -269,7 +269,7 @@ export function buildQuickReplyCard(
             {
               type: "Action.OpenUrl",
               title: "👁️ View Full Ticket",
-              url: `${baseUrl}/helpdesk/tickets/${ticketId}`,
+              url: `${baseUrl}/helpdesk/ticket/${ticketId}`,
               style: "default",
             },
           ],

@@ -173,7 +173,7 @@ export const helpdeskRouter = router({
               channel: formatChannel("web_form"),
               receivedAt: formatReceivedAt(new Date()),
               slaWindow: priorityDetails.sla,
-              ticketUrl: `https://gigitekai.com/helpdesk/tickets/${ticket.id}`,
+              ticketUrl: `https://gigitekai.com/helpdesk/ticket/${ticket.id}`,
             });
             const emailSent = await sendEmail({
               to: ctx.user.email,
@@ -486,7 +486,7 @@ export const helpdeskRouter = router({
             title: `Ticket #${input.ticketId} ${statusLabels[input.status] ?? input.status}`,
             body: ticket.title,
             tag: `ticket-${input.ticketId}-status`,
-            url: `/helpdesk/tickets/${input.ticketId}`,
+            url: `/helpdesk/ticket/${input.ticketId}`,
           });
         } catch (pushErr) {
           console.warn("[Helpdesk] Push notification failed:", pushErr);

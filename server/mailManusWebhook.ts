@@ -267,7 +267,7 @@ async function createTicketFromEmail(
             const emailSent = await sendEmail({
               to: senderEmail,
               subject: `Re: [Ticket #${replyToTicketId}] ${subject}`,
-              html: `<p>Hi ${user.name.split(' ')[0] || 'there'},</p><p>We received your reply to Ticket #${replyToTicketId} and it has been added to your case. Our team will respond shortly.</p><p>You can view your ticket at: <a href="${BASE_URL}/helpdesk/tickets/${replyToTicketId}">${BASE_URL}/helpdesk/tickets/${replyToTicketId}</a></p><p>— GigitekAI Support</p>`,
+              html: `<p>Hi ${user.name.split(' ')[0] || 'there'},</p><p>We received your reply to Ticket #${replyToTicketId} and it has been added to your case. Our team will respond shortly.</p><p>You can view your ticket at: <a href="${BASE_URL}/helpdesk/ticket/${replyToTicketId}">${BASE_URL}/helpdesk/ticket/${replyToTicketId}</a></p><p>— GigitekAI Support</p>`,
               replyTo: SUPPORT_EMAIL,
               fromName: 'GigitekAI Support',
             });
@@ -328,7 +328,7 @@ async function createTicketFromEmail(
         channel: formatChannel("email"),
         receivedAt: formatReceivedAt(new Date()),
         slaWindow: priorityDetails.sla,
-        ticketUrl: `${BASE_URL}/helpdesk/tickets/${ticketId}`,
+        ticketUrl: `${BASE_URL}/helpdesk/ticket/${ticketId}`,
       });
 
       const emailSent = await sendEmail({

@@ -83,7 +83,7 @@ describe("emailTemplates", () => {
       channel: "Email",
       receivedAt: "Wednesday, January 15, 2025 at 9:00 AM EST",
       slaWindow: "4 business hours",
-      ticketUrl: "https://gigitekai.com/helpdesk/tickets/42",
+      ticketUrl: "https://gigitekai.com/helpdesk/ticket/42",
     };
 
     it("builds a valid HTML string", () => {
@@ -115,7 +115,7 @@ describe("emailTemplates", () => {
 
     it("includes the ticket URL", () => {
       const html = buildTicketConfirmationEmail(testData);
-      expect(html).toContain("https://gigitekai.com/helpdesk/tickets/42");
+      expect(html).toContain("https://gigitekai.com/helpdesk/ticket/42");
     });
 
     it("includes the GigitekAI brand name", () => {

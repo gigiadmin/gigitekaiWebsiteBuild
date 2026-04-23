@@ -13,6 +13,7 @@ import { emailMessages } from "../../drizzle/schema";
 import { invokeLLM } from "./llm";
 import { sendEmail } from "./email";
 import { notifyOwner } from "./notification";
+import { sendTicketNotificationToTeams } from "../teamsNotifications";
 
 const SUPPORT_EMAIL = "support@gigitekai.com";
 const BASE_URL = process.env.BASE_URL || "https://gigitekai.com";
@@ -214,8 +215,10 @@ async function processEmail(msgData: any): Promise<boolean> {
       return false;
     }
 
-    // Classify the email
-    const emailBody = body || bodyPreview || "";
+    // Classify the email — body from Graph API can be an object {contentType, content} or a string
+    const emailBody = typeof body === 'object' && body?.content
+      ? body.content
+      : (typeof body === 'string' ? body : (bodyPreview || ""));
     const classification = await classifyEmail(subject, emailBody);
 
     // Create ticket
@@ -241,6 +244,14 @@ async function processEmail(msgData: any): Promise<boolean> {
 
     console.log(`[Email Poller] Created ticket #${ticketId} from ${senderEmail}`);
 
+    // Send Teams notification
+    try {
+      await sendTicketNotificationToTeams(ticket, "created");
+      console.log(`[Email Poller] Teams notification sent for ticket #${ticketId}`);
+    } catch (teamsErr) {
+      console.warn(`[Email Poller] Failed to send Teams notification:`, teamsErr);
+    }
+
     // Send confirmation email to customer
     try {
       const firstName = senderName.split(" ")[0] || senderName || "there";
@@ -252,7 +263,7 @@ async function processEmail(msgData: any): Promise<boolean> {
           <p><strong>Subject:</strong> ${subject}</p>
           <p><strong>Priority:</strong> ${classification.priority}</p>
           <p>Our team will review your request and respond within our SLA timeframe. You can track your ticket status at:</p>
-          <p><a href="${BASE_URL}/helpdesk/tickets/${ticketId}" style="color: #00D4FF; text-decoration: none;">View Ticket #${ticketId}</a></p>
+          <p><a href="${BASE_URL}/helpdesk/ticket/${ticketId}" style="color: #00D4FF; text-decoration: none;">View Ticket #${ticketId}</a></p>
           <p>— GigitekAI Support Team</p>
         </div>
       `;
@@ -274,15 +285,17 @@ async function processEmail(msgData: any): Promise<boolean> {
     try {
       const db = await getDb();
       if (db) {
+        // Strip HTML tags for plain text storage
+        const plainBody = typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 5000) : '';
         await db.insert(emailMessages).values({
-          messageId: messageId,
+          direction: 'received',
+          messageId: messageId || `poller-${Date.now()}`,
           from: senderEmail,
+          to: SUPPORT_EMAIL,
           subject: subject,
-          body: emailBody,
-          receivedAt: new Date(),
-          isRead: false,
-          ticketId: ticketId,
-          source: "m365_poller",
+          body: plainBody || 'No body content',
+          linkedTicketId: ticketId,
+          status: 'received',
         });
       }
     } catch (dbError) {
@@ -293,7 +306,7 @@ async function processEmail(msgData: any): Promise<boolean> {
     try {
       await notifyOwner({
         title: `New Support Ticket #${ticketId}: ${subject}`,
-        content: `From: ${senderName} (${senderEmail})\n\nCategory: ${classification.category}\nPriority: ${classification.priority}\n\n${emailBody.slice(0, 500)}`,
+        content: `From: ${senderName} (${senderEmail})\n\nCategory: ${classification.category}\nPriority: ${classification.priority}\n\n${typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 500) : String(emailBody).slice(0, 500)}`,
       });
     } catch (notifyError) {
       console.warn("[Email Poller] Failed to notify owner:", notifyError);

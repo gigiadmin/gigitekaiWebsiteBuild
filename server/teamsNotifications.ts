@@ -171,7 +171,7 @@ function buildTicketCard(
             {
               type: "Action.OpenUrl",
               title: "View Ticket",
-              url: `${BASE_URL}/helpdesk/tickets/${ticket.id}`,
+              url: `${BASE_URL}/helpdesk/ticket/${ticket.id}`,
             },
             {
               type: "Action.OpenUrl",
