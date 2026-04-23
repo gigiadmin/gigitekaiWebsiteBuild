@@ -3465,3 +3465,9 @@
 - [x] 6.3 Font loading optimized (display=swap already set, added preconnect)
 - [x] 6.6 Partner badges — vendor ecosystem section added to About page
 - [x] 6.7 Removed unverifiable claims (500+ clients, 50+ team, 4.9 rating, 100K downloads)
+
+## LinkedIn Profile Integration
+- [x] Update OurTeam.tsx - full LinkedIn-based profile, career timeline, certifications, skills
+- [x] Update AboutUs.tsx Founder Spotlight with full LinkedIn bio, experience highlights, certifications
+- [x] Update About.tsx (legacy) - removed false claims, updated with real founder credentials
+- [x] AuthorBioCard - already uses DB author data (updated via seed scripts earlier)

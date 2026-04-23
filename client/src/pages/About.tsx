@@ -52,7 +52,7 @@ export default function About() {
                   At GigitekAI, we believe that technology should be a competitive advantage, not a burden. We're on a mission to help enterprises harness the power of cloud infrastructure and artificial intelligence to drive measurable business outcomes.
                 </p>
                 <p className="text-gray-600 text-lg leading-relaxed">
-                  Founded by former hyperscaler engineers and data scientists, GigitekAI brings deep technical expertise combined with genuine business acumen. We don't just implement technology — we partner with our clients to transform how they operate.
+                  Founded in 2024 by Harry Henry Santiago — a Microsoft 365 Subject Matter Expert with 10+ years of enterprise IT experience and a U.S. Army veteran — GigitekAI brings deep technical expertise combined with genuine business acumen. We don't just implement technology — we partner with our clients to transform how they operate.
                 </p>
               </div>
               <div className="bg-white rounded-2xl p-8 border border-gray-100">
@@ -95,16 +95,16 @@ export default function About() {
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
-                  title: "Deep Technical Expertise",
-                  desc: "Our team includes former AWS, Azure, and Google Cloud engineers with decades of combined experience.",
+                  title: "Microsoft 365 Deep Expertise",
+                  desc: "Our founder is a certified Microsoft 365 SME with 10+ years in Exchange Online, Entra ID, Teams, and hybrid cloud migrations.",
                 },
                 {
-                  title: "Proven Track Record",
-                  desc: "We've successfully transformed 500+ businesses across healthcare, finance, manufacturing, and more.",
+                  title: "Enterprise-Proven",
+                  desc: "We've delivered solutions for organizations ranging from mid-size businesses to Fortune 500 enterprises with 100,000+ users.",
                 },
                 {
-                  title: "Compliance-Ready",
-                  desc: "We specialize in regulated industries with expertise in HIPAA, SOC 2, PCI-DSS, CMMC, and FedRAMP.",
+                  title: "Security-First",
+                  desc: "We specialize in email security (Proofpoint, SPF/DKIM/DMARC), Zero Trust architecture, and Microsoft Purview compliance.",
                 },
                 {
                   title: "AI-First Approach",

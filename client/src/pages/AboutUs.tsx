@@ -82,22 +82,40 @@ export default function AboutUs() {
             <div className="grid md:grid-cols-3 gap-8 items-start">
               <div className="md:col-span-2 space-y-4 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-cyan-400">Harry Henry Santiago</strong> is a Microsoft 365 Architect, U.S. Army veteran (1993–1996), and the CEO & Founder of GigitekAI. Born in Manatí, Puerto Rico, and raised in New Brunswick, NJ, Harry brings over 20 years of enterprise IT experience to every engagement.
+                  <strong className="text-cyan-400">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 10+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
                 </p>
                 <p>
-                  After transitioning from the military into IT in the late 1990s, Harry built a career designing and managing Microsoft 365 environments, hybrid cloud infrastructure, and security architectures for organizations of all sizes. He founded GigitekAI in 2024 with a clear mission: build an AI-first MSP where intelligent agents function as full employees.
+                  Harry has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. Career highlights include serving as a <strong className="text-white">Sr. Microsoft Escalation Engineer at Microsoft</strong> (Premier Support), a <strong className="text-white">Global Messaging Consultant at HCL America</strong> supporting 100k+ users across multiple continents, and currently as <strong className="text-white">Associate Manager (Senior M365 Engineer) at Avanade</strong> — a joint venture between Accenture and Microsoft.
                 </p>
                 <p>
-                  Harry holds certifications in Microsoft 365 architecture and specializes in Entra ID, Exchange Online, Teams governance, and Zero Trust security frameworks. He actively sells Microsoft and a broad portfolio of security, backup, and productivity solutions through vendor partnerships including Sherweb.
+                  Born in Manatí, Puerto Rico, and raised in New Brunswick, NJ, Harry served in the U.S. Army as a Legal Specialist (MOS 71D) from 1993 to 1997 before transitioning into IT in the late 1990s. He founded GigitekAI in 2024 with a clear mission: build an AI-first MSP where intelligent agents function as full employees — replacing manual workflows with automation and intelligence.
                 </p>
+                <p>
+                  Harry holds 10 Proofpoint certifications (TRAP, TAP, PPS series) and MCSA + Messaging, and is actively integrating Agentic AI frameworks into enterprise IT workflows.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {["Exchange Online", "Entra ID", "Proofpoint", "PowerShell", "Graph API", "Hybrid Migration", "Agentic AI", "Zero Trust"].map((tag) => (
+                    <span key={tag} className="px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">{tag}</span>
+                  ))}
+                </div>
               </div>
               <div className="text-center">
-                <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 border-2 border-cyan-500/40 flex items-center justify-center">
-                  <span className="text-6xl font-bold text-cyan-400">HHS</span>
+                <div className="w-40 h-40 mx-auto rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 border-2 border-cyan-500/40 flex items-center justify-center">
+                  <span className="text-5xl font-bold text-cyan-400">HHS</span>
                 </div>
                 <p className="text-cyan-400 font-semibold mt-4">Harry Henry Santiago</p>
-                <p className="text-gray-400 text-sm">CEO & Founder, Microsoft 365 Architect</p>
-                <p className="text-gray-500 text-sm mt-1">U.S. Army Veteran</p>
+                <p className="text-gray-400 text-sm mt-1">CEO & Founder</p>
+                <p className="text-gray-400 text-sm">Microsoft 365 SME</p>
+                <p className="text-gray-500 text-sm mt-2">U.S. Army Veteran</p>
+                <p className="text-gray-500 text-sm">📍 Tampa, Florida</p>
+                <a
+                  href="https://www.linkedin.com/in/gigitekinc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 text-xs text-cyan-400 hover:text-cyan-300 transition underline"
+                >
+                  linkedin.com/in/gigitekinc
+                </a>
               </div>
             </div>
           </div>
