@@ -3517,3 +3517,17 @@
 - [ ] Fix Facebook/Instagram Graph API with Page Access Token + App Review check
 - [ ] Fix X OAuth 2.0 PKCE with tweet.write scope
 - [ ] Build token health dashboard in admin panel (status, expiry, reconnect button)
+
+## Aria AI Phase 2 — Knowledge Optimization (COMPLETED April 2026)
+- [x] Add `escalationPatterns` database table (migration 0056) with sessionId, intent, sentiment, reason, ticketId, resolvedByAgent columns
+- [x] Add `logEscalationPattern`, `getEscalationPatterns`, `getEscalationPatternStats` DB helper functions
+- [x] Expand intent routing from 5 to 10 specific M365 MSP flows (password_reset, email_not_working, billing_invoice, plan_details, m365_install, mfa_reset, sharepoint_access, teams_crash, onedrive_sync, sales)
+- [x] Add `getProactiveKBSuggestions` tRPC endpoint — returns up to 3 KB articles for queries ≥10 chars
+- [x] Add `getEscalationPatterns` tRPC endpoint with date range and pagination
+- [x] Add `getEscalationStats` tRPC endpoint with intent/reason aggregation
+- [x] Wire proactive KB suggestions into AIChatWidget with 300ms debounce — shows article suggestions while user types
+- [x] Log escalation patterns automatically on escalateToHelpDesk and auto-escalation (angry sentiment)
+- [x] Create `/admin/escalation-patterns` page with monthly analytics (4 summary cards, intent bar chart, reason breakdown, paginated log table)
+- [x] Add "Escalation Patterns" nav item to admin sidebar under ANALYTICS section
+- [x] Register `/admin/escalation-patterns` route in App.tsx
+- [x] 16 vitest tests for Phase 2 features — all passing (server/aria-phase2.test.ts)

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
@@ -29,6 +30,9 @@ export default function AIChatWidget() {
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [handoffComplete, setHandoffComplete] = useState(false);
+  // Debounced query for proactive KB suggestions
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,6 +74,13 @@ export default function AIChatWidget() {
     },
   });
   const { user: authUser, isAuthenticated } = useAuth();
+
+  // Proactive KB suggestions while user is typing
+  const { data: kbSuggestionsData } = trpc.aibot.getProactiveKBSuggestions.useQuery(
+    { query: debouncedQuery },
+    { enabled: debouncedQuery.length >= 10, staleTime: 5000 }
+  );
+  const kbSuggestions = kbSuggestionsData?.suggestions || [];
 
   // Generate Mon/Wed/Fri dates for the next 3 months
   const availableDates = useMemo(() => {
@@ -533,12 +544,44 @@ export default function AIChatWidget() {
 
           {/* Input Area */}
           <div className="p-4 border-t border-cyan-500/20 bg-slate-900">
+            {/* Proactive KB Suggestions (shown while typing) */}
+            {kbSuggestions.length > 0 && inputValue.length >= 10 && (
+              <div className="mb-2">
+                <div className="flex items-center gap-1 mb-1">
+                  <BookOpen className="w-3 h-3 text-cyan-400" />
+                  <span className="text-xs text-cyan-400/80">Suggested articles:</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  {kbSuggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setInputValue(`Tell me about: ${s.title}`);
+                        setDebouncedQuery("");
+                      }}
+                      className="text-left text-xs bg-slate-800/80 border border-cyan-500/20 hover:border-cyan-500/50 rounded-md px-2 py-1.5 text-cyan-300 hover:text-cyan-200 transition-colors truncate"
+                      title={s.excerpt}
+                    >
+                      <span className="font-medium">{s.title}</span>
+                      <span className="text-gray-500 ml-1">· {s.category}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="flex gap-2">
               <input
                 ref={inputRef}
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                  // Debounce KB suggestion query
+                  if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+                  debounceTimerRef.current = setTimeout(() => {
+                    setDebouncedQuery(e.target.value);
+                  }, 300);
+                }}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Ask anything about our services..."
                 className="flex-1 bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"

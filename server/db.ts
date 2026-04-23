@@ -1396,3 +1396,72 @@ export async function getKBArticleAnalytics(articleId?: number) {
     return [];
   }
 }
+
+// ─── Escalation Pattern Tracking ─────────────────────────────────────────────
+import { escalationPatterns, InsertEscalationPattern, EscalationPattern } from "../drizzle/schema";
+
+export async function logEscalationPattern(data: InsertEscalationPattern) {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const result = await db.insert(escalationPatterns).values(data);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to log escalation pattern:", error);
+    return null;
+  }
+}
+
+export async function getEscalationPatterns(opts?: {
+  limit?: number;
+  offset?: number;
+  startDate?: Date;
+  endDate?: Date;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    const conditions = [];
+    if (opts?.startDate) conditions.push(gte(escalationPatterns.createdAt, opts.startDate));
+    if (opts?.endDate) conditions.push(sql`${escalationPatterns.createdAt} <= ${opts.endDate}`);
+    const rows = await db
+      .select()
+      .from(escalationPatterns)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(escalationPatterns.createdAt))
+      .limit(opts?.limit ?? 100)
+      .offset(opts?.offset ?? 0);
+    return rows;
+  } catch (error) {
+    console.error("[Database] Failed to get escalation patterns:", error);
+    return [];
+  }
+}
+
+export async function getEscalationPatternStats(startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 };
+  try {
+    const conditions = [];
+    if (startDate) conditions.push(gte(escalationPatterns.createdAt, startDate));
+    if (endDate) conditions.push(sql`${escalationPatterns.createdAt} <= ${endDate}`);
+    const rows = await db
+      .select()
+      .from(escalationPatterns)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+    const byIntent: Record<string, number> = {};
+    const byReason: Record<string, number> = {};
+    let resolvedCount = 0;
+    for (const row of rows) {
+      const intent = row.detectedIntent || "general";
+      byIntent[intent] = (byIntent[intent] || 0) + 1;
+      const reason = row.escalationReason || "user_requested";
+      byReason[reason] = (byReason[reason] || 0) + 1;
+      if (row.resolvedByAgent) resolvedCount++;
+    }
+    return { total: rows.length, byIntent, byReason, resolvedCount };
+  } catch (error) {
+    console.error("[Database] Failed to get escalation stats:", error);
+    return { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 };
+  }
+}

@@ -84,6 +84,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "workload", label: "Workload", section: "ANALYTICS", icon: Zap, path: "/admin/workload" },
     { id: "kb-analytics", label: "KB Analytics", section: "ANALYTICS", icon: TrendingUp, path: "/admin/kb-analytics" },
     { id: "m365-health", label: "M365 Health Status", section: "ANALYTICS", icon: TrendingUp, path: "/admin/m365-health" },
+    { id: "escalation-patterns", label: "Escalation Patterns", section: "ANALYTICS", icon: BarChart3, path: "/admin/escalation-patterns" },
     { id: "users", label: "Users", section: "SETTINGS", icon: Users, path: "/admin/users" },
     { id: "settings", label: "Settings", section: "SETTINGS", icon: Settings, path: "/admin/settings" },
   ];

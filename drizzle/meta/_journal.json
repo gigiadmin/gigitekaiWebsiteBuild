@@ -393,6 +393,13 @@
       "when": 1776749284725,
       "tag": "0055_huge_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "5",
+      "when": 1776911134258,
+      "tag": "0056_late_wither",
+      "breakpoints": true
     }
   ]
 }

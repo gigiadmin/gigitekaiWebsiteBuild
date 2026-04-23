@@ -87,6 +87,8 @@ import AdminServiceHealthMonitoring from "./pages/AdminServiceHealthMonitoring";
 import AdminM365Health from "./pages/AdminM365Health";
 // Teams Channels management
 import AdminTeamsChannelsPage from "./pages/AdminTeamsChannelsPage";
+// Aria Escalation Pattern Analytics
+import AdminEscalationPatternsPage from "./pages/AdminEscalationPatternsPage";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Meeting management
@@ -229,6 +231,8 @@ function Router() {
       <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
       {/* Teams Channels — per-client channel management */}
       <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
+
+      <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
 
       {/* ── Fallback ── */}
       <Route path={"/404"} component={NotFound} />

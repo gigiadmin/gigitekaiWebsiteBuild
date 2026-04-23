@@ -1535,3 +1535,26 @@ export const teamsClientChannels = mysqlTable("teamsClientChannels", {
 });
 
 export type TeamsClientChannel = typeof teamsClientChannels.$inferSelect;
+
+// ─── Escalation Pattern Tracking ────────────────────────────────────────────
+// Logs every time Aria escalates to a human agent, capturing the original message
+// and detected intent so we can surface monthly reports in the admin panel.
+export const escalationPatterns = mysqlTable("escalationPatterns", {
+  id: int("id").primaryKey().autoincrement(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  originalMessage: text("originalMessage").notNull(),
+  detectedIntent: varchar("detectedIntent", { length: 100 }).default("general"),
+  intentConfidence: varchar("intentConfidence", { length: 20 }).default("0.5"),
+  sentiment: varchar("sentiment", { length: 50 }).default("neutral"),
+  sentimentScore: varchar("sentimentScore", { length: 20 }).default("0.5"),
+  escalationReason: varchar("escalationReason", { length: 255 }).default("user_requested"),
+  kbArticleSuggested: boolean("kbArticleSuggested").default(false),
+  kbArticleId: int("kbArticleId"),
+  ticketId: int("ticketId"),
+  resolvedByAgent: boolean("resolvedByAgent").default(false),
+  resolutionNotes: text("resolutionNotes"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  resolvedAt: timestamp("resolvedAt"),
+});
+export type EscalationPattern = typeof escalationPatterns.$inferSelect;
+export type InsertEscalationPattern = typeof escalationPatterns.$inferInsert;

@@ -35,7 +35,10 @@ import {
   deleteMessageById,
   submitKBArticleFeedback,
   getKBArticleFeedback,
-  getKBArticleAnalytics
+  getKBArticleAnalytics,
+  logEscalationPattern,
+  getEscalationPatterns,
+  getEscalationPatternStats
 } from "../db";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -462,6 +465,22 @@ export const aibotRouter = router({
         // Log auto-escalation
         if (autoEscalateFromSentiment) {
           console.log(`[AIBot] Auto-escalating angry customer (sentiment: ${analysis.sentiment}, score: ${analysis.sentimentScore}) to ${analysis.routedTo}`);
+          // Log escalation pattern for analytics (Phase 2)
+          try {
+            await logEscalationPattern({
+              sessionId,
+              originalMessage: message,
+              detectedIntent: analysis.intent || 'general',
+              intentConfidence: String(analysis.intentConfidence || '0.5'),
+              sentiment: analysis.sentiment || 'neutral',
+              sentimentScore: String(analysis.sentimentScore || '0.5'),
+              escalationReason: 'auto_escalation_angry_sentiment',
+              kbArticleSuggested: kbArticleMatches.length > 0,
+              createdAt: new Date(),
+            });
+          } catch (logError) {
+            console.warn('[AIBot] Failed to log auto-escalation pattern:', logError);
+          }
         }
 
         // Save assistant message
@@ -613,6 +632,26 @@ export const aibotRouter = router({
         } catch (emailError) {
           console.error("[AIBot] Exception sending escalation confirmation:", emailError);
         }
+      }
+
+      // Log escalation pattern for analytics (Phase 2)
+      try {
+        // Get the last user message for pattern tracking
+        const lastUserMsg = messages.filter(m => m.role === 'user').slice(-1)[0];
+        await logEscalationPattern({
+          sessionId,
+          originalMessage: lastUserMsg?.message || reason,
+          detectedIntent: 'general',
+          intentConfidence: '0.5',
+          sentiment: 'neutral',
+          sentimentScore: '0.5',
+          escalationReason: reason.substring(0, 255),
+          kbArticleSuggested: false,
+          ticketId,
+          createdAt: new Date(),
+        });
+      } catch (logError) {
+        console.warn('[AIBot] Failed to log escalation pattern:', logError);
       }
 
       // Send notification to owner
@@ -1116,6 +1155,70 @@ export const aibotRouter = router({
       } catch (error) {
         console.error('[AIBot] Failed to get KB analytics:', error);
         return { success: false, analytics: [] };
+      }
+    }),
+
+  // Pre-emptive KB suggestions while user is typing (Phase 2)
+  getProactiveKBSuggestions: publicProcedure
+    .input(z.object({
+      query: z.string().min(1).max(500),
+    }))
+    .query(async ({ input }) => {
+      try {
+        if (input.query.trim().length < 10) return { suggestions: [] };
+        const articles = await searchKBArticles(input.query.trim(), 3);
+        const suggestions = articles.map(a => ({
+          id: a.id,
+          title: a.title,
+          excerpt: (a.content || '').slice(0, 120).replace(/\n/g, ' ') + '\u2026',
+          category: a.category || 'General',
+          slug: (a as any).slug || null,
+        }));
+        return { suggestions };
+      } catch (error) {
+        console.error('[AIBot] Failed to get proactive KB suggestions:', error);
+        return { suggestions: [] };
+      }
+    }),
+
+  // Escalation pattern queries (Phase 2)
+  getEscalationPatterns: publicProcedure
+    .input(z.object({
+      limit: z.number().optional().default(50),
+      offset: z.number().optional().default(0),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const patterns = await getEscalationPatterns({
+          limit: input.limit,
+          offset: input.offset,
+          startDate: input.startDate ? new Date(input.startDate) : undefined,
+          endDate: input.endDate ? new Date(input.endDate) : undefined,
+        });
+        return { success: true, patterns };
+      } catch (error) {
+        console.error('[AIBot] Failed to get escalation patterns:', error);
+        return { success: false, patterns: [] };
+      }
+    }),
+
+  getEscalationStats: publicProcedure
+    .input(z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const stats = await getEscalationPatternStats(
+          input.startDate ? new Date(input.startDate) : undefined,
+          input.endDate ? new Date(input.endDate) : undefined,
+        );
+        return { success: true, stats };
+      } catch (error) {
+        console.error('[AIBot] Failed to get escalation stats:', error);
+        return { success: false, stats: { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 } };
       }
     }),
 });
