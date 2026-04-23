@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { notifyOwner } from "./notification";
 import { adminProcedure, publicProcedure, router } from "./trpc";
+import { getEmailPollerStatus, triggerEmailPollerRun } from "./emailPoller";
 
 export const systemRouter = router({
   health: publicProcedure
@@ -26,4 +27,12 @@ export const systemRouter = router({
         success: delivered,
       } as const;
     }),
+
+  getEmailPollerStatus: adminProcedure.query(() => {
+    return getEmailPollerStatus();
+  }),
+
+  triggerEmailPoller: adminProcedure.mutation(async () => {
+    return await triggerEmailPollerRun();
+  }),
 });

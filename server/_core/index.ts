@@ -21,9 +21,11 @@ import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
+import { startEmailPoller } from "./emailPoller";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
+import { stopEmailPoller } from "./emailPoller";
 import {
   linkedinConnect, linkedinCallback,
   twitterConnect, twitterCallback,
@@ -198,13 +200,30 @@ async function startServer() {
     startEmailFlowE2EScheduler();
     // Start nightly MS Learn catalog sync (2:00 AM ET)
     startMsLearnSyncScheduler();
-    // Log Mail Manus webhook setup instructions
-    console.log("[Mail Manus] Setup: Configure email forwarding from support@gigitekai.com to Mail Manus");
-    console.log("[Mail Manus] Webhook will automatically create tickets from incoming emails with AI classification");
+    // Start M365 Graph email poller (every 5 minutes)
+    startEmailPoller();
+    // Log email poller setup
+    console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");
+    console.log("[Email Poller] Polling support@gigitekai.com mailbox for new emails");
+    console.log("[Email Poller] Auto-creating tickets with AI classification");
     // Log webhook endpoints
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
     console.log(`[Mail Manus] Webhook endpoint: http://localhost:${port}/api/webhooks/mail-manus`);
+    console.log(`[Email Poller] Status endpoint: /api/trpc/system.getEmailPollerStatus`);
   });
 }
 
 startServer().catch(console.error);
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("[Server] SIGTERM received, shutting down gracefully");
+  stopEmailPoller();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  console.log("[Server] SIGINT received, shutting down gracefully");
+  stopEmailPoller();
+  process.exit(0);
+});

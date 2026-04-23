@@ -3418,12 +3418,20 @@
   - Need to separate detail view from list view properly
   - Should use modal or side panel instead of overlay
 
-## Email Flow Issues (CRITICAL)
-- [ ] Fix Mail Manus webhook email flow
-  - No confirmation/auto-response emails being sent to customers
-  - Email forwarding from support@gigitekai.com not working with webhook
-  - Webhook not receiving emails from M365 scheduled task
-  - Need to verify: webhook logs, email forwarding rule, auto-response sending
+## Email Flow Issues (CRITICAL) — M365 Graph Email Polling
+- [ ] Build M365 Graph email poller scheduler (5-minute interval)
+  - Fetch unread emails from support@gigitekai.com mailbox
+  - Parse sender, subject, body
+  - Auto-create tickets with AI classification
+  - Mark emails as read after processing
+  - Handle errors gracefully (retry logic)
+- [ ] Add admin UI for polling status
+  - Show last sync time, next sync time
+  - Display polling status (running/idle/error)
+  - Manual trigger button to sync immediately
+  - Show count of emails processed in last 24h
+- [ ] Send auto-response confirmation emails to customers
+- [ ] Test end-to-end: email arrives → ticket created → customer gets confirmation
 
 ## Phase 1: Audit Remediation — Launch Blockers
 - [x] 1.1 Fix canonical tags — each page must self-reference its own URL
@@ -3685,3 +3693,10 @@
   - Added button to mobile expanded ticket detail panel
   - Only shows for resolved/closed tickets
   - Links to KB Generation page with ticket context
+
+
+## Bug — Main Page Not Loading on Live Site
+- [ ] Main page (/) not loading on gigitekai.com (live published site)
+  - Dev server works fine
+  - Issue is with published deployment
+  - Likely caused by recent code changes or deployment error
