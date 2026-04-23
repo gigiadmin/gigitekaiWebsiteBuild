@@ -1,7 +1,8 @@
-import AdminLayout from "@/components/AdminLayout";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
-import { Settings, Mail, Shield, Globe, Bell, Database, ChevronRight } from "lucide-react";
+import { Settings, Mail, Shield, Globe, Bell, Database, ChevronRight, Trash2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { useState } from "react";
 
 interface SettingSection {
   icon: React.ComponentType<{ className?: string }>;
@@ -40,16 +41,26 @@ const settingSections: SettingSection[] = [
     items: ["Alert Channels", "Webhook Endpoints", "Push Notifications", "Digest Schedule"],
     color: "text-yellow-400",
   },
-  {
-    icon: Database,
-    title: "Data & Storage",
-    description: "Database maintenance, backups, and data retention policies",
-    items: ["Data Retention", "Export Data", "Backup Schedule", "Storage Usage"],
-    color: "text-orange-400",
-  },
 ];
 
 export default function AdminSettingsPage() {
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [lastClearResult, setLastClearResult] = useState<{ emailsDeleted: number; metricsDeleted: number } | null>(null);
+
+  const clearTestData = trpc.maintenance.clearTestData.useMutation({
+    onSuccess: (data) => {
+      setLastClearResult({ emailsDeleted: data.emailsDeleted, metricsDeleted: data.metricsDeleted });
+      setConfirmClear(false);
+      toast.success("Production cleanup complete", {
+        description: `Cleared ${data.emailsDeleted} emails and ${data.metricsDeleted} metric records.`,
+      });
+    },
+    onError: (err) => {
+      toast.error("Cleanup failed", { description: err.message });
+      setConfirmClear(false);
+    },
+  });
+
   const handleFeatureClick = (item: string) => {
     toast("Feature coming soon", {
       description: `${item} configuration will be available in a future update.`,
@@ -57,7 +68,6 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    
     <AdminLayoutWithSidebar currentPage="settings">
       <div className="p-6 bg-[#0A0E1A] min-h-full">
         {/* Header */}
@@ -70,6 +80,80 @@ export default function AdminSettingsPage() {
               <h1 className="text-2xl font-bold text-white font-['Space_Grotesk']">Settings</h1>
               <p className="text-gray-500 text-sm">System configuration &amp; administration</p>
             </div>
+          </div>
+        </div>
+
+        {/* ── Production Readiness Panel ─────────────────────────────── */}
+        <div className="mb-6 bg-[#0F1419] border border-orange-500/30 rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-orange-500/20 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-orange-500/10">
+              <Trash2 className="w-4 h-4 text-orange-400" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-sm">Production Readiness</h3>
+              <p className="text-gray-500 text-xs">Clear test data before going live — emails and agent metrics</p>
+            </div>
+          </div>
+
+          <div className="px-5 py-4">
+            {/* What gets cleared */}
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-[#0A0E1A] border border-gray-800/40 rounded-lg px-4 py-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Will be cleared</p>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li className="flex items-center gap-2"><Trash2 className="w-3 h-3 text-orange-400" /> All portal emails (emailMessages)</li>
+                  <li className="flex items-center gap-2"><Trash2 className="w-3 h-3 text-orange-400" /> All agent metrics (agentMetrics)</li>
+                </ul>
+              </div>
+              <div className="bg-[#0A0E1A] border border-gray-800/40 rounded-lg px-4 py-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Will NOT be touched</p>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Helpdesk tickets</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Blog posts &amp; KB articles</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> User accounts &amp; team members</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Contact form submissions</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Last result */}
+            {lastClearResult && (
+              <div className="mb-4 bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-3 flex items-center gap-3">
+                <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <p className="text-green-300 text-sm">
+                  Last cleanup: removed <strong>{lastClearResult.emailsDeleted}</strong> emails and <strong>{lastClearResult.metricsDeleted}</strong> metric records.
+                </p>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            {!confirmClear ? (
+              <button
+                onClick={() => setConfirmClear(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-300 rounded-lg text-sm hover:bg-orange-500/20 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear Test Data for Production
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-3">
+                <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                <p className="text-orange-300 text-sm flex-1">This will permanently delete all emails and metrics. Are you sure?</p>
+                <button
+                  onClick={() => clearTestData.mutate()}
+                  disabled={clearTestData.isPending}
+                  className="px-3 py-1.5 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50 transition-all"
+                >
+                  {clearTestData.isPending ? "Clearing..." : "Yes, Clear Now"}
+                </button>
+                <button
+                  onClick={() => setConfirmClear(false)}
+                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

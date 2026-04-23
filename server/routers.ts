@@ -6,7 +6,7 @@ import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
 import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary } from "./db";
-import { users, contactSubmissions } from "../drizzle/schema";
+import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { aibotRouter } from "./routers/aibot";
@@ -571,6 +571,22 @@ Submitted from GigitekAI website contact form.
           console.error("Failed to send invitation:", error);
           throw error;
         }
+      }),
+  }),
+
+  // ── Production Maintenance — clear test/demo data (admin only) ──────────
+  maintenance: router({
+    clearTestData: adminProcedure
+      .mutation(async () => {
+        const db = getDb();
+        const emailResult = await db.delete(emailMessages);
+        const metricsResult = await db.delete(agentMetrics);
+        return {
+          success: true,
+          emailsDeleted: (emailResult as any).affectedRows ?? 0,
+          metricsDeleted: (metricsResult as any).affectedRows ?? 0,
+          message: "Test data cleared. Database is production-ready.",
+        };
       }),
   }),
 })
