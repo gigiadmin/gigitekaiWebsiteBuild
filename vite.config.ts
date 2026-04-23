@@ -227,6 +227,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // IMPORTANT: Chunk grouping must avoid circular dependencies.
+          // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
+          // Now we use a flat, non-overlapping grouping strategy.
+
           // React core — smallest possible initial chunk
           if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
             return "react-core";
@@ -235,29 +239,12 @@ export default defineConfig({
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
           }
-          // Radix UI / shadcn components
-          if (id.includes("@radix-ui")) {
-            return "radix-ui";
-          }
-          // Chart libraries — only loaded on admin pages
-          if (id.includes("recharts") || id.includes("d3-") || id.includes("chart.js") || id.includes("chartjs")) {
-            return "charts";
-          }
-          // Heavy admin-only libraries
-          if (id.includes("cytoscape") || id.includes("mermaid") || id.includes("codemirror") || id.includes("@codemirror")) {
-            return "admin-heavy";
-          }
-          // Rich text editor
-          if (id.includes("tiptap") || id.includes("@tiptap") || id.includes("prosemirror")) {
-            return "rich-text";
-          }
-          // Date/utility libraries
-          if (id.includes("date-fns") || id.includes("lodash") || id.includes("zod")) {
-            return "utils";
-          }
-          // Lucide icons
-          if (id.includes("lucide-react")) {
-            return "icons";
+          // All other node_modules go into a single vendor chunk.
+          // Splitting further (radix-ui, icons, utils, admin-heavy, charts)
+          // caused circular dependencies and TDZ errors in production.
+          // A single vendor chunk is larger but guaranteed cycle-free.
+          if (id.includes("node_modules")) {
+            return "vendor";
           }
         },
       },
