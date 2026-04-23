@@ -173,10 +173,11 @@ export async function handleEmailIngest(req: Request, res: Response) {
     }).catch(() => {});
 
     // Send confirmation to sender
-    await sendEmail({
-      to: senderEmail,
-      subject: `[Ticket #${newTicketId}] We received your request: ${cleanSubject}`,
-      html: `
+    try {
+      const emailSent = await sendEmail({
+        to: senderEmail,
+        subject: `[Ticket #${newTicketId}] We received your request: ${cleanSubject}`,
+        html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"/></head>
@@ -203,8 +204,17 @@ export async function handleEmailIngest(req: Request, res: Response) {
   </div>
 </body>
 </html>
-      `,
-    }).catch(() => {});
+        `,
+      });
+
+      if (emailSent) {
+        console.log(`[EmailIngest] Confirmation email sent to ${senderEmail} for ticket #${newTicketId}`);
+      } else {
+        console.error(`[EmailIngest] FAILED to send confirmation email to ${senderEmail} for ticket #${newTicketId}`);
+      }
+    } catch (emailError) {
+      console.error(`[EmailIngest] Exception sending confirmation email to ${senderEmail}:`, emailError);
+    }
 
     // Trigger AI triage in background via internal fetch (fire-and-forget)
     // The tRPC procedure will be called by the helpdesk router's post-create hook

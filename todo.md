@@ -3471,3 +3471,10 @@
 - [x] Update AboutUs.tsx Founder Spotlight with full LinkedIn bio, experience highlights, certifications
 - [x] Update About.tsx (legacy) - removed false claims, updated with real founder credentials
 - [x] AuthorBioCard - already uses DB author data (updated via seed scripts earlier)
+
+## Email-to-Ticket Flow Review
+- [x] Audit Mail Manus webhook handler (mailManusWebhook.ts) — fixed false-success logging
+- [x] Audit email-to-ticket router — fixed status stored as 'sent' even on failure
+- [x] Audit email sending infrastructure — added 401 retry with token cache invalidation
+- [x] Fix: Sender confirmation email now sends (root cause: missing Azure admin consent)
+- [x] Fix: Support mailbox receives copy via saveToSentItems + inbox sync works (200 OK)

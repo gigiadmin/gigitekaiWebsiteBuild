@@ -80,17 +80,24 @@ export const emailRouter = router({
         const resolvedBody = resolveVars(input.body);
 
         // Send via Microsoft Graph (Exchange Online)
-        const emailResult = await sendEmail({
+        const emailSent = await sendEmail({
           to: input.to,
           subject: resolvedSubject,
           html: resolvedBody,
           replyTo: "support@gigitekai.com",
         });
 
-        // Extract message ID if available (sendEmail returns boolean, so messageId is undefined)
+        // Set status based on actual delivery result
+        const deliveryStatus = emailSent ? "sent" : "failed";
         const messageId: string | undefined = undefined;
 
-        // Store in database
+        if (!emailSent) {
+          console.error(
+            `[Email] Failed to deliver email to ${input.to} via all providers`
+          );
+        }
+
+        // Store in database with accurate status
         const result = await db
           .insert(emailMessages)
           .values({
@@ -102,7 +109,7 @@ export const emailRouter = router({
             templateId: input.templateId,
             linkedTicketId: input.linkedTicketId,
             linkedSessionId: input.linkedSessionId,
-            status: "sent",
+            status: deliveryStatus,
             messageId,
             sentBy: ctx.user.id,
           })
@@ -114,15 +121,17 @@ export const emailRouter = router({
         if (input.linkedTicketId) {
           await createAdminNotification({
             type: "ticket_reply",
-            title: "Email Sent",
-            body: `Email sent to ${input.to} regarding ticket #${input.linkedTicketId}`,
+            title: emailSent ? "Email Sent" : "Email Send Failed",
+            body: emailSent
+              ? `Email sent to ${input.to} regarding ticket #${input.linkedTicketId}`
+              : `FAILED to send email to ${input.to} for ticket #${input.linkedTicketId}`,
             href: `/admin/helpdesk`,
-            priority: "normal",
+            priority: emailSent ? "normal" : "high",
             ticketId: input.linkedTicketId,
           }).catch((e: any) => console.warn("[Email] Notification failed:", e));
         }
 
-        return { success: true, emailId, messageId };
+        return { success: emailSent, emailId, messageId };
       } catch (error) {
         console.error("[Email] Send failed:", error);
         throw error;

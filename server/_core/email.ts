@@ -71,58 +71,68 @@ export async function getMsGraphToken(): Promise<string | null> {
 }
 
 /**
+ * Build the Microsoft Graph sendMail payload.
+ */
+function buildGraphPayload(payload: EmailPayload, senderEmail: string): Record<string, unknown> {
+  const graphPayload: Record<string, unknown> = {
+    message: {
+      subject: payload.subject,
+      body: {
+        contentType: "HTML",
+        content: payload.html,
+      },
+      from: {
+        emailAddress: {
+          address: senderEmail,
+          name: payload.fromName ?? "GigitekAI",
+        },
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: payload.to,
+          },
+        },
+      ],
+    },
+    saveToSentItems: true,
+  };
+
+  if (payload.replyTo) {
+    (graphPayload.message as Record<string, unknown>).replyTo = [
+      {
+        emailAddress: {
+          address: payload.replyTo,
+        },
+      },
+    ];
+  }
+
+  return graphPayload;
+}
+
+/**
  * Sends an email using Microsoft Graph API (Exchange Online).
  * Uses the client credentials flow with Mail.Send application permission.
  * Sends as support@gigitekai.com via the /users/{userId}/sendMail endpoint.
  *
- * This is the ONLY email provider — all emails route through Azure/Exchange Online.
+ * On 401 Unauthorized, invalidates the token cache and retries once with a fresh token.
+ * This handles the case where admin consent was recently granted but the cached token
+ * was issued before consent (missing roles).
  */
 async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
-  const token = await getMsGraphToken();
+  const senderEmail = "support@gigitekai.com";
+  const graphPayload = buildGraphPayload(payload, senderEmail);
+
+  // Attempt 1: use cached or fresh token
+  let token = await getMsGraphToken();
   if (!token) {
     console.error("[Email] Could not obtain MS Graph access token");
     return false;
   }
 
-  const senderEmail = "support@gigitekai.com";
-
   try {
-    const graphPayload: Record<string, unknown> = {
-      message: {
-        subject: payload.subject,
-        body: {
-          contentType: "HTML",
-          content: payload.html,
-        },
-        from: {
-          emailAddress: {
-            address: senderEmail,
-            name: payload.fromName ?? "GigitekAI",
-          },
-        },
-        toRecipients: [
-          {
-            emailAddress: {
-              address: payload.to,
-            },
-          },
-        ],
-      },
-      saveToSentItems: true,
-    };
-
-    // Add reply-to if specified
-    if (payload.replyTo) {
-      (graphPayload.message as Record<string, unknown>).replyTo = [
-        {
-          emailAddress: {
-            address: payload.replyTo,
-          },
-        },
-      ];
-    }
-
-    const response = await fetch(
+    let response = await fetch(
       `https://graph.microsoft.com/v1.0/users/${senderEmail}/sendMail`,
       {
         method: "POST",
@@ -140,6 +150,38 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
         `[Email] Successfully sent email to ${payload.to} via Microsoft Graph (Exchange Online)`
       );
       return true;
+    }
+
+    // On 401, invalidate cache and retry once with a fresh token
+    if (response.status === 401) {
+      console.warn(
+        `[Email] MS Graph returned 401 — invalidating token cache and retrying with fresh token`
+      );
+      msGraphTokenCache = null;
+      token = await getMsGraphToken();
+      if (!token) {
+        console.error("[Email] Could not obtain fresh MS Graph access token after 401");
+        return false;
+      }
+
+      response = await fetch(
+        `https://graph.microsoft.com/v1.0/users/${senderEmail}/sendMail`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(graphPayload),
+        }
+      );
+
+      if (response.status === 202) {
+        console.log(
+          `[Email] Successfully sent email to ${payload.to} via Microsoft Graph after token refresh`
+        );
+        return true;
+      }
     }
 
     const detail = await response.text().catch(() => "");
@@ -203,6 +245,32 @@ export async function fetchInboxFromMsGraph(
         const msg = `MS Graph inbox rate limited. Retry after ${retryAfter}s.`;
         console.warn(`[Email] ${msg}`);
         throw new Error(msg);
+      }
+
+      // On 401, invalidate cache and retry once with a fresh token
+      if (response.status === 401) {
+        console.warn(`[Email] MS Graph inbox returned 401 — invalidating token cache and retrying`);
+        msGraphTokenCache = null;
+        const freshToken = await getMsGraphToken();
+        if (freshToken) {
+          const retryResponse = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${freshToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+          if (retryResponse.ok) {
+            let retryData: { value: MsGraphMessage[] };
+            try {
+              retryData = (await retryResponse.json()) as { value: MsGraphMessage[] };
+            } catch {
+              return [];
+            }
+            return retryData.value ?? [];
+          }
+        }
+        console.error(`[Email] MS Graph inbox still failing after token refresh`);
+        return [];
       }
 
       // Safely read the error body — may be plain text, not JSON

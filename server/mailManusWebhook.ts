@@ -287,18 +287,24 @@ async function createTicketFromEmail(
         <p>Best regards,<br/>GigitekAI Support Team</p>
       `;
 
-      await sendEmail({
+      const emailSent = await sendEmail({
         to: senderEmail,
         subject: `Ticket Confirmation #${ticketId}: ${subject}`,
         html: confirmationEmail,
         replyTo: SUPPORT_EMAIL,
       });
 
-      console.log(
-        `[Mail Manus] Confirmation email sent to ${senderEmail} for ticket #${ticketId}`
-      );
+      if (emailSent) {
+        console.log(
+          `[Mail Manus] Confirmation email sent to ${senderEmail} for ticket #${ticketId}`
+        );
+      } else {
+        console.error(
+          `[Mail Manus] FAILED to send confirmation email to ${senderEmail} for ticket #${ticketId} — all providers failed`
+        );
+      }
     } catch (emailError) {
-      console.warn("[Mail Manus] Failed to send confirmation email:", emailError);
+      console.error("[Mail Manus] Exception sending confirmation email:", emailError);
     }
 
     // Notify owner
