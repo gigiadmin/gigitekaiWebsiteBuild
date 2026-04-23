@@ -150,7 +150,63 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * PRODUCTION FIX: Vite plugin that injects a bootstrap script into the built HTML.
+ * The manus-runtime script (injected by vitePluginManusRuntime) blocks ES module
+ * execution in production. This bootstrap script detects when the app fails to mount
+ * and forces a dynamic import to retry loading.
+ */
+function vitePluginBootstrapFallback(): Plugin {
+  return {
+    name: 'vite-plugin-bootstrap-fallback',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      // Only inject in production builds
+      if (process.env.NODE_ENV !== 'production') {
+        // In dev mode, still inject but with a longer delay
+        return html;
+      }
+      // Inject bootstrap script right before </body>
+      const bootstrapScript = `
+    <script>
+      (function() {
+        var CHECK_DELAY = 1500;
+        var MAX_RETRIES = 5;
+        var retries = 0;
+        function checkAndBootstrap() {
+          if (document.getElementById('gigitekai-app')) return;
+          if (retries >= MAX_RETRIES) {
+            var root = document.getElementById('root');
+            if (root && !root.children.length) {
+              root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0E1A;color:white;font-family:sans-serif;text-align:center;padding:2rem;"><div><h1 style="color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;">GigitekAI</h1><p style="font-size:1.2rem;margin-bottom:2rem;">Loading your experience...</p><button onclick="location.reload()" style="background:#00D4FF;color:#0A0E1A;border:none;padding:12px 32px;font-size:1rem;border-radius:8px;cursor:pointer;font-weight:600;">Refresh Page</button></div></div>';
+            }
+            return;
+          }
+          retries++;
+          var scripts = document.querySelectorAll('script[type="module"]');
+          for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src && scripts[i].src.indexOf('/assets/index-') !== -1) {
+              import(scripts[i].src).catch(function(e) {
+                console.warn('[Bootstrap] Dynamic import attempt ' + retries + ' failed:', e);
+              });
+              break;
+            }
+          }
+          setTimeout(checkAndBootstrap, CHECK_DELAY);
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { setTimeout(checkAndBootstrap, CHECK_DELAY); });
+        } else {
+          setTimeout(checkAndBootstrap, CHECK_DELAY);
+        }
+      })();
+    </script>`;
+      return html.replace('</body>', bootstrapScript + '\n  </body>');
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginBootstrapFallback()];
 
 export default defineConfig({
   plugins,
