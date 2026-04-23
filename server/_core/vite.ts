@@ -77,6 +77,21 @@ export function serveStatic(app: Express) {
     }
   }
 
+  // Service worker and manifest: NEVER cache — must always be fresh
+  app.get("/sw.js", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("Content-Type", "text/javascript; charset=utf-8");
+    res.sendFile(path.resolve(distPath, "sw.js"));
+  });
+
+  app.get("/manifest.json", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.sendFile(path.resolve(distPath, "manifest.json"));
+  });
+
   // Serve hashed assets with long-term immutable caching
   app.use("/assets", express.static(path.join(distPath, "assets"), {
     maxAge: "1y",
