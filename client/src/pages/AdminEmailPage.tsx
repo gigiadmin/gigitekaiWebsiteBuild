@@ -37,6 +37,7 @@ import {
   ArrowUpRight,
   Eye,
   X,
+  Trash2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import RecipientGroupsManager from "@/components/RecipientGroupsManager";
@@ -53,6 +54,7 @@ export default function AdminEmailPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
   const [inboxFilter, setInboxFilter] = useState<"all" | "sent" | "received">("all");
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const autoSyncRef = useRef(false);
 
   // Fetch templates
@@ -77,6 +79,27 @@ export default function AdminEmailPage() {
     },
     onError: (err) => {
       toast.error("Failed to send email: " + err.message);
+    },
+  });
+
+  // Delete single email mutation (portal DB + Outlook mailbox)
+  const deleteMessageMutation = trpc.email.deleteMessage.useMutation({
+    onSuccess: (result, variables) => {
+      refetchInbox();
+      setDeletingIds((prev) => { const next = new Set(prev); next.delete(variables.id); return next; });
+      if (result.deletedFromMailbox) {
+        toast.success("Email deleted from portal and Outlook mailbox");
+      } else if (variables.messageId) {
+        toast.warning("Deleted from portal, but Outlook delete failed — it may reappear on sync");
+      } else {
+        toast.success("Email deleted from portal");
+      }
+      // Close detail modal if it was showing this email
+      if (selectedEmail?.id === variables.id) setSelectedEmail(null);
+    },
+    onError: (err, variables) => {
+      setDeletingIds((prev) => { const next = new Set(prev); next.delete(variables.id); return next; });
+      toast.error("Delete failed: " + err.message);
     },
   });
 
@@ -165,6 +188,16 @@ export default function AdminEmailPage() {
     } finally {
       setIsSyncing(false);
     }
+  }
+
+  function handleDeleteEmail(e: React.MouseEvent, email: any) {
+    e.stopPropagation(); // Don't open the detail modal
+    if (!confirm(`Delete "${email.subject}"?\n\nThis will permanently remove it from the portal AND the Outlook mailbox.`)) return;
+    setDeletingIds((prev) => new Set(prev).add(email.id));
+    deleteMessageMutation.mutate({
+      id: email.id,
+      messageId: email.messageId ?? undefined,
+    });
   }
 
   const sentCount = inbox.filter((e) => e.direction === "sent").length;
@@ -338,6 +371,18 @@ export default function AdminEmailPage() {
                           ) : (
                             <Eye size={14} className="text-slate-500" />
                           )}
+                          <button
+                            onClick={(e) => handleDeleteEmail(e, email)}
+                            disabled={deletingIds.has(email.id)}
+                            className="ml-1 p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40"
+                            title="Delete from portal and Outlook mailbox"
+                          >
+                            {deletingIds.has(email.id) ? (
+                              <RefreshCw size={13} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={13} />
+                            )}
+                          </button>
                         </div>
                       </div>
                     </CardContent>

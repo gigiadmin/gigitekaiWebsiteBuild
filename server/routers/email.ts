@@ -13,7 +13,7 @@ import { emailMessages, emailTemplates, tickets, realtimeChatSessions } from "..
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { sendEmail, fetchInboxFromMsGraph } from "../_core/email";
+import { sendEmail, fetchInboxFromMsGraph, deleteMessageFromMailbox } from "../_core/email";
 import { createAdminNotification } from "./adminNotifications";
 
 // ── Email linking logic ───────────────────────────────────────────────────────
@@ -300,6 +300,70 @@ export const emailRouter = router({
         console.error("[Email] Search failed:", error);
         return [];
       }
+    }),
+
+  // ── Delete a single email from portal DB + Outlook mailbox ─────────────────
+  deleteMessage: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),                    // portal DB row id
+        messageId: z.string().optional(), // MS Graph message id (if synced from Outlook)
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // 1. Delete from portal DB
+      await db.delete(emailMessages).where(eq(emailMessages.id, input.id));
+
+      // 2. Delete from Outlook mailbox if we have the Graph message ID
+      let deletedFromMailbox = false;
+      if (input.messageId) {
+        deletedFromMailbox = await deleteMessageFromMailbox(input.messageId);
+        if (!deletedFromMailbox) {
+          console.warn(`[Email] Portal DB deleted but Outlook delete failed for messageId=${input.messageId}`);
+        }
+      }
+
+      return { success: true, deletedFromMailbox };
+    }),
+
+  // ── Bulk delete emails from portal DB + Outlook mailbox ──────────────────
+  bulkDeleteMessages: adminProcedure
+    .input(
+      z.object({
+        ids: z.array(z.number()),                    // portal DB row ids
+        messageIds: z.array(z.string()).optional(),  // MS Graph message ids
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      let deletedFromMailbox = 0;
+      let failedMailbox = 0;
+
+      // 1. Delete from Outlook mailbox first (before DB, so we have messageIds)
+      if (input.messageIds?.length) {
+        for (const msgId of input.messageIds) {
+          const ok = await deleteMessageFromMailbox(msgId);
+          if (ok) deletedFromMailbox++;
+          else failedMailbox++;
+        }
+      }
+
+      // 2. Delete from portal DB
+      for (const id of input.ids) {
+        await db.delete(emailMessages).where(eq(emailMessages.id, id));
+      }
+
+      return {
+        success: true,
+        deletedCount: input.ids.length,
+        deletedFromMailbox,
+        failedMailbox,
+      };
     }),
 
   // ── Sync inbox from Microsoft Graph (Exchange Online) ───────────────────────────────

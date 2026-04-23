@@ -419,3 +419,56 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
 
   return false;
 }
+
+/**
+ * Permanently deletes a message from the support@gigitekai.com Outlook mailbox via MS Graph.
+ * Requires Mail.ReadWrite application permission on the Azure app registration.
+ * Returns true on success (204 No Content), false otherwise.
+ */
+export async function deleteMessageFromMailbox(messageId: string): Promise<boolean> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for message deletion");
+    return false;
+  }
+
+  const mailbox = "support@gigitekai.com";
+
+  try {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response.status === 204) {
+      console.log(`[Email] Permanently deleted message ${messageId} from ${mailbox}`);
+      return true;
+    }
+
+    // On 401, invalidate cache and retry once
+    if (response.status === 401) {
+      msGraphTokenCache = null;
+      const freshToken = await getMsGraphToken();
+      if (freshToken) {
+        const retry = await fetch(
+          `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${freshToken}` },
+          }
+        );
+        if (retry.status === 204) return true;
+      }
+    }
+
+    const detail = await response.text().catch(() => "");
+    console.error(`[Email] Failed to delete message ${messageId} (${response.status}): ${detail}`);
+    return false;
+  } catch (error) {
+    console.error("[Email] Error deleting message from mailbox:", error);
+    return false;
+  }
+}
