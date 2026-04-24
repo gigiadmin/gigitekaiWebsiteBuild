@@ -103,6 +103,7 @@ const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
+const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -261,6 +262,8 @@ function Router() {
           <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/ms-learn-sync"}>{() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>}</Route>
+          {/* Client Onboarding */}
+          <Route path={"/admin/client-onboarding"}>{() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>}</Route>
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />

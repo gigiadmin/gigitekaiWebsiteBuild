@@ -98,6 +98,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Customers",
     items: [
+      { label: "Client Onboarding", icon: <Sparkles size={16} />, href: "/admin/client-onboarding" },
       { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
       { label: "Contacts", icon: <Inbox size={16} />, href: "/admin/contacts" },
       { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
