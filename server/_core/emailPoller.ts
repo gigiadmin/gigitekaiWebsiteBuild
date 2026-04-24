@@ -183,6 +183,35 @@ async function findOrCreateUser(
 }
 
 /**
+ * Detect if an email is a Non-Delivery Report (NDR) from Exchange
+ * NDRs should be skipped to prevent spam loops
+ */
+function isNDREmail(subject: string, from: string): boolean {
+  const subjectLower = subject.toLowerCase();
+  const fromLower = from.toLowerCase();
+  
+  // Check for NDR indicators in subject
+  if (subjectLower.includes('undeliverable:') || 
+      subjectLower.includes('delivery failed') ||
+      subjectLower.includes('mail delivery failed') ||
+      subjectLower.includes('returned mail') ||
+      subjectLower.includes('failure notice')) {
+    return true;
+  }
+  
+  // Check for Exchange system addresses
+  if (fromLower.includes('microsoftexchange') ||
+      fromLower.includes('mailer-daemon') ||
+      fromLower.includes('postmaster') ||
+      fromLower.includes('noreply@microsoft') ||
+      fromLower.includes('no-reply@microsoft')) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
  */
@@ -616,9 +645,16 @@ export async function runEmailPoller(): Promise<void> {
     let successCount = 0;
     for (const msg of messages) {
       const subject = msg.subject || '';
+      const from = msg.from || '';
       const emailBody = typeof msg.body === 'object' && msg.body?.content
         ? msg.body.content
         : (typeof msg.body === 'string' ? msg.body : (msg.bodyPreview || ''));
+
+      // ── SKIP NDR EMAILS TO PREVENT SPAM LOOPS ──
+      if (isNDREmail(subject, typeof from === 'string' ? from : (from?.emailAddress?.address || ''))) {
+        console.log(`[Email Poller] SKIPPING NDR EMAIL: "${subject}"`);
+        continue; // Skip this email entirely
+      }
 
       // Route voicemails to the voicemail processor
       if (isVoicemailEmail(subject, emailBody)) {
