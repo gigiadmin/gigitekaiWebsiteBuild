@@ -1563,3 +1563,85 @@ export const escalationPatterns = mysqlTable("escalationPatterns", {
 });
 export type EscalationPattern = typeof escalationPatterns.$inferSelect;
 export type InsertEscalationPattern = typeof escalationPatterns.$inferInsert;
+
+// ─── Teams Call Logs ─────────────────────────────────────────────────────────
+// Stores PSTN call records fetched from Microsoft Graph API.
+// Used to detect new inbound support calls and generate draft tickets.
+export const callLogs = mysqlTable("callLogs", {
+  id: int("id").primaryKey().autoincrement(),
+  // Microsoft Graph call record ID (unique per call)
+  graphCallId: varchar("graphCallId", { length: 255 }).notNull().unique(),
+  // Caller phone number (E.164 format: +12125551234)
+  callerNumber: varchar("callerNumber", { length: 50 }),
+  // Callee (Teams user) phone number
+  calleeNumber: varchar("calleeNumber", { length: 50 }),
+  // Display name of Teams user who received the call
+  calleeDisplayName: varchar("calleeDisplayName", { length: 255 }),
+  // UPN of the Teams user who answered
+  calleeUpn: varchar("calleeUpn", { length: 320 }),
+  // Matched user ID from our users table (if phone lookup succeeded)
+  matchedUserId: int("matchedUserId"),
+  // Call direction: inbound = customer calling us, outbound = we called them
+  direction: mysqlEnum("direction", ["inbound", "outbound"]).default("inbound"),
+  // Call start/end timestamps
+  startedAt: timestamp("startedAt"),
+  endedAt: timestamp("endedAt"),
+  // Duration in seconds
+  durationSeconds: int("durationSeconds"),
+  // Whether Teams transcription was available
+  hasTranscript: boolean("hasTranscript").default(false),
+  // Full transcript text (VTT format converted to plain text)
+  transcriptText: text("transcriptText"),
+  // AI-generated summary of the call
+  aiSummary: text("aiSummary"),
+  // AI-suggested ticket title
+  aiTitle: varchar("aiTitle", { length: 500 }),
+  // AI-suggested priority: low, medium, high, critical
+  aiPriority: varchar("aiPriority", { length: 50 }),
+  // AI-suggested category
+  aiCategory: varchar("aiCategory", { length: 100 }),
+  // AI confidence score (0.0 - 1.0)
+  aiConfidence: varchar("aiConfidence", { length: 10 }),
+  // Processing status
+  status: mysqlEnum("status", ["pending", "analyzed", "draft_created", "ticket_created", "dismissed"]).default("pending"),
+  // Linked draft ticket ID (once created)
+  draftTicketId: int("draftTicketId"),
+  // Linked final ticket ID (once approved)
+  ticketId: int("ticketId"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+export type CallLog = typeof callLogs.$inferSelect;
+export type InsertCallLog = typeof callLogs.$inferInsert;
+
+// ─── Call Draft Tickets ───────────────────────────────────────────────────────
+// Holds AI-generated draft tickets from calls, pending admin review.
+// Admin can edit fields before approving to create a real helpdesk ticket.
+export const callDraftTickets = mysqlTable("callDraftTickets", {
+  id: int("id").primaryKey().autoincrement(),
+  // Source call log
+  callLogId: int("callLogId").notNull(),
+  // Caller info (pre-filled from phone lookup or AI)
+  callerPhone: varchar("callerPhone", { length: 50 }),
+  callerName: varchar("callerName", { length: 255 }),
+  callerEmail: varchar("callerEmail", { length: 320 }),
+  // Matched user ID from our system
+  userId: int("userId"),
+  // Draft ticket fields (editable by admin before approval)
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }),
+  priority: varchar("priority", { length: 50 }),
+  // Admin review status
+  reviewStatus: mysqlEnum("reviewStatus", ["pending", "approved", "rejected", "edited"]).default("pending"),
+  // Admin who reviewed
+  reviewedBy: int("reviewedBy"),
+  reviewedAt: timestamp("reviewedAt"),
+  reviewNotes: text("reviewNotes"),
+  // Final ticket ID after approval
+  ticketId: int("ticketId"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+});
+export type CallDraftTicket = typeof callDraftTickets.$inferSelect;
+export type InsertCallDraftTicket = typeof callDraftTickets.$inferInsert;

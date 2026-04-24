@@ -206,6 +206,22 @@ async function processEmail(msgData: any): Promise<boolean> {
     const senderEmail = emailMatch ? emailMatch[1] : fromStr;
     const senderName = fromStr.replace(/<.+?>/, "").trim() || senderEmail;
 
+    // ── Deduplication: skip if this messageId was already processed ──────────
+    if (messageId) {
+      const db = await getDb();
+      if (db) {
+        const existing = await db
+          .select({ id: emailMessages.id })
+          .from(emailMessages)
+          .where(eq(emailMessages.messageId, messageId))
+          .limit(1);
+        if (existing.length > 0) {
+          // Already processed — silently skip
+          return true;
+        }
+      }
+    }
+
     console.log(`[Email Poller] Processing email from ${senderEmail}: "${subject}"`);
 
     // Find or create user

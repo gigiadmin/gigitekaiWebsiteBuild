@@ -187,10 +187,10 @@ function Router() {
           <Route path={"/helpdesk"} component={HelpDesk} />
           <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
           <Route path={"/helpdesk/create-ticket"} component={CreateTicket} />
-          <Route path={"/helpdesk/ticket/:id"} component={TicketDetail} />
-          <Route path={"/helpdesk/tickets/:id"} component={TicketDetail} />
-          <Route path={"/helpdesk/ticket/:id/feedback"} component={TicketFeedback} />
-          <Route path={"/helpdesk/tickets/:id/feedback"} component={TicketFeedback} />
+          <Route path={"/helpdesk/ticket/:ticketId"} component={TicketDetail} />
+          <Route path={"/helpdesk/tickets/:ticketId"} component={TicketDetail} />
+          <Route path={"/helpdesk/ticket/:ticketId/feedback"} component={TicketFeedback} />
+          <Route path={"/helpdesk/tickets/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/profile"} component={UserProfile} />
           <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
           {/* ── Auth ── */}

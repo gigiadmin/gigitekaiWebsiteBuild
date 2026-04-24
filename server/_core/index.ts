@@ -22,6 +22,7 @@ import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
 import { startEmailPoller } from "./emailPoller";
+import { startCallPoller } from "./callPoller";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
@@ -202,6 +203,9 @@ async function startServer() {
     startMsLearnSyncScheduler();
     // Start M365 Graph email poller (every 5 minutes)
     startEmailPoller();
+    // Start Teams PSTN call poller (every 5 minutes)
+    startCallPoller();
+    console.log("[Call Poller] Teams PSTN call poller started (5-minute interval)");
     // Log email poller setup
     console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");
     console.log("[Email Poller] Polling support@gigitekai.com mailbox for new emails");
