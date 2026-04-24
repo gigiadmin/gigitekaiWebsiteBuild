@@ -89,7 +89,7 @@ export default function HelpDesk() {
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
               Our dedicated support team is here to ensure your technology infrastructure runs seamlessly. Create tickets, track progress, and get expert resolution.
             </p>
-            <a href={getLoginUrl()}>
+            <a href={getLoginUrl("/helpdesk/dashboard")}>
               <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-all">
                 Sign In to Support Center
                 <ArrowRight className="w-5 h-5 ml-2" />

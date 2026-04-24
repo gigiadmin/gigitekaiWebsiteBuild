@@ -44,20 +44,29 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Decode returnPath from state (supports both legacy and new format)
+      // Determine returnPath (where to redirect after login):
+      // Priority 1: query string returnPath param (set by getLoginUrl for non-admin routes e.g. /helpdesk)
+      // Priority 2: JSON-encoded state (legacy format used before the SDK fix)
+      // Priority 3: default to /admin
       let returnPath = "/admin";
-      try {
-        const decoded = JSON.parse(atob(state));
-        if (decoded.returnPath && typeof decoded.returnPath === "string") {
-          // Validate it's a safe relative path (no external redirects)
-          const path = decoded.returnPath;
-          if (path.startsWith("/") && !path.startsWith("//")) {
-            returnPath = path;
+
+      const queryReturnPath = getQueryParam(req, "returnPath");
+      if (queryReturnPath && queryReturnPath.startsWith("/") && !queryReturnPath.startsWith("//")) {
+        // New format: returnPath passed as explicit query param
+        returnPath = queryReturnPath;
+      } else {
+        try {
+          const decoded = JSON.parse(atob(state));
+          if (decoded.returnPath && typeof decoded.returnPath === "string") {
+            const path = decoded.returnPath;
+            if (path.startsWith("/") && !path.startsWith("//")) {
+              returnPath = path;
+            }
           }
+        } catch {
+          // Current format: state is plain btoa(redirectUri) — default to /admin
+          returnPath = "/admin";
         }
-      } catch {
-        // Legacy state format (just the redirectUri) — default to /admin
-        returnPath = "/admin";
       }
 
       res.redirect(302, returnPath);
