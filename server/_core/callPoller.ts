@@ -78,6 +78,12 @@ async function graphGet(path: string): Promise<any | null> {
     });
     if (!res.ok) {
       const err = await res.text();
+      // If 403, clear token cache so next call gets a fresh token with updated permissions
+      if (res.status === 403) {
+        cachedToken = null;
+        tokenExpiry = 0;
+        console.warn(`[Call Poller] 403 on ${path} — cleared token cache for refresh`);
+      }
       console.warn(`[Call Poller] Graph GET ${path} failed: ${res.status} ${err.slice(0, 200)}`);
       return null;
     }
@@ -359,9 +365,12 @@ async function runPollCycle(): Promise<void> {
   }
 
   try {
-    // Fetch calls from the last 24 hours (to catch any missed)
+    // Fetch calls from the last 7 days on first run, then last 24 hours
     const toDate = new Date();
-    const fromDate = new Date(toDate.getTime() - 24 * 60 * 60 * 1000);
+    const isFirstRun = !lastPollTime;
+    const lookbackMs = isFirstRun ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    const fromDate = new Date(toDate.getTime() - lookbackMs);
+    if (isFirstRun) console.log("[Call Poller] First run — fetching last 7 days of PSTN calls");
 
     const pstnCalls = await fetchPstnCalls(fromDate, toDate);
     console.log(`[Call Poller] Fetched ${pstnCalls.length} PSTN call records`);

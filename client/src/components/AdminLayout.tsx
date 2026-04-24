@@ -41,6 +41,7 @@ import {
   Clock,
   Trash2,
   Video,
+  Phone,
 } from "lucide-react";
 
 interface NavItem {
@@ -67,6 +68,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
+      { label: "Call Review", icon: <Phone size={16} />, href: "/admin/call-review" },
       { label: "Closed Tickets", icon: <CheckCircle2 size={16} />, href: "/admin/closed-tickets" },
       { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/helpdesk-metrics" },
       { label: "Agent Dashboard", icon: <TrendingUp size={16} />, href: "/admin/agent-dashboard" },

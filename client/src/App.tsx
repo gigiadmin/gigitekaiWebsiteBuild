@@ -102,6 +102,7 @@ const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365Notifica
 const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage"));
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
+const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -204,6 +205,7 @@ function Router() {
           <Route path={"/admin/home"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
           {/* Operations */}
           <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/call-review"}>{() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>

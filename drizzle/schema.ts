@@ -102,7 +102,7 @@ export const tickets = mysqlTable("tickets", {
   aiPriority: varchar("aiPriority", { length: 20 }), // LLM-suggested priority
   aiConfidence: decimal("aiConfidence", { precision: 4, scale: 2 }), // 0.00-1.00
   aiReasoning: text("aiReasoning"), // LLM explanation
-  source: varchar("source", { length: 50 }).default("web").notNull(), // 'web' | 'email' | 'chat'
+  source: varchar("source", { length: 50 }).default("web").notNull(), // 'web' | 'email' | 'chat' | 'phone'
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   resolvedAt: timestamp("resolvedAt"),

@@ -27,6 +27,7 @@ import {
   Zap,
   Inbox,
   MessageSquareText,
+  Phone,
 } from "lucide-react";
 import { SupportTicketWidget } from "@/components/SupportTicketWidget";
 
@@ -125,6 +126,7 @@ export default function AdminHome() {
     { label: "New Blog Post", href: "/admin/blog", icon: <FileText size={14} />, color: "text-emerald-400" },
     { label: "Send Newsletter", href: "/admin/newsletter", icon: <Mail size={14} />, color: "text-violet-400" },
     { label: "View Helpdesk", href: "/admin/helpdesk", icon: <Ticket size={14} />, color: "text-amber-400" },
+    { label: "Call Review", href: "/admin/call-review", icon: <Phone size={14} />, color: "text-[#00D4FF]" },
     { label: "Live Chat", href: "/admin/chat", icon: <MessageSquare size={14} />, color: "text-cyan-400" },
     { label: "Invite Customer", href: "/admin/invites", icon: <Users size={14} />, color: "text-blue-400" },
     { label: "View Metrics", href: "/admin/metrics", icon: <TrendingUp size={14} />, color: "text-pink-400" },
