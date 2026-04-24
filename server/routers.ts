@@ -64,6 +64,7 @@ import { teamsChannelsRouter } from "./routers/teams-channels";
 import { teamsMeetingEscalationRouter } from "./routers/teams-meeting-escalation";
 import { msLearnSyncRouter } from "./routers/ms-learn-sync";
 import { callsRouter } from "./routers/calls";
+import { clientOnboardingRouter } from "./routers/client-onboarding";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -77,6 +78,7 @@ export const appRouter = router({
   teamsMeetingEscalation: teamsMeetingEscalationRouter,
   msLearnSync: msLearnSyncRouter,
   calls: callsRouter,
+  clientOnboarding: clientOnboardingRouter,
   aiTicketCategorization: aiTicketCategorization,
   kbSeeding: kbSeedingRouter,
   aiTraining: aiTrainingRouter,
