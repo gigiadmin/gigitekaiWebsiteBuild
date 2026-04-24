@@ -1,15 +1,17 @@
 {
-  "name": "GigitekAI — Cloud & AI Solutions",
+  "name": "GigitekAI \u2014 Cloud & AI Solutions",
   "short_name": "GigitekAI",
   "description": "Enterprise-grade cloud infrastructure and AI solutions that transform how businesses operate, scale, and compete.",
   "start_url": "/",
   "display": "standalone",
   "scope": "/",
   "background_color": "#0A0E1A",
-  "theme_color": "#00D4FF",
+  "theme_color": "#0A0E1A",
   "orientation": "any",
-
-  "categories": ["business", "technology"],
+  "categories": [
+    "business",
+    "technology"
+  ],
   "icons": [
     {
       "src": "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-72_19b3738f.png",
@@ -86,5 +88,10 @@
       "description": "Manage customer emails",
       "url": "/admin/email"
     }
+  ],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
   ]
 }

@@ -700,3 +700,27 @@
 .spinner {
   animation: spin 1s linear infinite;
 }
+
+/* ============================================================
+   PWA Standalone Mode — Fix Edge/Chrome title bar overlap
+   When installed as a PWA, the browser title bar overlaps
+   the top of the page. We use env(titlebar-area-height) for
+   Edge's Window Controls Overlay and env(safe-area-inset-top)
+   for iOS/Android safe areas.
+   ============================================================ */
+@media (display-mode: standalone) {
+  /* Reserve space at top for the PWA title bar / safe area */
+  body {
+    padding-top: max(env(safe-area-inset-top, 0px), env(titlebar-area-height, 0px));
+  }
+
+  /* Announcement bar: push below the title bar */
+  [role="banner"][aria-label="Site announcement"] {
+    margin-top: max(env(safe-area-inset-top, 0px), env(titlebar-area-height, 0px));
+  }
+
+  /* Sticky nav: ensure it sticks below the safe area */
+  nav[class*="sticky"] {
+    top: 0 !important;
+  }
+}
