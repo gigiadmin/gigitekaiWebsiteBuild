@@ -33,17 +33,27 @@ export async function sendTicketNotificationToTeams(
   eventType: "created" | "escalated" | "status_changed" | "resolved"
 ): Promise<void> {
   try {
+    console.log(`[Teams Notification] Building card for ticket #${ticket.id} (${eventType})`);
     const card = buildTicketCard(ticket, eventType);
+    
     // Route to category-specific channel if configured, else default
     const webhookUrl = resolveWebhookUrl(ticket.category as string | undefined);
-    await sendToTeamsWithRetry(
+    console.log(`[Teams Notification] Resolved webhook URL for category "${ticket.category}": ${webhookUrl ? "configured" : "NOT CONFIGURED"}`);
+    
+    if (!webhookUrl) {
+      console.error(`[Teams Notification] No webhook URL configured for category "${ticket.category}"`);
+      return;
+    }
+    
+    const result = await sendToTeamsWithRetry(
       webhookUrl,
       card,
       `ticket #${ticket.id} ${eventType}`
     );
+    console.log(`[Teams Notification] Result for ticket #${ticket.id}: ${result.success ? "SUCCESS" : "FAILED"} (attempts: ${result.attempts})`);
   } catch (error) {
     // Non-blocking: log but don't throw
-    console.warn("[Teams] Notification failed:", error);
+    console.error("[Teams Notification] Unexpected error:", error);
   }
 }
 
