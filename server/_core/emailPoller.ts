@@ -25,6 +25,13 @@ interface PollerStatus {
   lastError: string | null;
   emailsProcessedToday: number;
   totalProcessed: number;
+  // Circuit breaker for spam detection
+  consecutiveErrors: number;
+  circuitBreakerOpen: boolean;
+  lastCircuitBreakerTrip: Date | null;
+  // Rate limiting
+  ticketsCreatedInLastHour: number;
+  lastTicketCreationTime: Date | null;
 }
 
 let pollerStatus: PollerStatus = {
@@ -34,9 +41,80 @@ let pollerStatus: PollerStatus = {
   lastError: null,
   emailsProcessedToday: 0,
   totalProcessed: 0,
+  // Circuit breaker
+  consecutiveErrors: 0,
+  circuitBreakerOpen: false,
+  lastCircuitBreakerTrip: null,
+  // Rate limiting
+  ticketsCreatedInLastHour: 0,
+  lastTicketCreationTime: null,
 };
 
+// Circuit breaker & rate limiting constants
+const MAX_CONSECUTIVE_ERRORS = 3;
+const CIRCUIT_BREAKER_RESET_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_TICKETS_PER_HOUR = 50;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
 let pollerInterval: NodeJS.Timeout | null = null;
+
+/**
+ * Check if circuit breaker should be tripped (too many errors = spam detected)
+ */
+function shouldTripCircuitBreaker(): boolean {
+  if (pollerStatus.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+    pollerStatus.circuitBreakerOpen = true;
+    pollerStatus.lastCircuitBreakerTrip = new Date();
+    console.error('[Email Poller] CIRCUIT BREAKER TRIPPED: Too many errors detected. Pausing email poller for 15 minutes.');
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Check if circuit breaker should be reset
+ */
+function shouldResetCircuitBreaker(): boolean {
+  if (!pollerStatus.circuitBreakerOpen) return false;
+  if (!pollerStatus.lastCircuitBreakerTrip) return false;
+  
+  const timeSinceTrip = Date.now() - pollerStatus.lastCircuitBreakerTrip.getTime();
+  if (timeSinceTrip > CIRCUIT_BREAKER_RESET_MS) {
+    pollerStatus.circuitBreakerOpen = false;
+    pollerStatus.consecutiveErrors = 0;
+    console.log('[Email Poller] Circuit breaker reset. Resuming email poller.');
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Check if rate limit is exceeded (too many tickets created = spam)
+ */
+function isRateLimitExceeded(): boolean {
+  if (!pollerStatus.lastTicketCreationTime) return false;
+  
+  const timeSinceLastTicket = Date.now() - pollerStatus.lastTicketCreationTime.getTime();
+  if (timeSinceLastTicket > RATE_LIMIT_WINDOW_MS) {
+    // Reset counter after 1 hour
+    pollerStatus.ticketsCreatedInLastHour = 0;
+    return false;
+  }
+  
+  return pollerStatus.ticketsCreatedInLastHour >= MAX_TICKETS_PER_HOUR;
+}
+
+/**
+ * Record a ticket creation for rate limiting
+ */
+function recordTicketCreation(): void {
+  pollerStatus.ticketsCreatedInLastHour++;
+  pollerStatus.lastTicketCreationTime = new Date();
+  
+  if (pollerStatus.ticketsCreatedInLastHour > MAX_TICKETS_PER_HOUR) {
+    console.warn(`[Email Poller] RATE LIMIT WARNING: ${pollerStatus.ticketsCreatedInLastHour} tickets created in the last hour (limit: ${MAX_TICKETS_PER_HOUR})`);
+  }
+}
 
 /**
  * Classify email using LLM
@@ -509,6 +587,12 @@ async function processEmail(msgData: any): Promise<boolean> {
 
     console.log(`[Email Poller] Processing email from ${senderEmail}: "${subject}"`);
 
+    // ── RATE LIMITING: Check if too many tickets created in last hour ──
+    if (isRateLimitExceeded()) {
+      console.warn(`[Email Poller] RATE LIMIT EXCEEDED: Skipping email to prevent spam. (${pollerStatus.ticketsCreatedInLastHour}/${MAX_TICKETS_PER_HOUR} tickets in last hour)`);
+      return false;
+    }
+
     // Find or create user
     const user = await findOrCreateUser(senderEmail, senderName);
     if (!user) {
@@ -540,8 +624,14 @@ async function processEmail(msgData: any): Promise<boolean> {
     const ticketId = ticket?.id || null;
     if (!ticketId) {
       console.error("[Email Poller] Failed to create ticket");
+      pollerStatus.consecutiveErrors++;
       return false;
     }
+
+    // Record ticket creation for rate limiting
+    recordTicketCreation();
+    // Reset error counter on successful ticket creation
+    pollerStatus.consecutiveErrors = 0;
 
     console.log(`[Email Poller] Created ticket #${ticketId} from ${senderEmail}`);
 
@@ -631,6 +721,16 @@ export async function runEmailPoller(): Promise<void> {
     return;
   }
 
+  // ── CHECK CIRCUIT BREAKER ──
+  if (pollerStatus.circuitBreakerOpen) {
+    if (shouldResetCircuitBreaker()) {
+      console.log('[Email Poller] Circuit breaker reset. Attempting to resume.');
+    } else {
+      console.warn('[Email Poller] Circuit breaker is OPEN. Skipping this cycle.');
+      return;
+    }
+  }
+
   pollerStatus.isRunning = true;
   const startTime = Date.now();
 
@@ -675,6 +775,12 @@ export async function runEmailPoller(): Promise<void> {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("[Email Poller] Polling error:", error);
     pollerStatus.lastError = errorMsg;
+    pollerStatus.consecutiveErrors++;
+    
+    // Check if we should trip the circuit breaker
+    if (shouldTripCircuitBreaker()) {
+      // Circuit breaker is now open, will skip cycles until reset
+    }
   } finally {
     pollerStatus.isRunning = false;
     pollerStatus.nextSyncTime = new Date(Date.now() + 5 * 60 * 1000); // Next sync in 5 minutes
