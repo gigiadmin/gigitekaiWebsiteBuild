@@ -32,8 +32,7 @@ import {
   twitterConnect, twitterCallback,
   facebookConnect, facebookCallback,
 } from "../socialOAuth";
-// SendGrid webhook disabled — using Azure/Microsoft Graph for all email
-// import { handleSendGridWebhook } from "./sendgridWebhook";
+// Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -138,11 +137,7 @@ async function startServer() {
   app.post("/api/webhooks/mail-manus", handleMailManusWebhook);
   app.get("/api/webhooks/mail-manus/health", handleMailManusHealthCheck);
   
-  // SendGrid webhook disabled — using Azure/Microsoft Graph for all email
-  // app.post("/api/webhooks/sendgrid", handleSendGridWebhook);
-
-  // Email-to-Ticket: SendGrid Inbound Parse webhook
-  // Configure in SendGrid: Settings → Inbound Parse → POST to https://gigitekai.com/api/email-ingest
+  // Email-to-Ticket: Using Microsoft Graph (Azure) for email ingestion
   app.post("/api/email-ingest", handleEmailIngest);
 
   // Social OAuth connect/callback routes
