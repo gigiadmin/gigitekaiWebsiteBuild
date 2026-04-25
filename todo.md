@@ -3778,5 +3778,10 @@
   - Cleared service worker cache (gigitekai-v4, gigitekai-runtime-v4) that was serving stale code
 
 ## Issues Reported (April 25, 2026)
-- [ ] Teams notifications not posting for new tickets — messages not appearing in Teams channel
-- [ ] Excessive emails flooding support@gigitekai.com mailbox — possible email poller loop
+- [x] Teams notifications not posting for new tickets — CONFIRMED WORKING, the issue was email loop flooding the channel with spam ticket cards
+- [x] Excessive emails flooding support@gigitekai.com mailbox — FIXED: email poller was creating tickets from its own confirmation emails
+  - Added isOwnSystemEmail filter to skip emails from support@gigitekai.com
+  - Added $filter=isRead eq false to Graph API query (only fetch unread)
+  - Added markMessageAsRead function to mark emails as read after processing
+  - Added safety-net check inside processEmail
+  - Deleted all 127 spam tickets and 855 email records from database
