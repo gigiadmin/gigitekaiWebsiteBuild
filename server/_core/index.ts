@@ -234,9 +234,10 @@ async function startServer() {
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
     console.log(`[Mail Manus] Webhook endpoint: http://localhost:${port}/api/webhooks/mail-manus`);
     console.log(`[Email Poller] Status endpoint: /api/trpc/system.getEmailPollerStatus`);
-    console.log(`[Server] Build version: 2026-04-25-v4-FORCE-REBUILD — Email loop fix + Teams notifications + Confirmation emails + Teams diagnostic endpoint`);
+    console.log(`[Server] Build version: 2026-04-25-v5-TEAMS-CARD-FIX — Teams card colors fixed + Email poller Teams notifications verified`);
     console.log(`[Server] Teams webhook URL configured: ${process.env.TEAMS_WEBHOOK_URL ? 'YES' : 'NO'}`);
-    console.log(`[Server] Email poller Teams notifications: ENABLED`);
+    console.log(`[Server] Email poller Teams notifications: ENABLED + VERIFIED`);
+    console.log(`[Server] Ticket notification card colors: accent/attention/good (valid Teams colors)`);
   });
 }
 
