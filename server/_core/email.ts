@@ -226,9 +226,11 @@ export async function fetchInboxFromMsGraph(
 
   const senderEmail = "support@gigitekai.com";
   const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId";
+  // Only fetch UNREAD emails to prevent reprocessing and email loops
+  const filter = encodeURIComponent("isRead eq false");
   const url =
     `https://graph.microsoft.com/v1.0/users/${senderEmail}/mailFolders/Inbox/messages` +
-    `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}`;
+    `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}&$filter=${filter}`;
 
   try {
     const response = await fetch(url, {
@@ -469,6 +471,66 @@ export async function deleteMessageFromMailbox(messageId: string): Promise<boole
     return false;
   } catch (error) {
     console.error("[Email] Error deleting message from mailbox:", error);
+    return false;
+  }
+}
+
+/**
+ * Marks a message as read in the support@gigitekai.com Outlook mailbox via MS Graph.
+ * Uses PATCH /users/{mailbox}/messages/{messageId} with { isRead: true }.
+ * Returns true on success, false otherwise.
+ */
+export async function markMessageAsRead(messageId: string): Promise<boolean> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for marking message as read");
+    return false;
+  }
+
+  const mailbox = "support@gigitekai.com";
+
+  try {
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isRead: true }),
+      }
+    );
+
+    if (response.ok) {
+      return true;
+    }
+
+    // On 401, invalidate cache and retry once
+    if (response.status === 401) {
+      msGraphTokenCache = null;
+      const freshToken = await getMsGraphToken();
+      if (freshToken) {
+        const retry = await fetch(
+          `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${freshToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ isRead: true }),
+          }
+        );
+        if (retry.ok) return true;
+      }
+    }
+
+    const detail = await response.text().catch(() => "");
+    console.error(`[Email] Failed to mark message ${messageId} as read (${response.status}): ${detail}`);
+    return false;
+  } catch (error) {
+    console.error("[Email] Error marking message as read:", error);
     return false;
   }
 }

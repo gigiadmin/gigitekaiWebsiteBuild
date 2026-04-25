@@ -3776,3 +3776,7 @@
   - Made expanded panel visible on all screen sizes (not just mobile)
   - Wrapped category + AI badge in single `div.min-w-0` container
   - Cleared service worker cache (gigitekai-v4, gigitekai-runtime-v4) that was serving stale code
+
+## Issues Reported (April 25, 2026)
+- [ ] Teams notifications not posting for new tickets — messages not appearing in Teams channel
+- [ ] Excessive emails flooding support@gigitekai.com mailbox — possible email poller loop

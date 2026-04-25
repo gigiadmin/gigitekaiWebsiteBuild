@@ -5,7 +5,7 @@
  * Marks emails as read after processing
  */
 
-import { fetchInboxFromMsGraph } from "./email";
+import { fetchInboxFromMsGraph, markMessageAsRead } from "./email";
 import { createTicket } from "../db";
 import { getDb } from "../db";
 import { eq } from "drizzle-orm";
@@ -283,6 +283,42 @@ function isNDREmail(subject: string, from: string): boolean {
       fromLower.includes('postmaster') ||
       fromLower.includes('noreply@microsoft') ||
       fromLower.includes('no-reply@microsoft')) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Detect if an email is from our own system (confirmation emails, auto-replies)
+ * This prevents the email loop where the poller picks up its own confirmation emails
+ */
+function isOwnSystemEmail(subject: string, senderEmail: string): boolean {
+  const subjectLower = subject.toLowerCase();
+  const senderLower = senderEmail.toLowerCase();
+  
+  // Skip emails sent FROM our own support address (confirmation emails land back in inbox)
+  if (senderLower === 'support@gigitekai.com' || senderLower === 'support@gigitek.com') {
+    return true;
+  }
+  
+  // Skip our own ticket confirmation emails by subject pattern
+  if (/^\[ticket #\d+\] we received your request/i.test(subject)) {
+    return true;
+  }
+  
+  // Skip auto-reply / out-of-office patterns
+  if (subjectLower.startsWith('automatic reply:') ||
+      subjectLower.startsWith('auto-reply:') ||
+      subjectLower.startsWith('out of office:') ||
+      subjectLower.includes('automatic reply') ||
+      subjectLower.includes('auto-reply')) {
+    return true;
+  }
+  
+  // Skip noreply / no-reply senders
+  if (senderLower.includes('noreply@') || senderLower.includes('no-reply@') ||
+      senderLower.includes('donotreply@') || senderLower.includes('do-not-reply@')) {
     return true;
   }
   
@@ -611,6 +647,12 @@ async function processEmail(msgData: any): Promise<boolean> {
       }
     }
 
+    // ── SAFETY NET: Double-check for own system emails inside processEmail ──
+    if (isOwnSystemEmail(subject, senderEmail)) {
+      console.log(`[Email Poller] SKIPPING OWN SYSTEM EMAIL (safety net) from ${senderEmail}: "${subject}"`);
+      return true; // Return true so it counts as "processed" and gets marked as read
+    }
+
     console.log(`[Email Poller] Processing email from ${senderEmail}: "${subject}"`);
 
     // ── RATE LIMITING: Check if too many tickets created in last hour ──
@@ -772,31 +814,53 @@ export async function runEmailPoller(): Promise<void> {
 
     // Process each email
     let successCount = 0;
+    let skippedCount = 0;
     for (const msg of messages) {
       const subject = msg.subject || '';
       const from = msg.from || '';
+      const senderAddr = typeof from === 'string' ? from : (from?.emailAddress?.address || '');
       const emailBody = typeof msg.body === 'object' && msg.body?.content
         ? msg.body.content
         : (typeof msg.body === 'string' ? msg.body : (msg.bodyPreview || ''));
 
       // ── SKIP NDR EMAILS TO PREVENT SPAM LOOPS ──
-      if (isNDREmail(subject, typeof from === 'string' ? from : (from?.emailAddress?.address || ''))) {
+      if (isNDREmail(subject, senderAddr)) {
         console.log(`[Email Poller] SKIPPING NDR EMAIL: "${subject}"`);
-        continue; // Skip this email entirely
+        // Mark as read so we don't fetch it again
+        if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        skippedCount++;
+        continue;
+      }
+
+      // ── SKIP OWN SYSTEM EMAILS TO PREVENT EMAIL LOOPS ──
+      if (isOwnSystemEmail(subject, senderAddr)) {
+        console.log(`[Email Poller] SKIPPING OWN SYSTEM EMAIL from ${senderAddr}: "${subject}"`);
+        // Mark as read so we don't fetch it again
+        if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        skippedCount++;
+        continue;
       }
 
       // Route voicemails to the voicemail processor
       if (isVoicemailEmail(subject, emailBody)) {
         console.log(`[Email Poller] Detected voicemail email: "${subject}"`);
         const success = await processVoicemailEmail(msg);
-        if (success) successCount++;
+        if (success) {
+          successCount++;
+          // Mark as read after successful processing
+          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        }
       } else {
         const success = await processEmail(msg);
-        if (success) successCount++;
+        if (success) {
+          successCount++;
+          // Mark as read after successful processing
+          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        }
       }
     }
 
-    console.log(`[Email Poller] Processed ${successCount}/${messages.length} emails successfully`);
+    console.log(`[Email Poller] Processed ${successCount}/${messages.length} emails successfully (${skippedCount} skipped as system/NDR)`);
 
     pollerStatus.lastSyncTime = new Date();
     pollerStatus.lastError = null;

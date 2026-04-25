@@ -37,6 +37,7 @@ import {
   Cloud,
   Star,
   Plus,
+  Sparkles,
   X,
 } from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
