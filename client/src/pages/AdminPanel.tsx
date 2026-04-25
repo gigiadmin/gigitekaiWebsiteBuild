@@ -591,7 +591,7 @@ export default function AdminPanel() {
                   const statusConfig = getStatusConfig(ticket.status);
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
-                    <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors">
+                    <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors overflow-hidden relative">
                     {/* Main row — always a grid on desktop, stacked on mobile */}
                     <div className="group md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 items-center w-full">
                     {/* Checkbox */}
@@ -629,46 +629,37 @@ export default function AdminPanel() {
                       {priorityConfig.label}
                     </span>
 
-                    {/* Category */}
-                    <span className="text-xs text-gray-500 capitalize">
-                      {ticket.category.replace(/_/g, " ")}
-                    </span>
-
-                    {/* AI Triage Badge */}
-                    {ticket.aiCategory && (
-                      <span
-                        title={`AI: ${ticket.aiPriority} · ${ticket.aiCategory} (${Math.round(Number(ticket.aiConfidence) * 100)}% confidence)${ticket.aiReasoning ? `\n${ticket.aiReasoning}` : ""}`}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 cursor-help"
-                      >
-                        🤖 {ticket.aiCategory} · {ticket.aiPriority}
+                    {/* Category + AI Badge */}
+                    <div className="min-w-0">
+                      <span className="text-xs text-gray-500 capitalize block">
+                        {ticket.category.replace(/_/g, " ")}
                       </span>
-                    )}
+                      {ticket.aiCategory && (
+                        <span
+                          title={`AI: ${ticket.aiPriority} · ${ticket.aiCategory} (${Math.round(Number(ticket.aiConfidence) * 100)}% confidence)${ticket.aiReasoning ? `\n${ticket.aiReasoning}` : ""}`}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 cursor-help mt-1"
+                        >
+                          🤖 {ticket.aiCategory}
+                        </span>
+                      )}
+                    </div>
 
                     {/* Created */}
                     <span className="text-xs text-gray-500">
                       {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
 
-                    {/* SLA Timer — inline in list row */}
-                    <div className="hidden md:block">
-                      <SLATimer
-                        priority={ticket.priority}
-                        createdAt={ticket.createdAt}
-                        status={ticket.status}
-                      />
-                    </div>
-
-                    {/* Mobile expand toggle */}
-                    <button
-                      onClick={() => toggleTicketExpanded(ticket.id)}
-                      className="md:hidden flex items-center gap-1 text-xs text-gray-500 hover:text-[#00D4FF] mt-2 mb-1"
-                    >
-                      <ChevronRight className={`w-3 h-3 transition-transform ${expandedTicketIds.has(ticket.id) ? 'rotate-90' : ''}`} />
-                      {expandedTicketIds.has(ticket.id) ? 'Less' : 'Details'}
-                    </button>
-
                     {/* Actions */}
                     <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap md:flex-nowrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => toggleTicketExpanded(ticket.id)}
+                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                      >
+                        <ChevronRight className={`w-3 h-3 mr-1 transition-transform ${expandedTicketIds.has(ticket.id) ? 'rotate-90' : ''}`} />
+                        {expandedTicketIds.has(ticket.id) ? 'Less' : 'SLA'}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -803,9 +794,9 @@ export default function AdminPanel() {
                     </div>
                     </div>{/* end main row */}
 
-                    {/* Expandable detail panel — full width breakout, visible on mobile when expanded */}
+                    {/* Expandable detail panel — visible when expanded */}
                     {expandedTicketIds.has(ticket.id) && (
-                      <div className="md:hidden bg-gray-900/40 border-t border-gray-800/40 px-5 py-3 space-y-2 text-xs">
+                      <div className="bg-gray-900/40 border-t border-gray-800/40 md:ml-[100px] px-5 py-3 space-y-2 text-xs relative z-0">
                         <div className="flex justify-between py-1 border-b border-gray-800/20">
                           <span className="text-gray-500">Priority</span>
                           <span className={`font-medium ${priorityConfig.text}`}>{priorityConfig.label}</span>

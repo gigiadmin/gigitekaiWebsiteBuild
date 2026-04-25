@@ -3766,3 +3766,13 @@
 - [x] Fix HTML email content being stored as raw HTML in ticket descriptions (added cleanEmailBody function to strip HTML)
 - [x] Fix Teams Bot notifications not being sent for new tickets (configured TEAMS_WEBHOOK_URL)
 - [x] Fix garbled SLA text display in ticket list (added whitespace-nowrap and fixed padding in SLATimer)
+
+## SLA Text Overlap Fix (April 25, 2026)
+- [x] Fix SLA text overlapping in admin ticket list
+  - Root cause: Inline SLATimer component rendered as direct child of the 8-column grid, creating 11 grid children causing overflow
+  - Removed inline `hidden md:block` SLATimer from main row grid
+  - Removed separate `md:hidden` mobile expand button
+  - Added "SLA" button in actions column that toggles expanded detail panel
+  - Made expanded panel visible on all screen sizes (not just mobile)
+  - Wrapped category + AI badge in single `div.min-w-0` container
+  - Cleared service worker cache (gigitekai-v4, gigitekai-runtime-v4) that was serving stale code
