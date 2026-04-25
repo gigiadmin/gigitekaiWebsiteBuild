@@ -799,10 +799,16 @@ export async function runEmailPoller(): Promise<void> {
 
   try {
     console.log(`[Email Poller] Starting email poll at ${new Date().toISOString()}`);
+    console.log(`[Email Poller] NODE_ENV=${process.env.NODE_ENV}, Polling mailbox: support@gigitekai.com`);
 
     // Fetch unread emails from mailbox
     const messages = await fetchInboxFromMsGraph(50, 0);
     console.log(`[Email Poller] Fetched ${messages.length} emails from mailbox`);
+    if (messages.length === 0) {
+      console.log(`[Email Poller] DEBUG: No emails fetched. Checking Graph API credentials...`);
+      const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = await import('./env').then(m => ({ msGraphTenantId: m.ENV.msGraphTenantId, msGraphClientId: m.ENV.msGraphClientId, msGraphClientSecret: m.ENV.msGraphClientSecret }));
+      console.log(`[Email Poller] DEBUG: Tenant=${msGraphTenantId ? 'SET' : 'MISSING'}, ClientId=${msGraphClientId ? 'SET' : 'MISSING'}, Secret=${msGraphClientSecret ? 'SET' : 'MISSING'}`);
+    }
 
     // Process each email
     let successCount = 0;

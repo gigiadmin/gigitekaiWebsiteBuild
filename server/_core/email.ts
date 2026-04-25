@@ -155,40 +155,39 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
     // On 401, invalidate cache and retry once with a fresh token
     if (response.status === 401) {
       console.warn(
-        `[Email] MS Graph returned 401 — invalidating token cache and retrying with fresh token`
+        `[Email] MS Graph sendMail returned 401 — invalidating token cache and retrying`
       );
       msGraphTokenCache = null;
-      token = await getMsGraphToken();
-      if (!token) {
-        console.error("[Email] Could not obtain fresh MS Graph access token after 401");
-        return false;
-      }
-
-      response = await fetch(
-        `https://graph.microsoft.com/v1.0/users/${senderEmail}/sendMail`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(graphPayload),
-        }
-      );
-
-      if (response.status === 202) {
-        console.log(
-          `[Email] Successfully sent email to ${payload.to} via Microsoft Graph after token refresh`
+      const freshToken = await getMsGraphToken();
+      if (freshToken) {
+        const retryResponse = await fetch(
+          `https://graph.microsoft.com/v1.0/users/${senderEmail}/sendMail`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${freshToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(graphPayload),
+          }
         );
-        return true;
+
+        if (retryResponse.status === 202) {
+          console.log(
+            `[Email] Successfully sent email to ${payload.to} via Microsoft Graph (after token refresh)`
+          );
+          return true;
+        }
       }
+      console.error(
+        `[Email] MS Graph sendMail still failing after token refresh (${response.status})`
+      );
+      return false;
     }
 
     const detail = await response.text().catch(() => "");
     console.error(
-      `[Email] MS Graph sendMail failed (${response.status} ${response.statusText})${
-        detail ? `: ${detail}` : ""
-      }`
+      `[Email] MS Graph sendMail failed (${response.status}): ${detail}`
     );
     return false;
   } catch (error) {
@@ -197,7 +196,7 @@ async function sendViaMsGraph(payload: EmailPayload): Promise<boolean> {
   }
 }
 
-export type MsGraphMessage = {
+export interface MsGraphMessage {
   id: string;
   subject: string | null;
   from: { emailAddress: { address: string; name?: string } } | null;
@@ -207,12 +206,15 @@ export type MsGraphMessage = {
   body: { content: string; contentType: string };
   isRead: boolean;
   conversationId: string | null;
-};
+}
 
 /**
  * Fetches messages from the support@gigitekai.com inbox via Microsoft Graph.
  * Requires Mail.Read application permission on the Azure app registration.
  * Returns up to `top` messages ordered by receivedDateTime descending.
+ * 
+ * NOTE: Fetches ALL emails (not just unread) because some systems auto-mark emails as read.
+ * Deduplication is handled via messageId in the email poller.
  */
 export async function fetchInboxFromMsGraph(
   top = 50,
@@ -226,11 +228,13 @@ export async function fetchInboxFromMsGraph(
 
   const senderEmail = "support@gigitekai.com";
   const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId";
-  // Only fetch UNREAD emails to prevent reprocessing and email loops
-  const filter = encodeURIComponent("isRead eq false");
+  // Fetch ALL emails (not just unread) - rely on messageId deduplication to prevent reprocessing
+  // Some email systems auto-mark emails as read, so we can't depend on isRead flag
   const url =
     `https://graph.microsoft.com/v1.0/users/${senderEmail}/mailFolders/Inbox/messages` +
-    `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}&$filter=${filter}`;
+    `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}`;
+  
+  console.log(`[Email] Fetching inbox from: ${url.substring(0, 100)}... (fetching ALL emails, deduplication via messageId)`);
 
   try {
     const response = await fetch(url, {
@@ -268,6 +272,7 @@ export async function fetchInboxFromMsGraph(
             } catch {
               return [];
             }
+            console.log(`[Email] Retry after 401 returned ${retryData.value?.length || 0} messages`);
             return retryData.value ?? [];
           }
         }
@@ -302,6 +307,7 @@ export async function fetchInboxFromMsGraph(
       return [];
     }
 
+    console.log(`[Email] Graph API returned ${data.value?.length || 0} messages from inbox`);
     return data.value ?? [];
   } catch (error) {
     // Re-throw rate-limit errors so the caller can surface them to the user
@@ -314,171 +320,38 @@ export async function fetchInboxFromMsGraph(
 }
 
 /**
- * Sends an email via SendGrid (fallback) when Microsoft Graph fails.
- * Used when MS Graph returns 403 (permission denied) or other errors.
- */
-async function sendViaSendGrid(payload: EmailPayload): Promise<boolean> {
-  const sendgridApiKey = process.env.SENDGRID_API_KEY;
-  if (!sendgridApiKey) {
-    console.warn("[Email] SendGrid API key not configured. Skipping fallback email provider.");
-    return false;
-  }
-
-  try {
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${sendgridApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: payload.to }],
-          },
-        ],
-        from: {
-          email: "noreply@gigitekai.com",
-          name: payload.fromName ?? "GigitekAI",
-        },
-        subject: payload.subject,
-        content: [
-          {
-            type: "text/html",
-            value: payload.html,
-          },
-        ],
-        reply_to: payload.replyTo
-          ? {
-              email: payload.replyTo,
-            }
-          : undefined,
-      }),
-    });
-
-    if (response.ok) {
-      console.log(
-        `[Email] Successfully sent email to ${payload.to} via SendGrid (fallback)`
-      );
-      return true;
-    }
-
-    const detail = await response.text().catch(() => "");
-    console.error(
-      `[Email] SendGrid failed (${response.status})${detail ? `: ${detail}` : ""}`
-    );
-    return false;
-  } catch (error) {
-    console.error("[Email] Error sending email via SendGrid:", error);
-    return false;
-  }
-}
-
-/**
- * Sends an email via Microsoft Graph API (Azure / Exchange Online) with SendGrid fallback.
- * On MS Graph failure (403 permission denied, etc.), attempts SendGrid.
- * On complete failure, triggers an SMS alert to the admin.
- * Returns true if successful, false if all providers fail.
+ * Sends an email via Microsoft Graph API (Azure / Exchange Online).
+ * On MS Graph failure, triggers an SMS alert to the admin.
+ * Returns true if successful, false if provider fails.
  */
 export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = ENV;
 
   if (!msGraphTenantId || !msGraphClientId || !msGraphClientSecret) {
     console.error(
-      "[Email] Microsoft Graph credentials not configured. Attempting SendGrid fallback."
+      "[Email] Microsoft Graph credentials not configured. Cannot send email."
     );
-    // Try SendGrid fallback
-    const sent = await sendViaSendGrid(payload);
-    if (sent) return true;
-
-    // Both failed — trigger SMS alert
+    // Trigger SMS alert
     sendEmailFailureAlert(
       payload.to,
-      "All email providers failed. Check MS_GRAPH_* and SENDGRID_API_KEY environment variables."
+      "All email providers failed. Check MS_GRAPH_* environment variables."
     ).catch(() => {});
     return false;
   }
 
-  // Try MS Graph first
   const sent = await sendViaMsGraph(payload);
   if (sent) return true;
 
-  // MS Graph failed — try SendGrid fallback
-  console.warn(
-    `[Email] MS Graph failed for ${payload.to}. Attempting SendGrid fallback.`
-  );
-  const fallbackSent = await sendViaSendGrid(payload);
-  if (fallbackSent) return true;
-
-  // All providers failed — trigger SMS alert to admin
-  console.error(
-    `[Email] Failed to send email to ${payload.to} via all providers (MS Graph + SendGrid).`
-  );
+  // Both failed — trigger SMS alert
   sendEmailFailureAlert(
     payload.to,
-    "All email providers failed. Check Azure app permissions and SendGrid configuration."
+    "Email send failed via Microsoft Graph. Check logs and credentials."
   ).catch(() => {});
-
   return false;
 }
 
 /**
- * Permanently deletes a message from the support@gigitekai.com Outlook mailbox via MS Graph.
- * Requires Mail.ReadWrite application permission on the Azure app registration.
- * Returns true on success (204 No Content), false otherwise.
- */
-export async function deleteMessageFromMailbox(messageId: string): Promise<boolean> {
-  const token = await getMsGraphToken();
-  if (!token) {
-    console.error("[Email] Could not obtain MS Graph token for message deletion");
-    return false;
-  }
-
-  const mailbox = "support@gigitekai.com";
-
-  try {
-    const response = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    if (response.status === 204) {
-      console.log(`[Email] Permanently deleted message ${messageId} from ${mailbox}`);
-      return true;
-    }
-
-    // On 401, invalidate cache and retry once
-    if (response.status === 401) {
-      msGraphTokenCache = null;
-      const freshToken = await getMsGraphToken();
-      if (freshToken) {
-        const retry = await fetch(
-          `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${freshToken}` },
-          }
-        );
-        if (retry.status === 204) return true;
-      }
-    }
-
-    const detail = await response.text().catch(() => "");
-    console.error(`[Email] Failed to delete message ${messageId} (${response.status}): ${detail}`);
-    return false;
-  } catch (error) {
-    console.error("[Email] Error deleting message from mailbox:", error);
-    return false;
-  }
-}
-
-/**
- * Marks a message as read in the support@gigitekai.com Outlook mailbox via MS Graph.
- * Uses PATCH /users/{mailbox}/messages/{messageId} with { isRead: true }.
- * Returns true on success, false otherwise.
+ * Mark a message as read in the mailbox
  */
 export async function markMessageAsRead(messageId: string): Promise<boolean> {
   const token = await getMsGraphToken();
@@ -487,50 +360,81 @@ export async function markMessageAsRead(messageId: string): Promise<boolean> {
     return false;
   }
 
-  const mailbox = "support@gigitekai.com";
+  const senderEmail = "support@gigitekai.com";
+  const url = `https://graph.microsoft.com/v1.0/users/${senderEmail}/messages/${messageId}`;
 
   try {
-    const response = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ isRead: true }),
-      }
-    );
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ isRead: true }),
+    });
 
     if (response.ok) {
+      console.log(`[Email] Marked message ${messageId} as read`);
       return true;
     }
 
-    // On 401, invalidate cache and retry once
     if (response.status === 401) {
       msGraphTokenCache = null;
       const freshToken = await getMsGraphToken();
       if (freshToken) {
-        const retry = await fetch(
-          `https://graph.microsoft.com/v1.0/users/${mailbox}/messages/${messageId}`,
-          {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${freshToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ isRead: true }),
-          }
-        );
-        if (retry.ok) return true;
+        const retryResponse = await fetch(url, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${freshToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ isRead: true }),
+        });
+        if (retryResponse.ok) {
+          console.log(`[Email] Marked message ${messageId} as read (after token refresh)`);
+          return true;
+        }
       }
     }
 
-    const detail = await response.text().catch(() => "");
-    console.error(`[Email] Failed to mark message ${messageId} as read (${response.status}): ${detail}`);
+    console.warn(`[Email] Failed to mark message ${messageId} as read (${response.status})`);
     return false;
   } catch (error) {
-    console.error("[Email] Error marking message as read:", error);
+    console.warn(`[Email] Error marking message as read:`, error);
+    return false;
+  }
+}
+
+/**
+ * Delete a message from the mailbox
+ */
+export async function deleteMessageFromMailbox(messageId: string): Promise<boolean> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for deleting message");
+    return false;
+  }
+
+  const senderEmail = "support@gigitekai.com";
+  const url = `https://graph.microsoft.com/v1.0/users/${senderEmail}/messages/${messageId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok || response.status === 204) {
+      console.log(`[Email] Deleted message ${messageId}`);
+      return true;
+    }
+
+    console.warn(`[Email] Failed to delete message ${messageId} (${response.status})`);
+    return false;
+  } catch (error) {
+    console.warn(`[Email] Error deleting message:`, error);
     return false;
   }
 }
