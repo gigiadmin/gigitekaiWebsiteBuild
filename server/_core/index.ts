@@ -148,6 +148,31 @@ async function startServer() {
   app.get("/api/social/facebook/connect", facebookConnect);
   app.get("/api/social/facebook/callback", facebookCallback);
   
+  // Teams webhook diagnostic (public, no auth required)
+  app.get("/api/teams-diag", async (_req, res) => {
+    const url = process.env.TEAMS_WEBHOOK_URL;
+    if (!url) return res.json({ status: 'error', message: 'TEAMS_WEBHOOK_URL not set' });
+    try {
+      const payload = {
+        type: 'message',
+        attachments: [{
+          contentType: 'application/vnd.microsoft.card.adaptive',
+          content: {
+            '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+            type: 'AdaptiveCard',
+            version: '1.4',
+            body: [{ type: 'TextBlock', text: '🔧 Production Teams Diagnostic Test', weight: 'Bolder' }]
+          }
+        }]
+      };
+      const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const text = await r.text();
+      return res.json({ status: r.ok ? 'ok' : 'failed', httpStatus: r.status, response: text, webhookConfigured: true });
+    } catch (e: any) {
+      return res.json({ status: 'error', message: e.message });
+    }
+  });
+
   // Harry's contact page redirect
   app.get("/hh", (_req, res) => {
     res.redirect("/contact");
