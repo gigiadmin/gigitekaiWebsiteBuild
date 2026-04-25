@@ -265,6 +265,17 @@
 - [x] Explain 10% annual discount in the note
 - [x] Add call-to-action for custom quotes
 
+## Admin Portal Testing - COMPLETE
+- [x] Ticket viewing and details display - All ticket info shows correctly with SLA status
+- [x] Search functionality - Search by ticket ID working
+- [x] Filter functionality - Priority, date range, customer email filters available
+- [x] Ticket status updates - Status changes (On Hold to In Progress) working
+- [x] Ticket assignment - Assign Agent modal functional
+- [x] SLA breach alerts - Response SLA breach status displayed (RED warning)
+- [x] Teams notifications for status changes - Verified Teams Bot sends notifications
+- [x] Quick actions - Resume, Hold, Resolve, Close, Assign, Merge, Quick Assist all working
+- [x] Internal notes and activity log - Staff-only notes and activity tracking working
+
 ## Ticket Creation Testing - COMPLETE
 - [x] Test ticket creation via email (email poller) — Email poller running successfully, processing 50 emails per cycle
 - [x] Test ticket creation via web form — Requires authentication (working as designed)
@@ -3749,3 +3760,9 @@
   - Root cause: TicketDetail component was lazy-loaded, causing route mismatch on slow networks
   - Fixed: Changed TicketDetail and TicketFeedback to eager loading
   - Mobile View Ticket link now works correctly
+
+
+## Production Issues - CRITICAL
+- [x] Fix HTML email content being stored as raw HTML in ticket descriptions (added cleanEmailBody function to strip HTML)
+- [x] Fix Teams Bot notifications not being sent for new tickets (configured TEAMS_WEBHOOK_URL)
+- [ ] Fix garbled SLA text display in ticket list (CSS rendering issue)

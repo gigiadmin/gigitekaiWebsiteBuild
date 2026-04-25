@@ -548,6 +548,32 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 /**
  * Process a single email and create a ticket
  */
+/**
+ * Strip HTML tags and decode HTML entities from email body
+ */
+function cleanEmailBody(html: string): string {
+  if (!html) return '';
+  
+  // Decode HTML entities
+  const decoded = html
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'");
+  
+  // Remove HTML tags
+  const stripped = decoded
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  // Limit to first 5000 characters
+  return stripped.slice(0, 5000);
+}
+
 async function processEmail(msgData: any): Promise<boolean> {
   try {
     const { from, subject, bodyPreview, body, id: messageId } = msgData;
@@ -601,9 +627,12 @@ async function processEmail(msgData: any): Promise<boolean> {
     }
 
     // Classify the email — body from Graph API can be an object {contentType, content} or a string
-    const emailBody = typeof body === 'object' && body?.content
+    const rawEmailBody = typeof body === 'object' && body?.content
       ? body.content
       : (typeof body === 'string' ? body : (bodyPreview || ""));
+    
+    // Clean HTML from email body
+    const emailBody = cleanEmailBody(rawEmailBody);
     const classification = await classifyEmail(subject, emailBody);
 
     // Create ticket
