@@ -221,15 +221,21 @@ async function startServer() {
     startEmailFlowE2EScheduler();
     // Start nightly MS Learn catalog sync (2:00 AM ET)
     startMsLearnSyncScheduler();
-    // Start M365 Graph email poller (every 5 minutes)
-    startEmailPoller();
+    // Start M365 Graph email poller (every 5 minutes) — PRODUCTION ONLY
+    // Dev server must NOT poll the same mailbox as production (race condition)
+    if (process.env.NODE_ENV !== "development") {
+      console.log("[Email Poller] Starting M365 Graph email poller (production mode)");
+      console.log(`[Email Poller] TEAMS_WEBHOOK_URL in poller process: ${process.env.TEAMS_WEBHOOK_URL ? 'SET (' + process.env.TEAMS_WEBHOOK_URL.substring(0, 30) + '...)' : 'NOT SET'}`);
+      startEmailPoller();
+      console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");
+      console.log("[Email Poller] Polling support@gigitekai.com mailbox for new emails");
+      console.log("[Email Poller] Auto-creating tickets with AI classification");
+    } else {
+      console.log("[Email Poller] SKIPPED in development mode — only production polls the mailbox");
+    }
     // Start Teams PSTN call poller (every 5 minutes)
     startCallPoller();
     console.log("[Call Poller] Teams PSTN call poller started (5-minute interval)");
-    // Log email poller setup
-    console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");
-    console.log("[Email Poller] Polling support@gigitekai.com mailbox for new emails");
-    console.log("[Email Poller] Auto-creating tickets with AI classification");
     // Log webhook endpoints
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
     console.log(`[Mail Manus] Webhook endpoint: http://localhost:${port}/api/webhooks/mail-manus`);

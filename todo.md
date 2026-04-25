@@ -3799,3 +3799,12 @@
 ## Bugs Reported April 25, 2026 (Round 2)
 - [ ] Confirmation email NOT sent to ticket submitter after ticket created from email
 - [ ] Teams notification NOT posting when new ticket is created via email poller
+
+## Email Poller Race Condition Fix (April 25, 2026)
+- [x] Fix dev server and production server racing to poll the same mailbox
+  - ROOT CAUSE: Both dev and production servers were polling support@gigitekai.com simultaneously
+  - Dev server would steal emails before production could process them
+  - When production won the race, the old stale dist/ build ran without Teams notification code
+  - FIX: Email poller now only runs in production mode (NODE_ENV !== 'development')
+  - Added explicit TEAMS_WEBHOOK_URL logging inside poller startup for diagnostics
+- [ ] Confirm Teams notifications post correctly on production after deployment
