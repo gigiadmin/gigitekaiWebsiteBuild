@@ -79,10 +79,10 @@ function buildTicketCard(
   };
 
   const eventColor: Record<string, string> = {
-    created: "0078D4",
-    escalated: "E81123",
-    status_changed: "107C10",
-    resolved: "107C10",
+    created: "accent",
+    escalated: "attention",
+    status_changed: "good",
+    resolved: "good",
   };
 
   return {
@@ -111,7 +111,7 @@ function buildTicketCard(
                           text: eventTitle[eventType],
                           weight: "bolder",
                           size: "large",
-                          color: eventColor[eventType],
+                          color: eventColor[eventType] as any,
                         },
                       ],
                     },
@@ -160,7 +160,7 @@ function buildTicketCard(
                 },
                 {
                   name: "Status",
-                  value: `${statusEmoji[ticket.status as string] || "❓"} ${ticket.status?.replace(/_/g, " ").toUpperCase() || "OPEN"}`,
+                  value: `${statusEmoji[ticket.status as string] || "❓"} ${(ticket.status as string)?.replace(/_/g, " ").toUpperCase() || "OPEN"}`,
                 },
                 {
                   name: "Category",
@@ -172,7 +172,7 @@ function buildTicketCard(
                 },
                 {
                   name: "Created",
-                  value: ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : "Unknown",
+                  value: ticket.createdAt ? new Date(ticket.createdAt as any).toLocaleString() : "Unknown",
                 },
               ],
             },
@@ -180,15 +180,15 @@ function buildTicketCard(
           actions: [
             {
               type: "Action.OpenUrl",
-              title: "View Ticket",
+              title: "🔍 View Ticket",
               url: `${BASE_URL}/helpdesk/ticket/${ticket.id}`,
             },
             {
               type: "Action.OpenUrl",
-              title: "Assign to Me",
+              title: "👤 Assign to Me",
               url: `${BASE_URL}/admin/helpdesk?action=assign&ticketId=${ticket.id}`,
             },
-          ],
+          ] as any,
         },
       },
     ],
@@ -238,10 +238,11 @@ export async function sendTeamsDailyDigest(stats: {
   unassignedCount: number;
   escalatedCount: number;
 }): Promise<void> {
-  const webhookUrl = resolveWebhookUrl();
-  if (!webhookUrl) return;
+  try {
+    const webhookUrl = resolveWebhookUrl();
+    if (!webhookUrl) return;
 
-  const card: AdaptiveCard = {
+    const card: AdaptiveCard = {
     type: "message",
     attachments: [
       {
@@ -261,7 +262,7 @@ export async function sendTeamsDailyDigest(stats: {
                   text: "📊 Daily Helpdesk Digest",
                   weight: "bolder",
                   size: "large",
-                  color: "0078D4",
+                  color: "accent",
                 },
               ],
             },
@@ -284,7 +285,8 @@ export async function sendTeamsDailyDigest(stats: {
     ],
   };
 
-  await sendToTeamsWithRetry(webhookUrl, card, "daily digest").catch((error) => {
+    await sendToTeamsWithRetry(webhookUrl, card, "daily digest");
+  } catch (error) {
     console.warn("[Teams] Daily digest failed:", error);
-  });
+  }
 }
