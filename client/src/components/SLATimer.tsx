@@ -78,10 +78,10 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
   };
 
   const getStatusColor = (breached: boolean, percentage: number) => {
-    if (breached) return "text-red-400 bg-red-400/10";
-    if (percentage > 80) return "text-orange-400 bg-orange-400/10";
-    if (percentage > 50) return "text-yellow-400 bg-yellow-400/10";
-    return "text-green-400 bg-green-400/10";
+    if (breached) return "text-red-400 bg-red-500/20 px-2 py-1 rounded";
+    if (percentage > 80) return "text-orange-400 bg-orange-500/20 px-2 py-1 rounded";
+    if (percentage > 50) return "text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded";
+    return "text-green-400 bg-green-500/20 px-2 py-1 rounded";
   };
 
   const getProgressColor = (breached: boolean, percentage: number) => {
@@ -103,7 +103,7 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
               <AlertCircle className="w-4 h-4 text-red-400" />
             )}
           </div>
-          <span className={`text-xs font-mono ${getStatusColor(slaStatus.responseBreached, slaStatus.responsePercentage)} px-2 py-1 rounded`}>
+          <span className={`text-xs font-mono whitespace-nowrap ${getStatusColor(slaStatus.responseBreached, slaStatus.responsePercentage)}`}>
             {slaStatus.responseBreached ? "BREACHED" : formatTime(slaStatus.timeToResponseDeadline)}
           </span>
         </div>
@@ -125,7 +125,7 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
               <AlertCircle className="w-4 h-4 text-red-400" />
             )}
           </div>
-          <span className={`text-xs font-mono ${getStatusColor(slaStatus.resolutionBreached, slaStatus.resolutionPercentage)} px-2 py-1 rounded`}>
+          <span className={`text-xs font-mono whitespace-nowrap ${getStatusColor(slaStatus.resolutionBreached, slaStatus.resolutionPercentage)}`}>
             {slaStatus.resolutionBreached ? "BREACHED" : formatTime(slaStatus.timeToResolutionDeadline)}
           </span>
         </div>

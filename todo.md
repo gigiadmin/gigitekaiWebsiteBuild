@@ -3765,4 +3765,4 @@
 ## Production Issues - CRITICAL
 - [x] Fix HTML email content being stored as raw HTML in ticket descriptions (added cleanEmailBody function to strip HTML)
 - [x] Fix Teams Bot notifications not being sent for new tickets (configured TEAMS_WEBHOOK_URL)
-- [ ] Fix garbled SLA text display in ticket list (CSS rendering issue)
+- [x] Fix garbled SLA text display in ticket list (added whitespace-nowrap and fixed padding in SLATimer)
