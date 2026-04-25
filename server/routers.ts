@@ -20,6 +20,7 @@ import { blogRouter } from "./routers/blog";
 import { newsletterRouter } from "./routers/newsletter";
 import { adminNotificationsRouter } from "./routers/admin-notifications";
 import { emailRouter } from "./routers/email";
+import { emailForwardingRouter } from "./routers/email-forwarding";
 import { emailRecipientGroupsRouter } from "./routers/emailRecipientGroups";
 import { webPushRouter } from "./routers/webPush";
 import { leadgenRouter } from "./routers/leadgen";
@@ -87,6 +88,7 @@ export const appRouter = router({
   adminAuth: adminAuthRouter,
   adminNotifications: adminNotificationsRouter,
   email: emailRouter,
+  emailForwarding: emailForwardingRouter,
   emailGroups: emailRecipientGroupsRouter,
   webPush: webPushRouter,
   leadgen: leadgenRouter,

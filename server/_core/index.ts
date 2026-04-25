@@ -27,6 +27,7 @@ import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
 import { stopEmailPoller } from "./emailPoller";
+import { initializeTeamsForwarding } from "./teamsForwardingSetup";
 import {
   linkedinConnect, linkedinCallback,
   twitterConnect, twitterCallback,
@@ -225,6 +226,10 @@ async function startServer() {
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)
     startCallPoller();
+    // Initialize Teams email forwarding (one-time setup)
+    initializeTeamsForwarding().catch(err => {
+      console.error("[Teams Forwarding] Failed to initialize:", err);
+    });
     console.log("[Call Poller] Teams PSTN call poller started (5-minute interval)");
     // Log email poller setup
     console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");

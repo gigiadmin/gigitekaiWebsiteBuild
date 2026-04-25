@@ -703,8 +703,22 @@ async function processEmail(msgData: any): Promise<boolean> {
     console.log(`[Email Poller] Created ticket #${ticketId} from ${senderEmail}`);
 
     // Send Teams notification
-    // Teams notifications disabled temporarily - focus on core email-to-ticket flow
-    // TODO: Re-enable Teams notifications after debugging webhook issues
+    try {
+      const ticket = {
+        id: ticketId,
+        title: subject,
+        description: typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 1000) : String(emailBody).slice(0, 1000),
+        priority: classification.priority,
+        status: 'open',
+        category: classification.category,
+        customerName: senderName,
+        createdAt: new Date(),
+      };
+      await sendTicketNotificationToTeams(ticket, 'created');
+      console.log(`[Email Poller] Teams notification sent for ticket #${ticketId}`);
+    } catch (teamsError) {
+      console.warn(`[Email Poller] Failed to send Teams notification for ticket #${ticketId}:`, teamsError);
+    }
 
     // Send confirmation email to customer
     try {
