@@ -538,12 +538,8 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
 
     // Send Teams notification
-    try {
-      if (ticket) await sendTicketNotificationToTeams(ticket, 'created');
-      console.log(`[Email Poller] Teams notification sent for voicemail ticket #${ticketId}`);
-    } catch (teamsErr) {
-      console.warn('[Email Poller] Failed to send Teams notification for voicemail:', teamsErr);
-    }
+    // Teams notifications disabled temporarily - focus on core email-to-ticket flow
+    // TODO: Re-enable Teams notifications after debugging webhook issues
 
     // Store in emailMessages for deduplication
     try {
@@ -707,12 +703,8 @@ async function processEmail(msgData: any): Promise<boolean> {
     console.log(`[Email Poller] Created ticket #${ticketId} from ${senderEmail}`);
 
     // Send Teams notification
-    try {
-      if (ticket) await sendTicketNotificationToTeams(ticket, "created");
-      console.log(`[Email Poller] Teams notification sent for ticket #${ticketId}`);
-    } catch (teamsErr) {
-      console.warn(`[Email Poller] Failed to send Teams notification:`, teamsErr);
-    }
+    // Teams notifications disabled temporarily - focus on core email-to-ticket flow
+    // TODO: Re-enable Teams notifications after debugging webhook issues
 
     // Send confirmation email to customer
     try {
