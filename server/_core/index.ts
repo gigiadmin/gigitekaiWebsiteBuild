@@ -234,7 +234,9 @@ async function startServer() {
     console.log(`[Teams Bot] Webhook endpoint: http://localhost:${port}/api/webhooks/teams`);
     console.log(`[Mail Manus] Webhook endpoint: http://localhost:${port}/api/webhooks/mail-manus`);
     console.log(`[Email Poller] Status endpoint: /api/trpc/system.getEmailPollerStatus`);
-    console.log(`[Server] Build version: 2026-04-25-v3 — Email loop fix + Teams notifications + Confirmation emails`);
+    console.log(`[Server] Build version: 2026-04-25-v4-FORCE-REBUILD — Email loop fix + Teams notifications + Confirmation emails + Teams diagnostic endpoint`);
+    console.log(`[Server] Teams webhook URL configured: ${process.env.TEAMS_WEBHOOK_URL ? 'YES' : 'NO'}`);
+    console.log(`[Server] Email poller Teams notifications: ENABLED`);
   });
 }
 
