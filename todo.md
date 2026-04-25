@@ -3795,3 +3795,7 @@
 - [x] Deleted all spam tickets (127 + 3 more) and email records
 - [ ] Re-publish to production so server-side poller picks up the fix
 - [ ] End-to-end test: send email to support@gigitekai.com, verify ticket created + Teams notification posted
+
+## Bugs Reported April 25, 2026 (Round 2)
+- [ ] Confirmation email NOT sent to ticket submitter after ticket created from email
+- [ ] Teams notification NOT posting when new ticket is created via email poller
