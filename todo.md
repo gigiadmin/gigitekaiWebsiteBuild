@@ -3785,3 +3785,13 @@
   - Added markMessageAsRead function to mark emails as read after processing
   - Added safety-net check inside processEmail
   - Deleted all 127 spam tickets and 855 email records from database
+
+## Email Poller Loop Fix - Phase 2 (April 25, 2026)
+- [x] Added isOwnSystemEmail() filter to emailPoller.ts
+- [x] Added $filter=isRead eq false to Graph API inbox fetch
+- [x] Added markMessageAsRead() function to email.ts
+- [x] Added safety-net check inside processEmail()
+- [x] Bulk-cleared inbox backlog (marked all old spam emails as read)
+- [x] Deleted all spam tickets (127 + 3 more) and email records
+- [ ] Re-publish to production so server-side poller picks up the fix
+- [ ] End-to-end test: send email to support@gigitekai.com, verify ticket created + Teams notification posted
