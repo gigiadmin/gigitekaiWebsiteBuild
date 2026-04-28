@@ -30,9 +30,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X, Mail, ExternalLink } from "lucide-react";
-import RichTextEditor from "@/components/RichTextEditor";
+import { lazy, Suspense } from "react";
+const RichTextEditor = lazy(() => import("@/components/RichTextEditor"));
 import DragDropImageUploader from "@/components/DragDropImageUploader";
-import { useEditor } from "@tiptap/react";
 import AdminLayout from "@/components/AdminLayout";
 
 // ─── types ───────────────────────────────────────────────────────────────────
@@ -502,7 +502,8 @@ export default function AdminBlog() {
             {/* Rich Text Content */}
             <div>
               <label className="text-sm text-gray-400 mb-1 block">Content *</label>
-              <RichTextEditor
+                            <Suspense fallback={<div className="h-96 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400">Loading editor...</div>}>
+                              <RichTextEditor
                 value={form.content}
                 onChange={(html) => {
                   const estimated = estimateReadTime(html);
@@ -512,6 +513,7 @@ export default function AdminBlog() {
                 placeholder="Write your article here…"
                 minHeight="360px"
               />
+                            </Suspense>
             </div>
 
             {/* Inline image uploader (shown when toolbar image button is clicked) */}

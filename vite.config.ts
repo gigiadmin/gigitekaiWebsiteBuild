@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -206,7 +207,23 @@ function vitePluginBootstrapFallback(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginBootstrapFallback()];
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  vitePluginBootstrapFallback(),
+  visualizer({
+    open: false,
+    gzipSize: true,
+    brotliSize: true,
+    filename: 'dist/public/bundle-analysis.html',
+  }),
+];
+
+// Enable production mode for accurate analysis
+const isAnalyze = process.env.ANALYZE === 'true';
 
 export default defineConfig({
   plugins,
@@ -223,7 +240,19 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    chunkSizeWarningLimit: 700,
+    chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        passes: 2,
+      },
+      mangle: true,
+      format: {
+        comments: false,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -250,8 +279,10 @@ export default defineConfig({
       },
     },
   },
+  ...(isAnalyze && { mode: 'production' }),
   server: {
     host: true,
+    ...(isAnalyze && { middlewareMode: true }),
     allowedHosts: [
       ".manuspre.computer",
       ".manus.computer",
