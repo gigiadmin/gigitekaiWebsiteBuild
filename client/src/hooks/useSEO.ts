@@ -18,15 +18,15 @@ interface SEOConfig {
   injectSchema?: boolean;
 }
 
-const BASE_URL = "https://www.gigitekai.com";
+const BASE_URL = "https://gigitekai.com";
 const DEFAULT_OG_IMAGE =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_a8893ff4.png";
 
 const ORG_SCHEMA = {
   "@type": "Organization",
-  "@id": "https://www.gigitekai.com/#organization",
+  "@id": "https://gigitekai.com/#organization",
   name: "GigitekAI",
-  url: "https://www.gigitekai.com",
+  url: "https://gigitekai.com",
   logo: DEFAULT_OG_IMAGE,
   telephone: "+17273825776",
   email: "support@gigitekai.com",
@@ -102,8 +102,8 @@ export function useSEO({
         description: description,
         isPartOf: {
           "@type": "WebSite",
-          "@id": "https://www.gigitekai.com/#website",
-          url: "https://www.gigitekai.com",
+        "@id": "https://gigitekai.com/#website",
+        url: "https://gigitekai.com",
           name: "GigitekAI",
         },
         publisher: ORG_SCHEMA,
