@@ -77,7 +77,7 @@ export default function AdminCustomers() {
             <p className="text-slate-400 text-sm mt-0.5">Manage customer portal access and invitations</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400" onClick={() => refetch()}>
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400" onClick={() => refetch()} aria-label="Refresh customer list">
               <RefreshCw size={15} />
             </Button>
             <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>

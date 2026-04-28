@@ -302,6 +302,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
                 className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
                 onClick={logout}
                 title="Sign out"
+                aria-label="Sign out"
               >
                 <LogOut size={14} />
               </Button>
@@ -319,6 +320,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
               className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
               onClick={logout}
               title="Sign out"
+              aria-label="Sign out"
             >
               <LogOut size={14} />
             </Button>
