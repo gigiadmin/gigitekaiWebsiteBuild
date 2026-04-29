@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { tickets } from "../drizzle/schema";
 
 export interface TicketNotification {
-  type: "new_ticket" | "ticket_updated" | "ticket_closed";
+  type: "new_ticket" | "ticket_updated" | "ticket_closed" | "ticket_assigned";
   ticketId: number;
   subject: string;
   priority: string;
@@ -10,6 +10,8 @@ export interface TicketNotification {
   timestamp: Date;
   createdBy?: string;
   assignedTo?: string;
+  assignedAgentId?: number;
+  assignedAgentName?: string;
 }
 
 /**
@@ -57,6 +59,25 @@ class TicketNotificationEmitter extends EventEmitter {
 
     this.emit("ticket:update", { notification, changes });
     console.log(`[Ticket Notification] Ticket #${ticket.id} updated: ${JSON.stringify(changes)}`);
+  }
+
+  /**
+   * Emit a ticket assigned notification
+   */
+  notifyTicketAssigned(ticket: any, agentId: number, agentName: string) {
+    const notification: TicketNotification = {
+      type: "ticket_assigned",
+      ticketId: ticket.id,
+      subject: ticket.subject,
+      priority: ticket.priority,
+      status: ticket.status,
+      timestamp: new Date(),
+      assignedAgentId: agentId,
+      assignedAgentName: agentName,
+    };
+
+    this.emit("ticket:assigned", { notification, agentId });
+    console.log(`[Ticket Notification] Ticket #${ticket.id} assigned to agent ${agentName}`);
   }
 
   /**

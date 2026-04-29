@@ -11,16 +11,21 @@ interface WebSocketMessage {
   userId?: number;
   sessionId?: number;
   message?: string;
-  senderRole?: "user" | "admin";
-  adminId?: number;
-  role?: "user" | "admin";
-  // WebRTC signaling fields
-  targetUserId?: number;
-  offer?: any;
-  answer?: any;
-  candidate?: any;
+  typingStatus?: boolean;
+  fileId?: string;
+  fileName?: string;
+  fileSize?: number;
+  fileType?: string;
+  fileUrl?: string;
+  callData?: string;
   callType?: "audio" | "video";
   callerName?: string;
+  role?: "user" | "admin";
+  targetUserId?: number;
+  senderRole?: "user" | "admin";
+  answer?: string;
+  candidate?: string;
+  offer?: string;
 }
 
 interface ClientConnection {
@@ -28,6 +33,7 @@ interface ClientConnection {
   userId: number;
   role: "user" | "admin";
   sessionId?: number;
+  agentId?: number;
 }
 
 const clients = new Map<string, ClientConnection>();
@@ -235,18 +241,36 @@ async function handleMessage(
       break;
 
     case "subscribe_tickets":
-      if (!msg.userId || msg.role !== "admin") return;
-      // Subscribe admin to ticket notifications
+      if (!msg.userId) return;
+      // Subscribe to ticket notifications
       const ticketNewListener = (notification: TicketNotification) => {
         ws.send(JSON.stringify({
           type: "ticket_notification",
           data: notification,
         }));
       };
-      ticketNotificationEmitter.on("ticket:new", ticketNewListener);
+      
+      // Subscribe to new tickets (admins only)
+      if (msg.role === "admin") {
+        ticketNotificationEmitter.on("ticket:new", ticketNewListener);
+      }
+      
+      // Subscribe to assigned tickets (for assigned agent)
+      const ticketAssignedListener = (data: any) => {
+        if (data.agentId === msg.userId) {
+          ws.send(JSON.stringify({
+            type: "ticket_assigned_notification",
+            data: data.notification,
+          }));
+        }
+      };
+      ticketNotificationEmitter.on("ticket:assigned", ticketAssignedListener);
+      
       ws.on("close", () => {
         ticketNotificationEmitter.off("ticket:new", ticketNewListener);
+        ticketNotificationEmitter.off("ticket:assigned", ticketAssignedListener);
       });
+      
       ws.send(JSON.stringify({
         type: "subscription_confirmed",
         subscribed_to: "ticket_notifications",
