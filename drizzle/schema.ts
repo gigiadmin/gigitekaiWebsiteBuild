@@ -81,6 +81,9 @@ export const contactSubmissions = mysqlTable("contactSubmissions", {
   fileSize: int("fileSize"), // File size in bytes
   fileMimeType: varchar("fileMimeType", { length: 100 }), // MIME type (pdf, doc, xls, etc)
   fileUrl: text("fileUrl"), // Presigned S3 URL for download
+  pricingTier: varchar("pricingTier", { length: 50 }), // Pricing tier: starter, professional, enterprise
+  companySize: varchar("companySize", { length: 50 }), // Company size: 1-10, 11-50, 51-200, 200+
+  subject: varchar("subject", { length: 255 }), // Email subject line
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

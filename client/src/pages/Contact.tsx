@@ -21,6 +21,9 @@ import {
   Calendar,
   MessageSquare,
   Shield,
+  Zap,
+  Users,
+  Briefcase,
 } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
@@ -32,6 +35,8 @@ interface ContactFormData {
   phone: string;
   subject: string;
   message: string;
+  pricingTier?: string;
+  companySize?: string;
 }
 
 export default function Contact() {
@@ -44,6 +49,8 @@ export default function Contact() {
     phone: "",
     subject: "",
     message: "",
+    pricingTier: "",
+    companySize: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -151,30 +158,14 @@ export default function Contact() {
 
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-4 h-4 text-[#00d4ff]" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
-                    Location
-                  </p>
-                  <p className="text-white font-medium">
-                    North America Remote-First
-                  </p>
-                  <p className="text-gray-400 text-sm">Serving clients across North America</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#00d4ff]/10 flex items-center justify-center flex-shrink-0">
                   <Clock className="w-4 h-4 text-[#00d4ff]" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
-                    Business Hours
+                    Response Time
                   </p>
-                  <p className="text-white font-medium">Mon–Fri: 9 AM – 5 PM EST</p>
-                  <p className="text-gray-400 text-sm">
-                    24/7 helpdesk support available
+                  <p className="text-white font-medium">
+                    Within 24 business hours
                   </p>
                 </div>
               </div>
@@ -238,6 +229,8 @@ export default function Contact() {
                         phone: "",
                         subject: "",
                         message: "",
+                        pricingTier: "",
+                        companySize: "",
                       });
                     }}
                   >
@@ -316,6 +309,64 @@ export default function Contact() {
                           placeholder="(555) 000-0000"
                           className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
                         />
+                      </div>
+                    </div>
+
+                    {/* Pricing Tier Selection */}
+                    <div className="space-y-3 pt-2">
+                      <Label className="text-gray-300 text-sm flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-[#00d4ff]" />
+                        Interested Service Tier <span className="text-gray-500 text-xs">(Optional)</span>
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                          { value: "starter", label: "Starter", desc: "Small business essentials" },
+                          { value: "professional", label: "Professional", desc: "Growing companies" },
+                          { value: "enterprise", label: "Enterprise", desc: "Large-scale operations" },
+                        ].map((tier) => (
+                          <button
+                            key={tier.value}
+                            type="button"
+                            onClick={() => setFormData((prev) => ({ ...prev, pricingTier: prev.pricingTier === tier.value ? "" : tier.value }))}
+                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                              formData.pricingTier === tier.value
+                                ? "border-[#00d4ff] bg-[#00d4ff]/10"
+                                : "border-white/10 bg-white/5 hover:border-[#00d4ff]/50"
+                            }`}
+                          >
+                            <div className="font-medium text-white text-sm">{tier.label}</div>
+                            <div className="text-xs text-gray-400 mt-1">{tier.desc}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Company Size Selection */}
+                    <div className="space-y-3">
+                      <Label className="text-gray-300 text-sm flex items-center gap-2">
+                        <Users className="w-4 h-4 text-[#00d4ff]" />
+                        Company Size <span className="text-gray-500 text-xs">(Optional)</span>
+                      </Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { value: "1-10", label: "1-10" },
+                          { value: "11-50", label: "11-50" },
+                          { value: "51-200", label: "51-200" },
+                          { value: "200+", label: "200+" },
+                        ].map((size) => (
+                          <button
+                            key={size.value}
+                            type="button"
+                            onClick={() => setFormData((prev) => ({ ...prev, companySize: prev.companySize === size.value ? "" : size.value }))}
+                            className={`p-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                              formData.companySize === size.value
+                                ? "border-[#00d4ff] bg-[#00d4ff]/10 text-[#00d4ff]"
+                                : "border-white/10 bg-white/5 text-white hover:border-[#00d4ff]/50"
+                            }`}
+                          >
+                            {size.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
 

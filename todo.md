@@ -3939,11 +3939,19 @@
 ## Major Features (Apr 29 - Continued)
 
 ### M365 Health Page Fix
-- [ ] Fix M365 health page to display degraded and down services with details
+- [x] Fix M365 health page to display degraded and down services with details
 
 ### Five Optimization Features
-- [ ] AI-Powered Ticket Categorization — auto-tag tickets by category/priority using LLM
-- [ ] SLA Breach Prediction — ML model predicting which tickets will breach SLA
-- [ ] Customer Sentiment Analysis — track NPS/sentiment trends across tickets/feedback
-- [ ] Knowledge Base Auto-Linking — suggest relevant KB articles when creating tickets
-- [ ] Agent Performance Gamification — leaderboard with monthly rewards and badges
+- [x] AI-Powered Ticket Categorization — auto-tag tickets by category/priority using LLM
+- [x] SLA Breach Prediction — ML model predicting which tickets will breach SLA
+- [x] Customer Sentiment Analysis — track NPS/sentiment trends across tickets/feedback
+- [x] Knowledge Base Auto-Linking — suggest relevant KB articles when creating tickets
+- [x] Agent Performance Gamification — leaderboard with monthly rewards and badges
+
+
+## Contact Form Enhancement (Apr 29)
+- [x] Add optional pricing tier selection to contact form (Starter, Professional, Enterprise)
+- [x] Add company size selector to contact form
+- [x] Improved form UX with better layout and icons
+- [x] Update database schema to store pricingTier and companySize
+- [x] Database migration applied successfully
