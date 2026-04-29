@@ -104,6 +104,7 @@ const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPa
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
+const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -227,6 +228,8 @@ function Router() {
           {/* Knowledge Base */}
           <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
           <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
+          {/* KB Analytics Dashboard */}
+          <Route path={"/admin/kb-analytics"}>{() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>}</Route>
           {/* Social Publishing Hub */}
           <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
           {/* Leads & CRM */}

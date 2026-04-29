@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Loader2, Send, User, Sparkles } from "lucide-react";
+import { Loader2, Send, User, Sparkles, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Streamdown } from "streamdown";
 
@@ -57,6 +57,11 @@ export type AIChatBoxProps = {
    * Click to send directly
    */
   suggestedPrompts?: string[];
+
+  /**
+   * Callback when user rates a message as helpful/unhelpful
+   */
+  onFeedback?: (messageIndex: number, rating: "helpful" | "unhelpful") => void;
 };
 
 /**
@@ -119,8 +124,10 @@ export function AIChatBox({
   height = "600px",
   emptyStateMessage = "Start a conversation with AI",
   suggestedPrompts,
+  onFeedback,
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
+  const [feedbackGiven, setFeedbackGiven] = useState<Set<number>>(new Set());
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputAreaRef = useRef<HTMLFormElement>(null);
@@ -230,50 +237,84 @@ export function AIChatBox({
                 const isLastMessage = index === displayMessages.length - 1;
                 const shouldApplyMinHeight =
                   isLastMessage && !isLoading && minHeightForLastMessage > 0;
+                const hasFeedback = feedbackGiven.has(index);
 
                 return (
-                  <div
-                    key={index}
-                    className={cn(
-                      "flex gap-3",
-                      message.role === "user"
-                        ? "justify-end items-start"
-                        : "justify-start items-start"
-                    )}
-                    style={
-                      shouldApplyMinHeight
-                        ? { minHeight: `${minHeightForLastMessage}px` }
-                        : undefined
-                    }
-                  >
-                    {message.role === "assistant" && (
-                      <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Sparkles className="size-4 text-primary" />
-                      </div>
-                    )}
-
+                  <div key={index}>
                     <div
                       className={cn(
-                        "max-w-[80%] rounded-lg px-4 py-2.5",
+                        "flex gap-3",
                         message.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
+                          ? "justify-end items-start"
+                          : "justify-start items-start"
                       )}
+                      style={
+                        shouldApplyMinHeight
+                          ? { minHeight: `${minHeightForLastMessage}px` }
+                          : undefined
+                      }
                     >
-                      {message.role === "assistant" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                          <Streamdown>{message.content}</Streamdown>
+                      {message.role === "assistant" && (
+                        <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Sparkles className="size-4 text-primary" />
                         </div>
-                      ) : (
-                        <p className="whitespace-pre-wrap text-sm">
-                          {message.content}
-                        </p>
+                      )}
+
+                      <div
+                        className={cn(
+                          "max-w-[80%] rounded-lg px-4 py-2.5",
+                          message.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        )}
+                      >
+                        {message.role === "assistant" ? (
+                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                            <Streamdown>{message.content}</Streamdown>
+                          </div>
+                        ) : (
+                          <p className="whitespace-pre-wrap text-sm">
+                            {message.content}
+                          </p>
+                        )}
+                      </div>
+
+                      {message.role === "user" && (
+                        <div className="size-8 shrink-0 mt-1 rounded-full bg-secondary flex items-center justify-center">
+                          <User className="size-4 text-secondary-foreground" />
+                        </div>
                       )}
                     </div>
 
-                    {message.role === "user" && (
-                      <div className="size-8 shrink-0 mt-1 rounded-full bg-secondary flex items-center justify-center">
-                        <User className="size-4 text-secondary-foreground" />
+                    {/* Feedback buttons for assistant messages */}
+                    {message.role === "assistant" && (
+                      <div className="flex gap-2 mt-2 ml-11">
+                        <button
+                          onClick={() => {
+                            onFeedback?.(index, "helpful");
+                            setFeedbackGiven(prev => new Set(prev).add(index));
+                          }}
+                          disabled={hasFeedback}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="This response was helpful"
+                          aria-label="Mark as helpful"
+                        >
+                          <ThumbsUp className="size-3" />
+                          <span>Helpful</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            onFeedback?.(index, "unhelpful");
+                            setFeedbackGiven(prev => new Set(prev).add(index));
+                          }}
+                          disabled={hasFeedback}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="This response was not helpful"
+                          aria-label="Mark as unhelpful"
+                        >
+                          <ThumbsDown className="size-3" />
+                          <span>Unhelpful</span>
+                        </button>
                       </div>
                     )}
                   </div>

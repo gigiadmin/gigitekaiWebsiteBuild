@@ -24,10 +24,10 @@ export default function AuthorBioCard({ name, title, bio, avatar }: AuthorBioCar
         {avatar ? (
           <img
             src={avatar}
-            alt={name}
+            alt={`${name}'s avatar`}
             className="w-16 h-16 rounded-full object-cover border-2 border-cyan-500/40 shadow-sm"
-              loading="lazy"
-            />
+            loading="lazy"
+          />
         ) : (
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00D4FF]/20 to-[#0A0E1A]/40 border-2 border-cyan-500/30 flex items-center justify-center">
             <User size={28} className="text-[#00D4FF]" />
