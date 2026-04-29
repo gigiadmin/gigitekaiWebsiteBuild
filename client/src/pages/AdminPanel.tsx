@@ -592,8 +592,76 @@ export default function AdminPanel() {
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
                     <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors overflow-hidden relative">
-                    {/* Main row — always a grid on desktop, stacked on mobile */}
-                    <div className="group md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 items-center w-full">
+                    {/* ===== MOBILE CARD LAYOUT (hidden on md+) ===== */}
+                    <div className="md:hidden px-4 py-3 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedTicketIds.includes(ticket.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedTicketIds([...selectedTicketIds, ticket.id]);
+                              } else {
+                                setSelectedTicketIds(selectedTicketIds.filter(id => id !== ticket.id));
+                              }
+                            }}
+                            className="w-4 h-4 cursor-pointer flex-shrink-0"
+                          />
+                          <span className="text-gray-500 text-xs font-mono flex-shrink-0">#{ticket.id}</span>
+                          <p className="text-white text-sm font-medium truncate">{ticket.title}</p>
+                        </div>
+                        <span className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                          {statusConfig.icon}{statusConfig.label}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                        <span className={`inline-flex items-center gap-1 font-medium ${priorityConfig.text}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${priorityConfig.dot}`}></span>
+                          {priorityConfig.label}
+                        </span>
+                        <span className="text-gray-500 capitalize">{ticket.category.replace(/_/g, ' ')}</span>
+                        <span className="text-gray-600">{new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        <button
+                          onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20 rounded-lg text-xs font-medium"
+                        >
+                          <Eye className="w-3 h-3" /> View
+                        </button>
+                        <button
+                          onClick={() => { setQuickReplyTicketId(ticket.id); setQuickReplyEmail(ticket.customerEmail); setQuickReplyName(ticket.customerName); setShowQuickReply(true); }}
+                          className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg text-xs font-medium"
+                        >
+                          <Mail className="w-3 h-3" /> Reply
+                        </button>
+                        <button
+                          onClick={() => { setAssignmentModalTicketId(ticket.id); setIsAssignmentModalOpen(true); }}
+                          className="flex items-center gap-1 px-2.5 py-1.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg text-xs font-medium"
+                        >
+                          <UserPlus className="w-3 h-3" /> Assign
+                        </button>
+                        {(ticket.status === 'open' || ticket.status === 'in_progress') && (
+                          <button
+                            onClick={() => { setCloseDialogTicket({ id: ticket.id, title: ticket.title, status: ticket.status }); setCloseDialogOpen(true); }}
+                            className="flex items-center gap-1 px-2.5 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-xs font-medium"
+                          >
+                            <XCircle className="w-3 h-3" /> Close
+                          </button>
+                        )}
+                        {(ticket.status === 'closed' || ticket.status === 'resolved') && (
+                          <button
+                            onClick={() => handleUpdateStatus(ticket.id, 'open')}
+                            className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-medium"
+                          >
+                            <RotateCcw className="w-3 h-3" /> Reopen
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {/* ===== DESKTOP TABLE ROW (hidden on mobile) ===== */}
+                    <div className="group hidden md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 items-center w-full">
                     {/* Checkbox */}
                     <input
                       type="checkbox"

@@ -22,6 +22,8 @@ import {
   Mail,
   RefreshCw,
   Trophy,
+  Trash2,
+  Wifi,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -67,6 +69,26 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
   const handleLogout = async () => {
     await logout();
     window.location.href = getLoginUrl();
+  };
+
+  const handleClearCache = async () => {
+    try {
+      // Unregister all service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(r => r.unregister()));
+      }
+      // Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+      // Hard reload
+      window.location.reload();
+    } catch (err) {
+      console.error('[ClearCache] Error:', err);
+      window.location.reload();
+    }
   };
 
   const allMenuItems = [
@@ -226,10 +248,30 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
         </div>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-gray-800/40 p-3 space-y-2">
+        <div className="border-t border-gray-800/40 p-3 space-y-1">
           <div className="px-3 py-2 text-xs text-gray-500 truncate">
             {user?.email}
           </div>
+          {/* Uptime Status Link */}
+          <a
+            href="https://stats.uptimerobot.com/gigitekai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+          >
+            <Wifi className="w-4 h-4 text-green-400" />
+            <span>Site Status</span>
+            <span className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          </a>
+          {/* Clear Cache Button */}
+          <button
+            onClick={handleClearCache}
+            title="Clears service worker cache and reloads — fixes stale/offline page issues on iOS"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-amber-400 hover:bg-amber-400/5 transition-all"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Clear Cache</span>
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"

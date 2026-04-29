@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, AlertTriangle, TrendingUp, Users, Clock, CheckCircle2 } from "lucide-react";
+import { Loader2, AlertTriangle, TrendingUp, Users, Clock, CheckCircle2, Wifi, ExternalLink } from "lucide-react";
 
 export default function Dashboard() {
   const [refreshInterval, setRefreshInterval] = useState(5000); // 5 seconds
@@ -316,6 +316,41 @@ export default function Dashboard() {
           >
             Refresh
           </button>
+        </div>
+
+        {/* Uptime Monitoring Card */}
+        <div className="mt-8 p-4 rounded-lg border border-slate-700 bg-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Wifi className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-sm">Site Uptime Monitoring</h3>
+              <p className="text-slate-400 text-xs mt-0.5">Track gigitekai.com availability 24/7 via UptimeRobot</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-xs text-green-400 font-medium">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              Monitoring Active
+            </span>
+            <a
+              href="https://uptimerobot.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium transition-colors"
+            >
+              Configure <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://stats.uptimerobot.com/gigitekai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-medium transition-colors border border-cyan-500/20"
+            >
+              Status Page <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -3919,3 +3919,8 @@
 - [x] Agent Leaderboard added to AdminLayoutWithSidebar nav under OPERATIONS section
 - [x] NPS digest endpoint added at POST /api/cron/nps-digest — computes weekly NPS score, ticket stats, top comments, sends branded HTML email to support@gigitek.com
 - [x] Weekly scheduled task created: runs every Monday at 8 AM EDT to send NPS digest (activates after site is published/deployed)
+
+## Suggested Improvements (Apr 29, 2026)
+- [x] Add Clear Cache button in admin portal footer (AdminLayoutWithSidebar)
+- [x] Set up uptime monitoring display in admin portal (status badge + link)
+- [x] Mobile card layout for helpdesk tickets in admin panel (responsive cards on small screens)
