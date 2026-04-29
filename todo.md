@@ -3823,3 +3823,4 @@
 
 ## Bug Fixes (April 29, 2026)
 - [x] Fix navbar redundancy on desktop view (removed redundant tagline from top utility bar)
+- [x] Limit recent tabs to last 4 items to save space in admin sidebar

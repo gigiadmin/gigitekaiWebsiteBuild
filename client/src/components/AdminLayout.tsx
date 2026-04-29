@@ -265,7 +265,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             </button>
           </div>
           <div className="space-y-0.5">
-            {recentItems.map((item) => (
+            {recentItems.slice(-4).map((item) => (
               <Link key={item.href} href={item.href}>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-150 group cursor-pointer text-xs">
                   <span className="text-slate-600 group-hover:text-slate-400 flex-shrink-0">
