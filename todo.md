@@ -2127,8 +2127,8 @@
 - [x] Standardize contact info across all pages (727) 382-5776 and support@gigitekai.com
 - [x] Add alt text to all images for accessibility (all images already have alt text)
 - [x] Ensure good color contrast and ARIA labels (verified in place)
-- [ ] Add cookie consent banner
-- [ ] Verify ROI calculator and all forms work correctly
+- [x] Add cookie consent banner (GDPR/CCPA compliant, fully implemented)
+- [x] Verify ROI calculator and all forms work correctly (verified - all working)
 - [x] Run Google PageSpeed Insights and fix Core Web Vitals issues (verified: excellent performance)
 - [x] Update sitemap.xml with legal pages (Privacy Policy and Terms of Service added)
 - [x] Verify robots.txt allows full crawling (properly configured)
@@ -2142,7 +2142,7 @@
 - [ ] Add SLA status indicator (green/yellow/red) in dashboard ticket list
 - [ ] Add quick reply suggestion templates in ticket detail view
 - [ ] Add ticket assignment display (agent name/avatar) in detail view
-- [ ] Add "Mark as Urgent" button for users to escalate tickets
+- [x] Add "Mark as Urgent" button for users to escalate tickets (fully implemented with priority update mutation)
 
 
 ## Ticket Portal Follow-Ups (4/4 Complete)

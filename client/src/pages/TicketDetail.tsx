@@ -142,6 +142,16 @@ export default function TicketDetail() {
     },
   });
 
+  const updatePriorityMutation = trpc.helpdesk.updatePriority.useMutation({
+    onSuccess: () => {
+      toast.success("Ticket marked as urgent! Support team will prioritize this.");
+      utils.helpdesk.getTicket.invalidate({ ticketId: ticketIdNum });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to escalate ticket");
+    },
+  });
+
   const updateStatusMutation = trpc.helpdesk.updateStatus.useMutation({
     onSuccess: (_, vars) => {
       const labels: Record<string, string> = {
@@ -694,11 +704,12 @@ export default function TicketDetail() {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      toast.success("Ticket marked as urgent! Support team will prioritize this.");
+                      updatePriorityMutation.mutate({ ticketId: ticketIdNum, priority: "critical" });
                     }}
+                    disabled={updatePriorityMutation.isPending}
                     className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
                   >
-                    🚨 Mark as Urgent
+                    {updatePriorityMutation.isPending ? "Escalating..." : "🚨 Mark as Urgent"}
                   </Button>
                 )}
               </div>

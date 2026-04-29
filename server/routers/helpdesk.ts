@@ -1203,4 +1203,79 @@ export const helpdeskRouter = router({
 
       return { success: true, ticketId: input.ticketId };
     }),
+
+  // Update ticket priority (users can mark as urgent, admins can change priority)
+  updatePriority: approvedProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        priority: z.enum(["low", "medium", "high", "critical"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        // Get ticket details
+        const ticket = await getTicketById(input.ticketId);
+        if (!ticket) throw new Error("Ticket not found");
+
+        // Users can only mark their own tickets as urgent (critical)
+        if (ctx.user.role !== "admin" && input.priority === "critical") {
+          // Allow users to escalate their own tickets to critical
+          if (ticket.userId !== ctx.user.id) {
+            throw new Error("You can only escalate your own tickets");
+          }
+        }
+
+        const oldPriority = ticket.priority;
+
+        // Update ticket priority
+        await db
+          .update(tickets)
+          .set({
+            priority: input.priority,
+            updatedAt: new Date(),
+          })
+          .where(eq(tickets.id, input.ticketId));
+
+        // Log activity
+        try {
+          await db.insert(ticketActivity).values({
+            ticketId: input.ticketId,
+            actorId: ctx.user.id,
+            actorName: ctx.user.name || ctx.user.email || "User",
+            action: "priority_changed",
+            fromValue: oldPriority,
+            toValue: input.priority,
+          });
+        } catch (logErr) {
+          console.warn("[Helpdesk] Failed to log priority change:", logErr);
+        }
+
+        // Send notification to Teams if priority is critical
+        if (input.priority === "critical") {
+          try {
+            await sendTicketNotificationToTeams({
+              id: input.ticketId,
+              title: ticket.title,
+              description: `Priority escalated to CRITICAL by ${ctx.user.name || ctx.user.email}`,
+              priority: "critical",
+              category: ticket.category,
+              status: ticket.status,
+              userId: String(ticket.userId),
+              createdAt: new Date(),
+            } as any);
+          } catch (teamsErr) {
+            console.warn("[Helpdesk] Failed to send Teams priority notification:", teamsErr);
+          }
+        }
+
+        return { success: true, ticketId: input.ticketId, newPriority: input.priority };
+      } catch (error) {
+        console.error("[Helpdesk] Failed to update priority:", error);
+        throw error;
+      }
+    }),
 });
