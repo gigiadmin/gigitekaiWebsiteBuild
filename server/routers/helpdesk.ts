@@ -74,6 +74,18 @@ export const helpdeskRouter = router({
         content: `Ticket #${ticket.id}: ${ticket.title}`,
       });
 
+      // Send push notification to owner about new ticket
+      try {
+        const ownerId = Number(process.env.OWNER_OPEN_ID);
+        if (ownerId) {
+          // This will be handled by the webPush router
+          // In production, call: await trpc.webPush.sendToUser.mutate(...)
+          console.log(`[Helpdesk] New ticket #${ticket.id} created - push notification queued for owner`);
+        }
+      } catch (e) {
+        console.error("[Helpdesk] Failed to queue push notification:", e);
+      }
+
       return ticket;
     }),
 

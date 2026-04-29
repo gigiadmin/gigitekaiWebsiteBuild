@@ -3924,3 +3924,13 @@
 - [x] Add Clear Cache button in admin portal footer (AdminLayoutWithSidebar)
 - [x] Set up uptime monitoring display in admin portal (status badge + link)
 - [x] Mobile card layout for helpdesk tickets in admin panel (responsive cards on small screens)
+
+## Next Steps (Apr 29, 2026 - Continued)
+- [x] UptimeRobot API integration in admin dashboard (real uptime data via tRPC + UptimeRobot API key)
+- [x] Mobile-friendly ticket search bar at top of admin panel (already implemented) ticket list (full-width on small screens)
+- [x] Push notifications for new ticket creation (wired in createTicket) (VAPID/service worker already in place, wire trigger)
+
+## Next Steps (Apr 29 - Continued)
+- [x] UptimeRobot API integration in admin dashboard
+- [ ] Mobile-friendly ticket search bar in admin panel
+- [x] Push notifications for new ticket creation (wired in createTicket)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, AlertTriangle, TrendingUp, Users, Clock, CheckCircle2, Wifi, ExternalLink } from "lucide-react";
@@ -25,6 +25,11 @@ export default function Dashboard() {
 
   const snapshot = trpc.helpdeskDashboardMetrics.getDashboardSnapshot.useQuery(undefined, {
     refetchInterval: refreshInterval,
+  });
+
+  // Fetch UptimeRobot data
+  const uptimeData = trpc.uptimerobot.getUptimeData.useQuery(undefined, {
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const isLoading = overallMetrics.isLoading || agentMetrics.isLoading || queueMetrics.isLoading;
@@ -319,37 +324,59 @@ export default function Dashboard() {
         </div>
 
         {/* Uptime Monitoring Card */}
-        <div className="mt-8 p-4 rounded-lg border border-slate-700 bg-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <Wifi className="w-5 h-5 text-green-400" />
+        <div className="mt-8 p-4 rounded-lg border border-slate-700 bg-slate-900">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={uptimeData.data?.status === 'success' && uptimeData.data.data?.currentStatus === 'up' ? 'w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center' : uptimeData.data?.status === 'success' && uptimeData.data.data?.currentStatus === 'degraded' ? 'w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center' : 'w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center'}>
+                <Wifi className={uptimeData.data?.status === 'success' && uptimeData.data.data?.currentStatus === 'up' ? 'w-5 h-5 text-green-400' : uptimeData.data?.status === 'success' && uptimeData.data.data?.currentStatus === 'degraded' ? 'w-5 h-5 text-yellow-400' : 'w-5 h-5 text-red-400'} />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold text-sm">Site Uptime Monitoring</h3>
+                <p className="text-slate-400 text-xs mt-0.5">Track gigitekai.com availability 24/7 via UptimeRobot</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-white font-semibold text-sm">Site Uptime Monitoring</h3>
-              <p className="text-slate-400 text-xs mt-0.5">Track gigitekai.com availability 24/7 via UptimeRobot</p>
+            <div className="flex items-center gap-3">
+              {uptimeData.isLoading ? (
+                <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Loading...
+                </span>
+              ) : uptimeData.data?.status === 'success' ? (
+                <>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-white">{uptimeData.data.data?.uptime.toFixed(2)}% Uptime</div>
+                    <div className={uptimeData.data.data?.currentStatus === 'up' ? 'text-xs font-medium text-green-400' : uptimeData.data.data?.currentStatus === 'degraded' ? 'text-xs font-medium text-yellow-400' : 'text-xs font-medium text-red-400'}>
+                      Status: {uptimeData.data.data?.currentStatus?.toUpperCase()}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {uptimeData.data.data?.averageResponseTime}ms avg response
+                    </div>
+                  </div>
+                  <span className={uptimeData.data.data?.currentStatus === 'up' ? 'flex items-center gap-1.5 text-xs font-medium text-green-400' : uptimeData.data.data?.currentStatus === 'degraded' ? 'flex items-center gap-1.5 text-xs font-medium text-yellow-400' : 'flex items-center gap-1.5 text-xs font-medium text-red-400'}>
+                    <span className={uptimeData.data.data?.currentStatus === 'up' ? 'w-2 h-2 rounded-full bg-green-400 animate-pulse' : uptimeData.data.data?.currentStatus === 'degraded' ? 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse' : 'w-2 h-2 rounded-full bg-red-400 animate-pulse'} />
+                    {uptimeData.data.data?.currentStatus === 'up' ? 'Online' : uptimeData.data.data?.currentStatus === 'degraded' ? 'Degraded' : 'Offline'}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-slate-400">Unable to fetch uptime data</span>
+              )}
+              <a
+                href="https://uptimerobot.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium transition-colors"
+              >
+                Configure <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="https://stats.uptimerobot.com/gigitekai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-medium transition-colors border border-cyan-500/20"
+              >
+                Status Page <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-xs text-green-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              Monitoring Active
-            </span>
-            <a
-              href="https://uptimerobot.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-medium transition-colors"
-            >
-              Configure <ExternalLink className="w-3 h-3" />
-            </a>
-            <a
-              href="https://stats.uptimerobot.com/gigitekai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-medium transition-colors border border-cyan-500/20"
-            >
-              Status Page <ExternalLink className="w-3 h-3" />
-            </a>
           </div>
         </div>
       </div>
