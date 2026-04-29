@@ -3932,5 +3932,18 @@
 
 ## Next Steps (Apr 29 - Continued)
 - [x] UptimeRobot API integration in admin dashboard
-- [ ] Mobile-friendly ticket search bar in admin panel
+- [x] Mobile-friendly ticket search bar in admin panel (already implemented)
 - [x] Push notifications for new ticket creation (wired in createTicket)
+
+
+## Major Features (Apr 29 - Continued)
+
+### M365 Health Page Fix
+- [ ] Fix M365 health page to display degraded and down services with details
+
+### Five Optimization Features
+- [ ] AI-Powered Ticket Categorization — auto-tag tickets by category/priority using LLM
+- [ ] SLA Breach Prediction — ML model predicting which tickets will breach SLA
+- [ ] Customer Sentiment Analysis — track NPS/sentiment trends across tickets/feedback
+- [ ] Knowledge Base Auto-Linking — suggest relevant KB articles when creating tickets
+- [ ] Agent Performance Gamification — leaderboard with monthly rewards and badges

@@ -188,7 +188,7 @@ export default function AdminM365Health() {
   const { data: criticalIssues } = trpc.m365Health.getCriticalIssues.useQuery();
 
   // Fetch issues for selected service
-  const { data: serviceIssues, isLoading: issuesLoading } = trpc.m365Health.getServiceIssues.useQuery(
+  const { data: serviceIssues, isLoading: issuesLoading, error: issuesError } = trpc.m365Health.getServiceIssues.useQuery(
     { serviceId: selectedService || "" },
     { enabled: !!selectedService }
   );
@@ -427,6 +427,22 @@ export default function AdminM365Health() {
               {issuesLoading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-400">Loading incident details...</p>
+                </div>
+              ) : issuesError ? (
+                <div className="space-y-6 pb-4">
+                  <div className="text-center py-8 bg-red-500/10 rounded-lg border border-red-500/20">
+                    <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                    <p className="text-red-400 font-semibold mb-2">Unable to load incident details</p>
+                    <p className="text-sm text-gray-400 mb-4">{issuesError.message || 'Failed to fetch service issues from Microsoft Graph'}</p>
+                    <Button
+                      size="sm"
+                      onClick={() => refetch()}
+                      className="bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                    >
+                      <RefreshCw size={14} className="mr-1" />
+                      Retry
+                    </Button>
+                  </div>
                 </div>
               ) : serviceIssues && serviceIssues.length > 0 ? (
                 <div className="space-y-6 pb-4">

@@ -67,6 +67,10 @@ import { msLearnSyncRouter } from "./routers/ms-learn-sync";
 import { callsRouter } from "./routers/calls";
 import { clientOnboardingRouter } from "./routers/client-onboarding";
 import { uptimerobotRouter } from "./routers/uptimerobot";
+import { slaPredicationRouter } from "./routers/sla-prediction";
+import { sentimentAnalysisRouter } from "./routers/sentiment-analysis";
+import { kbAutoLinkingRouter } from "./routers/kb-auto-linking";
+import { agentGamificationRouter } from "./routers/agent-gamification";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -77,6 +81,10 @@ export const appRouter = router({
   serviceHealthThresholds: serviceHealthThresholdsRouter,
   serviceStatusSubscriptions: serviceStatusSubscriptionRouter,
   quickAssist: quickAssistRouter,
+  slaPrediction: slaPredicationRouter,
+  sentimentAnalysis: sentimentAnalysisRouter,
+  kbAutoLinking: kbAutoLinkingRouter,
+  agentGamification: agentGamificationRouter,
   teamsChannels: teamsChannelsRouter,
   teamsMeetingEscalation: teamsMeetingEscalationRouter,
   msLearnSync: msLearnSyncRouter,
