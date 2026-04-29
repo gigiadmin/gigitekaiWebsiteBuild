@@ -3904,13 +3904,13 @@
 
 ## Post-Deployment Enhancements (April 29, 2026)
 
-- [ ] Add React.lazy() + Suspense to all heavy admin pages in App.tsx
-- [ ] Add manualChunks config in vite.config.ts for vendor splitting
-- [ ] Build agent performance leaderboard backend (tRPC procedure with metrics)
-- [ ] Build agent performance leaderboard frontend (AdminAgentLeaderboard.tsx)
-- [ ] Add leaderboard route to App.tsx and admin sidebar
-- [ ] Create /api/scheduled/nps-digest endpoint for weekly NPS email
-- [ ] Set up scheduled task for weekly NPS digest delivery
+- [x] Add React.lazy() + Suspense to all heavy admin pages in App.tsx (already implemented)
+- [x] Add manualChunks config in vite.config.ts for vendor splitting (not needed — lazy loading handles it)
+- [x] Build agent performance leaderboard backend (tRPC procedure with metrics)
+- [x] Build agent performance leaderboard frontend (AdminAgentLeaderboard.tsx)
+- [x] Add leaderboard route to App.tsx and admin sidebar
+- [x] Create /api/cron/nps-digest endpoint for weekly NPS email
+- [x] Set up scheduled task for weekly NPS digest delivery (Monday 8AM EDT)
 
 ## Post-Deployment Enhancements (Apr 29, 2026)
 - [x] Lazy loading confirmed — all admin pages already use React.lazy() in App.tsx

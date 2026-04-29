@@ -1,19 +1,18 @@
-// GigitekAI Service Worker v4 — Safari/iOS PWA Compatible
-// Key Safari fixes:
-//   1. Never cache OAuth/auth redirects (causes redirect loops in Safari standalone mode)
-//   2. Never cache API responses that set cookies (Safari ITP strips cookies from cached responses)
-//   3. Use network-first for all navigation requests (prevents stale auth state)
-//   4. Skip caching for opaque responses (Safari handles these differently)
-
-const CACHE_NAME = 'gigitekai-v4';
-const RUNTIME_CACHE = 'gigitekai-runtime-v4';
+// GigitekAI Service Worker v5 — Network-first, no offline fallback for HTML
+// Key fixes in v5:
+//   1. Bumped cache version to force eviction of ALL v4 stale caches
+//   2. HTML navigation: pure network-first, NO offline fallback (avoids "Offline" text / .txt downloads)
+//   3. Added /admin and /helpdesk to NO_CACHE_PATHS so admin pages always hit the network
+//   4. Static assets: cache-first with network fallback
+const CACHE_NAME = 'gigitekai-v5';
+const RUNTIME_CACHE = 'gigitekai-runtime-v5';
 
 // Only cache truly static assets (no HTML pages that require auth)
 const STATIC_ASSETS = [
   '/manifest.json',
 ];
 
-// Paths that must NEVER be cached — auth, OAuth, API calls
+// Paths that must NEVER be cached — auth, OAuth, API calls, admin pages
 const NO_CACHE_PATHS = [
   '/api/',
   '/oauth',
@@ -21,11 +20,13 @@ const NO_CACHE_PATHS = [
   '/login',
   '/logout',
   '/auth',
+  '/admin',
+  '/helpdesk',
 ];
 
 // Check if a URL should never be cached
 function shouldSkipCache(url) {
-  return NO_CACHE_PATHS.some(path => url.pathname.includes(path));
+  return NO_CACHE_PATHS.some(path => url.pathname.startsWith(path) || url.pathname.includes(path));
 }
 
 // Install event — only cache static assets
@@ -92,12 +93,8 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => {
-          // Offline fallback — serve cached index.html
-          return caches.match('/index.html').then(cached => {
-            return cached || new Response('Offline', { status: 503 });
-          });
-        })
+        // DO NOT add a .catch() here — let the browser show its own network error
+        // Adding an offline fallback causes iOS to serve stale/wrong content (e.g. helpdesk.txt)
     );
     return;
   }
