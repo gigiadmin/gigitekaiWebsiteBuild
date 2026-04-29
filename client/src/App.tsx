@@ -184,11 +184,11 @@ function Router() {
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
           <Route path={"/kb"} component={KBPublic} />
-          <Route path={"/kb/:slug"} component={KBPublic} />
-          {/* ── Helpdesk (customer-facing) ── */}
+          <Route path={"/kb/:slug"} component={KBPublic} />          {/* ── Helpdesk (customer-facing) ── */}
           <Route path={"/helpdesk"} component={HelpDesk} />
           <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
           <Route path={"/helpdesk/create-ticket"} component={CreateTicket} />
+          <Route path={"/helpdesk/tickets/new"} component={CreateTicket} />
           <Route path={"/helpdesk/ticket/:ticketId"} component={TicketDetail} />
           <Route path={"/helpdesk/tickets/:ticketId"} component={TicketDetail} />
           <Route path={"/helpdesk/ticket/:ticketId/feedback"} component={TicketFeedback} />
