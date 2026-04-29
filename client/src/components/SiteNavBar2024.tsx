@@ -32,6 +32,17 @@ export default function SiteNavBar2024() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle Escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileOpen) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [mobileOpen]);
+
   return (
     <>
       {/* Top utility bar */}
@@ -194,6 +205,8 @@ export default function SiteNavBar2024() {
           <button
             className="lg:hidden text-gray-900 dark:text-white p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

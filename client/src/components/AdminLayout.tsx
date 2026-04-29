@@ -384,6 +384,8 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             size="icon"
             className="lg:hidden h-8 w-8 text-slate-400"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={16} /> : <Menu size={16} />}
           </Button>

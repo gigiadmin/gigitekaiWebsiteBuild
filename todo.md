@@ -3799,3 +3799,24 @@
 ## Bugs Reported April 25, 2026 (Round 2)
 - [ ] Confirmation email NOT sent to ticket submitter after ticket created from email
 - [ ] Teams notification NOT posting when new ticket is created via email poller
+
+## Accessibility & Performance Improvements (April 28, 2026)
+- [x] Added aria-labels to remaining icon-only buttons
+  - AdminLayout: Mobile menu toggle with aria-expanded
+  - NotificationBell: Close button
+  - SiteNavBar2024: Mobile hamburger with aria-expanded
+- [x] Added keyboard navigation to mobile menu
+  - SiteNavBar2024: Escape key closes mobile menu
+  - Services dropdown: Enter/Space/Escape keyboard support
+- [x] Verified skip-to-content link implementation
+  - Already present in App.tsx with proper focus styling
+- [x] Improved color contrast for accessibility
+  - Increased muted-foreground and secondary-foreground lightness
+- [x] Optimized performance
+  - Removed 10 unused dependencies
+  - Lazy-loaded Tiptap editor for AdminBlog page
+  - Added terser minification settings
+- [x] Fixed SEO issues
+  - Canonical URLs: Changed from www.gigitekai.com to gigitekai.com
+  - Meta descriptions: Reduced to 158 characters
+  - Google Analytics 4: Added tracking with ID G-00F4D2QCEX

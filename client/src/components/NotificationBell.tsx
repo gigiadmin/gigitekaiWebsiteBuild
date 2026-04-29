@@ -230,6 +230,7 @@ export default function NotificationBell() {
                 size="icon"
                 className="h-6 w-6 text-slate-500 hover:text-white"
                 onClick={() => setOpen(false)}
+                aria-label="Close notifications"
               >
                 <X size={12} />
               </Button>
