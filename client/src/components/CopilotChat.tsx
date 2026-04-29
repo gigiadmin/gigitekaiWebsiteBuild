@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -51,15 +51,19 @@ export function CopilotChat() {
         ]);
         setSessionId(result.sessionId);
         localStorage.setItem("copilotSessionId", result.sessionId);
+        setSessionReady(true);
       } catch {
         // Retry without stored ID
         try {
           const result = await getOrCreateSession.mutateAsync({});
           setSessionId(result.sessionId);
           localStorage.setItem("copilotSessionId", result.sessionId);
-        } catch { /* session will remain null; error shown on send */ }
+          setSessionReady(true);
+        } catch (error) {
+          console.error("[CopilotChat] Session init failed:", error);
+          // Keep sessionReady as false to show error state
+        }
       } finally {
-        setSessionReady(true);
         initInProgress.current = false;
       }
     };
@@ -68,6 +72,24 @@ export function CopilotChat() {
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
+
+    // If session is not ready, try to initialize it first
+    if (!sessionId) {
+      try {
+        const result = await getOrCreateSession.mutateAsync({});
+        setSessionId(result.sessionId);
+        localStorage.setItem("copilotSessionId", result.sessionId);
+      } catch (error) {
+        const errorMessage: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: "Unable to establish a session. Please try again or contact support@gigitekai.com.",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        return;
+      }
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -128,7 +150,7 @@ export function CopilotChat() {
           <MessageCircle className="w-5 h-5" />
           <div>
             <h3 className="font-semibold leading-tight">Aria - AI Assistant</h3>
-            <p className="text-xs text-cyan-100 leading-tight">{sessionReady ? "Online" : "Connecting..."}</p>
+            <p className="text-xs text-cyan-100 leading-tight">{sessionReady && sessionId ? "Online" : sessionReady ? "Ready" : "Connecting..."}</p>
           </div>
         </div>
         <button
