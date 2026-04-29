@@ -37,7 +37,7 @@ export default function M365NotificationsPreferencesPage() {
   const [teamsNotificationsEnabled, setTeamsNotificationsEnabled] = useState(true);
 
   // Fetch existing subscriptions
-  const { data: subscriptions = [], refetch: refetchSubscriptions } = trpc.m365Health.getNotificationSubscriptions.useQuery({});
+  const { data: subscriptions = [], refetch: refetchSubscriptions } = trpc.m365Health.getNotificationSubscriptions.useQuery(void 0);
 
   // Add subscription mutation
   const addSubscriptionMutation = trpc.m365Health.addNotificationSubscription.useMutation({

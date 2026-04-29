@@ -132,7 +132,7 @@ export const callsRouter = router({
       const draft = drafts[0];
 
       // Resolve userId — use override, matched user, or fall back to a system user
-      let resolvedUserId = input.userId ?? draft.userId;
+      let resolvedUserId: number = input.userId ?? draft.userId ?? 0;
       if (!resolvedUserId) {
         // Create/find a guest user for the caller
         const callerEmail = draft.callerEmail || `caller-${draft.callerPhone?.replace(/\D/g, "")}@external.gigitekai.com`;
@@ -182,7 +182,7 @@ export const callsRouter = router({
         .update(callDraftTickets)
         .set({
           reviewStatus: "approved",
-          createdTicketId: ticket?.id ?? null,
+          ticketId: ticket?.id ?? null,
           reviewedAt: new Date(),
         })
         .where(eq(callDraftTickets.id, input.draftId));

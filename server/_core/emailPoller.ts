@@ -705,14 +705,13 @@ async function processEmail(msgData: any): Promise<boolean> {
 
     // Send Teams notification
     try {
-      const ticket: Partial<{ id: number; title: string; description: string; priority: string; status: string; category: 'bug_report' | 'feature_request' | 'general_support' | 'billing'; customerName: string; createdAt: Date }> = {
+      const ticket: Partial<Ticket> = {
         id: ticketId,
         title: subject,
         description: typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 1000) : String(emailBody).slice(0, 1000),
-        priority: classification.priority,
-        status: 'open',
+        priority: (classification.priority as 'critical' | 'high' | 'medium' | 'low') || 'medium',
+        status: 'open' as any,
         category: (classification.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
-        customerName: senderName,
         createdAt: new Date(),
       };
       await sendTicketNotificationToTeams(ticket, 'created');

@@ -425,7 +425,7 @@ export default function AdminCallReviewPage() {
               draftTickets.map((item) => {
                 const d = item.draft;
                 const log = item.log;
-                const confidence = log?.aiConfidence ? parseFloat(String(log.aiConfidence)) : 0.5;
+                const confidence = 0.5; // aiConfidence not available in call log schema
                 const conf = confidenceLabel(confidence);
                 return (
                   <div
@@ -435,7 +435,7 @@ export default function AdminCallReviewPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${priorityColor(d.priority)}`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${priorityColor(d.priority || 'medium')}`}>
                             {d.priority}
                           </span>
                           <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
