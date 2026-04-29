@@ -48,10 +48,7 @@ export default function SiteNavBar2024() {
       {/* Top utility bar */}
       <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-500 dark:text-gray-400 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
-          <span className="text-[#00D4FF] font-medium">
-            GigitekAI — Powering the Next Generation of Enterprise Technology
-          </span>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 w-full justify-end">
             <a href="/about-us" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
             <a href="/AIStrategicBriefing" className="hover:text-[#00D4FF] transition-colors font-semibold">⚡ AI Briefing</a>

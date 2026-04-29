@@ -3820,3 +3820,6 @@
   - Canonical URLs: Changed from www.gigitekai.com to gigitekai.com
   - Meta descriptions: Reduced to 158 characters
   - Google Analytics 4: Added tracking with ID G-00F4D2QCEX
+
+## Bug Fixes (April 29, 2026)
+- [x] Fix navbar redundancy on desktop view (removed redundant tagline from top utility bar)
