@@ -3828,3 +3828,4 @@
 
 ## New Improvements (April 29, 2026)
 - [x] Send email notification when ticket is assigned to an agent (added to assignTicket mutation)
+- [x] Create voicemail-to-ticket system (auto-create tickets from voicemails for review/action) - FULLY IMPLEMENTED
