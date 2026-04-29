@@ -418,13 +418,14 @@ Focus on:
           try {
             await db.insert(kbGenerations).values({
               ticketId: ticket.id,
-              title: "",
-              content: "",
-              category: "general",
-              tags: "",
-              confidenceScore: 0,
+              sourceTicketTitle: ticket.title || "",
+              sourceTicketContent: ticket.description || "",
+              generatedTitle: "",
+              generatedContent: "",
+              suggestedCategory: "general",
+              suggestedTags: "",
+              confidence: 0,
               status: "draft",
-              createdAt: new Date(),
             });
             queued++;
           } catch (err) {
