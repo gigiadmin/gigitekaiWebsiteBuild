@@ -32,154 +32,10 @@ export default function AdminNotifications() {
   };
 
   const getNotificationBadgeColor = (title: string) => {
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
-  };
     if (title.includes("Contact")) return "bg-blue-500/20 text-blue-300";
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
-  };
     if (title.includes("Lead")) return "bg-cyan-500/20 text-cyan-300";
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
-  };
     if (title.includes("Ticket")) return "bg-yellow-500/20 text-yellow-300";
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
-  };
     return "bg-gray-500/20 text-gray-300";
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
-  };
-  };
-
-  // Swipe gesture handling
-  const [swipeStart, setSwipeStart] = useState<{ x: number; y: number } | null>(null);
-  const [swipedIndices, setSwipedIndices] = useState<Set<number>>(new Set());
-
-  const handleTouchStart = (e: React.TouchEvent, idx: number) => {
-    setSwipeStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent, idx: number) => {
-    if (!swipeStart) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = swipeStart.x - endX;
-    const diffY = Math.abs(swipeStart.y - endY);
-
-    if (diffX > 50 && diffY < 20) {
-      setSwipedIndices(new Set([...swipedIndices, idx]));
-      setTimeout(() => {
-        setNotifications(notifications.filter((_, i) => i !== idx));
-      }, 300);
-    }
-    setSwipeStart(null);
   };
 
   return (
@@ -219,7 +75,7 @@ export default function AdminNotifications() {
       {/* Notifications List */}
       <div className="container max-w-6xl mx-auto px-4 py-8">
         {filteredNotifications.length === 0 ? (
-          <Card onTouchStart={(e) => handleTouchStart(e, idx)} onTouchEnd={(e) => handleTouchEnd(e, idx)} className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] p-12 text-center">
+          <Card className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] p-12 text-center">
             <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2">All Caught Up!</h3>
             <p className="text-gray-400">No notifications to display. Check back later.</p>
@@ -229,7 +85,7 @@ export default function AdminNotifications() {
             {filteredNotifications.map((notif, idx) => (
               <Card
                 key={idx}
-                onTouchStart={(e) => handleTouchStart(e, idx)} onTouchEnd={(e) => handleTouchEnd(e, idx)} className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] transition-all p-6"
+                className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] transition-all p-6"
               >
                 <div className="flex items-start gap-4">
                   <div className="mt-1">{getNotificationIcon(notif.title)}</div>

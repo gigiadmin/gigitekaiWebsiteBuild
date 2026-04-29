@@ -995,7 +995,7 @@
 - [x] Mobile hamburger menu for AdminLayout (already implemented - collapsible drawer on screens < lg)
 - [x] Touch-friendly button sizing (buttons already using size=sm with h-7/h-8 for mobile)
 - [x] Table layout optimized for mobile (horizontal scroll with overflow-x-auto, responsive grid layout)
-- [x] Implement swipe-to-dismiss gesture for notifications (swipe left >50px to dismiss)
+- [ ] Implement swipe-to-dismiss gesture for notifications (future enhancement - nice-to-have)
 - [ ] Add long-press context menu for ticket/chat actions (future enhancement - nice-to-have)
 - [x] All 187 tests passing, TypeScript clean, ready for checkpoint
 
@@ -2140,7 +2140,7 @@
 - [x] Add "Last Updated" timestamp to ticket cards in dashboard (formatTimeAgo helper added)
 - [x] Add ticket category/type display to dashboard and detail view (verified - shows category with formatting)
 - [x] Add SLA status indicator (green/yellow/red) in dashboard ticket list (enhanced with left border accent)
-- [x] Add quick reply suggestion templates in ticket detail view (CannedResponsePicker + AI Draft implemented)
+- [ ] Add quick reply suggestion templates in ticket detail view
 - [x] Add ticket assignment display (agent name/avatar) in detail view (verified - shows agent name and specialization)
 - [x] Add "Mark as Urgent" button for users to escalate tickets (fully implemented with priority update mutation)
 
@@ -2231,9 +2231,9 @@
   - Review generated article before publishing
   - Link article to original ticket
   - Tag with relevant keywords for search
-- [x] Create admin approval UI for generated KB articles (skipped - no KBs in current setup)
-- [x] Test KB article quality and relevance (skipped - no KBs)
-- [x] Measure KB article usage and effectiveness (skipped - no KBs)
+- [ ] Create admin approval UI for generated KB articles
+- [ ] Test KB article quality and relevance
+- [ ] Measure KB article usage and effectiveness
 
 ### Phase 4: Copilot for Microsoft 365 Enterprise Integration (Next Week)
 - [ ] Set up Microsoft Graph API authentication for Copilot access
