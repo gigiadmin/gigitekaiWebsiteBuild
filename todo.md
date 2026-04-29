@@ -2078,14 +2078,14 @@
 - [x] Test blog search, filtering, and category pages
 
 ### Contact Form Improvements
-- [ ] Add file upload field to contact form (max 5MB, allowed: PDF, DOC, XLS)
-- [ ] Add phone number field with validation (E.164 format)
-- [ ] Add phone number formatting (auto-format as user types)
-- [ ] Validate phone number on submit
-- [ ] Store file uploads to S3 with reference in database
-- [ ] Add file download link in admin contact submissions page
-- [ ] Add phone number display in admin contacts page
-- [ ] Test file upload, phone validation, and admin viewing
+- [x] Add file upload field to contact form (max 5MB, allowed: PDF, DOC, XLS)
+- [x] Add phone number field with validation (E.164 format)
+- [x] Add phone number formatting (auto-format as user types)
+- [x] Validate phone number on submit
+- [x] Store file uploads to S3 with reference in database
+- [x] Add file download link in admin contact submissions page
+- [x] Add phone number display in admin contacts page
+- [x] Test file upload, phone validation, and admin viewing
 
 ### Integration & Testing
 - [ ] Run full test suite (target: 320+ tests)
