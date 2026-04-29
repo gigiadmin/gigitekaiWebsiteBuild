@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
@@ -393,6 +393,20 @@ export default function Pricing() {
             </Button>
             <Button variant="outline" className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-lg">
               Schedule a Demo
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 px-8 py-3 text-lg"
+              onClick={() => {
+                if (typeof window !== 'undefined' && (window as any).Intercom) {
+                  (window as any).Intercom('show');
+                } else {
+                  window.location.href = '/contact?tier=pricing-inquiry';
+                }
+              }}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Chat Now
             </Button>
           </div>
         </div>

@@ -3955,3 +3955,11 @@
 - [x] Improved form UX with better layout and icons
 - [x] Update database schema to store pricingTier and companySize
 - [x] Database migration applied successfully
+
+
+## Tier-Specific Email Templates & Pricing Page Chat (Apr 29)
+- [ ] Create tier-specific email templates (Starter, Professional, Enterprise)
+- [ ] Wire email template selection into contact form submission logic
+- [ ] Find or create Pricing page
+- [ ] Add live chat trigger button to Pricing page
+- [ ] Test both features and save checkpoint

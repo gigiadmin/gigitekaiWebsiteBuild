@@ -42,6 +42,7 @@ import { helpdeskAiTriageRouter } from "./routers/helpdesk-ai-triage";
 import { helpdeskAiRepliesRouter } from "./routers/helpdesk-ai-replies";
 import { helpdeskKbRouter } from "./routers/helpdesk-kb";
 import { helpdeskNotificationsRouter } from "./routers/helpdesk-notifications";
+import { buildContactFormResponseEmail } from "./contactFormTemplates";
 import { helpdeskDashboardMetricsRouter } from "./routers/helpdesk-dashboard-metrics";
 import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
 import { helpdeskSurveyRouter } from "./routers/helpdesk-survey";
@@ -251,7 +252,11 @@ export const appRouter = router({
           name: z.string().min(1, "Name is required"),
           email: z.string().email("Valid email is required"),
           company: z.string().optional(),
+          phone: z.string().optional(),
+          subject: z.string().optional(),
           message: z.string().min(1, "Message is required"),
+          pricingTier: z.string().optional(), // starter, professional, enterprise
+          companySize: z.string().optional(), // 1-10, 11-50, 51-200, 200+
           hearAboutUs: z.string().optional(), // How did you hear about us?
           // Honeypot fields - bots fill these, real users don't see them
           website: z.string().optional(), // hidden field
@@ -284,7 +289,11 @@ export const appRouter = router({
             name: input.name,
             email: input.email,
             company: input.company,
+            phone: input.phone,
+            subject: input.subject,
             message: input.message,
+            pricingTier: input.pricingTier,
+            companySize: input.companySize,
             hearAboutUs: input.hearAboutUs,
           });
 

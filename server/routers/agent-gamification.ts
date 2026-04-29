@@ -106,9 +106,9 @@ async function getMonthlyLeaderboard(year: number, month: number): Promise<Agent
 
     if (!latestMetric) continue;
 
-    const avgResolutionTime = latestMetric.avgResolutionTime || 1440;
-    const satisfaction = latestMetric.npsScore || 0;
-    const responseTime = latestMetric.avgResponseTime || 120;
+      const avgResolutionTime = latestMetric.averageResolutionTime || 1440;
+      const satisfaction = (latestMetric.customerSatisfactionScore ? parseFloat(latestMetric.customerSatisfactionScore) : 0);
+      const responseTime = latestMetric.averageResolutionTime || 120;
 
     const performanceScore = calculatePerformanceScore(
       resolvedTickets.length,
@@ -120,7 +120,7 @@ async function getMonthlyLeaderboard(year: number, month: number): Promise<Agent
     rankings.push({
       agentId: agent.id,
       agentName: agent.name || "Unknown",
-      email: agent.email,
+      email: agent.email || "unknown@gigitekai.com",
       resolvedTickets: resolvedTickets.length,
       averageResolutionTime: Math.round(avgResolutionTime),
       customerSatisfaction: satisfaction,
@@ -212,9 +212,9 @@ export const agentGamificationRouter = router({
 
       if (!latestMetric) continue;
 
-      const avgResolutionTime = latestMetric.avgResolutionTime || 1440;
-      const satisfaction = latestMetric.npsScore || 0;
-      const responseTime = latestMetric.avgResponseTime || 120;
+      const avgResolutionTime = latestMetric.averageResolutionTime || 1440;
+      const satisfaction = (latestMetric.customerSatisfactionScore ? parseFloat(latestMetric.customerSatisfactionScore) : 0);
+      const responseTime = latestMetric.averageResolutionTime || 120;
 
       const performanceScore = calculatePerformanceScore(
         resolvedTickets.length,
@@ -226,7 +226,7 @@ export const agentGamificationRouter = router({
       rankings.push({
         agentId: agent.id,
         agentName: agent.name || "Unknown",
-        email: agent.email,
+      email: agent.email || "unknown@gigitekai.com",
         resolvedTickets: resolvedTickets.length,
         averageResolutionTime: Math.round(avgResolutionTime),
         customerSatisfaction: satisfaction,

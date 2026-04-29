@@ -18,7 +18,7 @@ interface SentimentScore {
 }
 
 interface AccountSentiment {
-  
+  ticketId: number;
   accountName?: string;
   overallSentiment: number; // -100 to 100
   sentimentTrend: "improving" | "stable" | "declining";
@@ -115,11 +115,11 @@ async function getTicketSentiment(ticketId: number): Promise<AccountSentiment> {
   const db = await getDb();
   if (!db) throw new Error("Database connection failed");
 
-  // Get all feedback for account
+  // Get all feedback for ticket
   const feedbackRecords = await db
     .select()
     .from(customerFeedback)
-    .where(eq(customerFeedback.ticketId, accountId));
+    .where(eq(customerFeedback.ticketId, ticketId));
 
   // Calculate NPS score
   const npsScores = feedbackRecords
@@ -218,7 +218,7 @@ async function getTicketSentiment(ticketId: number): Promise<AccountSentiment> {
   }
 
   return {
-    accountId,
+    ticketId,
     overallSentiment,
     sentimentTrend,
     npsScore,
@@ -236,9 +236,9 @@ export const sentimentAnalysisRouter = router({
    * Get sentiment analysis for a specific account
    */
   getAccountSentiment: protectedProcedure
-    .input(z.object({ accountId: z.string() }))
+    .input(z.object({ ticketId: z.string() }))
     .query(async ({ input }) => {
-      return await getTicketSentiment(input.accountId);
+      return await getTicketSentiment(parseInt(input.ticketId) || 0);
     }),
 
   /**
@@ -250,14 +250,14 @@ export const sentimentAnalysisRouter = router({
 
     // Get unique ticket IDs from feedback
     const accounts = await db
-      .selectDistinct({ accountId: customerFeedback.ticketId })
+      .selectDistinct({ ticketId: customerFeedback.ticketId })
       .from(customerFeedback);
 
     // Get sentiment for each account
     const sentiments = await Promise.all(
       accounts
-        .filter((a) => a.accountId)
-        .map((a) => getTicketSentiment(a.accountId!))
+        .filter((a) => a.ticketId)
+        .map((a) => getTicketSentiment(a.ticketId!))
     );
 
     // Filter to only at-risk accounts
