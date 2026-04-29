@@ -3958,8 +3958,8 @@
 
 
 ## Tier-Specific Email Templates & Pricing Page Chat (Apr 29)
-- [ ] Create tier-specific email templates (Starter, Professional, Enterprise)
-- [ ] Wire email template selection into contact form submission logic
-- [ ] Find or create Pricing page
-- [ ] Add live chat trigger button to Pricing page
-- [ ] Test both features and save checkpoint
+- [x] Create tier-specific email templates (Starter, Professional, Enterprise)
+- [x] Wire email template selection into contact form submission logic
+- [x] Find or create Pricing page
+- [x] Add live chat trigger button to Pricing page
+- [x] Test both features and save checkpoint
