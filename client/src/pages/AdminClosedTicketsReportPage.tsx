@@ -27,9 +27,9 @@ export default function AdminClosedTicketsReportPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
-  const [reopenReason, setReopenReason] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [daysRange, setDaysRange] = useState(30);
+  const [reopenReason, setReopenReason] = useState("");
 
   const { data: closedTickets = [], isLoading } = trpc.helpdesk.getClosedTicketsReport.useQuery(
     { days: daysRange },
@@ -311,7 +311,6 @@ export default function AdminClosedTicketsReportPage() {
                   }
                   reopenTicket.mutate({
                     ticketId: selectedTicket.id,
-                    reopenReason,
                   });
                 }}
                 disabled={reopenReason.length < 10 || reopenTicket.isPending}

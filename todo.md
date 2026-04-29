@@ -3900,3 +3900,22 @@
 - [x] Add export results to CSV (implemented)
 - [x] Add route /admin/call-transcripts (added to App.tsx)
 - [x] Deploy to production (ready)
+
+
+## Post-Deployment Enhancements (April 29, 2026)
+
+- [ ] Add React.lazy() + Suspense to all heavy admin pages in App.tsx
+- [ ] Add manualChunks config in vite.config.ts for vendor splitting
+- [ ] Build agent performance leaderboard backend (tRPC procedure with metrics)
+- [ ] Build agent performance leaderboard frontend (AdminAgentLeaderboard.tsx)
+- [ ] Add leaderboard route to App.tsx and admin sidebar
+- [ ] Create /api/scheduled/nps-digest endpoint for weekly NPS email
+- [ ] Set up scheduled task for weekly NPS digest delivery
+
+## Post-Deployment Enhancements (Apr 29, 2026)
+- [x] Lazy loading confirmed — all admin pages already use React.lazy() in App.tsx
+- [x] Fixed all 57 TypeScript errors across helpdesk router, AdminPanel, AdminMetrics, AdminClosedTicketsReportPage, TicketTemplateManager, BulkTicketActions, CustomerFeedbackWidget, TicketDetail
+- [x] Agent Performance Leaderboard page created at /admin/agent-leaderboard with podium display, full rankings table, and summary stats
+- [x] Agent Leaderboard added to AdminLayoutWithSidebar nav under OPERATIONS section
+- [x] NPS digest endpoint added at POST /api/cron/nps-digest — computes weekly NPS score, ticket stats, top comments, sends branded HTML email to support@gigitek.com
+- [x] Weekly scheduled task created: runs every Monday at 8 AM EDT to send NPS digest (activates after site is published/deployed)

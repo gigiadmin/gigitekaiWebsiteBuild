@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getAllTickets, getDb } from "./db";
 import { tickets } from "../drizzle/schema";
 import { desc, gte, eq } from "drizzle-orm";
+import { sendEmail } from "./_core/email";
 
 const router = Router();
 
@@ -139,6 +140,153 @@ router.get("/health", (req, res) => {
     uptime: process.uptime(),
     service: "gigitekai-cron-endpoints",
   });
+});
+
+/**
+ * POST /api/cron/nps-digest
+ * Sends a weekly NPS / customer satisfaction digest email to the owner.
+ * Called by the Manus scheduled task every Monday at 8 AM EDT.
+ *
+ * Auth: uses app_session_id cookie (scheduled-task-level, role=user)
+ */
+router.post("/nps-digest", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) {
+      return res.status(503).json({ success: false, error: "Database unavailable" });
+    }
+
+    const { customerFeedback, tickets: ticketsTable, users } = await import("../drizzle/schema");
+    const { and, gte: gteOp } = await import("drizzle-orm");
+
+    // Last 7 days window
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    // Fetch feedback from the last 7 days
+    const recentFeedback = await db
+      .select()
+      .from(customerFeedback)
+      .where(gteOp(customerFeedback.createdAt, weekAgo))
+      .orderBy(desc(customerFeedback.createdAt));
+
+    // Ticket stats for the week
+    const weekTickets = await db
+      .select()
+      .from(ticketsTable)
+      .where(gteOp(ticketsTable.createdAt, weekAgo));
+
+    const totalTickets = weekTickets.length;
+    const resolvedTickets = weekTickets.filter((t: any) => t.status === "resolved" || t.status === "closed").length;
+    const openTickets = weekTickets.filter((t: any) => t.status === "open").length;
+    const inProgressTickets = weekTickets.filter((t: any) => t.status === "in_progress").length;
+
+    // NPS calculation
+    const totalFeedback = recentFeedback.length;
+    const avgRating = totalFeedback > 0
+      ? recentFeedback.reduce((s: number, f: any) => s + f.rating, 0) / totalFeedback
+      : 0;
+    const promoters = recentFeedback.filter((f: any) => f.rating >= 4).length;
+    const detractors = recentFeedback.filter((f: any) => f.rating <= 2).length;
+    const npsScore = totalFeedback > 0
+      ? Math.round(((promoters - detractors) / totalFeedback) * 100)
+      : 0;
+
+    // Top comments
+    const topComments = recentFeedback
+      .filter((f: any) => f.comment && f.comment.trim().length > 0)
+      .slice(0, 5)
+      .map((f: any) => ({ rating: f.rating, comment: f.comment }));
+
+    // Build email HTML
+    const weekStart = weekAgo.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const weekEnd = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    const ratingBar = (rating: number) => {
+      const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+      return `<span style="color:#f59e0b">${stars}</span>`;
+    };
+
+    const commentsHtml = topComments.length > 0
+      ? topComments.map((c: any) => `
+          <div style="border-left:3px solid #00D4FF;padding:8px 12px;margin:8px 0;background:#1a1f2e">
+            <div style="margin-bottom:4px">${ratingBar(c.rating)}</div>
+            <p style="color:#cbd5e1;font-size:14px;margin:0">${c.comment}</p>
+          </div>`).join("")
+      : `<p style="color:#64748b">No comments this week.</p>`;
+
+    const resolutionRate = totalTickets > 0 ? Math.round((resolvedTickets / totalTickets) * 100) : 0;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0A0E1A;font-family:Arial,sans-serif">
+  <div style="max-width:600px;margin:0 auto;padding:32px 16px">
+    <!-- Header -->
+    <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:24px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <span style="background:#00D4FF20;border-radius:8px;padding:6px 12px;color:#00D4FF;font-weight:bold;font-size:18px">GigitekAI</span>
+        <span style="color:#64748b;font-size:14px">Weekly NPS Digest</span>
+      </div>
+      <p style="color:#94a3b8;font-size:13px;margin:0">${weekStart} – ${weekEnd}</p>
+    </div>
+
+    <!-- NPS Score -->
+    <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:24px;margin-bottom:16px;text-align:center">
+      <p style="color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px">Net Promoter Score</p>
+      <p style="color:${npsScore >= 50 ? '#22c55e' : npsScore >= 0 ? '#f59e0b' : '#ef4444'};font-size:56px;font-weight:bold;margin:0">${npsScore > 0 ? '+' : ''}${npsScore}</p>
+      <p style="color:#94a3b8;font-size:13px;margin:8px 0 0">${totalFeedback} responses · Avg rating: ${avgRating.toFixed(1)}/5</p>
+    </div>
+
+    <!-- Ticket Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <p style="color:#64748b;font-size:11px;text-transform:uppercase;margin:0 0 4px">New Tickets</p>
+        <p style="color:#00D4FF;font-size:28px;font-weight:bold;margin:0">${totalTickets}</p>
+      </div>
+      <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <p style="color:#64748b;font-size:11px;text-transform:uppercase;margin:0 0 4px">Resolution Rate</p>
+        <p style="color:${resolutionRate >= 80 ? '#22c55e' : '#f59e0b'};font-size:28px;font-weight:bold;margin:0">${resolutionRate}%</p>
+      </div>
+      <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <p style="color:#64748b;font-size:11px;text-transform:uppercase;margin:0 0 4px">Resolved</p>
+        <p style="color:#22c55e;font-size:28px;font-weight:bold;margin:0">${resolvedTickets}</p>
+      </div>
+      <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <p style="color:#64748b;font-size:11px;text-transform:uppercase;margin:0 0 4px">Open</p>
+        <p style="color:#f59e0b;font-size:28px;font-weight:bold;margin:0">${openTickets}</p>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div style="background:#0F1419;border:1px solid #1e293b;border-radius:12px;padding:24px;margin-bottom:16px">
+      <p style="color:#94a3b8;font-size:14px;font-weight:bold;margin:0 0 12px">Recent Customer Feedback</p>
+      ${commentsHtml}
+    </div>
+
+    <!-- Footer -->
+    <p style="color:#334155;font-size:12px;text-align:center">GigitekAI Admin Portal · support@gigitek.com · 609-676-4483</p>
+  </div>
+</body>
+</html>`;
+
+    // Send to owner
+    const ownerEmail = process.env.OWNER_EMAIL || "support@gigitek.com";
+    const sent = await sendEmail({
+      to: ownerEmail,
+      subject: `📊 Weekly NPS Digest — ${weekStart} to ${weekEnd} | GigitekAI`,
+      html,
+    });
+
+    return res.json({
+      success: sent,
+      period: { from: weekAgo.toISOString(), to: new Date().toISOString() },
+      stats: { totalFeedback, avgRating: Math.round(avgRating * 10) / 10, npsScore, totalTickets, resolvedTickets, openTickets, resolutionRate },
+      emailSentTo: ownerEmail,
+    });
+  } catch (error) {
+    console.error("[NPS Digest] Error:", error);
+    return res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+  }
 });
 
 export default router;

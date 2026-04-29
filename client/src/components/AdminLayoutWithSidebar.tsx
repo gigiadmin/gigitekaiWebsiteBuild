@@ -21,6 +21,7 @@ import {
   Bot,
   Mail,
   RefreshCw,
+  Trophy,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -74,6 +75,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "helpdesk", label: "Helpdesk", section: "OPERATIONS", icon: Ticket, path: "/admin/helpdesk" },
     { id: "closed-tickets", label: "Closed Tickets", section: "OPERATIONS", icon: FileText, path: "/admin/closed-tickets" },
     { id: "agent-dashboard", label: "Agent Dashboard", section: "OPERATIONS", icon: Headphones, path: "/admin/agent-dashboard" },
+    { id: "agent-leaderboard", label: "Agent Leaderboard", section: "OPERATIONS", icon: Trophy, path: "/admin/agent-leaderboard" },
     { id: "canned-responses", label: "Canned Responses", section: "OPERATIONS", icon: MessageSquare, path: "/admin/canned-responses" },
     { id: "live-chat", label: "Live Chat", section: "OPERATIONS", icon: MessageSquare, path: "/admin/chat" },
     { id: "ai-agents", label: "AI Agents", section: "OPERATIONS", icon: Bot, path: "/admin/agents" },

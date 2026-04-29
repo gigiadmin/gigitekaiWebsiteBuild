@@ -88,6 +88,7 @@ const AdminCannedResponsesPage = lazy(() => import("./pages/AdminCannedResponses
 const AdminClosedTicketsReportPage = lazy(() => import("./pages/AdminClosedTicketsReportPage"));
 const AdminHelpdeskMetricsPage = lazy(() => import("./pages/AdminHelpdeskMetricsPage"));
 const AdminAgentDashboardPage = lazy(() => import("./pages/AdminAgentDashboardPage"));
+const AdminAgentLeaderboard = lazy(() => import("./pages/AdminAgentLeaderboard"));
 const AdminCopilot = lazy(() => import("./pages/AdminCopilot"));
 const AdminCopilotM365 = lazy(() => import("./pages/AdminCopilotM365"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -248,6 +249,7 @@ function Router() {
           <Route path={"/admin/dashboard"}>{() => <ApprovalGuard><Dashboard /></ApprovalGuard>}</Route>
           {/* Agent Dashboard */}
           <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/agent-leaderboard"}>{() => <ApprovalGuard><AdminAgentLeaderboard /></ApprovalGuard>}</Route>
           {/* Copilot for M365 */}
           <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
           {/* Copilot M365 Intelligence */}

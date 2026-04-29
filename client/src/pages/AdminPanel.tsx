@@ -171,7 +171,7 @@ export default function AdminPanel() {
 
   const adminCreateTicketMutation = trpc.helpdesk.adminCreateTicket.useMutation({
     onSuccess: (data) => {
-      toast.success(`Ticket #${data.ticketId} created successfully!`);
+      toast.success(`Ticket #${data?.id ?? ''} created successfully!`);
       setShowCreateTicket(false);
       setCreateTicketForm({ title: "", description: "", priority: "medium", category: "general_support", customerEmail: "", customerName: "" });
       refetch();
@@ -193,8 +193,7 @@ export default function AdminPanel() {
       description: createTicketForm.description.trim(),
       priority: createTicketForm.priority,
       category: createTicketForm.category,
-      customerEmail: createTicketForm.customerEmail.trim() || undefined,
-      customerName: createTicketForm.customerName.trim() || undefined,
+
     });
   };
 
@@ -209,7 +208,7 @@ export default function AdminPanel() {
 
   const assignTicketMutation = trpc.helpdesk.assignTicket.useMutation({
     onSuccess: (data) => {
-      toast.success(`Ticket assigned to ${data.agentName}!`);
+      toast.success(`Ticket assigned successfully!`);
       refetch();
       setShowAssignModal(false);
       setAssignTicketId(null);
@@ -717,7 +716,7 @@ export default function AdminPanel() {
                               {[30, 60, 120, 240].map((mins) => (
                                 <button
                                   key={mins}
-                                  onClick={() => snoozeSlaBreachMutation.mutate({ ticketId: ticket.id, snoozeMinutes: mins })}
+                                  onClick={() => snoozeSlaBreachMutation.mutate({ ticketId: ticket.id, duration: mins })}
                                   disabled={snoozeSlaBreachMutation.isPending}
                                   className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-amber-500/10 hover:text-amber-300 transition-colors"
                                 >
@@ -1068,7 +1067,7 @@ export default function AdminPanel() {
                   .filter((u: any) => u.role === "admin" || u.role === "technician")
                   .map((u: any) => {
                     const wl = (agentWorkloads || []).find((w: any) => w.agentId === u.id);
-                    return { ...u, openTickets: wl ? Number(wl.ticketCount) : 0 };
+                    return { ...u, openTickets: wl ? Number(wl.openTickets) : 0 };
                   })
                   .sort((a: any, b: any) => a.openTickets - b.openTickets);
                 const minLoad = agents.length > 0 ? agents[0].openTickets : 0;

@@ -36,7 +36,7 @@ export function BulkTicketActions({
     try {
       await bulkUpdateStatus.mutateAsync({
         ticketIds: selectedTicketIds,
-        newStatus,
+        status: newStatus,
       });
       onSelectionChange([]);
       onActionComplete();

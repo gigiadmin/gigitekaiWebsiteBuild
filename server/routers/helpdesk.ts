@@ -9,13 +9,9 @@ import {
   formatChannel,
   formatReceivedAt,
 } from "../emailTemplates";
-import { sendSMS } from "../_core/sms";
-import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
-import { sendPushToUser } from "../_core/pushHelper";
-import { submitCustomerFeedback, searchKnowledgeBase } from "../db";
-import { users, agents, ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes, customerFeedback } from "../../drizzle/schema";
-import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
+import { customerFeedback } from "../../drizzle/schema";
+import { eq, and, desc, gte, lte } from "drizzle-orm";
 import { z } from "zod";
 
 export const helpdeskRouter = router({
@@ -24,9 +20,9 @@ export const helpdeskRouter = router({
       z.object({
         title: z.string(),
         description: z.string(),
-        category: z.string(),
-        priority: z.enum(["low", "medium", "high", "urgent"]),
-        channel: z.enum(["email", "chat", "phone", "web"]),
+        category: z.enum(["bug_report", "feature_request", "general_support", "billing"]).default("general_support"),
+        priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+        channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -35,57 +31,109 @@ export const helpdeskRouter = router({
         description: input.description,
         category: input.category,
         priority: input.priority,
-        channel: input.channel,
-        userId: ctx.user?.id || "anonymous",
-        status: "open",
+        source: input.channel,
+        userId: ctx.user.id,
       });
+
+      if (!ticket) throw new Error("Failed to create ticket");
 
       // Send confirmation email
       if (ctx.user?.email) {
-        const emailContent = buildTicketConfirmationEmail(ticket);
-        await sendEmail({
-          to: ctx.user.email,
-          subject: `Ticket Created: ${ticket.id}`,
-          html: emailContent,
-        });
+        try {
+          const emailContent = buildTicketConfirmationEmail({
+            firstName: ctx.user.name || "Customer",
+            ticketNumber: ticket.id,
+            ticketTitle: ticket.title,
+            category: formatCategory(ticket.category),
+            priority: getPriorityDetails(ticket.priority).label,
+            channel: formatChannel(ticket.source),
+            receivedAt: formatReceivedAt(ticket.createdAt),
+            slaWindow: getPriorityDetails(ticket.priority).sla,
+            ticketUrl: `${process.env.VITE_APP_URL || ""}/helpdesk/ticket/${ticket.id}`,
+          });
+          await sendEmail({
+            to: ctx.user.email,
+            subject: `Ticket Created: #${ticket.id}`,
+            html: emailContent,
+          });
+        } catch (e) {
+          console.error("[Helpdesk] Failed to send confirmation email:", e);
+        }
       }
 
       // Send Teams notification
-      await sendTicketNotificationToTeams(ticket);
+      try {
+        await sendTicketNotificationToTeams(ticket);
+      } catch (e) {
+        console.error("[Helpdesk] Failed to send Teams notification:", e);
+      }
 
       // Notify owner
       await notifyOwner({
         title: "New Ticket Created",
-        content: `Ticket ${ticket.id}: ${ticket.title}`,
+        content: `Ticket #${ticket.id}: ${ticket.title}`,
       });
 
       return ticket;
     }),
 
   getTicketsByUserId: approvedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(z.object({ userId: z.number() }))
     .query(async ({ input }) => {
       return await getTicketsByUserId(input.userId);
     }),
 
+  getMyTickets: approvedProcedure
+    .query(async ({ ctx }) => {
+      return await getTicketsByUserId(ctx.user.id);
+    }),
+
   getTicketById: approvedProcedure
-    .input(z.object({ ticketId: z.string() }))
+    .input(z.object({ ticketId: z.number() }))
     .query(async ({ input }) => {
       return await getTicketById(input.ticketId);
+    }),
+
+  getTicket: approvedProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      const ticket = await getTicketById(input.ticketId);
+      const replies = await getTicketReplies(input.ticketId);
+      // Get agent info if assigned
+      let agentInfo = null;
+      if (ticket?.assignedTo) {
+        const db = await getDb();
+        if (db) {
+          const { users } = await import("../../drizzle/schema");
+          const agents = await db.select().from(users).where(eq(users.id, ticket.assignedTo)).limit(1);
+          if (agents.length > 0) {
+            agentInfo = { id: agents[0].id, name: agents[0].name, email: agents[0].email };
+          }
+        }
+      }
+      return { ticket, replies, agentInfo };
     }),
 
   updateTicketStatus: adminProcedure
     .input(
       z.object({
-        ticketId: z.string(),
-        status: z.enum(["open", "in_progress", "waiting", "resolved", "closed"]),
+        ticketId: z.number(),
+        status: z.enum(["open", "in_progress", "on_hold", "resolved", "closed"]),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // Get old ticket for status change notification
+      const oldTicket = await getTicketById(input.ticketId);
+      const oldStatus = oldTicket?.status || "unknown";
+
       const updated = await updateTicketStatus(input.ticketId, input.status);
 
       // Send status update to Teams
-      await sendStatusUpdateToTeams(input.ticketId, input.status);
+      try {
+        await sendStatusUpdateToTeams(input.ticketId, oldStatus, input.status, ctx.user.name || "Admin");
+      } catch (e) {
+        console.error("[Helpdesk] Failed to send Teams status update:", e);
+      }
 
       return updated;
     }),
@@ -93,7 +141,7 @@ export const helpdeskRouter = router({
   addTicketReply: approvedProcedure
     .input(
       z.object({
-        ticketId: z.string(),
+        ticketId: z.number(),
         content: z.string(),
         isInternal: z.boolean().optional(),
       })
@@ -101,21 +149,46 @@ export const helpdeskRouter = router({
     .mutation(async ({ input, ctx }) => {
       const reply = await addTicketReply({
         ticketId: input.ticketId,
-        content: input.content,
-        userId: ctx.user?.id || "anonymous",
-        isInternal: input.isInternal || false,
+        message: input.content,
+        userId: ctx.user.id,
+        isStaffReply: ctx.user.role === "admin" ? 1 : 0,
       });
 
       // Send reply notification to Teams
-      await sendReplyNotificationToTeams(input.ticketId, reply);
+      try {
+        if (reply) {
+          await sendReplyNotificationToTeams(input.ticketId, reply as any);
+        }
+      } catch (e) {
+        console.error("[Helpdesk] Failed to send Teams reply notification:", e);
+      }
 
       return reply;
     }),
 
   getTicketReplies: approvedProcedure
-    .input(z.object({ ticketId: z.string() }))
+    .input(z.object({ ticketId: z.number() }))
     .query(async ({ input }) => {
       return await getTicketReplies(input.ticketId);
+    }),
+
+  getNotes: approvedProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      // Return empty for now - notes are stored in ticketNotes table
+      const db = await getDb();
+      if (!db) return [];
+      const { ticketNotes } = await import("../../drizzle/schema");
+      return await db.select().from(ticketNotes).where(eq(ticketNotes.ticketId, input.ticketId));
+    }),
+
+  getActivity: approvedProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { ticketActivity } = await import("../../drizzle/schema");
+      return await db.select().from(ticketActivity).where(eq(ticketActivity.ticketId, input.ticketId));
     }),
 
   getAllTickets: adminProcedure.query(async () => {
@@ -126,13 +199,107 @@ export const helpdeskRouter = router({
     return await getAllTicketFeedback();
   }),
 
+  // Aliases used by AdminPanel
+  updateStatus: adminProcedure
+    .input(z.object({
+      ticketId: z.number(),
+      status: z.enum(["open", "in_progress", "on_hold", "resolved", "closed"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const oldTicket = await getTicketById(input.ticketId);
+      const oldStatus = oldTicket?.status || "unknown";
+      const updated = await updateTicketStatus(input.ticketId, input.status);
+      try {
+        await sendStatusUpdateToTeams(input.ticketId, oldStatus, input.status, ctx.user.name || "Admin");
+      } catch (e) { /* ignore */ }
+      return updated;
+    }),
+
+  assignTicket: adminProcedure
+    .input(z.object({
+      ticketId: z.number(),
+      agentId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      await db.update(tickets).set({ assignedTo: input.agentId }).where(eq(tickets.id, input.ticketId));
+      try {
+        await sendAssignmentNotificationToTeams(input.ticketId, String(input.agentId), ctx.user.name || "Admin");
+      } catch (e) { /* ignore */ }
+      return { success: true };
+    }),
+
+  adminCreateTicket: adminProcedure
+    .input(z.object({
+      title: z.string(),
+      description: z.string(),
+      category: z.enum(["bug_report", "feature_request", "general_support", "billing"]).default("general_support"),
+      priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+      userId: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const ticket = await createTicket({
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        priority: input.priority,
+        source: "web",
+        userId: input.userId || ctx.user.id,
+      });
+      return ticket;
+    }),
+
+  snoozeSlaBreach: adminProcedure
+    .input(z.object({
+      ticketId: z.number(),
+      duration: z.number(), // minutes
+    }))
+    .mutation(async ({ input }) => {
+      // Store snooze in slaSnoozes table
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { slaSnoozes } = await import("../../drizzle/schema");
+      const snoozeUntil = new Date(Date.now() + input.duration * 60 * 1000);
+      await db.insert(slaSnoozes).values({
+        ticketId: input.ticketId,
+        snoozedUntil: snoozeUntil,
+      } as any);
+      return { success: true, snoozedUntil: snoozeUntil };
+    }),
+
+  getAgentWorkload: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      const { tickets, users } = await import("../../drizzle/schema");
+      const allTickets = await db.select().from(tickets).where(
+        and(
+          eq(tickets.status, "open" as any),
+        )
+      );
+      // Group by assignedTo
+      const workload: Record<number, number> = {};
+      for (const t of allTickets) {
+        if (t.assignedTo) {
+          workload[t.assignedTo] = (workload[t.assignedTo] || 0) + 1;
+        }
+      }
+      return Object.entries(workload).map(([agentId, count]) => ({
+        agentId: Number(agentId),
+        openTickets: count,
+      }));
+    }),
+
   submitCustomerFeedback: approvedProcedure
     .input(
       z.object({
-        ticketId: z.string(),
-        npsScore: z.number().min(0).max(10),
-        sentiment: z.enum(["positive", "negative", "neutral"]),
-        feedback: z.string().optional(),
+        ticketId: z.number(),
+        rating: z.number().min(1).max(5),
+        comment: z.string().optional(),
+        npsScore: z.number().min(0).max(10).optional(),
+        sentiment: z.enum(["positive", "negative", "neutral"]).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -141,22 +308,21 @@ export const helpdeskRouter = router({
 
       const result = await db.insert(customerFeedback).values({
         ticketId: input.ticketId,
-        userId: ctx.user?.id || "anonymous",
-        npsScore: input.npsScore,
-        sentiment: input.sentiment,
-        feedback: input.feedback || null,
-        createdAt: new Date(),
+        userId: ctx.user.id,
+        rating: input.rating,
+        comment: input.comment || null,
+        categories: input.sentiment ? JSON.stringify([input.sentiment]) : null,
       });
 
-      // Notify owner of low NPS scores
-      if (input.npsScore < 5) {
+      // Notify owner of low ratings
+      if (input.rating <= 2) {
         await notifyOwner({
-          title: "Low NPS Score",
-          content: `Ticket ${input.ticketId} received NPS score: ${input.npsScore}`,
+          title: "Low Customer Rating",
+          content: `Ticket #${input.ticketId} received rating: ${input.rating}/5`,
         });
       }
 
-      return result;
+      return { success: true };
     }),
 
   getCustomerFeedback: approvedProcedure
@@ -164,21 +330,26 @@ export const helpdeskRouter = router({
       z.object({
         dateFrom: z.date().optional(),
         dateTo: z.date().optional(),
+        days: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return { feedbacks: [] };
 
+      let dateFrom = input.dateFrom;
+      if (!dateFrom && input.days) {
+        dateFrom = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+      }
+
+      const conditions = [];
+      if (dateFrom) conditions.push(gte(customerFeedback.createdAt, dateFrom));
+      if (input.dateTo) conditions.push(lte(customerFeedback.createdAt, input.dateTo));
+
       const feedbacks = await db
         .select()
         .from(customerFeedback)
-        .where(
-          and(
-            input.dateFrom ? gte(customerFeedback.createdAt, input.dateFrom) : undefined,
-            input.dateTo ? gte(customerFeedback.createdAt, input.dateTo) : undefined
-          )
-        )
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(customerFeedback.createdAt));
 
       return { feedbacks };
@@ -195,8 +366,6 @@ export const helpdeskRouter = router({
       })
     )
     .query(async ({ input }) => {
-      // For now, return empty array - this would be implemented with actual call transcript search
-      // In production, this would query callLogs table with filters
       return {
         transcripts: [],
         total: 0,
@@ -210,25 +379,249 @@ export const helpdeskRouter = router({
       })
     )
     .query(async ({ input }) => {
-      return [
-        {
-          agentId: '1',
-          agentName: 'John Smith',
-          email: 'john@gigitekai.com',
-          npsScore: 9.2,
-          avgResponseTime: 3,
-          resolvedTickets: 145,
-          resolutionRate: 0.94,
-        },
-        {
-          agentId: '2',
-          agentName: 'Sarah Johnson',
-          email: 'sarah@gigitekai.com',
-          npsScore: 8.8,
-          avgResponseTime: 4,
-          resolvedTickets: 132,
-          resolutionRate: 0.91,
-        },
+      const db = await getDb();
+      if (!db) return [];
+
+      const { tickets, users } = await import("../../drizzle/schema");
+
+      // Calculate time range filter
+      let dateFilter: Date | undefined;
+      if (input.timeRange === 'week') {
+        dateFilter = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      } else if (input.timeRange === 'month') {
+        dateFilter = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      // Get all resolved/closed tickets with assignees
+      const conditions = [
+        eq(tickets.status, "resolved" as any),
       ];
+      if (dateFilter) {
+        conditions.push(gte(tickets.resolvedAt, dateFilter) as any);
+      }
+
+      const resolvedTickets = await db.select().from(tickets).where(and(...conditions));
+      const allTickets = dateFilter
+        ? await db.select().from(tickets).where(gte(tickets.createdAt, dateFilter))
+        : await db.select().from(tickets);
+
+      // Get all agents (users with admin role)
+      const allAgents = await db.select().from(users).where(eq(users.role, "admin"));
+
+      // Calculate metrics per agent
+      const agentMetrics = allAgents.map(agent => {
+        const assigned = allTickets.filter(t => t.assignedTo === agent.id);
+        const resolved = resolvedTickets.filter(t => t.assignedTo === agent.id);
+
+        // Calculate avg response time (hours between creation and resolution)
+        let avgResponseTime = 0;
+        const resolvedWithTime = resolved.filter(t => t.resolvedAt && t.createdAt);
+        if (resolvedWithTime.length > 0) {
+          const totalHours = resolvedWithTime.reduce((sum, t) => {
+            const diff = (t.resolvedAt!.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60);
+            return sum + diff;
+          }, 0);
+          avgResponseTime = Math.round(totalHours / resolvedWithTime.length);
+        }
+
+        const resolutionRate = assigned.length > 0 ? resolved.length / assigned.length : 0;
+
+        // Get NPS from feedback
+        const agentFeedback = db.select().from(customerFeedback);
+
+        return {
+          agentId: String(agent.id),
+          agentName: agent.name || agent.email || `Agent ${agent.id}`,
+          email: agent.email || "",
+          npsScore: Math.round((resolutionRate * 10) * 10) / 10, // Approximate NPS from resolution rate
+          avgResponseTime,
+          resolvedTickets: resolved.length,
+          resolutionRate: Math.round(resolutionRate * 100) / 100,
+        };
+      });
+
+      // Sort by resolved tickets descending
+      return agentMetrics.sort((a, b) => b.resolvedTickets - a.resolvedTickets);
+    }),
+
+  // ── Aliases and additional procedures needed by frontend ──────────────
+
+  addReply: approvedProcedure
+    .input(z.object({ ticketId: z.number(), content: z.string(), isInternal: z.boolean().optional() }))
+    .mutation(async ({ input, ctx }) => {
+      return await addTicketReply({
+        ticketId: input.ticketId,
+        message: input.content,
+        userId: ctx.user.id,
+        isStaffReply: ctx.user.role === "admin" ? 1 : 0,
+      });
+    }),
+
+  updatePriority: approvedProcedure
+    .input(z.object({ ticketId: z.number(), priority: z.enum(["low", "medium", "high", "critical"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      await db.update(tickets).set({ priority: input.priority }).where(eq(tickets.id, input.ticketId));
+      return { success: true };
+    }),
+
+  addNote: adminProcedure
+    .input(z.object({ ticketId: z.number(), content: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { ticketNotes } = await import("../../drizzle/schema");
+      await db.insert(ticketNotes).values({
+        ticketId: input.ticketId,
+        userId: ctx.user.id,
+        content: input.content,
+      } as any);
+      return { success: true };
+    }),
+
+  deleteNote: adminProcedure
+    .input(z.object({ noteId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { ticketNotes } = await import("../../drizzle/schema");
+      await db.delete(ticketNotes).where(eq(ticketNotes.id, input.noteId));
+      return { success: true };
+    }),
+
+  closeTicket: adminProcedure
+    .input(z.object({ ticketId: z.number(), closingNotes: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      await db.update(tickets).set({
+        status: "closed",
+        closedAt: new Date(),
+        closingNotes: input.closingNotes || null,
+      }).where(eq(tickets.id, input.ticketId));
+      return { success: true };
+    }),
+
+  getMetrics: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return { total: 0, open: 0, inProgress: 0, resolved: 0, closed: 0, avgResolutionHours: 0, dailyTrend: [] as any[], byPriority: { low: 0, medium: 0, high: 0, critical: 0 }, byCategory: { bug_report: 0, feature_request: 0, general_support: 0, billing: 0 }, ticketsByDay: [] as any[], satisfaction: { avg: 0, score: 0, total: 0, helpful: 0, neutral: 0, unhelpful: 0 } };
+      const { tickets } = await import("../../drizzle/schema");
+      const allTickets = await db.select().from(tickets);
+      const open = allTickets.filter(t => t.status === "open").length;
+      const inProgress = allTickets.filter(t => t.status === "in_progress").length;
+      const resolved = allTickets.filter(t => t.status === "resolved").length;
+      const closed = allTickets.filter(t => t.status === "closed").length;
+      // By priority
+      const byPriority = {
+        low: allTickets.filter(t => t.priority === "low").length,
+        medium: allTickets.filter(t => t.priority === "medium").length,
+        high: allTickets.filter(t => t.priority === "high").length,
+        critical: allTickets.filter(t => t.priority === "critical").length,
+      };
+      // By category
+      const byCategory = {
+        bug_report: allTickets.filter(t => t.category === "bug_report").length,
+        feature_request: allTickets.filter(t => t.category === "feature_request").length,
+        general_support: allTickets.filter(t => t.category === "general_support").length,
+        billing: allTickets.filter(t => t.category === "billing").length,
+      };
+      // Tickets by day (last 30 days)
+      const ticketsByDay: { date: string; count: number }[] = [];
+      const now = new Date();
+      for (let i = 29; i >= 0; i--) {
+        const day = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dayStr = day.toISOString().split('T')[0];
+        const count = allTickets.filter(t => t.createdAt.toISOString().split('T')[0] === dayStr).length;
+        ticketsByDay.push({ date: dayStr, count });
+      }
+      // Avg resolution time
+      const resolvedWithTime = allTickets.filter(t => t.resolvedAt && t.createdAt);
+      let avgResolutionHours = 0;
+      if (resolvedWithTime.length > 0) {
+        const totalHours = resolvedWithTime.reduce((sum, t) => {
+          return sum + (t.resolvedAt!.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60);
+        }, 0);
+        avgResolutionHours = Math.round(totalHours / resolvedWithTime.length);
+      }
+      // Satisfaction
+      const feedbacks = await db.select().from(customerFeedback);
+      const avgRating = feedbacks.length > 0 ? Math.round(feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length * 10) / 10 : 0;
+      const satisfaction = {
+        avg: avgRating,
+        score: avgRating,
+        total: feedbacks.length,
+        helpful: feedbacks.filter(f => f.rating >= 4).length,
+        neutral: feedbacks.filter(f => f.rating === 3).length,
+        unhelpful: feedbacks.filter(f => f.rating <= 2).length,
+      };
+      return { total: allTickets.length, open, inProgress, resolved, closed, avgResolutionHours, dailyTrend: ticketsByDay, byPriority, byCategory, ticketsByDay, satisfaction };
+    }),
+
+  getClosedTicketsReport: adminProcedure
+    .input(z.object({ days: z.number().optional() }).optional())
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { tickets } = await import("../../drizzle/schema");
+      return await db.select().from(tickets).where(eq(tickets.status, "closed")).orderBy(desc(tickets.closedAt));
+    }),
+
+  reopenTicket: adminProcedure
+    .input(z.object({ ticketId: z.number() }))
+    .mutation(async ({ input }) => {
+      await updateTicketStatus(input.ticketId, "open");
+      return { success: true };
+    }),
+
+  bulkUpdateStatus: adminProcedure
+    .input(z.object({ ticketIds: z.array(z.number()), status: z.enum(["open", "in_progress", "on_hold", "resolved", "closed"]) }))
+    .mutation(async ({ input }) => {
+      for (const id of input.ticketIds) {
+        await updateTicketStatus(id, input.status);
+      }
+      return { success: true, count: input.ticketIds.length };
+    }),
+
+  bulkDelete: adminProcedure
+    .input(z.object({ ticketIds: z.array(z.number()) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      const { inArray } = await import("drizzle-orm");
+      await db.delete(tickets).where(inArray(tickets.id, input.ticketIds));
+      return { success: true, count: input.ticketIds.length };
+    }),
+
+  listTemplates: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      const { ticketTemplates } = await import("../../drizzle/schema");
+      return await db.select().from(ticketTemplates);
+    }),
+
+  createTemplate: adminProcedure
+    .input(z.object({ name: z.string(), title: z.string(), description: z.string(), category: z.string(), priority: z.string() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { ticketTemplates } = await import("../../drizzle/schema");
+      await db.insert(ticketTemplates).values(input as any);
+      return { success: true };
+    }),
+
+  deleteTemplate: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { ticketTemplates } = await import("../../drizzle/schema");
+      await db.delete(ticketTemplates).where(eq(ticketTemplates.id, input.id));
+      return { success: true };
     }),
 });

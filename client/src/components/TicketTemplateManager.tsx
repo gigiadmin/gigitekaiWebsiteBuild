@@ -46,8 +46,9 @@ export function TicketTemplateManager({
     try {
       await createTemplate.mutateAsync({
         name: formData.name,
-        subject: formData.subject,
-        body: formData.body,
+        title: formData.subject,
+        description: formData.body,
+        priority: "medium",
         category: formData.category,
       });
       setFormData({ name: "", subject: "", body: "", category: "General Support" });
@@ -60,7 +61,7 @@ export function TicketTemplateManager({
   const handleDeleteTemplate = async (templateId: number) => {
     if (!window.confirm("Delete this template?")) return;
     try {
-      await deleteTemplate.mutateAsync({ templateId });
+      await deleteTemplate.mutateAsync({ id: templateId });
       refetch();
     } catch (error) {
       console.error("Failed to delete template:", error);

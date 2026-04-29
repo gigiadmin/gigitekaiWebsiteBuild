@@ -205,7 +205,7 @@ export default function TicketDetail() {
       toast.error("Reply cannot be empty");
       return;
     }
-    addReplyMutation.mutate({ ticketId: ticketIdNum, message: replyText });
+    addReplyMutation.mutate({ ticketId: ticketIdNum, content: replyText });
   };
 
   const handleAddNote = (e: React.FormEvent) => {
@@ -348,9 +348,7 @@ export default function TicketDetail() {
                   <span className="text-white font-medium">
                     {ticket.assignedTo
                       ? agentInfo
-                        ? agentInfo.specialization
-                          ? `${agentInfo.name} (${agentInfo.specialization})`
-                          : agentInfo.name
+                        ? agentInfo.name || agentInfo.email
                         : `Agent #${ticket.assignedTo}`
                       : "Unassigned"}
                   </span>

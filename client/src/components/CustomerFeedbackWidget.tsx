@@ -48,7 +48,8 @@ export function CustomerFeedbackWidget({
         ticketId,
         npsScore: score,
         sentiment,
-        feedbackText: feedbackText || undefined,
+        comment: feedbackText || undefined,
+        rating: Math.ceil(score / 2) || 3,
       });
 
       toast.success("Thank you for your feedback!");
