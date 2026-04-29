@@ -2138,10 +2138,10 @@
 ## User Ticket Portal Refinement (April 2026) - 7 Quick Wins
 - [ ] Add prominent priority indicator with left border accent in dashboard ticket cards
 - [x] Add "Last Updated" timestamp to ticket cards in dashboard (formatTimeAgo helper added)
-- [ ] Add ticket category/type display to dashboard and detail view
+- [x] Add ticket category/type display to dashboard and detail view (verified - shows category with formatting)
 - [ ] Add SLA status indicator (green/yellow/red) in dashboard ticket list
 - [ ] Add quick reply suggestion templates in ticket detail view
-- [ ] Add ticket assignment display (agent name/avatar) in detail view
+- [x] Add ticket assignment display (agent name/avatar) in detail view (verified - shows agent name and specialization)
 - [x] Add "Mark as Urgent" button for users to escalate tickets (fully implemented with priority update mutation)
 
 
