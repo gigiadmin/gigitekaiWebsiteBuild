@@ -33,6 +33,7 @@ import {
   twitterConnect, twitterCallback,
   facebookConnect, facebookCallback,
 } from "../socialOAuth";
+import cronEndpoints from "../cronEndpoints";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -141,6 +142,9 @@ async function startServer() {
   // Email-to-Ticket: Using Microsoft Graph (Azure) for email ingestion
   app.post("/api/email-ingest", handleEmailIngest);
 
+  // Cron job endpoints
+  app.use("/api/cron", cronEndpoints);
+  
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);
   app.get("/api/social/linkedin/callback", linkedinCallback);
