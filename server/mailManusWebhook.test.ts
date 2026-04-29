@@ -38,6 +38,7 @@ describe("Mail Manus Webhook", () => {
 
     mockReq = {
       body: {},
+      headers: {},
     };
   });
 
