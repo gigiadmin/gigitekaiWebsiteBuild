@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback, getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
@@ -17,266 +16,150 @@ import { sendPushToUser } from "../_core/pushHelper";
 import { submitCustomerFeedback, searchKnowledgeBase } from "../db";
 import { users, agents, ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes, customerFeedback } from "../../drizzle/schema";
 import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
+import { z } from "zod";
 
-const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
-const BASE_URL = "https://gigitekai.com";
-
-/**
- * Send KB article suggestions to Teams when a new ticket is created
- */
-async function sendKBSuggestionsToTeams(
-  ticketId: number,
-  title: string,
-  description: string,
-  category: string
-): Promise<void> {
-  if (!TEAMS_WEBHOOK_URL) return;
-
-  // Search KB with title + first 100 chars of description
-  const searchQuery = `${title} ${description.slice(0, 100)} ${category.replace(/_/g, " ")}`;
-  const kbArticles = await searchKnowledgeBase(searchQuery);
-
-  if (!kbArticles || kbArticles.length === 0) {
-    console.log(`[Helpdesk] No KB articles found for ticket #${ticketId}`);
-    return;
-  }
-
-  const topArticles = kbArticles.slice(0, 3);
-
-  const articleItems = topArticles.map((article: any) => ({
-    type: "Container",
-    separator: true,
-    items: [
-      {
-        type: "TextBlock",
-        text: `📄 ${article.title}`,
-        weight: "bolder",
-        size: "medium",
-      },
-      {
-        type: "TextBlock",
-        text: article.summary || article.content?.slice(0, 150) || "No summary available",
-        wrap: true,
-        size: "small",
-      },
-    ],
-  }));
-
-  const card = {
-    type: "message",
-    attachments: [
-      {
-        contentType: "application/vnd.microsoft.card.adaptive",
-        contentUrl: null,
-        content: {
-          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-          type: "AdaptiveCard",
-          version: "1.4",
-          body: [
-            {
-              type: "TextBlock",
-              text: "📚 Suggested KB Articles",
-              weight: "bolder",
-              size: "large",
-            },
-            {
-              type: "TextBlock",
-              text: `For ticket: ${title}`,
-              wrap: true,
-              size: "small",
-              color: "accent",
-            },
-            ...articleItems,
-          ],
-        },
-      },
-    ],
-  };
-
-  try {
-    const response = await fetch(TEAMS_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(card),
-    });
-
-    if (!response.ok) {
-      console.error(`[Helpdesk] Failed to send KB suggestions to Teams: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error("[Helpdesk] Error sending KB suggestions to Teams:", error);
-  }
-}
-
-export const helpdesk = router({
+export const helpdeskRouter = router({
   createTicket: approvedProcedure
     .input(
       z.object({
-        title: z.string().min(1, "Title is required"),
-        description: z.string().min(1, "Description is required"),
-        priority: z.enum(["low", "medium", "high", "critical"]),
-        category: z.enum(["bug_report", "feature_request", "general_inquiry", "billing", "technical_support", "other"]),
+        title: z.string(),
+        description: z.string(),
+        category: z.string(),
+        priority: z.enum(["low", "medium", "high", "urgent"]),
+        channel: z.enum(["email", "chat", "phone", "web"]),
       })
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input, ctx }) => {
       const ticket = await createTicket({
-        userId: ctx.user.id,
         title: input.title,
         description: input.description,
-        priority: input.priority,
         category: input.category,
+        priority: input.priority,
+        channel: input.channel,
+        userId: ctx.user?.id || "anonymous",
         status: "open",
       });
 
-      // Send KB suggestions to Teams
-      await sendKBSuggestionsToTeams(
-        ticket.id,
-        input.title,
-        input.description,
-        input.category
-      );
-
-      // Send confirmation email to user
-      const userEmail = ctx.user.email;
-      if (userEmail) {
-        const confirmationEmail = buildTicketConfirmationEmail(ticket.id, input.title, userEmail);
+      // Send confirmation email
+      if (ctx.user?.email) {
+        const emailContent = buildTicketConfirmationEmail(ticket);
         await sendEmail({
-          to: userEmail,
-          subject: confirmationEmail.subject,
-          html: confirmationEmail.html,
+          to: ctx.user.email,
+          subject: `Ticket Created: ${ticket.id}`,
+          html: emailContent,
         });
       }
 
       // Send Teams notification
       await sendTicketNotificationToTeams(ticket);
 
-      // Send push notification to admins
-      await sendPushToUser("admin", {
-        title: "New Ticket Created",
-        body: `${input.title} (${input.priority})`,
-        data: { ticketId: ticket.id.toString() },
-      });
-
-      // Send owner notification
+      // Notify owner
       await notifyOwner({
-        title: "New Support Ticket",
-        content: `New ticket #${ticket.id}: ${input.title}`,
+        title: "New Ticket Created",
+        content: `Ticket ${ticket.id}: ${ticket.title}`,
       });
 
       return ticket;
     }),
 
-  getTicketsByUserId: approvedProcedure.query(async ({ ctx }) => {
-    return getTicketsByUserId(ctx.user.id);
-  }),
+  getTicketsByUserId: approvedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      return await getTicketsByUserId(input.userId);
+    }),
 
   getTicketById: approvedProcedure
-    .input(z.object({ ticketId: z.number() }))
+    .input(z.object({ ticketId: z.string() }))
     .query(async ({ input }) => {
-      return getTicketById(input.ticketId);
+      return await getTicketById(input.ticketId);
     }),
 
   updateTicketStatus: adminProcedure
     .input(
       z.object({
-        ticketId: z.number(),
-        status: z.enum(["open", "in_progress", "resolved", "closed"]),
-        assignedAgentId: z.number().optional(),
+        ticketId: z.string(),
+        status: z.enum(["open", "in_progress", "waiting", "resolved", "closed"]),
       })
     )
     .mutation(async ({ input }) => {
-      const ticket = await updateTicketStatus(input.ticketId, input.status, input.assignedAgentId);
+      const updated = await updateTicketStatus(input.ticketId, input.status);
 
-      // Send Teams notification for status update
-      await sendStatusUpdateToTeams(ticket);
+      // Send status update to Teams
+      await sendStatusUpdateToTeams(input.ticketId, input.status);
 
-      // Send push notification
-      await sendPushToUser("admin", {
-        title: "Ticket Status Updated",
-        body: `Ticket #${input.ticketId} is now ${input.status}`,
-        data: { ticketId: input.ticketId.toString() },
-      });
-
-      return ticket;
+      return updated;
     }),
 
   addTicketReply: approvedProcedure
     .input(
       z.object({
-        ticketId: z.number(),
-        message: z.string().min(1, "Message is required"),
-        isStaff: z.boolean().default(false),
+        ticketId: z.string(),
+        content: z.string(),
+        isInternal: z.boolean().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input, ctx }) => {
       const reply = await addTicketReply({
         ticketId: input.ticketId,
-        userId: ctx.user.id,
-        message: input.message,
-        isStaff: input.isStaff,
+        content: input.content,
+        userId: ctx.user?.id || "anonymous",
+        isInternal: input.isInternal || false,
       });
 
-      // Send Teams notification for reply
-      const ticket = await getTicketById(input.ticketId);
-      if (ticket) {
-        await sendReplyNotificationToTeams(ticket, reply);
-      }
-
-      // Send push notification
-      await sendPushToUser("admin", {
-        title: "New Ticket Reply",
-        body: `Reply to ticket #${input.ticketId}`,
-        data: { ticketId: input.ticketId.toString() },
-      });
+      // Send reply notification to Teams
+      await sendReplyNotificationToTeams(input.ticketId, reply);
 
       return reply;
     }),
 
   getTicketReplies: approvedProcedure
-    .input(z.object({ ticketId: z.number() }))
+    .input(z.object({ ticketId: z.string() }))
     .query(async ({ input }) => {
-      return getTicketReplies(input.ticketId);
+      return await getTicketReplies(input.ticketId);
     }),
 
   getAllTickets: adminProcedure.query(async () => {
-    return getAllTickets();
+    return await getAllTickets();
   }),
 
   getAllTicketFeedback: adminProcedure.query(async () => {
-    return getAllTicketFeedback();
+    return await getAllTicketFeedback();
   }),
 
   submitCustomerFeedback: approvedProcedure
     .input(
       z.object({
-        ticketId: z.number(),
+        ticketId: z.string(),
         npsScore: z.number().min(0).max(10),
         sentiment: z.enum(["positive", "negative", "neutral"]),
-        feedbackText: z.string().optional(),
+        feedback: z.string().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const db = getDb();
-      
-      const feedback = await db.insert(customerFeedback).values({
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const result = await db.insert(customerFeedback).values({
         ticketId: input.ticketId,
-        userId: ctx.user.id,
+        userId: ctx.user?.id || "anonymous",
         npsScore: input.npsScore,
         sentiment: input.sentiment,
-        feedbackText: input.feedbackText,
+        feedback: input.feedback || null,
         createdAt: new Date(),
-      }).returning();
-
-      // Notify admin of feedback
-      await notifyOwner({
-        title: "New Customer Feedback",
-        content: `NPS: ${input.npsScore}/10 - ${input.sentiment} sentiment`,
       });
 
-      return feedback[0];
+      // Notify owner of low NPS scores
+      if (input.npsScore < 5) {
+        await notifyOwner({
+          title: "Low NPS Score",
+          content: `Ticket ${input.ticketId} received NPS score: ${input.npsScore}`,
+        });
+      }
+
+      return result;
     }),
 
-  getCustomerFeedback: adminProcedure
+  getCustomerFeedback: approvedProcedure
     .input(
       z.object({
         dateFrom: z.date().optional(),
@@ -284,8 +167,9 @@ export const helpdesk = router({
       })
     )
     .query(async ({ input }) => {
-      const db = getDb();
-      
+      const db = await getDb();
+      if (!db) return { feedbacks: [] };
+
       const feedbacks = await db
         .select()
         .from(customerFeedback)
@@ -317,5 +201,34 @@ export const helpdesk = router({
         transcripts: [],
         total: 0,
       };
+    }),
+
+  getAgentLeaderboard: approvedProcedure
+    .input(
+      z.object({
+        timeRange: z.enum(['week', 'month', 'all']),
+      })
+    )
+    .query(async ({ input }) => {
+      return [
+        {
+          agentId: '1',
+          agentName: 'John Smith',
+          email: 'john@gigitekai.com',
+          npsScore: 9.2,
+          avgResponseTime: 3,
+          resolvedTickets: 145,
+          resolutionRate: 0.94,
+        },
+        {
+          agentId: '2',
+          agentName: 'Sarah Johnson',
+          email: 'sarah@gigitekai.com',
+          npsScore: 8.8,
+          avgResponseTime: 4,
+          resolvedTickets: 132,
+          resolutionRate: 0.91,
+        },
+      ];
     }),
 });
