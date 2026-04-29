@@ -322,7 +322,7 @@ export function AIChatBox({
           size="icon"
           aria-label="Send message"
           disabled={!input.trim() || isLoading}
-          className="shrink-0 h-[38px] w-[38px]"
+          className="shrink-0 h-[44px] w-[44px]"
         >
           {isLoading ? (
             <Loader2 className="size-4 animate-spin" />

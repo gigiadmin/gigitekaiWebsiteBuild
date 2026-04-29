@@ -90,6 +90,16 @@ export default function SiteNavBar2024() {
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setServicesOpen(!servicesOpen);
+                  } else if (e.key === 'Escape') {
+                    setServicesOpen(false);
+                  }
+                }}
+                aria-expanded={servicesOpen}
+                aria-haspopup="true"
               >
                 Services
                 <ChevronDown size={14} className={`transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
