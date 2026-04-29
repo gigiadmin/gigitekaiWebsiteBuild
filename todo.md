@@ -3825,3 +3825,6 @@
 - [x] Fix navbar redundancy on desktop view (removed redundant tagline from top utility bar)
 - [x] Limit recent tabs to last 4 items to save space in admin sidebar
 - [x] Remove MS Learn articles from KB list and search results (filtered by syncSource != 'ms-learn')
+
+## New Improvements (April 29, 2026)
+- [x] Send email notification when ticket is assigned to an agent (added to assignTicket mutation)
