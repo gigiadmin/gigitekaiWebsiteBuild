@@ -4,9 +4,10 @@ import { getDb } from "../db";
 import { realtimeChatMessages, realtimeChatSessions, userSessions } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { sendChatMessageNotificationToTeams } from "../teamsBot";
+import { ticketNotificationEmitter, TicketNotification } from "../ticketNotificationEmitter";
 
 interface WebSocketMessage {
-  type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification" | "call_offer" | "call_answer" | "ice_candidate" | "call_end" | "call_reject" | "call_request";
+  type: "join" | "message" | "typing" | "read" | "disconnect" | "file_notification" | "call_offer" | "call_answer" | "ice_candidate" | "call_end" | "call_reject" | "call_request" | "subscribe_tickets" | "unsubscribe_tickets";
   userId?: number;
   sessionId?: number;
   message?: string;
@@ -231,6 +232,33 @@ async function handleMessage(
           }
         }
       }
+      break;
+
+    case "subscribe_tickets":
+      if (!msg.userId || msg.role !== "admin") return;
+      // Subscribe admin to ticket notifications
+      const ticketNewListener = (notification: TicketNotification) => {
+        ws.send(JSON.stringify({
+          type: "ticket_notification",
+          data: notification,
+        }));
+      };
+      ticketNotificationEmitter.on("ticket:new", ticketNewListener);
+      ws.on("close", () => {
+        ticketNotificationEmitter.off("ticket:new", ticketNewListener);
+      });
+      ws.send(JSON.stringify({
+        type: "subscription_confirmed",
+        subscribed_to: "ticket_notifications",
+      }));
+      break;
+
+    case "unsubscribe_tickets":
+      // Unsubscribe handled by close event
+      ws.send(JSON.stringify({
+        type: "unsubscription_confirmed",
+        unsubscribed_from: "ticket_notifications",
+      }));
       break;
   }
 }

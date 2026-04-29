@@ -14,7 +14,7 @@ import { sendSMS } from "../_core/sms";
 import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { sendPushToUser } from "../_core/pushHelper";
-import { searchKnowledgeBase } from "../db";
+import { submitCustomerFeedback, searchKnowledgeBase } from "../db";
 import { users, agents, ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes, customerFeedback } from "../../drizzle/schema";
 import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
 
@@ -1329,5 +1329,27 @@ export const helpdeskRouter = router({
         console.error("[Helpdesk] Failed to submit feedback:", error);
         throw error;
       }
+    }),
+
+  getCustomerFeedback: approvedProcedure
+    .input(
+      z.object({
+        days: z.number().min(1).max(365).default(30),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - input.days);
+
+      const feedbacks = await db
+        .select()
+        .from(customerFeedback)
+        .where(gte(customerFeedback.createdAt, startDate))
+        .orderBy(desc(customerFeedback.createdAt));
+
+      return { feedbacks };
     }),
 });
