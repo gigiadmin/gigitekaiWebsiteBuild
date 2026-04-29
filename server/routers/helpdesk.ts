@@ -885,7 +885,7 @@ export const helpdeskRouter = router({
           const agent = await db.select().from(users).where(eq(users.id, input.agentId)).limit(1);
           if (agent[0]?.email) {
             const emailContent = `You have been assigned to ticket #${input.ticketId}.\n\nTicket Summary:\n- Title: ${ticket.title}\n- Priority: ${ticket.priority}\n- Category: ${ticket.category}\n- Assigned by: ${ctx.user.name || ctx.user.email || "Admin"}\n\nView ticket: https://gigitekai.com/admin/tickets/${input.ticketId}`;
-            sendEmail({ to: agent[0].email, subject: `New Ticket Assignment #${input.ticketId}`, text: emailContent }).catch((e: any) => console.warn("[Helpdesk] Assignment email failed:", e));
+            sendEmail({ to: agent[0].email, subject: `New Ticket Assignment #${input.ticketId}`, html: `<p>${emailContent.replace(/\n/g, '<br>')}</p>` }).catch((e: any) => console.warn("[Helpdesk] Assignment email failed:", e));
           }
         }
         // Send Teams notification (non-blocking)

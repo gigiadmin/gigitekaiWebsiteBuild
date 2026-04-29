@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AlertCircle, MessageSquare, Ticket, Bell, Activity } from "lucide-react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminNotifications from "./AdminNotifications";
