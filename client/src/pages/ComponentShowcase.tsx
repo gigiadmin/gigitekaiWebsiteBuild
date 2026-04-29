@@ -233,7 +233,7 @@ export default function ComponentsShowcase() {
           <h2 className="text-3xl font-bold tracking-tight mb-6">
             Shadcn/ui Component Library
           </h2>
-          <Button variant="outline" size="icon" onClick={toggleTheme}>
+          <Button variant="outline" size="icon" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}>
             {theme === "light" ? (
               <Moon className="h-5 w-5" />
             ) : (

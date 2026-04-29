@@ -203,6 +203,7 @@ export default function AdminCustomers() {
                                 onClick={() => resendInvite.mutate({ inviteId: invite.id })}
                                 disabled={resendInvite.isPending}
                                 title="Resend invite email"
+                                aria-label="Resend invite email"
                               >
                                 <Send size={13} />
                               </Button>
@@ -213,6 +214,7 @@ export default function AdminCustomers() {
                                 onClick={() => revokeInvite.mutate({ inviteId: invite.id })}
                                 disabled={revokeInvite.isPending}
                                 title="Revoke invite"
+                                aria-label="Revoke invite"
                               >
                                 <XCircle size={14} />
                               </Button>

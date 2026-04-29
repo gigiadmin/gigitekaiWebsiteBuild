@@ -197,6 +197,7 @@ export function CopilotChat() {
             onClick={handleSendMessage}
             disabled={isLoading || !input.trim()}
             size="icon"
+            aria-label="Send message"
             className="bg-cyan-600 hover:bg-cyan-700"
           >
             {isLoading ? (

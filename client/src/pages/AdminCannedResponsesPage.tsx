@@ -316,6 +316,7 @@ export default function AdminCannedResponsesPage() {
                             onClick={() => copyBody(item.body)}
                             className="w-7 h-7 text-gray-500 hover:text-cyan-400"
                             title="Copy to clipboard"
+                            aria-label="Copy to clipboard"
                           >
                             <Copy size={13} />
                           </Button>
@@ -325,6 +326,7 @@ export default function AdminCannedResponsesPage() {
                             onClick={() => openEdit(item)}
                             className="w-7 h-7 text-gray-500 hover:text-amber-400"
                             title="Edit"
+                            aria-label="Edit"
                           >
                             <Pencil size={13} />
                           </Button>
@@ -334,6 +336,7 @@ export default function AdminCannedResponsesPage() {
                             onClick={() => setDeleteId(item.id)}
                             className="w-7 h-7 text-gray-500 hover:text-red-400"
                             title="Delete"
+                            aria-label="Delete"
                           >
                             <Trash2 size={13} />
                           </Button>
