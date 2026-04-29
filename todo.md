@@ -2959,8 +2959,8 @@
 - [ ] Implement notification history/log
 
 ### Navigation & Integration
-- [ ] Add M365 Health link to admin sidebar
-- [ ] Add M365 Health card to admin dashboard
+- [x] Add M365 Health link to admin sidebar (verified - already in ANALYTICS section)
+- [x] Add M365 Health card to admin dashboard (added clickable card with status indicator)
 - [ ] Show critical issues badge on navigation
 - [ ] Add M365 Health to admin menu
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { AlertCircle, MessageSquare, Ticket, Bell } from "lucide-react";
+import { AlertCircle, MessageSquare, Ticket, Bell, Activity } from "lucide-react";
+import { useNavigate } from "wouter";
 import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminNotifications from "./AdminNotifications";
@@ -41,6 +42,8 @@ export default function AdminDashboard() {
     );
   }
 
+  const navigate = useNavigate();
+
   const tabs = [
     { id: "chat" as TabType, label: "Live Chat", icon: <MessageSquare className="w-5 h-5" /> },
     { id: "helpdesk" as TabType, label: "Helpdesk", icon: <Ticket className="w-5 h-5" /> },
@@ -74,6 +77,24 @@ export default function AdminDashboard() {
                   {tab.label}
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Access Cards */}
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* M365 Health Card */}
+            <div
+              onClick={() => navigate("/admin/m365-health")}
+              className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <Activity className="w-5 h-5 text-[#00D4FF]" />
+                <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded">Operational</span>
+              </div>
+              <h3 className="text-white font-semibold text-sm mb-1">M365 Health Status</h3>
+              <p className="text-gray-400 text-xs">Monitor service health and incidents</p>
             </div>
           </div>
         </div>
