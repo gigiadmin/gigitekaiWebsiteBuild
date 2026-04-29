@@ -2139,7 +2139,7 @@
 - [ ] Add prominent priority indicator with left border accent in dashboard ticket cards
 - [x] Add "Last Updated" timestamp to ticket cards in dashboard (formatTimeAgo helper added)
 - [x] Add ticket category/type display to dashboard and detail view (verified - shows category with formatting)
-- [ ] Add SLA status indicator (green/yellow/red) in dashboard ticket list
+- [x] Add SLA status indicator (green/yellow/red) in dashboard ticket list (enhanced with left border accent)
 - [ ] Add quick reply suggestion templates in ticket detail view
 - [x] Add ticket assignment display (agent name/avatar) in detail view (verified - shows agent name and specialization)
 - [x] Add "Mark as Urgent" button for users to escalate tickets (fully implemented with priority update mutation)

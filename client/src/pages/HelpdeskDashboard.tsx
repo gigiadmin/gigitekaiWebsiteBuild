@@ -272,7 +272,12 @@ export default function HelpdeskDashboard() {
                 <div
                   key={ticket.id}
                   onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                  className={`group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer ${getPriorityConfig(ticket.priority).border}`}
+                  className={`group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer border-l-4 ${getPriorityConfig(ticket.priority).border} ${
+                    getSLAStatus(ticket.priority, ticket.createdAt).status === 'breached' ? 'border-l-red-500' :
+                    getSLAStatus(ticket.priority, ticket.createdAt).status === 'critical' ? 'border-l-orange-500' :
+                    getSLAStatus(ticket.priority, ticket.createdAt).status === 'warning' ? 'border-l-yellow-500' :
+                    'border-l-green-500'
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
