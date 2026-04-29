@@ -15,8 +15,7 @@ import { createAdminNotification } from "./adminNotifications";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { sendPushToUser } from "../_core/pushHelper";
 import { searchKnowledgeBase } from "../db";
-import { users, agents } from "../../drizzle/schema";
-import { ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes } from "../../drizzle/schema";
+import { users, agents, ticketTemplates, tickets, ticketNotes, ticketActivity, slaSnoozes, customerFeedback } from "../../drizzle/schema";
 import { eq, inArray, asc, desc, and, gt, count, gte } from "drizzle-orm";
 
 const TEAMS_WEBHOOK_URL = process.env.TEAMS_WEBHOOK_URL;
@@ -1283,6 +1282,51 @@ export const helpdeskRouter = router({
         return { success: true, ticketId: input.ticketId, newPriority: input.priority };
       } catch (error) {
         console.error("[Helpdesk] Failed to update priority:", error);
+        throw error;
+      }
+    }),
+
+  submitCustomerFeedback: approvedProcedure
+    .input(
+      z.object({
+        ticketId: z.number(),
+        npsScore: z.number().min(0).max(10),
+        sentiment: z.enum(["positive", "negative", "neutral"]),
+        feedbackText: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database connection failed");
+
+        const ticket = await getTicketById(input.ticketId);
+        if (!ticket) throw new Error("Ticket not found");
+
+        const result = await db.insert(customerFeedback as any).values({
+          ticketId: input.ticketId,
+          userId: ctx.user.id,
+          rating: Math.round(input.npsScore / 2),
+          comment: input.feedbackText || null,
+          categories: JSON.stringify([input.sentiment]),
+        });
+
+        await db.insert(ticketActivity).values({
+          ticketId: input.ticketId,
+          actorId: ctx.user.id,
+          actorName: ctx.user.name || ctx.user.email || "Customer",
+          action: "feedback_submitted",
+          toValue: `NPS: ${input.npsScore}/10, Sentiment: ${input.sentiment}`,
+        });
+
+        await notifyOwner({
+          title: `Customer Feedback on Ticket #${input.ticketId}`,
+          content: `NPS Score: ${input.npsScore}/10\nSentiment: ${input.sentiment}\nComment: ${input.feedbackText || "(none)"}`,
+        });
+
+        return { success: true };
+      } catch (error) {
+        console.error("[Helpdesk] Failed to submit feedback:", error);
         throw error;
       }
     }),

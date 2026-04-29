@@ -3823,3 +3823,29 @@
 ## New Improvements (April 29, 2026)
 - [x] Send email notification when ticket is assigned to an agent (added to assignTicket mutation)
 - [x] Create voicemail-to-ticket system (auto-create tickets from voicemails for review/action) - FULLY IMPLEMENTED
+
+
+## Next Steps — May 2026
+
+### Step 1: /api/cron/new-tickets Endpoint (GitHub commit 3a8923c)
+- [ ] Pull latest code from GitHub (commit 3a8923c27c2e7176e0191f2cf5cbc886c182c2ca)
+- [ ] Rebuild and redeploy project
+- [ ] Test endpoint with cron job scheduler
+- [ ] Verify new tickets are created on schedule
+
+### Step 2: Customer Feedback Widget ✅
+- [x] Create CustomerFeedbackWidget.tsx component (created)
+- [x] Add NPS score selector (0-10) (implemented)
+- [x] Add sentiment analysis (AI-powered) (implemented with auto-detection)
+- [x] Integrate submitCustomerFeedback tRPC procedure (added to helpdesk router)
+- [x] Store feedback in database (customerFeedback table) (integrated)
+- [x] Admin notifications on feedback submission (implemented)
+
+### Step 3: AI-Powered Call Transcript Analyzer ✅
+- [x] Create callTranscriptAnalyzer.ts in server/ (created)
+- [x] Analyze transcripts with LLM (implemented)
+- [x] Extract key topics and action items from transcripts (implemented)
+- [x] Auto-generate KB articles from call summaries (implemented)
+- [x] Suggest matching KB articles based on call content (implemented)
+- [x] Batch processing support for multiple transcripts (implemented)
+- [x] Store analysis results in database (integrated)
