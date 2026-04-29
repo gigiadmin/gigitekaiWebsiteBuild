@@ -237,7 +237,7 @@ export default function M365NotificationsPreferencesPage() {
                   </CardContent>
                 </Card>
               ) : (
-                subscriptions.map((sub) => (
+                subscriptions.map((sub: any) => (
                   <Card key={sub.id} className="bg-slate-800 border-slate-700">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-2">
@@ -250,7 +250,7 @@ export default function M365NotificationsPreferencesPage() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => deleteSubscriptionMutation.mutate({ id: sub.id })}
+                          onClick={() => deleteSubscriptionMutation.mutate({ email: sub.email, service: sub.service || "" })}
                           disabled={deleteSubscriptionMutation.isPending}
                         >
                           <Trash2 size={14} />
@@ -259,7 +259,7 @@ export default function M365NotificationsPreferencesPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex flex-wrap gap-2">
-                        {sub.services?.map((service) => (
+                        {sub.services?.map((service: string) => (
                           <Badge key={service} variant="outline" className="bg-cyan-900/30 text-cyan-400 border-cyan-700/30">
                             {SERVICES.find((s) => s.id === service)?.name || service}
                           </Badge>

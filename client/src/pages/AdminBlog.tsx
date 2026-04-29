@@ -31,7 +31,7 @@ import {
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X, Mail, ExternalLink } from "lucide-react";
 import { lazy, Suspense } from "react";
-const RichTextEditor = lazy(() => import("@/components/RichTextEditor"));
+const RichTextEditor = lazy(() => import("@/components/RichTextEditor").then(m => ({ default: m.default })));
 import DragDropImageUploader from "@/components/DragDropImageUploader";
 import AdminLayout from "@/components/AdminLayout";
 

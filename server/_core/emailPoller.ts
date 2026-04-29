@@ -14,6 +14,7 @@ import { invokeLLM } from "./llm";
 import { sendEmail } from "./email";
 import { notifyOwner } from "./notification";
 import { sendTicketNotificationToTeams } from "../teamsNotifications";
+import type { Ticket } from "../../drizzle/schema";
 
 const SUPPORT_EMAIL = "support@gigitekai.com";
 const BASE_URL = process.env.BASE_URL || "https://gigitekai.com";
@@ -704,13 +705,13 @@ async function processEmail(msgData: any): Promise<boolean> {
 
     // Send Teams notification
     try {
-      const ticket = {
+      const ticket: Partial<{ id: number; title: string; description: string; priority: string; status: string; category: 'bug_report' | 'feature_request' | 'general_support' | 'billing'; customerName: string; createdAt: Date }> = {
         id: ticketId,
         title: subject,
         description: typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 1000) : String(emailBody).slice(0, 1000),
         priority: classification.priority,
         status: 'open',
-        category: classification.category,
+        category: (classification.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
         customerName: senderName,
         createdAt: new Date(),
       };

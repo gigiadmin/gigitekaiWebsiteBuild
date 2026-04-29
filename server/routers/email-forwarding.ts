@@ -169,7 +169,7 @@ export const emailForwardingRouter = router({
   setupForwarding: protectedProcedure
     .use(({ ctx, next }) => {
       // Only allow the owner to set up forwarding
-      if (!ctx.user.isOwner) {
+      if (ctx.user.role !== "admin" && ctx.user.openId !== process.env.OWNER_OPEN_ID) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only the owner can set up email forwarding" });
       }
       return next({ ctx });
@@ -187,7 +187,7 @@ export const emailForwardingRouter = router({
    */
   getForwardingStatus: protectedProcedure
     .use(({ ctx, next }) => {
-      if (!ctx.user.isOwner) {
+      if (ctx.user.role !== "admin" && ctx.user.openId !== process.env.OWNER_OPEN_ID) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only the owner can view email forwarding status" });
       }
       return next({ ctx });
@@ -202,7 +202,7 @@ export const emailForwardingRouter = router({
    */
   disableForwarding: protectedProcedure
     .use(({ ctx, next }) => {
-      if (!ctx.user.isOwner) {
+      if (ctx.user.role !== "admin" && ctx.user.openId !== process.env.OWNER_OPEN_ID) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Only the owner can disable email forwarding" });
       }
       return next({ ctx });

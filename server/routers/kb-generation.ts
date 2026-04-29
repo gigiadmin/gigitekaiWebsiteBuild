@@ -423,7 +423,7 @@ Focus on:
               category: "general",
               tags: "",
               confidenceScore: 0,
-              status: "pending",
+              status: "draft",
               createdAt: new Date(),
             });
             queued++;

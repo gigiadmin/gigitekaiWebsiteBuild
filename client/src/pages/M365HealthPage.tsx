@@ -25,19 +25,22 @@ export default function M365HealthPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "critical" | "operational">("all");
 
   // Fetch service health
-  const { data: services = [], isLoading: servicesLoading, refetch: refetchServices } = trpc.m365Health.getServiceHealth.useQuery({});
+  const { data: services = [], isLoading: servicesLoading, refetch: refetchServices } = trpc.m365Health.getServiceHealth.useQuery();
 
   // Fetch critical issues
-  const { data: criticalIssues = [] } = trpc.m365Health.getCriticalIssues.useQuery({});
+  const { data: criticalIssues = [] } = trpc.m365Health.getCriticalIssues.useQuery();
 
   // Fetch health summary
-  const { data: healthSummary } = trpc.m365Health.getHealthSummary.useQuery({});
+  const { data: healthSummary } = trpc.m365Health.getHealthSummary.useQuery();
 
   // Fetch issues for selected service
   const { data: serviceIssues = [], isLoading: issuesLoading } = trpc.m365Health.getServiceIssues.useQuery(
     { serviceId: selectedService || "" },
     { enabled: !!selectedService }
   );
+
+  // Fetch subscriptions
+  const { data: subscriptions = [] } = trpc.m365Health.getNotificationSubscriptions.useQuery();
 
   // Filter services based on search and status
   const filteredServices = useMemo(() => {

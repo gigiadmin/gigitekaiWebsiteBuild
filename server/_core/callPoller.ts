@@ -225,7 +225,9 @@ Priority guide:
 
     const content = response?.choices?.[0]?.message?.content;
     if (!content) throw new Error("Empty LLM response");
-    return JSON.parse(content) as CallAnalysis;
+    // Handle both string and array content from LLM
+    const contentStr = typeof content === 'string' ? content : (Array.isArray(content) && content[0]?.type === 'text' ? content[0].text : JSON.stringify(content));
+    return JSON.parse(contentStr) as CallAnalysis;
   } catch (err) {
     console.warn("[Call Poller] AI analysis failed, using defaults:", err);
     return {
@@ -251,11 +253,10 @@ async function lookupCallerByPhone(phone: string): Promise<{ userId: number; nam
        FROM users u 
        JOIN contactSubmissions cs ON cs.email = u.email 
        WHERE REPLACE(REPLACE(REPLACE(cs.phone, ' ', ''), '-', ''), '(', '') LIKE ?
-       LIMIT 1`,
-      [`%${normalized.slice(-10)}%`]
+       LIMIT 1`
     );
-    const rows = result as any[];
-    if (rows.length > 0 && rows[0].id) {
+    const rows = (result as any[]).filter(r => r.id);
+    if (rows.length > 0) {
       return { userId: rows[0].id, name: rows[0].name || "Unknown", email: rows[0].email || "" };
     }
     return null;

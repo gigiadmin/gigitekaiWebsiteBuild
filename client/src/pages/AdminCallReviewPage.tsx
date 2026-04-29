@@ -425,7 +425,7 @@ export default function AdminCallReviewPage() {
               draftTickets.map((item) => {
                 const d = item.draft;
                 const log = item.log;
-                const confidence = parseFloat(d.aiConfidence || "0.5");
+                const confidence = log?.aiConfidence ? parseFloat(String(log.aiConfidence)) : 0.5;
                 const conf = confidenceLabel(confidence);
                 return (
                   <div
@@ -487,14 +487,14 @@ export default function AdminCallReviewPage() {
                           Review
                         </Button>
                       )}
-                      {d.reviewStatus === "approved" && d.createdTicketId && (
+                      {d.reviewStatus === "approved" && d.ticketId && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/helpdesk/ticket/${d.createdTicketId}`)}
+                          onClick={() => navigate(`/helpdesk/ticket/${d.ticketId}`)}
                           className="border-white/10 text-gray-400 hover:text-white shrink-0"
                         >
-                          View Ticket #{d.createdTicketId}
+                          View Ticket #{d.ticketId}
                         </Button>
                       )}
                     </div>

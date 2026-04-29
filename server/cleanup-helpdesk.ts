@@ -24,6 +24,10 @@ async function cleanupHelpdesk() {
   try {
     const db = await getDb();
 
+    if (!db) {
+      console.error("Failed to connect to database");
+      process.exit(1);
+    }
     // 1. Count before cleanup
     const ticketCountBefore = await db.select().from(tickets);
     const repliesCountBefore = await db.select().from(ticketReplies);
