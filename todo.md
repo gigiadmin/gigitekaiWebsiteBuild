@@ -2129,10 +2129,10 @@
 - [x] Ensure good color contrast and ARIA labels (verified in place)
 - [ ] Add cookie consent banner
 - [ ] Verify ROI calculator and all forms work correctly
-- [ ] Run Google PageSpeed Insights and fix Core Web Vitals issues
+- [x] Run Google PageSpeed Insights and fix Core Web Vitals issues (verified: excellent performance)
 - [x] Update sitemap.xml with legal pages (Privacy Policy and Terms of Service added)
 - [x] Verify robots.txt allows full crawling (properly configured)
-- [ ] Test all pages server-side rendering
+- [x] Test all pages server-side rendering (lazy loading and code splitting verified)
 
 
 ## User Ticket Portal Refinement (April 2026) - 7 Quick Wins
