@@ -29,7 +29,7 @@ export default function CallTranscriptSearch() {
   const [dateTo, setDateTo] = useState("");
 
   // Fetch call transcripts
-  const { data: transcriptsData, isLoading } = trpc.admin.searchCallTranscripts.useQuery({
+  const { data: transcriptsData, isLoading } = trpc.helpdesk.searchCallTranscripts.useQuery({
     query: searchQuery,
     sentiment: sentimentFilter === "all" ? undefined : sentimentFilter,
     topics: topicFilter.length > 0 ? topicFilter : undefined,
