@@ -1648,3 +1648,183 @@ export const callDraftTickets = mysqlTable("callDraftTickets", {
 });
 export type CallDraftTicket = typeof callDraftTickets.$inferSelect;
 export type InsertCallDraftTicket = typeof callDraftTickets.$inferInsert;
+
+
+// ============================================================================
+// PHASE 2: CALL CENTER INTEGRATION TABLES
+// ============================================================================
+
+// CALL RECORDING METADATA
+export const callRecordings = mysqlTable("call_recordings", {
+  id: int("id").primaryKey().autoincrement(),
+  callId: varchar("call_id", { length: 255 }).notNull().unique(),
+  customerId: int("customer_id"),
+  agentId: int("agent_id"),
+  recordingUrl: text("recording_url").notNull(),
+  recordingKey: varchar("recording_key", { length: 255 }).notNull(),
+  duration: int("duration"),
+  fileSize: int("file_size"),
+  mimeType: varchar("mime_type", { length: 100 }).default("audio/wav"),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
+  retentionDays: int("retention_days").default(90),
+  expiresAt: timestamp("expires_at"),
+  isTranscribed: boolean("is_transcribed").default(false),
+  consentGiven: boolean("consent_given").default(true),
+  complianceNotes: text("compliance_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CallRecording = typeof callRecordings.$inferSelect;
+export type InsertCallRecording = typeof callRecordings.$inferInsert;
+
+// CALL TRANSCRIPTS
+export const callTranscripts = mysqlTable("call_transcripts", {
+  id: int("id").primaryKey().autoincrement(),
+  recordingId: int("recording_id").notNull(),
+  callId: varchar("call_id", { length: 255 }).notNull(),
+  fullTranscript: text("full_transcript").notNull(),
+  segments: json("segments"),
+  language: varchar("language", { length: 10 }).default("en-US"),
+  confidence: decimal("confidence", { precision: 3, scale: 2 }),
+  keywords: json("keywords"),
+  entities: json("entities"),
+  summary: text("summary"),
+  actionItems: json("action_items"),
+  searchable: boolean("searchable").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CallTranscript = typeof callTranscripts.$inferSelect;
+export type InsertCallTranscript = typeof callTranscripts.$inferInsert;
+
+// AGENT QUEUES
+export const agentQueues = mysqlTable("agent_queues", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  type: mysqlEnum("type", ["general", "senior", "specialist", "vip"]).default("general"),
+  priority: int("priority").default(0),
+  maxConcurrentCalls: int("max_concurrent_calls").default(5),
+  averageWaitTime: int("average_wait_time"),
+  callsWaiting: int("calls_waiting").default(0),
+  agentCount: int("agent_count").default(0),
+  skillRequirements: json("skill_requirements"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type AgentQueue = typeof agentQueues.$inferSelect;
+export type InsertAgentQueue = typeof agentQueues.$inferInsert;
+
+// AGENT QUEUE ASSIGNMENTS
+export const agentQueueAssignments = mysqlTable("agent_queue_assignments", {
+  id: int("id").primaryKey().autoincrement(),
+  agentId: int("agent_id").notNull(),
+  queueId: int("queue_id").notNull(),
+  skillLevel: int("skill_level").default(1),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+  removedAt: timestamp("removed_at"),
+});
+
+export type AgentQueueAssignment = typeof agentQueueAssignments.$inferSelect;
+export type InsertAgentQueueAssignment = typeof agentQueueAssignments.$inferInsert;
+
+// CALL ROUTING
+export const callRouting = mysqlTable("call_routing", {
+  id: int("id").primaryKey().autoincrement(),
+  callId: varchar("call_id", { length: 255 }).notNull(),
+  customerId: int("customer_id"),
+  queueId: int("queue_id"),
+  agentId: int("agent_id"),
+  routingReason: varchar("routing_reason", { length: 100 }),
+  sentimentScore: decimal("sentiment_score", { precision: 3, scale: 2 }),
+  complexityScore: decimal("complexity_score", { precision: 3, scale: 2 }),
+  routingDecision: varchar("routing_decision", { length: 100 }),
+  routingTime: int("routing_time"),
+  routingConfidence: decimal("routing_confidence", { precision: 3, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CallRouting = typeof callRouting.$inferSelect;
+export type InsertCallRouting = typeof callRouting.$inferInsert;
+
+// CALL ANALYTICS
+export const callAnalytics = mysqlTable("call_analytics", {
+  id: int("id").primaryKey().autoincrement(),
+  callId: varchar("call_id", { length: 255 }).notNull(),
+  recordingId: int("recording_id"),
+  customerId: int("customer_id"),
+  agentId: int("agent_id"),
+  duration: int("duration"),
+  holdTime: int("hold_time"),
+  talkTime: int("talk_time"),
+  silenceTime: int("silence_time"),
+  transferCount: int("transfer_count").default(0),
+  initialSentiment: decimal("initial_sentiment", { precision: 3, scale: 2 }),
+  finalSentiment: decimal("final_sentiment", { precision: 3, scale: 2 }),
+  sentimentTrend: varchar("sentiment_trend", { length: 50 }),
+  customerSatisfaction: decimal("customer_satisfaction", { precision: 3, scale: 2 }),
+  npsScore: int("nps_score"),
+  effortScore: int("effort_score"),
+  isResolved: boolean("is_resolved").default(false),
+  resolutionTime: int("resolution_time"),
+  requiresFollowUp: boolean("requires_follow_up").default(false),
+  aiHandledPercentage: decimal("ai_handled_percentage", { precision: 3, scale: 2 }),
+  aiAccuracy: decimal("ai_accuracy", { precision: 3, scale: 2 }),
+  kbArticlesUsed: int("kb_articles_used").default(0),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CallAnalytic = typeof callAnalytics.$inferSelect;
+export type InsertCallAnalytic = typeof callAnalytics.$inferInsert;
+
+// AGENT DASHBOARD SESSIONS
+export const agentDashboardSessions = mysqlTable("agent_dashboard_sessions", {
+  id: int("id").primaryKey().autoincrement(),
+  agentId: int("agent_id").notNull(),
+  callId: varchar("call_id", { length: 255 }).notNull(),
+  liveTranscript: text("live_transcript"),
+  suggestedKbArticles: json("suggested_kb_articles"),
+  currentSentiment: decimal("current_sentiment", { precision: 3, scale: 2 }),
+  sentimentColor: varchar("sentiment_color", { length: 50 }),
+  suggestedResponses: json("suggested_responses"),
+  isActive: boolean("is_active").default(true),
+  sessionStarted: timestamp("session_started").defaultNow(),
+  sessionEnded: timestamp("session_ended"),
+  lastTranscriptUpdate: timestamp("last_transcript_update"),
+  lastSentimentUpdate: timestamp("last_sentiment_update"),
+  lastKbUpdate: timestamp("last_kb_update"),
+  lastResponseUpdate: timestamp("last_response_update"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type AgentDashboardSession = typeof agentDashboardSessions.$inferSelect;
+export type InsertAgentDashboardSession = typeof agentDashboardSessions.$inferInsert;
+
+// SENTIMENT ROUTING RULES
+export const sentimentRoutingRules = mysqlTable("sentiment_routing_rules", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  sentimentMin: decimal("sentiment_min", { precision: 3, scale: 2 }),
+  sentimentMax: decimal("sentiment_max", { precision: 3, scale: 2 }),
+  targetQueueId: int("target_queue_id"),
+  targetAgentId: int("target_agent_id"),
+  escalateToSenior: boolean("escalate_to_senior").default(false),
+  priority: int("priority").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type SentimentRoutingRule = typeof sentimentRoutingRules.$inferSelect;
+export type InsertSentimentRoutingRule = typeof sentimentRoutingRules.$inferInsert;

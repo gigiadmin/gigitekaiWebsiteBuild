@@ -421,6 +421,13 @@
       "when": 1777496956314,
       "tag": "0059_mean_joystick",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "5",
+      "when": 1777507588389,
+      "tag": "0060_military_rattler",
+      "breakpoints": true
     }
   ]
 }

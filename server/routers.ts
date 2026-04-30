@@ -72,6 +72,12 @@ import { slaPredicationRouter } from "./routers/sla-prediction";
 import { sentimentAnalysisRouter } from "./routers/sentiment-analysis";
 import { kbAutoLinkingRouter } from "./routers/kb-auto-linking";
 import { agentGamificationRouter } from "./routers/agent-gamification";
+import { callRecordingRouter } from "./routers/phase2-callRecording";
+import { callTranscriptRouter } from "./routers/phase2-callTranscript";
+import { sentimentRoutingRouter } from "./routers/phase2-sentimentRouting";
+import { agentDashboardRouter } from "./routers/phase2-agentDashboard";
+import { dynamicsIntegrationRouter } from "./routers/phase2-dynamicsIntegration";
+import { callAnalyticsRouter } from "./routers/phase2-callAnalytics";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -150,6 +156,14 @@ export const appRouter = router({
   emailDigest: emailDigestRouter,
   blog: blogRouter,
   newsletter: newsletterRouter,
+
+  // ── Phase 2: Call Center Integration ────────────────────────────────
+  callRecording: callRecordingRouter,
+  callTranscript: callTranscriptRouter,
+  sentimentRouting: sentimentRoutingRouter,
+  agentDashboard: agentDashboardRouter,
+  dynamicsIntegration: dynamicsIntegrationRouter,
+  callAnalytics: callAnalyticsRouter,
 
   // ── User Activity Tracking ──────────────────────────────────────────
   userActivity: router({
