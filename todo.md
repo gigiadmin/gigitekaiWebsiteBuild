@@ -3963,3 +3963,16 @@
 - [x] Find or create Pricing page
 - [x] Add live chat trigger button to Pricing page
 - [x] Test both features and save checkpoint
+
+
+## Contact Center Dashboard (IN PROGRESS)
+- [ ] Build comprehensive Contact Center dashboard for monitoring D365 integration
+  - [ ] Real-time voice routing status (call queue, agent availability, call metrics)
+  - [ ] SMS channel status and metrics
+  - [ ] Aria AI chatbot health and connection status
+  - [ ] Queue metrics (wait time, resolution time, customer satisfaction)
+  - [ ] Agent performance metrics (calls handled, average handle time, customer rating)
+  - [ ] D365 workstream status and configuration
+  - [ ] Azure Communication Services status
+  - [ ] Copilot Studio session health
+  - [ ] Dashboard accessible at /admin/contact-center-dashboard
