@@ -1,0 +1,149 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GigitekAI — Scheduled Weekly Health Check
+# Runs every Monday at 8:00 AM EST (13:00 UTC) and can be triggered manually.
+# Performs a broader health sweep including all admin routes and API endpoints.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Scheduled Health Check
+
+on:
+  schedule:
+    # Every Monday at 08:00 AM EST (13:00 UTC)
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to check (default: https://gigitekai.com)"
+        required: false
+        default: "https://gigitekai.com"
+
+jobs:
+  full-health-sweep:
+    name: Full Site Health Sweep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set base URL
+        id: config
+        run: |
+          BASE="${{ github.event.inputs.base_url || 'https://gigitekai.com' }}"
+          echo "base_url=${BASE}" >> $GITHUB_OUTPUT
+
+      - name: Check all public routes
+        run: |
+          BASE="${{ steps.config.outputs.base_url }}"
+          ROUTES=(
+            "/"
+            "/ai-demo"
+            "/helpdesk"
+            "/blog"
+            "/contact"
+            "/pricing"
+            "/helpdesk-pricing"
+            "/roi-calculator"
+            "/about-us"
+            "/our-team"
+            "/partners"
+            "/services"
+            "/kb"
+            "/case-studies"
+            "/AIStrategicBriefing"
+            "/industries/healthcare"
+            "/industries/financial"
+            "/industries/manufacturing"
+            "/industries/retail"
+            "/industries/government"
+            "/industries/education"
+            "/privacy-policy"
+            "/terms-of-service"
+          )
+          FAILED=0
+          PASSED=0
+          for route in "${ROUTES[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${BASE}${route}")
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅  ${route} → ${STATUS}"
+              PASSED=$((PASSED + 1))
+            else
+              echo "❌  ${route} → ${STATUS}"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+          echo ""
+          echo "Results: ${PASSED} passed, ${FAILED} failed out of ${#ROUTES[@]} routes"
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::${FAILED} route(s) returned non-200 status"
+            exit 1
+          fi
+
+      - name: Check admin portal routes
+        run: |
+          BASE="${{ steps.config.outputs.base_url }}"
+          # Admin routes return 200 (SPA — auth handled client-side)
+          ADMIN_ROUTES=(
+            "/admin"
+            "/admin/helpdesk"
+            "/admin/contact-center-dashboard"
+            "/admin/blog"
+            "/admin/leads"
+            "/admin/metrics"
+            "/admin/service-health"
+            "/admin/m365-health"
+            "/admin/agent-dashboard"
+            "/admin/copilot"
+          )
+          FAILED=0
+          for route in "${ADMIN_ROUTES[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "${BASE}${route}")
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅  ${route} → ${STATUS}"
+            else
+              echo "❌  ${route} → ${STATUS}"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::${FAILED} admin route(s) returned non-200 status"
+            exit 1
+          fi
+
+      - name: Check tRPC API endpoints
+        run: |
+          BASE="${{ steps.config.outputs.base_url }}"
+          FAILED=0
+
+          # blog.listPosts
+          R=$(curl -s --max-time 15 "${BASE}/api/trpc/blog.listPosts?input=%7B%22json%22%3A%7B%7D%7D")
+          if echo "$R" | grep -q '"result"'; then
+            echo "✅  blog.listPosts → OK"
+          else
+            echo "❌  blog.listPosts → FAIL: $(echo $R | head -c 200)"
+            FAILED=$((FAILED + 1))
+          fi
+
+          # demo.submitLead
+          R=$(curl -s --max-time 15 -X POST "${BASE}/api/trpc/demo.submitLead" \
+            -H "Content-Type: application/json" \
+            -d '{"json":{"name":"Weekly Health Check","email":"ci@gigitekai.com","company":"CI Pipeline","scenario":"Health Check","message":"Weekly automated health check"}}')
+          if echo "$R" | grep -q '"success":true'; then
+            echo "✅  demo.submitLead → OK"
+          else
+            echo "❌  demo.submitLead → FAIL: $(echo $R | head -c 200)"
+            FAILED=$((FAILED + 1))
+          fi
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::${FAILED} API endpoint(s) failed health check"
+            exit 1
+          fi
+
+      - name: Measure response times
+        run: |
+          BASE="${{ steps.config.outputs.base_url }}"
+          echo "Response time benchmarks:"
+          echo "─────────────────────────────────────"
+          for route in "/" "/ai-demo" "/helpdesk" "/admin" "/blog"; do
+            TIME=$(curl -s -o /dev/null -w "%{time_total}" --max-time 20 "${BASE}${route}")
+            echo "  ${route}: ${TIME}s"
+          done
+          echo "─────────────────────────────────────"
+          echo "Note: First-request times include Cloud Run cold-start (~3-5s)."
+          echo "Warm requests are typically <500ms."

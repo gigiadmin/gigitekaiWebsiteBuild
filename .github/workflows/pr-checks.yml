@@ -1,0 +1,97 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GigitekAI — Pull Request Validation
+# Runs on every PR to main. Provides fast feedback before merge.
+# Checks: dependency audit, TypeScript, Vitest, build smoke test.
+# ─────────────────────────────────────────────────────────────────────────────
+name: PR Validation
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10.4.1"
+
+jobs:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "mysql://ci:ci@localhost:3306/ci_test"
+      JWT_SECRET: "ci-test-secret-32-chars-minimum!!"
+      VITE_APP_ID: "ci-app-id"
+      OAUTH_SERVER_URL: "https://oauth.example.com"
+      VITE_OAUTH_PORTAL_URL: "https://portal.example.com"
+      OWNER_OPEN_ID: "ci-owner"
+      OWNER_NAME: "CI Owner"
+      BUILT_IN_FORGE_API_URL: "https://forge.example.com"
+      BUILT_IN_FORGE_API_KEY: "ci-forge-key"
+      VITE_FRONTEND_FORGE_API_KEY: "ci-frontend-key"
+      VITE_FRONTEND_FORGE_API_URL: "https://forge.example.com"
+      SENDGRID_API_KEY: "SG.ci-stub-key"
+      TEAMS_WEBHOOK_URL: ""
+      MS_GRAPH_CLIENT_ID: "ci-graph-id"
+      MS_GRAPH_CLIENT_SECRET: "ci-graph-secret"
+      MS_GRAPH_TENANT_ID: "ci-tenant"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        run: pnpm check
+
+      - name: Run Vitest
+        run: pnpm test
+
+      - name: Build smoke test (client only)
+        run: pnpm vite build --mode development
+        env:
+          VITE_APP_ID: "ci-app-id"
+          VITE_OAUTH_PORTAL_URL: "https://portal.example.com"
+          VITE_FRONTEND_FORGE_API_KEY: "ci-frontend-key"
+          VITE_FRONTEND_FORGE_API_URL: "https://forge.example.com"
+
+      - name: Comment PR with results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { context, github } = require('@actions/github');
+            const jobStatus = '${{ job.status }}';
+            const icon = jobStatus === 'success' ? '✅' : '❌';
+            const body = `## ${icon} CI Validation — ${jobStatus.toUpperCase()}
+
+            | Check | Status |
+            |---|---|
+            | TypeScript | ${{ steps.typecheck.outcome || job.status }} |
+            | Vitest Tests | ${{ steps.test.outcome || job.status }} |
+            | Build Smoke Test | ${{ steps.build.outcome || job.status }} |
+
+            _Triggered by commit \`${{ github.event.pull_request.head.sha }}\`_`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
