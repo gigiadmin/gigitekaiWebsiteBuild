@@ -55,8 +55,8 @@ Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
 Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
-ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.health?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
@@ -94,7 +94,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
       d365: d365Status?.connected ? 'healthy' : 'degraded',
       teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
       copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
-      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+      acs: acsStatus?.health?.healthy ? 'healthy' : 'degraded',
     };
     
     for (const [system, status] of Object.entries(systemStatus)) {
@@ -159,8 +159,8 @@ Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
 Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
-ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.health?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
@@ -198,7 +198,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
       d365: d365Status?.connected ? 'healthy' : 'degraded',
       teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
       copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
-      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+      acs: acsStatus?.health?.healthy ? 'healthy' : 'degraded',
     };
     
     for (const [system, status] of Object.entries(systemStatus)) {
@@ -262,8 +262,8 @@ Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
 Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
-ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.health?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
@@ -301,7 +301,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
       d365: d365Status?.connected ? 'healthy' : 'degraded',
       teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
       copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
-      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+      acs: acsStatus?.health?.healthy ? 'healthy' : 'degraded',
     };
     
     for (const [system, status] of Object.entries(systemStatus)) {
@@ -406,8 +406,8 @@ Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
 Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
-ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.health?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
@@ -445,7 +445,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
       d365: d365Status?.connected ? 'healthy' : 'degraded',
       teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
       copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
-      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+      acs: acsStatus?.health?.healthy ? 'healthy' : 'degraded',
     };
     
     for (const [system, status] of Object.entries(systemStatus)) {
@@ -560,7 +560,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
               <IntegrationStatusRow
                 icon={<Server size={14} />}
                 label="Azure Communication Services"
-                status={acsStatus?.healthy ? "healthy" : acsStatus?.configured === false ? "error" : "unknown"}
+                status={acsStatus?.health?.healthy ? "healthy" : acsStatus?.configured === false ? "error" : "unknown"}
                 detail={acsStatus?.message ?? "ACS telephony channel"}
               />
             </CardContent>
