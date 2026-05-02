@@ -54,8 +54,8 @@ GIGITEKAI CONTACT CENTER DASHBOARD
 Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
-Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+Teams Webhook: ${teamsWebhook?.health?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
 ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
@@ -158,8 +158,8 @@ GIGITEKAI CONTACT CENTER DASHBOARD
 Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
-Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+Teams Webhook: ${teamsWebhook?.health?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
 ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
@@ -261,8 +261,8 @@ GIGITEKAI CONTACT CENTER DASHBOARD
 Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
-Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+Teams Webhook: ${teamsWebhook?.health?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
 ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
@@ -405,8 +405,8 @@ GIGITEKAI CONTACT CENTER DASHBOARD
 Generated: ${timestamp}
 
 D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
-Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
-Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+Teams Webhook: ${teamsWebhook?.health?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.ticketClassifierConfigured ? 'Configured' : 'Not Configured'}
 ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
