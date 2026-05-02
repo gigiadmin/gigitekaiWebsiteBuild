@@ -50,7 +50,7 @@ export default function SiteNavBar2024() {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
-            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400">🤖 Live Demo</a>
+            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400">🤖 Watch AI Work Live</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -133,7 +133,7 @@ export default function SiteNavBar2024() {
               { label: "About Us", href: "/about-us" },
               { label: "Insights", href: "/blog" },
               { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
-              { label: "🤖 AI Demo", href: "/ai-demo" },
+              { label: "🤖 Watch AI Work Live", href: "/ai-demo" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -264,7 +264,7 @@ export default function SiteNavBar2024() {
                 { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
                 { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
-                { label: "🤖 AI Demo", href: "/ai-demo", id: "nav-ai-demo" },
+                { label: "🤖 Watch AI Work Live", href: "/ai-demo", id: "nav-ai-demo" },
               ].map((item) => (
                 <a
                   key={item.href}
