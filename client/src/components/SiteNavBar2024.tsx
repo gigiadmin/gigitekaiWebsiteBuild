@@ -78,15 +78,11 @@ export default function SiteNavBar2024() {
         <div className="container flex items-center justify-between h-16">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-md bg-[#00D4FF] flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-label="GigitekAI logo">
-                <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" fill="#0A0E1A" />
-                <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#00D4FF" />
-              </svg>
-            </div>
-            <span className="font-bold text-xl text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Gigitek<span className="text-[#00D4FF]">AI</span>
-            </span>
+            <img 
+              src="https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/gigitekai-logo-new_2a21bf5e.png" 
+              alt="GigitekAI logo" 
+              className="h-10 w-auto object-contain"
+            />
           </a>
 
           {/* Desktop nav links */}

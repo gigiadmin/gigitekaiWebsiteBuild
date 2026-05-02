@@ -5,11 +5,11 @@ export default function ContactCard() {
         {/* Logo */}
         <div className="mb-8">
           <img 
-            src="https://cdn.gigitekai.com/gigitekai-logo.webp" 
+            src="https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/gigitekai-logo-new_2a21bf5e.png" 
             alt="GigitekAI" 
             className="w-40 h-auto mx-auto"
-              loading="lazy"
-            />
+            loading="lazy"
+          />
         </div>
 
         {/* QR Code */}
