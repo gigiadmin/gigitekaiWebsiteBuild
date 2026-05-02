@@ -13,4 +13,6 @@ export const ENV = {
   msGraphTenantId: process.env.MS_GRAPH_TENANT_ID ?? "",
   msGraphClientId: process.env.MS_GRAPH_CLIENT_ID ?? "",
   msGraphClientSecret: process.env.MS_GRAPH_CLIENT_SECRET ?? "",
+  acsConnectionString: process.env.ACS_CONNECTION_STRING ?? "",
+  acsResourceId: process.env.ACS_RESOURCE_ID ?? "",
 };

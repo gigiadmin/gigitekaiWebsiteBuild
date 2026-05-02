@@ -4008,9 +4008,9 @@
 - [x] Create skill-creator documentation for the AI demo build process
 
 ## Backlog — Contact Center & AI Demo Enhancements (May 2026)
-- [ ] Create a new admin page to display and export all AI Demo form submissions from the database (/admin/demo-leads — reuse demo.listLeads tRPC endpoint already built)
-- [ ] Replace the static call metrics on the Contact Center Dashboard with live data from the Azure Communication Services API
-- [ ] Update the phone number status on the Contact Center Dashboard to reflect live data from the ACS API
+- [x] Create a new admin page to display and export all AI Demo form submissions from the database.(/admin/demo-leads — reuse demo.listLeads tRPC endpoint already built)
+- [x] Replace the static call metrics on the Contact Center Dashboard with live data from the Azure Communication Services API
+- [x] Update the phone number status on the Contact Center Dashboard to reflect live data from the ACS API
 
 ## CI/CD Pipeline (May 2026)
 - [x] Set up GitHub Actions CI workflow: TypeScript check, Vitest tests, and production route health checks on every push/PR

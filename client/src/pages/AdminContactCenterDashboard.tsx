@@ -159,6 +159,12 @@ export default function AdminContactCenterDashboard() {
   const { data: agentMetrics, isLoading: agentsLoading } = trpc.helpdeskDashboardMetrics.getAgentMetrics.useQuery(undefined, {
     refetchInterval: 30000,
   });
+  const { data: acsPhoneNumbers, isLoading: acsPhoneLoading } = trpc.acs.getPhoneNumbers.useQuery(undefined, {
+    refetchInterval: 60000,
+  });
+  const { data: acsStatus } = trpc.acs.getStatus.useQuery(undefined, {
+    refetchInterval: 60000,
+  });
 
   const isLoading = d365Loading || copilotLoading || teamsLoading || queueLoading || metricsLoading || callsLoading;
 
@@ -228,8 +234,8 @@ export default function AdminContactCenterDashboard() {
               <IntegrationStatusRow
                 icon={<Server size={14} />}
                 label="Azure Communication Services"
-                status={d365Status?.connected ? "healthy" : "unknown"}
-                detail="ACS telephony channel — status via D365 connection"
+                status={acsStatus?.healthy ? "healthy" : acsStatus?.configured === false ? "error" : "unknown"}
+                detail={acsStatus?.message ?? "ACS telephony channel"}
               />
             </CardContent>
           </Card>
@@ -438,38 +444,56 @@ export default function AdminContactCenterDashboard() {
           <Card className="bg-slate-900/60 border-slate-800">
             <CardContent className="pt-4">
               <div className="space-y-3">
-                {[
-                  {
-                    number: "+1 813-467-9582",
-                    label: "GigitekAI Support Queue",
-                    channel: "Teams Direct Routing",
-                    status: "healthy",
-                    note: "Round-robin · 3 agents · Voicemail fallback",
-                  },
-                  {
-                    number: "844-421-2441",
-                    label: "Toll-Free (D365 / ACS)",
-                    channel: "Azure Communication Services",
-                    status: "degraded",
-                    note: "⚠️ 'Not in service area' error — run Fix-ACS-844Number.ps1",
-                  },
-                  {
-                    number: "866-683-1117",
-                    label: "Toll-Free (D365 / ACS)",
-                    channel: "Azure Communication Services",
-                    status: "unknown",
-                    note: "Verify assignment in ACS portal",
-                  },
-                ].map((line) => (
-                  <div key={line.number} className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                {/* Teams Direct Routing number — always shown as static (not in ACS) */}
+                <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
+                      <PhoneIncoming size={14} className="text-cyan-400" />
+                    </div>
+                    <div>
+                      <div className="text-white font-mono font-medium text-sm">+1 813-467-9582</div>
+                      <div className="text-xs text-slate-400">GigitekAI Support Queue · Teams Direct Routing</div>
+                      <div className="text-xs text-slate-500 mt-0.5">Round-robin · 3 agents · Voicemail fallback</div>
+                    </div>
+                  </div>
+                  <StatusBadge status="healthy" />
+                </div>
+                {/* ACS-acquired numbers — live from API */}
+                {acsPhoneLoading && (
+                  <div className="text-xs text-slate-500 px-3 py-2">Loading ACS phone numbers...</div>
+                )}
+                {!acsPhoneLoading && acsPhoneNumbers?.configured === false && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-800/30 border border-slate-700/30">
+                    <div className="w-8 h-8 rounded-lg bg-slate-700/50 flex items-center justify-center">
+                      <Server size={14} className="text-slate-500" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-slate-400 text-sm font-medium">ACS Phone Numbers</div>
+                      <div className="text-xs text-slate-500 mt-0.5">
+                        Add <code className="bg-slate-700 px-1 rounded text-cyan-400">ACS_CONNECTION_STRING</code> in project secrets to show live status for 844-421-2441 and 866-683-1117
+                      </div>
+                    </div>
+                    <StatusBadge status="unknown" />
+                  </div>
+                )}
+                {!acsPhoneLoading && acsPhoneNumbers?.configured && acsPhoneNumbers.numbers.length === 0 && (
+                  <div className="text-xs text-slate-500 px-3 py-2">No ACS phone numbers found in this resource.</div>
+                )}
+                {!acsPhoneLoading && acsPhoneNumbers?.configured && acsPhoneNumbers.numbers.map((line) => (
+                  <div key={line.phoneNumber} className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
                         <PhoneIncoming size={14} className="text-cyan-400" />
                       </div>
                       <div>
-                        <div className="text-white font-mono font-medium text-sm">{line.number}</div>
-                        <div className="text-xs text-slate-400">{line.label} · {line.channel}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{line.note}</div>
+                        <div className="text-white font-mono font-medium text-sm">{line.phoneNumber}</div>
+                        <div className="text-xs text-slate-400">
+                          {line.type === "tollFree" ? "Toll-Free" : line.type} · Azure Communication Services
+                        </div>
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          Calling: {line.callingCapability} · SMS: {line.smsCapability}
+                          {line.purchaseDate && ` · Acquired ${new Date(line.purchaseDate).toLocaleDateString()}`}
+                        </div>
                       </div>
                     </div>
                     <StatusBadge status={line.status} />

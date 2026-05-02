@@ -106,6 +106,7 @@ const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPa
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
 const AdminContactCenterDashboard = lazy(() => import("./pages/AdminContactCenterDashboard"));
+const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
@@ -242,6 +243,8 @@ function Router() {
           <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
           {/* Leads & CRM */}
           <Route path={"/admin/leads"}>{() => <ApprovalGuard><AdminLeadsPage /></ApprovalGuard>}</Route>
+          {/* AI Demo Leads */}
+          <Route path={"/admin/demo-leads"}>{() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>}</Route>
           {/* Contact Submissions */}
           <Route path={"/admin/contacts"}>{() => <ApprovalGuard><AdminContactsPage /></ApprovalGuard>}</Route>
           {/* Canned Responses */}
