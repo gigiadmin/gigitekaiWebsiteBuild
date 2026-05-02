@@ -105,6 +105,7 @@ const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
+const AdminContactCenterDashboard = lazy(() => import("./pages/AdminContactCenterDashboard"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
@@ -212,6 +213,8 @@ function Router() {
           {/* Operations */}
           <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/call-review"}>{() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>}</Route>
+          {/* Contact Center Dashboard */}
+          <Route path={"/admin/contact-center-dashboard"}>{() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>}</Route>
           <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>

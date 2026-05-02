@@ -3966,16 +3966,16 @@
 
 
 ## Contact Center Dashboard (IN PROGRESS)
-- [ ] Build comprehensive Contact Center dashboard for monitoring D365 integration
-  - [ ] Real-time voice routing status (call queue, agent availability, call metrics)
-  - [ ] SMS channel status and metrics
-  - [ ] Aria AI chatbot health and connection status
-  - [ ] Queue metrics (wait time, resolution time, customer satisfaction)
-  - [ ] Agent performance metrics (calls handled, average handle time, customer rating)
-  - [ ] D365 workstream status and configuration
-  - [ ] Azure Communication Services status
-  - [ ] Copilot Studio session health
-  - [ ] Dashboard accessible at /admin/contact-center-dashboard
+- [x] Build comprehensive Contact Center dashboard for monitoring D365 integration
+  - [x] Real-time voice routing status (call queue, agent availability, call metrics)
+  - [x] SMS channel status and metrics
+  - [x] Aria AI chatbot health and connection status
+  - [x] Queue metrics (wait time, resolution time, customer satisfaction)
+  - [x] Agent performance metrics (calls handled, average handle time, customer rating)
+  - [x] D365 workstream status and configuration
+  - [x] Azure Communication Services status
+  - [x] Copilot Studio session health
+  - [x] Dashboard accessible at /admin/contact-center-dashboard
 
 ## Admin Portal Logo & Navigation Update
 - [x] Update admin portal sidebar logo to use new transparent GigitekAI logo
