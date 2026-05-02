@@ -75,14 +75,14 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-[72px]">
+        <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[72px]">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
               alt="GigitekAI logo" 
-              className="h-10 lg:h-12 w-auto object-contain"
-              style={{ maxWidth: '200px', filter: 'brightness(1.05)' }}
+              className="h-14 sm:h-16 lg:h-14 w-auto object-contain"
+              style={{ maxWidth: '260px', filter: 'brightness(1.05)' }}
             />
           </a>
 
