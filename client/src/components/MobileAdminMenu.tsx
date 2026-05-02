@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Home, BarChart3, Settings, LogOut, Users, FileText, MessageSquare, Zap, Bell, Globe, TrendingUp } from "lucide-react";
+import { Menu, X, Home, BarChart3, Settings, LogOut, Users, FileText, MessageSquare, Zap, Bell, Globe, TrendingUp, ExternalLink } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 
@@ -84,9 +84,30 @@ export default function MobileAdminMenu() {
         }`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-cyan-400">GigitekAI</h2>
-          <p className="text-xs text-gray-400">Admin Portal</p>
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          <img
+            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+            alt="GigitekAI logo"
+            className="h-10 w-auto object-contain max-w-[150px]"
+          />
+          <button
+            onClick={() => setIsOpen(false)}
+            className="p-1 rounded text-gray-400 hover:text-white"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Home Link */}
+        <div className="px-4 py-3 border-b border-gray-800">
+          <button
+            onClick={() => { navigate("/"); setIsOpen(false); }}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-cyan-400 hover:bg-gray-800 transition-colors text-sm font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Back to Main Site
+          </button>
         </div>
 
         {/* Menu Sections */}

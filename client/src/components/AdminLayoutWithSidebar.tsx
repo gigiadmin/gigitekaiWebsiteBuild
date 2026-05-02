@@ -92,6 +92,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
   };
 
   const allMenuItems = [
+    { id: "home", label: "Back to Home", section: "MAIN SITE", icon: LayoutDashboard, path: "/" },
     { id: "dashboard", label: "Dashboard", section: "OVERVIEW", icon: LayoutDashboard, path: "/admin" },
     { id: "metrics", label: "Metrics", section: "OVERVIEW", icon: BarChart3, path: "/admin/metrics" },
     { id: "helpdesk", label: "Helpdesk", section: "OPERATIONS", icon: Ticket, path: "/admin/helpdesk" },
@@ -122,6 +123,10 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
   }, [searchQuery]);
 
   const menuSections = [
+    {
+      title: "MAIN SITE",
+      items: filteredItems.filter(i => i.section === "MAIN SITE"),
+    },
     {
       title: "OVERVIEW",
       items: filteredItems.filter(i => i.section === "OVERVIEW"),
@@ -169,13 +174,11 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-800/40">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-[#00D4FF]/20 rounded-lg flex items-center justify-center">
-              <span className="text-[#00D4FF] font-bold text-sm">G</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-white font-semibold text-sm">GigitekAI</p>
-              <p className="text-gray-500 text-xs">Admin Portal</p>
-            </div>
+            <img
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+              alt="GigitekAI logo"
+              className="h-10 w-auto object-contain max-w-[160px]"
+            />
           </div>
         </div>
 
