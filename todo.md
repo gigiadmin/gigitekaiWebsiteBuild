@@ -3999,3 +3999,10 @@
 ## AI Demo Page Expansion (May 2026)
 - [x] Add 3 new demo scenarios: Proactive Monitoring & Auto-Remediation, Client Offboarding, and Complex Multi-System Agentic AI Orchestration
 - [x] Ensure complex scenario shows agent-to-agent coordination, external API calls, and decision branching
+
+## Nav & Demo Follow-up Features (May 2026)
+- [ ] Fix duplicate nav items in top utility bar (About Us, AI Briefing, Live Demo, Pricing duplicated)
+- [ ] Add agentic steps/code view panel to each demo scenario
+- [ ] Add lead capture form to demo page for personalized consultation
+- [ ] Add Multi-System Agentic Orchestration highlight section to homepage
+- [ ] Create skill-creator documentation for the AI demo build process

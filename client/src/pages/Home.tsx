@@ -16,6 +16,7 @@ import StatsSection from "@/components/StatsSection";
 import IndustriesSection from "@/components/IndustriesSection";
 import InsightsSection from "@/components/InsightsSection";
 import ROIPromotionSection from "@/components/ROIPromotionSection";
+import AgenticOrchestrationSection from "@/components/AgenticOrchestrationSection";
 import LeadMagnetsSection from "@/components/LeadMagnetsSection";
 import IndustryBenchmarksWidget from "@/components/IndustryBenchmarksWidget";
 import { NewsletterSignupSection } from "@/components/NewsletterSignupSection";
@@ -37,6 +38,7 @@ export default function Home() {
         <WhoWeServeSection />
         <StatsSection />
         <IndustriesSection />
+        <AgenticOrchestrationSection />
         <ROIPromotionSection />
         <LeadMagnetsSection />
         <IndustryBenchmarksWidget />

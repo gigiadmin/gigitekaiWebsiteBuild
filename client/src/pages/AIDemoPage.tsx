@@ -39,6 +39,13 @@ import {
   Lock,
   BarChart3,
   Cpu,
+  Code2,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Send,
+  User,
+  Building2,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -102,6 +109,40 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI Helpdesk Agent — Tier-1 Auto-Resolution
+// Runtime: Azure Functions + Microsoft Graph API
+
+async function handleTicket(ticket) {
+  // Step 1: Classify with LLM
+  const category = await classifyAgent.run({
+    input: ticket.description,
+    model: "gpt-4o",
+    confidence_threshold: 0.95
+  });
+
+  // Step 2: Policy check via Entra ID
+  const user = await graphClient
+    .api("/users/" + ticket.userId)
+    .select("id,displayName,mfaEnabled")
+    .get();
+
+  // Step 3: Execute resolution
+  if (category.type === "password_reset" && user.mfaEnabled) {
+    await graphClient
+      .api("/users/" + ticket.userId + "/authentication/methods")
+      .post({ resetPassword: true });
+    await notificationAgent.sendEmail({
+      to: ticket.userEmail,
+      template: "password_reset_success"
+    });
+  }
+
+  // Step 4: Auto-close ticket
+  await ticketingSystem.close(ticket.id, {
+    resolution: category.suggestedResolution,
+    humanTouches: 0
+  });
+}`,
   },
   {
     id: "security",
@@ -161,6 +202,33 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI Security Response Agent
+// Runtime: Azure Logic Apps + Defender for Endpoint API
+
+async function respondToThreat(alert) {
+  // Parallel threat analysis
+  const [iocAnalysis, userRisk, deviceRisk] = await Promise.all([
+    threatIntelAgent.analyze(alert.indicators),
+    identityAgent.getUserRiskScore(alert.userId),
+    endpointAgent.getDeviceRisk(alert.deviceId)
+  ]);
+
+  const severity = calculateSeverity({ iocAnalysis, userRisk, deviceRisk });
+
+  if (severity >= CRITICAL) {
+    // Isolate device immediately
+    await defenderAgent.isolateDevice(alert.deviceId);
+    // Revoke all active sessions
+    await graphClient
+      .api("/users/" + alert.userId + "/revokeSignInSessions")
+      .post({});
+    // Notify SOC + create P1 ticket
+    await Promise.all([
+      socAgent.createIncident(alert, severity),
+      teamsAgent.alertChannel("security-ops", alert)
+    ]);
+  }
+}`,
   },
   {
     id: "onboarding",
@@ -220,6 +288,36 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI M365 Onboarding Agent
+// Runtime: Power Automate + Microsoft Graph API
+
+async function onboardEmployee(employee) {
+  // Create identity in Entra ID
+  const user = await graphClient.api("/users").post({
+    displayName: employee.fullName,
+    userPrincipalName: employee.email,
+    passwordProfile: { forceChangePasswordNextSignIn: true }
+  });
+
+  // Assign licenses
+  await graphClient
+    .api("/users/" + user.id + "/assignLicense")
+    .post({ addLicenses: [{ skuId: M365_BUSINESS_PREMIUM_SKU }] });
+
+  // Apply Zero Trust security baseline
+  await conditionalAccessAgent.applyBaseline(user.id, {
+    mfaRequired: true,
+    compliantDeviceRequired: true,
+    zeroTrustPolicy: "enterprise"
+  });
+
+  // Provision all workloads in parallel
+  await Promise.all([
+    teamsAgent.createChannels(user.id, employee.department),
+    sharepointAgent.grantAccess(user.id, employee.sites),
+    intuneAgent.enrollDevice(user.id)
+  ]);
+}`,
   },
   // ── NEW SCENARIO 4: Proactive Monitoring & Auto-Remediation ──────────────────
   {
@@ -288,6 +386,37 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI Proactive Monitoring Agent
+// Runtime: Azure Monitor + Logic Apps
+
+async function monitorAndRemediate(alert) {
+  // AI-powered root cause analysis
+  const diagnosis = await diagnosticAgent.analyze({
+    metrics: alert.metrics,
+    historicalBaseline: await getBaseline(alert.resourceId),
+    model: "gpt-4o"
+  });
+
+  if (diagnosis.failureProbability > 0.85) {
+    const remediation = REMEDIATION_PLAYBOOKS[diagnosis.rootCause];
+
+    if (remediation.autoApproved) {
+      // Execute fix before failure occurs
+      await remediationAgent.execute(remediation, alert.resourceId);
+
+      // Verify health post-remediation
+      const postCheck = await healthAgent.verify(alert.resourceId);
+
+      if (postCheck.healthy) {
+        await ticketingAgent.createResolved({
+          title: "Auto-remediated: " + diagnosis.rootCause,
+          mttr: diagnosis.remediationTime,
+          humanTouches: 0
+        });
+      }
+    }
+  }
+}`,
   },
 
   // ── NEW SCENARIO 5: Employee Offboarding ──────────────────────────────────────
@@ -357,6 +486,34 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI Employee Offboarding Agent
+// Runtime: Azure Functions + Microsoft Graph API
+
+async function offboardEmployee(employee) {
+  // Immediate parallel access revocation
+  await Promise.all([
+    graphClient.api("/users/" + employee.id + "/revokeSignInSessions").post({}),
+    graphClient.api("/users/" + employee.id).patch({ accountEnabled: false }),
+    intuneAgent.wipeDevices(employee.id),
+    defenderAgent.offboardEndpoints(employee.id)
+  ]);
+
+  // Transfer data ownership to manager
+  await graphClient
+    .api("/users/" + employee.id + "/mailboxSettings")
+    .patch({ autoReplyEnabled: true, forwardTo: employee.managerId });
+
+  await sharepointAgent.transferOwnership(employee.id, employee.managerId);
+
+  // Generate compliance audit report
+  const auditReport = await complianceAgent.generateReport({
+    userId: employee.id,
+    accessRevoked: true,
+    dataTransferred: true
+  });
+
+  await notificationAgent.sendSummary("hr-team", employee, auditReport);
+}`,
   },
 
   // ── NEW SCENARIO 6: Complex Multi-System Agentic AI Orchestration ─────────────
@@ -450,6 +607,35 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
+    codeSnippet: `// GigitekAI Multi-System Orchestrator Agent
+// Runtime: Azure Durable Functions (Fan-out/Fan-in pattern)
+
+async function orchestrateClientOnboarding(contract) {
+  // Orchestrator spawns 7 parallel sub-agents (fan-out)
+  const results = await Promise.all([
+    identityAgent.provisionTenant(contract),      // Entra ID
+    azureAgent.deployInfrastructure(contract),    // Azure IaaS
+    m365Agent.configureWorkloads(contract),       // M365 + Copilot
+    securityAgent.deployStack(contract),          // ConnectSecure + DefensX
+    crmAgent.createRecords(contract),             // Dynamics 365
+    billingAgent.activateSubscription(contract),  // Billing system
+    helpdeskAgent.provisionPortal(contract)       // Support portal
+  ]);
+
+  // Orchestrator validates all results (fan-in)
+  const validation = await orchestratorAgent.validate({
+    results,
+    checks: ["dns_propagation", "sso_federation", "backup_policy", "mfa_enforced"]
+  });
+
+  if (validation.allPassed) {
+    await welcomeAgent.sendOnboardingPackage(contract.clientEmail, {
+      portalUrl: results[6].portalUrl,
+      adminCredentials: results[0].adminCreds,
+      systemsProvisioned: 8
+    });
+  }
+}`,
   },
 ];
 
@@ -594,6 +780,12 @@ export default function AIDemoPage() {
   const [completed, setCompleted] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
   const timeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [showCode, setShowCode] = useState(false);
+  const [leadName, setLeadName] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadCompany, setLeadCompany] = useState("");
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
 
   const scenario = SCENARIOS[activeScenario];
   const c = COLOR_MAP[scenario.color];
@@ -635,7 +827,17 @@ export default function AIDemoPage() {
 
   const handleScenarioChange = (idx: number) => {
     resetDemo();
+    setShowCode(false);
     setActiveScenario(idx);
+  };
+
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadName || !leadEmail) return;
+    setLeadSubmitting(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setLeadSubmitted(true);
+    setLeadSubmitting(false);
   };
 
   return (
@@ -771,11 +973,39 @@ export default function AIDemoPage() {
                 </Button>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Simulated at 10× real speed for demo purposes</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowCode(v => !v)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors font-mono border border-slate-700 hover:border-cyan-500/50 rounded-lg px-3 py-1.5"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                {showCode ? "Hide Code" : "View Agent Code"}
+                {showCode ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Simulated at 10× real speed</span>
+              </div>
             </div>
           </div>
+          {/* Code View Panel */}
+          {showCode && (
+            <div className="border-t border-slate-700 bg-[#0d1117]">
+              <div className="flex items-center justify-between px-5 py-2 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="text-xs font-mono text-cyan-400">agent-source.ts</span>
+                  <span className="text-xs text-slate-600">— {scenario.title}</span>
+                </div>
+                <button onClick={() => setShowCode(false)} className="text-slate-600 hover:text-slate-400">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <pre className="p-5 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed max-h-80 overflow-y-auto">
+                <code>{(scenario as any).codeSnippet}</code>
+              </pre>
+            </div>
+          )}
         </div>
       </section>
 
@@ -799,33 +1029,137 @@ export default function AIDemoPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="px-4 max-w-4xl mx-auto mb-20">
-        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-10 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            Ready to deploy AI agents in your business?
-          </h2>
-          <p className="text-slate-300 mb-8 max-w-xl mx-auto">
-            These workflows are live in GigitekAI client environments today. We can have your first agent running in under 30 days.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/contact">
-              <Button className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 text-base font-semibold">
-                Talk to an AI Architect
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-base">
-                View Pricing
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+      {/* ── Lead Capture Form ── */}
+      <section className="px-4 max-w-4xl mx-auto mb-16">
+        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-0">
+            <div className="p-8 md:p-10">
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 mb-4">
+                <Bot className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-cyan-400 text-xs font-medium">Free Consultation</span>
+              </div>
+              <h2 className="text-2xl font-bold mb-3">
+                Want this running in your business?
+              </h2>
+              <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                These aren't demos — they're live workflows deployed for GigitekAI clients today. Book a 30-minute AI architecture session and we'll map out your first agent.
+              </p>
+              <ul className="space-y-2">
+                {[
+                  "First agent live in under 30 days",
+                  "Zero-touch IT automation from day one",
+                  "Microsoft 365 & Azure native — no new tools",
+                  "ROI analysis included at no cost",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-8 md:p-10 bg-slate-900/60 border-l border-slate-700/50">
+              {leadSubmitted ? (
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">You're on the list!</h3>
+                  <p className="text-slate-400 text-sm">
+                    An AI architect from GigitekAI will reach out within 1 business day to schedule your session.
+                  </p>
+                  <Link href="/contact">
+                    <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 mt-2">
+                      View full contact options
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  <h3 className="text-lg font-bold text-white mb-5">Get a Personalized Demo</h3>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Full Name *</label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="text"
+                        value={leadName}
+                        onChange={e => setLeadName(e.target.value)}
+                        placeholder="Harry Henry"
+                        required
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Work Email *</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="email"
+                        value={leadEmail}
+                        onChange={e => setLeadEmail(e.target.value)}
+                        placeholder="you@company.com"
+                        required
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Company</label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="text"
+                        value={leadCompany}
+                        onChange={e => setLeadCompany(e.target.value)}
+                        placeholder="Acme Corp"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={leadSubmitting || !leadName || !leadEmail}
+                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2.5 disabled:opacity-50"
+                  >
+                    {leadSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Send className="w-4 h-4" />
+                        Request My Personalized Demo
+                      </span>
+                    )}
+                  </Button>
+                  <p className="text-xs text-slate-600 text-center">No spam. No sales pressure. Just AI architecture.</p>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </section>
-
-      <Footer />
+      {/* ── CTA ── */}
+      <section className="px-4 max-w-4xl mx-auto mb-20">
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Link href="/contact">
+            <Button className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 text-base font-semibold">
+              Talk to an AI Architect
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+          <Link href="/pricing">
+            <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-base">
+              View Pricing
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+            <Footer />
       <ScrollToTop />
     </div>
   );
