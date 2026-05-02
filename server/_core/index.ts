@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupWebSocket } from "./websocket";
+import { setupWebRTCSignaling } from "./webrtcSignaling";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
 import { securityHeaders } from "./securityHeaders";
 import { startDigestScheduler } from "./digestScheduler";
@@ -60,6 +61,8 @@ async function startServer() {
   const server = createServer(app);
   // Setup WebSocket
   setupWebSocket(server);
+  // Setup WebRTC Signaling (PeerChat-style)
+  setupWebRTCSignaling(server);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

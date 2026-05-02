@@ -42,7 +42,7 @@ export const SessionAnalyticsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Fetch analytics data
-  const { data: analyticsData } = trpc.remoteAssistance.getAnalytics.useQuery(
+  const { data: analyticsData } = trpc.remoteAssistanceAnalytics.getAnalytics.useQuery(
     { timeRange },
     { enabled: true }
   );

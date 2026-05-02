@@ -48,6 +48,8 @@ export default function TicketDetail() {
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
   const [isQuickAssistModalOpen, setIsQuickAssistModalOpen] = useState(false);
   const [quickAssistSession, setQuickAssistSession] = useState<{ sessionCode: string } | null>(null);
+  const [isLiveSessionModalOpen, setIsLiveSessionModalOpen] = useState(false);
+  const [liveSessionRoomId, setLiveSessionRoomId] = useState<string | null>(null);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -510,6 +512,20 @@ export default function TicketDetail() {
                         <Monitor className="w-3.5 h-3.5 mr-1.5" />
                         Quick Assist
                       </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const roomId = `ticket-${ticketIdNum}-${Date.now().toString(36)}`;
+                          setLiveSessionRoomId(roomId);
+                          setIsLiveSessionModalOpen(true);
+                        }}
+                        className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                        title="Start live WebRTC remote session (screen share + video)"
+                      >
+                        <Shield className="w-3.5 h-3.5 mr-1.5" />
+                        Live Session
+                      </Button>
                     </>
                   )}
                 </div>
@@ -551,6 +567,62 @@ export default function TicketDetail() {
                   >
                     Done
                   </Button>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Live Session Modal */}
+          <Dialog open={isLiveSessionModalOpen} onOpenChange={setIsLiveSessionModalOpen}>
+            <DialogContent className="bg-gray-900/95 border border-cyan-500/20 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-cyan-400 flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Live Remote Session
+                </DialogTitle>
+              </DialogHeader>
+              {liveSessionRoomId && (
+                <div className="space-y-4">
+                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+                    <p className="text-xs text-gray-400 mb-2">Session Room ID:</p>
+                    <div className="flex items-center gap-2">
+                      <code className="text-sm font-mono text-cyan-400 flex-1 break-all">{liveSessionRoomId}</code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}/remote-session/${liveSessionRoomId}?role=client&name=Client`);
+                          toast.success("Client link copied!");
+                        }}
+                        className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 shrink-0"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="bg-cyan-900/20 border border-cyan-500/30 p-3 rounded-lg space-y-1">
+                    <p className="text-xs text-cyan-300 font-medium">🔒 AES-256 Encrypted • P2P Direct Connection</p>
+                    <p className="text-xs text-gray-400">Share the client link above. You'll join as Technician, they'll join as Client.</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        setIsLiveSessionModalOpen(false);
+                        window.open(`/remote-session/${liveSessionRoomId}?role=technician&name=Technician`, '_blank');
+                      }}
+                      className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
+                    >
+                      <Shield className="w-3.5 h-3.5 mr-1.5" />
+                      Join as Technician
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsLiveSessionModalOpen(false)}
+                      className="border-gray-600 text-gray-400"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               )}
             </DialogContent>

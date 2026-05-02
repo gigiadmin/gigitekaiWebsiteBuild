@@ -50,6 +50,7 @@ const KBPublic = lazy(() => import("./pages/KBPublic"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
+const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
 // Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
@@ -193,6 +194,8 @@ function Router() {
           {/* KB Public */}
           <Route path={"/kb"} component={KBPublic} />
           <Route path={"/kb/:slug"} component={KBPublic} />          {/* ── Helpdesk (customer-facing) ── */}
+          {/* Remote Session (PeerChat-style WebRTC) */}
+          <Route path={"/remote-session/:roomId"} component={RemoteSession} />
           <Route path={"/helpdesk"} component={HelpDesk} />
           <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
           <Route path={"/helpdesk/create-ticket"} component={CreateTicket} />

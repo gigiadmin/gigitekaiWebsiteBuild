@@ -61,6 +61,7 @@ import { kbAiProactiveRouter } from "./routers/kb-ai-proactive";
 import { remoteAssistanceRouter } from "./routers/remote-assistance";
 import { remoteAssistanceRbacRouter } from "./routers/remote-assistance-rbac";
 import { remoteAssistanceAnalyticsRouter } from "./routers/remote-assistance-analytics";
+import { teamsRemoteAssistanceRouter } from "./routers/teams-remote-assistance";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
 import { serviceHealthMonitoringRouter } from "./routers/service-health-monitoring";
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
@@ -154,6 +155,7 @@ export const appRouter = router({
   remoteAssistance: remoteAssistanceRouter,
   remoteAssistanceRbac: remoteAssistanceRbacRouter,
   remoteAssistanceAnalytics: remoteAssistanceAnalyticsRouter,
+  teamsRemoteAssistance: teamsRemoteAssistanceRouter,
   customerPortal: customerPortalRouter,
   notifications: notificationsRouter,
   adminRoles: adminRolesRouter,
