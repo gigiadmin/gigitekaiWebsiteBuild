@@ -613,6 +613,82 @@ Submitted from GigitekAI website contact form.
       }),
   }),
 
+  // ── AI Demo Page — Lead Capture ─────────────────────────────────────────
+  demo: router({
+    submitLead: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Valid email is required"),
+          company: z.string().optional(),
+          scenario: z.string().optional(), // Which demo scenario they were viewing
+          message: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          const db = await getDb();
+          if (!db) throw new Error("Database unavailable");
+          const { demoLeads } = await import("../drizzle/schema");
+          await db.insert(demoLeads).values({
+            name: input.name,
+            email: input.email,
+            company: input.company ?? null,
+            scenario: input.scenario ?? null,
+            message: input.message ?? null,
+          });
+
+          // Notify owner in Manus dashboard
+          await notifyOwner({
+            title: `New AI Demo Lead: ${input.name}`,
+            content: `**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company || "Not provided"}\n**Scenario:** ${input.scenario || "Not specified"}\n**Message:** ${input.message || "None"}\n\nSubmitted from the /ai-demo page.`,
+          });
+
+          // Send notification email to support team
+          try {
+            await sendEmail({
+              to: "support@gigitekai.com",
+              subject: `New AI Demo Lead: ${input.name}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #00D4FF;">New AI Demo Lead</h2>
+                  <p><strong>Name:</strong> ${input.name}</p>
+                  <p><strong>Email:</strong> <a href="mailto:${input.email}">${input.email}</a></p>
+                  <p><strong>Company:</strong> ${input.company || "Not provided"}</p>
+                  <p><strong>Demo Scenario Viewed:</strong> ${input.scenario || "Not specified"}</p>
+                  <p><strong>Message:</strong> ${input.message || "None"}</p>
+                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #999;">Submitted from the GigitekAI AI Demo page</p>
+                </div>
+              `,
+              replyTo: input.email,
+            });
+          } catch (emailError) {
+            console.error("[Demo Lead] Failed to send email notification:", emailError);
+          }
+
+          return { success: true, message: "Thank you! We'll be in touch within 1 business day." };
+        } catch (error) {
+          console.error("[Demo Lead] Submission failed:", error);
+          return { success: true, message: "Thank you! We'll be in touch within 1 business day." };
+        }
+      }),
+
+    // Admin: list all demo leads
+    listLeads: adminProcedure.query(async () => {
+      try {
+        const db = await getDb();
+        if (!db) return [];
+        const { demoLeads } = await import("../drizzle/schema");
+        const { desc } = await import("drizzle-orm");
+        return await db.select().from(demoLeads).orderBy(desc(demoLeads.createdAt)).limit(200);
+      } catch (error) {
+        console.error("[Demo Lead] List failed:", error);
+        return [];
+      }
+    }),
+  }),
+
   // ── Production Maintenance — clear test/demo data (admin only) ──────────
   maintenance: router({
     clearTestData: adminProcedure

@@ -1828,3 +1828,17 @@ export const sentimentRoutingRules = mysqlTable("sentiment_routing_rules", {
 
 export type SentimentRoutingRule = typeof sentimentRoutingRules.$inferSelect;
 export type InsertSentimentRoutingRule = typeof sentimentRoutingRules.$inferInsert;
+
+// AI Demo Page - Lead Capture
+export const demoLeads = mysqlTable("demoLeads", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  company: varchar("company", { length: 255 }),
+  scenario: varchar("scenario", { length: 100 }), // Which demo scenario they were viewing
+  message: text("message"), // Optional message / question
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DemoLead = typeof demoLeads.$inferSelect;
+export type InsertDemoLead = typeof demoLeads.$inferInsert;

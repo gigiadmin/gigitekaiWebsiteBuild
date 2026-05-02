@@ -4001,8 +4001,8 @@
 - [x] Ensure complex scenario shows agent-to-agent coordination, external API calls, and decision branching
 
 ## Nav & Demo Follow-up Features (May 2026)
-- [ ] Fix duplicate nav items in top utility bar (About Us, AI Briefing, Live Demo, Pricing duplicated)
-- [ ] Add agentic steps/code view panel to each demo scenario
-- [ ] Add lead capture form to demo page for personalized consultation
-- [ ] Add Multi-System Agentic Orchestration highlight section to homepage
-- [ ] Create skill-creator documentation for the AI demo build process
+- [x] Fix duplicate nav items in top utility bar (About Us, AI Briefing, Live Demo, Pricing duplicated)
+- [x] Add agentic steps/code view panel to each demo scenario
+- [x] Add lead capture form to demo page for personalized consultation (UI + backend wired: demoLeads table, demo.submitLead tRPC mutation, owner notification, email to support@gigitekai.com)
+- [x] Add Multi-System Agentic Orchestration highlight section to homepage
+- [x] Create skill-creator documentation for the AI demo build process

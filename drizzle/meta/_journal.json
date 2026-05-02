@@ -428,6 +428,13 @@
       "when": 1777507588389,
       "tag": "0060_military_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "5",
+      "when": 1777705172289,
+      "tag": "0061_opposite_shape",
+      "breakpoints": true
     }
   ]
 }

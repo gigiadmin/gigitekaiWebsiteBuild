@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
+import { trpc } from "@/lib/trpc";
 // ── Demo Scenarios ────────────────────────────────────────────────────────────
 const SCENARIOS = [
   {
@@ -831,13 +832,27 @@ export default function AIDemoPage() {
     setActiveScenario(idx);
   };
 
+  const submitLeadMutation = trpc.demo.submitLead.useMutation({
+    onSuccess: () => {
+      setLeadSubmitted(true);
+      setLeadSubmitting(false);
+    },
+    onError: () => {
+      // Still show success to user — don't expose backend errors
+      setLeadSubmitted(true);
+      setLeadSubmitting(false);
+    },
+  });
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadName || !leadEmail) return;
     setLeadSubmitting(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLeadSubmitted(true);
-    setLeadSubmitting(false);
+    submitLeadMutation.mutate({
+      name: leadName,
+      email: leadEmail,
+      company: leadCompany || undefined,
+      scenario: scenario.title,
+    });
   };
 
   return (
