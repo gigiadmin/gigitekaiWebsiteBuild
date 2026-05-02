@@ -45,7 +45,7 @@ export default function ScrollToTop() {
       `}</style>
 
       {visible && (
-        <div className="fixed bottom-8 right-8 z-50" style={{ animation: "stt-fadein 0.3s ease-out both" }}>
+        <div className="fixed bottom-24 right-6 z-50" style={{ animation: "stt-fadein 0.3s ease-out both" }}>
           {animate && (
             <span
               className="absolute inset-0 rounded-full bg-[#00D4FF]/40"

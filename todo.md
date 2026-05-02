@@ -3976,3 +3976,8 @@
   - [ ] Azure Communication Services status
   - [ ] Copilot Studio session health
   - [ ] Dashboard accessible at /admin/contact-center-dashboard
+
+## Admin Portal Logo & Navigation Update
+- [ ] Update admin portal sidebar logo to use new transparent GigitekAI logo
+- [ ] Update admin portal header to match main site navigation style
+- [ ] Ensure "View Site" link in admin header goes to gigitekai.com
