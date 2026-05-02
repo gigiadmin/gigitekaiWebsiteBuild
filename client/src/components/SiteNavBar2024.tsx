@@ -264,12 +264,17 @@ export default function SiteNavBar2024() {
                 { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
                 { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
+                { label: "🤖 AI Demo", href: "/ai-demo", id: "nav-ai-demo" },
               ].map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   data-nav-id={item.id}
-                  className="block py-2 text-sm text-white hover:text-[#00D4FF] transition-colors"
+                  className={`block py-2 text-sm transition-colors ${
+                    item.id === "nav-ai-demo"
+                      ? "text-[#00D4FF] font-semibold hover:text-cyan-300"
+                      : "text-white hover:text-[#00D4FF]"
+                  }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   {item.label}
