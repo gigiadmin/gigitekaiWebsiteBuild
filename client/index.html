@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-    <title>GigitekAI — Cloud & AI Solutions for Business</title>
-    <meta name="description" content="Cloud infrastructure, AI solutions, and managed IT services for enterprise businesses." />
-    <meta name="keywords" content="cloud infrastructure, AI solutions, managed IT services, cybersecurity, digital transformation, enterprise technology" />
+    <title>GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation</title>
+    <meta name="description" content="GigitekAI is an AI-first Managed Services Provider specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for SMBs." />
+    <meta name="keywords" content="AI-first MSP, Microsoft 365 architect, managed IT services, AI workflow automation, LLM integration, cybersecurity, helpdesk services, Copilot Studio, Azure AI, SMB IT support, GigitekAI, Gigitek AI" />
     <meta name="author" content="GigitekAI" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="GigitekAI — Cloud & AI Solutions for Business" />
-    <meta property="og:description" content="Cloud infrastructure, AI solutions, and managed IT services for enterprise businesses." />
+    <meta property="og:title" content="GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation" />
+    <meta property="og:description" content="GigitekAI is an AI-first Managed Services Provider specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for SMBs." />
     <meta property="og:url" content="https://gigitekai.com" />
     <meta property="og:site_name" content="GigitekAI" />
     <meta property="og:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png" />
@@ -21,8 +21,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@gigitekai" />
     <meta name="twitter:creator" content="@gigitekai" />
-    <meta name="twitter:title" content="GigitekAI — Cloud & AI Solutions for Business" />
-    <meta name="twitter:description" content="Cloud infrastructure, AI solutions, and managed IT services for enterprise businesses." />
+    <meta name="twitter:title" content="GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation" />
+    <meta name="twitter:description" content="GigitekAI is an AI-first Managed Services Provider specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for SMBs." />
     <meta name="twitter:image" content="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png" />
     <meta name="theme-color" content="#0A0E1A" />
     <link rel="canonical" href="https://gigitekai.com" />
@@ -50,6 +50,9 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-384_7b9bb6fe.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
+    <!-- LCP: Preload hero image and logo for fastest Largest Contentful Paint -->
+    <link rel="preload" as="image" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-transparent.png" fetchpriority="high" />
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gozuPTPgn2.woff2" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
@@ -72,6 +75,31 @@
           });
         }, { timeout: 2000 });
       }
+    </script>
+    <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
+    <script type="speculationrules">
+    {
+      "prerender": [
+        {
+          "where": { "href_matches": "/blog*" },
+          "eagerness": "moderate"
+        },
+        {
+          "where": { "href_matches": "/about*" },
+          "eagerness": "moderate"
+        },
+        {
+          "where": { "href_matches": "/helpdesk*" },
+          "eagerness": "conservative"
+        }
+      ],
+      "prefetch": [
+        {
+          "where": { "and": [ { "href_matches": "/*" }, { "not": { "href_matches": "/admin*" } } ] },
+          "eagerness": "moderate"
+        }
+      ]
+    }
     </script>
     <script type="application/ld+json">
     [
@@ -125,6 +153,35 @@
       },
       {
         "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "@id": "https://gigitekai.com/#professionalservice",
+        "name": "GigitekAI",
+        "url": "https://gigitekai.com",
+        "logo": "https://gigitekai.com/logo.png",
+        "description": "Expert AI implementation and automation consultancy specializing in LLM integration, Microsoft 365 architecture, and managed IT services for SMBs.",
+        "telephone": "(727) 382-5776",
+        "email": "support@gigitekai.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Tampa",
+          "addressRegion": "FL",
+          "postalCode": "33601",
+          "addressCountry": "US"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI Solutions",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Workflow Automation" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "LLM Integration" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Microsoft 365 Architecture" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Managed IT Services" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Cybersecurity" } }
+          ]
+        }
+      },
+      {
+        "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "@id": "https://gigitekai.com/#localbusiness",
         "name": "GigitekAI",
@@ -168,15 +225,38 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-00F4D2QCEX"></script>
+    <!-- Google Analytics 4: loaded after page interactive to reduce INP -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-00F4D2QCEX', {
-        'page_path': window.location.pathname,
-        'page_title': document.title
+      // Defer GA4 initialization until after page is interactive
+      // This improves INP (Interaction to Next Paint) by keeping main thread free
+      function loadGA4() {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-00F4D2QCEX';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-00F4D2QCEX', {
+          'page_path': window.location.pathname,
+          'page_title': document.title
+        });
+      }
+      // Load after user interaction or 3 seconds, whichever comes first
+      var gaLoaded = false;
+      function triggerGA() {
+        if (gaLoaded) return;
+        gaLoaded = true;
+        loadGA4();
+      }
+      if (document.readyState === 'complete') {
+        setTimeout(triggerGA, 1000);
+      } else {
+        window.addEventListener('load', function() { setTimeout(triggerGA, 1000); });
+      }
+      ['click','scroll','keydown','touchstart'].forEach(function(e) {
+        document.addEventListener(e, triggerGA, { once: true, passive: true });
       });
     </script>
 

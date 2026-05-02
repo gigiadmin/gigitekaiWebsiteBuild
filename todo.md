@@ -3981,3 +3981,12 @@
 - [x] Update admin portal sidebar logo to use new transparent GigitekAI logo
 - [x] Update admin portal header to match main site navigation style
 - [x] Ensure "View Site" link in admin header goes to gigitekai.com
+
+## Technical Audit & Optimization Plan (May 2026)
+- [x] Add JSON-LD ProfessionalService schema to index.html head
+- [x] Update robots.txt to allow GPTBot, Google-Extended, OAI-SearchBot, ClaudeBot
+- [x] Add Speculation Rules API for near-instant page transitions
+- [x] Defer non-critical JavaScript to improve INP (GA4 deferred)
+- [x] Add LCP preload hints for hero/LCP images
+- [x] Add comprehensive meta tags (description, OG, Twitter cards)
+- [x] Add sitemap.xml reference to robots.txt
