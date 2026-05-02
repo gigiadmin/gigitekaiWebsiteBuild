@@ -64,8 +64,8 @@ QUEUE METRICS:
 - Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
 
 CALL STATISTICS:
-- Today's Calls: ${callStats?.todaysCalls || 0}
-- Pending Tickets: ${callStats?.pendingTickets || 0}
+- Today's Calls: ${callStats?.todayCalls || 0}
+- Pending Tickets: ${callStats?.pending || 0}
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
@@ -168,8 +168,8 @@ QUEUE METRICS:
 - Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
 
 CALL STATISTICS:
-- Today's Calls: ${callStats?.todaysCalls || 0}
-- Pending Tickets: ${callStats?.pendingTickets || 0}
+- Today's Calls: ${callStats?.todayCalls || 0}
+- Pending Tickets: ${callStats?.pending || 0}
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
@@ -271,8 +271,8 @@ QUEUE METRICS:
 - Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
 
 CALL STATISTICS:
-- Today's Calls: ${callStats?.todaysCalls || 0}
-- Pending Tickets: ${callStats?.pendingTickets || 0}
+- Today's Calls: ${callStats?.todayCalls || 0}
+- Pending Tickets: ${callStats?.pending || 0}
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
@@ -415,8 +415,8 @@ QUEUE METRICS:
 - Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
 
 CALL STATISTICS:
-- Today's Calls: ${callStats?.todaysCalls || 0}
-- Pending Tickets: ${callStats?.pendingTickets || 0}
+- Today's Calls: ${callStats?.todayCalls || 0}
+- Pending Tickets: ${callStats?.pending || 0}
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
