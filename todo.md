@@ -4014,3 +4014,7 @@
 
 ## CI/CD Pipeline (May 2026)
 - [x] Set up GitHub Actions CI workflow: TypeScript check, Vitest tests, and production route health checks on every push/PR
+
+## Mobile Nav & CTA (May 2026)
+- [x] Full mobile nav audit: ensure all desktop items present in hamburger menu
+- [x] Add sticky fixed bottom CTA bar on mobile with "Try AI Demo" button

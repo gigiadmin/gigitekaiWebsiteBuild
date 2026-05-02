@@ -18,6 +18,7 @@ import FloatingContactDial from "./components/FloatingContactDial";
 import UserChatWidget from "./components/UserChatWidget";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { CopilotChat } from "./components/CopilotChat";
+import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
@@ -318,6 +319,7 @@ function App() {
           {!hideWidgets && <UserChatWidget />}
           {!hideWidgets && <CopilotChat />}
           {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
+          {!hideWidgets && <MobileAIDemoCTA />}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
