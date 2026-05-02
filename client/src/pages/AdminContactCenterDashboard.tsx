@@ -92,8 +92,8 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
     
     const systemStatus = {
       d365: d365Status?.connected ? 'healthy' : 'degraded',
-      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
-      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
       acs: acsStatus?.healthy ? 'healthy' : 'degraded',
     };
     
@@ -196,8 +196,8 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
     
     const systemStatus = {
       d365: d365Status?.connected ? 'healthy' : 'degraded',
-      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
-      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
       acs: acsStatus?.healthy ? 'healthy' : 'degraded',
     };
     
@@ -299,8 +299,8 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
     
     const systemStatus = {
       d365: d365Status?.connected ? 'healthy' : 'degraded',
-      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
-      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
       acs: acsStatus?.healthy ? 'healthy' : 'degraded',
     };
     
@@ -443,8 +443,8 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
     
     const systemStatus = {
       d365: d365Status?.connected ? 'healthy' : 'degraded',
-      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
-      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.health?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.ticketClassifierConfigured ? 'healthy' : 'degraded',
       acs: acsStatus?.healthy ? 'healthy' : 'degraded',
     };
     
