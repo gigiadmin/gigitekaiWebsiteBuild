@@ -73,14 +73,14 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[72px]">
+        <div className="container flex items-center justify-between h-[80px] sm:h-[88px] lg:h-[84px]">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
               alt="GigitekAI logo" 
-              className="h-14 sm:h-16 lg:h-14 w-auto object-contain"
-              style={{ maxWidth: '260px', filter: 'brightness(1.05)' }}
+              className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
+              style={{ maxWidth: '340px', filter: 'brightness(1.05)' }}
             />
           </a>
 
@@ -221,8 +221,8 @@ export default function SiteNavBar2024() {
                   <img 
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
                     alt="GigitekAI" 
-                    className="h-10 w-auto object-contain"
-                    style={{ maxWidth: '180px' }}
+                    className="h-14 w-auto object-contain"
+                    style={{ maxWidth: '240px' }}
                   />
                 </a>
                 <button
