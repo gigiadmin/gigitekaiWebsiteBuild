@@ -57,6 +57,7 @@ import { m365HealthRouter } from "./routers/m365-health";
 import { aiTicketCategorization } from "./routers/ai-ticket-categorization";
 import { kbSeedingRouter } from "./routers/kb-seeding";
 import { aiTrainingRouter } from "./routers/ai-training";
+import { kbAiProactiveRouter } from "./routers/kb-ai-proactive";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
 import { serviceHealthMonitoringRouter } from "./routers/service-health-monitoring";
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
@@ -146,6 +147,7 @@ export const appRouter = router({
   kbSharing: kbSharingRouter,
   kbAnalytics: kbAnalyticsRouter,
   kbGeneration: kbGenerationRouter,
+  kbAiProactive: kbAiProactiveRouter,
   customerPortal: customerPortalRouter,
   notifications: notificationsRouter,
   adminRoles: adminRolesRouter,
