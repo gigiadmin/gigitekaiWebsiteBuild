@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { Search, Download, TrendingUp, Zap, Shield, Briefcase, ChevronDown } from "lucide-react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { briefingData } from "@/data/briefing-april-2026";
@@ -92,6 +94,7 @@ export default function AIStrategicBriefingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SiteNavBar2024 />
       {/* Header */}
       <div className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
@@ -612,6 +615,7 @@ function VendorStackSection({ vendorStack }: { vendorStack: typeof briefingData.
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

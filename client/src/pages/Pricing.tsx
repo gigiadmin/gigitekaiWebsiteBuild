@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Check, ArrowRight, MessageCircle } from "lucide-react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
@@ -115,6 +117,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <SiteNavBar2024 />
       {/* Header */}
       <div className="px-4 py-16 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-12">
@@ -414,6 +417,7 @@ export default function Pricing() {
 
       {/* Pricing FAQ Section */}
       <PricingFAQ />
+      <Footer />
     </div>
   );
 }

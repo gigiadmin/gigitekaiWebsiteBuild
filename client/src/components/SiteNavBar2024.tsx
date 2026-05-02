@@ -81,8 +81,8 @@ export default function SiteNavBar2024() {
             <img 
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
               alt="GigitekAI logo" 
-              className="h-12 w-auto object-contain"
-              style={{ maxWidth: '240px', filter: 'brightness(1.05)' }}
+              className="h-10 lg:h-12 w-auto object-contain"
+              style={{ maxWidth: '200px', filter: 'brightness(1.05)' }}
             />
           </a>
 
@@ -215,18 +215,49 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-20 left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 overflow-y-auto z-50 lg:hidden">
-            {services.map((s) => (
-              <a
-                key={s.href}
-                href={s.href}
-                className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
-                onClick={() => setMobileOpen(false)}
-              >
-                {s.label}
-              </a>
-            ))}
-            <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)] pt-2 mt-2 space-y-2">
+            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
+              {/* Mobile menu header with logo + close */}
+              <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
+                <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
+                  <img 
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
+                    alt="GigitekAI" 
+                    className="h-10 w-auto object-contain"
+                    style={{ maxWidth: '180px' }}
+                  />
+                </a>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              {/* Home link */}
+              <div className="px-4 pt-4 pb-2">
+                <a
+                  href="/"
+                  className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  Home
+                </a>
+              </div>
+              <div className="px-4 pb-2 space-y-1">
+              {services.map((s) => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {s.label}
+                </a>
+              ))}
+              </div>
+              <div className="px-4 pb-2 space-y-2 border-t border-[rgba(0,212,255,0.1)] pt-2">
               {[
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
@@ -277,16 +308,16 @@ export default function SiteNavBar2024() {
                   <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>
                 </button>
               )}
-            </div>
-            <div className="pt-2">
-              <a
-                href="/contact"
-                className="btn-cyan w-full justify-center text-sm"
-                onClick={() => setMobileOpen(false)}
-              >
-                Get In Touch
-              </a>
-            </div>
+              </div>
+              <div className="px-4 pt-2 pb-6">
+                <a
+                  href="/contact"
+                  className="btn-cyan w-full justify-center text-sm"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Get In Touch
+                </a>
+              </div>
             </div>
           </>
         )}

@@ -1,5 +1,7 @@
 import ScrollToTop from "@/components/ScrollToTop";
 import { useState, useEffect } from "react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,6 +120,7 @@ export default function KBPublic() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SiteNavBar2024 />
       {/* Header */}
       <div className="bg-slate-900 border-b border-slate-800 py-8">
         <div className="max-w-6xl mx-auto px-4">
@@ -546,6 +549,7 @@ export default function KBPublic() {
         />
       )}
           <ScrollToTop />
+      <Footer />
       </div>
   );
 }
