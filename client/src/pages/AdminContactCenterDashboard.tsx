@@ -69,8 +69,8 @@ CALL STATISTICS:
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
-- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
-- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+- Total Agents: ${agentMetrics?.agents?.length || 0}
+- Total Assigned Tickets: ${agentMetrics?.totalAssignedTickets || 0}
 
 ACS PHONE NUMBERS:
 ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
@@ -173,8 +173,8 @@ CALL STATISTICS:
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
-- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
-- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+- Total Agents: ${agentMetrics?.agents?.length || 0}
+- Total Assigned Tickets: ${agentMetrics?.totalAssignedTickets || 0}
 
 ACS PHONE NUMBERS:
 ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
@@ -276,8 +276,8 @@ CALL STATISTICS:
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
-- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
-- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+- Total Agents: ${agentMetrics?.agents?.length || 0}
+- Total Assigned Tickets: ${agentMetrics?.totalAssignedTickets || 0}
 
 ACS PHONE NUMBERS:
 ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
@@ -420,8 +420,8 @@ CALL STATISTICS:
 
 AGENT PERFORMANCE:
 - Active Agents: ${agentMetrics?.agents?.length || 0}
-- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
-- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+- Total Agents: ${agentMetrics?.agents?.length || 0}
+- Total Assigned Tickets: ${agentMetrics?.totalAssignedTickets || 0}
 
 ACS PHONE NUMBERS:
 ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
