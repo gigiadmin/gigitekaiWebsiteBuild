@@ -286,7 +286,10 @@ export default function SiteNavBar2024() {
                       ? "text-[#00D4FF] font-semibold hover:text-cyan-300"
                       : "text-white hover:text-[#00D4FF]"
                   }`}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    if (item.id === "nav-ai-demo") trackAIDemoClick("mobile_nav");
+                  }}
                 >
                   {item.label}
                 </a>
