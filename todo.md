@@ -3995,3 +3995,7 @@
 - [x] Build interactive Agentic AI demo page at /ai-demo with 1-click workflow simulation
 - [x] Add Elite tier community access (Teams/Slack) section to pricing page
 - [x] Add /ai-demo link to main navigation and hero CTA
+
+## AI Demo Page Expansion (May 2026)
+- [x] Add 3 new demo scenarios: Proactive Monitoring & Auto-Remediation, Client Offboarding, and Complex Multi-System Agentic AI Orchestration
+- [x] Ensure complex scenario shows agent-to-agent coordination, external API calls, and decision branching
