@@ -17,6 +17,17 @@ export default function SiteNavBar2024() {
   const [searchOpen, setSearchOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
+  // Track Watch AI Work Live CTA clicks
+  const trackAIDemoClick = (location: string) => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'watch_ai_demo_click', {
+        event_category: 'engagement',
+        event_label: location,
+        value: 1,
+      });
+    }
+  };
+
   const services = [
     { label: "Cloud Infrastructure", href: "/services/cloud" },
     { label: "AI & Machine Learning", href: "/services/ai" },
@@ -50,7 +61,7 @@ export default function SiteNavBar2024() {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
-            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400">🤖 Watch AI Work Live</a>
+            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>🤖 Watch AI Work Live</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -140,11 +151,11 @@ export default function SiteNavBar2024() {
                 href={item.href}
                 className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                onClick={() => item.label.includes("Watch AI Work Live") && trackAIDemoClick("desktop_nav")}
               >
                 {item.label}
               </a>
-            ))}
-
+             ))}
             {/* Standout Help Desk Link */}
             <a
               href="/helpdesk"

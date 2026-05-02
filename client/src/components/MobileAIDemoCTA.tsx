@@ -12,6 +12,17 @@ export default function MobileAIDemoCTA() {
   const [dismissed, setDismissed] = useState(false);
   const [isAIDemoPage, setIsAIDemoPage] = useState(false);
 
+  // Track Watch AI Work Live CTA clicks
+  const trackAIDemoClick = () => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'watch_ai_demo_click', {
+        event_category: 'engagement',
+        event_label: 'mobile_sticky_cta',
+        value: 1,
+      });
+    }
+  };
+
   useEffect(() => {
     // Hide on the AI Demo page itself
     setIsAIDemoPage(window.location.pathname === "/ai-demo");
@@ -63,6 +74,7 @@ export default function MobileAIDemoCTA() {
           href="/ai-demo"
           className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-[#080D1C] bg-[#00D4FF] hover:bg-[#00BFEA] active:scale-95 transition-all shadow-lg shadow-[#00D4FF]/25"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          onClick={trackAIDemoClick}
         >
           Watch AI Work Live
           <ArrowRight size={14} />
