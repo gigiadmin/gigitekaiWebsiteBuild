@@ -79,7 +79,7 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-transparent-v2_0160e3ef.png" 
               alt="GigitekAI logo" 
               className="h-14 sm:h-16 lg:h-14 w-auto object-contain"
               style={{ maxWidth: '260px', filter: 'brightness(1.05)' }}
@@ -220,7 +220,7 @@ export default function SiteNavBar2024() {
               <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
                 <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
                   <img 
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
+                    src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-transparent-v2_0160e3ef.png" 
                     alt="GigitekAI" 
                     className="h-10 w-auto object-contain"
                     style={{ maxWidth: '180px' }}
