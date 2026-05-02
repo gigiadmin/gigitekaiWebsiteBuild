@@ -79,7 +79,7 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
-              src="https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/gigitekai-logo-new_2a21bf5e.png" 
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
               alt="GigitekAI logo" 
               className="h-10 w-auto object-contain"
             />

@@ -5,7 +5,7 @@ export default function ContactCard() {
         {/* Logo */}
         <div className="mb-8">
           <img 
-            src="https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/gigitekai-logo-new_2a21bf5e.png" 
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
             alt="GigitekAI" 
             className="w-40 h-auto mx-auto"
             loading="lazy"
