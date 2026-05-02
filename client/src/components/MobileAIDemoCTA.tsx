@@ -64,7 +64,7 @@ export default function MobileAIDemoCTA() {
           className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-[#080D1C] bg-[#00D4FF] hover:bg-[#00BFEA] active:scale-95 transition-all shadow-lg shadow-[#00D4FF]/25"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          Try AI Demo
+          Watch AI Work Live
           <ArrowRight size={14} />
         </a>
 
