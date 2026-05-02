@@ -10,7 +10,7 @@ import AdminLayout from "@/components/AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
+import { BarChart3, RefreshCw,
   Phone,
   PhoneIncoming,
   MessageSquare,
@@ -45,6 +45,79 @@ function StatusBadge({ status }: { status: "healthy" | "degraded" | "error" | "u
     unknown: { label: "Unknown", className: "bg-slate-500/20 text-slate-400 border-slate-500/30", icon: <Minus size={11} /> },
   };
   const s = map[status] ?? map.unknown;
+
+  // ── PDF Export ────────────────────────────────────────────────────────────
+  const exportToPdf = async () => {
+    const timestamp = new Date().toLocaleString();
+    const content = `
+GIGITEKAI CONTACT CENTER DASHBOARD
+Generated: ${timestamp}
+
+D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
+Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+
+QUEUE METRICS:
+- Queue Depth: ${queueMetrics?.queueDepth || 0}
+- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
+- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+
+CALL STATISTICS:
+- Today's Calls: ${callStats?.todaysCalls || 0}
+- Pending Tickets: ${callStats?.pendingTickets || 0}
+
+AGENT PERFORMANCE:
+- Active Agents: ${agentMetrics?.agents?.length || 0}
+- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
+- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+
+ACS PHONE NUMBERS:
+${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ── System Health Alerts ──────────────────────────────────────────────────
+  const checkSystemHealth = async () => {
+    const now = Date.now();
+    const alertThreshold = 120000; // 2 minutes
+    
+    const systemStatus = {
+      d365: d365Status?.connected ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+    };
+    
+    for (const [system, status] of Object.entries(systemStatus)) {
+      if (status === 'degraded') {
+        const lastAlert = lastAlertTime[system] || 0;
+        if (now - lastAlert > alertThreshold) {
+          // Trigger Teams notification
+          await trpc.system.notifyOwner.mutate({
+            title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
+            content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
+          });
+          setLastAlertTime(prev => ({ ...prev, [system]: now }));
+        }
+      }
+    }
+  };
+
+  // Check health every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(checkSystemHealth, 30000);
+    return () => clearInterval(interval);
+  }, [d365Status, teamsWebhook, copilotStatus, acsStatus]);
+
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border font-medium ${s.className}`}>
       {s.icon}
@@ -76,6 +149,79 @@ function MetricCard({
     violet: "text-violet-400 bg-violet-500/10 border-violet-500/20",
   };
   const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
+
+  // ── PDF Export ────────────────────────────────────────────────────────────
+  const exportToPdf = async () => {
+    const timestamp = new Date().toLocaleString();
+    const content = `
+GIGITEKAI CONTACT CENTER DASHBOARD
+Generated: ${timestamp}
+
+D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
+Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+
+QUEUE METRICS:
+- Queue Depth: ${queueMetrics?.queueDepth || 0}
+- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
+- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+
+CALL STATISTICS:
+- Today's Calls: ${callStats?.todaysCalls || 0}
+- Pending Tickets: ${callStats?.pendingTickets || 0}
+
+AGENT PERFORMANCE:
+- Active Agents: ${agentMetrics?.agents?.length || 0}
+- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
+- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+
+ACS PHONE NUMBERS:
+${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ── System Health Alerts ──────────────────────────────────────────────────
+  const checkSystemHealth = async () => {
+    const now = Date.now();
+    const alertThreshold = 120000; // 2 minutes
+    
+    const systemStatus = {
+      d365: d365Status?.connected ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+    };
+    
+    for (const [system, status] of Object.entries(systemStatus)) {
+      if (status === 'degraded') {
+        const lastAlert = lastAlertTime[system] || 0;
+        if (now - lastAlert > alertThreshold) {
+          // Trigger Teams notification
+          await trpc.system.notifyOwner.mutate({
+            title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
+            content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
+          });
+          setLastAlertTime(prev => ({ ...prev, [system]: now }));
+        }
+      }
+    }
+  };
+
+  // Check health every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(checkSystemHealth, 30000);
+    return () => clearInterval(interval);
+  }, [d365Status, teamsWebhook, copilotStatus, acsStatus]);
+
   return (
     <div className={`rounded-lg border p-4 ${colorMap[color]}`}>
       <div className="flex items-center justify-between mb-2">
@@ -106,6 +252,79 @@ function IntegrationStatusRow({
   detail?: string;
   configured?: boolean;
 }) {
+
+  // ── PDF Export ────────────────────────────────────────────────────────────
+  const exportToPdf = async () => {
+    const timestamp = new Date().toLocaleString();
+    const content = `
+GIGITEKAI CONTACT CENTER DASHBOARD
+Generated: ${timestamp}
+
+D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
+Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+
+QUEUE METRICS:
+- Queue Depth: ${queueMetrics?.queueDepth || 0}
+- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
+- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+
+CALL STATISTICS:
+- Today's Calls: ${callStats?.todaysCalls || 0}
+- Pending Tickets: ${callStats?.pendingTickets || 0}
+
+AGENT PERFORMANCE:
+- Active Agents: ${agentMetrics?.agents?.length || 0}
+- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
+- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+
+ACS PHONE NUMBERS:
+${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ── System Health Alerts ──────────────────────────────────────────────────
+  const checkSystemHealth = async () => {
+    const now = Date.now();
+    const alertThreshold = 120000; // 2 minutes
+    
+    const systemStatus = {
+      d365: d365Status?.connected ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+    };
+    
+    for (const [system, status] of Object.entries(systemStatus)) {
+      if (status === 'degraded') {
+        const lastAlert = lastAlertTime[system] || 0;
+        if (now - lastAlert > alertThreshold) {
+          // Trigger Teams notification
+          await trpc.system.notifyOwner.mutate({
+            title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
+            content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
+          });
+          setLastAlertTime(prev => ({ ...prev, [system]: now }));
+        }
+      }
+    }
+  };
+
+  // Check health every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(checkSystemHealth, 30000);
+    return () => clearInterval(interval);
+  }, [d365Status, teamsWebhook, copilotStatus, acsStatus]);
+
   return (
     <div className="flex items-center justify-between py-3 border-b border-slate-800/60 last:border-0">
       <div className="flex items-center gap-3">
@@ -130,40 +349,42 @@ function IntegrationStatusRow({
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function AdminContactCenterDashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshInterval, setRefreshInterval] = useState<30000 | 60000 | null>(30000);
+  const [lastAlertTime, setLastAlertTime] = useState<Record<string, number>>({});
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   const { data: d365Status, isLoading: d365Loading } = trpc.dynamicsIntegration.checkConnection.useQuery(undefined, {
-    refetchInterval: 30000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: copilotStatus, isLoading: copilotLoading } = trpc.copilotStudio.getAgentStatus.useQuery(undefined, {
-    refetchInterval: 30000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: teamsWebhook, isLoading: teamsLoading } = trpc.teamsChannels.getWebhookHealth.useQuery(undefined, {
-    refetchInterval: 30000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: queueMetrics, isLoading: queueLoading } = trpc.helpdeskDashboardMetrics.getQueueMetrics.useQuery(undefined, {
-    refetchInterval: 15000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: overallMetrics, isLoading: metricsLoading } = trpc.helpdeskDashboardMetrics.getOverallMetrics.useQuery(undefined, {
-    refetchInterval: 15000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: callStats, isLoading: callsLoading } = trpc.calls.getStats.useQuery(undefined, {
-    refetchInterval: 15000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const { data: agentMetrics, isLoading: agentsLoading } = trpc.helpdeskDashboardMetrics.getAgentMetrics.useQuery(undefined, {
-    refetchInterval: 30000,
+    refetchInterval: refreshInterval || undefined,
   });
   const { data: acsPhoneNumbers, isLoading: acsPhoneLoading } = trpc.acs.getPhoneNumbers.useQuery(undefined, {
-    refetchInterval: 60000,
+    refetchInterval: refreshInterval || undefined,
   });
   const { data: acsStatus } = trpc.acs.getStatus.useQuery(undefined, {
-    refetchInterval: 60000,
+    refetchInterval: refreshInterval || undefined,
   });
 
   const isLoading = d365Loading || copilotLoading || teamsLoading || queueLoading || metricsLoading || callsLoading;
@@ -175,8 +396,113 @@ export default function AdminContactCenterDashboard() {
   const teamsWebhookStatus = teamsWebhook?.health?.healthy === true ? "healthy" : teamsWebhook?.health?.configured === false ? "error" : "unknown";
   const copilotConfigured = copilotStatus?.tenantId === "configured" && copilotStatus?.environmentId === "configured";
 
+
+  // ── PDF Export ────────────────────────────────────────────────────────────
+  const exportToPdf = async () => {
+    const timestamp = new Date().toLocaleString();
+    const content = `
+GIGITEKAI CONTACT CENTER DASHBOARD
+Generated: ${timestamp}
+
+D365 STATUS: ${d365Status?.connected ? 'Connected' : 'Disconnected'}
+Teams Webhook: ${teamsWebhook?.healthy ? 'Healthy' : 'Unhealthy'}
+Copilot Studio: ${copilotStatus?.configured ? 'Configured' : 'Not Configured'}
+ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
+
+QUEUE METRICS:
+- Queue Depth: ${queueMetrics?.queueDepth || 0}
+- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
+- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+
+CALL STATISTICS:
+- Today's Calls: ${callStats?.todaysCalls || 0}
+- Pending Tickets: ${callStats?.pendingTickets || 0}
+
+AGENT PERFORMANCE:
+- Active Agents: ${agentMetrics?.agents?.length || 0}
+- Avg Handle Time: ${agentMetrics?.avgHandleTime || 'N/A'}
+- Customer Rating: ${agentMetrics?.avgRating || 'N/A'}
+
+ACS PHONE NUMBERS:
+${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).join('\n') || 'No numbers configured'}
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ── System Health Alerts ──────────────────────────────────────────────────
+  const checkSystemHealth = async () => {
+    const now = Date.now();
+    const alertThreshold = 120000; // 2 minutes
+    
+    const systemStatus = {
+      d365: d365Status?.connected ? 'healthy' : 'degraded',
+      teams: teamsWebhook?.healthy ? 'healthy' : 'degraded',
+      copilot: copilotStatus?.configured ? 'healthy' : 'degraded',
+      acs: acsStatus?.healthy ? 'healthy' : 'degraded',
+    };
+    
+    for (const [system, status] of Object.entries(systemStatus)) {
+      if (status === 'degraded') {
+        const lastAlert = lastAlertTime[system] || 0;
+        if (now - lastAlert > alertThreshold) {
+          // Trigger Teams notification
+          await trpc.system.notifyOwner.mutate({
+            title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
+            content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
+          });
+          setLastAlertTime(prev => ({ ...prev, [system]: now }));
+        }
+      }
+    }
+  };
+
+  // Check health every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(checkSystemHealth, 30000);
+    return () => clearInterval(interval);
+  }, [d365Status, teamsWebhook, copilotStatus, acsStatus]);
+
   return (
     <AdminLayout title="Contact Center Dashboard">
+      
+        <div className="flex items-center gap-2">
+          <select
+            value={refreshInterval === 30000 ? '30' : refreshInterval === 60000 ? '60' : 'manual'}
+            onChange={(e) => {
+              const val = e.target.value;
+              setRefreshInterval(val === '30' ? 30000 : val === '60' ? 60000 : null);
+            }}
+            className="px-3 py-1 bg-slate-800 border border-slate-700 rounded text-sm text-slate-300 hover:border-slate-600"
+          >
+            <option value="30">Refresh: 30s</option>
+            <option value="60">Refresh: 60s</option>
+            <option value="manual">Manual</option>
+          </select>
+          <Button
+            onClick={exportToPdf}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <BarChart3 size={16} />
+            Export PDF
+          </Button>
+          <Button
+            onClick={() => setRefreshKey(k => k + 1)}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw size={16} />
+          </Button>
+        </div>
+
       <div className="space-y-6">
         {/* ── Header ── */}
         <div className="flex items-center justify-between">
