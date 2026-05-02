@@ -60,8 +60,8 @@ ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
-- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
-- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+- Avg Wait Time: ${queueMetrics?.avgWaitTimeMinutes || 'N/A'}
+- Resolution Time: ${queueMetrics?.estimatedWaitTime || 'N/A'}
 
 CALL STATISTICS:
 - Today's Calls: ${callStats?.todayCalls || 0}
@@ -164,8 +164,8 @@ ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
-- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
-- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+- Avg Wait Time: ${queueMetrics?.avgWaitTimeMinutes || 'N/A'}
+- Resolution Time: ${queueMetrics?.estimatedWaitTime || 'N/A'}
 
 CALL STATISTICS:
 - Today's Calls: ${callStats?.todayCalls || 0}
@@ -267,8 +267,8 @@ ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
-- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
-- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+- Avg Wait Time: ${queueMetrics?.avgWaitTimeMinutes || 'N/A'}
+- Resolution Time: ${queueMetrics?.estimatedWaitTime || 'N/A'}
 
 CALL STATISTICS:
 - Today's Calls: ${callStats?.todayCalls || 0}
@@ -411,8 +411,8 @@ ACS Status: ${acsStatus?.healthy ? 'Healthy' : 'Unhealthy'}
 
 QUEUE METRICS:
 - Queue Depth: ${queueMetrics?.queueDepth || 0}
-- Avg Wait Time: ${queueMetrics?.avgWaitTime || 'N/A'}
-- Resolution Time: ${queueMetrics?.avgResolutionTime || 'N/A'}
+- Avg Wait Time: ${queueMetrics?.avgWaitTimeMinutes || 'N/A'}
+- Resolution Time: ${queueMetrics?.estimatedWaitTime || 'N/A'}
 
 CALL STATISTICS:
 - Today's Calls: ${callStats?.todayCalls || 0}
