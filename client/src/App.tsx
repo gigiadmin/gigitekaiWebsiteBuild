@@ -38,6 +38,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage"));
 const HelpdeskPricingPage = lazy(() => import("./pages/HelpdeskPricing"));
 const AIStrategicBriefingPage = lazy(() => import("./pages/AIStrategicBriefingPage"));
+const AIDemoPage = lazy(() => import("./pages/AIDemoPage"));
 const CaseStudiesPage = lazy(() => import("./pages/CaseStudiesPage"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -161,6 +162,7 @@ function Router() {
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
           <Route path={"/roi-calculator"} component={ROICalculatorPage} />
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
+          <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/case-studies"} component={CaseStudiesPage} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />

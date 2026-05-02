@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, ArrowRight, MessageCircle } from "lucide-react";
+import { Check, ArrowRight, MessageCircle, Users, Zap, Bot, Crown, Shield, Brain } from "lucide-react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -348,6 +348,90 @@ export default function Pricing() {
           </div>
         </div>
 
+        {/* Elite Community Access Section */}
+        <div className="mb-16">
+          <div className="relative bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-800/80 border border-cyan-500/30 rounded-2xl p-8 md:p-12 overflow-hidden">
+            {/* Background glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">Enterprise AI Plan Exclusive</span>
+                  <h2 className="text-2xl font-bold text-white">The GigitekAI Elite Network</h2>
+                </div>
+              </div>
+
+              <p className="text-slate-300 text-base mb-8 max-w-2xl">
+                Enterprise AI plan clients get exclusive access to the <strong className="text-white">GigitekAI Elite Network</strong> — a private Microsoft Teams community where MSP leaders, IT architects, and AI-first business owners share strategies, get early access to new tools, and connect directly with Harry and the GigitekAI team.
+              </p>
+
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                {[
+                  {
+                    icon: Users,
+                    title: "Private Teams Community",
+                    desc: "Dedicated channel in the GigitekAI Elite Microsoft Teams workspace. Direct access to Harry and the engineering team.",
+                  },
+                  {
+                    icon: Zap,
+                    title: "Early Access to AI Tools",
+                    desc: "Be first to test new AI agents, automation workflows, and Copilot integrations before general release.",
+                  },
+                  {
+                    icon: Brain,
+                    title: "Monthly AI Strategy Sessions",
+                    desc: "Live virtual roundtables with GigitekAI architects covering AI trends, M365 roadmap, and Zero Trust strategy.",
+                  },
+                  {
+                    icon: Shield,
+                    title: "Peer Security Intelligence",
+                    desc: "Real-time threat sharing between Elite members. When one client sees a new attack vector, everyone benefits.",
+                  },
+                  {
+                    icon: Bot,
+                    title: "Custom Agent Requests",
+                    desc: "Elite members can submit custom AI agent workflow requests — prioritized in our development queue.",
+                  },
+                  {
+                    icon: Crown,
+                    title: "Exclusive Vendor Pricing",
+                    desc: "Access to negotiated rates on Microsoft, Sherweb, and partner products available only to Elite tier clients.",
+                  },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={i} className="flex gap-3 p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl hover:border-cyan-500/30 transition-colors">
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Icon className="w-4 h-4 text-cyan-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm text-white mb-1">{item.title}</p>
+                        <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center gap-4 flex-wrap">
+                <a href="/contact?tier=enterprise-ai">
+                  <button className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm">
+                    <Crown className="w-4 h-4" />
+                    Apply for Enterprise AI
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </a>
+                <span className="text-xs text-slate-500">Community access included with Enterprise AI plan at no extra cost</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* FAQ Section */}
         <div className="space-y-6 mb-16">
           <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
@@ -394,8 +478,12 @@ export default function Pricing() {
               Request a Proposal
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button variant="outline" className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-lg">
-              Schedule a Demo
+            <Button 
+              variant="outline" 
+              className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-lg"
+              onClick={() => window.location.href = '/ai-demo'}
+            >
+              Try Live AI Demo
             </Button>
             <Button 
               variant="outline" 

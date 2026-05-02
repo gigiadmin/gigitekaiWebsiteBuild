@@ -52,6 +52,7 @@ export default function SiteNavBar2024() {
             <a href="/about-us" className="hover:text-[#00D4FF] transition-colors">About Us</a>
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
             <a href="/AIStrategicBriefing" className="hover:text-[#00D4FF] transition-colors font-semibold">⚡ AI Briefing</a>
+            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400">🤖 Live Demo</a>
             <a href="/helpdesk-pricing" className="hover:text-[#00D4FF] transition-colors">Pricing</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
@@ -135,6 +136,7 @@ export default function SiteNavBar2024() {
               { label: "About Us", href: "/about-us" },
               { label: "Insights", href: "/blog" },
               { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
+              { label: "🤖 AI Demo", href: "/ai-demo" },
             ].map((item) => (
               <a
                 key={item.href}
