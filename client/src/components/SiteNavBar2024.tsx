@@ -71,17 +71,18 @@ export default function SiteNavBar2024() {
       <nav
         className={`w-full sticky top-[env(safe-area-inset-top)] z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 dark:bg-[#0A0E1A]/95 backdrop-blur-md shadow-lg shadow-black/10 dark:shadow-black/30 border-b border-gray-200 dark:border-[rgba(0,212,255,0.1)]"
-            : "bg-white dark:bg-[#0A0E1A]"
+            ? "bg-[#0A0E1A]/98 backdrop-blur-md shadow-lg shadow-black/40 border-b border-[rgba(0,212,255,0.15)]"
+            : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-16">
+        <div className="container flex items-center justify-between h-[72px]">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-v2-dark-TVgf6CsVXSTiMeBhxms8Br.png" 
               alt="GigitekAI logo" 
-              className="h-10 w-auto object-contain"
+              className="h-12 w-auto object-contain"
+              style={{ maxWidth: '240px', filter: 'brightness(1.05)' }}
             />
           </a>
 
@@ -90,7 +91,7 @@ export default function SiteNavBar2024() {
             {/* Services dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/5"
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
@@ -138,7 +139,7 @@ export default function SiteNavBar2024() {
               <a
                 key={item.href}
                 href={item.href}
-                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-white/5"
+                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {item.label}
@@ -164,7 +165,7 @@ export default function SiteNavBar2024() {
             {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+              className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
               title="Search"
               aria-label="Search site"
             >
@@ -176,7 +177,7 @@ export default function SiteNavBar2024() {
             {toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-[#00D4FF] hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
                 title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
                 aria-label="Toggle theme"
               >
@@ -196,7 +197,7 @@ export default function SiteNavBar2024() {
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden text-gray-900 dark:text-white p-2"
+            className="lg:hidden text-white p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -214,7 +215,7 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-16 left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 overflow-y-auto z-50 lg:hidden">
+            <div className="fixed top-20 left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] px-4 py-4 space-y-2 overflow-y-auto z-50 lg:hidden">
             {services.map((s) => (
               <a
                 key={s.href}
