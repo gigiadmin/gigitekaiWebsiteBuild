@@ -1,3 +1,4 @@
+import React from 'react';
 /**
  * AdminContactCenterDashboard — Contact Center Monitoring Dashboard
  * Real-time status for: Teams call queue, D365 Contact Center, Copilot Studio,
@@ -102,7 +103,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
         const lastAlert = lastAlertTime[system] || 0;
         if (now - lastAlert > alertThreshold) {
           // Trigger Teams notification
-          await trpc.system.notifyOwner.mutate({
+          await trpc.system.notifyOwner.useMutation().mutate({
             title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
             content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
           });
@@ -206,7 +207,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
         const lastAlert = lastAlertTime[system] || 0;
         if (now - lastAlert > alertThreshold) {
           // Trigger Teams notification
-          await trpc.system.notifyOwner.mutate({
+          await trpc.system.notifyOwner.useMutation().mutate({
             title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
             content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
           });
@@ -309,7 +310,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
         const lastAlert = lastAlertTime[system] || 0;
         if (now - lastAlert > alertThreshold) {
           // Trigger Teams notification
-          await trpc.system.notifyOwner.mutate({
+          await trpc.system.notifyOwner.useMutation().mutate({
             title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
             content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
           });
@@ -453,7 +454,7 @@ ${acsPhoneNumbers?.numbers?.map((n: any) => `- ${n.phoneNumber}: ${n.status}`).j
         const lastAlert = lastAlertTime[system] || 0;
         if (now - lastAlert > alertThreshold) {
           // Trigger Teams notification
-          await trpc.system.notifyOwner.mutate({
+          await trpc.system.notifyOwner.useMutation().mutate({
             title: `⚠️ Contact Center Alert: ${system.toUpperCase()} Degraded`,
             content: `System: ${system}\nStatus: ${status}\nTime: ${new Date().toLocaleString()}\nDashboard: /admin/contact-center-dashboard`,
           });
