@@ -18,9 +18,10 @@ export const helpdeskRouter = router({
   createTicket: approvedProcedure
     .input(
       z.object({
-        title: z.string().min(5, "Title must be at least 5 characters"),
-        description: z.string().min(10, "Description must be at least 10 characters"),
-        category: z.enum(["bug_report", "feature_request", "general_support", "billing"]).default("general_support"),
+        title: z.string().min(10, "Title must be at least 10 characters"),
+        description: z.string().min(30, "Description must be at least 30 characters"),
+        stepsAttempted: z.string().min(20, "Please describe steps you've already tried (minimum 20 characters)").optional(),
+        category: z.enum(["bug_report", "feature_request", "general_support", "billing", "email", "printer", "internet", "network", "other"]).default("general_support"),
         priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
         channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
       })
@@ -29,6 +30,7 @@ export const helpdeskRouter = router({
       const ticket = await createTicket({
         title: input.title,
         description: input.description,
+        stepsAttempted: input.stepsAttempted,
         category: input.category,
         priority: input.priority,
         source: input.channel,

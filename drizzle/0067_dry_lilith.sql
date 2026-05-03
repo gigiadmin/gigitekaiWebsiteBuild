@@ -1,0 +1,2 @@
+ALTER TABLE `tickets` MODIFY COLUMN `category` enum('bug_report','feature_request','general_support','billing','email','printer','internet','network','other') NOT NULL DEFAULT 'general_support';--> statement-breakpoint
+ALTER TABLE `tickets` ADD `stepsAttempted` text;

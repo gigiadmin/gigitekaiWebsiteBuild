@@ -22,9 +22,14 @@ import {
 
 const categories = [
   { value: "general_support", label: "General Support", description: "General questions and assistance", icon: "💬" },
+  { value: "email", label: "Email", description: "Microsoft 365 email and Outlook issues", icon: "📧" },
+  { value: "printer", label: "Printer", description: "Printer connectivity and printing problems", icon: "🖨️" },
+  { value: "internet", label: "Internet", description: "Network connectivity and internet issues", icon: "🌐" },
+  { value: "network", label: "Network", description: "Network configuration and infrastructure", icon: "🔗" },
   { value: "bug_report", label: "Bug Report", description: "Report a software issue or defect", icon: "🐛" },
   { value: "feature_request", label: "Feature Request", description: "Suggest a new feature or improvement", icon: "💡" },
   { value: "billing", label: "Billing", description: "Billing, invoices, and payment inquiries", icon: "💳" },
+  { value: "other", label: "Other", description: "Other issues not listed above", icon: "❓" },
 ];
 
 const priorities = [

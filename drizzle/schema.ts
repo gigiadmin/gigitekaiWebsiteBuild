@@ -96,8 +96,9 @@ export const tickets = mysqlTable("tickets", {
   userId: int("userId").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
+  stepsAttempted: text("stepsAttempted"), // Customer's troubleshooting steps
   priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
-  category: mysqlEnum("category", ["bug_report", "feature_request", "general_support", "billing"]).default("general_support").notNull(),
+  category: mysqlEnum("category", ["bug_report", "feature_request", "general_support", "billing", "email", "printer", "internet", "network", "other"]).default("general_support").notNull(),
   status: mysqlEnum("status", ["open", "in_progress", "on_hold", "resolved", "closed"]).default("open").notNull(),
   assignedTo: int("assignedTo"), // userId of assigned agent
   // AI Triage fields
