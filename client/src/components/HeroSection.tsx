@@ -9,8 +9,8 @@
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
-const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_mobile_1ff72fdc.mp4";
-const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_desktop_8ec9a027.mp4";
+const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v2_mobile_52a4d3ed.mp4";
+const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v2_desktop_3b8fd3a5.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_47b270c1.jpg";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
@@ -296,7 +296,7 @@ export default function HeroSection() {
                 }}
               >
                 <Volume2 size={22} />
-                🔊 Tap to Hear the Video
+                🔊 Click Contact Us for More Information
               </button>
             ) : playing && !muted ? (
               /* Volume slider — shown after unmuting */
