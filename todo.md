@@ -4205,3 +4205,9 @@
 - [x] Create Privacy Policy page at /privacy-policy with actual content
 - [x] Create Terms of Service page at /terms-of-service with actual content
 - [x] Verify footer legal links point to working pages
+
+
+## KB Enhancement Features (May 2026 - Completed)
+- [x] KB article auto-tagging with LLM (autoTagArticle procedure with LLM-generated tags + confidence scores)
+- [x] KB gap alerts (scheduled weekly task to analyze zero-result searches and notify of content gaps)
+- [x] KB article versioning system (createVersion, rollbackToVersion, getVersionHistory procedures)

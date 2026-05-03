@@ -882,6 +882,33 @@ export const kbArticles = mysqlTable("kbArticles", {
 export type KbArticle = typeof kbArticles.$inferSelect;
 export type InsertKbArticle = typeof kbArticles.$inferInsert;
 
+// KB Article Versions - track edit history for rollback capability
+export const kbArticleVersions = mysqlTable("kbArticleVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 500 }).notNull(),
+  content: text("content").notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  tags: varchar("tags", { length: 500 }),
+  editedBy: int("editedBy"), // userId who made the edit
+  changeDescription: varchar("changeDescription", { length: 500 }), // What changed in this version
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbArticleVersion = typeof kbArticleVersions.$inferSelect;
+export type InsertKbArticleVersion = typeof kbArticleVersions.$inferInsert;
+
+// KB Article Tags - normalized tags for better search and filtering
+export const kbArticleTags = mysqlTable("kbArticleTags", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
+  tag: varchar("tag", { length: 100 }).notNull(),
+  source: varchar("source", { length: 50 }).notNull().default("manual"), // 'manual' | 'auto_llm' | 'auto_search'
+  confidence: decimal("confidence", { precision: 3, scale: 2 }).default("1.00"), // 0.00-1.00 for LLM-generated tags
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbArticleTag = typeof kbArticleTags.$inferSelect;
+export type InsertKbArticleTag = typeof kbArticleTags.$inferInsert;
+
 // Canned Responses — pre-written reply templates for agents
 export const cannedResponses = mysqlTable("cannedResponses", {
   id: int("id").autoincrement().primaryKey(),

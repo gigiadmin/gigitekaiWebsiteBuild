@@ -87,6 +87,7 @@ import { slaPredicationRouter } from "./routers/sla-prediction";
 import { sentimentAnalysisRouter } from "./routers/sentiment-analysis";
 import { kbAutoLinkingRouter } from "./routers/kb-auto-linking";
 import { agentGamificationRouter } from "./routers/agent-gamification";
+import { kbEnhancementsRouter } from "./routers/kb-enhancements";
 import { callRecordingRouter } from "./routers/phase2-callRecording";
 import { callTranscriptRouter } from "./routers/phase2-callTranscript";
 import { sentimentRoutingRouter } from "./routers/phase2-sentimentRouting";
@@ -163,6 +164,7 @@ export const appRouter = router({
   kbAnalytics: kbAnalyticsRouter,
   kbSearchAnalytics: kbSearchAnalyticsRouter,
   kbGeneration: kbGenerationRouter,
+  kbEnhancements: kbEnhancementsRouter,
   kbAiProactive: kbAiProactiveRouter,
   remoteAssistance: remoteAssistanceRouter,
   remoteAssistanceRbac: remoteAssistanceRbacRouter,
