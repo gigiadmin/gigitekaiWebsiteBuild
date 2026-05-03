@@ -242,6 +242,9 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
+    cssCodeSplit: true,
+    sourcemap: false,
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
@@ -259,6 +262,10 @@ export default defineConfig({
           // tRPC + React Query — needed on first paint for auth
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
+          }
+          // Heavy UI libraries — lazy loaded
+          if (id.includes("@radix-ui") || id.includes("recharts") || id.includes("chart.js")) {
+            return "ui-heavy";
           }
           // All other node_modules go into a single vendor chunk.
           // Splitting further (radix-ui, icons, utils, admin-heavy, charts)

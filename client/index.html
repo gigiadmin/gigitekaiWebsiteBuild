@@ -57,10 +57,13 @@
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg3EsZ4lzW_dxiJHOHYslrcuWcX20cPToRg.woff2" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
     <!-- Preload critical vendor chunks for faster navigation -->
     <link rel="dns-prefetch" href="https://www.gigitekai.com" />
+    <!-- Defer 3rd party analytics until after page is interactive -->
+    <script src="/defer-analytics.js" defer></script>
     <script>
       // Preload react-core and radix-ui chunks after initial paint
       // so they are cached before the user navigates to any page
