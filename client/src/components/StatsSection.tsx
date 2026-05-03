@@ -2,7 +2,7 @@
   GigitekAI Stats Section — Social Proof & Trust Signals
   - Stats render as static text immediately (SEO + accessibility)
   - Optional count-up animation when section scrolls into view
-  - Social proof bar: 4.9/5 satisfaction + trust badges
+  - Social proof bar: trust badges
   - How It Works 6-step process
 */
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +20,7 @@ const trustBadges = [
   { label: "NIST Framework", color: "#00D4FF" },
   { label: "Zero Trust Ready", color: "#7C3AED" },
   { label: "ITIL Aligned", color: "#059669" },
-  { label: "SOC 2 Compliant", color: "#D97706" },
+
 ];
 
 const formatValue = (value: number, target: number) => {
@@ -140,18 +140,6 @@ export default function StatsSection() {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="flex items-center gap-4 shrink-0">
-            <div className="flex gap-0.5">
-              {[1,2,3,4,5].map((s) => (
-                <Star key={s} size={18} className="text-[#00D4FF] fill-[#00D4FF]" />
-              ))}
-            </div>
-            <div>
-              <p className="text-gray-900 dark:text-white font-bold text-sm">4.9 / 5.0 Client Satisfaction</p>
-              <p className="text-gray-400 text-xs">Based on post-engagement surveys</p>
-            </div>
-          </div>
-          <div className="hidden md:block w-px h-10 bg-gray-200 dark:bg-white/10" />
           <div className="flex flex-wrap items-center justify-center gap-3">
             {trustBadges.map((badge) => (
               <span

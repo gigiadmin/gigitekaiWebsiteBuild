@@ -75,7 +75,7 @@ const SCRIPTS: Script[] = [
     author: "GigitekAI Team",
     authorRole: "Official",
     downloads: 847,
-    rating: 4.9,
+    rating: 4.8,
     reviews: 124,
     tags: ["Entra ID", "Graph API", "Helpdesk"],
     verified: true,
@@ -216,7 +216,7 @@ export default function ClientExchangePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           {[
             { icon: <FileCode size={18} />, value: "50+", label: "Automation Scripts" },
-            { icon: <Users size={18} />, value: "500+", label: "Community Members" },
+            { icon: <Users size={18} />, value: "50+", label: "Community Members" },
             { icon: <Download size={18} />, value: "12K+", label: "Total Downloads" },
             { icon: <Star size={18} />, value: "4.8", label: "Avg Rating" },
           ].map((stat, i) => (

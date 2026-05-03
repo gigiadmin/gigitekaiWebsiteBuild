@@ -118,7 +118,7 @@ export default function HelpDesk() {
 
           {/* Trust Indicators */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <TrustBadge icon={<Shield className="w-5 h-5" />} label="SOC 2 Compliant" />
+            
             <TrustBadge icon={<Zap className="w-5 h-5" />} label="< 2hr Response" />
             <TrustBadge icon={<CheckCircle2 className="w-5 h-5" />} label="99.9% Uptime" />
             <TrustBadge icon={<Headphones className="w-5 h-5" />} label="24/7 Support" />

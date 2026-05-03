@@ -4116,6 +4116,13 @@
 
 ## Video Autoplay with Low Volume
 
-- [ ] Autoplay video on page load at low volume (20%), muted first to satisfy browser policy then unmute with low volume
-- [ ] Replace play button with volume slider/control so user can turn up the sound
+- [x] Autoplay video on page load at low volume (20%), muted first to satisfy browser policy then unmute with low volume
+- [x] Replace play button with volume slider/control so user can turn up the sound
+- [x] Save checkpoint
+
+## Content Accuracy Fixes
+
+- [ ] Remove "4.9 / 5.0 Client Satisfaction" from all locations across the site
+- [ ] Change "500+" to "50+" for Clients Served everywhere on the site
 - [ ] Save checkpoint
+- [ ] Remove all SOC compliance references (SOC 2, SOC compliance badges, text) from the entire site

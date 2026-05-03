@@ -213,7 +213,7 @@ export default function ProjectUntouchable() {
             { icon: <Database size={18} />, label: "Data Portability", value: "100%" },
             { icon: <Scale size={18} />, label: "Accuracy SLA", value: "99.7%" },
             { icon: <GitBranch size={18} />, label: "Open-Source Agents", value: "12+" },
-            { icon: <Users size={18} />, label: "Community Members", value: "500+" },
+            { icon: <Users size={18} />, label: "Community Members", value: "50+" },
           ].map((stat, i) => (
             <div
               key={i}
