@@ -145,6 +145,7 @@ export default function SiteNavBar2024() {
               { label: "Insights", href: "/blog" },
               { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
               { label: "🤖 Watch AI Work Live", href: "/ai-demo" },
+              { label: "🔗 Client Exchange", href: "/exchange" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -276,6 +277,7 @@ export default function SiteNavBar2024() {
                 { label: "Insights", href: "/blog", id: "nav-insights" },
                 { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
                 { label: "🤖 Watch AI Work Live", href: "/ai-demo", id: "nav-ai-demo" },
+                { label: "🔗 Client Exchange", href: "/exchange", id: "nav-exchange" },
               ].map((item) => (
                 <a
                   key={item.href}

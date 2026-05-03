@@ -50,6 +50,17 @@ vi.mock("./db", () => {
 vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn(async () => true),
 }));
+// Mock the email module
+vi.mock("./_core/email", () => ({
+  sendEmail: vi.fn(async () => ({ success: true })),
+}));
+// Mock the Teams bot module
+vi.mock("./teamsBot", () => ({
+  sendTicketNotificationToTeams: vi.fn(async () => true),
+  sendReplyNotificationToTeams: vi.fn(async () => true),
+  sendStatusUpdateToTeams: vi.fn(async () => true),
+  sendAssignmentNotificationToTeams: vi.fn(async () => true),
+}));
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 

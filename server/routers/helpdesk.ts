@@ -18,8 +18,8 @@ export const helpdeskRouter = router({
   createTicket: approvedProcedure
     .input(
       z.object({
-        title: z.string(),
-        description: z.string(),
+        title: z.string().min(5, "Title must be at least 5 characters"),
+        description: z.string().min(10, "Description must be at least 10 characters"),
         category: z.enum(["bug_report", "feature_request", "general_support", "billing"]).default("general_support"),
         priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
         channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
@@ -86,7 +86,7 @@ export const helpdeskRouter = router({
         console.error("[Helpdesk] Failed to queue push notification:", e);
       }
 
-      return ticket;
+      return { success: true, ...ticket };
     }),
 
   getTicketsByUserId: approvedProcedure

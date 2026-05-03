@@ -1,6 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import request from "supertest";
 import express from "express";
+
+// Mock the DB module so tests don't need a real database
+vi.mock("./db", () => ({
+  getDb: vi.fn(async () => null), // returns null → triggers 503 for DB-dependent endpoints
+}));
+
 import cronEndpoints from "./cronEndpoints";
 
 describe("Cron Endpoints", () => {
@@ -25,13 +31,13 @@ describe("Cron Endpoints", () => {
   });
 
   describe("GET /api/cron/new-tickets", () => {
-    it("should accept valid minutes parameter", async () => {
+    it("should accept valid minutes parameter (returns 503 without DB)", async () => {
       const response = await request(app)
         .get("/api/cron/new-tickets")
         .query({ minutes: 5, limit: 10 });
 
-      // Will fail with DB error but validates parameter parsing
-      expect(response.status).toBeGreaterThanOrEqual(400);
+      // With mocked DB returning null, expect 503 (DB unavailable) or 200 (success)
+      expect([200, 503]).toContain(response.status);
     });
 
     it("should reject invalid minutes (too small)", async () => {
@@ -74,11 +80,11 @@ describe("Cron Endpoints", () => {
       expect(response.body.error).toContain("limit must be between 1 and 500");
     });
 
-    it("should use default values when no params provided", async () => {
+    it("should use default values when no params provided (returns 503 without DB)", async () => {
       const response = await request(app).get("/api/cron/new-tickets");
 
-      // Will fail with DB error but validates defaults
-      expect(response.status).toBeGreaterThanOrEqual(400);
+      // With mocked DB returning null, expect 503 (DB unavailable) or 200 (success)
+      expect([200, 503]).toContain(response.status);
     });
   });
 
@@ -91,13 +97,13 @@ describe("Cron Endpoints", () => {
       expect(response.body.error).toContain("status query parameter is required");
     });
 
-    it("should accept valid status parameter", async () => {
+    it("should accept valid status parameter (returns 503 without DB)", async () => {
       const response = await request(app)
         .get("/api/cron/tickets-by-status")
         .query({ status: "open", limit: 10 });
 
-      // Will fail with DB error but validates parameter parsing
-      expect(response.status).toBeGreaterThanOrEqual(400);
+      // With mocked DB returning null, expect 503 (DB unavailable) or 200 (success)
+      expect([200, 503]).toContain(response.status);
     });
   });
 });

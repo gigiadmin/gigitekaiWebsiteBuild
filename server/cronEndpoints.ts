@@ -19,8 +19,10 @@ const router = Router();
  */
 router.get("/new-tickets", async (req, res) => {
   try {
-    const minutes = parseInt(req.query.minutes as string) || 5;
-    const limit = parseInt(req.query.limit as string) || 50;
+    const minutesRaw = parseInt(req.query.minutes as string);
+    const limitRaw = parseInt(req.query.limit as string);
+    const minutes = isNaN(minutesRaw) ? 5 : minutesRaw;
+    const limit = isNaN(limitRaw) ? 50 : limitRaw;
 
     // Validate inputs
     if (minutes < 1 || minutes > 1440) {

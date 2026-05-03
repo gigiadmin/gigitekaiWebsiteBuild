@@ -222,3 +222,21 @@ export const acsRouter = router({
     };
   }),
 });
+
+// ── Standalone helpers (exported for testing) ─────────────────────────────────
+
+export async function getPhoneNumbers() {
+  const creds = parseConnectionString(ENV.acsConnectionString);
+  if (!creds) throw new Error("No ACS connection string configured");
+  const result = await acsGet("/phoneNumbers?api-version=2022-12-01");
+  if (!result.ok) throw new Error(result.error ?? "Failed to fetch phone numbers");
+  const raw = result.data as { value?: Array<{ phoneNumber?: string }> };
+  return { phoneNumbers: raw.value ?? [] };
+}
+
+export async function getStatus() {
+  const creds = parseConnectionString(ENV.acsConnectionString);
+  if (!creds) throw new Error("No ACS connection string configured");
+  const result = await acsGet("/phoneNumbers?api-version=2022-12-01");
+  return { status: result.ok ? "healthy" : "unhealthy", message: result.error ?? "OK" };
+}

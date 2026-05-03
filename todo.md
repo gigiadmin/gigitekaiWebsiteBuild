@@ -4095,3 +4095,10 @@
 - [x] Re-encode video to mobile-compatible format (H.264 + AAC, smaller file size)
 - [x] Upload optimized video to CDN and update HeroSection
 - [x] Test on mobile and save checkpoint
+
+## Production Release Prep
+
+- [x] Add Client Exchange Portal link to main navigation
+- [x] Generate and add video poster/thumbnail frame to hero section
+- [ ] Run full test suite and fix any failures
+- [ ] Save checkpoint

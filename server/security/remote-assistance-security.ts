@@ -409,3 +409,42 @@ export class SessionTokenManager {
 
 export const sessionTokenManager = new SessionTokenManager();
 export const sessionRateLimiter = new SessionRateLimiter();
+
+// RBAC Permission Checker
+type RemoteRole = 'admin' | 'supervisor' | 'technician' | 'client' | 'observer';
+
+const ROLE_PERMISSIONS: Record<RemoteRole, string[]> = {
+  admin: [
+    'view_all_sessions', 'manage_sessions', 'manage_policies', 'create_session',
+    'view_own_sessions', 'manage_recordings', 'view_audit_logs', 'manage_users',
+    'manage_compliance', 'export_reports',
+  ],
+  supervisor: [
+    'view_all_sessions', 'manage_sessions', 'create_session', 'view_own_sessions',
+    'manage_recordings', 'view_audit_logs', 'export_reports',
+  ],
+  technician: [
+    'create_session', 'view_own_sessions', 'manage_recordings',
+  ],
+  client: [
+    'view_own_sessions',
+  ],
+  observer: [
+    'view_own_sessions',
+  ],
+};
+
+export const permissionChecker = {
+  hasPermission(role: RemoteRole, permission: string): boolean {
+    return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
+  },
+  hasAllPermissions(role: RemoteRole, permissions: string[]): boolean {
+    return permissions.every((p) => this.hasPermission(role, p));
+  },
+  hasAnyPermission(role: RemoteRole, permissions: string[]): boolean {
+    return permissions.some((p) => this.hasPermission(role, p));
+  },
+  getRolePermissions(role: RemoteRole): string[] {
+    return ROLE_PERMISSIONS[role] ?? [];
+  },
+};

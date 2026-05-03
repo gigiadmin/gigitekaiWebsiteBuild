@@ -150,6 +150,8 @@ export default function HeroSection() {
           preload={mobile ? "none" : "auto"}
           // Explicitly set src based on device for guaranteed mobile compatibility
           src={mobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
+          // Poster frame shown before play — the AI Analytics team scene from the video
+          poster="/manus-storage/hero-video-poster_47b270c1.jpg"
           onEnded={handleVideoEnd}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${playing ? "opacity-100" : "opacity-0"}`}
         />
