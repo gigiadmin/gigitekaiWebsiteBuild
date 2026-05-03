@@ -183,6 +183,7 @@ function Router() {
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
           <Route path={"/case-studies"} component={CaseStudiesPage} />
+          <Route path={"/insights"}>{() => { window.location.replace("/blog"); return null; }}</Route>
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
           <Route path={"/about"}>{() => { window.location.replace("/about-us"); return null; }}</Route>
