@@ -1,97 +1,104 @@
 /*
   GigitekAI Hero Section — Click-to-Play Video Background
   Full-width background video with play/pause/restart controls
-  Left-anchored headline, CTA buttons
-  Mobile: play button below CTA buttons; Desktop: centered overlay
+  Mobile fix: always load video src immediately with preload=metadata
+  so the browser has the video ready when user taps play.
 */
 
 import { useEffect, useState, useRef } from "react";
-import { ArrowRight, ChevronDown, Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
-// Mobile-optimized: 6.8MB @ 480p (H.264 Baseline for max compatibility)
+// Mobile-optimized: 6.8MB @ 480p (H.264 Baseline — max iOS/Android compatibility)
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_mobile_1ff72fdc.mp4";
 // Desktop-optimized: 15MB @ 720p (H.264 High, faststart)
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_desktop_8ec9a027.mp4";
+// Poster frame — shown before play on all devices
+const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_47b270c1.jpg";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
-
-// Detect mobile device for adaptive video loading
-const isMobile = () => typeof window !== "undefined" && window.innerWidth <= 768;
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [mobile, setMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Detect mobile after mount (avoids SSR mismatch)
   useEffect(() => {
-    setMobile(isMobile());
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Fade-in animation
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload video metadata so we know it's available
-  useEffect(() => {
+  const handlePlay = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    const onCanPlay = () => setVideoReady(true);
-    const onLoadedData = () => setVideoReady(true);
+    // Always muted on first play (browser policy for autoplay/play without gesture)
+    video.muted = true;
+    setMuted(true);
 
-    video.addEventListener("canplay", onCanPlay);
-    video.addEventListener("loadeddata", onLoadedData);
+    // load() forces the browser to start fetching the video if it hasn't yet
+    video.load();
 
-    // If video is already ready (cached)
-    if (video.readyState >= 2) setVideoReady(true);
-
-    return () => {
-      video.removeEventListener("canplay", onCanPlay);
-      video.removeEventListener("loadeddata", onLoadedData);
+    const tryPlay = () => {
+      video.play()
+        .then(() => {
+          setPlaying(true);
+          setEnded(false);
+        })
+        .catch(() => {
+          // If play fails, try again after a short delay (iOS sometimes needs this)
+          setTimeout(() => {
+            video.play()
+              .then(() => {
+                setPlaying(true);
+                setEnded(false);
+              })
+              .catch(() => {});
+          }, 300);
+        });
     };
-  }, []);
 
-  const handlePlay = () => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Fallback: some mobile browsers block play without user gesture on video element
-        // Try again with muted
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          setMuted(true);
-          videoRef.current.play().catch(() => {});
-        }
-      });
-      setPlaying(true);
-      setEnded(false);
+    // If video has enough data, play immediately; otherwise wait for canplay
+    if (video.readyState >= 3) {
+      tryPlay();
+    } else {
+      const onReady = () => {
+        video.removeEventListener("canplay", onReady);
+        tryPlay();
+      };
+      video.addEventListener("canplay", onReady);
     }
   };
 
   const handlePause = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      setPlaying(false);
-    }
+    videoRef.current?.pause();
+    setPlaying(false);
   };
 
   const handleRestart = () => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
-      setPlaying(true);
-      setEnded(false);
-    }
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.play().catch(() => {});
+    setPlaying(true);
+    setEnded(false);
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !muted;
-      setMuted(!muted);
-    }
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !muted;
+    setMuted(!muted);
   };
 
   const handleVideoEnd = () => {
@@ -99,83 +106,57 @@ export default function HeroSection() {
     setEnded(true);
   };
 
-  // Shared play/replay button component
-  const PlayButton = ({ size: btnSize = "lg" }: { size?: "lg" | "sm" }) => {
-    const isLarge = btnSize === "lg";
-    return (
-      <button
-        onClick={ended ? handleRestart : handlePlay}
-        className="group flex flex-col items-center gap-2"
-        aria-label={ended ? "Replay video" : "Play video"}
-      >
-        <div
-          className={`relative flex items-center justify-center rounded-full bg-[#00D4FF]/15 backdrop-blur-md border border-[#00D4FF]/40 group-hover:bg-[#00D4FF]/25 group-hover:border-[#00D4FF]/60 group-hover:scale-110 transition-all duration-300 ${
-            isLarge ? "w-20 h-20 md:w-24 md:h-24" : "w-14 h-14"
-          }`}
-        >
-          {/* Pulse ring */}
-          <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-ping" />
-          {ended ? (
-            <RotateCcw size={isLarge ? 32 : 22} className="text-[#00D4FF]" />
-          ) : (
-            <Play size={isLarge ? 32 : 22} className="text-[#00D4FF] ml-0.5" fill="currentColor" />
-          )}
-        </div>
-        <span className={`text-[#00D4FF]/80 tracking-wider uppercase font-medium text-center ${isLarge ? "text-sm" : "text-xs"}`}>
-          {ended ? "Replay" : "Watch Video"}
-        </span>
-      </button>
-    );
-  };
-
   return (
-    <section
-      className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]"
-    >
-      {/* Video Background */}
+    <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
+
+      {/* ── Video layer ── */}
       <div className="absolute inset-0 z-0">
-        {/* Fallback/poster background image */}
+        {/* Static poster / fallback background */}
         <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
           }}
         />
+
+        {/*
+          KEY FIX:
+          - preload="metadata" on ALL devices: tells browser to fetch headers/duration
+            without downloading the whole file. This primes the network connection so
+            play() succeeds immediately on mobile.
+          - src is always set (no conditional) so iOS/Android registers the resource.
+          - playsInline is required for iOS to play inline (not fullscreen).
+          - muted is required for programmatic play() without a user gesture on iOS.
+        */}
         <video
           ref={videoRef}
           muted
           playsInline
-          // On mobile: preload=none saves data until user taps play
-          // On desktop: preload=auto buffers immediately for instant play
-          preload={mobile ? "none" : "auto"}
-          // Explicitly set src based on device for guaranteed mobile compatibility
-          src={mobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-          // Poster frame shown before play — the AI Analytics team scene from the video
-          poster="/manus-storage/hero-video-poster_47b270c1.jpg"
+          preload="metadata"
+          src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
+          poster={HERO_VIDEO_POSTER}
           onEnded={handleVideoEnd}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${playing ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+            playing ? "opacity-100" : "opacity-0"
+          }`}
         />
       </div>
 
-      {/* Dark gradient overlay for text readability */}
+      {/* ── Gradient overlays ── */}
       <div
         className="absolute inset-0 z-[1]"
         style={{
           background: playing
-            ? `linear-gradient(to right, rgba(10,14,26,0.88) 0%, rgba(10,14,26,0.65) 40%, rgba(10,14,26,0.35) 100%)`
-            : `linear-gradient(to right, rgba(10,14,26,0.95) 0%, rgba(10,14,26,0.80) 50%, rgba(10,14,26,0.55) 100%)`,
+            ? "linear-gradient(to right, rgba(10,14,26,0.88) 0%, rgba(10,14,26,0.60) 40%, rgba(10,14,26,0.30) 100%)"
+            : "linear-gradient(to right, rgba(10,14,26,0.95) 0%, rgba(10,14,26,0.80) 50%, rgba(10,14,26,0.55) 100%)",
         }}
       />
-
-      {/* Bottom gradient fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-32 z-[1]"
-        style={{
-          background: "linear-gradient(to top, rgba(10,14,26,1) 0%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(to top, rgba(10,14,26,1) 0%, transparent 100%)" }}
       />
 
-      {/* Animated grid overlay */}
+      {/* ── Animated grid ── */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-[2]"
         style={{
@@ -187,21 +168,34 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Desktop: Large center play button (hidden on mobile, shown md+) */}
+      {/* ── Desktop center play button (md+) ── */}
       {!playing && (
         <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden md:block transition-all duration-500 ${
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col items-center gap-2 transition-all duration-500 ${
             visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
           }`}
         >
-          <PlayButton size="lg" />
+          <button
+            onClick={ended ? handleRestart : handlePlay}
+            className="group flex flex-col items-center gap-2"
+            aria-label={ended ? "Replay video" : "Play video"}
+          >
+            <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-[#00D4FF]/15 backdrop-blur-md border border-[#00D4FF]/40 group-hover:bg-[#00D4FF]/25 group-hover:border-[#00D4FF]/60 group-hover:scale-110 transition-all duration-300">
+              <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-ping" />
+              <Play size={36} className="text-[#00D4FF] ml-1" fill="currentColor" />
+            </div>
+            <span className="text-sm text-[#00D4FF]/80 tracking-wider uppercase font-medium">
+              {ended ? "Replay" : "Watch Video"}
+            </span>
+          </button>
         </div>
       )}
 
-      {/* Content */}
+      {/* ── Main content ── */}
       <div className="container relative z-10 py-20">
         <div className="max-w-3xl">
-          {/* Section label */}
+
+          {/* Label */}
           <div
             className={`section-label mb-6 transition-all duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -255,7 +249,7 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Mobile: Play button inline below CTAs (visible only on mobile) */}
+          {/* ── Mobile play button (below CTAs, visible only on mobile) ── */}
           {!playing && (
             <div
               className={`md:hidden flex items-center gap-4 mb-6 transition-all duration-700 delay-[400ms] ${
@@ -264,7 +258,7 @@ export default function HeroSection() {
             >
               <button
                 onClick={ended ? handleRestart : handlePlay}
-                className="flex items-center gap-3 px-5 py-3 rounded-full bg-[#00D4FF]/10 backdrop-blur-sm border border-[#00D4FF]/30 hover:bg-[#00D4FF]/20 transition-all duration-300"
+                className="flex items-center gap-3 px-5 py-3 rounded-full bg-[#00D4FF]/10 backdrop-blur-sm border border-[#00D4FF]/30 active:bg-[#00D4FF]/25 transition-all duration-200"
                 aria-label={ended ? "Replay video" : "Play video"}
               >
                 <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-[#00D4FF]/20 border border-[#00D4FF]/50">
@@ -287,83 +281,90 @@ export default function HeroSection() {
             </div>
           )}
 
-          {/* Mobile: Video controls when playing (visible only on mobile) */}
+          {/* ── Mobile video controls when playing ── */}
           {playing && (
             <div className="md:hidden flex items-center gap-2 mb-6">
               <button
                 onClick={handlePause}
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
-                aria-label="Pause video"
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white text-xs"
               >
-                <Pause size={14} />
-                <span className="text-xs">Pause</span>
+                <Pause size={14} /> Pause
               </button>
               <button
                 onClick={handleRestart}
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
-                aria-label="Restart video"
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white text-xs"
               >
-                <RotateCcw size={14} />
-                <span className="text-xs">Restart</span>
+                <RotateCcw size={14} /> Restart
               </button>
               <button
                 onClick={toggleMute}
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
-                aria-label={muted ? "Unmute" : "Mute"}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white text-xs"
               >
                 {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                <span className="text-xs">{muted ? "Sound" : "Mute"}</span>
+                {muted ? "Sound Off" : "Sound On"}
               </button>
             </div>
           )}
+
+          {/* Stats row */}
+          <div
+            className={`flex flex-wrap gap-6 transition-all duration-700 delay-[500ms] ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            {[
+              { value: "500+", label: "Clients Served" },
+              { value: "99.9%", label: "Uptime SLA" },
+              { value: "24/7", label: "AI Support" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div
+                  className="text-2xl font-bold"
+                  style={{
+                    background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Desktop: Video controls bar (bottom-right, hidden on mobile) */}
-      <div
-        className={`absolute bottom-20 right-8 z-20 hidden md:flex items-center gap-2 transition-all duration-300 ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        {/* Play/Pause */}
-        <button
-          onClick={playing ? handlePause : handlePlay}
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
-          aria-label={playing ? "Pause video" : "Play video"}
-        >
-          {playing ? <Pause size={16} /> : <Play size={16} />}
-          <span className="text-xs tracking-wide">{playing ? "Pause" : "Play"}</span>
-        </button>
+      {/* ── Desktop video controls (bottom-right, shown when playing) ── */}
+      {playing && (
+        <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-2">
+          <button
+            onClick={handlePause}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+          >
+            <Pause size={14} /> Pause
+          </button>
+          <button
+            onClick={handleRestart}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+          >
+            <RotateCcw size={14} /> Restart
+          </button>
+          <button
+            onClick={toggleMute}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+          >
+            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            {muted ? "Sound Off" : "Sound On"}
+          </button>
+        </div>
+      )}
 
-        {/* Restart */}
-        <button
-          onClick={handleRestart}
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
-          aria-label="Restart video"
-        >
-          <RotateCcw size={16} />
-          <span className="text-xs tracking-wide">Restart</span>
-        </button>
-
-        {/* Mute/Unmute */}
-        <button
-          onClick={toggleMute}
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
-          aria-label={muted ? "Unmute video" : "Mute video"}
-        >
-          {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          <span className="text-xs tracking-wide">{muted ? "Sound Off" : "Sound On"}</span>
-        </button>
+      {/* ── Scroll indicator ── */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
+        <span className="text-[10px] text-gray-400 uppercase tracking-widest">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-[#00D4FF]/60 to-transparent" />
       </div>
-
-      {/* Scroll indicator */}
-      <a
-        href="#services"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-500 hover:text-[#00D4FF] transition-colors animate-bounce z-10"
-      >
-        <span className="text-xs tracking-widest uppercase">Scroll</span>
-        <ChevronDown size={16} />
-      </a>
     </section>
   );
 }

@@ -4100,5 +4100,11 @@
 
 - [x] Add Client Exchange Portal link to main navigation
 - [x] Generate and add video poster/thumbnail frame to hero section
-- [ ] Run full test suite and fix any failures
-- [ ] Save checkpoint
+- [x] Run full test suite and fix any failures
+- [x] Save checkpoint
+
+## Mobile Video Fix (Round 2)
+
+- [ ] Fix mobile video: preload=none + state-based src causes load failure on iOS/Android
+- [ ] Use preload=metadata on mobile, load src immediately, trigger play on tap
+- [ ] Save checkpoint and deploy
