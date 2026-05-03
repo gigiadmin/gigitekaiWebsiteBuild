@@ -35,6 +35,8 @@ export default function SiteNavBar2024() {
     { label: "Cybersecurity", href: "/services/security" },
     { label: "Data Analytics", href: "/services/data" },
     { label: "IT Strategy", href: "/services/strategy" },
+    { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency" },
+    { label: "🔄 The Switch Program", href: "/switch-program" },
   ];
 
   useEffect(() => {
@@ -272,6 +274,8 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
+                { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency", id: "nav-florida" },
+                { label: "🔄 Switch Program", href: "/switch-program", id: "nav-switch" },
                 { label: "Industries", href: "/industries/healthcare", id: "nav-industries" },
                 { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },

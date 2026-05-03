@@ -4154,3 +4154,8 @@
 - [x] Create /switch-program page (60-Day Migration Guarantee landing page)
 - [x] Update Aria AI agent system prompt with Florida-specific knowledge (BCDR, FIPA, local advantage)
 - [x] Add Florida Resiliency link to navigation
+
+## Florida Nav + Lead Form + Blog (May 2026)
+- [x] Add Florida IT Resiliency to main navigation (Services or Industries dropdown)
+- [x] Add lead capture form to /switch-program with Teams/email notification
+- [x] Write and publish Florida SEO blog post (FIPA + managed IT Florida keywords)

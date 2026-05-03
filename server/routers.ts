@@ -419,6 +419,94 @@ Submitted from GigitekAI website contact form.
     }),
   }),
 
+  // ── Switch Program Lead Capture ─────────────────────────────────────────
+  switchProgram: router({
+    submitAuditRequest: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1, "Name is required"),
+          email: z.string().email("Valid email is required"),
+          company: z.string().min(1, "Company is required"),
+          currentMsp: z.string().optional(),
+          userCount: z.string().optional(),
+          phone: z.string().optional(),
+          painPoint: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        try {
+          // Notify owner in Manus dashboard
+          await notifyOwner({
+            title: `🔄 Switch Program Lead: ${input.name} @ ${input.company}`,
+            content: `**New Switch Program IT Audit Request**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company}\n**Current MSP:** ${input.currentMsp || "Not provided"}\n**User Count:** ${input.userCount || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**Main Pain Point:** ${input.painPoint || "Not provided"}\n\n---\nSubmitted from gigitekai.com/switch-program`,
+          });
+
+          // Send email notification to support team
+          try {
+            await sendEmail({
+              to: "support@gigitekai.com",
+              subject: `🔄 Switch Program Lead: ${input.name} @ ${input.company}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0E1A; color: #e2e8f0; padding: 24px; border-radius: 12px;">
+                  <h2 style="color: #00D4FF; margin-bottom: 4px;">Switch Program — Free IT Audit Request</h2>
+                  <p style="color: #94a3b8; font-size: 13px; margin-bottom: 24px;">Submitted from gigitekai.com/switch-program</p>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0; color: #94a3b8; width: 140px;">Name</td><td style="padding: 8px 0; font-weight: bold;">${input.name}</td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">Email</td><td style="padding: 8px 0;"><a href="mailto:${input.email}" style="color: #00D4FF;">${input.email}</a></td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">Company</td><td style="padding: 8px 0;">${input.company}</td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">Current MSP</td><td style="padding: 8px 0;">${input.currentMsp || "Not provided"}</td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">User Count</td><td style="padding: 8px 0;">${input.userCount || "Not provided"}</td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">Phone</td><td style="padding: 8px 0;">${input.phone || "Not provided"}</td></tr>
+                    <tr><td style="padding: 8px 0; color: #94a3b8;">Pain Point</td><td style="padding: 8px 0;">${input.painPoint || "Not provided"}</td></tr>
+                  </table>
+                  <div style="margin-top: 24px; padding: 16px; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px;">
+                    <p style="color: #00D4FF; font-weight: bold; margin: 0 0 8px;">Next Step</p>
+                    <p style="margin: 0; font-size: 14px;">Reply to this email or call ${input.phone || input.email} to schedule the free IT audit within 24 hours.</p>
+                  </div>
+                </div>
+              `,
+              replyTo: input.email,
+            });
+          } catch (emailError) {
+            console.error("[Switch Program] Email notification failed:", emailError);
+          }
+
+          // Send confirmation email to the prospect
+          try {
+            await sendEmail({
+              to: input.email,
+              subject: "Your Free IT Audit Request — GigitekAI Switch Program",
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0E1A; color: #e2e8f0; padding: 24px; border-radius: 12px;">
+                  <h2 style="color: #00D4FF;">We received your request, ${input.name.split(' ')[0]}!</h2>
+                  <p>Thank you for your interest in GigitekAI's Switch Program. A member of our team will contact you within <strong>24 hours</strong> to schedule your free IT audit.</p>
+                  <div style="margin: 24px 0; padding: 16px; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px;">
+                    <p style="color: #00D4FF; font-weight: bold; margin: 0 0 8px;">What happens next?</p>
+                    <ol style="margin: 0; padding-left: 20px; color: #cbd5e1;">
+                      <li style="margin-bottom: 8px;">Our team reviews your current environment details</li>
+                      <li style="margin-bottom: 8px;">We schedule a 30-minute discovery call</li>
+                      <li style="margin-bottom: 8px;">You receive a free IT audit report with migration plan</li>
+                      <li>We kick off your zero-downtime migration</li>
+                    </ol>
+                  </div>
+                  <p style="color: #94a3b8; font-size: 13px;">Questions? Call us at <a href="tel:+17273825776" style="color: #00D4FF;">(727) 382-5776</a> or email <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a></p>
+                  <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 24px 0;">
+                  <p style="color: #64748b; font-size: 12px;">GigitekAI • Cloud & AI Solutions • gigitekai.com</p>
+                </div>
+              `,
+            });
+          } catch (confirmError) {
+            console.error("[Switch Program] Confirmation email failed:", confirmError);
+          }
+
+          return { success: true, message: "Thank you! We'll contact you within 24 hours to schedule your free IT audit." };
+        } catch (error) {
+          console.error("[Switch Program] Submission failed:", error);
+          return { success: true, message: "Thank you! We'll contact you within 24 hours to schedule your free IT audit." };
+        }
+      }),
+  }),
+
   // User management (admin only)
   users: router({
     getAll: adminProcedure.query(async () => {

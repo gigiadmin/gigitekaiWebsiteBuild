@@ -4,11 +4,13 @@
   Target: Clients frustrated with slow legacy Florida MSPs
 */
 
-import { ArrowRight, CheckCircle, Clock, Shield, Zap, Users, Star, Phone, Mail } from "lucide-react";
+import { ArrowRight, CheckCircle, Clock, Shield, Zap, Users, Star, Phone, Mail, Building2, UserCheck } from "lucide-react";
 import { Link } from "wouter";
+import { useState } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
+import { trpc } from "@/lib/trpc";
 
 const STEPS = [
   { step: "01", title: "Free IT Audit", desc: "We assess your current environment, identify gaps, and build a migration plan — at no cost to you." },
@@ -34,6 +36,25 @@ const GUARANTEES = [
 ];
 
 export default function SwitchProgram() {
+  const [form, setForm] = useState({ name: "", email: "", company: "", currentMsp: "", userCount: "", phone: "", painPoint: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const submitAudit = trpc.switchProgram.submitAuditRequest.useMutation({
+    onSuccess: () => setSubmitted(true),
+    onError: (err) => setFormError(err.message || "Something went wrong. Please try again."),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError("");
+    if (!form.name || !form.email || !form.company) {
+      setFormError("Please fill in your name, email, and company.");
+      return;
+    }
+    submitAudit.mutate(form);
+  };
+
   useSEO({
     title: "The Switch Program — 60-Day Migration Guarantee | GigitekAI",
     description: "Frustrated with your current MSP? GigitekAI's Switch Program offers a 60-day migration guarantee, zero downtime, and AI-powered IT from day one. Florida's elite MSP.",
@@ -188,21 +209,148 @@ export default function SwitchProgram() {
         </div>
       </section>
 
-      {/* ── Final CTA ── */}
-      <section className="py-20 border-t border-white/5">
-        <div className="container max-w-3xl text-center">
-          <h2 className="text-4xl font-bold mb-5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            Ready to Make the Switch?
+      {/* ── Lead Capture Form ── */}
+      <section className="py-20 border-t border-white/5" id="audit-form">
+        <div className="container max-w-2xl">
+          <h2 className="text-4xl font-bold text-center mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Get Your Free IT Audit
           </h2>
-          <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-            Start with a free IT audit. No commitment, no pressure. Just an honest assessment of your current environment and a clear migration plan.
+          <p className="text-gray-400 text-center mb-10">
+            No commitment, no pressure. We'll assess your current environment and deliver a clear migration plan within 48 hours.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center mb-8">
-            <Link href="/contact" className="btn-cyan text-base px-8 py-3">
-              Get My Free IT Audit <ArrowRight size={18} />
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+
+          {submitted ? (
+            <div
+              className="rounded-2xl p-10 text-center"
+              style={{ background: "rgba(0,212,255,0.06)", border: "1px solid rgba(0,212,255,0.25)" }}
+            >
+              <CheckCircle size={48} className="text-[#00D4FF] mx-auto mb-4" />
+              <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Request Received!</h3>
+              <p className="text-gray-300 mb-2">We'll contact you within <strong className="text-white">24 hours</strong> to schedule your free IT audit.</p>
+              <p className="text-gray-400 text-sm">Check your inbox for a confirmation email from support@gigitekai.com</p>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-2xl p-8 space-y-5"
+              style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(0,212,255,0.15)" }}
+            >
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Full Name *</label>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    placeholder="Harry Henry-Santiago"
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Work Email *</label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="harry@yourcompany.com"
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Company Name *</label>
+                  <input
+                    type="text"
+                    value={form.company}
+                    onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
+                    placeholder="Acme Corp"
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                    placeholder="(727) 555-0100"
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Current MSP / IT Provider</label>
+                  <input
+                    type="text"
+                    value={form.currentMsp}
+                    onChange={e => setForm(f => ({ ...f, currentMsp: e.target.value }))}
+                    placeholder="e.g. TechSolutions Inc."
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Number of Users</label>
+                  <select
+                    value={form.userCount}
+                    onChange={e => setForm(f => ({ ...f, userCount: e.target.value }))}
+                    className="w-full px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                    style={{ background: "#0F1629", border: "1px solid rgba(255,255,255,0.1)" }}
+                  >
+                    <option value="">Select range</option>
+                    <option value="1-10">1 – 10 users</option>
+                    <option value="11-25">11 – 25 users</option>
+                    <option value="26-50">26 – 50 users</option>
+                    <option value="51-100">51 – 100 users</option>
+                    <option value="100+">100+ users</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Biggest Pain Point with Your Current MSP</label>
+                <select
+                  value={form.painPoint}
+                  onChange={e => setForm(f => ({ ...f, painPoint: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-[#00D4FF]/40"
+                  style={{ background: "#0F1629", border: "1px solid rgba(255,255,255,0.1)" }}
+                >
+                  <option value="">Select your main issue</option>
+                  <option value="slow-response">Slow response times</option>
+                  <option value="per-ticket-fees">Per-ticket fees / unexpected charges</option>
+                  <option value="no-bcdr">No disaster recovery / BCDR plan</option>
+                  <option value="no-fipa">FIPA / compliance gaps</option>
+                  <option value="no-ai">No AI or automation</option>
+                  <option value="poor-communication">Poor communication</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {formError && (
+                <p className="text-red-400 text-sm">{formError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={submitAudit.isPending}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base text-black transition-opacity disabled:opacity-60"
+                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.4)" }}
+              >
+                {submitAudit.isPending ? "Submitting..." : (<>Get My Free IT Audit <ArrowRight size={18} /></>)}
+              </button>
+              <p className="text-center text-gray-500 text-xs">No commitment. We'll follow up within 24 hours. Your info is never shared.</p>
+            </form>
+          )}
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400 mt-8">
             <a href="tel:+17273825776" className="flex items-center gap-2 hover:text-[#00D4FF] transition-colors">
               <Phone size={15} /> (727) 382-5776
             </a>
