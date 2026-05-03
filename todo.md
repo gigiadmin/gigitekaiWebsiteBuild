@@ -4111,5 +4111,11 @@
 
 ## Mobile Video Button Enhancement
 
-- [ ] Make Watch Video button full-width, bold, glowing cyan CTA on mobile to drive more leads
+- [x] Make Watch Video button full-width, bold, glowing cyan CTA on mobile to drive more leads
+- [x] Save checkpoint
+
+## Video Autoplay with Low Volume
+
+- [ ] Autoplay video on page load at low volume (20%), muted first to satisfy browser policy then unmute with low volume
+- [ ] Replace play button with volume slider/control so user can turn up the sound
 - [ ] Save checkpoint
