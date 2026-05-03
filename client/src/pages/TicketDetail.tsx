@@ -17,6 +17,8 @@ import {
   CircleDot,
   Clock,
   Copy,
+  Download,
+  ExternalLink,
   History,
   Loader2,
   Mail,
@@ -56,6 +58,7 @@ export default function TicketDetail() {
 
   const ticketIdNum = parseInt(ticketId || "0");
   const [showRecordings, setShowRecordings] = useState(false);
+  const [previewRecUrl, setPreviewRecUrl] = useState<string | null>(null);
   const isAdmin = user?.role === "admin";
   const { data: recordingsData, refetch: refetchRecordings } = trpc.sessionRecording.getRecordings.useQuery(
     { ticketId: ticketIdNum },
@@ -678,34 +681,77 @@ export default function TicketDetail() {
                   </div>
                   {/* Session Recordings Playback (admin only) */}
                   <div className="bg-gray-800/30 p-3 rounded-lg border border-gray-700/30">
-                    <button
-                      className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1.5 w-full text-left"
-                      onClick={() => { setShowRecordings((v) => !v); if (!showRecordings) refetchRecordings(); }}
-                    >
-                      <PlayCircle className="w-3.5 h-3.5" />
-                      {showRecordings ? "Hide Recordings" : "View Session Recordings"}
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <button
+                        className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1.5"
+                        onClick={() => { setShowRecordings((v) => !v); if (!showRecordings) refetchRecordings(); }}
+                      >
+                        <PlayCircle className="w-3.5 h-3.5" />
+                        {showRecordings ? "Hide Recordings" : "View Session Recordings"}
+                        {recordingsData && recordingsData.length > 0 && (
+                          <span className="bg-cyan-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">{recordingsData.length}</span>
+                        )}
+                      </button>
+                      <a
+                        href="/admin/recordings"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-gray-500 hover:text-cyan-400 flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Library
+                      </a>
+                    </div>
                     {showRecordings && (
                       <div className="mt-3 space-y-2">
                         {!recordingsData || recordingsData.length === 0 ? (
                           <p className="text-xs text-gray-500">No recordings found for this ticket.</p>
                         ) : (
                           recordingsData.map((rec) => (
-                            <div key={rec.id} className="flex items-center justify-between bg-gray-900/60 p-2 rounded border border-gray-700/30">
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs text-gray-300 truncate">Room: {rec.roomId}</p>
-                                <p className="text-xs text-gray-500">
-                                  {Math.floor(rec.durationSeconds / 60)}m {rec.durationSeconds % 60}s • {rec.sizeMb} MB • {new Date(rec.createdAt).toLocaleDateString()}
-                                </p>
+                            <div key={rec.id} className="bg-gray-900/60 rounded border border-gray-700/30 overflow-hidden">
+                              {/* Inline video preview */}
+                              {previewRecUrl === rec.url ? (
+                                <div className="relative">
+                                  <video
+                                    src={rec.url}
+                                    controls
+                                    autoPlay
+                                    className="w-full max-h-48 bg-black"
+                                  />
+                                  <button
+                                    onClick={() => setPreviewRecUrl(null)}
+                                    className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded"
+                                  >
+                                    Close
+                                  </button>
+                                </div>
+                              ) : null}
+                              <div className="flex items-center justify-between p-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-gray-300 truncate font-mono">#{rec.roomId?.slice(-8)}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {Math.floor((rec.durationSeconds || 0) / 60)}m {(rec.durationSeconds || 0) % 60}s
+                                    {rec.sizeMb ? ` • ${rec.sizeMb} MB` : ""}
+                                    {" • "}{new Date(rec.createdAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-1 ml-2 shrink-0">
+                                  <button
+                                    onClick={() => setPreviewRecUrl(previewRecUrl === rec.url ? null : rec.url)}
+                                    className="text-[10px] bg-cyan-700 hover:bg-cyan-600 text-white px-2 py-1 rounded flex items-center gap-1"
+                                  >
+                                    <PlayCircle className="w-3 h-3" />
+                                    {previewRecUrl === rec.url ? "Hide" : "Play"}
+                                  </button>
+                                  <a
+                                    href={rec.url}
+                                    download
+                                    className="text-[10px] bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded flex items-center gap-1"
+                                  >
+                                    <Download className="w-3 h-3" />
+                                  </a>
+                                </div>
                               </div>
-                              <a
-                                href={rec.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ml-2 shrink-0 text-xs bg-cyan-700 hover:bg-cyan-600 text-white px-2 py-1 rounded"
-                              >
-                                Play
-                              </a>
                             </div>
                           ))
                         )}

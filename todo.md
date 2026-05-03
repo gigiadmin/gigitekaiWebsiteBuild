@@ -4036,3 +4036,13 @@
 - [x] Twilio TURN credentials configured via Secrets (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) - VERIFIED WORKING
 - [x] Recording consent banner in RemoteSession for GDPR/HIPAA compliance
 - [x] Recordings Library admin page at /admin/recordings with search, filter, bulk-delete
+
+## WebRTC Phase 4 - Recordings Management
+- [x] 90-day auto-expiry scheduled cleanup for recordings (S3 + DB)
+- [x] Recording playback panel in TicketDetail page
+- [x] CSV export button on Recordings Library admin page
+
+## WebRTC Phase 4 - Recordings Management
+- [x] 90-day auto-expiry scheduled cleanup for recordings (S3 + DB)
+- [x] Recording playback panel in TicketDetail page
+- [x] CSV export button on Recordings Library admin page

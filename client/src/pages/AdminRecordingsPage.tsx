@@ -18,6 +18,7 @@ import {
   Download,
   Calendar,
   Clock,
+  FileDown,
   HardDrive,
   User,
   Filter,
@@ -197,15 +198,54 @@ export default function AdminRecordingsPage() {
               All WebRTC remote assistance session recordings — AES-256 encrypted, stored in S3
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="border-gray-600 text-gray-400 hover:text-white"
-          >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (!filtered || filtered.length === 0) {
+                  toast.error("No recordings to export");
+                  return;
+                }
+                const headers = ["ID", "Room ID", "Recorded By", "Duration (s)", "Size (MB)", "Date", "URL"];
+                const rows = filtered.map((r) => [
+                  r.id,
+                  r.roomId,
+                  r.recordedBy,
+                  r.durationSeconds,
+                  r.sizeMb,
+                  new Date(r.createdAt).toISOString(),
+                  r.url,
+                ]);
+                const csvContent = [headers, ...rows]
+                  .map((row) => row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+                  .join("\n");
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `gigitekai-recordings-${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                toast.success(`Exported ${filtered.length} recordings to CSV`);
+              }}
+              className="border-gray-600 text-gray-400 hover:text-white"
+            >
+              <FileDown className="w-3.5 h-3.5 mr-1.5" />
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="border-gray-600 text-gray-400 hover:text-white"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Stats Row */}

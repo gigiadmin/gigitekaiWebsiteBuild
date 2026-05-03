@@ -289,4 +289,100 @@ router.post("/nps-digest", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/cron/cleanup-recordings
+ * Deletes session recordings older than 90 days from both S3 and the database.
+ * GDPR data minimization compliance — run daily via external cron scheduler.
+ *
+ * Query params:
+ * - retentionDays: number of days to retain recordings (default: 90)
+ *
+ * Returns: { success, deleted, errors, cutoffDate }
+ */
+router.get("/cleanup-recordings", async (req, res) => {
+  try {
+    const RETENTION_DAYS = parseInt(req.query.retentionDays as string) || 90;
+    if (RETENTION_DAYS < 1 || RETENTION_DAYS > 3650) {
+      return res.status(400).json({ success: false, error: "retentionDays must be between 1 and 3650" });
+    }
+
+    const db = await getDb();
+    if (!db) {
+      return res.status(503).json({ success: false, error: "Database connection unavailable" });
+    }
+
+    const cutoffDate = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    const { sql } = await import("drizzle-orm");
+
+    // Fetch expired recordings
+    const result = await db.execute(
+      sql`SELECT id, session_id, file_key, recording_url
+          FROM session_recordings
+          WHERE created_at < ${cutoffDate.toISOString()}
+          ORDER BY created_at ASC
+          LIMIT 500`
+    );
+    const expired = (result[0] as unknown as any[]) ?? [];
+
+    if (expired.length === 0) {
+      return res.json({
+        success: true,
+        deleted: 0,
+        errors: 0,
+        cutoffDate: cutoffDate.toISOString(),
+        message: "No expired recordings found",
+      });
+    }
+
+    // Delete from storage proxy (Manus built-in storage)
+    const forgeApiUrl = (process.env.BUILT_IN_FORGE_API_URL || "").replace(/\/+$/, "");
+    const forgeApiKey = process.env.BUILT_IN_FORGE_API_KEY || "";
+
+    let deleted = 0;
+    let errors = 0;
+    const deletedIds: number[] = [];
+
+    for (const rec of expired) {
+      try {
+        if (rec.file_key && forgeApiUrl && forgeApiKey) {
+          const deleteUrl = new URL(`${forgeApiUrl}/v1/storage/delete`);
+          deleteUrl.searchParams.set("path", rec.file_key);
+          await fetch(deleteUrl.toString(), {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${forgeApiKey}` },
+          });
+        }
+        deletedIds.push(rec.id);
+        deleted++;
+      } catch (storageErr) {
+        console.error(`[Cleanup Recordings] Storage delete failed for id=${rec.id}:`, storageErr);
+        errors++;
+        // Still mark for DB deletion even if storage delete fails
+        deletedIds.push(rec.id);
+      }
+    }
+
+    // Bulk delete from DB
+    if (deletedIds.length > 0) {
+      await db.execute(
+        sql`DELETE FROM session_recordings WHERE id IN (${sql.raw(deletedIds.join(","))})`
+      );
+    }
+
+    console.log(`[Cleanup Recordings] Deleted ${deleted} recordings older than ${RETENTION_DAYS} days (${errors} S3 errors)`);
+
+    return res.json({
+      success: true,
+      deleted,
+      errors,
+      cutoffDate: cutoffDate.toISOString(),
+      retentionDays: RETENTION_DAYS,
+      message: `Deleted ${deleted} expired recordings`,
+    });
+  } catch (error) {
+    console.error("[Cleanup Recordings] Error:", error);
+    return res.status(500).json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+  }
+});
+
 export default router;
