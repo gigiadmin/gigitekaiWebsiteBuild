@@ -20,7 +20,11 @@ export default function HeroSection() {
   const [ended, setEnded] = useState(false);
   const [muted, setMuted] = useState(true); // always starts muted
   const [volume, setVolume] = useState(0.5);
-  const [isMobile, setIsMobile] = useState(false);
+  // Default to true on first render so mobile gets the correct (smaller) video immediately
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768;
+  });
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Detect mobile
@@ -120,6 +124,7 @@ export default function HeroSection() {
           }}
         />
         <video
+          key={isMobile ? 'mobile' : 'desktop'}
           ref={videoRef}
           muted
           playsInline
