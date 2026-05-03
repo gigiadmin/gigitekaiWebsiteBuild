@@ -200,6 +200,15 @@ export default function ComplianceScorecard() {
       <main className="flex-1">
         {/* Hero */}
         <section className="pt-32 pb-12 px-4 border-b border-white/5">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
+            <div className="mb-6">
+              <Link href="/" className="inline-flex items-center gap-2 text-[#00D4FF] hover:text-[#00D4FF]/80 transition-colors">
+                <ArrowRight size={18} className="rotate-180" />
+                <span>Back to Home</span>
+              </Link>
+            </div>
+          </div>
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               IT Compliance <span className="text-[#00D4FF]">Scorecard</span>

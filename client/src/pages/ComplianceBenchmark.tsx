@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
+import { ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 const INDUSTRY_BENCHMARKS = [
   { industry: "Finance", avg: 78, excellent: 32, good: 48, atrisk: 18, critical: 2 },
@@ -27,6 +29,14 @@ export default function ComplianceBenchmark() {
       <SiteNavBar2024 />
       <main className="flex-1">
         <section className="pt-32 pb-12 px-4 border-b border-white/5">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <Link href="/" className="inline-flex items-center gap-2 text-[#00D4FF] hover:text-[#00D4FF]/80 transition-colors">
+                <ArrowRight size={18} className="rotate-180" />
+                <span>Back to Home</span>
+              </Link>
+            </div>
+          </div>
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Compliance <span className="text-[#00D4FF]">Benchmark</span>

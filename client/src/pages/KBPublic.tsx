@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook, Mail } from "lucide-react";
+import { Search, BookOpen, Star, ThumbsUp, ThumbsDown, ChevronLeft, Share2, Linkedin, Twitter, Facebook, Mail, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedbackDialog } from "@/components/KBFeedbackDialog";
 import { useSEO } from "@/hooks/useSEO";
@@ -124,6 +125,10 @@ export default function KBPublic() {
       {/* Header */}
       <div className="bg-slate-900 border-b border-slate-800 py-8">
         <div className="max-w-6xl mx-auto px-4">
+          <Link href="/" className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors mb-4">
+            <ArrowRight size={18} className="rotate-180" />
+            <span className="text-sm">Back to Home</span>
+          </Link>
           <div className="flex items-center gap-3 mb-4">
             <BookOpen className="w-8 h-8 text-cyan-400" />
             <h1 className="text-3xl font-bold text-white">Knowledge Base</h1>

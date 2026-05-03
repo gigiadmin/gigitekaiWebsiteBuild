@@ -358,17 +358,18 @@ export default function HeroSection() {
               </div>
             ) : playing && !muted ? (
               /* Volume slider — shown after unmuting */
-              <div
-                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
-                style={{ background: "rgba(0,212,255,0.06)" }}
-              >
-                <button
-                  onClick={handleMute}
-                  className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                  aria-label="Mute video"
+              <div className="flex flex-col gap-2">
+                <div
+                  className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
+                  style={{ background: "rgba(0,212,255,0.06)" }}
                 >
-                  <Volume2 size={18} />
-                </button>
+                  <button
+                    onClick={handleMute}
+                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
+                    aria-label="Mute video"
+                  >
+                    <Volume2 size={18} />
+                  </button>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">
@@ -398,6 +399,19 @@ export default function HeroSection() {
                     <RotateCcw size={18} />
                   </button>
                 )}
+                </div>
+                <button
+                  onClick={handleRestart}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
+                  style={{
+                    background: "rgba(0,212,255,0.08)",
+                    border: "1.5px solid rgba(0,212,255,0.45)",
+                    color: "#00D4FF",
+                  }}
+                >
+                  <RotateCcw size={16} />
+                  Restart Video
+                </button>
               </div>
             ) : ended ? (
               /* Replay button */

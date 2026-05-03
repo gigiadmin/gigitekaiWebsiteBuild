@@ -4177,3 +4177,17 @@
 - [x] Add email capture form to scorecard results display
 - [x] Build Compliance Scorecard Benchmark page with industry comparison
 - [x] Build AI Roadmap Generator with personalized PDF export
+
+
+## Navigation & UX Fixes (May 2026)
+
+- [ ] Audit all pages for missing back/home navigation
+- [ ] Add back button to Compliance Scorecard page
+- [ ] Add back button to Roadmap Generator page
+- [ ] Add back button to Compliance Benchmark page
+- [ ] Add back button to KB pages
+- [ ] Fix KB mobile visibility issue
+- [ ] Add video restart button to hero section
+- [ ] Implement KB article ratings system
+- [ ] Build KB search analytics dashboard
+- [ ] Integrate KB articles into Aria chatbot
