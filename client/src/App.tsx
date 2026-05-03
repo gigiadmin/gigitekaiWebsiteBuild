@@ -323,8 +323,9 @@ function App() {
   // Defer heavy widgets until after first user interaction to reduce TBT
   const [widgetsReady, setWidgetsReady] = useState(false);
   useEffect(() => {
-    // Mount heavy widgets after 3s or on first interaction — whichever comes first
-    const timer = setTimeout(() => setWidgetsReady(true), 3000);
+    // Mount heavy widgets after 5s or on first interaction — whichever comes first
+    // 5s gives LCP time to complete before heavy widgets (AIChatWidget, CopilotChat) load
+    const timer = setTimeout(() => setWidgetsReady(true), 5000);
     const onInteract = () => { setWidgetsReady(true); clearTimeout(timer); };
     window.addEventListener('scroll', onInteract, { once: true, passive: true });
     window.addEventListener('click', onInteract, { once: true });

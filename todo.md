@@ -4302,4 +4302,13 @@
 - [x] Compress hero video poster from 60.5KB to 27.9KB WebP (mobile-specific)
 - [x] Update SiteNavBar2024.tsx: both desktop + mobile logo use optimized WebP
 - [x] Update HeroSection.tsx: mobile uses compressed poster HERO_VIDEO_POSTER_MOBILE
+- [x] Save checkpoint (version 138a97bd) — ready to publish to gigitekai.com
+
+## PageSpeed Phase 3 Optimization (May 3, 2026) - Score: 35 → Target 70+
+- [x] Replace old logo PNG (82KB) across all 7 components: AdminLayout, AdminLayoutWithSidebar, DashboardLayout, Footer, MobileAdminMenu, useSEO.ts, ContactCard
+- [x] Hero background converted from CSS background-image to explicit <img fetchPriority="high"> — proper LCP element
+- [x] Widget deferral increased from 3s to 5s (App.tsx) — more time for LCP to complete
+- [x] GA4 load delay increased from 1s to 4s — reduces TBT during initial load
+- [x] Added preconnect for d36hbw14aib5lz.cloudfront.net (manus-storage CDN)
+- [x] Added cssCodeSplit: true and sourcemap: false to vite.config.ts
 - [ ] Save checkpoint and publish to gigitekai.com

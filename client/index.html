@@ -65,6 +65,8 @@
     <!-- Fallback for browsers without JS -->
     <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
+    <!-- Preconnect for manus-storage CDN (logo, hero poster) -->
+    <link rel="preconnect" href="https://d36hbw14aib5lz.cloudfront.net" crossorigin />
     <!-- Preload critical vendor chunks for faster navigation -->
     <link rel="dns-prefetch" href="https://www.gigitekai.com" />
     <script>
@@ -259,9 +261,9 @@
         loadGA4();
       }
       if (document.readyState === 'complete') {
-        setTimeout(triggerGA, 1000);
+        setTimeout(triggerGA, 4000);
       } else {
-        window.addEventListener('load', function() { setTimeout(triggerGA, 1000); });
+        window.addEventListener('load', function() { setTimeout(triggerGA, 4000); });
       }
       ['click','scroll','keydown','touchstart'].forEach(function(e) {
         document.addEventListener(e, triggerGA, { once: true, passive: true });

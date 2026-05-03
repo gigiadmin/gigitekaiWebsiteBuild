@@ -53,7 +53,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <a href="/" className="flex items-center gap-2 mb-4">
               <img 
-                src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
+                src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp" 
                 alt="GigitekAI logo" 
                 className="h-10 w-auto object-contain"
               />

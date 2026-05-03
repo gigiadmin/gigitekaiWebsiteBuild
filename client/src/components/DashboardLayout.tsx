@@ -171,7 +171,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <img
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+                    src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
                     alt="GigitekAI logo"
                     className="h-8 w-auto object-contain max-w-[140px]"
                   />

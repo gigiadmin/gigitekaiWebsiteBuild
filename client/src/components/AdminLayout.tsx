@@ -201,13 +201,13 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       <div className={`flex items-center gap-3 px-4 py-4 border-b border-slate-700/50 ${collapsed ? "justify-center" : ""}`}>
         {collapsed ? (
           <img
-            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+            src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
             alt="GigitekAI"
             className="h-8 w-8 object-contain flex-shrink-0"
           />
         ) : (
           <img
-            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+            src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
             alt="GigitekAI logo"
             className="h-10 w-auto object-contain max-w-[160px]"
           />

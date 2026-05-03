@@ -242,6 +242,8 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
+    sourcemap: false,
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
