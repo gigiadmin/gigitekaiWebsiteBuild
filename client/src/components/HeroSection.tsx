@@ -2,6 +2,7 @@
   GigitekAI Hero Section — Click-to-Play Video Background
   Full-width background video with play/pause/restart controls
   Left-anchored headline, CTA buttons
+  Mobile: play button below CTA buttons; Desktop: centered overlay
 */
 
 import { useEffect, useState, useRef } from "react";
@@ -15,7 +16,7 @@ export default function HeroSection() {
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -23,9 +24,37 @@ export default function HeroSection() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Preload video metadata so we know it's available
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onCanPlay = () => setVideoReady(true);
+    const onLoadedData = () => setVideoReady(true);
+
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("loadeddata", onLoadedData);
+
+    // If video is already ready (cached)
+    if (video.readyState >= 2) setVideoReady(true);
+
+    return () => {
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("loadeddata", onLoadedData);
+    };
+  }, []);
+
   const handlePlay = () => {
     if (videoRef.current) {
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {
+        // Fallback: some mobile browsers block play without user gesture on video element
+        // Try again with muted
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setMuted(true);
+          videoRef.current.play().catch(() => {});
+        }
+      });
       setPlaying(true);
       setEnded(false);
     }
@@ -41,7 +70,7 @@ export default function HeroSection() {
   const handleRestart = () => {
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      videoRef.current.play();
+      videoRef.current.play().catch(() => {});
       setPlaying(true);
       setEnded(false);
     }
@@ -57,6 +86,35 @@ export default function HeroSection() {
   const handleVideoEnd = () => {
     setPlaying(false);
     setEnded(true);
+  };
+
+  // Shared play/replay button component
+  const PlayButton = ({ size: btnSize = "lg" }: { size?: "lg" | "sm" }) => {
+    const isLarge = btnSize === "lg";
+    return (
+      <button
+        onClick={ended ? handleRestart : handlePlay}
+        className="group flex flex-col items-center gap-2"
+        aria-label={ended ? "Replay video" : "Play video"}
+      >
+        <div
+          className={`relative flex items-center justify-center rounded-full bg-[#00D4FF]/15 backdrop-blur-md border border-[#00D4FF]/40 group-hover:bg-[#00D4FF]/25 group-hover:border-[#00D4FF]/60 group-hover:scale-110 transition-all duration-300 ${
+            isLarge ? "w-20 h-20 md:w-24 md:h-24" : "w-14 h-14"
+          }`}
+        >
+          {/* Pulse ring */}
+          <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-ping" />
+          {ended ? (
+            <RotateCcw size={isLarge ? 32 : 22} className="text-[#00D4FF]" />
+          ) : (
+            <Play size={isLarge ? 32 : 22} className="text-[#00D4FF] ml-0.5" fill="currentColor" />
+          )}
+        </div>
+        <span className={`text-[#00D4FF]/80 tracking-wider uppercase font-medium text-center ${isLarge ? "text-sm" : "text-xs"}`}>
+          {ended ? "Replay" : "Watch Video"}
+        </span>
+      </button>
+    );
   };
 
   return (
@@ -76,9 +134,9 @@ export default function HeroSection() {
           ref={videoRef}
           muted
           playsInline
-          onLoadedData={() => setVideoLoaded(true)}
+          preload="auto"
           onEnded={handleVideoEnd}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded && playing ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${playing ? "opacity-100" : "opacity-0"}`}
         >
           <source src={HERO_VIDEO} type="video/mp4" />
         </video>
@@ -114,28 +172,15 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Large center play button (shown when video is not playing) */}
-      {!playing && videoLoaded && (
-        <button
-          onClick={ended ? handleRestart : handlePlay}
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 group transition-all duration-500 ${
+      {/* Desktop: Large center play button (hidden on mobile, shown md+) */}
+      {!playing && (
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden md:block transition-all duration-500 ${
             visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
           }`}
-          aria-label={ended ? "Replay video" : "Play video"}
         >
-          <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#00D4FF]/15 backdrop-blur-md border border-[#00D4FF]/40 group-hover:bg-[#00D4FF]/25 group-hover:border-[#00D4FF]/60 group-hover:scale-110 transition-all duration-300">
-            {/* Pulse ring */}
-            <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-ping" />
-            {ended ? (
-              <RotateCcw size={32} className="text-[#00D4FF] ml-0" />
-            ) : (
-              <Play size={32} className="text-[#00D4FF] ml-1" fill="currentColor" />
-            )}
-          </div>
-          <span className="block mt-3 text-sm text-[#00D4FF]/80 tracking-wider uppercase font-medium text-center">
-            {ended ? "Replay" : "Watch Video"}
-          </span>
-        </button>
+          <PlayButton size="lg" />
+        </div>
       )}
 
       {/* Content */}
@@ -182,7 +227,7 @@ export default function HeroSection() {
 
           {/* CTA Buttons */}
           <div
-            className={`flex flex-wrap gap-4 mb-14 transition-all duration-700 delay-300 ${
+            className={`flex flex-wrap gap-4 mb-8 transition-all duration-700 delay-300 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -194,38 +239,96 @@ export default function HeroSection() {
               View Our Solutions
             </a>
           </div>
+
+          {/* Mobile: Play button inline below CTAs (visible only on mobile) */}
+          {!playing && (
+            <div
+              className={`md:hidden flex items-center gap-4 mb-6 transition-all duration-700 delay-[400ms] ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
+              <button
+                onClick={ended ? handleRestart : handlePlay}
+                className="flex items-center gap-3 px-5 py-3 rounded-full bg-[#00D4FF]/10 backdrop-blur-sm border border-[#00D4FF]/30 hover:bg-[#00D4FF]/20 transition-all duration-300"
+                aria-label={ended ? "Replay video" : "Play video"}
+              >
+                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-[#00D4FF]/20 border border-[#00D4FF]/50">
+                  <div className="absolute inset-0 rounded-full border border-[#00D4FF]/20 animate-ping" />
+                  {ended ? (
+                    <RotateCcw size={18} className="text-[#00D4FF]" />
+                  ) : (
+                    <Play size={18} className="text-[#00D4FF] ml-0.5" fill="currentColor" />
+                  )}
+                </div>
+                <div className="text-left">
+                  <span className="block text-sm font-semibold text-white">
+                    {ended ? "Replay Video" : "Watch Video"}
+                  </span>
+                  <span className="block text-[10px] text-white/50">
+                    See our platform in action
+                  </span>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* Mobile: Video controls when playing (visible only on mobile) */}
+          {playing && (
+            <div className="md:hidden flex items-center gap-2 mb-6">
+              <button
+                onClick={handlePause}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
+                aria-label="Pause video"
+              >
+                <Pause size={14} />
+                <span className="text-xs">Pause</span>
+              </button>
+              <button
+                onClick={handleRestart}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
+                aria-label="Restart video"
+              >
+                <RotateCcw size={14} />
+                <span className="text-xs">Restart</span>
+              </button>
+              <button
+                onClick={toggleMute}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70"
+                aria-label={muted ? "Unmute" : "Mute"}
+              >
+                {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                <span className="text-xs">{muted ? "Sound" : "Mute"}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Video controls bar (bottom-right) */}
+      {/* Desktop: Video controls bar (bottom-right, hidden on mobile) */}
       <div
-        className={`absolute bottom-20 right-8 z-20 flex items-center gap-2 transition-all duration-300 ${
+        className={`absolute bottom-20 right-8 z-20 hidden md:flex items-center gap-2 transition-all duration-300 ${
           visible ? "opacity-100" : "opacity-0"
         }`}
       >
         {/* Play/Pause */}
-        {videoLoaded && (
-          <button
-            onClick={playing ? handlePause : handlePlay}
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
-            aria-label={playing ? "Pause video" : "Play video"}
-          >
-            {playing ? <Pause size={16} /> : <Play size={16} />}
-            <span className="text-xs tracking-wide">{playing ? "Pause" : "Play"}</span>
-          </button>
-        )}
+        <button
+          onClick={playing ? handlePause : handlePlay}
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
+          aria-label={playing ? "Pause video" : "Play video"}
+        >
+          {playing ? <Pause size={16} /> : <Play size={16} />}
+          <span className="text-xs tracking-wide">{playing ? "Pause" : "Play"}</span>
+        </button>
 
         {/* Restart */}
-        {videoLoaded && (
-          <button
-            onClick={handleRestart}
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
-            aria-label="Restart video"
-          >
-            <RotateCcw size={16} />
-            <span className="text-xs tracking-wide">Restart</span>
-          </button>
-        )}
+        <button
+          onClick={handleRestart}
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
+          aria-label="Restart video"
+        >
+          <RotateCcw size={16} />
+          <span className="text-xs tracking-wide">Restart</span>
+        </button>
 
         {/* Mute/Unmute */}
         <button
