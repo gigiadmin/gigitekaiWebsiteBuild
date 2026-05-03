@@ -302,6 +302,49 @@ export default function FloridaResiliency() {
         </div>
       </section>
 
+      {/* ── Free Audit Checklist Download ── */}
+      <section className="py-16 border-t border-white/5 bg-gradient-to-r from-[#0D1528] to-[#0F1629]">
+        <div className="container max-w-3xl">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                Get Your Free IT Resiliency Audit Checklist
+              </h3>
+              <p className="text-gray-300 mb-4">
+                10-point assessment covering backup, DRP, cloud infrastructure, security, compliance, and hurricane preparedness. Score yourself and identify critical gaps.
+              </p>
+              <ul className="space-y-2 text-gray-400 text-sm mb-6">
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#00D4FF] flex-shrink-0" />
+                  <span>Disaster Recovery readiness assessment</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#00D4FF] flex-shrink-0" />
+                  <span>FIPA compliance checklist</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#00D4FF] flex-shrink-0" />
+                  <span>Hurricane season preparation guide</span>
+                </li>
+              </ul>
+              <a
+                href="/manus-storage/florida-it-audit-checklist_b6957c2d.pdf"
+                download
+                className="inline-flex items-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-6 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 transition-colors"
+              >
+                Download PDF (Free) <ArrowRight size={18} />
+              </a>
+            </div>
+            <div className="flex-shrink-0 w-32 h-40 bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 rounded-lg border border-[#00D4FF]/30 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-[#00D4FF] mb-1">10</div>
+                <div className="text-xs text-gray-400">Point Assessment</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="py-20 border-t border-white/5">
         <div className="container max-w-3xl text-center">
