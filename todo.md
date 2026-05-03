@@ -4135,3 +4135,8 @@
 - [x] Add Organization JSON-LD schema markup to index.html head
 - [x] Verify footer has visible Privacy Policy and Terms of Service links
 - [x] Save checkpoint and confirm all three items
+
+## Hero Section Enhancements (May 2026)
+- [x] Add "Book a Free Demo" CTA button to hero section
+- [x] Mobile unmute button navigates to /contact page (lead-gen CTA)
+- [x] Add play icon overlay on video poster so users know video is available

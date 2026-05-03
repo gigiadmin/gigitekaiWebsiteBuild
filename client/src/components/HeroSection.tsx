@@ -1,13 +1,15 @@
 /*
   GigitekAI Hero Section — Muted Autoplay + Tap to Unmute
   - Autoplays MUTED (required by all mobile browsers — iOS Safari, Android Chrome)
-  - Shows a prominent "Tap to Unmute" button so users can hear the narration
+  - Shows a prominent "Click Contact Us" button on mobile (navigates to /contact)
   - Volume slider lets users adjust after unmuting
   - Restart button when video ends
+  - Play icon overlay on poster so users know a video is available
 */
 
 import { useEffect, useState, useRef } from "react";
-import { ArrowRight, RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
+import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v2_mobile_52a4d3ed.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v2_desktop_3b8fd3a5.mp4";
@@ -26,6 +28,7 @@ export default function HeroSection() {
     return window.innerWidth <= 768;
   });
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [, navigate] = useLocation();
 
   // Detect mobile
   useEffect(() => {
@@ -136,6 +139,28 @@ export default function HeroSection() {
             playing ? "opacity-100" : "opacity-0"
           }`}
         />
+
+        {/* ── Play icon overlay on poster (shown before video starts) ── */}
+        {!playing && !ended && (
+          <div
+            className="absolute inset-0 flex items-center justify-end pr-[8%] pointer-events-none z-[3]"
+          >
+            <div
+              className="flex items-center justify-center w-20 h-20 rounded-full"
+              style={{
+                background: "rgba(0,212,255,0.15)",
+                border: "2px solid rgba(0,212,255,0.5)",
+                boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
+              }}
+            >
+              <Play
+                size={32}
+                className="text-[#00D4FF] ml-1"
+                fill="rgba(0,212,255,0.8)"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Gradient overlays ── */}
@@ -251,6 +276,24 @@ export default function HeroSection() {
               Start Your Transformation
               <ArrowRight size={18} />
             </a>
+            <a
+              href="/contact"
+              className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+              style={{
+                background: "rgba(0,212,255,0.08)",
+                border: "1.5px solid rgba(0,212,255,0.45)",
+                color: "#00D4FF",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.18)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.08)";
+              }}
+            >
+              <Calendar size={18} />
+              Book a Free Demo
+            </a>
             <a href="#services" className="btn-outline-cyan text-base px-6 py-3">
               View Our Solutions
             </a>
@@ -279,24 +322,24 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* ── Mobile: Tap to Unmute / volume bar ── */}
+          {/* ── Mobile: Contact CTA / volume bar ── */}
           <div
             className={`md:hidden mb-6 transition-all duration-700 delay-[400ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
             {playing && muted ? (
-              /* Big "Tap to Unmute" button — shown while video plays muted */
+              /* Big "Click Contact Us" button — navigates to /contact on tap */
               <button
-                onClick={handleUnmute}
+                onClick={() => navigate("/contact")}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
                 style={{
                   background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
                   boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
                 }}
               >
-                <Volume2 size={22} />
-                🔊 Click Contact Us for More Information
+                <Calendar size={22} />
+                Click Contact Us for More Information
               </button>
             ) : playing && !muted ? (
               /* Volume slider — shown after unmuting */
