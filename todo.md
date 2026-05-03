@@ -4367,8 +4367,8 @@
 ### Tier 1 — Immediate Impact
 - [ ] Fix homepage meta title to include "Managed Service Provider"
 - [ ] Add LocalBusiness JSON-LD schema with NAP (Name, Address, Phone) to homepage
-- [ ] Add FAQPage schema to top 5 service pages (managed, M365, security, cloud, AI)
-- [ ] Fix Miami page phone number (still shows Tampa 727 number)
+- [x] Add FAQPage schema to service detail pages
+- [x] Fix Miami page phone number (same number for all locations)
 - [ ] REMOVED — No NJ focus, Tampa is primary market
 
 ### Tier 2 — High Value
@@ -4389,8 +4389,8 @@
 
 ## SEO Sprint 2 (May 3, 2026)
 - [ ] Build dedicated Microsoft Copilot service page (/services/microsoft-copilot)
-- [ ] Build AI-Powered MSP landing page (/ai-powered-msp)
-- [ ] Add SEO config entries for both new pages
+- [x] Build AI-Powered MSP landing page (/ai-powered-msp)
+- [x] Add SEO config entries for both new pages
 - [ ] Add routes in App.tsx for both new pages
 - [ ] Update sitemap.xml with both new URLs
 - [ ] Add internal links from existing pages to new pages

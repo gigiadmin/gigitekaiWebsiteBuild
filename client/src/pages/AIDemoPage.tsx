@@ -46,6 +46,8 @@ import {
   Send,
   User,
   Building2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -788,12 +790,45 @@ export default function AIDemoPage() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
 
+  // ── Voiceover state ──────────────────────────────────────────────────────────
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceSupported] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const speakText = (text: string) => {
+    if (!voiceEnabled || !voiceSupported) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.88;   // Slightly slower than default — comfortable conversation pace
+    utter.pitch = 1.0;
+    utter.volume = 1.0;
+    // Prefer a natural English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v =>
+      v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Alex"))
+    ) || voices.find(v => v.lang.startsWith("en"));
+    if (preferred) utter.voice = preferred;
+    speechRef.current = utter;
+    window.speechSynthesis.speak(utter);
+  };
+
+  const stopSpeech = () => {
+    if (voiceSupported) window.speechSynthesis.cancel();
+  };
+
+  // Stop speech on unmount or scenario change
+  useEffect(() => {
+    return () => stopSpeech();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScenario]);
+
   const scenario = SCENARIOS[activeScenario];
   const c = COLOR_MAP[scenario.color];
 
   const resetDemo = () => {
     timeoutRefs.current.forEach(clearTimeout);
     timeoutRefs.current = [];
+    stopSpeech();
     setRunning(false);
     setVisibleSteps([]);
     setCompleted(false);
@@ -804,15 +839,23 @@ export default function AIDemoPage() {
     resetDemo();
     setRunning(true);
 
+    // Slow down step durations to a comfortable human conversation pace (min 2.5s each)
+    const HUMAN_PACE_MIN = 2500;
     let elapsed = 0;
     scenario.steps.forEach((step, i) => {
-      elapsed += step.duration;
+      const stepDuration = Math.max(step.duration * 3.2, HUMAN_PACE_MIN);
+      elapsed += stepDuration;
       const t = setTimeout(() => {
         setVisibleSteps((prev) => [...prev, i]);
+        // Narrate the step action + detail
+        const narration = `${step.agent}: ${step.action}. ${step.detail}`;
+        speakText(narration);
         if (i === scenario.steps.length - 1) {
           setCompleted(true);
           setRunning(false);
           setTotalTime(elapsed);
+          // Final completion narration
+          setTimeout(() => speakText("Workflow complete. Zero human touches required."), 1200);
         }
       }, elapsed);
       timeoutRefs.current.push(t);
@@ -986,6 +1029,24 @@ export default function AIDemoPage() {
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Reset
                 </Button>
+              )}
+              {voiceSupported && (
+                <button
+                  onClick={() => {
+                    const next = !voiceEnabled;
+                    setVoiceEnabled(next);
+                    if (!next) stopSpeech();
+                  }}
+                  title={voiceEnabled ? "Mute narration" : "Enable voice narration"}
+                  className={`flex items-center gap-1.5 text-xs font-mono border rounded-lg px-3 py-1.5 transition-all duration-200 ${
+                    voiceEnabled
+                      ? "border-cyan-500/60 text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20"
+                      : "border-slate-600 text-slate-400 hover:border-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                  {voiceEnabled ? "Voice On" : "Voice Off"}
+                </button>
               )}
             </div>
             <div className="flex items-center gap-3">
