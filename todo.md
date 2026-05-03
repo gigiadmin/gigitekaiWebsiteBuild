@@ -4235,3 +4235,9 @@
 - [x] KB article sharing workflow (shareArticleViaEmail + generatePublicShareLink + getArticleSharingStats)
 - [x] KB article versioning UI dashboard (getArticleVersionHistory + compareVersions with diff detection)
 - [x] KB article embedding system (generateEmbedCode for iframe/API/widget + getEmbedStatistics)
+
+
+## MS Learn Links & 50+ KB Articles (May 2026 - Completed)
+- [x] Fix broken MS Learn links on KB page (updated all URLs to verified working MS Learn paths)
+- [x] Create 50+ KB articles covering M365, Windows 11, and network issues (50 articles inserted)
+- [x] Structure KB articles with AI-automatable data (symptoms, diagnostics, resolution, escalation, automation potential scores)

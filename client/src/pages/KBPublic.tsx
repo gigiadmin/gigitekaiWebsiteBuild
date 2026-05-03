@@ -601,29 +601,29 @@ export default function KBPublic() {
               <p className="text-gray-400">Official Microsoft training and certification resources</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-fundamentals/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+              <a href="https://learn.microsoft.com/en-us/training/paths/describe-microsoft-365-core-services-concepts/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
                 <h3 className="font-semibold text-white mb-2">Microsoft 365 Fundamentals</h3>
-                <p className="text-sm text-gray-400">Learn the basics of Microsoft 365 services</p>
+                <p className="text-sm text-gray-400">Learn the basics of Microsoft 365 apps and services</p>
               </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-security-compliance/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+              <a href="https://learn.microsoft.com/en-us/training/paths/describe-microsoft-365-security-compliance-capabilities/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
                 <h3 className="font-semibold text-white mb-2">Security & Compliance</h3>
-                <p className="text-sm text-gray-400">Master Microsoft 365 security features</p>
+                <p className="text-sm text-gray-400">Master Microsoft 365 security and compliance capabilities</p>
               </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-teams-collaboration/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+              <a href="https://learn.microsoft.com/en-us/training/paths/teamwork-specialist/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
                 <h3 className="font-semibold text-white mb-2">Teams & Collaboration</h3>
                 <p className="text-sm text-gray-400">Optimize teamwork with Microsoft Teams</p>
               </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-exchange-online/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">Exchange Online</h3>
-                <p className="text-sm text-gray-400">Master email and calendar management</p>
+              <a href="https://learn.microsoft.com/en-us/training/paths/get-started-managing-microsoft-teams/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+                <h3 className="font-semibold text-white mb-2">Teams Administration</h3>
+                <p className="text-sm text-gray-400">Manage and administer Microsoft Teams</p>
               </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-sharepoint-online/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">SharePoint Online</h3>
-                <p className="text-sm text-gray-400">Build and manage SharePoint sites</p>
+              <a href="https://learn.microsoft.com/en-us/training/m365/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+                <h3 className="font-semibold text-white mb-2">All M365 Training</h3>
+                <p className="text-sm text-gray-400">Browse all Microsoft 365 learning paths</p>
               </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-onedrive/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">OneDrive & Files</h3>
-                <p className="text-sm text-gray-400">Manage cloud storage and file sharing</p>
+              <a href="https://learn.microsoft.com/en-us/training/paths/get-started-with-microsoft-365-copilot/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
+                <h3 className="font-semibold text-white mb-2">Microsoft 365 Copilot</h3>
+                <p className="text-sm text-gray-400">Get started with AI-powered productivity</p>
               </a>
             </div>
           </div>
