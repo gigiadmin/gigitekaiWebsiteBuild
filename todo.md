@@ -4087,4 +4087,11 @@
 - [x] Project Untouchable Section: Anti-Lock-In Vault, Accuracy Insurance, Open-Source Core pillars
 - [x] Client Exchange Portal: Gated community hub with peer-vetted automation scripts library
 - [x] Navigation updates to link all new pages
-- [ ] Test and save checkpoint
+- [x] Test and save checkpoint
+
+## Mobile Video Fix
+
+- [x] Diagnose why video does not load on mobile (file size, codec, CDN headers)
+- [x] Re-encode video to mobile-compatible format (H.264 + AAC, smaller file size)
+- [x] Upload optimized video to CDN and update HeroSection
+- [x] Test on mobile and save checkpoint

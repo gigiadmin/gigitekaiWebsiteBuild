@@ -8,8 +8,14 @@
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, ChevronDown, Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
-const HERO_VIDEO = "/manus-storage/GigitekAI_Admin_Platform_b8c1ba56.mp4";
+// Mobile-optimized: 6.8MB @ 480p (H.264 Baseline for max compatibility)
+const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_mobile_1ff72fdc.mp4";
+// Desktop-optimized: 15MB @ 720p (H.264 High, faststart)
+const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_desktop_8ec9a027.mp4";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
+
+// Detect mobile device for adaptive video loading
+const isMobile = () => typeof window !== "undefined" && window.innerWidth <= 768;
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
@@ -17,7 +23,12 @@ export default function HeroSection() {
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [mobile, setMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setMobile(isMobile());
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 100);
@@ -134,12 +145,14 @@ export default function HeroSection() {
           ref={videoRef}
           muted
           playsInline
-          preload="auto"
+          // On mobile: preload=none saves data until user taps play
+          // On desktop: preload=auto buffers immediately for instant play
+          preload={mobile ? "none" : "auto"}
+          // Explicitly set src based on device for guaranteed mobile compatibility
+          src={mobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           onEnded={handleVideoEnd}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${playing ? "opacity-100" : "opacity-0"}`}
-        >
-          <source src={HERO_VIDEO} type="video/mp4" />
-        </video>
+        />
       </div>
 
       {/* Dark gradient overlay for text readability */}
