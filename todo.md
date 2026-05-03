@@ -4355,3 +4355,9 @@
 - **Phase 6 (Critical CSS):** 65-70 → 70-80 (if needed)
 
 **Recommended next focus:** Phase 4 (Unused JS reduction) — highest ROI, lowest risk.
+
+## PageSpeed Phase 11: Critical CSS Inlining (May 3, 2026) - Score: 55 → Target 60+
+- [x] Extract above-fold CSS rules (hero, navbar, body, typography) into inline <style> in index.html (2.7KB)
+- [x] Defer full stylesheet with media="print" onload trick (already applied in prior phase)
+- [x] Remove unused preconnect for d2xsxph8kpxj0f.cloudfront.net (flagged as unused)
+- [ ] Save checkpoint and publish to gigitekai.com
