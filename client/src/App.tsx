@@ -111,6 +111,7 @@ const AdminContactCenterDashboard = lazy(() => import("./pages/AdminContactCente
 const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
+const AdminRecordingsPage = lazy(() => import("./pages/AdminRecordingsPage"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
@@ -242,6 +243,7 @@ function Router() {
           <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
           {/* KB Analytics Dashboard */}
           <Route path={"/admin/kb-analytics"}>{() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>}</Route>
+          <Route path={"/admin/recordings"}>{() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/call-transcripts"}>{() => <ApprovalGuard><CallTranscriptSearch /></ApprovalGuard>}</Route>
           {/* Social Publishing Hub */}
           <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>

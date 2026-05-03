@@ -82,6 +82,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Agent Dashboard", icon: <TrendingUp size={16} />, href: "/admin/agent-dashboard" },
       { label: "Canned Responses", icon: <MessageSquareText size={16} />, href: "/admin/canned-responses" },
       { label: "Live Chat", icon: <MessageSquare size={16} />, href: "/admin/chat" },
+      { label: "Session Recordings", icon: <Video size={16} />, href: "/admin/recordings" },
       { label: "AI Agents", icon: <Bot size={16} />, href: "/admin/agents" },
       { label: "Notifications", icon: <Bell size={16} />, href: "/admin/notifications" },
     ],

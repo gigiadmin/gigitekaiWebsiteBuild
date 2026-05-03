@@ -101,6 +101,9 @@ export default function RemoteSession() {
   const recordingStartTimeRef = useRef<number>(0);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSaved, setRecordingSaved] = useState(false);
+  // Recording Consent Banner
+  const [consentDismissed, setConsentDismissed] = useState(false);
+  const [consentAccepted, setConsentAccepted] = useState(false);
   const [displayName] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("name") || "GigitekAI User";
@@ -509,7 +512,49 @@ export default function RemoteSession() {
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white flex flex-col">
-      {/* ── Header Bar ── */}
+      {/* Recording Consent Banner - client only, shown when recording starts */}
+      {role === "client" && isRecording && !consentDismissed && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-900/95 border-b-2 border-amber-400/60 px-4 py-3 flex items-start gap-3 shadow-2xl">
+          <div className="shrink-0 mt-0.5 text-amber-300">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-amber-200 font-semibold text-sm">This session is being recorded</p>
+            <p className="text-amber-300/80 text-xs mt-0.5">
+              Your screen and audio are being recorded by the GigitekAI technician for quality assurance and compliance purposes.
+              Recordings are AES-256 encrypted and stored securely. By continuing, you consent to this recording.
+              If you do not consent, please end the session immediately.
+            </p>
+            <p className="text-amber-400/60 text-xs mt-1">
+              Required under GDPR Article 13, HIPAA 164.528, and SOC 2 audit trail requirements.
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => { setConsentAccepted(true); setConsentDismissed(true); }}
+              className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-semibold px-3 py-1.5 rounded"
+            >
+              I Consent
+            </button>
+            <button
+              onClick={() => setConsentDismissed(true)}
+              className="bg-transparent border border-amber-500/50 text-amber-300 text-xs px-3 py-1.5 rounded"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Technician Recording Indicator */}
+      {role === "technician" && isRecording && (
+        <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 bg-red-900/90 border border-red-500/50 rounded-full px-4 py-1.5 flex items-center gap-2 shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+          <span className="text-red-200 text-xs font-semibold">Recording in progress</span>
+        </div>
+      )}
+      {/* Header Bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#0D1220] border-b border-cyan-500/20">
         <div className="flex items-center gap-3">
           <Shield className="w-5 h-5 text-cyan-400" />

@@ -106,6 +106,40 @@ export const sessionRecordingRouter = router({
     }),
 
   /**
+   * Get ALL recordings (admin only) — for the Recordings Library page
+   */
+  getAllRecordings: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().int().positive().max(500).optional().default(200),
+        offset: z.number().int().min(0).optional().default(0),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      const db = await getDb();
+      if (!db) return [];
+      const result = await db.execute(
+        sql`SELECT id, session_id, recorded_by, recording_url, duration_seconds, file_size_mb, created_at
+            FROM session_recordings
+            ORDER BY created_at DESC
+            LIMIT ${input.limit} OFFSET ${input.offset}`
+      );
+      const rows = (result[0] as unknown as any[]) ?? [];
+      return rows.map((r: any) => ({
+        id: r.id,
+        roomId: r.session_id,
+        recordedBy: r.recorded_by,
+        url: r.recording_url,
+        durationSeconds: r.duration_seconds ?? 0,
+        sizeMb: r.file_size_mb ?? 0,
+        createdAt: new Date(r.created_at),
+      }));
+    }),
+
+  /**
    * Delete a recording (admin only)
    */
   deleteRecording: protectedProcedure
