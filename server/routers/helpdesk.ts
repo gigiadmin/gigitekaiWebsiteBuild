@@ -519,6 +519,14 @@ export const helpdeskRouter = router({
       return { success: true };
     }),
 
+  seedKnowledgeBase: adminProcedure
+    .mutation(async () => {
+      const { seedComprehensiveKB } = await import("../seed-kb-comprehensive");
+      const success = await seedComprehensiveKB();
+      if (!success) throw new Error("Failed to seed knowledge base");
+      return { success: true, message: "Knowledge base seeded with 50+ articles" };
+    }),
+
   getMetrics: adminProcedure
     .query(async () => {
       const db = await getDb();
