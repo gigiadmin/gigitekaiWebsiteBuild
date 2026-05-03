@@ -4311,4 +4311,47 @@
 - [x] GA4 load delay increased from 1s to 4s — reduces TBT during initial load
 - [x] Added preconnect for d36hbw14aib5lz.cloudfront.net (manus-storage CDN)
 - [x] Added cssCodeSplit: true and sourcemap: false to vite.config.ts
-- [ ] Save checkpoint and publish to gigitekai.com
+- [x] Save checkpoint (version 78229388) and publish to gigitekai.com
+
+
+## PageSpeed Phase 4+ Roadmap (Future Sprints)
+
+### Phase 4: Reduce Unused JavaScript (906KB savings)
+- [ ] Analyze bundle with `pnpm build --analyze` to identify unused code
+- [ ] Implement route-based code splitting for admin pages (AdminLayout, AdminCopilot, etc.)
+- [ ] Lazy-load heavy components (AIChatWidget, UserChatWidget, CopilotChat) only when needed
+- [ ] Consider removing unused shadcn/ui components
+- Estimated impact: +10-15 pts (48 → 60-65/100)
+
+### Phase 5: Reduce DOM Size (1,594 elements → target 800)
+- [ ] Audit Home.tsx sections for unnecessary nested divs
+- [ ] Consolidate repeated component patterns
+- [ ] Implement virtual scrolling for long lists (if any)
+- [ ] Remove unused animations/transitions
+- Estimated impact: +5-10 pts
+
+### Phase 6: Critical CSS Inlining (Advanced)
+- [ ] Extract hero + navbar CSS (~8KB) into inline `<style>` in `<head>`
+- [ ] Defer full stylesheet with media="print" + onload trick
+- [ ] Test thoroughly for CSS breakage
+- Estimated impact: +15-20 pts (could reach 70+)
+- **Risk:** High complexity, maintenance burden
+
+### Phase 7: Image Optimization (Ongoing)
+- [ ] Hero background: 118.9KB → target 60KB (more aggressive compression)
+- [ ] Hero poster: 60.5KB → target 30KB
+- [ ] Logo: 18.4KB → target 12KB (more aggressive compression)
+- Estimated impact: +2-5 pts
+
+### Phase 8: Defer Non-Critical 3rd Parties
+- [ ] Plausible Analytics: currently 4KB, defer to after LCP
+- [ ] Manus platform scripts: 204KB, already deferred but could optimize further
+- Estimated impact: +2-3 pts
+
+## Summary: Path to 70+
+- **Current:** 48/100 (Phase 3 complete)
+- **Phase 4 (Unused JS):** 48 → 60-65
+- **Phase 5 (DOM size):** 60-65 → 65-70
+- **Phase 6 (Critical CSS):** 65-70 → 70-80 (if needed)
+
+**Recommended next focus:** Phase 4 (Unused JS reduction) — highest ROI, lowest risk.

@@ -13,11 +13,11 @@ import ApprovalGuard from "./components/ApprovalGuard";
 // Widgets — loaded eagerly (always visible on public pages)
 import AnnouncementBar from "./components/AnnouncementBar";
 import CookieConsent from "./components/CookieConsent";
-import AIChatWidget from "./components/AIChatWidget";
+const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
 import FloatingContactDial from "./components/FloatingContactDial";
-import UserChatWidget from "./components/UserChatWidget";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import { CopilotChat } from "./components/CopilotChat";
+const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
+const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
+const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
 import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────

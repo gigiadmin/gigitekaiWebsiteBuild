@@ -230,7 +230,55 @@
       }
     ]
     </script>
-  </head>
+      <style>@import "tailwindcss";
+@import "tw-animate-css";
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+}
+:root {
+  --radius: 0.5rem;
+  --cyan-accent: #00D4FF;
+  --cyan-glow: rgba(0, 212, 255, 0.15);
+  --navy-deep: #0A0E1A;
+  --navy-mid: #0F1629;
+  --navy-card: #141B2D;
+  --navy-border: rgba(0, 212, 255, 0.2);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.1 0.01 250);
+  --card: oklch(0.98 0.002 250);
+  --card-foreground: oklch(0.1 0.01 250);
+  --primary: oklch(0.65 0.2 200);
+  --primary-foreground: oklch(1 0 0);
+  --accent: oklch(0.65 0.2 200);
+  --accent-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.005 250);
+}
+.dark {
+  --background: oklch(0.08 0.02 250);
+  --foreground: oklch(0.95 0.005 250);
+  --card: oklch(0.12 0.025 250);
+  --card-foreground: oklch(0.95 0.005 250);
+  --primary: oklch(0.75 0.2 200);
+  --primary-foreground: oklch(0.05 0.01 250);
+  --accent: oklch(0.75 0.2 200);
+  --accent-foreground: oklch(0.05 0.01 250);
+  --border: oklch(1 0 0 / 10%);
+}
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; min-height: 100dvh; }
+  #root { min-height: 100dvh; }
+}</style>
+    </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
