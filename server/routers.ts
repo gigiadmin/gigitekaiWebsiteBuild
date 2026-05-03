@@ -90,6 +90,7 @@ import { agentGamificationRouter } from "./routers/agent-gamification";
 import { kbEnhancementsRouter } from "./routers/kb-enhancements";
 import { kbBulkOperationsRouter } from "./routers/kb-bulk-operations";
 import { kbFinalFeaturesRouter } from "./routers/kb-final-features";
+import { kbCompletionRouter } from "./routers/kb-completion";
 import { callRecordingRouter } from "./routers/phase2-callRecording";
 import { callTranscriptRouter } from "./routers/phase2-callTranscript";
 import { sentimentRoutingRouter } from "./routers/phase2-sentimentRouting";
@@ -169,6 +170,7 @@ export const appRouter = router({
   kbEnhancements: kbEnhancementsRouter,
   kbBulkOperations: kbBulkOperationsRouter,
   kbFinalFeatures: kbFinalFeaturesRouter,
+  kbCompletion: kbCompletionRouter,
   kbAiProactive: kbAiProactiveRouter,
   remoteAssistance: remoteAssistanceRouter,
   remoteAssistanceRbac: remoteAssistanceRbacRouter,
