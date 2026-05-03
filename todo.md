@@ -4021,8 +4021,8 @@
 
 ## WebRTC Remote Assistance Enhancements (May 2026)
 
-- [ ] Session recording with MediaRecorder API, upload to S3, store metadata in DB
-- [ ] Session recording playback UI in TicketDetail (admin only)
-- [ ] Auto-email client invite link via Azure/SendGrid when Live Session is initiated
-- [ ] TURN server configuration with Twilio TURN credentials
-- [ ] ICE server fallback chain (STUN → TURN UDP → TURN TCP → TURN TLS)
+- [x] Session recording with MediaRecorder API, upload to S3, store metadata in DB
+- [x] Session recording playback UI in TicketDetail (admin only)
+- [x] Auto-email client invite link via Azure/SendGrid when Live Session is initiated
+- [x] TURN server configuration with Twilio TURN credentials
+- [x] ICE server fallback chain (STUN 2192 TURN UDP 2192 TURN TCP 2192 TURN TLS)

@@ -55,7 +55,12 @@ export default function TicketDetail() {
   const [inviteEmailSent, setInviteEmailSent] = useState(false);
 
   const ticketIdNum = parseInt(ticketId || "0");
+  const [showRecordings, setShowRecordings] = useState(false);
   const isAdmin = user?.role === "admin";
+  const { data: recordingsData, refetch: refetchRecordings } = trpc.sessionRecording.getRecordings.useQuery(
+    { ticketId: ticketIdNum },
+    { enabled: isAdmin && ticketIdNum > 0 && showRecordings }
+  );
 
   const { data: ticketData, isLoading, error, refetch } = trpc.helpdesk.getTicket.useQuery(
     { ticketId: ticketIdNum },
@@ -669,7 +674,43 @@ export default function TicketDetail() {
                   {/* Security Badge */}
                   <div className="bg-cyan-900/20 border border-cyan-500/30 p-3 rounded-lg">
                     <p className="text-xs text-cyan-300 font-medium">🔒 AES-256 Encrypted • P2P WebRTC • TURN Relay Fallback</p>
-                    <p className="text-xs text-gray-400 mt-1">Session recording available in-session. Recordings stored securely in S3.</p>
+                    <p className="text-xs text-gray-400 mt-1">Recordings are saved to S3 automatically when the technician clicks the record button.</p>
+                  </div>
+                  {/* Session Recordings Playback (admin only) */}
+                  <div className="bg-gray-800/30 p-3 rounded-lg border border-gray-700/30">
+                    <button
+                      className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1.5 w-full text-left"
+                      onClick={() => { setShowRecordings((v) => !v); if (!showRecordings) refetchRecordings(); }}
+                    >
+                      <PlayCircle className="w-3.5 h-3.5" />
+                      {showRecordings ? "Hide Recordings" : "View Session Recordings"}
+                    </button>
+                    {showRecordings && (
+                      <div className="mt-3 space-y-2">
+                        {!recordingsData || recordingsData.length === 0 ? (
+                          <p className="text-xs text-gray-500">No recordings found for this ticket.</p>
+                        ) : (
+                          recordingsData.map((rec) => (
+                            <div key={rec.id} className="flex items-center justify-between bg-gray-900/60 p-2 rounded border border-gray-700/30">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-300 truncate">Room: {rec.roomId}</p>
+                                <p className="text-xs text-gray-500">
+                                  {Math.floor(rec.durationSeconds / 60)}m {rec.durationSeconds % 60}s • {rec.sizeMb} MB • {new Date(rec.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <a
+                                href={rec.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-2 shrink-0 text-xs bg-cyan-700 hover:bg-cyan-600 text-white px-2 py-1 rounded"
+                              >
+                                Play
+                              </a>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
