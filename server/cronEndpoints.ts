@@ -385,4 +385,42 @@ router.get("/cleanup-recordings", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/cron/sla-breach-check
+ * Checks all open tickets for SLA breaches and sends alerts
+ * Called every 15 minutes via Manus scheduled task
+ *
+ * Returns: { success: boolean, breachesDetected: number, message: string }
+ */
+router.get("/sla-breach-check", async (req, res) => {
+  try {
+    const baseUrl = process.env.VITE_APP_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/trpc/slaBreachAlerts.checkSLABreaches`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`SLA check failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`[SLA Breach Check] Detected ${result.result?.breachesDetected || 0} breaches`);
+    
+    return res.json({
+      success: true,
+      breachesDetected: result.result?.breachesDetected || 0,
+      message: `SLA check completed: ${result.result?.breachesDetected || 0} breaches detected`,
+    });
+  } catch (error) {
+    console.error("[SLA Breach Check] Error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
 export default router;
