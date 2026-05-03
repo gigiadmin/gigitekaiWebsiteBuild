@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Search, BookOpen, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -14,9 +14,15 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
   const [showResults, setShowResults] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
 
+  // Memoize query object to prevent infinite re-renders
+  const queryInput = useMemo(
+    () => ({ query: searchQuery || `${ticketTitle} ${ticketDescription}`, limit: 5 }),
+    [searchQuery, ticketTitle, ticketDescription]
+  );
+
   // Search KB articles based on ticket content
   const { data: searchResults, isLoading } = trpc.helpdeskKb.search.useQuery(
-    { query: searchQuery || `${ticketTitle} ${ticketDescription}`, limit: 5 },
+    queryInput,
     { enabled: !!ticketTitle || !!ticketDescription }
   );
 
@@ -27,12 +33,13 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
     }
   }, [ticketTitle, ticketDescription]);
 
-  const handleArticleClick = (articleId: number, articleTitle: string) => {
+  // Memoize callback to prevent unnecessary re-renders of parent
+  const handleArticleClick = useCallback((articleId: number, articleTitle: string) => {
     setSelectedArticle(articleId);
     if (onArticleSelect) {
       onArticleSelect(articleId, articleTitle);
     }
-  };
+  }, [onArticleSelect]);
 
   return (
     <div className="bg-[#141B2D]/40 border border-cyan-500/20 rounded-lg p-4 space-y-3">

@@ -1931,6 +1931,18 @@
 - [x] Save checkpoint with all enhancements
 
 
+## Bug Fix: Ticket Form Infinite Render Loop (April 17, 2026)
+- [x] Fix CreateTicket form getting stuck in infinite render loop when adding Steps Attempted field
+  - Root cause: KBSearchWidget query object created inline every render, causing infinite refetch cycle
+  - Fix 1: Wrapped query object in useMemo in KBSearchWidget.tsx (line 19)
+  - Fix 2: Wrapped onArticleSelect callback in useCallback in CreateTicket.tsx
+  - Result: Form now loads and renders correctly, KB suggestions work smoothly
+  - All 316 tests passing, form tested with sample ticket data
+  - Verified: Subject, Description, Steps Attempted fields all accept input with character counters
+  - Verified: KB search widget displays "No matching articles found" message
+  - Verified: Priority selection works with visual indicators
+  - Verified: Submit button is enabled when all validations pass
+
 ## Future Enhancements (On Hold)
 - [x] M365 Copilot Studio agent integration (hybrid with GigitekAI agents) - See `/home/ubuntu/M365_COPILOT_AGENT_STRATEGY.md` for detailed strategy
   - [ ] Ticket Classification Agent (Copilot Studio)

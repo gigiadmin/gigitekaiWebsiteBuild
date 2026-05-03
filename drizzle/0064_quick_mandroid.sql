@@ -1,0 +1,1 @@
+ALTER TABLE `tickets` MODIFY COLUMN `category` enum('email','printer','internet','network','other') NOT NULL DEFAULT 'other';

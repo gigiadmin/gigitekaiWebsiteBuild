@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import HelpdeskNav from "@/components/HelpdeskNav";
 import { KBSearchWidget } from "@/components/KBSearchWidget";
@@ -40,6 +40,7 @@ export default function CreateTicket() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    stepsAttempted: "",
     priority: "medium" as const,
     category: "general_support" as const,
   });
@@ -62,17 +63,29 @@ export default function CreateTicket() {
     }
   }, [isAuthenticated, loading, navigate]);
 
+  const handleArticleSelect = useCallback((articleId: number, articleTitle: string) => {
+    toast.info(`Selected: ${articleTitle}`);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.title.length < 5) {
-      toast.error("Title must be at least 5 characters");
+    if (formData.title.length < 10) {
+      toast.error("Subject must be at least 10 characters");
       return;
     }
-    if (formData.description.length < 10) {
-      toast.error("Description must be at least 10 characters");
+    if (formData.description.length < 30) {
+      toast.error("Description must be at least 30 characters for AI analysis");
       return;
     }
-    createTicketMutation.mutate(formData);
+    if (formData.stepsAttempted.length < 20) {
+      toast.error("Please describe at least 20 characters of steps you've already tried");
+      return;
+    }
+    const combinedDescription = `ISSUE DESCRIPTION:\n${formData.description}\n\nSTEPS ALREADY ATTEMPTED:\n${formData.stepsAttempted}`;
+    createTicketMutation.mutate({
+      ...formData,
+      description: combinedDescription,
+    });
   };
 
   if (loading) {
@@ -147,10 +160,10 @@ export default function CreateTicket() {
               onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
               placeholder="Brief summary of your issue (e.g., 'Unable to access cloud dashboard')"
               required
-              minLength={5}
+              minLength={10}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
             />
-            <p className="text-gray-600 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 5)</p>
+            <p className="text-gray-600 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 10) {formData.title.length >= 10 ? "✓" : ""}</p>
           </div>
 
           {/* Description */}
@@ -163,25 +176,42 @@ export default function CreateTicket() {
               name="description"
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="Please provide detailed information about your issue:&#10;&#10;1. What were you trying to do?&#10;2. What happened instead?&#10;3. Any error messages you saw?&#10;4. Steps to reproduce the issue"
+              placeholder="Please provide detailed information about your issue:&#10;&#10;1. What were you trying to do?&#10;2. What happened instead?&#10;3. Any error messages you saw?&#10;4. When did this start happening?"
               required
-              minLength={10}
-              rows={8}
+              minLength={30}
+              rows={6}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
             />
-            <p className="text-gray-600 text-xs mt-1.5">{formData.description.length} characters (minimum 10)</p>
+            <p className="text-gray-600 text-xs mt-1.5">{formData.description.length} characters (minimum 30) {formData.description.length >= 30 ? "✓" : ""}</p>
           </div>
 
           {/* KB Search Widget */}
-          {(formData.title.length > 5 || formData.description.length > 10) && (
+          {(formData.title.length > 10 || formData.description.length > 30) && (
             <KBSearchWidget
               ticketTitle={formData.title}
               ticketDescription={formData.description}
-              onArticleSelect={(articleId, articleTitle) => {
-                toast.info(`Selected: ${articleTitle}`);
-              }}
+              onArticleSelect={handleArticleSelect}
             />
           )}
+
+          {/* Steps Attempted */}
+          <div>
+            <label className="block text-white font-semibold text-sm mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <CheckCircle2 className="w-4 h-4 inline mr-2 text-[#00D4FF]" />
+              Steps You've Already Tried
+            </label>
+            <textarea
+              name="stepsAttempted"
+              value={formData.stepsAttempted}
+              onChange={(e) => setFormData((prev) => ({ ...prev, stepsAttempted: e.target.value }))}
+              placeholder="Help us avoid duplicate troubleshooting:&#10;&#10;1. What have you already tried?&#10;2. What were the results?&#10;3. Any changes to your system recently?"
+              required
+              minLength={20}
+              rows={4}
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+            />
+            <p className="text-gray-600 text-xs mt-1.5">{formData.stepsAttempted.length} characters (minimum 20) {formData.stepsAttempted.length >= 20 ? "✓" : ""}</p>
+          </div>
 
           {/* Priority */}
           <div>

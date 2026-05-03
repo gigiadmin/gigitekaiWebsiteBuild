@@ -1,0 +1,1 @@
+ALTER TABLE `tickets` MODIFY COLUMN `category` enum('bug_report','feature_request','general_support','billing') NOT NULL DEFAULT 'general_support';
