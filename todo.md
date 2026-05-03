@@ -4122,7 +4122,16 @@
 
 ## Content Accuracy Fixes
 
-- [ ] Remove "4.9 / 5.0 Client Satisfaction" from all locations across the site
-- [ ] Change "500+" to "50+" for Clients Served everywhere on the site
-- [ ] Save checkpoint
-- [ ] Remove all SOC compliance references (SOC 2, SOC compliance badges, text) from the entire site
+- [x] Remove "4.9 / 5.0 Client Satisfaction" from all locations across the site
+- [x] Change "500+" to "50+" for Clients Served everywhere on the site
+- [x] Save checkpoint
+- [x] Remove all SOC compliance references (SOC 2, SOC compliance badges, text) from the entire site
+
+## Pre-Launch Final Fixes
+
+- [x] Add phone (727) 382-5776 and email support@gigitekai.com to header top bar
+- [x] Add contact info near hero CTA section
+- [x] Add contact info to footer contact section
+- [x] Add Organization JSON-LD schema markup to index.html head
+- [x] Verify footer has visible Privacy Policy and Terms of Service links
+- [x] Save checkpoint and confirm all three items
