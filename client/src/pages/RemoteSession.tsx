@@ -31,13 +31,16 @@ import {
   Shield,
   Wifi,
   WifiOff,
+  Circle,
+  StopCircle,
+  CheckCircle2,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 // ── WebRTC Config (mirrors PeerChat servers const) ───────────────────────────
-const ICE_SERVERS = {
+const STUN_ONLY_CONFIG = {
   iceServers: [
     { urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] },
-    { urls: "stun:stun.gigitekai.com:3478" }, // Custom STUN (fallback)
   ],
 };
 
@@ -90,6 +93,14 @@ export default function RemoteSession() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [sessionDuration, setSessionDuration] = useState(0);
   const [connectionQuality, setConnectionQuality] = useState<"good" | "fair" | "poor">("good");
+  // ── TURN / ICE Config (fetched from server) ───────────────────────────────
+  const [iceConfig, setIceConfig] = useState<RTCConfiguration>(STUN_ONLY_CONFIG);
+  // ── Recording ─────────────────────────────────────────────────────────────
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
+  const recordingStartTimeRef = useRef<number>(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSaved, setRecordingSaved] = useState(false);
   const [displayName] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("name") || "GigitekAI User";
@@ -98,6 +109,16 @@ export default function RemoteSession() {
     const params = new URLSearchParams(window.location.search);
     return (params.get("role") as "technician" | "client") || "client";
   });
+  // ── Fetch TURN credentials from server
+  const { data: turnConfig } = trpc.turnCredentials.getIceConfig.useQuery(undefined, {
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
+  useEffect(() => {
+    if (turnConfig) setIceConfig(turnConfig as RTCConfiguration);
+  }, [turnConfig]);
+  // ── Recording upload mutation
+  const uploadRecording = trpc.sessionRecording.uploadRecording.useMutation();
 
   // ── Session Timer ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -110,11 +131,59 @@ export default function RemoteSession() {
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
+  // ── Recording Controls ────────────────────────────────────────────────────────────────────
+  const startRecording = useCallback(() => {
+    const stream = localStreamRef.current;
+    if (!stream || isRecording) return;
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+      ? "video/webm;codecs=vp9"
+      : "video/webm";
+    const mr = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 });
+    recordingChunksRef.current = [];
+    recordingStartTimeRef.current = Date.now();
+    mr.ondataavailable = (e) => {
+      if (e.data.size > 0) recordingChunksRef.current.push(e.data);
+    };
+    mr.onstop = async () => {
+      const blob = new Blob(recordingChunksRef.current, { type: mimeType });
+      const durationSeconds = Math.round((Date.now() - recordingStartTimeRef.current) / 1000);
+      // Convert blob to base64 for upload
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = (reader.result as string).split(",")[1];
+        try {
+          await uploadRecording.mutateAsync({
+            roomId: roomId || "unknown",
+            data: base64,
+            mimeType,
+            durationSeconds,
+            participantCount: participants.length + 1,
+          });
+          setRecordingSaved(true);
+          setTimeout(() => setRecordingSaved(false), 5000);
+        } catch (err) {
+          console.error("[Recording] Upload failed:", err);
+        }
+      };
+      reader.readAsDataURL(blob);
+    };
+    mr.start(5000); // collect chunks every 5s
+    mediaRecorderRef.current = mr;
+    setIsRecording(true);
+  }, [isRecording, roomId, participants, uploadRecording]);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+      setIsRecording(false);
+    }
+  }, [isRecording]);
 
   // ── Create Peer Connection (mirrors PeerChat createPeerConnection) ────────
   const createPeerConnection = useCallback(
     async (targetSocketId: string) => {
-      const pc = new RTCPeerConnection(ICE_SERVERS);
+      const pc = new RTCPeerConnection(iceConfig);
       peerConnectionRef.current = pc;
       remotePeerSocketId.current = targetSocketId;
 
@@ -612,6 +681,30 @@ export default function RemoteSession() {
           {screenSharing ? <MonitorOff className="w-5 h-5" /> : <Monitor className="w-5 h-5" />}
         </Button>
 
+        {/* Recording button (technician only) */}
+        {role === "technician" && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`w-12 h-12 rounded-full border-2 transition-all ${
+              isRecording
+                ? "border-red-400 bg-red-400/20 text-red-300 animate-pulse"
+                : recordingSaved
+                ? "border-emerald-400 bg-emerald-400/20 text-emerald-300"
+                : "border-slate-500/50 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400"
+            }`}
+            title={isRecording ? "Stop recording" : "Start recording"}
+          >
+            {isRecording ? (
+              <StopCircle className="w-5 h-5" />
+            ) : recordingSaved ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <Circle className="w-5 h-5" />
+            )}
+          </Button>
+        )}
         {/* Chat toggle */}
         <Button
           variant="outline"

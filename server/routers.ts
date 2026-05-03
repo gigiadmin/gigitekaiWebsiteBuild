@@ -62,6 +62,9 @@ import { remoteAssistanceRouter } from "./routers/remote-assistance";
 import { remoteAssistanceRbacRouter } from "./routers/remote-assistance-rbac";
 import { remoteAssistanceAnalyticsRouter } from "./routers/remote-assistance-analytics";
 import { teamsRemoteAssistanceRouter } from "./routers/teams-remote-assistance";
+import { sessionRecordingRouter } from "./routers/session-recording";
+import { sessionInviteEmailRouter } from "./routers/session-invite-email";
+import { turnCredentialsRouter } from "./routers/turn-credentials";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
 import { serviceHealthMonitoringRouter } from "./routers/service-health-monitoring";
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
@@ -156,6 +159,9 @@ export const appRouter = router({
   remoteAssistanceRbac: remoteAssistanceRbacRouter,
   remoteAssistanceAnalytics: remoteAssistanceAnalyticsRouter,
   teamsRemoteAssistance: teamsRemoteAssistanceRouter,
+  sessionRecording: sessionRecordingRouter,
+  sessionInviteEmail: sessionInviteEmailRouter,
+  turnCredentials: turnCredentialsRouter,
   customerPortal: customerPortalRouter,
   notifications: notificationsRouter,
   adminRoles: adminRolesRouter,

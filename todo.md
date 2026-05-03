@@ -4018,3 +4018,11 @@
 ## Mobile Nav & CTA (May 2026)
 - [x] Full mobile nav audit: ensure all desktop items present in hamburger menu
 - [x] Add sticky fixed bottom CTA bar on mobile with "Try AI Demo" button
+
+## WebRTC Remote Assistance Enhancements (May 2026)
+
+- [ ] Session recording with MediaRecorder API, upload to S3, store metadata in DB
+- [ ] Session recording playback UI in TicketDetail (admin only)
+- [ ] Auto-email client invite link via Azure/SendGrid when Live Session is initiated
+- [ ] TURN server configuration with Twilio TURN credentials
+- [ ] ICE server fallback chain (STUN → TURN UDP → TURN TCP → TURN TLS)

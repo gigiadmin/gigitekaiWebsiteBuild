@@ -19,6 +19,7 @@ import {
   Copy,
   History,
   Loader2,
+  Mail,
   MessageSquare,
   Monitor,
   PauseCircle,
@@ -50,6 +51,8 @@ export default function TicketDetail() {
   const [quickAssistSession, setQuickAssistSession] = useState<{ sessionCode: string } | null>(null);
   const [isLiveSessionModalOpen, setIsLiveSessionModalOpen] = useState(false);
   const [liveSessionRoomId, setLiveSessionRoomId] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteEmailSent, setInviteEmailSent] = useState(false);
 
   const ticketIdNum = parseInt(ticketId || "0");
   const isAdmin = user?.role === "admin";
@@ -573,8 +576,8 @@ export default function TicketDetail() {
           </Dialog>
 
           {/* Live Session Modal */}
-          <Dialog open={isLiveSessionModalOpen} onOpenChange={setIsLiveSessionModalOpen}>
-            <DialogContent className="bg-gray-900/95 border border-cyan-500/20 max-w-md">
+          <Dialog open={isLiveSessionModalOpen} onOpenChange={(open) => { setIsLiveSessionModalOpen(open); if (!open) { setInviteEmailSent(false); setInviteEmail(""); } }}>
+            <DialogContent className="bg-gray-900/95 border border-cyan-500/20 max-w-lg">
               <DialogHeader>
                 <DialogTitle className="text-cyan-400 flex items-center gap-2">
                   <Shield className="w-4 h-4" />
@@ -583,10 +586,11 @@ export default function TicketDetail() {
               </DialogHeader>
               {liveSessionRoomId && (
                 <div className="space-y-4">
+                  {/* Room ID + Copy Link */}
                   <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
-                    <p className="text-xs text-gray-400 mb-2">Session Room ID:</p>
+                    <p className="text-xs text-gray-400 mb-2">Client Join Link:</p>
                     <div className="flex items-center gap-2">
-                      <code className="text-sm font-mono text-cyan-400 flex-1 break-all">{liveSessionRoomId}</code>
+                      <code className="text-xs font-mono text-cyan-400 flex-1 break-all">{`${window.location.origin}/remote-session/${liveSessionRoomId}?role=client&name=Client`}</code>
                       <Button
                         size="sm"
                         variant="outline"
@@ -600,15 +604,80 @@ export default function TicketDetail() {
                       </Button>
                     </div>
                   </div>
-                  <div className="bg-cyan-900/20 border border-cyan-500/30 p-3 rounded-lg space-y-1">
-                    <p className="text-xs text-cyan-300 font-medium">🔒 AES-256 Encrypted • P2P Direct Connection</p>
-                    <p className="text-xs text-gray-400">Share the client link above. You'll join as Technician, they'll join as Client.</p>
+
+                  {/* Email Invite */}
+                  <div className="bg-gray-800/30 p-4 rounded-lg border border-gray-700/30">
+                    <p className="text-xs text-gray-300 font-medium mb-3 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                      Auto-Email Client Invite
+                    </p>
+                    {inviteEmailSent ? (
+                      <div className="flex items-center gap-2 text-emerald-400 text-sm">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Invite sent to {inviteEmail}
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="email"
+                          placeholder="client@company.com"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="flex-1 bg-gray-900/80 border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                        />
+                        <Button
+                          size="sm"
+                          disabled={!inviteEmail.includes("@")}
+                          onClick={async () => {
+                            try {
+                              // Direct fetch to avoid tRPC client dependency in modal
+                              const res = await fetch("/api/trpc/sessionInviteEmail.sendInvite", {
+                                method: "POST",
+                                credentials: "include",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  json: {
+                                    clientEmail: inviteEmail,
+                                    clientName: "Valued Customer",
+                                    technicianName: user?.name || "GigitekAI Technician",
+                                    roomId: liveSessionRoomId,
+                                    sessionUrl: `${window.location.origin}/remote-session/${liveSessionRoomId}?role=client&name=Client`,
+                                    ticketId: ticketIdNum,
+                                    expiresMinutes: 60,
+                                  }
+                                }),
+                              });
+                              if (res.ok) {
+                                setInviteEmailSent(true);
+                                toast.success("Invite email sent!");
+                              } else {
+                                toast.error("Failed to send invite email");
+                              }
+                            } catch {
+                              toast.error("Failed to send invite email");
+                            }
+                          }}
+                          className="bg-cyan-600 hover:bg-cyan-700 text-white shrink-0"
+                        >
+                          <Send className="w-3.5 h-3.5 mr-1" />
+                          Send
+                        </Button>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Security Badge */}
+                  <div className="bg-cyan-900/20 border border-cyan-500/30 p-3 rounded-lg">
+                    <p className="text-xs text-cyan-300 font-medium">🔒 AES-256 Encrypted • P2P WebRTC • TURN Relay Fallback</p>
+                    <p className="text-xs text-gray-400 mt-1">Session recording available in-session. Recordings stored securely in S3.</p>
+                  </div>
+
+                  {/* Action Buttons */}
                   <div className="flex gap-2">
                     <Button
                       onClick={() => {
                         setIsLiveSessionModalOpen(false);
-                        window.open(`/remote-session/${liveSessionRoomId}?role=technician&name=Technician`, '_blank');
+                        window.open(`/remote-session/${liveSessionRoomId}?role=technician&name=${encodeURIComponent(user?.name || 'Technician')}`, '_blank');
                       }}
                       className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white"
                     >
