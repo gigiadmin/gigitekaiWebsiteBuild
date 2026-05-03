@@ -44,8 +44,7 @@ export default function BenefitsSection() {
               src={TEAM_IMG}
               alt="GigitekAI team collaborating"
               className="w-full h-full object-cover"
-              loading="lazy"
-            />
+              loading="lazy"            />
             {/* Overlay card */}
             <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-[#0A0E1A]/90 backdrop-blur-sm border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-xl p-4">
               <div className="flex items-center gap-3">

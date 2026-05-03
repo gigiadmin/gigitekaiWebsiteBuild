@@ -173,7 +173,7 @@ function DashboardLayoutContent({
                   <img
                     src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
                     alt="GigitekAI logo"
-                    className="h-8 w-auto object-contain max-w-[140px]"
+                    className="h-8 w-auto object-contain max-w-[140px]" loading="lazy"
                   />
                 </div>
               ) : null}

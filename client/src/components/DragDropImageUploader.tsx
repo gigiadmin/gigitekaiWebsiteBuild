@@ -113,7 +113,7 @@ export default function DragDropImageUploader({
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover" loading="lazy"
             />
             {/* Overlay during upload */}
             {uploading && (

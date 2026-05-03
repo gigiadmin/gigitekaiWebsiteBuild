@@ -5,25 +5,26 @@
   Fonts: Space Grotesk (display) + DM Sans (body)
 */
 
+import { lazy, Suspense } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
 import TransparencyTicker from "@/components/TransparencyTicker";
-import ServicesSection from "@/components/ServicesSection";
-import BenefitsSection from "@/components/BenefitsSection";
-import WhoWeServeSection from "@/components/WhoWeServeSection";
-import StatsSection from "@/components/StatsSection";
-import IndustriesSection from "@/components/IndustriesSection";
-import InsightsSection from "@/components/InsightsSection";
-import ROIPromotionSection from "@/components/ROIPromotionSection";
-import AgenticOrchestrationSection from "@/components/AgenticOrchestrationSection";
-import LeadMagnetsSection from "@/components/LeadMagnetsSection";
-import IndustryBenchmarksWidget from "@/components/IndustryBenchmarksWidget";
-import { NewsletterSignupSection } from "@/components/NewsletterSignupSection";
-import ProjectUntouchable from "@/components/ProjectUntouchable";
-import FAQSection from "@/components/FAQSection";
-import CTASection from "@/components/CTASection";
+const ServicesSection = lazy(() => import("@/components/ServicesSection"));
+const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
+const WhoWeServeSection = lazy(() => import("@/components/WhoWeServeSection"));
+const StatsSection = lazy(() => import("@/components/StatsSection"));
+const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
+const InsightsSection = lazy(() => import("@/components/InsightsSection"));
+const ROIPromotionSection = lazy(() => import("@/components/ROIPromotionSection"));
+const AgenticOrchestrationSection = lazy(() => import("@/components/AgenticOrchestrationSection"));
+const LeadMagnetsSection = lazy(() => import("@/components/LeadMagnetsSection"));
+const IndustryBenchmarksWidget = lazy(() => import("@/components/IndustryBenchmarksWidget"));
+const NewsletterSignupSection = lazy(() => import("@/components/NewsletterSignupSection").then(m => ({ default: m.NewsletterSignupSection })));
+const ProjectUntouchable = lazy(() => import("@/components/ProjectUntouchable"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
+const CTASection = lazy(() => import("@/components/CTASection"));
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -34,6 +35,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <SiteNavBar2024 />
       <main className="flex-1">
+        <Suspense fallback={<div />}>
         <HeroSection />
         <TransparencyTicker />
         <ServicesSection />
@@ -50,6 +52,7 @@ export default function Home() {
         <ProjectUntouchable />
         <FAQSection />
         <CTASection />
+      </Suspense>
       </main>
       <Footer />
       <ScrollToTop />

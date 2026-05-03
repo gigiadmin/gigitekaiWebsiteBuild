@@ -88,7 +88,7 @@ export default function MobileAdminMenu() {
           <img
             src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
             alt="GigitekAI logo"
-            className="h-10 w-auto object-contain max-w-[150px]"
+            className="h-10 w-auto object-contain max-w-[150px]" loading="lazy"
           />
           <button
             onClick={() => setIsOpen(false)}

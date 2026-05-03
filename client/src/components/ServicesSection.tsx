@@ -168,8 +168,7 @@ export default function ServicesSection() {
               src={CLOUD_IMG}
               alt="Cloud Infrastructure - AWS, Azure, Google Cloud services for enterprise digital transformation"
               className="w-full h-full object-cover"
-              loading="lazy"
-            />
+              loading="lazy"            />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
               <div>
                 <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Cloud Infrastructure</p>
@@ -184,8 +183,7 @@ export default function ServicesSection() {
               src={AI_IMG}
               alt="AI Solutions - Machine Learning, Artificial Intelligence, and predictive analytics for business automation"
               className="w-full h-full object-cover"
-              loading="lazy"
-            />
+              loading="lazy"            />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
               <div>
                 <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Artificial Intelligence</p>

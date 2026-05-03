@@ -203,13 +203,13 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           <img
             src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
             alt="GigitekAI"
-            className="h-8 w-8 object-contain flex-shrink-0"
+            className="h-8 w-8 object-contain flex-shrink-0" loading="lazy"
           />
         ) : (
           <img
             src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp"
             alt="GigitekAI logo"
-            className="h-10 w-auto object-contain max-w-[160px]"
+            className="h-10 w-auto object-contain max-w-[160px]" loading="lazy"
           />
         )}
       </div>
