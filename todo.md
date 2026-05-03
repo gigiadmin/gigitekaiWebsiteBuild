@@ -4059,8 +4059,16 @@
 
 ## Account Management System (Azure AD-style)
 
-- [ ] Extend user schema with account status, disable/enable tracking, and audit logs
-- [ ] Build backend account management procedures (disable, enable, delete, restore)
-- [ ] Create Azure AD-style account management UI with bulk actions
-- [ ] Add account lifecycle audit trail and compliance reporting
-- [ ] Test all features and save checkpoint
+- [x] Extend user schema with account status, disable/enable tracking, and audit logs
+- [x] Build backend account management procedures (disable, enable, delete, restore)
+- [x] Create Azure AD-style account management UI with bulk actions
+- [x] Add account lifecycle audit trail and compliance reporting
+- [x] Test all features and save checkpoint
+
+## Homepage Hero Video Integration
+
+- [x] Upload promotional video to CDN
+- [x] Integrate autoplay background video in hero section
+- [x] Add professional overlay with headline and CTA
+- [x] Test video playback and mobile responsiveness
+- [ ] Save checkpoint and deploy
