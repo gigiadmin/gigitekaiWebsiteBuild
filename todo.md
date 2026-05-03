@@ -4181,13 +4181,20 @@
 
 ## Navigation & UX Fixes (May 2026)
 
-- [ ] Audit all pages for missing back/home navigation
-- [ ] Add back button to Compliance Scorecard page
-- [ ] Add back button to Roadmap Generator page
-- [ ] Add back button to Compliance Benchmark page
-- [ ] Add back button to KB pages
+- [x] Audit all pages for missing back/home navigation
+- [x] Add back button to Compliance Scorecard page
+- [x] Add back button to Roadmap Generator page
+- [x] Add back button to Compliance Benchmark page
+- [x] Add back button to KB pages
 - [ ] Fix KB mobile visibility issue
-- [ ] Add video restart button to hero section
+- [x] Add video restart button to hero section
 - [ ] Implement KB article ratings system
 - [ ] Build KB search analytics dashboard
 - [ ] Integrate KB articles into Aria chatbot
+
+
+## Final Pre-Launch Polish
+
+- [x] Add contact info (phone/email) to header utility bar
+- [x] Add contact info to footer
+- [x] Add Organization JSON-LD schema markup to index.html
