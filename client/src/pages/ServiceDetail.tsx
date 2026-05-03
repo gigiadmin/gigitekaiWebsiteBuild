@@ -15,6 +15,7 @@ import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, 
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import StructuredData from "@/components/StructuredData";
+import { FAQSchema, SERVICE_FAQS } from "@/components/FAQSchema";
 import { useMemo } from "react";
 
 const serviceData: Record<string, {
@@ -304,6 +305,7 @@ export default function ServiceDetail() {
     <div className="min-h-screen flex flex-col">
       <StructuredData data={serviceSchema} id={`sd-service-${slug}`} />
       <StructuredData data={breadcrumbSchema} id={`sd-breadcrumb-${slug}`} />
+      {slug && SERVICE_FAQS[slug] && <FAQSchema faqs={SERVICE_FAQS[slug]} />}
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Hero Section */}

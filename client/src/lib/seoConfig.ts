@@ -9,9 +9,9 @@ export interface PageSEO {
 
 export const SEO_CONFIG: Record<string, PageSEO> = {
   "/": {
-    title: "GigitekAI — Enterprise Cloud & AI Solutions | Managed IT",
+    title: "GigitekAI — AI-Powered Managed Service Provider | Tampa Bay IT Services",
     description:
-      "GigitekAI delivers enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA, 24/7 support. Free IT assessment — call (727) 382-5776.",
+      "GigitekAI is Tampa Bay's AI-first managed service provider delivering enterprise cloud, Microsoft 365, cybersecurity, and AI automation. 99.9% uptime SLA, 24/7 support, 40% cost reduction. Free IT assessment — (727) 382-5776.",
   },
   "/about-us": {
     title: "About GigitekAI | Cloud & AI Technology Partner",
@@ -154,9 +154,14 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "Browse GigitekAI's knowledge base for IT support articles, troubleshooting guides, and best practices for cloud, AI, and Microsoft 365.",
   },
   "/managed-it-services-tampa": {
-    title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
+    title: "Managed IT Services Tampa Bay | 24/7 AI-Powered IT Support | GigitekAI",
     description:
-      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-5776.",
+      "Tampa Bay's #1 AI-powered managed IT provider. 24/7 helpdesk, Microsoft 365 architecture, cloud migration, Zero Trust cybersecurity. 99.9% uptime guaranteed. Free IT assessment — (727) 382-5776.",
+  },
+  "/managed-it-services-miami": {
+    title: "Managed IT Services Miami | AI-Powered IT Support | GigitekAI",
+    description:
+      "Miami's trusted managed IT provider. 24/7 AI-powered helpdesk, Microsoft 365, cloud infrastructure, and cybersecurity for South Florida businesses. Free IT assessment — (727) 382-5776.",
   },
   "/hh": {
     title: "Contact Harry Henry Santiago | GigitekAI Founder",

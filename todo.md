@@ -4355,3 +4355,34 @@
 - **Phase 6 (Critical CSS):** 65-70 → 70-80 (if needed)
 
 **Recommended next focus:** Phase 4 (Unused JS reduction) — highest ROI, lowest risk.
+
+## AI Work Live Demo — Voiceover Narration (May 3, 2026)
+- [ ] Add Web Speech API voiceover to each demo step (narrates step description aloud)
+- [ ] Slow down step timing to comfortable human conversation pace (~4-6s per step)
+- [ ] Add mute/unmute toggle button for voiceover
+- [ ] Save checkpoint and publish
+
+## SEO & Content Updates (May 2026)
+
+### Tier 1 — Immediate Impact
+- [ ] Fix homepage meta title to include "Managed Service Provider"
+- [ ] Add LocalBusiness JSON-LD schema with NAP (Name, Address, Phone) to homepage
+- [ ] Add FAQPage schema to top 5 service pages (managed, M365, security, cloud, AI)
+- [ ] Fix Miami page phone number (still shows Tampa 727 number)
+- [ ] REMOVED — No NJ focus, Tampa is primary market
+
+### Tier 2 — High Value
+- [ ] Create "Microsoft Copilot for Business" service page
+- [ ] Create "AI-Powered Managed IT Services" landing page
+- [ ] Add BreadcrumbList schema to all pages
+- [ ] Add internal links from blog posts to service pages
+- [ ] Add "Related Services" sections to service detail pages
+
+### Tier 3 — Content Marketing
+- [ ] Publish blog: "Microsoft Copilot for Business: Complete Setup Guide (2026)"
+- [ ] Publish blog: "How Much Does Managed IT Services Cost in 2026?"
+- [ ] Publish blog: "AI Helpdesk vs. Traditional IT Support: ROI Comparison"
+- [ ] Publish blog: "Managed IT Services New Jersey: What to Look For in 2026"
+- [ ] Publish blog: "Zero Trust Security for Small Business: Step-by-Step Guide"
+- [ ] REMOVED — No NJ focus
+- [ ] Add testimonials/reviews with Review schema markup

@@ -36,6 +36,7 @@ const FAQSection = lazy(() => import("@/components/FAQSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import LocalBusinessSchema from "@/components/LocalBusinessSchema";
 
 // IntersectionObserver-based deferred section wrapper
 // Only renders children when the placeholder enters the viewport
@@ -71,6 +72,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <LocalBusinessSchema />
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Above-fold: eagerly loaded, no lazy overhead */}
