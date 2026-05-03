@@ -112,6 +112,7 @@ const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 const AdminRecordingsPage = lazy(() => import("./pages/AdminRecordingsPage"));
+const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
 

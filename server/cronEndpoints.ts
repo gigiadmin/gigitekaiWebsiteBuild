@@ -423,4 +423,72 @@ router.get("/sla-breach-check", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/cron/auto-escalate-tickets
+ * Checks for tickets approaching SLA breach and escalates to senior technicians
+ * Called every 10 minutes via Manus scheduled task
+ */
+router.get("/auto-escalate-tickets", async (req, res) => {
+  try {
+    const baseUrl = process.env.VITE_APP_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/trpc/ticketAutoEscalation.checkForEscalations`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Escalation check failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`[Auto-Escalation] Escalated ${result.result?.escalationsTriggered || 0} tickets`);
+
+    return res.json({
+      success: true,
+      escalationsTriggered: result.result?.escalationsTriggered || 0,
+      message: `Auto-escalation completed: ${result.result?.escalationsTriggered || 0} tickets escalated`,
+    });
+  } catch (error) {
+    console.error("[Auto-Escalation] Error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
+/**
+ * GET /api/cron/auto-send-surveys
+ * Sends satisfaction surveys for recently resolved tickets
+ * Called every 30 minutes via Manus scheduled task
+ */
+router.get("/auto-send-surveys", async (req, res) => {
+  try {
+    const baseUrl = process.env.VITE_APP_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/trpc/clientSatisfactionSurvey.autoSendSurveysForResolvedTickets`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Survey send failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`[Auto-Send Surveys] Sent ${result.result?.surveysSent || 0} surveys`);
+
+    return res.json({
+      success: true,
+      surveysSent: result.result?.surveysSent || 0,
+      message: `Survey delivery completed: ${result.result?.surveysSent || 0} surveys sent`,
+    });
+  } catch (error) {
+    console.error("[Auto-Send Surveys] Error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
 export default router;
