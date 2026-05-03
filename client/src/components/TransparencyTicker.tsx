@@ -42,7 +42,7 @@ function generateMetrics(): MetricData[] {
       label: "Avg Response",
       value: `${responseTime}s`,
       icon: <Clock size={14} className="text-amber-400" />,
-      status: parseFloat(responseTime) < 1.0 ? "healthy" : "healthy",
+      status: "healthy",
     },
     {
       label: "Tickets Resolved (24h)",
@@ -113,34 +113,34 @@ export default function TransparencyTicker() {
             </span>
             <TrendingUp size={12} className="text-emerald-400" />
           </div>
-          <span className="text-[10px] text-white/30 font-mono">
-            Last updated: {new Date().toLocaleTimeString()}
+          <span className="text-[10px] text-white/30 font-mono hidden sm:block">
+            Auto-refreshing every 8s
           </span>
         </div>
 
         {/* Metrics grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
           {metrics.map((metric, idx) => (
             <div
               key={metric.label}
-              className="group flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00D4FF]/20 hover:bg-white/[0.04] transition-all duration-300"
+              className="group flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00D4FF]/20 hover:bg-white/[0.04] transition-all duration-300"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <div className="flex-shrink-0 w-7 h-7 rounded-md bg-white/[0.05] flex items-center justify-center">
+              <div className="flex-shrink-0 w-6 h-6 md:w-7 md:h-7 rounded-md bg-white/[0.05] flex items-center justify-center">
                 {metric.icon}
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-bold text-white font-mono tabular-nums">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs md:text-sm font-bold text-white font-mono tabular-nums">
                     {metric.value}
                   </span>
                   {metric.trend && (
-                    <span className="text-[10px] text-emerald-400 font-medium">
+                    <span className="text-[9px] md:text-[10px] text-emerald-400 font-medium hidden sm:inline">
                       {metric.trend}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-white/40 leading-none truncate block">
+                <span className="text-[9px] md:text-[10px] text-white/40 leading-none truncate block">
                   {metric.label}
                 </span>
               </div>

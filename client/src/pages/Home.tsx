@@ -9,6 +9,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
+import TransparencyTicker from "@/components/TransparencyTicker";
 import ServicesSection from "@/components/ServicesSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import WhoWeServeSection from "@/components/WhoWeServeSection";
@@ -20,6 +21,7 @@ import AgenticOrchestrationSection from "@/components/AgenticOrchestrationSectio
 import LeadMagnetsSection from "@/components/LeadMagnetsSection";
 import IndustryBenchmarksWidget from "@/components/IndustryBenchmarksWidget";
 import { NewsletterSignupSection } from "@/components/NewsletterSignupSection";
+import ProjectUntouchable from "@/components/ProjectUntouchable";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -33,6 +35,7 @@ export default function Home() {
       <SiteNavBar2024 />
       <main className="flex-1">
         <HeroSection />
+        <TransparencyTicker />
         <ServicesSection />
         <BenefitsSection />
         <WhoWeServeSection />
@@ -44,6 +47,7 @@ export default function Home() {
         <IndustryBenchmarksWidget />
         <NewsletterSignupSection />
         <InsightsSection />
+        <ProjectUntouchable />
         <FAQSection />
         <CTASection />
       </main>
