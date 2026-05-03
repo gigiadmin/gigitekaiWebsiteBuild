@@ -145,6 +145,18 @@ async function startServer() {
   // Email-to-Ticket: Using Microsoft Graph (Azure) for email ingestion
   app.post("/api/email-ingest", handleEmailIngest);
 
+  // Scheduled task: Daily morning health report (called by Manus scheduled task at 6 AM ET)
+  app.post("/api/scheduled/morning-report", async (req, res) => {
+    try {
+      const { runMorningHealthReport } = await import("../schedulers/morningHealthReport");
+      const result = await runMorningHealthReport();
+      res.json({ success: true, ...result });
+    } catch (err) {
+      console.error("[MorningHealthReport] Error:", err);
+      res.status(500).json({ success: false, error: String(err) });
+    }
+  });
+
   // Cron job endpoints
   app.use("/api/cron", cronEndpoints);
   
@@ -223,8 +235,8 @@ async function startServer() {
     startEngagementPoller();
     // Start invite expiry scheduler (every hour)
     startInviteExpiryScheduler();
-    // Start health check scheduler (every 5 minutes)
-    startHealthCheckScheduler(5 * 60 * 1000);
+    // Start health check scheduler (every 6 hours = 4x per day)
+    startHealthCheckScheduler(6 * 60 * 60 * 1000); // Every 6 hours (4x per day: 6AM, 12PM, 6PM, 12AM)
     // Start daily E2E email flow check (8:00 AM ET)
     startEmailFlowE2EScheduler();
     // Start nightly MS Learn catalog sync (2:00 AM ET)
