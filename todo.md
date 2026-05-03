@@ -4071,4 +4071,10 @@
 - [x] Integrate autoplay background video in hero section
 - [x] Add professional overlay with headline and CTA
 - [x] Test video playback and mobile responsiveness
-- [ ] Save checkpoint and deploy
+- [x] Save checkpoint and deploy
+
+## Hero Video UX Update
+
+- [x] Change video from autoplay to click-to-play with play button overlay
+- [x] Add restart/replay button feature
+- [ ] Save checkpoint

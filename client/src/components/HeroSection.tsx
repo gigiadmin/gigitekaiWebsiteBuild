@@ -1,11 +1,11 @@
 /*
-  GigitekAI Hero Section — Video Background
-  Full-width autoplay background video with overlay
+  GigitekAI Hero Section — Click-to-Play Video Background
+  Full-width background video with play/pause/restart controls
   Left-anchored headline, CTA buttons
 */
 
 import { useEffect, useState, useRef } from "react";
-import { ArrowRight, ChevronDown, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, ChevronDown, Play, Pause, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 const HERO_VIDEO = "/manus-storage/GigitekAI_Admin_Platform_b8c1ba56.mp4";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
@@ -13,6 +13,8 @@ const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDM
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const [ended, setEnded] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -21,11 +23,40 @@ export default function HeroSection() {
     return () => clearTimeout(timer);
   }, []);
 
+  const handlePlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setPlaying(true);
+      setEnded(false);
+    }
+  };
+
+  const handlePause = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setPlaying(false);
+    }
+  };
+
+  const handleRestart = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+      setPlaying(true);
+      setEnded(false);
+    }
+  };
+
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !muted;
       setMuted(!muted);
     }
+  };
+
+  const handleVideoEnd = () => {
+    setPlaying(false);
+    setEnded(true);
   };
 
   return (
@@ -34,21 +65,20 @@ export default function HeroSection() {
     >
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        {/* Fallback background image while video loads */}
+        {/* Fallback/poster background image */}
         <div
-          className={`absolute inset-0 transition-opacity duration-1000 ${videoLoaded ? "opacity-0" : "opacity-100"}`}
+          className="absolute inset-0"
           style={{
             background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
           }}
         />
         <video
           ref={videoRef}
-          autoPlay
-          loop
           muted
           playsInline
           onLoadedData={() => setVideoLoaded(true)}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
+          onEnded={handleVideoEnd}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded && playing ? "opacity-100" : "opacity-0"}`}
         >
           <source src={HERO_VIDEO} type="video/mp4" />
         </video>
@@ -58,7 +88,9 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 z-[1]"
         style={{
-          background: `linear-gradient(to right, rgba(10,14,26,0.92) 0%, rgba(10,14,26,0.75) 40%, rgba(10,14,26,0.45) 100%)`,
+          background: playing
+            ? `linear-gradient(to right, rgba(10,14,26,0.88) 0%, rgba(10,14,26,0.65) 40%, rgba(10,14,26,0.35) 100%)`
+            : `linear-gradient(to right, rgba(10,14,26,0.95) 0%, rgba(10,14,26,0.80) 50%, rgba(10,14,26,0.55) 100%)`,
         }}
       />
 
@@ -81,6 +113,30 @@ export default function HeroSection() {
           backgroundSize: "60px 60px",
         }}
       />
+
+      {/* Large center play button (shown when video is not playing) */}
+      {!playing && videoLoaded && (
+        <button
+          onClick={ended ? handleRestart : handlePlay}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 group transition-all duration-500 ${
+            visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
+          }`}
+          aria-label={ended ? "Replay video" : "Play video"}
+        >
+          <div className="relative flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#00D4FF]/15 backdrop-blur-md border border-[#00D4FF]/40 group-hover:bg-[#00D4FF]/25 group-hover:border-[#00D4FF]/60 group-hover:scale-110 transition-all duration-300">
+            {/* Pulse ring */}
+            <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-ping" />
+            {ended ? (
+              <RotateCcw size={32} className="text-[#00D4FF] ml-0" />
+            ) : (
+              <Play size={32} className="text-[#00D4FF] ml-1" fill="currentColor" />
+            )}
+          </div>
+          <span className="block mt-3 text-sm text-[#00D4FF]/80 tracking-wider uppercase font-medium text-center">
+            {ended ? "Replay" : "Watch Video"}
+          </span>
+        </button>
+      )}
 
       {/* Content */}
       <div className="container relative z-10 py-20">
@@ -141,17 +197,46 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Video mute/unmute toggle */}
-      <button
-        onClick={toggleMute}
-        className={`absolute bottom-20 right-8 z-20 flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300 ${
+      {/* Video controls bar (bottom-right) */}
+      <div
+        className={`absolute bottom-20 right-8 z-20 flex items-center gap-2 transition-all duration-300 ${
           visible ? "opacity-100" : "opacity-0"
         }`}
-        aria-label={muted ? "Unmute video" : "Mute video"}
       >
-        {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        <span className="text-xs tracking-wide">{muted ? "Sound Off" : "Sound On"}</span>
-      </button>
+        {/* Play/Pause */}
+        {videoLoaded && (
+          <button
+            onClick={playing ? handlePause : handlePlay}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
+            aria-label={playing ? "Pause video" : "Play video"}
+          >
+            {playing ? <Pause size={16} /> : <Play size={16} />}
+            <span className="text-xs tracking-wide">{playing ? "Pause" : "Play"}</span>
+          </button>
+        )}
+
+        {/* Restart */}
+        {videoLoaded && (
+          <button
+            onClick={handleRestart}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
+            aria-label="Restart video"
+          >
+            <RotateCcw size={16} />
+            <span className="text-xs tracking-wide">Restart</span>
+          </button>
+        )}
+
+        {/* Mute/Unmute */}
+        <button
+          onClick={toggleMute}
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-black/70 transition-all duration-300"
+          aria-label={muted ? "Unmute video" : "Mute video"}
+        >
+          {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          <span className="text-xs tracking-wide">{muted ? "Sound Off" : "Sound On"}</span>
+        </button>
+      </div>
 
       {/* Scroll indicator */}
       <a
