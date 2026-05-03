@@ -4275,3 +4275,22 @@
   - All articles published and tagged for KB search widget
   - Created server/seed-kb.ts with seedKnowledgeBase() export function
   - Ready to be called from admin panel or scheduled task
+
+## PageSpeed Performance Fixes (May 3, 2026) - Score: 26 → Target 70+
+- [ ] Fix hero section: disable video on mobile, use static image instead
+- [ ] Add fetchpriority="high" to LCP hero image
+- [ ] Compress and resize logo PNG to WebP (600x403 → 167x112 display size)
+- [ ] Fix render-blocking CSS: defer non-critical CSS, inline critical above-fold styles
+- [ ] Fix Google Fonts: add font-display:swap, preload key fonts
+- [ ] Code split routes: lazy load all pages except Home
+- [ ] Compress hero video poster image (60.5 KiB → target <15 KiB)
+- [ ] Add cache headers for static assets
+- [ ] Reduce DOM size from 1,614 elements
+- [ ] Defer third-party scripts (analytics, Plausible)
+
+## PageSpeed Performance Fixes (May 3, 2026)
+- [x] Cloudflare configured: SSL/TLS Full (Strict), Cloudflare Fonts, Early Hints, Rocket Loader, Bot Fight Mode, Crawler Hints
+- [x] Hero section mobile fix: video no longer loads on mobile until user taps "Tap to Watch Demo" button (eliminates 20.8s LCP)
+- [x] Google Fonts converted from render-blocking to async non-blocking load (media="print" trick, saves ~750ms)
+- [x] Heavy widgets (AIChatWidget, UserChatWidget, CopilotChat, PWAInstallPrompt) deferred until 3s after load or first user interaction (reduces TBT)
+- [x] Database migration 0067 applied: stepsAttempted column + expanded category enum (email, printer, internet, network, other)

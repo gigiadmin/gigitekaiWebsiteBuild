@@ -27,6 +27,8 @@ export default function HeroSection() {
     if (typeof window === 'undefined') return false;
     return window.innerWidth <= 768;
   });
+  // On mobile: don't load video until user taps — massive LCP improvement
+  const [videoRequested, setVideoRequested] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [, navigate] = useLocation();
 
@@ -45,9 +47,10 @@ export default function HeroSection() {
   }, []);
 
   // Autoplay muted — works on ALL browsers including iOS Safari
+  // On mobile: only triggers after user taps (videoRequested=true) to avoid LCP penalty
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || (isMobile && !videoRequested)) return;
 
     video.muted = true;
     video.volume = 0.5;
@@ -73,7 +76,7 @@ export default function HeroSection() {
     } else {
       video.addEventListener("loadeddata", tryPlay, { once: true });
     }
-  }, []);
+  }, [isMobile, videoRequested]);
 
   // Tap to unmute — this is a direct user gesture, so browser allows it
   const handleUnmute = () => {
@@ -126,25 +129,30 @@ export default function HeroSection() {
             background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
           }}
         />
-        <video
-          key={isMobile ? 'mobile' : 'desktop'}
-          ref={videoRef}
-          muted
-          playsInline
-          preload="metadata"
-          width={1920}
-          height={1080}
-          src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-          poster={HERO_VIDEO_POSTER}
-          onEnded={() => { setPlaying(false); setEnded(true); }}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-            playing ? "opacity-100" : "opacity-0"
-          }`}
-        />
+        {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}
+        {(!isMobile || videoRequested) && (
+          <video
+            key={isMobile ? 'mobile' : 'desktop'}
+            ref={videoRef}
+            muted
+            playsInline
+            preload={isMobile ? "auto" : "metadata"}
+            width={1920}
+            height={1080}
+            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
+            poster={HERO_VIDEO_POSTER}
+            onEnded={() => { setPlaying(false); setEnded(true); }}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+              playing ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
         {/* ── Play icon overlay on poster (shown before video starts) ── */}
         {!playing && !ended && (
           <div
-            className="absolute inset-0 flex items-center justify-end pr-[8%] pointer-events-none z-[3]"
+            className="absolute inset-0 flex items-center justify-end pr-[8%] z-[3]"
+            style={{ cursor: isMobile && !videoRequested ? 'pointer' : 'default', pointerEvents: isMobile && !videoRequested ? 'auto' : 'none' }}
+            onClick={isMobile && !videoRequested ? () => setVideoRequested(true) : undefined}
           >
             <div
               className="flex items-center justify-center w-20 h-20 rounded-full"
@@ -329,7 +337,20 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {playing && muted ? (
+            {!videoRequested && !playing ? (
+              /* Mobile: video not yet loaded — show tap to play button */
+              <button
+                onClick={() => setVideoRequested(true)}
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                style={{
+                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
+                }}
+              >
+                <Play size={22} />
+                &#9654; Tap to Watch Demo
+              </button>
+            ) : playing && muted ? (
               /* Big "Tap to Hear" button — unmutes video on tap (required user gesture for mobile audio) */
               <div className="flex flex-col gap-2">
                 <button

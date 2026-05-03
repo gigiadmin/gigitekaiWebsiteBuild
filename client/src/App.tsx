@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
   // make sure to consider if you need authentication for certain routes
@@ -320,6 +320,23 @@ export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
   const [location] = useLocation();
+  // Defer heavy widgets until after first user interaction to reduce TBT
+  const [widgetsReady, setWidgetsReady] = useState(false);
+  useEffect(() => {
+    // Mount heavy widgets after 3s or on first interaction — whichever comes first
+    const timer = setTimeout(() => setWidgetsReady(true), 3000);
+    const onInteract = () => { setWidgetsReady(true); clearTimeout(timer); };
+    window.addEventListener('scroll', onInteract, { once: true, passive: true });
+    window.addEventListener('click', onInteract, { once: true });
+    window.addEventListener('touchstart', onInteract, { once: true, passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', onInteract);
+      window.removeEventListener('click', onInteract);
+      window.removeEventListener('touchstart', onInteract);
+    };
+  }, []);
+
   // Hide global widgets on admin/helpdesk/meeting pages
   const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
   const isAdminPage = location.startsWith("/admin");
@@ -341,11 +358,16 @@ function App() {
           <Router />
           {!hideWidgets && <CookieConsent />}
           {!hideWidgets && <FloatingContactDial />}
-          {!hideWidgets && <AIChatWidget />}
-          {!hideWidgets && <UserChatWidget />}
-          {!hideWidgets && <CopilotChat />}
-          {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
           {!hideWidgets && <MobileAIDemoCTA />}
+          {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
+          {widgetsReady && (
+            <>
+              {!hideWidgets && <AIChatWidget />}
+              {!hideWidgets && <UserChatWidget />}
+              {!hideWidgets && <CopilotChat />}
+              {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
+            </>
+          )}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
