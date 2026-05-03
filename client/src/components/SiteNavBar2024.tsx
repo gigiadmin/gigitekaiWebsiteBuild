@@ -91,7 +91,7 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
+              src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp" 
               alt="GigitekAI logo" 
               className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
               style={{ maxWidth: '340px', filter: 'brightness(1.05)' }}
@@ -234,7 +234,7 @@ export default function SiteNavBar2024() {
               <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
                 <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
                   <img 
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
+                    src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp" 
                     alt="GigitekAI" 
                     className="h-14 w-auto object-contain"
                     style={{ maxWidth: '240px' }}

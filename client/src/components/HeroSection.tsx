@@ -13,7 +13,10 @@ import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp"; // WebP format for better compression
+// Mobile poster: 27.9KB (was 60.5KB) — compressed 960x540 WebP
+const HERO_VIDEO_POSTER_MOBILE = "/manus-storage/hero-video-poster-mobile_d9dd0d26.webp";
+// Desktop poster: original quality for large screens
+const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
 export default function HeroSection() {
@@ -140,7 +143,7 @@ export default function HeroSection() {
             width={1920}
             height={1080}
             src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={HERO_VIDEO_POSTER}
+            poster={isMobile ? HERO_VIDEO_POSTER_MOBILE : HERO_VIDEO_POSTER}
             onEnded={() => { setPlaying(false); setEnded(true); }}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
               playing ? "opacity-100" : "opacity-0"
