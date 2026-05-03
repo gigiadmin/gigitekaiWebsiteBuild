@@ -1,9 +1,9 @@
 /*
-  GigitekAI Hero Section — Autoplay Video at Low Volume
-  - Autoplays muted (browser policy), then immediately sets volume to 20% and unmutes
-  - Volume slider lets users turn up/down the sound
-  - Restart button always available
-  - Mobile: full-width volume bar below CTAs
+  GigitekAI Hero Section — Muted Autoplay + Tap to Unmute
+  - Autoplays MUTED (required by all mobile browsers — iOS Safari, Android Chrome)
+  - Shows a prominent "Tap to Unmute" button so users can hear the narration
+  - Volume slider lets users adjust after unmuting
+  - Restart button when video ends
 */
 
 import { useEffect, useState, useRef } from "react";
@@ -14,71 +14,90 @@ const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_desktop_8ec9a027.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_47b270c1.jpg";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
-const LOW_VOLUME = 0.2; // 20% — audible but not startling
-
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
-  const [volume, setVolume] = useState(LOW_VOLUME);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true); // always starts muted
+  const [volume, setVolume] = useState(0.5);
   const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Detect mobile after mount
+  // Detect mobile
   useEffect(() => {
-    setIsMobile(window.innerWidth <= 768);
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Fade-in animation
+  // Fade-in
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 100);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
   }, []);
 
-  // Autoplay on mount: start muted (browser requires it), then set low volume & unmute
+  // Autoplay muted — works on ALL browsers including iOS Safari
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.muted = true; // must start muted for autoplay policy
-    video.volume = LOW_VOLUME;
+    video.muted = true;
+    video.volume = 0.5;
     video.load();
 
-    const attemptPlay = () => {
+    const tryPlay = () => {
       video.play()
-        .then(() => {
-          setPlaying(true);
-          // After play starts, unmute at low volume — browser allows this after user has "engaged"
-          // We use a short delay so the browser registers the play as user-initiated context
-          setTimeout(() => {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              videoRef.current.volume = LOW_VOLUME;
-              setMuted(false);
-              setVolume(LOW_VOLUME);
-            }
-          }, 500);
-        })
+        .then(() => setPlaying(true))
         .catch(() => {
-          // Autoplay blocked (some browsers) — stay muted and playing
-          video.muted = true;
-          video.play().then(() => {
-            setPlaying(true);
-            setMuted(true);
-          }).catch(() => {});
+          // If even muted autoplay fails, try again on first user interaction
+          const onInteract = () => {
+            video.play().then(() => setPlaying(true)).catch(() => {});
+            document.removeEventListener("touchstart", onInteract);
+            document.removeEventListener("click", onInteract);
+          };
+          document.addEventListener("touchstart", onInteract, { once: true });
+          document.addEventListener("click", onInteract, { once: true });
         });
     };
 
-    if (video.readyState >= 3) {
-      attemptPlay();
+    if (video.readyState >= 2) {
+      tryPlay();
     } else {
-      video.addEventListener("canplay", attemptPlay, { once: true });
+      video.addEventListener("loadeddata", tryPlay, { once: true });
     }
   }, []);
+
+  // Tap to unmute — this is a direct user gesture, so browser allows it
+  const handleUnmute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.volume = volume;
+    setMuted(false);
+  };
+
+  const handleMute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    setMuted(true);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setVolume(val);
+    if (videoRef.current) {
+      videoRef.current.volume = val;
+      if (val === 0) {
+        videoRef.current.muted = true;
+        setMuted(true);
+      } else if (muted) {
+        videoRef.current.muted = false;
+        setMuted(false);
+      }
+    }
+  };
 
   const handleRestart = () => {
     const video = videoRef.current;
@@ -87,35 +106,6 @@ export default function HeroSection() {
     video.play().catch(() => {});
     setPlaying(true);
     setEnded(false);
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolume(val);
-    if (videoRef.current) {
-      videoRef.current.volume = val;
-      videoRef.current.muted = val === 0;
-      setMuted(val === 0);
-    }
-  };
-
-  const toggleMute = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (muted) {
-      video.muted = false;
-      video.volume = volume > 0 ? volume : LOW_VOLUME;
-      setMuted(false);
-      if (volume === 0) setVolume(LOW_VOLUME);
-    } else {
-      video.muted = true;
-      setMuted(true);
-    }
-  };
-
-  const handleVideoEnd = () => {
-    setPlaying(false);
-    setEnded(true);
   };
 
   return (
@@ -136,7 +126,7 @@ export default function HeroSection() {
           preload="metadata"
           src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           poster={HERO_VIDEO_POSTER}
-          onEnded={handleVideoEnd}
+          onEnded={() => { setPlaying(false); setEnded(true); }}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
             playing ? "opacity-100" : "opacity-0"
           }`}
@@ -155,7 +145,7 @@ export default function HeroSection() {
         style={{ background: "linear-gradient(to top, rgba(10,14,26,1) 0%, transparent 100%)" }}
       />
 
-      {/* ── Animated grid ── */}
+      {/* ── Grid overlay ── */}
       <div
         className="absolute inset-0 pointer-events-none opacity-10 z-[2]"
         style={{
@@ -167,40 +157,41 @@ export default function HeroSection() {
         }}
       />
 
-      {/* ── Desktop video controls (bottom-right) ── */}
-      <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
-        {ended && (
+      {/* ── Desktop controls (bottom-right) ── */}
+      {playing && (
+        <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
+          {ended && (
+            <button
+              onClick={handleRestart}
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+            >
+              <RotateCcw size={14} /> Restart
+            </button>
+          )}
           <button
-            onClick={handleRestart}
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+            onClick={muted ? handleUnmute : handleMute}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
+            aria-label={muted ? "Unmute" : "Mute"}
           >
-            <RotateCcw size={14} /> Restart
+            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </button>
-        )}
-        <button
-          onClick={toggleMute}
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
-          aria-label={muted ? "Unmute" : "Mute"}
-        >
-          {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-        </button>
-        {/* Volume slider */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={muted ? 0 : volume}
-            onChange={handleVolumeChange}
-            className="w-20 h-1 accent-[#00D4FF] cursor-pointer"
-            aria-label="Volume"
-          />
-          <span className="text-[10px] text-white/60 w-6 text-right">
-            {muted ? "0%" : `${Math.round(volume * 100)}%`}
-          </span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={muted ? 0 : volume}
+              onChange={handleVolumeChange}
+              className="w-20 h-1 accent-[#00D4FF] cursor-pointer"
+              aria-label="Volume"
+            />
+            <span className="text-[10px] text-white/60 w-6 text-right">
+              {muted ? "0%" : `${Math.round(volume * 100)}%`}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Main content ── */}
       <div className="container relative z-10 py-20">
@@ -260,16 +251,15 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* ── Quick contact info ── */}
+          {/* Quick contact info */}
           <div
-            className={`flex flex-wrap items-center gap-4 text-sm transition-all duration-700 delay-[350ms] ${
+            className={`flex flex-wrap items-center gap-4 text-sm mb-6 transition-all duration-700 delay-[350ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
             <a
               href="tel:+17273825776"
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
-              aria-label="Call GigitekAI"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               (727) 382-5776
@@ -278,60 +268,88 @@ export default function HeroSection() {
             <a
               href="mailto:support@gigitekai.com"
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
-              aria-label="Email GigitekAI"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               support@gigitekai.com
             </a>
           </div>
 
-          {/* ── Mobile volume control bar ── */}
+          {/* ── Mobile: Tap to Unmute / volume bar ── */}
           <div
             className={`md:hidden mb-6 transition-all duration-700 delay-[400ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <div
-              className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
-              style={{ background: "rgba(0,212,255,0.07)", backdropFilter: "blur(8px)" }}
-            >
+            {playing && muted ? (
+              /* Big "Tap to Unmute" button — shown while video plays muted */
               <button
-                onClick={toggleMute}
-                className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                aria-label={muted ? "Unmute video" : "Mute video"}
+                onClick={handleUnmute}
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                style={{
+                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
+                }}
               >
-                {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                <Volume2 size={22} />
+                🔊 Tap to Hear the Video
               </button>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">
-                    {ended ? "Video Ended" : playing ? "Playing Now" : "Loading..."}
-                  </span>
-                  <span className="text-[11px] text-white/50">
-                    {muted ? "Muted" : `Volume ${Math.round(volume * 100)}%`}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={muted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-1.5 accent-[#00D4FF] cursor-pointer"
-                  aria-label="Video volume"
-                />
-              </div>
-              {ended && (
+            ) : playing && !muted ? (
+              /* Volume slider — shown after unmuting */
+              <div
+                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
+                style={{ background: "rgba(0,212,255,0.06)" }}
+              >
                 <button
-                  onClick={handleRestart}
+                  onClick={handleMute}
                   className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                  aria-label="Restart video"
+                  aria-label="Mute video"
                 >
-                  <RotateCcw size={18} />
+                  <Volume2 size={18} />
                 </button>
-              )}
-            </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">
+                      {ended ? "Video Ended" : "Playing Now"}
+                    </span>
+                    <span className="text-[11px] text-white/50">
+                      Volume {Math.round(volume * 100)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="w-full h-1.5 accent-[#00D4FF] cursor-pointer"
+                    aria-label="Video volume"
+                  />
+                </div>
+                {ended && (
+                  <button
+                    onClick={handleRestart}
+                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
+                    aria-label="Restart video"
+                  >
+                    <RotateCcw size={18} />
+                  </button>
+                )}
+              </div>
+            ) : ended ? (
+              /* Replay button */
+              <button
+                onClick={handleRestart}
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                style={{
+                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+                  boxShadow: "0 0 24px rgba(0,212,255,0.5)",
+                }}
+              >
+                <RotateCcw size={20} />
+                Replay Platform Demo
+              </button>
+            ) : null}
           </div>
 
           {/* Stats row */}
