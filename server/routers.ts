@@ -66,6 +66,8 @@ import { sessionRecordingRouter } from "./routers/session-recording";
 import { slaBreachAlertsRouter } from "./routers/sla-breach-alerts";
 import { ticketAutoEscalationRouter } from "./routers/ticket-auto-escalation";
 import { clientSatisfactionSurveyRouter } from "./routers/client-satisfaction-survey";
+import { slaComplianceReportsRouter } from "./routers/sla-compliance-reports";
+import { ticketAICategorizationRouter } from "./routers/ticket-ai-categorization";
 import { sessionInviteEmailRouter } from "./routers/session-invite-email";
 import { turnCredentialsRouter } from "./routers/turn-credentials";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
@@ -166,6 +168,8 @@ export const appRouter = router({
     slaBreachAlerts: slaBreachAlertsRouter,
     ticketAutoEscalation: ticketAutoEscalationRouter,
     clientSatisfactionSurvey: clientSatisfactionSurveyRouter,
+    slaComplianceReports: slaComplianceReportsRouter,
+    ticketAICategorization: ticketAICategorizationRouter,
   sessionInviteEmail: sessionInviteEmailRouter,
   turnCredentials: turnCredentialsRouter,
   customerPortal: customerPortalRouter,
