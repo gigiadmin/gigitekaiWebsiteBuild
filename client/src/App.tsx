@@ -55,6 +55,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const ContactHarry = lazy(() => import("./pages/ContactHarry"));
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
+const MicrosoftCopilotPage = lazy(() => import("./pages/MicrosoftCopilotPage"));
+const AIPoweredMSPPage = lazy(() => import("./pages/AIPoweredMSPPage"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
@@ -188,8 +190,10 @@ function Router() {
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />
+          <Route path={"/services/microsoft-copilot"} component={MicrosoftCopilotPage} />
           <Route path={"/services/:slug"} component={ServiceDetail} />
           <Route path={"/managed-it-services-tampa"} component={ManagedITTampa} />
+          <Route path={"/ai-powered-msp"} component={AIPoweredMSPPage} />
           <Route path={"/managed-it-services-miami"} component={ManagedITMiami} />
           <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />
           <Route path={"/switch-program"} component={SwitchProgram} />

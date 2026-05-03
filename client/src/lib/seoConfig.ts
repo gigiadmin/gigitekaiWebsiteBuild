@@ -168,8 +168,17 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
     description:
       "Connect with Harry Henry Santiago, Microsoft 365 Architect and founder of GigitekAI. Schedule a consultation or get in touch directly.",
   },
+  "/services/microsoft-copilot": {
+    title: "Microsoft Copilot for Business | Tampa Bay Deployment & Training | GigitekAI",
+    description:
+      "Expert Microsoft Copilot deployment for Tampa Bay businesses. GigitekAI delivers end-to-end Copilot setup, security configuration, training, and ROI tracking. Up to 353% ROI. Free readiness assessment — (727) 382-5776.",
+  },
+  "/ai-powered-msp": {
+    title: "AI-Powered Managed Service Provider Tampa Bay | GigitekAI",
+    description:
+      "GigitekAI is Tampa Bay's AI-first MSP. AI agents handle helpdesk, security, and provisioning — delivering 40% cost reduction, 99.9% uptime, and 280+ hours freed monthly. Free IT assessment — (727) 382-5776.",
+  },
 };
-
 /**
  * Get SEO config for a given path. Falls back to homepage config.
  */

@@ -4386,3 +4386,12 @@
 - [ ] Publish blog: "Zero Trust Security for Small Business: Step-by-Step Guide"
 - [ ] REMOVED — No NJ focus
 - [ ] Add testimonials/reviews with Review schema markup
+
+## SEO Sprint 2 (May 3, 2026)
+- [ ] Build dedicated Microsoft Copilot service page (/services/microsoft-copilot)
+- [ ] Build AI-Powered MSP landing page (/ai-powered-msp)
+- [ ] Add SEO config entries for both new pages
+- [ ] Add routes in App.tsx for both new pages
+- [ ] Update sitemap.xml with both new URLs
+- [ ] Add internal links from existing pages to new pages
+- [ ] Save checkpoint and publish
