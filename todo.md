@@ -4211,3 +4211,9 @@
 - [x] KB article auto-tagging with LLM (autoTagArticle procedure with LLM-generated tags + confidence scores)
 - [x] KB gap alerts (scheduled weekly task to analyze zero-result searches and notify of content gaps)
 - [x] KB article versioning system (createVersion, rollbackToVersion, getVersionHistory procedures)
+
+
+## KB Advanced Features (May 2026 - Completed)
+- [x] KB bulk auto-tagging (bulkAutoTagArticles procedure with batch processing, LLM integration, 1,647+ articles)
+- [x] KB quality scoring system (calculateArticleQualityScores with weighted scoring: feedback 40%, views 30%, clicks 30%)
+- [x] KB article recommendations engine (getRecommendedArticles with tag-based matching + KBRecommendations UI component + KBQualityDashboard)
