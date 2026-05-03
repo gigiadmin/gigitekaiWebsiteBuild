@@ -17,7 +17,8 @@ const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
 const HERO_VIDEO_POSTER_MOBILE = "/manus-storage/hero-video-poster-mobile_d9dd0d26.webp";
 // Desktop poster: original quality for large screens
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp";
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
+// Compressed hero bg: 119KB → 51KB (57% reduction, 1280x853)
+const HERO_BG = "/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp";
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
