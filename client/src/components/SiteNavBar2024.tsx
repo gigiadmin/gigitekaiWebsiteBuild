@@ -87,23 +87,23 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-auto min-h-[72px] sm:min-h-[80px] lg:min-h-[84px] px-3 sm:px-4 lg:px-6">
+        <div className="container flex items-center justify-between h-[80px] sm:h-[88px] lg:h-[84px]">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group flex-shrink-0">
+          <a href="/" className="flex items-center gap-2 group">
             <img 
               src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
               alt="GigitekAI logo" 
-              className="h-12 sm:h-16 lg:h-18 w-auto object-contain"
-              style={{ maxWidth: '280px', filter: 'brightness(1.05)' }}
+              className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
+              style={{ maxWidth: '340px', filter: 'brightness(1.05)' }}
             />
           </a>
 
           {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-wrap">
+          <div className="hidden lg:flex items-center gap-1">
             {/* Services dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap"
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
@@ -153,7 +153,7 @@ export default function SiteNavBar2024() {
               <a
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 text-xs sm:text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap"
+                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onClick={() => item.label.includes("Watch AI Work Live") && trackAIDemoClick("desktop_nav")}
               >
@@ -163,7 +163,7 @@ export default function SiteNavBar2024() {
             {/* Standout Help Desk Link */}
             <a
               href="/helpdesk"
-              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all ml-1 whitespace-nowrap"
+              className="helpdesk-nav-link flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ml-1"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               <div className="relative">
@@ -175,7 +175,7 @@ export default function SiteNavBar2024() {
           </div>
 
           {/* CTA + Notifications + Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-1 flex-shrink-0">
+          <div className="hidden lg:flex items-center gap-2">
             {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -200,7 +200,7 @@ export default function SiteNavBar2024() {
             )}
             <a
               href="/contact"
-              className="btn-cyan text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              className="btn-cyan text-sm"
             >
               Get In Touch
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-label="Arrow icon">
@@ -211,12 +211,12 @@ export default function SiteNavBar2024() {
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden text-white p-2 flex-shrink-0"
+            className="lg:hidden text-white p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
@@ -229,27 +229,27 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-[calc(72px+env(safe-area-inset-top))] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
+            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
               {/* Mobile menu header with logo + close */}
-              <div className="flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 border-b border-[rgba(0,212,255,0.1)] gap-2">
-                <a href="/" className="flex items-center flex-shrink-0" onClick={() => setMobileOpen(false)}>
+              <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
+                <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
                   <img 
                     src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
                     alt="GigitekAI" 
-                    className="h-10 sm:h-12 w-auto object-contain"
-                    style={{ maxWidth: '200px' }}
+                    className="h-14 w-auto object-contain"
+                    style={{ maxWidth: '240px' }}
                   />
                 </a>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="p-2 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
                   aria-label="Close menu"
                 >
-                  <X size={20} />
+                  <X size={24} />
                 </button>
               </div>
               {/* Home link */}
-              <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2">
+              <div className="px-4 pt-4 pb-2">
                 <a
                   href="/"
                   className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg"
@@ -259,7 +259,7 @@ export default function SiteNavBar2024() {
                   Home
                 </a>
               </div>
-              <div className="px-3 sm:px-4 pb-2 space-y-1">
+              <div className="px-4 pb-2 space-y-1">
               {services.map((s) => (
                 <a
                   key={s.href}
@@ -271,7 +271,7 @@ export default function SiteNavBar2024() {
                 </a>
               ))}
               </div>
-              <div className="px-3 sm:px-4 pb-2 space-y-2 border-t border-[rgba(0,212,255,0.1)] pt-2">
+              <div className="px-4 pb-2 space-y-2 border-t border-[rgba(0,212,255,0.1)] pt-2">
               {[
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
@@ -334,10 +334,10 @@ export default function SiteNavBar2024() {
                 </button>
               )}
               </div>
-              <div className="px-3 sm:px-4 pt-2 pb-6">
+              <div className="px-4 pt-2 pb-6">
                 <a
                   href="/contact"
-                  className="btn-cyan w-full justify-center text-xs sm:text-sm px-3 py-2"
+                  className="btn-cyan w-full justify-center text-sm"
                   onClick={() => setMobileOpen(false)}
                 >
                   Get In Touch
