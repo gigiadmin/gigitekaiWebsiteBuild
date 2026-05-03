@@ -39,6 +39,8 @@ const ManagedITMiami = lazy(() => import("./pages/ManagedITMiami"));
 const FloridaResiliency = lazy(() => import("./pages/FloridaResiliency"));
 const SwitchProgram = lazy(() => import("./pages/SwitchProgram"));
 const ComplianceScorecard = lazy(() => import("./pages/ComplianceScorecard"));
+const ComplianceBenchmark = lazy(() => import("./pages/ComplianceBenchmark"));
+const RoadmapGenerator = lazy(() => import("./pages/RoadmapGenerator"));
 const AdminScorecardDashboard = lazy(() => import("./pages/AdminScorecardDashboard"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage"));
@@ -192,6 +194,8 @@ function Router() {
           <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />
           <Route path={"/switch-program"} component={SwitchProgram} />
           <Route path={"/compliance-scorecard"} component={ComplianceScorecard} />
+          <Route path={"/compliance-benchmark"} component={ComplianceBenchmark} />
+          <Route path={"/roadmap-generator"} component={RoadmapGenerator} />
           {/* Industries */}
           <Route path={"/industries/healthcare"} component={IndustryHealthcare} />
           <Route path={"/industries/financial"} component={IndustryFinancial} />
