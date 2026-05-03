@@ -37,6 +37,7 @@ export default function SiteNavBar2024() {
     { label: "IT Strategy", href: "/services/strategy" },
     { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency" },
     { label: "🔄 The Switch Program", href: "/switch-program" },
+    { label: "📊 Compliance Scorecard", href: "/compliance-scorecard" },
   ];
 
   useEffect(() => {

@@ -4164,3 +4164,10 @@
 - [x] Add sticky "Get My Free IT Audit" CTA to /florida-it-resiliency linking to /switch-program#audit-form
 - [x] Submit Florida blog post to Google Search Console for indexing
 - [x] Write and publish second Florida SEO blog post (hurricane IT disaster recovery)
+
+## Email Drip & Admin Dashboard Phase
+
+- [x] Build email drip sequence for scorecard submissions (3-email automation)
+- [x] Create admin dashboard for scorecard results with segmentation
+- [x] Fix critical PageSpeed issues (inline CSS, preload fonts, cache headers, defer scripts)
+- [ ] Schedule PageSpeed retest in 48 hours

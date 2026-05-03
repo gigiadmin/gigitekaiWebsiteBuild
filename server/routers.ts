@@ -28,6 +28,7 @@ import { calendarRouter } from "./routers/calendar";
 import { aiTriageRouter } from "./routers/aiTriage";
 import { kbRouter } from "./routers/kb";
 import { kbFeedbackRouter } from "./routers/kbFeedback";
+import { emailDripRouter } from "./routers/emailDrip";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
@@ -822,7 +823,7 @@ Submitted from GigitekAI website contact form.
           message: "Test data cleared. Database is production-ready.",
         };
       }),
-  }),
+   }),
+  emailDrip: emailDripRouter,
 })
-
 export type AppRouter = typeof appRouter;

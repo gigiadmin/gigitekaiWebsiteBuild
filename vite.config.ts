@@ -244,6 +244,9 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
           // IMPORTANT: Chunk grouping must avoid circular dependencies.
           // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
