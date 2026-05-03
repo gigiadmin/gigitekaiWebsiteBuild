@@ -1,5 +1,5 @@
 import ScrollToTop from "@/components/ScrollToTop";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
@@ -28,6 +28,12 @@ export default function KBPublic() {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
+
+  // Search analytics tracking
+  const recordSearchMutation = trpc.kbSearchAnalytics.recordSearch.useMutation();
+  const recordClickMutation = trpc.kbSearchAnalytics.recordClick.useMutation();
+  const searchTrackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTrackedQuery = useRef("");
 
   // Scroll to top when modal opens
   useEffect(() => {
@@ -58,7 +64,7 @@ export default function KBPublic() {
     const moveDistance = Math.abs(e.clientY - scrollStartY);
     // Only select if pointer moved less than 10px (not a scroll)
     if (moveDistance < 10 && !isScrolling) {
-      setSelectedArticle(article);
+      handleArticleClick(article);
     }
   };
 
@@ -91,6 +97,38 @@ export default function KBPublic() {
       setEmailLoading(false);
     }
   };
+
+  // Debounced search tracking — fires 1.5s after user stops typing
+  useEffect(() => {
+    if (searchTrackTimerRef.current) clearTimeout(searchTrackTimerRef.current);
+    if (searchQuery.trim().length < 2) return;
+    searchTrackTimerRef.current = setTimeout(() => {
+      const q = searchQuery.trim().toLowerCase();
+      if (q === lastTrackedQuery.current) return;
+      lastTrackedQuery.current = q;
+      const count = (articles || []).filter((a: any) => {
+        const matchesSearch =
+          a.title.toLowerCase().includes(q) ||
+          (a.tags && a.tags.toLowerCase().includes(q));
+        const matchesCategory = !selectedCategory || a.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      }).length;
+      recordSearchMutation.mutate({ query: q, resultsCount: count, source: "kb_portal" });
+    }, 1500);
+    return () => { if (searchTrackTimerRef.current) clearTimeout(searchTrackTimerRef.current); };
+  }, [searchQuery, articles, selectedCategory]);
+
+  // Track article click from search context
+  const handleArticleClick = useCallback((article: any) => {
+    setSelectedArticle(article);
+    if (searchQuery.trim().length >= 2) {
+      recordClickMutation.mutate({
+        query: searchQuery.trim().toLowerCase(),
+        articleId: article.id,
+        source: "kb_portal",
+      });
+    }
+  }, [searchQuery]);
 
   // Filter articles
   const filteredArticles = articles?.filter((article: any) => {
@@ -288,7 +326,7 @@ export default function KBPublic() {
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault();
-                              setSelectedArticle(article);
+                              handleArticleClick(article);
                             }
                           }}
                           className={`p-4 cursor-pointer transition-all border-l-4 select-none ${
@@ -448,7 +486,7 @@ export default function KBPublic() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      setSelectedArticle(article);
+                      handleArticleClick(article);
                     }
                   }}
                   className={`p-4 cursor-pointer transition-all border rounded-md select-none ${

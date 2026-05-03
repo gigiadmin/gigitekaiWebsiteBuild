@@ -4186,11 +4186,11 @@
 - [x] Add back button to Roadmap Generator page
 - [x] Add back button to Compliance Benchmark page
 - [x] Add back button to KB pages
-- [ ] Fix KB mobile visibility issue
+- [x] Fix KB mobile visibility issue (SQL NULL comparison bug fixed in kb.ts)
 - [x] Add video restart button to hero section
-- [ ] Implement KB article ratings system
-- [ ] Build KB search analytics dashboard
-- [ ] Integrate KB articles into Aria chatbot
+- [x] Implement KB article ratings system (already implemented: kbFeedbackRouter + KBFeedbackDialog)
+- [x] Build KB search analytics dashboard (kbSearchQueries table + kbSearchAnalyticsRouter + KBAnalyticsDashboard)
+- [x] Integrate KB articles into Aria chatbot (searchKBArticles in sendMessage + proactive suggestions + Aria search tracking)
 
 
 ## Final Pre-Launch Polish
@@ -4198,3 +4198,10 @@
 - [x] Add contact info (phone/email) to header utility bar
 - [x] Add contact info to footer
 - [x] Add Organization JSON-LD schema markup to index.html
+
+## Outstanding Minor Polish (May 2026)
+- [x] Verify contact info prominence — phone and email clearly visible in header and footer
+- [x] Verify/fix Organization JSON-LD schema markup in page source
+- [x] Create Privacy Policy page at /privacy-policy with actual content
+- [x] Create Terms of Service page at /terms-of-service with actual content
+- [x] Verify footer legal links point to working pages

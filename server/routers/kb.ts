@@ -2,7 +2,7 @@ import { z } from "zod";
 import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles } from "../../drizzle/schema";
-import { eq, like, or, desc, and, ne } from "drizzle-orm";
+import { eq, like, or, desc, and, ne, isNull } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 
 export const kbRouter = router({
@@ -17,7 +17,7 @@ export const kbRouter = router({
       const rows = await db
         .select()
         .from(kbArticles)
-        .where(showAll ? and(ne(kbArticles.syncSource, 'ms-learn')) : and(eq(kbArticles.isPublished, true), ne(kbArticles.syncSource, 'ms-learn')))
+        .where(showAll ? or(isNull(kbArticles.syncSource), ne(kbArticles.syncSource, 'ms-learn')) : and(eq(kbArticles.isPublished, true), or(isNull(kbArticles.syncSource), ne(kbArticles.syncSource, 'ms-learn'))))
         .orderBy(desc(kbArticles.updatedAt));
       return rows;
     }),
@@ -49,7 +49,7 @@ export const kbRouter = router({
         .where(
           and(
             eq(kbArticles.isPublished, true),
-            ne(kbArticles.syncSource, 'ms-learn'),
+            or(isNull(kbArticles.syncSource), ne(kbArticles.syncSource, 'ms-learn')),
             or(
               like(kbArticles.title, kw),
               like(kbArticles.content, kw),

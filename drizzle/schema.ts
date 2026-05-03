@@ -1147,6 +1147,20 @@ export const kbArticleViews = mysqlTable("kbArticleViews", {
 export type KbArticleView = typeof kbArticleViews.$inferSelect;
 export type InsertKbArticleView = typeof kbArticleViews.$inferInsert;
 
+// KB Search Queries — track what users search for in the KB to identify content gaps
+export const kbSearchQueries = mysqlTable("kbSearchQueries", {
+  id: int("id").autoincrement().primaryKey(),
+  query: varchar("query", { length: 500 }).notNull(), // the search term
+  resultsCount: int("resultsCount").default(0).notNull(), // how many results were returned
+  clickedArticleId: int("clickedArticleId"), // which article (if any) the user clicked
+  source: varchar("source", { length: 50 }).default("kb_portal").notNull(), // 'kb_portal' | 'aria_chat' | 'ticket_widget'
+  userId: int("userId"), // null for anonymous
+  sessionId: varchar("sessionId", { length: 100 }), // browser session
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type KbSearchQuery = typeof kbSearchQueries.$inferSelect;
+export type InsertKbSearchQuery = typeof kbSearchQueries.$inferInsert;
+
 
 // Customer Portal Sessions — track customer self-service portal access
 export const customerPortalSessions = mysqlTable("customerPortalSessions", {

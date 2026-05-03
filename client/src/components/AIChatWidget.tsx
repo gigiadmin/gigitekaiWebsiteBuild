@@ -82,6 +82,26 @@ export default function AIChatWidget() {
   );
   const kbSuggestions = kbSuggestionsData?.suggestions || [];
 
+  // Search analytics tracking for Aria chat
+  const recordAriaSearch = trpc.kbSearchAnalytics.recordSearch.useMutation();
+  const recordAriaClick = trpc.kbSearchAnalytics.recordClick.useMutation();
+  const lastAriaTrackedQuery = useRef("");
+
+  // Track search when KB suggestions load
+  useEffect(() => {
+    if (debouncedQuery.length >= 10 && kbSuggestionsData) {
+      const q = debouncedQuery.trim().toLowerCase();
+      if (q !== lastAriaTrackedQuery.current) {
+        lastAriaTrackedQuery.current = q;
+        recordAriaSearch.mutate({
+          query: q,
+          resultsCount: kbSuggestions.length,
+          source: "aria_chat",
+        });
+      }
+    }
+  }, [debouncedQuery, kbSuggestionsData]);
+
   // Generate Mon/Wed/Fri dates for the next 3 months
   const availableDates = useMemo(() => {
     const dates: Array<{ value: string; label: string }> = [];
@@ -558,6 +578,12 @@ export default function AIChatWidget() {
                       onClick={() => {
                         setInputValue(`Tell me about: ${s.title}`);
                         setDebouncedQuery("");
+                        // Track KB suggestion click
+                        recordAriaClick.mutate({
+                          query: debouncedQuery || inputValue,
+                          articleId: s.id,
+                          source: "aria_chat",
+                        });
                       }}
                       className="text-left text-xs bg-slate-800/80 border border-cyan-500/20 hover:border-cyan-500/50 rounded-md px-2 py-1.5 text-cyan-300 hover:text-cyan-200 transition-colors truncate"
                       title={s.excerpt}

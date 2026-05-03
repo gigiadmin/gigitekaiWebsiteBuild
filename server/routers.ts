@@ -49,6 +49,7 @@ import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
 import { helpdeskSurveyRouter } from "./routers/helpdesk-survey";
 import { kbSharingRouter } from "./routers/kb-sharing";
 import { kbAnalyticsRouter } from "./routers/kb-analytics";
+import { kbSearchAnalyticsRouter } from "./routers/kb-search-analytics";
 import { kbGenerationRouter } from "./routers/kb-generation";
 import { customerPortalRouter } from "./routers/customer-portal";
 import { notificationsRouter } from "./routers/notifications";
@@ -160,6 +161,7 @@ export const appRouter = router({
   helpdeskSurvey: helpdeskSurveyRouter,
   kbSharing: kbSharingRouter,
   kbAnalytics: kbAnalyticsRouter,
+  kbSearchAnalytics: kbSearchAnalyticsRouter,
   kbGeneration: kbGenerationRouter,
   kbAiProactive: kbAiProactiveRouter,
   remoteAssistance: remoteAssistanceRouter,
