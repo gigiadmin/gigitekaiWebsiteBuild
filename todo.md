@@ -4056,3 +4056,11 @@
 - [x] Build ticket auto-escalation system with SLA breach prediction
 - [x] Create client satisfaction survey system with email delivery
 - [x] Integrate surveys into SLA metrics dashboard
+
+## Account Management System (Azure AD-style)
+
+- [ ] Extend user schema with account status, disable/enable tracking, and audit logs
+- [ ] Build backend account management procedures (disable, enable, delete, restore)
+- [ ] Create Azure AD-style account management UI with bulk actions
+- [ ] Add account lifecycle audit trail and compliance reporting
+- [ ] Test all features and save checkpoint

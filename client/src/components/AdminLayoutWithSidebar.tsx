@@ -113,6 +113,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "m365-health", label: "M365 Health Status", section: "ANALYTICS", icon: TrendingUp, path: "/admin/m365-health" },
     { id: "escalation-patterns", label: "Escalation Patterns", section: "ANALYTICS", icon: BarChart3, path: "/admin/escalation-patterns" },
     { id: "users", label: "Users", section: "SETTINGS", icon: Users, path: "/admin/users" },
+    { id: "team-members", label: "Team Members", section: "SETTINGS", icon: Users, path: "/admin/team-members" },
     { id: "settings", label: "Settings", section: "SETTINGS", icon: Settings, path: "/admin/settings" },
   ];
 

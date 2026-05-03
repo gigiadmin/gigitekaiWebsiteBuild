@@ -98,6 +98,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminSurveysPage = lazy(() => import("./pages/AdminSurveysPage"));
 const AdminWorkloadPage = lazy(() => import("./pages/AdminWorkloadPage"));
 const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
+const TeamMembersEnhanced = lazy(() => import("./pages/TeamMembersEnhanced"));
 const AdminSettingsPage = lazy(() => import("./pages/AdminSettingsPage"));
 const AdminServiceHealthMonitoring = lazy(() => import("./pages/AdminServiceHealthMonitoring"));
 const AdminM365Health = lazy(() => import("./pages/AdminM365Health"));
@@ -276,6 +277,7 @@ function Router() {
           <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>
           {/* Settings & Users */}
           <Route path={"/admin/users"}>{() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/team-members"}>{() => <ApprovalGuard><TeamMembersEnhanced /></ApprovalGuard>}</Route>
           <Route path={"/admin/settings"}>{() => <ApprovalGuard><AdminSettingsPage /></ApprovalGuard>}</Route>
           {/* Service Health Monitoring */}
           <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
