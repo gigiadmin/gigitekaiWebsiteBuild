@@ -4105,6 +4105,11 @@
 
 ## Mobile Video Fix (Round 2)
 
-- [ ] Fix mobile video: preload=none + state-based src causes load failure on iOS/Android
-- [ ] Use preload=metadata on mobile, load src immediately, trigger play on tap
-- [ ] Save checkpoint and deploy
+- [x] Fix mobile video: preload=none + state-based src causes load failure on iOS/Android
+- [x] Use preload=metadata on mobile, load src immediately, trigger play on tap
+- [x] Save checkpoint and deploy
+
+## Mobile Video Button Enhancement
+
+- [ ] Make Watch Video button full-width, bold, glowing cyan CTA on mobile to drive more leads
+- [ ] Save checkpoint

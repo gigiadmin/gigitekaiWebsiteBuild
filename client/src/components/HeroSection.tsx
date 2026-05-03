@@ -252,29 +252,34 @@ export default function HeroSection() {
           {/* ── Mobile play button (below CTAs, visible only on mobile) ── */}
           {!playing && (
             <div
-              className={`md:hidden flex items-center gap-4 mb-6 transition-all duration-700 delay-[400ms] ${
+              className={`md:hidden mb-6 transition-all duration-700 delay-[400ms] ${
                 visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
             >
               <button
                 onClick={ended ? handleRestart : handlePlay}
-                className="flex items-center gap-3 px-5 py-3 rounded-full bg-[#00D4FF]/10 backdrop-blur-sm border border-[#00D4FF]/30 active:bg-[#00D4FF]/25 transition-all duration-200"
                 aria-label={ended ? "Replay video" : "Play video"}
+                className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-base text-[#0A0E1A] transition-all duration-200 active:scale-95"
+                style={{
+                  background: "linear-gradient(90deg, #00D4FF 0%, #00EEFF 100%)",
+                  boxShadow: "0 0 24px rgba(0,212,255,0.55), 0 0 48px rgba(0,212,255,0.25), inset 0 1px 0 rgba(255,255,255,0.2)",
+                }}
               >
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-[#00D4FF]/20 border border-[#00D4FF]/50">
-                  <div className="absolute inset-0 rounded-full border border-[#00D4FF]/20 animate-ping" />
+                {/* Animated pulse ring behind icon */}
+                <div className="relative flex items-center justify-center w-9 h-9 rounded-full bg-[#0A0E1A]/20">
+                  <div className="absolute inset-0 rounded-full bg-[#0A0E1A]/10 animate-ping" />
                   {ended ? (
-                    <RotateCcw size={18} className="text-[#00D4FF]" />
+                    <RotateCcw size={20} className="text-[#0A0E1A]" />
                   ) : (
-                    <Play size={18} className="text-[#00D4FF] ml-0.5" fill="currentColor" />
+                    <Play size={20} className="text-[#0A0E1A] ml-0.5" fill="currentColor" />
                   )}
                 </div>
                 <div className="text-left">
-                  <span className="block text-sm font-semibold text-white">
-                    {ended ? "Replay Video" : "Watch Video"}
+                  <span className="block text-[15px] font-extrabold tracking-wide">
+                    {ended ? "▶ Replay Platform Demo" : "▶ Watch Platform Demo"}
                   </span>
-                  <span className="block text-[10px] text-white/50">
-                    See our platform in action
+                  <span className="block text-[11px] font-medium opacity-70">
+                    48-sec · No sign-up required
                   </span>
                 </div>
               </button>
