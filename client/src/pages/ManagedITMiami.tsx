@@ -4,6 +4,7 @@
   Design: Matches site-wide cyberpunk dark theme
 */
 
+import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
@@ -82,6 +83,49 @@ const WHY_LOCAL = [
 ];
 
 export default function ManagedITMiami() {
+  const [pdfEmail, setPdfEmail] = useState("");
+  const [pdfName, setPdfName] = useState("");
+  const [pdfSubmitted, setPdfSubmitted] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handlePdfDownload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pdfEmail || !pdfName) return;
+    
+    setPdfLoading(true);
+    try {
+      await fetch("/api/trpc/contact.submitContact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: pdfName,
+          email: pdfEmail,
+          company: "Not provided",
+          message: "Downloaded Florida IT Audit Checklist from Miami page",
+          source: "miami-it-services-pdf",
+        }),
+      });
+      
+      const link = document.createElement("a");
+      link.href = "/manus-storage/florida-it-audit-checklist_b6957c2d.pdf";
+      link.download = "Florida-IT-Audit-Checklist.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setPdfSubmitted(true);
+      setTimeout(() => {
+        setPdfEmail("");
+        setPdfName("");
+        setPdfSubmitted(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   useSEO({
     title: "Managed IT Services Miami | Local IT Support | GigitekAI",
     description:
@@ -257,9 +301,32 @@ export default function ManagedITMiami() {
                     <span>Hurricane season preparation guide</span>
                   </li>
                 </ul>
-                <a href="/manus-storage/florida-it-audit-checklist_b6957c2d.pdf" download className="inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-8 py-3.5 rounded-lg font-semibold font-['Space_Grotesk'] hover:bg-[#00D4FF]/90 transition-colors">
-                  Download PDF (Free) <ArrowRight className="w-5 h-5" />
-                </a>
+                <form onSubmit={handlePdfDownload} className="space-y-3 max-w-sm">
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={pdfName}
+                    onChange={(e) => setPdfName(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors font-['DM_Sans']"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your Email"
+                    value={pdfEmail}
+                    onChange={(e) => setPdfEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors font-['DM_Sans']"
+                  />
+                  <button
+                    type="submit"
+                    disabled={pdfLoading}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-8 py-3.5 rounded-lg font-semibold font-['Space_Grotesk'] hover:bg-[#00D4FF]/90 transition-colors disabled:opacity-50"
+                  >
+                    {pdfLoading ? "Sending..." : pdfSubmitted ? "✓ Check Your Email" : "Download PDF (Free)"}
+                    {!pdfSubmitted && <ArrowRight className="w-5 h-5" />}
+                  </button>
+                </form>
               </div>
               <div className="flex-shrink-0 w-32 h-40 bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 rounded-lg border border-[#00D4FF]/30 flex items-center justify-center">
                 <div className="text-center">

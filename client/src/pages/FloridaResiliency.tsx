@@ -4,7 +4,7 @@
   "Cloud-Native. Florida-Hardened. Agentic AI Protection for the Sunshine State."
 */
 
-import { ArrowRight, Shield, Zap, MapPin, Clock, CheckCircle, AlertTriangle, Cloud, Server, ClipboardList } from "lucide-react";
+import { ArrowRight, Shield, Zap, MapPin, Clock, CheckCircle, AlertTriangle, Cloud, Server, ClipboardList, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { useEffect, useState } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
@@ -50,6 +50,51 @@ const PILLARS = [
 ];
 
 export default function FloridaResiliency() {
+  const [pdfEmail, setPdfEmail] = useState("");
+  const [pdfName, setPdfName] = useState("");
+  const [pdfSubmitted, setPdfSubmitted] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handlePdfDownload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pdfEmail || !pdfName) return;
+    
+    setPdfLoading(true);
+    try {
+      // Send email capture to backend
+      await fetch("/api/trpc/contact.submitContact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: pdfName,
+          email: pdfEmail,
+          company: "Not provided",
+          message: "Downloaded Florida IT Audit Checklist",
+          source: "florida-it-resiliency-pdf",
+        }),
+      });
+      
+      // Trigger PDF download
+      const link = document.createElement("a");
+      link.href = "/manus-storage/florida-it-audit-checklist_b6957c2d.pdf";
+      link.download = "Florida-IT-Audit-Checklist.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setPdfSubmitted(true);
+      setTimeout(() => {
+        setPdfEmail("");
+        setPdfName("");
+        setPdfSubmitted(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const [showSticky, setShowSticky] = useState(false);
 
   useEffect(() => {
@@ -327,13 +372,32 @@ export default function FloridaResiliency() {
                   <span>Hurricane season preparation guide</span>
                 </li>
               </ul>
-              <a
-                href="/manus-storage/florida-it-audit-checklist_b6957c2d.pdf"
-                download
-                className="inline-flex items-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-6 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 transition-colors"
-              >
-                Download PDF (Free) <ArrowRight size={18} />
-              </a>
+              <form onSubmit={handlePdfDownload} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={pdfName}
+                  onChange={(e) => setPdfName(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                />
+                <input
+                  type="email"
+                  placeholder="Your Email"
+                  value={pdfEmail}
+                  onChange={(e) => setPdfEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={pdfLoading}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-6 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 transition-colors disabled:opacity-50"
+                >
+                  {pdfLoading ? "Sending..." : pdfSubmitted ? "✓ Check Your Email" : "Download PDF (Free)"}
+                  {!pdfSubmitted && <ArrowRight size={18} />}
+                </button>
+              </form>
             </div>
             <div className="flex-shrink-0 w-32 h-40 bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 rounded-lg border border-[#00D4FF]/30 flex items-center justify-center">
               <div className="text-center">
