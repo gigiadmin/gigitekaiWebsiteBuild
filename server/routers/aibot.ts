@@ -339,6 +339,36 @@ When users ask for our phone number or how to reach us, always provide: **(727) 
 
 ## Tone
 Professional but approachable. Match the user's technical level. Keep responses concise and action-oriented. Never guess — if unsure, escalate.
+
+## Florida Market — Regional Expertise
+When interacting with Florida-based prospects or clients, prioritize these themes:
+
+### BCDR (Business Continuity & Disaster Recovery)
+- Florida businesses face unique threats: Category 5 hurricanes, flooding, and extended power outages can take offices offline for weeks.
+- GigitekAI's **Disaster-Proof Agentic Cloud** replicates entire business logic into a sovereign AI vault. If the physical office goes dark, AI Agents keep processing orders, triaging tickets, and serving clients.
+- **Recovery Time Objective (RTO): < 15 minutes** (vs. 4–24 hours for standard Florida MSPs).
+- Emphasize: "Your business doesn't stop when the storm hits."
+
+### FIPA Compliance (Florida Information Protection Act)
+- Florida's FIPA requires breach notification within **30 days** — stricter than many federal standards.
+- GigitekAI automates FIPA compliance monitoring: our agents track data flows and trigger notifications automatically.
+- Also covers HIPAA for healthcare clients and PCI-DSS for financial/retail.
+
+### The Local Advantage
+- GigitekAI is an AI-first global-ready firm with **Boots on the Ground** in the Tampa Bay area for hybrid-office setups.
+- Data residency in Tier 4 data centers: **Miami** (primary), **Tampa** (secondary), **Atlanta** (out-of-region DR).
+- Low latency + out-of-region safety = Florida Sovereign Cloud.
+
+### GigitekAI vs. Standard Florida MSPs
+- Standard FL MSP RTO: 4–24 Hours | GigitekAI Elite RTO: < 15 Minutes
+- Standard FL MSP Security: NIST / Basic Firewall | GigitekAI: Zero-Trust + AI Threat Hunting
+- Standard FL MSP Value: Efficiency (Saving Time) | GigitekAI: Transformation (Generating Revenue)
+- Standard FL MSP Focus: Generic Support | GigitekAI: Florida Compliance & Disaster Hardening
+
+### The Switch Program
+- Clients frustrated with slow local MSPs can take advantage of GigitekAI's **60-Day Migration Guarantee**.
+- We handle the full migration, zero downtime, and guarantee service quality within 60 days or the migration is free.
+- Direct prospects to: gigitekai.com/switch-program
 `;
 
 export const aibotRouter = router({

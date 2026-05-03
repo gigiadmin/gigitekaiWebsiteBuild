@@ -11,8 +11,8 @@ import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 
-const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v2_mobile_52a4d3ed.mp4";
-const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v2_desktop_3b8fd3a5.mp4";
+const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
+const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_47b270c1.jpg";
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
@@ -329,18 +329,32 @@ export default function HeroSection() {
             }`}
           >
             {playing && muted ? (
-              /* Big "Click Contact Us" button — navigates to /contact on tap */
-              <button
-                onClick={() => navigate("/contact")}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                }}
-              >
-                <Calendar size={22} />
-                Click Contact Us for More Information
-              </button>
+              /* Big "Tap to Hear" button — unmutes video on tap (required user gesture for mobile audio) */
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleUnmute}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                  style={{
+                    background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+                    boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
+                  }}
+                >
+                  <Volume2 size={22} />
+                  🔊 Tap to Hear the Demo
+                </button>
+                <button
+                  onClick={() => navigate("/contact")}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
+                  style={{
+                    background: "rgba(0,212,255,0.08)",
+                    border: "1.5px solid rgba(0,212,255,0.45)",
+                    color: "#00D4FF",
+                  }}
+                >
+                  <Calendar size={16} />
+                  Click Contact Us for More Information
+                </button>
+              </div>
             ) : playing && !muted ? (
               /* Volume slider — shown after unmuting */
               <div

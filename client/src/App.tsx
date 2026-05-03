@@ -35,6 +35,8 @@ const IndustryEducation = lazy(() => import("./pages/IndustryEducation"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
 const Services = lazy(() => import("./pages/Services"));
 const ManagedITTampa = lazy(() => import("./pages/ManagedITTampa"));
+const FloridaResiliency = lazy(() => import("./pages/FloridaResiliency"));
+const SwitchProgram = lazy(() => import("./pages/SwitchProgram"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage"));
 const HelpdeskPricingPage = lazy(() => import("./pages/HelpdeskPricing"));
@@ -183,6 +185,8 @@ function Router() {
           <Route path={"/services"} component={Services} />
           <Route path={"/services/:slug"} component={ServiceDetail} />
           <Route path={"/managed-it-services-tampa"} component={ManagedITTampa} />
+          <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />
+          <Route path={"/switch-program"} component={SwitchProgram} />
           {/* Industries */}
           <Route path={"/industries/healthcare"} component={IndustryHealthcare} />
           <Route path={"/industries/financial"} component={IndustryFinancial} />

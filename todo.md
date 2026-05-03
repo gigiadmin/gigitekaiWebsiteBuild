@@ -4140,3 +4140,17 @@
 - [x] Add "Book a Free Demo" CTA button to hero section
 - [x] Mobile unmute button navigates to /contact page (lead-gen CTA)
 - [x] Add play icon overlay on video poster so users know video is available
+
+## Video Audio Fixes (May 2026)
+- [x] Re-encode v3 video with loudnorm audio normalization (louder, clearer narration)
+- [x] Regenerate clip 4 security narration to reduce silence gaps
+- [x] Fix mobile unmute flow: "Tap to Hear the Demo" button unmutes video, separate "Contact Us" link below
+- [x] Upload v3 mobile (8.5MB) and desktop (18MB) to CDN
+
+## Florida Elite Competitive Framework (May 2026)
+- [x] Create /florida-it-resiliency page with Florida-specific BCDR/FIPA content
+- [x] Add Florida Sovereign Cloud Map (interactive data center map: Miami, Tampa, Atlanta)
+- [x] Add MSP Comparison table (Standard FL MSP vs GigitekAI Elite)
+- [x] Create /switch-program page (60-Day Migration Guarantee landing page)
+- [x] Update Aria AI agent system prompt with Florida-specific knowledge (BCDR, FIPA, local advantage)
+- [x] Add Florida Resiliency link to navigation
