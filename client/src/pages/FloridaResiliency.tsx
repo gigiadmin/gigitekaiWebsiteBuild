@@ -4,8 +4,9 @@
   "Cloud-Native. Florida-Hardened. Agentic AI Protection for the Sunshine State."
 */
 
-import { ArrowRight, Shield, Zap, MapPin, Clock, CheckCircle, AlertTriangle, Cloud, Server } from "lucide-react";
+import { ArrowRight, Shield, Zap, MapPin, Clock, CheckCircle, AlertTriangle, Cloud, Server, ClipboardList } from "lucide-react";
 import { Link } from "wouter";
+import { useEffect, useState } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
@@ -49,6 +50,14 @@ const PILLARS = [
 ];
 
 export default function FloridaResiliency() {
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowSticky(window.scrollY > 400);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useSEO({
     title: "Florida IT Resiliency & BCDR | GigitekAI — Cloud-Native. Florida-Hardened.",
     description: "GigitekAI delivers disaster-proof agentic cloud for Florida businesses. FIPA compliance automation, <15 min RTO, and Tier 4 data centers in Miami, Tampa, and Atlanta.",
@@ -312,6 +321,35 @@ export default function FloridaResiliency() {
           </div>
         </div>
       </section>
+
+      {/* ── Sticky Bottom CTA Bar ── */}
+      {showSticky && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-4 px-6 py-4"
+          style={{
+            background: "linear-gradient(90deg, #0A0E1A 0%, #0F1629 100%)",
+            borderTop: "1px solid rgba(0,212,255,0.3)",
+            boxShadow: "0 -4px 24px rgba(0,212,255,0.15)",
+          }}
+        >
+          <div className="hidden sm:flex items-center gap-3">
+            <ClipboardList size={20} className="text-[#00D4FF] shrink-0" />
+            <span className="text-sm font-medium text-gray-200">
+              Is your Florida business hurricane-ready? Get a free IT audit.
+            </span>
+          </div>
+          <a
+            href="/switch-program#audit-form"
+            className="shrink-0 flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-black transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+              boxShadow: "0 0 20px rgba(0,212,255,0.4)",
+            }}
+          >
+            Get My Free IT Audit <ArrowRight size={16} />
+          </a>
+        </div>
+      )}
 
       <Footer />
     </div>

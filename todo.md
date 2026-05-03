@@ -4159,3 +4159,8 @@
 - [x] Add Florida IT Resiliency to main navigation (Services or Industries dropdown)
 - [x] Add lead capture form to /switch-program with Teams/email notification
 - [x] Write and publish Florida SEO blog post (FIPA + managed IT Florida keywords)
+
+## Florida SEO Phase 2 (May 2026)
+- [x] Add sticky "Get My Free IT Audit" CTA to /florida-it-resiliency linking to /switch-program#audit-form
+- [x] Submit Florida blog post to Google Search Console for indexing
+- [x] Write and publish second Florida SEO blog post (hurricane IT disaster recovery)

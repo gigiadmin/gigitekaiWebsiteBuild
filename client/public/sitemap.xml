@@ -202,6 +202,21 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- ===== Florida Elite Pages ===== -->
+  <url>
+    <loc>https://www.gigitekai.com/florida-it-resiliency</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.gigitekai.com/switch-program</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <!-- ===== Local SEO Landing Pages ===== -->
   <url>
     <loc>https://www.gigitekai.com/managed-it-services-tampa</loc>
@@ -211,6 +226,20 @@
   </url>
 
   <!-- ===== Blog (new posts) ===== -->
+  <url>
+    <loc>https://www.gigitekai.com/blog/florida-managed-it-services-fipa-compliance-guide</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.gigitekai.com/blog/hurricane-it-disaster-recovery-florida-business-guide</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://www.gigitekai.com/blog/microsoft-365-licensing-optimization-2026</loc>
     <lastmod>2026-04-23</lastmod>
