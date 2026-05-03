@@ -13,7 +13,7 @@ import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_47b270c1.jpg";
+const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp"; // WebP format for better compression
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
 
 export default function HeroSection() {
@@ -132,6 +132,8 @@ export default function HeroSection() {
           muted
           playsInline
           preload="metadata"
+          width={1920}
+          height={1080}
           src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           poster={HERO_VIDEO_POSTER}
           onEnded={() => { setPlaying(false); setEnded(true); }}
@@ -139,7 +141,6 @@ export default function HeroSection() {
             playing ? "opacity-100" : "opacity-0"
           }`}
         />
-
         {/* ── Play icon overlay on poster (shown before video starts) ── */}
         {!playing && !ended && (
           <div

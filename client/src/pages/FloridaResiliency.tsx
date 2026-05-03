@@ -322,6 +322,35 @@ export default function FloridaResiliency() {
         </div>
       </section>
 
+      {/* ── Related Reading ── */}
+      <section className="py-16 px-4 border-t border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-2xl font-bold text-white mb-8" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Related Reading
+          </h3>
+          <a
+            href="/blog/hurricane-it-disaster-recovery-florida-business-guide"
+            className="block p-6 bg-gradient-to-r from-[#0D1528] to-[#0F1629] border border-[#00D4FF]/20 rounded-xl hover:border-[#00D4FF]/40 transition-all group"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h4 className="text-lg font-semibold text-white group-hover:text-[#00D4FF] transition-colors mb-2">
+                  Hurricane IT Preparedness: A Florida Business Owner's Complete Disaster Recovery Guide
+                </h4>
+                <p className="text-gray-400 text-sm mb-3">
+                  Hurricane season starts June 1st. If your IT recovery plan depends on a physical server in your office, you're not prepared. Here's the complete BCDR checklist every Florida business needs.
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-medium text-[#00D4FF] bg-[#00D4FF]/10 px-2.5 py-1 rounded">9 min read</span>
+                  <span className="text-xs text-gray-500">Business Continuity & BCDR</span>
+                </div>
+              </div>
+              <ArrowRight size={20} className="text-[#00D4FF] flex-shrink-0 mt-1 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </a>
+        </div>
+      </section>
+
       {/* ── Sticky Bottom CTA Bar ── */}
       {showSticky && (
         <div
