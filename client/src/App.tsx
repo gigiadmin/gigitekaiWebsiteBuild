@@ -247,84 +247,84 @@ function Router() {
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
           {/* ── Admin Portal ── */}
-          <Route path={"/admin"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
-          <Route path={"/admin/home"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
+          <Route path={"/admin"}>{() => <AdminHome />}</Route>
+          <Route path={"/admin/home"}>{() => <AdminHome />}</Route>
           {/* Operations */}
-          <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/call-review"}>{() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/helpdesk"}>{() => <AdminHelpdeskPage />}</Route>
+          <Route path={"/admin/call-review"}>{() => <AdminCallReviewPage />}</Route>
           {/* Contact Center Dashboard */}
-          <Route path={"/admin/contact-center-dashboard"}>{() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>}</Route>
-          <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/contact-center-dashboard"}>{() => <AdminContactCenterDashboard />}</Route>
+          <Route path={"/admin/chat"}>{() => <AdminChatPage />}</Route>
+          <Route path={"/admin/agents"}>{() => <AdminAgentsPage />}</Route>
+          <Route path={"/admin/notifications"}>{() => <AdminNotificationsPage />}</Route>
           {/* Content */}
-          <Route path={"/admin/blog"}>{() => <ApprovalGuard><AdminBlogPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/newsletter"}>{() => <ApprovalGuard><AdminNewsletterPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/scorecard-results"}>{() => <ApprovalGuard><AdminScorecardDashboard /></ApprovalGuard>}</Route>
+          <Route path={"/admin/blog"}>{() => <AdminBlogPage />}</Route>
+          <Route path={"/admin/newsletter"}>{() => <AdminNewsletterPage />}</Route>
+          <Route path={"/admin/scorecard-results"}>{() => <AdminScorecardDashboard />}</Route>
           {/* Overview */}
-          <Route path={"/admin/metrics"}>{() => <ApprovalGuard><AdminMetricsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/metrics"}>{() => <AdminMetricsPage />}</Route>
           {/* Customers */}
-          <Route path={"/admin/accounts"}>{() => <ApprovalGuard><AdminAccountsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/invites"}>{() => <ApprovalGuard><AdminInvitesPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/accounts"}>{() => <AdminAccountsPage />}</Route>
+          <Route path={"/admin/invites"}>{() => <AdminInvitesPage />}</Route>
           {/* Email */}
-          <Route path={"/admin/email"}>{() => <ApprovalGuard><AdminEmailPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/email"}>{() => <AdminEmailPage />}</Route>
           {/* Settings */}
-          <Route path={"/admin/preferences"}>{() => <ApprovalGuard><AdminPreferencesPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/email-digest"}>{() => <ApprovalGuard><AdminEmailDigestPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/guide"}>{() => <ApprovalGuard><AdminGuidePage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/preferences"}>{() => <AdminPreferencesPage />}</Route>
+          <Route path={"/admin/email-digest"}>{() => <AdminEmailDigestPage />}</Route>
+          <Route path={"/admin/guide"}>{() => <AdminGuidePage />}</Route>
           {/* Knowledge Base */}
-          <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
-          <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/kb"}>{() => <KnowledgeBase />}</Route>
+          <Route path={"/admin/kb-generation"}>{() => <AdminKbGenerationPage />}</Route>
           {/* KB Analytics Dashboard */}
-          <Route path={"/admin/kb-analytics"}>{() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>}</Route>
-          <Route path={"/admin/recordings"}>{() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/kb-analytics"}>{() => <AdminKBAnalytics />}</Route>
+          <Route path={"/admin/recordings"}>{() => <AdminRecordingsPage />}</Route>
           <Route path={"/helpdesk/session-history"}>{() => <ClientSessionHistory />}</Route>
-          <Route path={"/admin/call-transcripts"}>{() => <ApprovalGuard><CallTranscriptSearch /></ApprovalGuard>}</Route>
+          <Route path={"/admin/call-transcripts"}>{() => <CallTranscriptSearch />}</Route>
           {/* Social Publishing Hub */}
-          <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/social"}>{() => <AdminSocialPage />}</Route>
           {/* Leads & CRM */}
-          <Route path={"/admin/leads"}>{() => <ApprovalGuard><AdminLeadsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/leads"}>{() => <AdminLeadsPage />}</Route>
           {/* AI Demo Leads */}
-          <Route path={"/admin/demo-leads"}>{() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/demo-leads"}>{() => <AdminDemoLeadsPage />}</Route>
           {/* Contact Submissions */}
-          <Route path={"/admin/contacts"}>{() => <ApprovalGuard><AdminContactsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/contacts"}>{() => <AdminContactsPage />}</Route>
           {/* Canned Responses */}
-          <Route path={"/admin/canned-responses"}>{() => <ApprovalGuard><AdminCannedResponsesPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/canned-responses"}>{() => <AdminCannedResponsesPage />}</Route>
           {/* Closed Tickets Report */}
-          <Route path={"/admin/closed-tickets"}>{() => <ApprovalGuard><AdminClosedTicketsReportPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/closed-tickets"}>{() => <AdminClosedTicketsReportPage />}</Route>
           {/* Helpdesk Metrics Dashboard */}
-          <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/helpdesk-metrics"}>{() => <AdminHelpdeskMetricsPage />}</Route>
           {/* Real-Time Dashboard */}
-          <Route path={"/admin/dashboard"}>{() => <ApprovalGuard><Dashboard /></ApprovalGuard>}</Route>
+          <Route path={"/admin/dashboard"}>{() => <Dashboard />}</Route>
           {/* Agent Dashboard */}
-          <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/agent-leaderboard"}>{() => <ApprovalGuard><AdminAgentLeaderboard /></ApprovalGuard>}</Route>
+          <Route path={"/admin/agent-dashboard"}>{() => <AdminAgentDashboardPage />}</Route>
+          <Route path={"/admin/agent-leaderboard"}>{() => <AdminAgentLeaderboard />}</Route>
           {/* Copilot for M365 */}
-          <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
+          <Route path={"/admin/copilot"}>{() => <AdminCopilot />}</Route>
           {/* Copilot M365 Intelligence */}
-          <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
+          <Route path={"/admin/copilot-m365"}>{() => <AdminCopilotM365 />}</Route>
           {/* Dynamics 365 Contact Center Setup */}
-          <Route path={"/admin/dynamics365-setup"}>{() => <ApprovalGuard><AdminDynamics365SetupPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/dynamics365-setup"}>{() => <AdminDynamics365SetupPage />}</Route>
           {/* Copilot for Service / Contact Center AI */}
-          <Route path={"/admin/copilot-service"}>{() => <ApprovalGuard><AdminCopilotServicePage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/copilot-service"}>{() => <AdminCopilotServicePage />}</Route>
           {/* Analytics */}
-          <Route path={"/admin/surveys"}>{() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/surveys"}>{() => <AdminSurveysPage />}</Route>
+          <Route path={"/admin/workload"}>{() => <AdminWorkloadPage />}</Route>
           {/* Settings & Users */}
-          <Route path={"/admin/users"}>{() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/team-members"}>{() => <ApprovalGuard><TeamMembersEnhanced /></ApprovalGuard>}</Route>
-          <Route path={"/admin/settings"}>{() => <ApprovalGuard><AdminSettingsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/users"}>{() => <AdminUsersPage />}</Route>
+          <Route path={"/admin/team-members"}>{() => <TeamMembersEnhanced />}</Route>
+          <Route path={"/admin/settings"}>{() => <AdminSettingsPage />}</Route>
           {/* Service Health Monitoring */}
-          <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-status"}>{() => <ApprovalGuard><M365HealthPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-notifications"}>{() => <ApprovalGuard><M365NotificationsPreferencesPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/service-health"}>{() => <AdminServiceHealthMonitoring />}</Route>
+          <Route path={"/admin/m365-health"}>{() => <AdminM365Health />}</Route>
+          <Route path={"/admin/m365-status"}>{() => <M365HealthPage />}</Route>
+          <Route path={"/admin/m365-notifications"}>{() => <M365NotificationsPreferencesPage />}</Route>
           {/* Teams Channels — per-client channel management */}
-          <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/ms-learn-sync"}>{() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/teams-channels"}>{() => <AdminTeamsChannelsPage />}</Route>
+          <Route path={"/admin/escalation-patterns"}>{() => <AdminEscalationPatternsPage />}</Route>
+          <Route path={"/admin/ms-learn-sync"}>{() => <AdminMsLearnSyncPage />}</Route>
           {/* Client Onboarding */}
-          <Route path={"/admin/client-onboarding"}>{() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>}</Route>
+          <Route path={"/admin/client-onboarding"}>{() => <AdminClientOnboarding />}</Route>
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
