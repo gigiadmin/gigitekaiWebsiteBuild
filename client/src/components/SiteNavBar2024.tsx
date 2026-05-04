@@ -93,7 +93,7 @@ export default function SiteNavBar2024() {
             <img 
               src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
               alt="GigitekAI logo" 
-              className="h-12 sm:h-16 lg:h-16 w-auto object-contain"
+              className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
             />
           </a>
 
@@ -174,7 +174,7 @@ export default function SiteNavBar2024() {
           </div>
 
           {/* CTA + Notifications + Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-3 ml-auto">
             {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
