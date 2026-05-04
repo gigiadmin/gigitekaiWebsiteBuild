@@ -553,6 +553,14 @@
 - [x] All 146 tests passing
 
 
+## Branding Updates (May 2026)
+- [x] Update navbar logo to display "GigitekAI" with "GigitekAI.com" subtitle
+  - Replaced broken image logo with text-based branding
+  - Uses Space Grotesk font with white primary text and cyan accent
+- [x] Update footer logo to match navbar branding
+  - Consistent text-based branding across all public pages
+  - White primary text with cyan accent for website URL
+
 ## Bug Fixes (April 10, 2026)
 - [x] Fix AI chatbot clear history - messages reappear when reopening chat
   - Issue: Clear History button only clears UI, doesn't delete from database

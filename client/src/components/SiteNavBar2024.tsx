@@ -90,14 +90,9 @@ export default function SiteNavBar2024() {
         <div className="container flex items-center h-[120px] sm:h-[130px] lg:h-[140px] gap-4">
           {/* Logo — Text-based */}
           <a href="/" className="flex-shrink-0 flex items-center group">
-            <div className="flex flex-col">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                GigitekAI
-              </span>
-              <span className="text-xs sm:text-sm text-[#00D4FF] font-medium" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                GigitekAI.com
-              </span>
-            </div>
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <span className="text-white">Gigitek</span><span className="text-[#00D4FF]">AI</span>
+            </span>
           </a>
 
           {/* Desktop nav links — centered, compact */}

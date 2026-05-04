@@ -51,12 +51,9 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
-            <a href="/" className="flex flex-col gap-0 mb-4">
-              <span className="text-lg font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                GigitekAI
-              </span>
-              <span className="text-xs text-[#00D4FF] font-medium" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                GigitekAI.com
+            <a href="/" className="flex items-center gap-0 mb-4">
+              <span className="text-lg font-bold leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <span className="text-white">Gigitek</span><span className="text-[#00D4FF]">AI</span>
               </span>
             </a>
             <p className="text-gray-500 text-sm leading-relaxed mb-4 max-w-xs">
