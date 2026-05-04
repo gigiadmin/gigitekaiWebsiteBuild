@@ -104,6 +104,8 @@ const AdminAgentDashboardPage = lazy(() => import("./pages/AdminAgentDashboardPa
 const AdminAgentLeaderboard = lazy(() => import("./pages/AdminAgentLeaderboard"));
 const AdminCopilot = lazy(() => import("./pages/AdminCopilot"));
 const AdminCopilotM365 = lazy(() => import("./pages/AdminCopilotM365"));
+const AdminDynamics365SetupPage = lazy(() => import("./pages/AdminDynamics365SetupPage"));
+const AdminCopilotServicePage = lazy(() => import("./pages/AdminCopilotServicePage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminSurveysPage = lazy(() => import("./pages/AdminSurveysPage"));
 const AdminWorkloadPage = lazy(() => import("./pages/AdminWorkloadPage"));
@@ -293,6 +295,10 @@ function Router() {
           <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
           {/* Copilot M365 Intelligence */}
           <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
+          {/* Dynamics 365 Contact Center Setup */}
+          <Route path={"/admin/dynamics365-setup"}>{() => <ApprovalGuard><AdminDynamics365SetupPage /></ApprovalGuard>}</Route>
+          {/* Copilot for Service / Contact Center AI */}
+          <Route path={"/admin/copilot-service"}>{() => <ApprovalGuard><AdminCopilotServicePage /></ApprovalGuard>}</Route>
           {/* Analytics */}
           <Route path={"/admin/surveys"}>{() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>}</Route>
           <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>

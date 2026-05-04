@@ -43,6 +43,8 @@ import {
   Video,
   Phone,
   Headphones,
+  Globe,
+  Brain,
 } from "lucide-react";
 
 interface NavItem {
@@ -120,6 +122,8 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Integrations",
     items: [
       { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
+      { label: "Dynamics 365 Setup", icon: <Globe size={16} />, href: "/admin/dynamics365-setup" },
+      { label: "Copilot for Service", icon: <Brain size={16} />, href: "/admin/copilot-service" },
     ],
   },
   {

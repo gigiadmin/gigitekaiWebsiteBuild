@@ -4395,3 +4395,12 @@
 - [ ] Update sitemap.xml with both new URLs
 - [ ] Add internal links from existing pages to new pages
 - [ ] Save checkpoint and publish
+
+## Contact Center Dynamics 365 + Copilot for Service Setup (May 2026)
+- [x] Add Dynamics 365 CC env vars to env.ts (D365_ORG_URL, D365_CLIENT_ID, D365_CLIENT_SECRET, D365_TENANT_ID)
+- [x] Complete Dynamics 365 integration router with real OAuth token fetch and API calls
+- [x] Build AdminDynamics365SetupPage.tsx — config/setup page for D365 CC integration
+- [x] Build AdminCopilotServicePage.tsx — Copilot for Service/Contact Center AI config page
+- [x] Add routes in App.tsx for /admin/dynamics365-setup and /admin/copilot-service
+- [ ] Wire sentiment routing rules UI to backend (create/edit/delete rules) — next sprint
+- [x] TypeScript check, checkpoint, and deploy
