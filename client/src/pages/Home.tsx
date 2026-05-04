@@ -21,6 +21,7 @@ import TransparencyTicker from "@/components/TransparencyTicker";
 import ServicesSection from "@/components/ServicesSection";
 
 // Below-fold: lazy loaded (deferred until near viewport)
+const ClientTestimonialsCarousel = lazy(() => import("@/components/ClientTestimonialsCarousel"));
 const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
 const WhoWeServeSection = lazy(() => import("@/components/WhoWeServeSection"));
 const StatsSection = lazy(() => import("@/components/StatsSection"));
@@ -85,6 +86,9 @@ export default function Home() {
         <ServicesSection />
 
         {/* Below-fold: deferred via IntersectionObserver */}
+        <DeferredSection minHeight="400px">
+          <ClientTestimonialsCarousel />
+        </DeferredSection>
         <DeferredSection minHeight="600px">
           <BenefitsSection />
         </DeferredSection>
