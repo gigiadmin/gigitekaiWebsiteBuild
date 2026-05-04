@@ -9,6 +9,14 @@ function getQueryParam(req: Request, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function parseState(state: string): { origin?: string; returnPath?: string } {
+  try {
+    return JSON.parse(atob(state));
+  } catch {
+    return {};
+  }
+}
+
 export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
@@ -48,34 +56,32 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
+      // Parse origin from state — the frontend encodes window.location.origin in state
+      const parsed = parseState(state);
+
+      // Build absolute redirect URL using origin from state or request host
+      const origin = parsed.origin ||
+        `${req.protocol}://${req.get("host")}`;
+
       // Determine returnPath based on user role:
       // - Admins ALWAYS go to /admin (cannot be overridden)
-      // - Non-admins can use returnPath from query or state
-      let returnPath = "/admin";
+      // - Non-admins use returnPath from state or default to /helpdesk
+      let returnPath: string;
 
-      if (!isAdmin) {
-        // For non-admin users, check for explicit returnPath
-        const queryReturnPath = getQueryParam(req, "returnPath");
-        if (queryReturnPath && queryReturnPath.startsWith("/") && !queryReturnPath.startsWith("//")) {
-          returnPath = queryReturnPath;
+      if (isAdmin) {
+        returnPath = "/admin";
+      } else {
+        const statePath = parsed.returnPath;
+        if (statePath && statePath.startsWith("/") && !statePath.startsWith("//")) {
+          returnPath = statePath;
         } else {
-          try {
-            const decoded = JSON.parse(atob(state));
-            if (decoded.returnPath && typeof decoded.returnPath === "string") {
-              const path = decoded.returnPath;
-              if (path.startsWith("/") && !path.startsWith("//")) {
-                returnPath = path;
-              }
-            }
-          } catch {
-            // Default to helpdesk for non-admins
-            returnPath = "/helpdesk";
-          }
+          returnPath = "/helpdesk";
         }
       }
 
-      console.log("[OAuth] User:", userInfo.email, "Role:", isAdmin ? "admin" : "user", "Redirecting to:", returnPath);
-      res.redirect(302, returnPath);
+      const redirectUrl = `${origin}${returnPath}`;
+      console.log("[OAuth] User:", userInfo.email, "| Role:", isAdmin ? "admin" : "user", "| Origin:", origin, "| Redirect:", redirectUrl);
+      res.redirect(302, redirectUrl);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
       res.status(500).json({ error: "OAuth callback failed" });
