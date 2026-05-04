@@ -281,18 +281,7 @@
 }</style>
     </head>
   <body>
-    <!-- Static hero shell: paints INSTANTLY before React loads (eliminates 3.7s element render delay) -->
-    <div id="root">
-      <div id="static-hero-shell" style="min-height:90vh;background:#0A0E1A;position:relative;overflow:hidden;display:flex;align-items:center;">
-        <img src="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" alt="" fetchpriority="high" decoding="sync" width="1920" height="1080" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;" />
-        <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(10,14,26,0.88) 0%,rgba(10,14,26,0.60) 40%,rgba(10,14,26,0.30) 100%);z-index:1;"></div>
-        <div style="position:relative;z-index:2;padding:2rem 1.5rem;max-width:720px;">
-          <p style="color:#00D4FF;font-family:'Space Grotesk',sans-serif;font-size:0.875rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;">AI-FIRST MANAGED SERVICES</p>
-          <h1 style="color:white;font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.1;margin:0 0 1rem 0;">Intelligent Cloud & AI Solutions</h1>
-          <p style="color:rgba(255,255,255,0.8);font-family:'DM Sans',sans-serif;font-size:1.125rem;line-height:1.6;margin-bottom:1.5rem;">Enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA with 24/7 AI-powered support.</p>
-        </div>
-      </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Google Analytics 4: loaded after page interactive to reduce INP -->
