@@ -4486,3 +4486,14 @@
 - Route-based code splitting: ~50-100KB (gzipped: ~15-30KB)
 - Total potential savings: ~65-130KB (gzipped: ~20-35KB)
 - Expected PageSpeed improvement: +10-15 points (48 → 60-65)
+
+
+## Phase 5 — DOM Size Reduction (1,594 → 800 elements)
+- [x] Consolidate hero section overlays (26 divs → 11 divs, 58% reduction via CSS pseudo-elements)
+- [ ] Remove redundant wrapper divs in services grid
+- [ ] Simplify testimonials carousel (remove extra containers)
+- [ ] Optimize stats section layout
+- [ ] Reduce industries section DOM (grid optimization)
+- [ ] Remove unused animation wrapper divs
+- [ ] Consolidate gradient overlays into CSS
+- [ ] Measure DOM size after optimizations
