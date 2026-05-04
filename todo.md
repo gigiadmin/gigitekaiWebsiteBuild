@@ -564,6 +564,11 @@
   - Removed website URL subtitle
   - "Gigitek" in white, "AI" in cyan (#00D4FF)
   - Applied to both navbar and footer for consistency
+- [x] Switch admin login from magic link to Manus OAuth
+  - Updated AdminLogin.tsx to redirect to getLoginUrl("/admin")
+  - Updated ApprovalGuard.tsx to use Manus OAuth redirect
+  - Admin users now authenticate via Manus OAuth portal
+  - Shows loading screen during OAuth redirect
 
 ## Bug Fixes (April 10, 2026)
 - [x] Fix AI chatbot clear history - messages reappear when reopening chat
