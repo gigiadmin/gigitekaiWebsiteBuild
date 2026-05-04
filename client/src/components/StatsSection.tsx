@@ -89,8 +89,8 @@ export default function StatsSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <div className="relative z-10 w-full" style={{ padding: '0 1.5rem' }}>
+        <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto' }}>
           {/* Header */}
           <div
             className={`text-center mb-16 transition-all duration-700 ${

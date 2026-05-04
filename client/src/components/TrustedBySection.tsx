@@ -17,7 +17,7 @@ const partners = [
 export default function TrustedBySection() {
   return (
     <section className="py-12 bg-gray-50 dark:bg-[#0F1629] border-y border-gray-100 dark:border-[rgba(0,212,255,0.1)]">
-      <div className="container">
+      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
           Trusted Technology Partners
         </p>

@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 export default function ROIPromotionSection() {
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-[#0A0E1A] to-[#141B2D] border-t border-slate-700/50">
-      <div className="container mx-auto px-4 md:px-6">
+      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/30 mb-4">

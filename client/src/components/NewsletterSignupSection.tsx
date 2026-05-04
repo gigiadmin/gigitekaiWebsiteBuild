@@ -41,7 +41,7 @@ export function NewsletterSignupSection() {
 
   return (
     <section className="py-16 md:py-24 bg-gradient-to-r from-[#0A0E1A] via-[#0F1A30] to-[#0A0E1A] border-t border-[rgba(0,212,255,0.1)]">
-      <div className="container max-w-2xl">
+      <div style={{ maxWidth: '42rem', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Mail className="w-6 h-6 text-[#00D4FF]" />

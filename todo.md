@@ -4640,3 +4640,21 @@
 - [x] Implement route-based code splitting for admin features (already done - all routes lazy-loaded)
 - [x] Create client testimonials carousel component (5 testimonials with auto-play, manual navigation)
 - [ ] Test and verify PageSpeed Performance 60+
+
+## CRITICAL FIX: Global Container Centering (May 4, 2026) - COMPLETE
+- [x] Root cause identified: Tailwind CSS 4 @layer components has lower specificity than utility layer
+  - .container class was defined inside @layer components in index.css
+  - Tailwind's own .container utility was overriding our padding/margin definitions
+  - Result: ALL content flush left with 0px padding on production site
+- [x] Fix applied: Moved .container CSS outside @layer components (unlayered = highest specificity)
+  - width: 100% !important
+  - max-width: 1280px !important
+  - margin-left: auto !important / margin-right: auto !important
+  - padding-left: 1.5rem !important (sm: 2rem, lg: 3rem)
+- [x] Also added inline style fallbacks to key sections (belt-and-suspenders):
+  - HeroSection, ServicesSection, BenefitsSection, StatsSection
+  - TrustedBySection, WhoWeServeSection, IndustriesSection
+  - InsightsSection, FAQSection, CTASection, Footer
+  - ROIPromotionSection, LeadMagnetsSection, NewsletterSignupSection
+- [x] Verified on dev server: ALL sections properly centered
+- [x] Ready for deployment

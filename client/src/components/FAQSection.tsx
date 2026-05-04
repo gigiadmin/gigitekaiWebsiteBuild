@@ -261,7 +261,7 @@ export default function FAQSection() {
   return (
     <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
       <StructuredData data={faqSchema} id="sd-faqpage" />
-      <div className="container">
+      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         <div className="grid lg:grid-cols-5 gap-16">
           {/* Left */}
           <div

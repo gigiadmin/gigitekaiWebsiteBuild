@@ -33,7 +33,7 @@ export default function IndustriesSection() {
 
   return (
     <section id="industries" className="py-20 bg-white dark:bg-[#0F1629]" ref={ref}>
-      <div className="container">
+      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
         {/* Header */}
         <div
           className={`max-w-2xl mb-14 transition-all duration-700 ${

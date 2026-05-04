@@ -39,8 +39,8 @@ export default function BenefitsSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <div className="relative z-10 w-full" style={{ padding: '0 1.5rem' }}>
+        <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center" ref={ref}>
             {/* Image side */}
             <div
