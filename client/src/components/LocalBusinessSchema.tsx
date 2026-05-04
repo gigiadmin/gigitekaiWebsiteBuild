@@ -20,7 +20,9 @@ export function LocalBusinessSchema() {
       name: "GigitekAI",
       alternateName: "GigitekAI LLC",
       description:
-        "AI-first Managed Service Provider specializing in Microsoft 365, cloud infrastructure, cybersecurity, and AI automation for businesses in Tampa Bay and South Florida.",
+        "AI-first Managed Service Provider (MSP) specializing in Microsoft 365, cloud infrastructure, cybersecurity, and AI automation for businesses in Tampa Bay and South Florida.",
+      additionalType: "LocalBusiness",
+      serviceType: "Managed Service Provider",
       url: "https://gigitekai.com",
       telephone: "+1-727-382-5776",
       email: "support@gigitek.com",
@@ -43,6 +45,7 @@ export function LocalBusinessSchema() {
         latitude: 27.9706,
         longitude: -82.4892,
       },
+      priceRange: "$$",
       areaServed: [
         {
           "@type": "City",
@@ -79,7 +82,6 @@ export function LocalBusinessSchema() {
           closes: "18:00",
         },
       ],
-      priceRange: "$$",
       sameAs: [
         "https://www.linkedin.com/company/gigitekai",
         "https://twitter.com/gigitekai",

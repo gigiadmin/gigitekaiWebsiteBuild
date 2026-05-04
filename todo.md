@@ -4365,16 +4365,16 @@
 ## SEO & Content Updates (May 2026)
 
 ### Tier 1 — Immediate Impact
-- [ ] Fix homepage meta title to include "Managed Service Provider"
-- [ ] Add LocalBusiness JSON-LD schema with NAP (Name, Address, Phone) to homepage
+- [x] Fix homepage meta title to include "Managed Service Provider"
+- [x] Add LocalBusiness JSON-LD schema with NAP (Name, Address, Phone) to homepage
 - [x] Add FAQPage schema to service detail pages
 - [x] Fix Miami page phone number (same number for all locations)
-- [ ] REMOVED — No NJ focus, Tampa is primary market
+- [x] REMOVED — No NJ focus, Tampa is primary market
 
 ### Tier 2 — High Value
-- [ ] Create "Microsoft Copilot for Business" service page
-- [ ] Create "AI-Powered Managed IT Services" landing page
-- [ ] Add BreadcrumbList schema to all pages
+- [x] Create "Microsoft Copilot for Business" service page (already exists at /services/microsoft-copilot)
+- [x] Create "AI-Powered Managed IT Services" landing page (already exists at /ai-powered-msp)
+- [x] Add BreadcrumbList schema to all pages (implemented in BlogDetail.tsx)
 - [ ] Add internal links from blog posts to service pages
 - [ ] Add "Related Services" sections to service detail pages
 
