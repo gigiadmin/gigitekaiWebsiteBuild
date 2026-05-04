@@ -36,6 +36,10 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
+      // Fetch user record to check role
+      const userRecord = await db.getUserByOpenId(userInfo.openId);
+      const isAdmin = userRecord?.role === "admin";
+
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
@@ -44,31 +48,33 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Determine returnPath (where to redirect after login):
-      // Priority 1: query string returnPath param (set by getLoginUrl for non-admin routes e.g. /helpdesk)
-      // Priority 2: JSON-encoded state (legacy format used before the SDK fix)
-      // Priority 3: default to /admin
+      // Determine returnPath based on user role:
+      // - Admins ALWAYS go to /admin (cannot be overridden)
+      // - Non-admins can use returnPath from query or state
       let returnPath = "/admin";
 
-      const queryReturnPath = getQueryParam(req, "returnPath");
-      if (queryReturnPath && queryReturnPath.startsWith("/") && !queryReturnPath.startsWith("//")) {
-        // New format: returnPath passed as explicit query param
-        returnPath = queryReturnPath;
-      } else {
-        try {
-          const decoded = JSON.parse(atob(state));
-          if (decoded.returnPath && typeof decoded.returnPath === "string") {
-            const path = decoded.returnPath;
-            if (path.startsWith("/") && !path.startsWith("//")) {
-              returnPath = path;
+      if (!isAdmin) {
+        // For non-admin users, check for explicit returnPath
+        const queryReturnPath = getQueryParam(req, "returnPath");
+        if (queryReturnPath && queryReturnPath.startsWith("/") && !queryReturnPath.startsWith("//")) {
+          returnPath = queryReturnPath;
+        } else {
+          try {
+            const decoded = JSON.parse(atob(state));
+            if (decoded.returnPath && typeof decoded.returnPath === "string") {
+              const path = decoded.returnPath;
+              if (path.startsWith("/") && !path.startsWith("//")) {
+                returnPath = path;
+              }
             }
+          } catch {
+            // Default to helpdesk for non-admins
+            returnPath = "/helpdesk";
           }
-        } catch {
-          // Current format: state is plain btoa(redirectUri) — default to /admin
-          returnPath = "/admin";
         }
       }
 
+      console.log("[OAuth] User:", userInfo.email, "Role:", isAdmin ? "admin" : "user", "Redirecting to:", returnPath);
       res.redirect(302, returnPath);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
