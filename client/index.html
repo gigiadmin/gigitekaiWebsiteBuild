@@ -70,10 +70,20 @@
     <link rel="preconnect" href="https://d36hbw14aib5lz.cloudfront.net" crossorigin />
     <!-- Preconnect to analytics to reduce connection time -->
     <link rel="preconnect" href="https://plausible.io" />
+    <!-- Analytics deferred to reduce initial load -->
     <link rel="dns-prefetch" href="https://manus-analytics.com" />
-    <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
     <!-- Preload critical vendor chunks for faster navigation -->
     <link rel="dns-prefetch" href="https://www.gigitekai.com" />
+    <!-- Defer 3rd party scripts to improve LCP -->
+    <script>
+      window.addEventListener('load', () => {
+        // Load Cloudflare Insights after page load
+        const cfScript = document.createElement('script');
+        cfScript.defer = true;
+        cfScript.src = 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7ec1a37eaf9f83d7526dcb98f5';
+        document.head.appendChild(cfScript);
+      });
+    </script>
     <style>
       :root { --cyan-accent: #00D4FF; --navy-deep: #0A0E1A; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -101,8 +111,7 @@
       }
     </script>
     <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
-    <!-- Defer Cloudflare email-decode script to reduce render blocking -->
-    <script defer src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/email-decode.min.js"></script>
+    <!-- Cloudflare email-decode removed: 404 error, no value -->
     <script type="speculationrules">
     {
       "prerender": [
