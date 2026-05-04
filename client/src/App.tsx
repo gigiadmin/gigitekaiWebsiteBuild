@@ -76,6 +76,7 @@ const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const LogoutConfirmation = lazy(() => import("./pages/LogoutConfirmation"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminMagicLink = lazy(() => import("./pages/AdminMagicLink"));
+const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
 // ── Meeting management — lazy loaded ─────────────────────────────────────
 const CancelMeeting = lazy(() => import("./pages/CancelMeeting"));
@@ -241,6 +242,7 @@ function Router() {
           <Route path={"/logout"} component={LogoutConfirmation} />
           <Route path={"/admin/login"} component={AdminLogin} />
           <Route path={"/admin/magic-link"} component={AdminMagicLink} />
+          <Route path={"/oauth-callback"} component={OAuthCallback} />
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />

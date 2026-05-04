@@ -58,8 +58,9 @@ export function registerOAuthRoutes(app: Express) {
         origin = `${proto}://${host}`;
       }
 
-      // Always redirect to /admin — the client-side router handles role-based routing
-      const redirectUrl = `${origin}/admin`;
+      // Redirect to /oauth-callback page which waits for cookie to be processed
+      // Then redirects to the final destination (/admin or stored returnPath)
+      const redirectUrl = `${origin}/oauth-callback`;
       console.log("[OAuth] User:", userInfo.email, "| Redirect:", redirectUrl);
       res.redirect(302, redirectUrl);
     } catch (error) {

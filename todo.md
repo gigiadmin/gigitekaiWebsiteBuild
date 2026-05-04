@@ -569,6 +569,11 @@
   - Updated ApprovalGuard.tsx to use Manus OAuth redirect
   - Admin users now authenticate via Manus OAuth portal
   - Shows loading screen during OAuth redirect
+- [x] Fix OAuth session cookie domain handling
+  - Updated getSessionCookieOptions() to set cookie domain properly
+  - Extracts domain from x-forwarded-host header
+  - Sets cookie domain to root domain (e.g., .gigitekai.com)
+  - Fixes OAuth callback cookie persistence on mobile Safari and all browsers
 
 ## Bug Fixes (April 10, 2026)
 - [x] Fix AI chatbot clear history - messages reappear when reopening chat
