@@ -4,6 +4,7 @@ import { ShieldAlert, LogOut, Mail, Phone } from "lucide-react";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { getLoginUrl } from "@/const";
 
 /**
  * Wraps any admin page to enforce:
@@ -18,8 +19,8 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // Redirect to magic link login page
-      window.location.href = "/admin/login";
+      // Redirect to Manus OAuth login
+      window.location.href = getLoginUrl("/admin");
     }
   }, [isAuthenticated, loading]);
 

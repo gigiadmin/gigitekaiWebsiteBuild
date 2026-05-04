@@ -560,6 +560,10 @@
 - [x] Update footer logo to match navbar branding
   - Consistent text-based branding across all public pages
   - White primary text with cyan accent for website URL
+- [x] Refine logo to display "GigitekAI" with "AI" in cyan blue
+  - Removed website URL subtitle
+  - "Gigitek" in white, "AI" in cyan (#00D4FF)
+  - Applied to both navbar and footer for consistency
 
 ## Bug Fixes (April 10, 2026)
 - [x] Fix AI chatbot clear history - messages reappear when reopening chat
