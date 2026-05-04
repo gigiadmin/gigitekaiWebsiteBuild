@@ -37,6 +37,8 @@ const CTASection = lazy(() => import("@/components/CTASection"));
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema";
+import FAQSchema, { SERVICE_FAQS } from "@/components/FAQSchema";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 // IntersectionObserver-based deferred section wrapper
 // Only renders children when the placeholder enters the viewport
@@ -73,6 +75,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <LocalBusinessSchema />
+      <FAQSchema faqs={SERVICE_FAQS.ai.slice(0, 3)} />
+      <BreadcrumbSchema />
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Above-fold: eagerly loaded, no lazy overhead */}
