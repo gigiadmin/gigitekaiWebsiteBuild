@@ -10,15 +10,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 // ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
 import Home from "./pages/Home";
 import ApprovalGuard from "./components/ApprovalGuard";
-// Widgets — loaded eagerly (always visible on public pages)
-import AnnouncementBar from "./components/AnnouncementBar";
-import CookieConsent from "./components/CookieConsent";
+// Widgets — all lazy loaded to reduce initial bundle size
+// Secondary UI (deferred 3s on mobile): AnnouncementBar, CookieConsent, FloatingContactDial, MobileAIDemoCTA
+const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
+const CookieConsent = lazy(() => import("./components/CookieConsent"));
+const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
+const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
+// Heavy widgets (deferred 8s on mobile): AIChatWidget, UserChatWidget, CopilotChat
 const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
-import FloatingContactDial from "./components/FloatingContactDial";
 const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
 const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
-import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
@@ -63,9 +65,9 @@ const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
-// Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
-import TicketDetail from "./pages/TicketDetail";
-import TicketFeedback from "./pages/TicketFeedback";
+// Lazy loaded — rarely visited pages
+const TicketDetail = lazy(() => import("./pages/TicketDetail"));
+const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 
@@ -335,18 +337,31 @@ export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
   const [location] = useLocation();
-  // Defer heavy widgets until after first user interaction to reduce TBT
+  // Defer non-critical widgets to reduce TBT and improve LCP on mobile
   const [widgetsReady, setWidgetsReady] = useState(false);
+  const [uiReady, setUiReady] = useState(false);
   useEffect(() => {
-    // Mount heavy widgets after 5s or on first interaction — whichever comes first
-    // 5s gives LCP time to complete before heavy widgets (AIChatWidget, CopilotChat) load
-    const timer = setTimeout(() => setWidgetsReady(true), 5000);
-    const onInteract = () => { setWidgetsReady(true); clearTimeout(timer); };
+    // Mobile gets longer defer (8s) to give LCP more time; desktop gets 3s
+    const isMobileDevice = window.innerWidth <= 768;
+    const heavyDelay = isMobileDevice ? 8000 : 5000;
+    const uiDelay = isMobileDevice ? 3000 : 1500;
+
+    // Defer secondary UI (AnnouncementBar, CookieConsent, FloatingDial) until after LCP
+    const uiTimer = setTimeout(() => setUiReady(true), uiDelay);
+    // Defer heavy widgets (chat, copilot) even longer
+    const timer = setTimeout(() => setWidgetsReady(true), heavyDelay);
+    const onInteract = () => {
+      setUiReady(true);
+      setWidgetsReady(true);
+      clearTimeout(timer);
+      clearTimeout(uiTimer);
+    };
     window.addEventListener('scroll', onInteract, { once: true, passive: true });
     window.addEventListener('click', onInteract, { once: true });
     window.addEventListener('touchstart', onInteract, { once: true, passive: true });
     return () => {
       clearTimeout(timer);
+      clearTimeout(uiTimer);
       window.removeEventListener('scroll', onInteract);
       window.removeEventListener('click', onInteract);
       window.removeEventListener('touchstart', onInteract);
@@ -370,12 +385,13 @@ function App() {
             Skip to main content
           </a>
           <Toaster />
-          {!hideWidgets && <AnnouncementBar />}
+          {/* Secondary UI deferred 3s on mobile to reduce TBT during LCP */}
+          {uiReady && !hideWidgets && <AnnouncementBar />}
           <Router />
-          {!hideWidgets && <CookieConsent />}
-          {!hideWidgets && <FloatingContactDial />}
-          {!hideWidgets && <MobileAIDemoCTA />}
-          {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
+          {uiReady && !hideWidgets && <CookieConsent />}
+          {uiReady && !hideWidgets && <FloatingContactDial />}
+          {uiReady && !hideWidgets && <MobileAIDemoCTA />}
+          {/* Heavy widgets deferred until after interaction/8s on mobile to reduce TBT */}
           {widgetsReady && (
             <>
               {!hideWidgets && <AIChatWidget />}

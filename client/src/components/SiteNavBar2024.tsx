@@ -93,6 +93,8 @@ export default function SiteNavBar2024() {
             <img 
               src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
               alt="GigitekAI logo" 
+              width={167}
+              height={112}
               className="h-[80px] sm:h-[100px] lg:h-[110px] w-auto object-contain"
             />
           </a>
@@ -237,6 +239,8 @@ export default function SiteNavBar2024() {
                   <img 
                     src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
                     alt="GigitekAI" 
+                    width={167}
+                    height={112}
                     className="h-16 w-auto object-contain"
                     style={{ maxWidth: '280px' }}
                   />

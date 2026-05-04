@@ -55,6 +55,8 @@ export default function Footer() {
               <img 
                 src="/manus-storage/gigitekai-logo-optimized_1daa3d13.webp" 
                 alt="GigitekAI logo" 
+                width={167}
+                height={112}
                 className="h-10 w-auto object-contain" loading="lazy"
               />
             </a>
