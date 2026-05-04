@@ -1,11 +1,11 @@
-// GigitekAI Service Worker v5 — Network-first, no offline fallback for HTML
+// GigitekAI Service Worker v7 — Network-first, no offline fallback for HTML
 // Key fixes in v5:
 //   1. Bumped cache version to force eviction of ALL v4 stale caches
 //   2. HTML navigation: pure network-first, NO offline fallback (avoids "Offline" text / .txt downloads)
 //   3. Added /admin and /helpdesk to NO_CACHE_PATHS so admin pages always hit the network
 //   4. Static assets: cache-first with network fallback
-const CACHE_NAME = 'gigitekai-v5';
-const RUNTIME_CACHE = 'gigitekai-runtime-v5';
+const CACHE_NAME = 'gigitekai-v7';
+const RUNTIME_CACHE = 'gigitekai-runtime-v7';
 
 // Only cache truly static assets (no HTML pages that require auth)
 const STATIC_ASSETS = [
