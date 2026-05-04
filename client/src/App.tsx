@@ -356,13 +356,15 @@ function App() {
       clearTimeout(timer);
       clearTimeout(uiTimer);
     };
-    // Use single pointerdown listener (covers click, touch, pen) for better performance
-    window.addEventListener('pointerdown', onInteract, { once: true, passive: true, capture: true });
-    
+    window.addEventListener('scroll', onInteract, { once: true, passive: true });
+    window.addEventListener('click', onInteract, { once: true });
+    window.addEventListener('touchstart', onInteract, { once: true, passive: true });
     return () => {
       clearTimeout(timer);
       clearTimeout(uiTimer);
-      window.removeEventListener('pointerdown', onInteract, { capture: true });
+      window.removeEventListener('scroll', onInteract);
+      window.removeEventListener('click', onInteract);
+      window.removeEventListener('touchstart', onInteract);
     };
   }, []);
 
@@ -382,8 +384,7 @@ function App() {
           >
             Skip to main content
           </a>
-          {/* Defer Toaster rendering until after LCP to reduce main thread work */}
-          {uiReady && <Toaster />}
+          <Toaster />
           {/* Secondary UI deferred 3s on mobile to reduce TBT during LCP */}
           {uiReady && !hideWidgets && <AnnouncementBar />}
           <Router />

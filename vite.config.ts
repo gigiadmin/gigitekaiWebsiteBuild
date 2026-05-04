@@ -152,36 +152,6 @@ function vitePluginManusDebugCollector(): Plugin {
 }
 
 /**
- * CSS Deferral Plugin: Defer non-critical CSS to improve FCP and LCP
- * Transforms CSS link tags to load asynchronously using media="print" trick
- * This saves ~320ms on render-blocking CSS
- */
-function vitePluginDeferCSS(): Plugin {
-  return {
-    name: 'vite-plugin-defer-css',
-    enforce: 'post',
-    transformIndexHtml(html) {
-      if (process.env.NODE_ENV !== 'production') {
-        return html;
-      }
-      // Defer all CSS except critical (inline) styles
-      // Use media="print" trick: load as print, switch to all on load
-      return html.replace(
-        /<link([^>]*?)rel="stylesheet"([^>]*?)href="([^"]+)"([^>]*)>/g,
-        (match, before, after, href, end) => {
-          // Skip if already deferred or is critical
-          if (match.includes('media=') || match.includes('data:')) {
-            return match;
-          }
-          // Apply media="print" + onload switch for async loading
-          return `<link${before}rel="stylesheet"${after}href="${href}"${end} media="print" onload="this.media='all'" /><noscript><link rel="stylesheet" href="${href}" /></noscript>`;
-        }
-      );
-    },
-  };
-}
-
-/**
  * PRODUCTION FIX: Vite plugin that injects a bootstrap script into the built HTML.
  * The manus-runtime script (injected by vitePluginManusRuntime) blocks ES module
  * execution in production. This bootstrap script detects when the app fails to mount
