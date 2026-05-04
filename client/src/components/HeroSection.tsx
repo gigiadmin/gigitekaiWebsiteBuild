@@ -152,90 +152,14 @@ export default function HeroSection() {
         }
       `}</style>
 
-      {/* Video layer - consolidated */}
-      <div className="absolute inset-0 z-0">
-        {(!isMobile || videoRequested) && (
-          <video
-            key={isMobile ? 'mobile' : 'desktop'}
-            ref={videoRef}
-            muted
-            playsInline
-            preload="none"
-            width={1920}
-            height={1080}
-            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={isMobile ? HERO_VIDEO_POSTER_MOBILE : HERO_VIDEO_POSTER}
-            onEnded={() => { setPlaying(false); setEnded(true); }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              playing ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ zIndex: 2 }}
-          />
-        )}
-      </div>
+
 
       {/* Overlays - consolidated into CSS */}
       <div className="hero-overlay absolute inset-0" />
 
-      {/* Play icon overlay */}
-      {!playing && !ended && (
-        <div
-          className="absolute inset-0 flex items-center justify-end pr-[8%] z-[3]"
-          style={{ cursor: isMobile && !videoRequested ? 'pointer' : 'default', pointerEvents: isMobile && !videoRequested ? 'auto' : 'none' }}
-          onClick={isMobile && !videoRequested ? () => setVideoRequested(true) : undefined}
-        >
-          <div
-            className="flex items-center justify-center w-20 h-20 rounded-full"
-            style={{
-              background: "rgba(0,212,255,0.15)",
-              border: "2px solid rgba(0,212,255,0.5)",
-              boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
-            }}
-          >
-            <Play
-              size={32}
-              className="text-[#00D4FF] ml-1"
-              fill="rgba(0,212,255,0.8)"
-            />
-          </div>
-        </div>
-      )}
 
-      {/* Desktop controls */}
-      {playing && (
-        <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
-          {ended && (
-            <button
-              onClick={handleRestart}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
-            >
-              <RotateCcw size={14} /> Restart
-            </button>
-          )}
-          <button
-            onClick={muted ? handleUnmute : handleMute}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
-            aria-label={muted ? "Unmute" : "Mute"}
-          >
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={muted ? 0 : volume}
-              onChange={handleVolumeChange}
-              className="w-20 h-1 accent-[#00D4FF] cursor-pointer"
-              aria-label="Volume"
-            />
-            <span className="text-[10px] text-white/60 w-6 text-right">
-              {muted ? "0%" : `${Math.round(volume * 100)}%`}
-            </span>
-          </div>
-        </div>
-      )}
+
+
 
       {/* Main content */}
       <div className="container relative z-10 py-20">
