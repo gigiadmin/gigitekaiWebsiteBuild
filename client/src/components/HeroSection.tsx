@@ -116,7 +116,7 @@ export default function HeroSection() {
       {/* LCP hero background — img tag so browser preloader discovers it immediately */}
       <img
         src={HERO_BG}
-        alt=""
+        alt="GigitekAI cloud and AI solutions dashboard"
         aria-hidden="true"
         fetchPriority="high"
         loading="eager"

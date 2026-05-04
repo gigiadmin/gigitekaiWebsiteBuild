@@ -11,7 +11,7 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
   "/": {
     title: "GigitekAI — AI-Powered Managed Service Provider (MSP) | Tampa Bay IT Services",
     description:
-      "GigitekAI is Tampa Bay's AI-first managed service provider (MSP) delivering enterprise cloud, Microsoft 365, cybersecurity, and AI automation. 99.9% uptime SLA, 24/7 support, 40% cost reduction. Free IT assessment — (727) 382-5776.",
+      "AI-first MSP in Tampa Bay. Enterprise cloud, Microsoft 365, cybersecurity, and AI automation. 99.9% SLA, 24/7 support, 40% cost savings.",
   },
   "/about-us": {
     title: "About GigitekAI | Cloud & AI Technology Partner",
