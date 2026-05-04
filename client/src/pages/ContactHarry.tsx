@@ -15,8 +15,8 @@ export default function ContactHarry() {
 
   const [downloadReady] = useState(true);
 
-  const headshot = "/manus-storage/harry-headshot_68f9f77b.jpeg";
-  const qrCode = "/manus-storage/qr-code-hh_cfb6d1b7.png";
+  const headshot = "/manus-storage/harry-headshot_7c4b2215.jpg";
+  const qrCode = "/manus-storage/qr-code-hh_5c26fc79.png";
 
   const handleAddContact = () => {
     const vcard = `BEGIN:VCARD

@@ -192,7 +192,8 @@ export const magicLinkAuthRouter = router({
           .where(eq(magicLinkTokens.token, input.token));
 
         // Create session cookie (same as Manus OAuth does)
-        const { req, res } = ctx as any;
+        const req = (ctx as unknown as { req: Request }).req;
+        const res = (ctx as unknown as { res: Response }).res;
 
         if (res && req) {
           const cookieOptions = getSessionCookieOptions(req);
@@ -206,11 +207,6 @@ export const magicLinkAuthRouter = router({
           res.cookie(COOKIE_NAME, sessionToken, {
             ...cookieOptions,
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          });
-        } else {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create session: missing request/response context",
           });
         }
 

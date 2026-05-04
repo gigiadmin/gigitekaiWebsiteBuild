@@ -9,11 +9,11 @@ import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 
-const HERO_VIDEO_MOBILE = "";
-const HERO_VIDEO_DESKTOP = "";
-const HERO_VIDEO_POSTER_MOBILE = "/manus-storage/hero-video-poster-mobile_8f6f28d0.webp";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_6cba6485.webp";
-const HERO_BG = "/manus-storage/gigitekai-hero-bg-compressed_38e5e238.webp";
+const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
+const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
+const HERO_VIDEO_POSTER_MOBILE = "/manus-storage/hero-video-poster-mobile_d9dd0d26.webp";
+const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp";
+const HERO_BG = "/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp";
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);

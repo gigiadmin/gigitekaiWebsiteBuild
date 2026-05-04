@@ -27,10 +27,10 @@ export function LocalBusinessSchema() {
       telephone: "+1-727-382-5776",
       email: "support@gigitek.com",
       image:
-        "https://gigitekai.com/manus-storage/gigitekai-logo-optimized_b148ffc2.webp",
+        "https://gigitekai.com/manus-storage/gigitekai-logo-optimized_1daa3d13.webp",
       logo: {
         "@type": "ImageObject",
-        url: "https://gigitekai.com/manus-storage/gigitekai-logo-optimized_b148ffc2.webp",
+        url: "https://gigitekai.com/manus-storage/gigitekai-logo-optimized_1daa3d13.webp",
       },
       address: {
         "@type": "PostalAddress",
