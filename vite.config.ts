@@ -255,7 +255,7 @@ export default defineConfig({
         manualChunks(id) {
           // IMPORTANT: Chunk grouping must avoid circular dependencies.
           // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
-          // Now we use a flat, non-overlapping grouping strategy.
+          // Safe split: only separate packages that are EXCLUSIVELY used in lazy routes.
 
           // React core — smallest possible initial chunk
           if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
@@ -265,10 +265,16 @@ export default defineConfig({
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
           }
+          // TipTap (blog editor) — ONLY used in AdminBlog + RichTextEditor (lazy routes)
+          if (id.includes("@tiptap") || id.includes("prosemirror") || id.includes("lowlight") || id.includes("highlight.js")) {
+            return "vendor-editor";
+          }
+          // Recharts (charting) — ONLY used in admin dashboard pages (lazy routes)
+          if (id.includes("recharts") || id.includes("d3-") || id.includes("victory")) {
+            return "vendor-charts";
+          }
           // All other node_modules go into a single vendor chunk.
-          // Splitting further (radix-ui, icons, utils, admin-heavy, charts)
-          // caused circular dependencies and TDZ errors in production.
-          // A single vendor chunk is larger but guaranteed cycle-free.
+          // Further splitting (radix-ui, icons, utils) caused circular deps.
           if (id.includes("node_modules")) {
             return "vendor";
           }
