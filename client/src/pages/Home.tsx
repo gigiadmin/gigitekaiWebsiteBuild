@@ -97,9 +97,6 @@ export default function Home() {
         <DeferredSection minHeight="600px">
           <IndustriesSection />
         </DeferredSection>
-        <DeferredSection minHeight="500px">
-          <AgenticOrchestrationSection />
-        </DeferredSection>
         {/* TEMPORARILY DISABLED: AgenticOrchestrationSection causes recharts chunk error
         <DeferredSection minHeight="500px">
           <AgenticOrchestrationSection />
