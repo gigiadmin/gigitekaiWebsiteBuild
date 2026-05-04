@@ -25,7 +25,7 @@ const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
 const WhoWeServeSection = lazy(() => import("@/components/WhoWeServeSection"));
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
-const AgenticOrchestrationSection = lazy(() => import("@/components/AgenticOrchestrationSection"));
+const AgenticOrchestrationSection = lazy(() => import("@/components/AgenticOrchestrationSection")); // TEMPORARILY DISABLED
 const ROIPromotionSection = lazy(() => import("@/components/ROIPromotionSection"));
 const LeadMagnetsSection = lazy(() => import("@/components/LeadMagnetsSection"));
 const IndustryBenchmarksWidget = lazy(() => import("@/components/IndustryBenchmarksWidget"));
@@ -100,6 +100,11 @@ export default function Home() {
         <DeferredSection minHeight="500px">
           <AgenticOrchestrationSection />
         </DeferredSection>
+        {/* TEMPORARILY DISABLED: AgenticOrchestrationSection causes recharts chunk error
+        <DeferredSection minHeight="500px">
+          <AgenticOrchestrationSection />
+        </DeferredSection>
+        */}
         <DeferredSection minHeight="400px">
           <ROIPromotionSection />
         </DeferredSection>

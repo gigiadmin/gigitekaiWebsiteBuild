@@ -270,9 +270,10 @@ export default defineConfig({
             return "vendor-editor";
           }
           // Recharts (charting) — ONLY used in admin dashboard pages (lazy routes)
-          if (id.includes("recharts") || id.includes("d3-") || id.includes("victory")) {
-            return "vendor-charts";
-          }
+          // DISABLED: vendor-charts chunk has circular dependency causing ReferenceError
+          // if (id.includes("recharts") || id.includes("d3-") || id.includes("victory")) {
+          //   return "vendor-charts";
+          // }
           // All other node_modules go into a single vendor chunk.
           // Further splitting (radix-ui, icons, utils) caused circular deps.
           if (id.includes("node_modules")) {
