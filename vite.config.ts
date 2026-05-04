@@ -151,38 +151,7 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-/**
- * Vite plugin that defers CSS loading by converting link tags to use media="print"
- * and then switching to media="all" after page load.
- */
-function vitePluginDeferCSS(): Plugin {
-  return {
-    name: 'vite-plugin-defer-css',
-    enforce: 'post',
-    transformIndexHtml(html) {
-      // Only defer CSS in production
-      if (process.env.NODE_ENV !== 'production') return html;
-      
-      // Replace CSS link tags to defer loading
-      const deferredHtml = html.replace(
-        /<link([^>]*?)rel=["']stylesheet["']([^>]*?)href=["']([^>]*?)["']([^>]*?)>/g,
-        (match, before, after1, href, after2) => {
-          // Don't defer critical CSS - keep inline styles
-          if (href.includes('index-') && href.includes('.css')) {
-            // This is the main CSS file - keep it but optimize
-            return match;
-          }
-          // Defer vendor CSS
-          return `<link${before}rel="preload" as="style"${after1}href="${href}"${after2}><link${before}rel="stylesheet" media="print"${after1}href="${href}" onload="this.media='all'"${after2}>`;
-        }
-      );
-      
-      // Add noscript fallback for deferred CSS
-      const noscriptFallback = `<noscript><link rel="stylesheet" href="/assets/vendor-*.css"></noscript>`;
-      return deferredHtml.replace('</head>', `${noscriptFallback}\n  </head>`);
-    },
-  };
-}
+
 
 /**
  * PRODUCTION FIX: Vite plugin that injects a bootstrap script into the built HTML.
@@ -246,7 +215,7 @@ const plugins = [
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
-  vitePluginDeferCSS(),
+
   vitePluginBootstrapFallback(),
   visualizer({
     open: false,
