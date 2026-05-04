@@ -36,10 +36,6 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
-      // Fetch user record to check role
-      const userRecord = await db.getUserByOpenId(userInfo.openId);
-      const isAdmin = userRecord?.role === "admin";
-
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
@@ -48,31 +44,23 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Extract origin from the state (which is btoa(redirectUri))
-      // The redirectUri contains the origin (e.g. https://gigitekai.com/api/oauth/callback?returnPath=/admin)
+      // Extract origin from the decoded state (which is btoa(redirectUri))
+      // The redirectUri is like https://gigitekai.com/api/oauth/callback
       let origin: string;
-      let returnPath: string;
-
       try {
         const decodedRedirectUri = atob(state);
         const redirectUrl = new URL(decodedRedirectUri);
-        origin = redirectUrl.origin; // e.g. https://gigitekai.com
-        returnPath = redirectUrl.searchParams.get("returnPath") || "/admin";
+        origin = redirectUrl.origin;
       } catch {
-        // Fallback: use request headers
+        // Fallback: use forwarded headers
         const proto = req.get("x-forwarded-proto") || req.protocol || "https";
         const host = req.get("x-forwarded-host") || req.get("host") || "gigitekai.com";
         origin = `${proto}://${host}`;
-        returnPath = getQueryParam(req, "returnPath") || "/admin";
       }
 
-      // Admins ALWAYS go to /admin
-      if (isAdmin) {
-        returnPath = "/admin";
-      }
-
-      const redirectUrl = `${origin}${returnPath}`;
-      console.log("[OAuth] User:", userInfo.email, "| Role:", isAdmin ? "admin" : "user", "| Redirect:", redirectUrl);
+      // Always redirect to /admin — the client-side router handles role-based routing
+      const redirectUrl = `${origin}/admin`;
+      console.log("[OAuth] User:", userInfo.email, "| Redirect:", redirectUrl);
       res.redirect(302, redirectUrl);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
