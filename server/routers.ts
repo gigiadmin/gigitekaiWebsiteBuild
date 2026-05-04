@@ -29,6 +29,7 @@ import { aiTriageRouter } from "./routers/aiTriage";
 import { kbRouter } from "./routers/kb";
 import { kbFeedbackRouter } from "./routers/kbFeedback";
 import { emailDripRouter } from "./routers/emailDrip";
+import { roadmapRouter } from "./routers/roadmap";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
@@ -136,6 +137,7 @@ export const appRouter = router({
   aiTriage: aiTriageRouter,
   kb: kbRouter,
   kbFeedback: kbFeedbackRouter,
+  roadmap: roadmapRouter,
   cannedResponses: cannedResponsesRouter,
   social: socialRouter,
   copilot: copilotRouter,
