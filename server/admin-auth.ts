@@ -14,6 +14,8 @@ const ADMIN_JWT_SECRET = new TextEncoder().encode(
 );
 const ADMIN_SESSION_COOKIE = "admin_session";
 const SESSION_DURATION = "7d";
+// Increment this to invalidate ALL existing admin sessions
+const TOKEN_VERSION = 2; // bumped May 2026 — forces re-auth via magic link
 
 // ── Password helpers ──────────────────────────────────────────────────────────
 
@@ -41,7 +43,7 @@ export interface AdminTokenPayload {
 export async function signAdminToken(
   payload: AdminTokenPayload
 ): Promise<string> {
-  return new SignJWT({ ...payload })
+  return new SignJWT({ ...payload, v: TOKEN_VERSION })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(SESSION_DURATION)
@@ -53,6 +55,8 @@ export async function verifyAdminToken(
 ): Promise<AdminTokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, ADMIN_JWT_SECRET);
+    // Reject tokens from before the current version (forces re-auth)
+    if ((payload as any).v !== TOKEN_VERSION) return null;
     return payload as unknown as AdminTokenPayload;
   } catch {
     return null;

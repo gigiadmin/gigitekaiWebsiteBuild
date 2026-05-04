@@ -112,13 +112,20 @@ export default function HeroSection() {
   return (
     <section 
       className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]"
-      style={{
-        backgroundImage: `url(${HERO_BG})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }}
     >
+      {/* LCP hero background — img tag so browser preloader discovers it immediately */}
+      <img
+        src={HERO_BG}
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        loading="eager"
+        decoding="sync"
+        width={1920}
+        height={1080}
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        style={{ zIndex: 0 }}
+      />
       {/* Consolidated overlay: gradient + grid pattern in one pseudo-element via CSS */}
       <style>{`
         .hero-overlay::before {

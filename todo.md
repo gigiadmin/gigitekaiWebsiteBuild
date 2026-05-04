@@ -4496,3 +4496,22 @@
 - [x] Total component divs: ~109 (down from 1,594 total DOM elements)
 - [x] Further reductions would compromise visual effects or functionality
 - [x] Checkpoint saved: manus-webdev://80273fde
+
+
+## Mobile PageSpeed Improvement (May 2026)
+- [ ] Analyze PageSpeed Insights mobile audit (current score unknown, desktop 60+)
+- [ ] Fix LCP (Largest Contentful Paint) — hero image/video loading
+- [ ] Eliminate render-blocking resources
+- [ ] Reduce unused JavaScript on mobile
+- [ ] Fix Cumulative Layout Shift (CLS) issues
+- [ ] Optimize mobile image sizing and formats
+- [ ] Defer non-critical CSS on mobile
+- [ ] Save checkpoint and deploy
+
+
+## Admin Auth Security Fix (May 2026)
+- [x] Disabled password-based login in adminAuthRouter.login (returns METHOD_NOT_SUPPORTED)
+- [x] Added TOKEN_VERSION=2 to admin-auth.ts — invalidates all existing admin_session cookies
+- [x] Old Login.tsx password form confirmed not routed (orphaned file, inaccessible)
+- [x] ApprovalGuard confirmed redirecting to /admin/login (magic link page)
+- [x] Magic link auth tests: 5/5 passing

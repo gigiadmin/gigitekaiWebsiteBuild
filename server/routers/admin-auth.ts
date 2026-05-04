@@ -50,7 +50,7 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 // ── Router ────────────────────────────────────────────────────────────────────
 
 export const adminAuthRouter = router({
-  // Login with email/password
+  // Login with email/password — DISABLED: use Magic Link login instead
   login: publicProcedure
     .input(
       z.object({
@@ -59,6 +59,13 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Password-based login is disabled. All admin logins must use Magic Link.
+      throw new TRPCError({
+        code: "METHOD_NOT_SUPPORTED",
+        message: "Password login is disabled. Please use the Magic Link login at /admin/login.",
+      });
+
+      // ── DISABLED CODE BELOW (kept for reference) ──────────────────────────
       const admin = await findAdminByEmail(input.email);
 
       if (!admin) {

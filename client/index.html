@@ -51,9 +51,11 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-384_7b9bb6fe.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
-    <!-- LCP: Preload hero background and logo for fastest Largest Contentful Paint -->
-    <!-- Hero background: 119KB → 51KB compressed (57% reduction, 1280x853) -->
-    <link rel="preload" as="image" href="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" fetchpriority="high" />
+    <!-- LCP: Preload hero background for fastest Largest Contentful Paint -->
+    <!-- Desktop: 51KB compressed WebP -->
+    <link rel="preload" as="image" href="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" fetchpriority="high" media="(min-width: 769px)" />
+    <!-- Mobile: same image but browser will load it faster with explicit preload -->
+    <link rel="preload" as="image" href="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" fetchpriority="high" media="(max-width: 768px)" />
     <!-- Optimized logo: 18KB WebP (was 81KB PNG) -->
     <link rel="preload" as="image" href="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" fetchpriority="high" />
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gozuPTPgn2.woff2" type="font/woff2" crossorigin />
@@ -300,17 +302,18 @@
           'page_title': document.title
         });
       }
-      // Load after user interaction or 3 seconds, whichever comes first
+      // Load after user interaction or 8s on mobile / 4s on desktop
       var gaLoaded = false;
       function triggerGA() {
         if (gaLoaded) return;
         gaLoaded = true;
         loadGA4();
       }
+      var gaDelay = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 8000 : 4000;
       if (document.readyState === 'complete') {
-        setTimeout(triggerGA, 4000);
+        setTimeout(triggerGA, gaDelay);
       } else {
-        window.addEventListener('load', function() { setTimeout(triggerGA, 4000); });
+        window.addEventListener('load', function() { setTimeout(triggerGA, gaDelay); });
       }
       ['click','scroll','keydown','touchstart'].forEach(function(e) {
         document.addEventListener(e, triggerGA, { once: true, passive: true });
