@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, LogOut, Mail, Phone } from "lucide-react";
 import { useLocation } from "wouter";
@@ -6,8 +7,8 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 /**
- * Wraps any helpdesk page to enforce:
- * 1. Authentication (redirects to /helpdesk login if not logged in)
+ * Wraps any admin page to enforce:
+ * 1. Authentication (redirects to OAuth login if not logged in)
  * 2. Approval status (shows pending screen if not approved)
  * 
  * Admin users bypass approval check.
@@ -18,9 +19,11 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/helpdesk");
+      // Redirect to OAuth login — NOT to /helpdesk
+      // This ensures admins can authenticate directly
+      window.location.href = getLoginUrl("/admin");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading]);
 
   if (loading) {
     return (
