@@ -1,6 +1,6 @@
 /*
   Roadmap Generator Router
-  Handles AI-powered compliance roadmap generation and email delivery
+  Handles AI-powered compliance roadmap generation and email delivery via Microsoft 365
 */
 
 import { z } from "zod";
@@ -146,39 +146,95 @@ function roadmapEmailTemplate(name: string, score: number, scoreBand: string, ro
   };
 }
 
-// Send email via SendGrid
-async function sendEmailViaSendGrid(to: string, subject: string, html: string): Promise<boolean> {
+// Get Microsoft 365 access token
+async function getMicrosoftGraphAccessToken(): Promise<string | null> {
   try {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    if (!apiKey) {
-      console.error("SENDGRID_API_KEY not configured");
+    const clientId = process.env.MS_GRAPH_CLIENT_ID;
+    const clientSecret = process.env.MS_GRAPH_CLIENT_SECRET;
+    const tenantId = process.env.MS_GRAPH_TENANT_ID;
+
+    if (!clientId || !clientSecret || !tenantId) {
+      console.error("Microsoft 365 credentials not configured");
+      return null;
+    }
+
+    const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: "https://graph.microsoft.com/.default",
+        grant_type: "client_credentials",
+      }).toString(),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Token error (${response.status}):`, error);
+      return null;
+    }
+
+    const data = await response.json() as { access_token?: string };
+    return data.access_token || null;
+  } catch (err) {
+    console.error("Token fetch error:", err);
+    return null;
+  }
+}
+
+// Send email via Microsoft 365 (Exchange Online)
+async function sendEmailViaMicrosoft365(to: string, subject: string, html: string): Promise<boolean> {
+  try {
+    const accessToken = await getMicrosoftGraphAccessToken();
+    if (!accessToken) {
+      console.error("Failed to get Microsoft 365 access token");
       return false;
     }
 
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    const response = await fetch("https://graph.microsoft.com/v1.0/me/sendMail", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: to }] }],
-        from: { email: "support@gigitekai.com", name: "GigitekAI" },
-        subject,
-        content: [{ type: "text/html", value: html }],
+        message: {
+          subject,
+          body: {
+            contentType: "HTML",
+            content: html,
+          },
+          toRecipients: [
+            {
+              emailAddress: {
+                address: to,
+              },
+            },
+          ],
+          from: {
+            emailAddress: {
+              address: "support@gigitekai.com",
+              name: "GigitekAI",
+            },
+          },
+        },
+        saveToSentItems: true,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error(`SendGrid error (${response.status}):`, error);
+      console.error(`Microsoft Graph error (${response.status}):`, error);
       return false;
     }
 
-    console.log(`✓ Email sent to ${to}: ${subject}`);
+    console.log(`✓ Email sent to ${to} via Microsoft 365: ${subject}`);
     return true;
   } catch (err) {
-    console.error("SendGrid API error:", err);
+    console.error("Microsoft 365 API error:", err);
     return false;
   }
 }
@@ -201,11 +257,11 @@ export const roadmapRouter = router({
         // Create email template
         const emailTemplate = roadmapEmailTemplate("Valued Client", input.score, scoreBand, roadmapContent);
         
-        // Send email
-        const emailSent = await sendEmailViaSendGrid(input.email, emailTemplate.subject, emailTemplate.html);
+        // Send email via Microsoft 365
+        const emailSent = await sendEmailViaMicrosoft365(input.email, emailTemplate.subject, emailTemplate.html);
         
         if (!emailSent) {
-          throw new Error("Failed to send email via SendGrid");
+          throw new Error("Failed to send email via Microsoft 365");
         }
         
         // Notify owner
