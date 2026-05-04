@@ -4452,3 +4452,12 @@
 - [x] Write unit tests for magic link auth (5 tests, all passing)
 - [x] Push database migration to create magicLinkTokens table
 - [x] Eliminate OAuth cross-domain cookie issues with passwordless email-based login
+
+
+## AI Demo Voiceover Fix (May 2026)
+- [x] Fix Web Speech API voice loading issue (voices were returning empty array)
+- [x] Add onvoiceschanged event listener to load voices asynchronously
+- [x] Add error handling and console logging for debugging
+- [x] Ensure fallback to system default voice if preferred voice not found
+- [x] Test voiceover with multiple browsers (Chrome, Firefox, Safari)
+- [x] Verify volume is set to 1.0 and speech rate is 0.88 for comfortable pace

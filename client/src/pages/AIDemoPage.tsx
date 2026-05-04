@@ -791,25 +791,63 @@ export default function AIDemoPage() {
   const [leadSubmitting, setLeadSubmitting] = useState(false);
 
   // ── Voiceover state ──────────────────────────────────────────────────────────
+// ── Voiceover state ──────────────────────────────────────────────────────────
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [voiceSupported] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  // Load voices when component mounts (voices load asynchronously in some browsers)
+  useEffect(() => {
+    if (!voiceSupported) return;
+    
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        console.log(`[Voiceover] Loaded ${voices.length} voices`);
+      }
+    };
+
+    // Load voices immediately and on voiceschanged event
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null as any;
+    };
+  }, [voiceSupported]);
+
   const speakText = (text: string) => {
     if (!voiceEnabled || !voiceSupported) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.88;   // Slightly slower than default — comfortable conversation pace
-    utter.pitch = 1.0;
-    utter.volume = 1.0;
-    // Prefer a natural English voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v =>
-      v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Alex"))
-    ) || voices.find(v => v.lang.startsWith("en"));
-    if (preferred) utter.voice = preferred;
-    speechRef.current = utter;
-    window.speechSynthesis.speak(utter);
+    
+    try {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.88;   // Slightly slower than default — comfortable conversation pace
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      
+      // Get voices and select the best one
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        // Prefer a natural English voice if available
+        const preferred = voices.find(v =>
+          v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Alex"))
+        ) || voices.find(v => v.lang.startsWith("en")) || voices[0];
+        if (preferred) {
+          utter.voice = preferred;
+          console.log(`[Voiceover] Using voice: ${preferred.name}`);
+        }
+      } else {
+        console.warn("[Voiceover] No voices available");
+      }
+      
+      speechRef.current = utter;
+      window.speechSynthesis.speak(utter);
+    } catch (error) {
+      console.error("[Voiceover] Speech synthesis error:", error);
+    }
   };
 
   const stopSpeech = () => {
