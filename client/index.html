@@ -68,8 +68,21 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
     <!-- Preconnect for manus-storage CDN (logo, hero poster) -->
     <link rel="preconnect" href="https://d36hbw14aib5lz.cloudfront.net" crossorigin />
+    <!-- Preconnect to analytics to reduce connection time -->
+    <link rel="preconnect" href="https://plausible.io" />
+    <link rel="dns-prefetch" href="https://manus-analytics.com" />
+    <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
     <!-- Preload critical vendor chunks for faster navigation -->
     <link rel="dns-prefetch" href="https://www.gigitekai.com" />
+    <style>
+      :root { --cyan-accent: #00D4FF; --navy-deep: #0A0E1A; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; }
+      body { background: #0A0E1A; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'DM Sans', sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+      #root, #gigitekai-app { width: 100%; min-height: 100vh; }
+      nav { position: sticky; top: 0; z-index: 50; background: #0A0E1A; border-bottom: 1px solid rgba(0,212,255,0.1); }
+      .btn-cyan { background: #00D4FF; color: #0A0E1A; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
+    </style>
     <script>
       // Preload react-core and radix-ui chunks after initial paint
       // so they are cached before the user navigates to any page
@@ -88,6 +101,8 @@
       }
     </script>
     <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
+    <!-- Defer Cloudflare email-decode script to reduce render blocking -->
+    <script defer src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/email-decode.min.js"></script>
     <script type="speculationrules">
     {
       "prerender": [
@@ -279,7 +294,11 @@
   body { font-family: 'DM Sans', sans-serif; min-height: 100dvh; }
   #root { min-height: 100dvh; }
 }</style>
-    </head>
+    <!-- Defer analytics scripts to load after page content -->
+    <script async src="https://plausible.io/js/script.js" data-domain="gigitekai.com"></script>
+    <script async src="https://cdn.amplitude.com/libs/analytics-browser-2.0.0-beta.5.umd.production.min.js"></script>
+    <script async src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7ec1a37eaf9f83d7526dcb98f5" data-cf-beacon='{"token": "46ac3f9d1a6f4a6a8f6a6a6a6a6a6a6a"}' defer></script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
