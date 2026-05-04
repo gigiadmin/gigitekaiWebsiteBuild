@@ -59,9 +59,16 @@ export function registerOAuthRoutes(app: Express) {
       // Parse origin from state — the frontend encodes window.location.origin in state
       const parsed = parseState(state);
 
-      // Build absolute redirect URL using origin from state or request host
-      const origin = parsed.origin ||
-        `${req.protocol}://${req.get("host")}`;
+      // CRITICAL: Must use origin from state, NOT req.get('host')
+      // req.get('host') returns the internal sandbox domain (e.g. dvfjapih3g-4udy2jbea-ue.a.run.app)
+      // which is NOT registered as a valid redirect_uri in Manus OAuth
+      // The state contains the actual frontend origin (e.g. https://gigitekai.com)
+      const origin = parsed.origin;
+      if (!origin) {
+        console.error("[OAuth] No origin in state — cannot redirect safely");
+        res.status(400).json({ error: "Invalid state: missing origin" });
+        return;
+      }
 
       // Determine returnPath based on user role:
       // - Admins ALWAYS go to /admin (cannot be overridden)
