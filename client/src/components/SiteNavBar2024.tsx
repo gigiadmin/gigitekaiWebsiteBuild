@@ -232,14 +232,9 @@ export default function SiteNavBar2024() {
               {/* Mobile menu header with logo + close */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
                 <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
-                  <img 
-                    src="" 
-                    alt="GigitekAI" 
-                    width={167}
-                    height={112}
-                    className="h-16 w-auto object-contain"
-                    style={{ maxWidth: '280px' }}
-                  />
+                  <span className="text-xl font-bold leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    <span className="text-white">Gigitek</span><span className="text-[#00D4FF]">AI</span>
+                  </span>
                 </a>
                 <button
                   onClick={() => setMobileOpen(false)}
