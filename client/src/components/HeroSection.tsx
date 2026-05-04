@@ -124,7 +124,7 @@ export default function HeroSection() {
         width={1920}
         height={1080}
         className="absolute inset-0 w-full h-full object-cover object-center"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, contentVisibility: 'auto' }}
       />
       {/* Consolidated overlay: gradient + grid pattern in one pseudo-element via CSS */}
       <style>{`
@@ -160,7 +160,7 @@ export default function HeroSection() {
             ref={videoRef}
             muted
             playsInline
-            preload={isMobile ? "auto" : "metadata"}
+            preload="none"
             width={1920}
             height={1080}
             src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
