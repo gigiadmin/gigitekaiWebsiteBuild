@@ -9,14 +9,6 @@ function getQueryParam(req: Request, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function parseState(state: string): { origin?: string; returnPath?: string } {
-  try {
-    return JSON.parse(atob(state));
-  } catch {
-    return {};
-  }
-}
-
 export function registerOAuthRoutes(app: Express) {
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
@@ -56,38 +48,31 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Parse origin from state — the frontend encodes window.location.origin in state
-      const parsed = parseState(state);
-
-      // CRITICAL: Must use origin from state, NOT req.get('host')
-      // req.get('host') returns the internal sandbox domain (e.g. dvfjapih3g-4udy2jbea-ue.a.run.app)
-      // which is NOT registered as a valid redirect_uri in Manus OAuth
-      // The state contains the actual frontend origin (e.g. https://gigitekai.com)
-      const origin = parsed.origin;
-      if (!origin) {
-        console.error("[OAuth] No origin in state — cannot redirect safely");
-        res.status(400).json({ error: "Invalid state: missing origin" });
-        return;
-      }
-
-      // Determine returnPath based on user role:
-      // - Admins ALWAYS go to /admin (cannot be overridden)
-      // - Non-admins use returnPath from state or default to /helpdesk
+      // Extract origin from the state (which is btoa(redirectUri))
+      // The redirectUri contains the origin (e.g. https://gigitekai.com/api/oauth/callback?returnPath=/admin)
+      let origin: string;
       let returnPath: string;
 
+      try {
+        const decodedRedirectUri = atob(state);
+        const redirectUrl = new URL(decodedRedirectUri);
+        origin = redirectUrl.origin; // e.g. https://gigitekai.com
+        returnPath = redirectUrl.searchParams.get("returnPath") || "/admin";
+      } catch {
+        // Fallback: use request headers
+        const proto = req.get("x-forwarded-proto") || req.protocol || "https";
+        const host = req.get("x-forwarded-host") || req.get("host") || "gigitekai.com";
+        origin = `${proto}://${host}`;
+        returnPath = getQueryParam(req, "returnPath") || "/admin";
+      }
+
+      // Admins ALWAYS go to /admin
       if (isAdmin) {
         returnPath = "/admin";
-      } else {
-        const statePath = parsed.returnPath;
-        if (statePath && statePath.startsWith("/") && !statePath.startsWith("//")) {
-          returnPath = statePath;
-        } else {
-          returnPath = "/helpdesk";
-        }
       }
 
       const redirectUrl = `${origin}${returnPath}`;
-      console.log("[OAuth] User:", userInfo.email, "| Role:", isAdmin ? "admin" : "user", "| Origin:", origin, "| Redirect:", redirectUrl);
+      console.log("[OAuth] User:", userInfo.email, "| Role:", isAdmin ? "admin" : "user", "| Redirect:", redirectUrl);
       res.redirect(302, redirectUrl);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
