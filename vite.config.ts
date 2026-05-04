@@ -231,11 +231,15 @@ const isAnalyze = process.env.ANALYZE === 'true';
 export default defineConfig({
   plugins,
   resolve: {
+    dedupe: ['react', 'react-dom', 'scheduler'],
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-dom/client', '@trpc/react-query', '@tanstack/react-query'],
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
@@ -252,33 +256,10 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        manualChunks(id) {
-          // IMPORTANT: Chunk grouping must avoid circular dependencies.
-          // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
-          // Safe split: only separate packages that are EXCLUSIVELY used in lazy routes.
-
-          // React core — smallest possible initial chunk
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
-            return "react-core";
-          }
-          // tRPC + React Query — needed on first paint for auth
-          if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
-            return "trpc-query";
-          }
-          // TipTap (blog editor) — ONLY used in AdminBlog + RichTextEditor (lazy routes)
-          if (id.includes("@tiptap") || id.includes("prosemirror") || id.includes("lowlight") || id.includes("highlight.js")) {
-            return "vendor-editor";
-          }
-          // Recharts (charting) — ONLY used in admin dashboard pages (lazy routes)
-          if (id.includes("recharts") || id.includes("d3-") || id.includes("victory")) {
-            return "vendor-charts";
-          }
-          // All other node_modules go into a single vendor chunk.
-          // Further splitting (radix-ui, icons, utils) caused circular deps.
-          if (id.includes("node_modules")) {
-            return "vendor";
-          }
-        },
+        // REMOVED manual chunk splitting entirely.
+        // Previous config split React into a separate chunk from tRPC/React Query,
+        // causing duplicate React instances and "Cannot read properties of null
+        // (reading 'useState')" crashes. Let Rollup handle splitting automatically.
       },
     },
   },

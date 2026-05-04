@@ -1,16 +1,11 @@
-// GigitekAI Service Worker v5 — Network-first, no offline fallback for HTML
-// Key fixes in v5:
-//   1. Bumped cache version to force eviction of ALL v4 stale caches
-//   2. HTML navigation: pure network-first, NO offline fallback (avoids "Offline" text / .txt downloads)
-//   3. Added /admin and /helpdesk to NO_CACHE_PATHS so admin pages always hit the network
-//   4. Static assets: cache-first with network fallback
-const CACHE_NAME = 'gigitekai-v5';
-const RUNTIME_CACHE = 'gigitekai-runtime-v5';
-
-// Only cache truly static assets (no HTML pages that require auth)
-const STATIC_ASSETS = [
-  '/manifest.json',
-];
+// GigitekAI Service Worker v6 — Network-first for EVERYTHING
+// Key fixes in v6:
+//   1. Bumped cache version to force eviction of ALL v5 stale caches
+//   2. ALL requests use network-first strategy (no cache-first for JS/CSS)
+//   3. This prevents stale JavaScript chunks from causing React crashes
+//   4. Hashed assets (e.g. index-DpchgxQM.js) are safe to cache after fetch
+//   5. On activate: immediately delete ALL old caches to prevent stale content
+const CACHE_NAME = 'gigitekai-v6';
 
 // Paths that must NEVER be cached — auth, OAuth, API calls, admin pages
 const NO_CACHE_PATHS = [
@@ -29,28 +24,21 @@ function shouldSkipCache(url) {
   return NO_CACHE_PATHS.some(path => url.pathname.startsWith(path) || url.pathname.includes(path));
 }
 
-// Install event — only cache static assets
+// Install event — skip waiting immediately to take control
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('[SW] Cache addAll partial error (non-fatal):', err);
-      });
-    })
-  );
-  // Take control immediately — important for Safari PWA
+  // Take control immediately
   self.skipWaiting();
 });
 
-// Activate event — clean up old caches
+// Activate event — AGGRESSIVELY clean up ALL old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+          .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[SW] Deleting old cache:', name);
+            console.log('[SW v6] Deleting old cache:', name);
             return caches.delete(name);
           })
       );
@@ -61,7 +49,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event — Safari-safe strategy
+// Fetch event — NETWORK-FIRST for everything
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -72,52 +60,40 @@ self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests (CDN, analytics, fonts — let browser handle them)
   if (url.origin !== self.location.origin) return;
 
-  // CRITICAL: Never intercept auth/OAuth paths — causes redirect loops in Safari
+  // CRITICAL: Never intercept auth/OAuth paths
   if (shouldSkipCache(url)) return;
 
-  // CRITICAL: Never cache navigation requests that could be auth-protected pages
-  // Safari PWA in standalone mode loses cookies on navigation if cached
-  // Use network-first for ALL HTML navigation requests
-  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Don't cache redirects — these cause loops in Safari
-          if (response.type === 'opaqueredirect' || response.redirected) {
-            return response;
-          }
-          // Only cache successful non-redirect responses
-          if (response.ok && response.status === 200) {
-            const clone = response.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        // DO NOT add a .catch() here — let the browser show its own network error
-        // Adding an offline fallback causes iOS to serve stale/wrong content (e.g. helpdesk.txt)
-    );
-    return;
-  }
-
-  // Static assets (JS, CSS, images, fonts) — cache-first with network fallback
+  // NETWORK-FIRST for ALL requests
+  // This prevents stale JS chunks from causing React dual-instance crashes
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(request).then((response) => {
-        // Don't cache opaque responses (cross-origin without CORS) — Safari issue
-        if (!response || response.type === 'opaque' || response.status !== 200) {
+    fetch(request)
+      .then((response) => {
+        // Don't cache redirects
+        if (response.type === 'opaqueredirect' || response.redirected) {
           return response;
         }
-
-        const clone = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
+        // Only cache successful responses for hashed assets (safe to cache)
+        if (response.ok && response.status === 200) {
+          // Only cache hashed static assets (they have content-based hashes in filename)
+          const isHashedAsset = url.pathname.match(/\/assets\/[^/]+-[a-zA-Z0-9]{8}\.(js|css|woff2?)$/);
+          if (isHashedAsset) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+        }
         return response;
-      }).catch(() => {
-        // Return nothing for failed asset requests — don't break the page
-        return new Response('', { status: 503 });
-      });
-    })
+      })
+      .catch(() => {
+        // Network failed — try cache as fallback for hashed assets only
+        return caches.match(request).then((cached) => {
+          if (cached) return cached;
+          // For navigation requests, don't serve anything — let browser show error
+          if (request.mode === 'navigate') {
+            return new Response('', { status: 503 });
+          }
+          return new Response('', { status: 503 });
+        });
+      })
   );
 });
 
