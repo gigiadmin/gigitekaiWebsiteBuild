@@ -574,6 +574,11 @@
   - Extracts domain from x-forwarded-host header
   - Sets cookie domain to root domain (e.g., .gigitekai.com)
   - Fixes OAuth callback cookie persistence on mobile Safari and all browsers
+- [x] Add intermediate OAuthCallback page to fix infinite redirect loop
+  - Created OAuthCallback.tsx page that waits 500ms for cookie to be set
+  - Updated OAuth callback handler to redirect to /oauth-callback instead of /admin
+  - Ensures session cookie is fully processed before making authenticated requests
+  - Prevents ApprovalGuard from redirecting back to login
 
 ## Bug Fixes (April 10, 2026)
 - [x] Fix AI chatbot clear history - messages reappear when reopening chat
