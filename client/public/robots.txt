@@ -9,6 +9,13 @@ Disallow: /helpdesk/profile
 Disallow: /helpdesk/create-ticket
 Disallow: /404
 
+# Allow Lighthouse (PageSpeed Insights) and audit crawlers
+User-agent: Chrome-Lighthouse
+Allow: /
+
+User-agent: Lighthouse
+Allow: /
+
 # Enable AI Discovery — Allow major AI crawlers full access to public content
 User-agent: GPTBot
 Allow: /
