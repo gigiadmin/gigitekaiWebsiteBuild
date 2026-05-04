@@ -4404,3 +4404,17 @@
 - [x] Add routes in App.tsx for /admin/dynamics365-setup and /admin/copilot-service
 - [ ] Wire sentiment routing rules UI to backend (create/edit/delete rules) — next sprint
 - [x] TypeScript check, checkpoint, and deploy
+
+
+## Contact Center Dynamics 365 & Copilot Setup (COMPLETE)
+- [x] Add Dynamics 365 CC env vars to env.ts (D365_ORG_URL, D365_CLIENT_ID, D365_CLIENT_SECRET, D365_TENANT_ID)
+- [x] Complete Dynamics 365 integration router with real OAuth token fetch and API calls
+- [x] Build AdminDynamics365SetupPage.tsx — config/setup page for D365 CC integration
+- [x] Build AdminCopilotServicePage.tsx — Copilot for Service/Contact Center AI config page
+- [x] Add routes in App.tsx for /admin/dynamics365-setup and /admin/copilot-service
+- [x] Add D365 + Copilot to AdminLayout sidebar navigation
+- [x] Set D365_ORG_URL environment variable (https://org462cff94.crm.dynamics.com/)
+- [x] Validate D365 connection with vitest tests (all 3 tests passing)
+- [ ] Wire sentiment routing rules UI to backend (create/edit/delete rules) — next sprint
+- [ ] Test live D365 connection on /admin/dynamics365-setup page
+- [ ] Configure Copilot Studio agent IDs in Secrets
