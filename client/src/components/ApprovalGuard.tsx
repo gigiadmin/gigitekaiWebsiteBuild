@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, LogOut, Mail, Phone } from "lucide-react";
 import { useLocation } from "wouter";
@@ -19,9 +18,8 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      // Redirect to OAuth login — NOT to /helpdesk
-      // This ensures admins can authenticate directly
-      window.location.href = getLoginUrl("/admin");
+      // Redirect to magic link login page
+      window.location.href = "/admin/login";
     }
   }, [isAuthenticated, loading]);
 

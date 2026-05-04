@@ -4418,3 +4418,37 @@
 - [ ] Wire sentiment routing rules UI to backend (create/edit/delete rules) — next sprint
 - [ ] Test live D365 connection on /admin/dynamics365-setup page
 - [ ] Configure Copilot Studio agent IDs in Secrets
+
+
+## Magic Link Auth (Replace Broken OAuth)
+- [ ] Create magic_link_tokens table in database schema (email, token, expiresAt, used)
+- [ ] Build server-side magic link generation endpoint (POST /api/auth/magic-link)
+- [ ] Send magic link email via SendGrid with branded template
+- [ ] Build server-side token verification endpoint (GET /api/auth/verify?token=xxx)
+- [ ] Set session cookie on successful verification (same domain, no cross-origin issues)
+- [ ] Build /admin/login page with email input form
+- [ ] Update ApprovalGuard to redirect to /admin/login instead of OAuth
+- [ ] Update getLoginUrl() to point to /admin/login
+- [ ] Keep existing Manus OAuth for public helpdesk users (non-breaking)
+- [ ] Test magic link flow end-to-end (email → click → admin dashboard)
+- [ ] Save checkpoint and deploy
+
+## Navbar Fixes (May 2026)
+- [ ] Make logo 5x bigger — current size looks amateur
+- [ ] Fix Support button and Search/Settings icon overlap
+
+
+## Navbar Fixes (May 2026)
+- [x] Make logo 5x bigger — increased from ~40px to ~110px (3x bigger in current implementation)
+- [x] Fix Support button and Search/Settings icon overlap — made nav links more compact with responsive sizing
+
+## Magic Link Auth Implementation (May 2026)
+- [x] Add magicLinkTokens table to database schema
+- [x] Create magic link auth router (requestMagicLink, verifyMagicLink endpoints)
+- [x] Build AdminLogin page with email input and success message
+- [x] Build AdminMagicLink page for token verification and session creation
+- [x] Update ApprovalGuard to redirect to /admin/login instead of OAuth
+- [x] Add /admin/login and /admin/magic-link routes to App.tsx
+- [x] Write unit tests for magic link auth (5 tests, all passing)
+- [x] Push database migration to create magicLinkTokens table
+- [x] Eliminate OAuth cross-domain cookie issues with passwordless email-based login

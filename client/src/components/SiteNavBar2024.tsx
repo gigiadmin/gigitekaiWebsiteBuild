@@ -35,9 +35,9 @@ export default function SiteNavBar2024() {
     { label: "Cybersecurity", href: "/services/security" },
     { label: "Data Analytics", href: "/services/data" },
     { label: "IT Strategy", href: "/services/strategy" },
-    { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency" },
-    { label: "🔄 The Switch Program", href: "/switch-program" },
-    { label: "📊 Compliance Scorecard", href: "/compliance-scorecard" },
+    { label: "\u{1F334} Florida IT Resiliency", href: "/florida-it-resiliency" },
+    { label: "\u{1F504} The Switch Program", href: "/switch-program" },
+    { label: "\u{1F4CA} Compliance Scorecard", href: "/compliance-scorecard" },
   ];
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function SiteNavBar2024() {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
-            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>🤖 Watch AI Work Live</a>
+            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>{"\u{1F916}"} Watch AI Work Live</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -87,22 +87,22 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-[80px] sm:h-[88px] lg:h-[84px]">
-          {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group">
+        <div className="container flex items-center h-[120px] sm:h-[130px] lg:h-[140px] gap-4">
+          {/* Logo — Large and prominent */}
+          <a href="/" className="flex-shrink-0 flex items-center group">
             <img 
               src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
               alt="GigitekAI logo" 
-              className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
+              className="h-[80px] sm:h-[100px] lg:h-[110px] w-auto object-contain"
             />
           </a>
 
-          {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Desktop nav links — centered, compact */}
+          <div className="hidden lg:flex items-center gap-0 flex-1 justify-center overflow-hidden">
             {/* Services dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
+                className="flex items-center gap-1 px-2 xl:px-3 py-2 text-[13px] xl:text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
@@ -145,36 +145,37 @@ export default function SiteNavBar2024() {
               { label: "ROI Calculator", href: "/roi-calculator" },
               { label: "About Us", href: "/about-us" },
               { label: "Insights", href: "/blog" },
-              { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
-              { label: "🤖 Watch AI Work Live", href: "/ai-demo" },
-              { label: "🔗 Client Exchange", href: "/exchange" },
+              { label: "\u26A1 AI Briefing", href: "/AIStrategicBriefing" },
+              { label: "\u{1F916} Watch AI Work Live", href: "/ai-demo" },
+              { label: "\u{1F517} Client Exchange", href: "/exchange" },
             ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
+                className="px-2 xl:px-3 py-2 text-[13px] xl:text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onClick={() => item.label.includes("Watch AI Work Live") && trackAIDemoClick("desktop_nav")}
               >
                 {item.label}
               </a>
              ))}
+          </div>
+
+          {/* Right side: Support + Search + Theme + CTA — no overlap */}
+          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
             {/* Standout Help Desk Link */}
             <a
               href="/helpdesk"
-              className="helpdesk-nav-link flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ml-1"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg transition-all border border-[rgba(0,212,255,0.3)] bg-[rgba(0,212,255,0.05)] hover:bg-[rgba(0,212,255,0.15)]"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               <div className="relative">
-                <LifeBuoy size={18} className="text-[#00D4FF]" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <LifeBuoy size={16} className="text-[#00D4FF]" />
+                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
               </div>
-              <span>Support</span>
+              <span className="text-[#00D4FF]">Support</span>
             </a>
-          </div>
 
-          {/* CTA + Notifications + Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-3 ml-auto">
             {/* Search Button */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -184,7 +185,6 @@ export default function SiteNavBar2024() {
             >
               <Search size={18} />
             </button>
-
 
             {/* Theme Toggle */}
             {toggleTheme && (
@@ -197,6 +197,8 @@ export default function SiteNavBar2024() {
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
             )}
+
+            {/* Get In Touch CTA */}
             <a
               href="/contact"
               className="btn-cyan text-sm"
@@ -210,12 +212,12 @@ export default function SiteNavBar2024() {
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden text-white p-2"
+            className="lg:hidden text-white p-2 ml-auto"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
 
@@ -228,15 +230,15 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
+            <div className="fixed top-[120px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
               {/* Mobile menu header with logo + close */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
                 <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
                   <img 
                     src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
                     alt="GigitekAI" 
-                    className="h-14 w-auto object-contain"
-                    style={{ maxWidth: '240px' }}
+                    className="h-16 w-auto object-contain"
+                    style={{ maxWidth: '280px' }}
                   />
                 </a>
                 <button
@@ -274,14 +276,14 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
-                { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency", id: "nav-florida" },
-                { label: "🔄 Switch Program", href: "/switch-program", id: "nav-switch" },
+                { label: "\u{1F334} Florida IT Resiliency", href: "/florida-it-resiliency", id: "nav-florida" },
+                { label: "\u{1F504} Switch Program", href: "/switch-program", id: "nav-switch" },
                 { label: "Industries", href: "/industries/healthcare", id: "nav-industries" },
                 { label: "About Us", href: "/about-us", id: "nav-about" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
-                { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
-                { label: "🤖 Watch AI Work Live", href: "/ai-demo", id: "nav-ai-demo" },
-                { label: "🔗 Client Exchange", href: "/exchange", id: "nav-exchange" },
+                { label: "\u26A1 AI Briefing", href: "/AIStrategicBriefing", id: "nav-briefing" },
+                { label: "\u{1F916} Watch AI Work Live", href: "/ai-demo", id: "nav-ai-demo" },
+                { label: "\u{1F517} Client Exchange", href: "/exchange", id: "nav-exchange" },
               ].map((item) => (
                 <a
                   key={item.href}

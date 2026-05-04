@@ -100,6 +100,7 @@ import { dynamicsIntegrationRouter } from "./routers/phase2-dynamicsIntegration"
 import { callAnalyticsRouter } from "./routers/phase2-callAnalytics";
 import { acsRouter } from "./routers/acs";
 import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
+import { magicLinkAuthRouter } from "./routers/magic-link-auth";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -151,6 +152,7 @@ export const appRouter = router({
       } as const;
     }),
   }),
+  magicLink: magicLinkAuthRouter,
 
   helpdesk: helpdeskRouter,
   helpdeskAgentSla: helpdeskAgentSlaRouter,
@@ -839,3 +841,6 @@ Submitted from GigitekAI website contact form.
   emailDrip: emailDripRouter,
 })
 export type AppRouter = typeof appRouter;
+
+// Re-export for convenience
+export { magicLinkAuthRouter } from "./routers/magic-link-auth";

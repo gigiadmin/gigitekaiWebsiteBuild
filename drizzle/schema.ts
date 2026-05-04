@@ -1884,3 +1884,15 @@ export const demoLeads = mysqlTable("demoLeads", {
 
 export type DemoLead = typeof demoLeads.$inferSelect;
 export type InsertDemoLead = typeof demoLeads.$inferInsert;
+
+// Magic Link Auth Tokens - for admin email-based login
+export const magicLinkTokens = mysqlTable("magicLinkTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  token: varchar("token", { length: 128 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  used: boolean("used").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MagicLinkToken = typeof magicLinkTokens.$inferSelect;
+export type InsertMagicLinkToken = typeof magicLinkTokens.$inferInsert;
