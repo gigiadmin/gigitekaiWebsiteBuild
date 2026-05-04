@@ -152,20 +152,14 @@ export default function HeroSection() {
         }
       `}</style>
 
-
-
       {/* Overlays - consolidated into CSS */}
       <div className="hero-overlay absolute inset-0" />
 
-
-
-
-
       {/* Main content */}
-      <div className="container relative z-10 py-20">
-        <div className="max-w-3xl">
+      <div className="container relative z-10 py-20 mx-auto">
+        <div className="max-w-3xl mx-auto">
           <div
-            className={`section-label mb-6 transition-all duration-700 ${
+            className={`section-label mb-6 transition-all duration-700 text-left ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -173,7 +167,7 @@ export default function HeroSection() {
           </div>
 
           <h1
-            className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6 transition-all duration-700 delay-100 ${
+            className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6 transition-all duration-700 delay-100 text-left ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
@@ -193,7 +187,7 @@ export default function HeroSection() {
           </h1>
 
           <p
-            className={`text-lg md:text-xl text-gray-300 max-w-xl mb-10 leading-relaxed transition-all duration-700 delay-200 ${
+            className={`text-lg md:text-xl text-gray-300 max-w-xl mb-10 leading-relaxed transition-all duration-700 delay-200 text-left ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -201,7 +195,7 @@ export default function HeroSection() {
           </p>
 
           <div
-            className={`flex flex-wrap gap-4 mb-6 transition-all duration-700 delay-300 ${
+            className={`flex flex-wrap gap-4 mb-6 transition-all duration-700 delay-300 justify-start ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -233,7 +227,7 @@ export default function HeroSection() {
           </div>
 
           <div
-            className={`flex flex-wrap items-center gap-4 text-sm mb-6 transition-all duration-700 delay-[350ms] ${
+            className={`flex items-center gap-2 text-sm text-gray-400 transition-all duration-700 delay-500 justify-start ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
