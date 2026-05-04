@@ -61,7 +61,7 @@ export default function SiteNavBar2024() {
     <>
       {/* Top utility bar */}
       <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-500 dark:text-gray-400 py-2 hidden md:block">
-        <div className="container flex justify-between items-center">
+        <div className="container flex justify-between items-center" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
             <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>{"\u{1F916}"} Watch AI Work Live</a>
@@ -87,7 +87,7 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center h-[120px] sm:h-[130px] lg:h-[140px] gap-4">
+        <div className="container flex items-center h-[120px] sm:h-[130px] lg:h-[140px] gap-4" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
           {/* Logo — Text-based */}
           <a href="/" className="flex-shrink-0 flex items-center group">
             <span className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
