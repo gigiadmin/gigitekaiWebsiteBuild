@@ -20,7 +20,7 @@ interface SEOConfig {
 
 const BASE_URL = "https://www.gigitekai.com";
 const DEFAULT_OG_IMAGE =
-  "/manus-storage/gigitekai-logo-optimized_1daa3d13.webp";
+  "";
 
 const ORG_SCHEMA = {
   "@type": "Organization",

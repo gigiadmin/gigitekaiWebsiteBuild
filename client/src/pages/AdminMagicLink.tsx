@@ -53,7 +53,7 @@ export default function AdminMagicLink() {
         <div className="text-center mb-8">
           <a href="/" className="inline-block">
             <img
-              src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp"
+              src=""
               alt="GigitekAI"
               className="h-16 w-auto mx-auto mb-6"
             />
