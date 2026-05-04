@@ -91,7 +91,7 @@ export default function SiteNavBar2024() {
           {/* Logo — Large and prominent */}
           <a href="/" className="flex-shrink-0 flex items-center group">
             <img 
-              src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
+              src="/manus-storage/gigitekai-logo-167x112_722a3580.webp" 
               alt="GigitekAI logo" 
               width={167}
               height={112}
@@ -237,7 +237,7 @@ export default function SiteNavBar2024() {
               <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
                 <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
                   <img 
-                    src="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" 
+                    src="/manus-storage/gigitekai-logo-167x112_722a3580.webp" 
                     alt="GigitekAI" 
                     width={167}
                     height={112}

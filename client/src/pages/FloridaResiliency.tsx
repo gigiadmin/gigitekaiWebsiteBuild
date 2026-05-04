@@ -76,7 +76,7 @@ export default function FloridaResiliency() {
       
       // Trigger PDF download
       const link = document.createElement("a");
-      link.href = "/manus-storage/florida-it-audit-checklist_b6957c2d.pdf";
+      link.href = "";
       link.download = "Florida-IT-Audit-Checklist.pdf";
       document.body.appendChild(link);
       link.click();
