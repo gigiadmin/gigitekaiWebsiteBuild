@@ -85,14 +85,14 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[80px]">
+        <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[80px] gap-4">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group">
+          <a href="/" className="flex items-center gap-2 group flex-shrink-0">
             <img 
               src="/manus-storage/gigitekai-logo-cropped_6206ee8a.webp" 
               alt="GigitekAI logo" 
               className="h-10 sm:h-12 lg:h-12 w-auto object-contain"
-              style={{ maxWidth: '220px', minWidth: '140px' }}
+              style={{ maxWidth: '200px', minWidth: '130px' }}
             />
           </a>
 
@@ -139,43 +139,43 @@ export default function SiteNavBar2024() {
             </div>
 
             {[
-              { label: "Industries", href: "/industries/healthcare" },
-              { label: "Helpdesk Pricing", href: "/helpdesk-pricing" },
-              { label: "ROI Calculator", href: "/roi-calculator" },
-              { label: "About Us", href: "/about-us" },
-              { label: "Insights", href: "/blog" },
-              { label: "⚡ AI Briefing", href: "/AIStrategicBriefing" },
-              { label: "🤖 Watch AI Work Live", href: "/ai-demo" },
-              { label: "🔗 Client Exchange", href: "/exchange" },
+              { label: "Industries", href: "/industries/healthcare", show: 'always' },
+              { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
+              { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
+              { label: "About Us", href: "/about-us", show: 'always' },
+              { label: "Insights", href: "/blog", show: '2xl' },
+              { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", show: '2xl' },
+              { label: "🤖 Watch AI Work Live", href: "/ai-demo", show: '2xl' },
+              { label: "🔗 Client Exchange", href: "/exchange", show: '2xl' },
             ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
+                className={`px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap${ (item as any).show === '2xl' ? ' hidden 2xl:inline-flex' : ''}`}
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 onClick={() => item.label.includes("Watch AI Work Live") && trackAIDemoClick("desktop_nav")}
               >
                 {item.label}
               </a>
              ))}
-            {/* Standout Help Desk Link */}
+          </div>
+
+          {/* CTA + Theme Toggle */}
+          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+            {/* Support Link */}
             <a
               href="/helpdesk"
-              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg transition-all ml-0 whitespace-nowrap"
+              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg transition-all whitespace-nowrap"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               <div className="relative">
                 <LifeBuoy size={16} className="text-[#00D4FF]" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </div>
-              <span className="hidden xl:inline">Support</span>
+              <span>Support</span>
             </a>
-          </div>
-
-          {/* CTA + Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-6">
-            {/* Separator */}
-            <div className="w-px h-6 bg-white/20" />
+            {/* Separator between Support and Theme Toggle */}
+            <div className="w-px h-6 bg-white/30 mx-1" />
             {/* Theme Toggle */}
             {toggleTheme && (
               <button
