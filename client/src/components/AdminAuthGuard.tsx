@@ -18,7 +18,7 @@ export default function AdminAuthGuard({ children, requireRole }: AdminAuthGuard
 
   useEffect(() => {
     if (!loading && !user) {
-      window.location.href = getLoginUrl();
+      window.location.href = "/admin/login";
     }
     // Redirect non-admin users away from admin routes
     if (!loading && user && user.role !== "admin") {

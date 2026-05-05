@@ -1,13 +1,5 @@
 import type { CookieOptions, Request } from "express";
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
-
-function isIpAddress(host: string) {
-  // Basic IPv4 check and IPv6 presence detection.
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return true;
-  return host.includes(":");
-}
-
 function isSecureRequest(req: Request) {
   if (req.protocol === "https") return true;
 
@@ -21,42 +13,28 @@ function isSecureRequest(req: Request) {
   return protoList.some(proto => proto.trim().toLowerCase() === "https");
 }
 
+/**
+ * Session cookie options.
+ * 
+ * IMPORTANT: We intentionally do NOT set a `domain` property.
+ * When domain is omitted, the browser scopes the cookie to the exact host
+ * that set it (e.g., gigitekai.com). This is the safest and most compatible
+ * approach across all browsers, including Safari ITP, iOS PWA, and InPrivate mode.
+ * 
+ * Setting domain to ".gigitekai.com" would make the cookie available to all
+ * subdomains, but can cause issues with proxy configurations, Cloud Run routing,
+ * and browser security policies.
+ */
 export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
   const isSecure = isSecureRequest(req);
-  
-  // Extract domain from host header
-  let domain: string | undefined = undefined;
-  let sameSite: "lax" | "strict" | "none" = "lax";
-  const host = req.get("x-forwarded-host") || req.get("host") || "localhost";
-  const hostWithoutPort = host.split(":")[0];
-  
-  // Check if this is a Manus preview domain (*.manus.space or *.manus.computer)
-  const isManusDomain = hostWithoutPort.includes(".manus.space") || hostWithoutPort.includes(".manus.computer");
-  
-  // For Manus preview domains, don't set a domain cookie (use default/current domain only)
-  // This ensures the cookie is accessible within the same preview domain
-  if (isManusDomain) {
-    // Don't set domain - cookie will be scoped to exact domain
-    domain = undefined;
-  } else if (!LOCAL_HOSTS.has(hostWithoutPort) && !isIpAddress(hostWithoutPort)) {
-    // For production domains, set root domain (e.g., .gigitekai.com from www.gigitekai.com)
-    const parts = hostWithoutPort.split(".");
-    if (parts.length > 1) {
-      domain = "." + parts.slice(-2).join(".");
-    }
-  }
 
-  // Safari (including iOS PWA) blocks SameSite=none cookies unless Secure is also set.
-  // For same-origin OAuth flows (gigitekai.com → gigitekai.com), SameSite=lax is correct
-  // and works on all browsers including Safari ITP and iOS PWA standalone mode.
-  // SameSite=none is only needed for cross-origin embeds (iframes, third-party contexts).
   return {
-    domain,
+    // domain is intentionally omitted - cookie scoped to exact host
     httpOnly: true,
     path: "/",
-    sameSite,
+    sameSite: "lax",
     secure: isSecure,
   };
 }

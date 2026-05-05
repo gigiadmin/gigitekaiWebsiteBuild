@@ -4610,3 +4610,16 @@
 - [x] Implement route-based code splitting for admin features (already done - all routes lazy-loaded)
 - [x] Create client testimonials carousel component (5 testimonials with auto-play, manual navigation)
 - [ ] Test and verify PageSpeed Performance 60+
+
+
+## Critical Fixes (May 2026)
+- [ ] Fix admin login - /admin stuck on infinite loading spinner (OAuth not working)
+- [ ] Fix homepage text too big - font sizes overflow viewport
+- [ ] Fix homepage no proper padding/margins - content bunched against left edge
+- [ ] Fix duplicate chat bubbles showing on homepage
+- [ ] Properly implement Deloitte-style design with correct containers (max-w-7xl mx-auto px-8)
+- [ ] Reduce font sizes to reasonable professional levels (not overflowing)
+- [ ] Add proper whitespace without making text overflow
+- [ ] Fix missing menu/navbar on main page
+- [ ] Fix blog page 'Failed to load articles' error
+- [ ] Fix all pages missing container padding (content flush to left edge)
