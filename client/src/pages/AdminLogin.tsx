@@ -78,17 +78,38 @@ export default function AdminLogin() {
               Admin Login
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Temporary authentication while OAuth is being configured
+              Sign in with Manus OAuth or use your admin credentials
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            {/* Info Banner */}
-            <div className="mb-6 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex gap-2">
-              <AlertCircle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-200">
-                <strong>Temporary Login:</strong> This is a temporary solution while we configure OAuth for gigitekai.com. Your credentials are stored securely.
+            {/* OAuth Button */}
+            <Button
+              type="button"
+              onClick={() => {
+                window.location.href = `/api/oauth/authorize?redirectUri=${encodeURIComponent(window.location.origin + '/admin')}`;
+              }}
+              className="w-full mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium h-9"
+            >
+              <Zap size={16} className="mr-2" />
+              Sign in with Manus OAuth
+            </Button>
+
+            {/* Divider */}
+            <div className="relative mb-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700"></div>
               </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-2 bg-[#161B22] text-slate-400">or</span>
+              </div>
+            </div>
+
+            {/* Password Login Info */}
+            <div className="mb-4 p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+              <p className="text-xs text-slate-400">
+                <strong>Backup Login:</strong> Use your admin email and password if OAuth is unavailable.
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -141,7 +162,8 @@ export default function AdminLogin() {
             {/* Help Text */}
             <div className="mt-6 p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
               <p className="text-xs text-slate-400">
-                <strong>Need access?</strong> Contact your administrator at <span className="text-cyan-400">support@gigitekai.com</span> to create your admin account.
+                <strong>Preferred:</strong> Use Manus OAuth for secure authentication. <br />
+                <strong>Backup:</strong> Password login available if needed.
               </p>
             </div>
           </CardContent>

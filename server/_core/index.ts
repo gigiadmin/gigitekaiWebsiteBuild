@@ -235,14 +235,15 @@ async function startServer() {
     startCallPoller();
     // Initialize Teams email forwarding (one-time setup)
     initializeTeamsForwarding().catch(err => {
+      console.error("[Teams Forwarding] Failed to initialize:", err);
+    });
     // Ensure default admin account exists
     const { ensureDefaultAdminExists } = await import("../admin-auth");
     ensureDefaultAdminExists().catch(err => {
       console.error("[Admin Auth] Failed to ensure default admin:", err);
     });
-      console.error("[Teams Forwarding] Failed to initialize:", err);
-    });
     console.log("[Call Poller] Teams PSTN call poller started (5-minute interval)");
+    console.log("[Admin Auth] Default admin account initialization started");
     // Log email poller setup
     console.log("[Email Poller] M365 Graph email poller started (5-minute interval)");
     console.log("[Email Poller] Polling support@gigitekai.com mailbox for new emails");
