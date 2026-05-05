@@ -16,6 +16,7 @@ import { feedbackRouter } from "./routers/feedback";
 import { emailDigestRouter } from "./routers/emailDigest";
 import { agentsRouter } from "./routers/agents";
 import { adminAuthRouter } from "./routers/admin-auth";
+import { adminUnlockRouter } from "./routers/admin-unlock";
 import { blogRouter } from "./routers/blog";
 import { newsletterRouter } from "./routers/newsletter";
 import { adminNotificationsRouter } from "./routers/admin-notifications";
@@ -190,6 +191,7 @@ export const appRouter = router({
   customerPortal: customerPortalRouter,
   notifications: notificationsRouter,
   adminRoles: adminRolesRouter,
+  adminUnlock: adminUnlockRouter,
   adminMenuCustomization: adminMenuCustomizationRouter,
   aibot: aibotRouter,
   chat: chatRouter,
