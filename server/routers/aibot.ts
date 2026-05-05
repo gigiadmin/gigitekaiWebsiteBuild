@@ -443,8 +443,8 @@ export const aibotRouter = router({
       const { analyzeSentimentAndIntent, shouldAutoEscalate } = await import('./aibot-enterprise');
       const analysis = await analyzeSentimentAndIntent(message);
 
-      // Save sentiment and intent analysis
-      await saveChatAnalytic({
+      // Save sentiment and intent analysis (non-blocking - don't wait for it)
+      saveChatAnalytic({
         sessionId,
         messageId: userMessageId,
         sentiment: analysis.sentiment as any,
@@ -452,6 +452,8 @@ export const aibotRouter = router({
         intent: analysis.intent as any,
         intentConfidence: analysis.intentConfidence,
         routedTo: analysis.routedTo
+      }).catch(err => {
+        console.warn("[AIBot] Failed to save chat analytics (non-critical):", err);
       });
 
       // Search knowledge base for relevant context (hybrid: KB articles first, then legacy KB fallback)

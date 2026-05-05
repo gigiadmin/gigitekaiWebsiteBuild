@@ -295,19 +295,19 @@ export const contactCenterRouter = router({
         agents: {
           ticketClassifier: agents.ticketClassifier
             ? {
-                id: agents.ticketClassifier.id,
+                id: (agents.ticketClassifier as any)?.id || "unknown",
                 status: "configured",
               }
             : null,
           kbQa: agents.kbQa
             ? {
-                id: agents.kbQa.id,
+                id: (agents.kbQa as any)?.id || "unknown",
                 status: "configured",
               }
             : null,
           voiceAgent: agents.voiceAgent
             ? {
-                id: agents.voiceAgent.id,
+                id: (agents.voiceAgent as any)?.id || "unknown",
                 status: "configured",
               }
             : null,
