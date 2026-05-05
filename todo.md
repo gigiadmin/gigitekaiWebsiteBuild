@@ -4327,3 +4327,8 @@
 - [ ] Reduce unused JavaScript: tree-shake dependencies, code split admin routes (907KB saved)
 - [ ] Set cache headers: static assets 1yr, HTML no-cache, API responses TTL (124KB saved)
 - [ ] Reduce DOM size: virtualize lists, lazy-load below-fold, remove unused UI (1,528 → <1,000 elements)
+
+
+## Aria Chat Widget Fixes (May 5, 2026)
+- [x] Fix chat messages container scroll overflow — messages cut off at bottom, can't scroll down (added min-h-0 to flex container)
+- [x] Verify chat box height and scrolling behavior on mobile and desktop

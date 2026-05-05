@@ -449,7 +449,7 @@ export default function AIChatWidget() {
           <div
             ref={messagesContainerRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/50"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/50 min-h-0"
           >
             {!hasInteracted && messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center">
