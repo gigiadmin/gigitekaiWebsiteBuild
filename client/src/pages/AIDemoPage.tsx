@@ -1,4 +1,4 @@
-/*
+/**
  * GigitekAI — Interactive Agentic AI Demo Page (/ai-demo)
  * 1-click workflow simulation showing AI agents in action
  * Design: Cyberpunk Minimalism — dark navy + electric cyan
@@ -157,66 +157,79 @@ async function handleTicket(ticket) {
     color: "red",
     steps: [
       {
-        agent: "Detection Agent",
+        agent: "SIEM Agent",
         icon: AlertTriangle,
         action: "Anomaly detected",
-        detail: "Impossible travel: User login from Moscow 2 min after London logout",
-        duration: 500,
-        status: "processing",
-      },
-      {
-        agent: "Verification Agent",
-        icon: Brain,
-        action: "Risk scoring",
-        detail: "Risk level: CRITICAL (95% confidence). MFA bypass attempt detected.",
+        detail: "Login from unrecognized IP: 185.220.101.x (Tor exit node)",
         duration: 600,
         status: "processing",
       },
       {
-        agent: "Isolation Agent",
-        icon: Lock,
-        action: "Immediate containment",
-        detail: "User session revoked. All active tokens invalidated. Device flagged.",
-        duration: 400,
+        agent: "Threat Intel Agent",
+        icon: Brain,
+        action: "Cross-referencing threat feeds",
+        detail: "IP flagged in 3 threat databases. Risk score: 94/100 (CRITICAL)",
+        duration: 800,
         status: "processing",
       },
       {
-        agent: "Incident Agent",
-        icon: AlertTriangle,
-        action: "Incident ticket created",
-        detail: "Severity: P1. Assigned to security team. Evidence attached.",
+        agent: "Identity Agent",
+        icon: Shield,
+        action: "Revoking active sessions",
+        detail: "All sessions terminated via Microsoft Graph. Conditional Access policy applied.",
         duration: 700,
         status: "processing",
       },
       {
-        agent: "Notification Agent",
-        icon: Mail,
-        action: "Alert sent",
-        detail: "Email + Slack + SMS to security team with full context",
-        duration: 300,
+        agent: "Isolation Agent",
+        icon: Zap,
+        action: "Quarantining endpoint",
+        detail: "DefensX + Defender for Endpoint: device isolated from network",
+        duration: 900,
+        status: "processing",
+      },
+      {
+        agent: "Escalation Agent",
+        icon: Users,
+        action: "Notifying security team",
+        detail: "Teams alert sent to #security-incidents with full context + evidence",
+        duration: 500,
+        status: "processing",
+      },
+      {
+        agent: "Audit Agent",
+        icon: CheckCircle2,
+        action: "Incident report generated",
+        detail: "Full timeline logged to Sentinel. Compliance record created. MTTR: 8.7 seconds.",
+        duration: 400,
         status: "complete",
       },
     ],
-    codeSnippet: `// GigitekAI Security Threat Response Agent
-// Runtime: Azure Sentinel + Microsoft Graph
+    codeSnippet: `// GigitekAI Security Response Agent
+// Runtime: Azure Logic Apps + Defender for Endpoint API
 
-async function detectAndRespond(loginEvent) {
-  // Step 1: Analyze login anomaly
-  const riskScore = await riskEngine.analyze({
-    previousLocation: loginEvent.lastLocation,
-    newLocation: loginEvent.currentLocation,
-    timeDelta: loginEvent.timeSinceLastLogin,
-    mfaUsed: loginEvent.mfaUsed
-  });
+async function respondToThreat(alert) {
+  // Parallel threat analysis
+  const [iocAnalysis, userRisk, deviceRisk] = await Promise.all([
+    threatIntelAgent.analyze(alert.indicators),
+    identityAgent.getUserRiskScore(alert.userId),
+    endpointAgent.getDeviceRisk(alert.deviceId)
+  ]);
 
-  // Step 2: If critical, isolate immediately
-  if (riskScore > 0.9) {
-    await graphClient.api("/me/revokeSignInSessions").post({});
-    await sentinelClient.createIncident({
-      severity: "High",
-      title: "Suspicious Login Detected",
-      description: \`Impossible travel from \${loginEvent.lastLocation} to \${loginEvent.currentLocation}\`
-    });
+  const severity = calculateSeverity({ iocAnalysis, userRisk, deviceRisk });
+
+  if (severity >= CRITICAL) {
+    // Isolate device immediately
+    await defenderAgent.isolateDevice(alert.deviceId);
+    // Revoke all active sessions
+    await graphClient
+      .api("/users/" + alert.userId + "/revokeSignInSessions")
+      .post({});
+    // Notify SOC + create P1 ticket
+    await Promise.all([
+      socAgent.createIncident(alert, severity),
+      teamsAgent.alertChannel("security-ops", alert)
+    ]);
   }
 }`,
   },
@@ -226,46 +239,365 @@ async function detectAndRespond(loginEvent) {
     title: "Employee Onboarding",
     subtitle: "Zero-touch M365 provisioning",
     description:
-      "A new hire is added to HR — and an AI agent signs a contract, provisions 8 systems, and sends welcome packages in under 12 minutes.",
+      "A new hire is added to HR — and within minutes, their entire Microsoft 365 environment is fully provisioned by AI agents.",
     color: "emerald",
     steps: [
       {
-        agent: "Intake Agent",
+        agent: "HR Integration Agent",
         icon: Users,
-        action: "New hire detected",
-        detail: "HR system: New employee 'Sarah Chen' hired at Acme Corp",
+        action: "New employee detected",
+        detail: "HR system webhook: Sarah Chen, Marketing Manager, Start: June 1",
         duration: 600,
         status: "processing",
       },
       {
-        agent: "Contract Agent",
-        icon: GitBranch,
-        action: "Generating contracts",
-        detail: "Employment agreement + IT security policy auto-generated and signed",
+        agent: "Identity Agent",
+        icon: Shield,
+        action: "Creating Entra ID account",
+        detail: "UPN: s.chen@gigitekai.com | Licenses: M365 Business Premium + Copilot",
+        duration: 900,
+        status: "processing",
+      },
+      {
+        agent: "Access Agent",
+        icon: Brain,
+        action: "Applying role-based access",
+        detail: "Marketing group added. SharePoint sites provisioned. Teams channels joined.",
         duration: 800,
+        status: "processing",
+      },
+      {
+        agent: "Device Agent",
+        icon: Zap,
+        action: "Enrolling device in Intune",
+        detail: "Autopilot profile assigned. Compliance policies applied. Apps deploying.",
+        duration: 1000,
+        status: "processing",
+      },
+      {
+        agent: "Welcome Agent",
+        icon: Mail,
+        action: "Sending welcome package",
+        detail: "Personalized email with credentials, IT guide, and Copilot quick-start sent",
+        duration: 500,
+        status: "processing",
+      },
+      {
+        agent: "Completion Agent",
+        icon: CheckCircle2,
+        action: "Onboarding complete",
+        detail: "Full M365 environment ready in 6.3 minutes. Zero IT tickets required.",
+        duration: 400,
+        status: "complete",
+      },
+    ],
+    codeSnippet: `// GigitekAI M365 Onboarding Agent
+// Runtime: Power Automate + Microsoft Graph API
+
+async function onboardEmployee(employee) {
+  // Create identity in Entra ID
+  const user = await graphClient.api("/users").post({
+    displayName: employee.fullName,
+    userPrincipalName: employee.email,
+    passwordProfile: { forceChangePasswordNextSignIn: true }
+  });
+
+  // Assign licenses
+  await graphClient
+    .api("/users/" + user.id + "/assignLicense")
+    .post({ addLicenses: [{ skuId: M365_BUSINESS_PREMIUM_SKU }] });
+
+  // Apply Zero Trust security baseline
+  await conditionalAccessAgent.applyBaseline(user.id, {
+    mfaRequired: true,
+    compliantDeviceRequired: true,
+    zeroTrustPolicy: "enterprise"
+  });
+
+  // Provision all workloads in parallel
+  await Promise.all([
+    teamsAgent.createChannels(user.id, employee.department),
+    sharepointAgent.grantAccess(user.id, employee.sites),
+    intuneAgent.enrollDevice(user.id)
+  ]);
+}`,
+  },
+  // ── NEW SCENARIO 4: Proactive Monitoring & Auto-Remediation ──────────────────
+  {
+    id: "monitoring",
+    icon: Activity,
+    title: "Proactive Monitoring & Auto-Remediation",
+    subtitle: "AI-driven infrastructure healing",
+    description:
+      "An AI agent detects a server degrading before it fails, diagnoses the root cause, auto-remediates, and files a report — all before a human is even paged.",
+    color: "orange",
+    steps: [
+      {
+        agent: "Telemetry Agent",
+        icon: Activity,
+        action: "Anomaly pattern detected",
+        detail: "Server SRV-PROD-04: CPU 87% sustained 12 min. Memory leak signature identified.",
+        duration: 700,
+        status: "processing",
+      },
+      {
+        agent: "Diagnostic Agent",
+        icon: Brain,
+        action: "Root cause analysis",
+        detail: "Process: IIS AppPool 'GigitekAPI' leaking memory. Correlated with deploy at 14:32 UTC.",
+        duration: 900,
+        status: "processing",
+      },
+      {
+        agent: "Knowledge Agent",
+        icon: Database,
+        action: "Querying remediation playbook",
+        detail: "Matched runbook KB-2041: IIS memory leak → recycle app pool + alert dev team.",
+        duration: 600,
+        status: "processing",
+      },
+      {
+        agent: "Remediation Agent",
+        icon: RefreshCw,
+        action: "Executing auto-remediation",
+        detail: "IIS AppPool recycled via PowerShell. CPU dropped to 12%. Memory freed: 4.2 GB.",
+        duration: 1000,
+        status: "processing",
+      },
+      {
+        agent: "Validation Agent",
+        icon: CheckCircle2,
+        action: "Health check passed",
+        detail: "API response time: 142ms (normal). Error rate: 0.01%. Service restored.",
+        duration: 700,
+        status: "processing",
+      },
+      {
+        agent: "Notification Agent",
+        icon: MessageSquare,
+        action: "Stakeholders notified",
+        detail: "Teams alert + ITSM ticket created. Dev team notified of memory leak in build v2.4.1.",
+        duration: 500,
+        status: "processing",
+      },
+      {
+        agent: "Audit Agent",
+        icon: BarChart3,
+        action: "Incident report filed",
+        detail: "MTTR: 4 min 12 sec. Zero downtime. Prevented estimated 2hr outage. Ticket closed.",
+        duration: 400,
+        status: "complete",
+      },
+    ],
+    codeSnippet: `// GigitekAI Proactive Monitoring Agent
+// Runtime: Azure Monitor + Logic Apps
+
+async function monitorAndRemediate(alert) {
+  // AI-powered root cause analysis
+  const diagnosis = await diagnosticAgent.analyze({
+    metrics: alert.metrics,
+    historicalBaseline: await getBaseline(alert.resourceId),
+    model: "gpt-4o"
+  });
+
+  if (diagnosis.failureProbability > 0.85) {
+    const remediation = REMEDIATION_PLAYBOOKS[diagnosis.rootCause];
+
+    if (remediation.autoApproved) {
+      // Execute fix before failure occurs
+      await remediationAgent.execute(remediation, alert.resourceId);
+
+      // Verify health post-remediation
+      const postCheck = await healthAgent.verify(alert.resourceId);
+
+      if (postCheck.healthy) {
+        await ticketingAgent.createResolved({
+          title: "Auto-remediated: " + diagnosis.rootCause,
+          mttr: diagnosis.remediationTime,
+          humanTouches: 0
+        });
+      }
+    }
+  }
+}`,
+  },
+
+  // ── NEW SCENARIO 5: Employee Offboarding ──────────────────────────────────────
+  {
+    id: "offboarding",
+    icon: UserMinus,
+    title: "Employee Offboarding",
+    subtitle: "Zero-gap access revocation",
+    description:
+      "An employee departure triggers a coordinated AI agent swarm that revokes all access, recovers assets, and ensures compliance — in under 3 minutes.",
+    color: "violet",
+    steps: [
+      {
+        agent: "HR Sync Agent",
+        icon: UserMinus,
+        action: "Termination event received",
+        detail: "HR system: James Ortega, Sales Rep — termination effective immediately. Reason: voluntary.",
+        duration: 600,
         status: "processing",
       },
       {
         agent: "Identity Agent",
         icon: Lock,
-        action: "Creating Entra ID account",
-        detail: "User sarah.chen@acme.com created. MFA enrolled. SSO configured.",
-        duration: 500,
+        action: "Disabling Entra ID account",
+        detail: "Account disabled. All active sessions revoked. MFA tokens invalidated. 14 app tokens cleared.",
+        duration: 800,
         status: "processing",
       },
       {
-        agent: "M365 Agent",
-        icon: Layers,
-        action: "Provisioning M365",
-        detail: "Exchange mailbox, Teams, OneDrive, SharePoint access configured",
-        duration: 700,
+        agent: "License Agent",
+        icon: Zap,
+        action: "Reclaiming licenses",
+        detail: "M365 Business Premium + Copilot licenses unassigned. Saved: $57/month.",
+        duration: 600,
+        status: "processing",
+      },
+      {
+        agent: "Data Agent",
+        icon: Database,
+        action: "Preserving & transferring data",
+        detail: "OneDrive content transferred to manager. Mailbox converted to shared. Retention policy applied.",
+        duration: 900,
         status: "processing",
       },
       {
         agent: "Device Agent",
+        icon: Server,
+        action: "Remote wipe initiated",
+        detail: "Intune: selective wipe on corporate device. Personal data preserved. MDM enrollment removed.",
+        duration: 800,
+        status: "processing",
+      },
+      {
+        agent: "Compliance Agent",
+        icon: Shield,
+        action: "Compliance record created",
+        detail: "GDPR/SOC2 offboarding checklist completed. Audit trail logged to Sentinel.",
+        duration: 500,
+        status: "processing",
+      },
+      {
+        agent: "Completion Agent",
+        icon: CheckCircle2,
+        action: "Offboarding complete",
+        detail: "All 23 access points revoked. Total time: 2 min 47 sec. Zero manual steps required.",
+        duration: 400,
+        status: "complete",
+      },
+    ],
+    codeSnippet: `// GigitekAI Employee Offboarding Agent
+// Runtime: Azure Functions + Microsoft Graph API
+
+async function offboardEmployee(employee) {
+  // Immediate parallel access revocation
+  await Promise.all([
+    graphClient.api("/users/" + employee.id + "/revokeSignInSessions").post({}),
+    graphClient.api("/users/" + employee.id).patch({ accountEnabled: false }),
+    intuneAgent.wipeDevices(employee.id),
+    defenderAgent.offboardEndpoints(employee.id)
+  ]);
+
+  // Transfer data ownership to manager
+  await graphClient
+    .api("/users/" + employee.id + "/mailboxSettings")
+    .patch({ autoReplyEnabled: true, forwardTo: employee.managerId });
+
+  await sharepointAgent.transferOwnership(employee.id, employee.managerId);
+
+  // Generate compliance audit report
+  const auditReport = await complianceAgent.generateReport({
+    userId: employee.id,
+    accessRevoked: true,
+    dataTransferred: true
+  });
+
+  await notificationAgent.sendSummary("hr-team", employee, auditReport);
+}`,
+  },
+
+  // ── NEW SCENARIO 6: Complex Multi-System Agentic AI Orchestration ─────────────
+  {
+    id: "agentic-orchestration",
+    icon: Workflow,
+    title: "Multi-System Agentic Orchestration",
+    subtitle: "AI agents coordinating across 8 systems",
+    description:
+      "A new enterprise client signs a contract — and an Orchestrator AI spawns specialized sub-agents that simultaneously provision their entire environment across M365, Azure, Dynamics 365, Intune, ConnectSecure, and the billing system.",
+    color: "purple",
+    steps: [
+      {
+        agent: "Orchestrator Agent",
         icon: Cpu,
-        action: "Device enrollment",
-        detail: "Intune enrollment link sent. Auto-config profile applied.",
+        action: "Contract signed — spawning agent swarm",
+        detail: "CRM webhook: Acme Corp signed Enterprise AI plan. Orchestrator spawning 7 parallel sub-agents.",
+        duration: 600,
+        status: "processing",
+      },
+      {
+        agent: "Identity Sub-Agent",
+        icon: Shield,
+        action: "[PARALLEL] Provisioning Entra ID tenant",
+        detail: "New tenant: acmecorp.gigitekai.com. Admin accounts created. Conditional Access baseline applied.",
+        duration: 1000,
+        status: "processing",
+      },
+      {
+        agent: "Azure Sub-Agent",
+        icon: Server,
+        action: "[PARALLEL] Deploying Azure infrastructure",
+        detail: "Resource group created. VNet + NSG configured. Log Analytics workspace provisioned.",
+        duration: 1100,
+        status: "processing",
+      },
+      {
+        agent: "M365 Sub-Agent",
+        icon: Layers,
+        action: "[PARALLEL] Configuring M365 environment",
+        detail: "25x Business Premium licenses assigned. Teams, SharePoint, Exchange policies applied. Copilot enabled.",
+        duration: 900,
+        status: "processing",
+      },
+      {
+        agent: "Security Sub-Agent",
+        icon: Lock,
+        action: "[PARALLEL] Deploying security stack",
+        detail: "ConnectSecure scan initiated. DefensX DNS filtering live. Defender for Business enrolled.",
+        duration: 1000,
+        status: "processing",
+      },
+      {
+        agent: "CRM Sub-Agent",
+        icon: Database,
+        action: "[PARALLEL] Creating Dynamics 365 records",
+        detail: "Account, contacts, and SLA records created in D365. Support queue assigned. Helpdesk portal provisioned.",
+        duration: 800,
+        status: "processing",
+      },
+      {
+        agent: "Billing Sub-Agent",
+        icon: BarChart3,
+        action: "[PARALLEL] Activating billing & reporting",
+        detail: "Recurring invoice created in billing system. Usage monitoring enabled. Client portal access granted.",
+        duration: 700,
+        status: "processing",
+      },
+      {
+        agent: "Orchestrator Agent",
+        icon: GitBranch,
+        action: "Validating all sub-agent results",
+        detail: "7/7 sub-agents completed. Cross-checking dependencies: DNS, SSO federation, backup policies.",
+        duration: 900,
+        status: "processing",
+      },
+      {
+        agent: "Welcome Agent",
+        icon: Globe,
+        action: "Client environment handoff",
+        detail: "Welcome email sent with portal links, admin credentials, and onboarding guide. Account manager notified.",
         duration: 600,
         status: "processing",
       },
@@ -416,82 +748,192 @@ function WorkflowStep({
           {visible && (
             <Badge
               className={`text-xs border ${
-                isComplete ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : c.badge
+                isComplete
+                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                  : c.badge
               }`}
             >
-              {isComplete ? "Complete" : "Processing"}
+              {isComplete ? "✓ Done" : "● Running"}
             </Badge>
           )}
         </div>
-        <p className={`text-sm font-medium ${visible ? "text-white" : "text-slate-600"}`}>{step.action}</p>
-        <p className={`text-xs mt-1 ${visible ? "text-slate-400" : "text-slate-700"}`}>{step.detail}</p>
+        <p className={`font-semibold text-sm mb-0.5 ${visible ? "text-white" : "text-slate-700"}`}>
+          {step.action}
+        </p>
+        {visible && (
+          <p className="text-xs text-slate-400 leading-relaxed">{step.detail}</p>
+        )}
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function AIDemoPage() {
   useSEO({
-    title: "Watch AI Agents Work in Real Time | GigitekAI",
-    description: "See live AI agent workflows running inside GigitekAI client environments. Watch helpdesk automation, security response, and employee onboarding in action.",
+    title: "Live AI Agent Demo — See GigitekAI Automation in Action",
+    description:
+      "Watch GigitekAI's Agentic AI workflows live: helpdesk auto-resolution, zero-trust threat response, and zero-touch M365 onboarding. No sign-up required.",
+    path: "/ai-demo",
   });
 
   const [activeScenario, setActiveScenario] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [ended, setEnded] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
+  const [completed, setCompleted] = useState(false);
+  const [totalTime, setTotalTime] = useState(0);
+  const timeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [showCode, setShowCode] = useState(false);
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadCompany, setLeadCompany] = useState("");
-  const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+
+  // ── Voiceover state ──────────────────────────────────────────────────────────
+// ── Voiceover state ──────────────────────────────────────────────────────────
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceSupported] = useState(() => typeof window !== "undefined" && "speechSynthesis" in window);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Load voices when component mounts (voices load asynchronously in some browsers)
+  useEffect(() => {
+    if (!voiceSupported) return;
+    
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        console.log(`[Voiceover] Loaded ${voices.length} voices`);
+      }
+    };
+
+    // Load voices immediately and on voiceschanged event
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null as any;
+    };
+  }, [voiceSupported]);
+
+  const speakText = (text: string) => {
+    if (!voiceEnabled || !voiceSupported) return;
+    
+    try {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.88;   // Slightly slower than default — comfortable conversation pace
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      
+      // Get voices and select the best one
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        // Prefer a natural English voice if available
+        const preferred = voices.find(v =>
+          v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Alex"))
+        ) || voices.find(v => v.lang.startsWith("en")) || voices[0];
+        if (preferred) {
+          utter.voice = preferred;
+          console.log(`[Voiceover] Using voice: ${preferred.name}`);
+        }
+      } else {
+        console.warn("[Voiceover] No voices available");
+      }
+      
+      speechRef.current = utter;
+      window.speechSynthesis.speak(utter);
+    } catch (error) {
+      console.error("[Voiceover] Speech synthesis error:", error);
+    }
+  };
+
+  const stopSpeech = () => {
+    if (voiceSupported) window.speechSynthesis.cancel();
+  };
+
+  // Stop speech on unmount or scenario change
+  useEffect(() => {
+    return () => stopSpeech();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScenario]);
 
   const scenario = SCENARIOS[activeScenario];
   const c = COLOR_MAP[scenario.color];
-  const notifyOwnerMutation = trpc.system.notifyOwner.useMutation();
 
-  // Voice support check
+  const resetDemo = () => {
+    timeoutRefs.current.forEach(clearTimeout);
+    timeoutRefs.current = [];
+    stopSpeech();
+    setRunning(false);
+    setVisibleSteps([]);
+    setCompleted(false);
+    setTotalTime(0);
+  };
+
+  const runDemo = () => {
+    resetDemo();
+    setRunning(true);
+
+    // Slow down step durations to a comfortable human conversation pace (min 2.5s each)
+    const HUMAN_PACE_MIN = 2500;
+    let elapsed = 0;
+    scenario.steps.forEach((step, i) => {
+      const stepDuration = Math.max(step.duration * 3.2, HUMAN_PACE_MIN);
+      elapsed += stepDuration;
+      const t = setTimeout(() => {
+        setVisibleSteps((prev) => [...prev, i]);
+        // Narrate the step action + detail
+        const narration = `${step.agent}: ${step.action}. ${step.detail}`;
+        speakText(narration);
+        if (i === scenario.steps.length - 1) {
+          setCompleted(true);
+          setRunning(false);
+          setTotalTime(elapsed);
+          // Final completion narration
+          setTimeout(() => speakText("Workflow complete. Zero human touches required."), 1200);
+        }
+      }, elapsed);
+      timeoutRefs.current.push(t);
+    });
+  };
+
+  // Cleanup on unmount or scenario change
   useEffect(() => {
-    const supported = "speechSynthesis" in window;
-    setVoiceSupported(supported);
-  }, []);
+    return () => {
+      timeoutRefs.current.forEach(clearTimeout);
+    };
+  }, [activeScenario]);
 
-  // Play scenario
   const handleScenarioChange = (idx: number) => {
+    resetDemo();
+    setShowCode(false);
     setActiveScenario(idx);
-    setPlaying(true);
-    setEnded(false);
   };
 
-  const handlePlayClick = () => {
-    setPlaying(true);
-    setEnded(false);
-  };
-
-  const handleRestartClick = () => {
-    setPlaying(false);
-    setEnded(false);
-  };
-
-  // Lead capture
+  const submitLeadMutation = trpc.demo.submitLead.useMutation({
+    onSuccess: () => {
+      setLeadSubmitted(true);
+      setLeadSubmitting(false);
+    },
+    onError: () => {
+      // Still show success to user — don't expose backend errors
+      setLeadSubmitted(true);
+      setLeadSubmitting(false);
+    },
+  });
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadName || !leadEmail) return;
-
     setLeadSubmitting(true);
-    try {
-      await notifyOwnerMutation.mutateAsync({
-        title: "New AI Demo Lead",
-        content: `Name: ${leadName}\nEmail: ${leadEmail}\nCompany: ${leadCompany || "N/A"}`,
-      });
-      setLeadSubmitted(true);
-    } catch (err) {
-      console.error("Failed to submit lead:", err);
-    } finally {
-      setLeadSubmitting(false);
-    }
+    submitLeadMutation.mutate({
+      name: leadName,
+      email: leadEmail,
+      company: leadCompany || undefined,
+      scenario: scenario.title,
+    });
   };
 
   return (
@@ -499,318 +941,339 @@ export default function AIDemoPage() {
       <SiteNavBar2024 />
 
       {/* ── Hero ── */}
-      <section className="pt-24 pb-12 text-center" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1.5 mb-6">
-            <Bot className="w-4 h-4 text-cyan-400" />
-            <span className="text-cyan-400 text-sm font-medium">Live Agent Demo — No Sign-Up Required</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-            Watch AI Agents{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Work in Real Time
-            </span>
-          </h1>
-          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
-            These are the same agentic workflows running inside GigitekAI client environments today.
-            Pick a scenario and hit Play — see exactly how AI replaces manual IT work.
-          </p>
+      <section className="pt-24 pb-12 px-4 max-w-6xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1.5 mb-6">
+          <Bot className="w-4 h-4 text-cyan-400" />
+          <span className="text-cyan-400 text-sm font-medium">Live Agent Demo — No Sign-Up Required</span>
         </div>
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+          Watch AI Agents{" "}
+          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Work in Real Time
+          </span>
+        </h1>
+        <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
+          These are the same agentic workflows running inside GigitekAI client environments today.
+          Pick a scenario and hit Play — see exactly how AI replaces manual IT work.
+        </p>
       </section>
 
       {/* ── Scenario Selector ── */}
-      <section className="mb-10" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-4">
-            {SCENARIOS.map((s, idx) => {
-              const Icon = s.icon;
-              const sc = COLOR_MAP[s.color];
-              const isActive = activeScenario === idx;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => handleScenarioChange(idx)}
-                  className={`text-left p-5 rounded-xl border transition-all duration-200 ${
-                    isActive
-                      ? `${sc.border} ${sc.bg} shadow-lg ${sc.glow}`
-                      : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isActive ? sc.bg : "bg-slate-700"}`}>
-                      <Icon className={`w-5 h-5 ${isActive ? sc.text : "text-slate-400"}`} />
-                    </div>
-                    <div>
-                      <p className={`font-bold text-sm ${isActive ? "text-white" : "text-slate-300"}`}>{s.title}</p>
-                      <p className="text-xs text-slate-500">{s.subtitle}</p>
-                    </div>
+      <section className="px-4 max-w-6xl mx-auto mb-10">
+        <div className="grid md:grid-cols-3 gap-4">
+          {SCENARIOS.map((s, idx) => {
+            const Icon = s.icon;
+            const sc = COLOR_MAP[s.color];
+            const isActive = activeScenario === idx;
+            return (
+              <button
+                key={s.id}
+                onClick={() => handleScenarioChange(idx)}
+                className={`text-left p-5 rounded-xl border transition-all duration-200 ${
+                  isActive
+                    ? `${sc.border} ${sc.bg} shadow-lg ${sc.glow}`
+                    : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isActive ? sc.bg : "bg-slate-700"}`}>
+                    <Icon className={`w-5 h-5 ${isActive ? sc.text : "text-slate-400"}`} />
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">{s.description}</p>
-                </button>
-              );
-            })}
-          </div>
+                  <div>
+                    <p className={`font-bold text-sm ${isActive ? "text-white" : "text-slate-300"}`}>{s.title}</p>
+                    <p className="text-xs text-slate-500">{s.subtitle}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">{s.description}</p>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* ── Demo Terminal ── */}
-      <section className="mb-16" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-4xl mx-auto">
-          <div className={`rounded-2xl border ${c.border} bg-slate-900/80 overflow-hidden shadow-2xl ${c.glow}`}>
-            {/* Terminal header */}
-            <div className="flex items-center justify-between px-5 py-3 bg-slate-800/80 border-b border-slate-700">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/70" />
-              </div>
-              <span className="text-xs text-slate-500 font-mono">gigitekai-agent-runtime ~ AI Helpdesk Agent</span>
-              <div className="flex items-center gap-2">
-                {voiceSupported && (
-                  <button
-                    onClick={() => setVoiceEnabled(!voiceEnabled)}
-                    className="p-1.5 hover:bg-slate-700 rounded transition-colors"
-                    title={voiceEnabled ? "Disable voice" : "Enable voice"}
-                  >
-                    {voiceEnabled ? (
-                      <Volume2 className="w-4 h-4 text-cyan-400" />
-                    ) : (
-                      <VolumeX className="w-4 h-4 text-slate-500" />
-                    )}
-                  </button>
-                )}
-              </div>
+      <section className="px-4 max-w-4xl mx-auto mb-16">
+        <div className={`rounded-2xl border ${c.border} bg-slate-900/80 overflow-hidden shadow-2xl ${c.glow}`}>
+          {/* Terminal header */}
+          <div className="flex items-center justify-between px-5 py-3 bg-slate-800/80 border-b border-slate-700">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500/70" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <div className="w-3 h-3 rounded-full bg-emerald-500/70" />
+              <span className="ml-3 text-xs font-mono text-slate-400">
+                gigitekai-agent-runtime — {scenario.title}
+              </span>
             </div>
-
-            {/* Terminal content */}
-            <div className="p-6 min-h-[420px]">
-              {!playing && !ended ? (
-                <div className="flex flex-col items-center justify-center h-80 gap-4">
-                  <div className={`w-16 h-16 rounded-full ${c.bg} border ${c.border} flex items-center justify-center`}>
-                    <Play className={`w-8 h-8 ${c.text}`} />
-                  </div>
-                  <p className="text-slate-400 text-center">Press <span className="font-bold">Run Demo</span> to watch the agent workflow execute step-by-step in real time.</p>
-                </div>
-              ) : (
-                <div className="space-y-0">
-                  {scenario.steps.map((step, i) => (
-                    <WorkflowStep
-                      key={i}
-                      step={step}
-                      index={i}
-                      visible={playing}
-                      isLast={i === scenario.steps.length - 1}
-                      color={scenario.color}
-                    />
-                  ))}
-                </div>
+            <div className="flex items-center gap-2">
+              {running && (
+                <span className={`text-xs font-mono ${c.text} flex items-center gap-1`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                  RUNNING
+                </span>
               )}
-
-              {ended && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4 text-center">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                  <p className="text-emerald-300 font-medium">Workflow completed successfully!</p>
-                  <p className="text-emerald-300/70 text-sm mt-1">This is a live workflow running in GigitekAI client environments.</p>
-                </div>
-              )}
-
-              {playing && !ended && (
-                <div className="border-t border-slate-700 bg-[#0d1117]">
-                  <div className="flex items-center justify-between px-5 py-2 border-b border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-xs text-slate-500 font-mono">LIVE EXECUTION</span>
-                    </div>
-                  </div>
-                  <pre className="p-4 text-xs text-slate-400 font-mono overflow-x-auto max-h-[120px]">
-                    <code>{(scenario as any).codeSnippet}</code>
-                  </pre>
-                </div>
+              {completed && (
+                <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  COMPLETE — {(totalTime / 1000).toFixed(1)}s
+                </span>
               )}
             </div>
+          </div>
+
+          {/* Workflow steps */}
+          <div className="p-6 min-h-[420px]">
+            {visibleSteps.length === 0 && !running ? (
+              <div className="flex flex-col items-center justify-center h-80 gap-4">
+                <div className={`w-16 h-16 rounded-full ${c.bg} border ${c.border} flex items-center justify-center`}>
+                  <Play className={`w-7 h-7 ${c.text}`} />
+                </div>
+                <p className="text-slate-400 text-sm text-center max-w-xs">
+                  Press <strong className="text-white">Run Demo</strong> to watch the AI agent workflow execute step-by-step in real time.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {scenario.steps.map((step, i) => (
+                  <WorkflowStep
+                    key={i}
+                    step={step}
+                    index={i}
+                    visible={visibleSteps.includes(i)}
+                    isLast={i === scenario.steps.length - 1}
+                    color={scenario.color}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Controls */}
-          <div className="flex gap-4 justify-center flex-wrap mt-6">
-            <Button
-              onClick={handlePlayClick}
-              disabled={playing}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 font-semibold"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Run Demo
-            </Button>
-            <Button
-              onClick={handleRestartClick}
-              variant="outline"
-              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-6 py-2"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Restart
-            </Button>
+          <div className="px-6 py-4 bg-slate-800/50 border-t border-slate-700 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={runDemo}
+                disabled={running}
+                className={`${running ? "opacity-60 cursor-not-allowed" : ""} bg-cyan-500 hover:bg-cyan-600 text-white font-semibold`}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                {running ? "Running..." : completed ? "Run Again" : "Run Demo"}
+              </Button>
+              {(visibleSteps.length > 0 || completed) && (
+                <Button
+                  variant="outline"
+                  onClick={resetDemo}
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset
+                </Button>
+              )}
+              {voiceSupported && (
+                <button
+                  onClick={() => {
+                    const next = !voiceEnabled;
+                    setVoiceEnabled(next);
+                    if (!next) stopSpeech();
+                  }}
+                  title={voiceEnabled ? "Mute narration" : "Enable voice narration"}
+                  className={`flex items-center gap-1.5 text-xs font-mono border rounded-lg px-3 py-1.5 transition-all duration-200 ${
+                    voiceEnabled
+                      ? "border-cyan-500/60 text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20"
+                      : "border-slate-600 text-slate-400 hover:border-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                  {voiceEnabled ? "Voice On" : "Voice Off"}
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowCode(v => !v)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors font-mono border border-slate-700 hover:border-cyan-500/50 rounded-lg px-3 py-1.5"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                {showCode ? "Hide Code" : "View Agent Code"}
+                {showCode ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Simulated at 10× real speed</span>
+              </div>
+            </div>
           </div>
+          {/* Code View Panel */}
+          {showCode && (
+            <div className="border-t border-slate-700 bg-[#0d1117]">
+              <div className="flex items-center justify-between px-5 py-2 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="text-xs font-mono text-cyan-400">agent-source.ts</span>
+                  <span className="text-xs text-slate-600">— {scenario.title}</span>
+                </div>
+                <button onClick={() => setShowCode(false)} className="text-slate-600 hover:text-slate-400">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <pre className="p-5 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed max-h-80 overflow-y-auto">
+                <code>{(scenario as any).codeSnippet}</code>
+              </pre>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── Stats ── */}
-      <section className="mb-16" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { value: "< 10s", label: "Avg ticket resolution" },
-              { value: "94%", label: "Tier-1 auto-resolution rate" },
-              { value: "0", label: "Human touches on routine tasks" },
-              { value: "24/7", label: "Agent availability" },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-center hover:border-cyan-500/30 transition-colors"
-              >
-                <p className="text-3xl font-bold text-cyan-400 mb-1">{stat.value}</p>
-                <p className="text-xs text-slate-400">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+      {/* ── Stats bar ── */}
+      <section className="px-4 max-w-6xl mx-auto mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { value: "< 10s", label: "Avg ticket resolution" },
+            { value: "94%", label: "Tier-1 auto-resolution rate" },
+            { value: "0", label: "Human touches on routine tasks" },
+            { value: "24/7", label: "Agent availability" },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-center hover:border-cyan-500/30 transition-colors"
+            >
+              <p className="text-3xl font-bold text-cyan-400 mb-1">{stat.value}</p>
+              <p className="text-xs text-slate-400">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ── Lead Capture Form ── */}
-      <section className="mb-16" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-0">
-              <div className="p-8 md:p-10">
-                <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 mb-4">
-                  <Bot className="w-3.5 h-3.5 text-cyan-400" />
-                  <span className="text-cyan-400 text-xs font-medium">Free Consultation</span>
-                </div>
-                <h2 className="text-2xl font-bold mb-3">
-                  Want this running in your business?
-                </h2>
-                <p className="text-slate-300 text-sm mb-6 leading-relaxed">
-                  These aren't demos — they're live workflows deployed for GigitekAI clients today. Book a 30-minute AI architecture session and we'll map out your first agent.
-                </p>
-                <ul className="space-y-2">
-                  {[
-                    "First agent live in under 30 days",
-                    "Zero-touch IT automation from day one",
-                    "Microsoft 365 & Azure native — no new tools",
-                    "ROI analysis included at no cost",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+      <section className="px-4 max-w-4xl mx-auto mb-16">
+        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl overflow-hidden">
+          <div className="grid md:grid-cols-2 gap-0">
+            <div className="p-8 md:p-10">
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 mb-4">
+                <Bot className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-cyan-400 text-xs font-medium">Free Consultation</span>
               </div>
-              <div className="p-8 md:p-10 bg-slate-900/60 border-l border-slate-700/50">
-                {leadSubmitted ? (
-                  <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                    <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-                      <CheckCircle2 className="w-7 h-7 text-emerald-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">You're on the list!</h3>
-                    <p className="text-slate-400 text-sm">
-                      An AI architect from GigitekAI will reach out within 1 business day to schedule your session.
-                    </p>
-                    <Link href="/contact">
-                      <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 mt-2">
-                        View full contact options
-                      </Button>
-                    </Link>
+              <h2 className="text-2xl font-bold mb-3">
+                Want this running in your business?
+              </h2>
+              <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                These aren't demos — they're live workflows deployed for GigitekAI clients today. Book a 30-minute AI architecture session and we'll map out your first agent.
+              </p>
+              <ul className="space-y-2">
+                {[
+                  "First agent live in under 30 days",
+                  "Zero-touch IT automation from day one",
+                  "Microsoft 365 & Azure native — no new tools",
+                  "ROI analysis included at no cost",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-8 md:p-10 bg-slate-900/60 border-l border-slate-700/50">
+              {leadSubmitted ? (
+                <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
                   </div>
-                ) : (
-                  <form onSubmit={handleLeadSubmit} className="space-y-4">
-                    <h3 className="text-lg font-bold text-white mb-5">Get a Personalized Demo</h3>
-                    <div>
-                      <label className="text-xs text-slate-400 mb-1.5 block font-medium">Full Name *</label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                          type="text"
-                          value={leadName}
-                          onChange={e => setLeadName(e.target.value)}
-                          placeholder="Harry Henry"
-                          required
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-slate-400 mb-1.5 block font-medium">Work Email *</label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                          type="email"
-                          value={leadEmail}
-                          onChange={e => setLeadEmail(e.target.value)}
-                          placeholder="you@company.com"
-                          required
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-slate-400 mb-1.5 block font-medium">Company</label>
-                      <div className="relative">
-                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                          type="text"
-                          value={leadCompany}
-                          onChange={e => setLeadCompany(e.target.value)}
-                          placeholder="Acme Corp"
-                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={leadSubmitting || !leadName || !leadEmail}
-                      className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2.5 disabled:opacity-50"
-                    >
-                      {leadSubmitting ? (
-                        <span className="flex items-center gap-2">
-                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Sending...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <Send className="w-4 h-4" />
-                          Request My Personalized Demo
-                        </span>
-                      )}
+                  <h3 className="text-xl font-bold text-white">You're on the list!</h3>
+                  <p className="text-slate-400 text-sm">
+                    An AI architect from GigitekAI will reach out within 1 business day to schedule your session.
+                  </p>
+                  <Link href="/contact">
+                    <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 mt-2">
+                      View full contact options
                     </Button>
-                    <p className="text-xs text-slate-600 text-center">No spam. No sales pressure. Just AI architecture.</p>
-                  </form>
-                )}
-              </div>
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  <h3 className="text-lg font-bold text-white mb-5">Get a Personalized Demo</h3>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Full Name *</label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="text"
+                        value={leadName}
+                        onChange={e => setLeadName(e.target.value)}
+                        placeholder="Harry Henry"
+                        required
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Work Email *</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="email"
+                        value={leadEmail}
+                        onChange={e => setLeadEmail(e.target.value)}
+                        placeholder="you@company.com"
+                        required
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 mb-1.5 block font-medium">Company</label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <input
+                        type="text"
+                        value={leadCompany}
+                        onChange={e => setLeadCompany(e.target.value)}
+                        placeholder="Acme Corp"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={leadSubmitting || !leadName || !leadEmail}
+                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2.5 disabled:opacity-50"
+                  >
+                    {leadSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Send className="w-4 h-4" />
+                        Request My Personalized Demo
+                      </span>
+                    )}
+                  </Button>
+                  <p className="text-xs text-slate-600 text-center">No spam. No sales pressure. Just AI architecture.</p>
+                </form>
+              )}
             </div>
           </div>
         </div>
       </section>
-
-      {/* ── CTA Section ── */}
-      <section className="py-16" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/contact">
-              <Button className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 text-base font-semibold">
-                Talk to an AI Architect
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-base">
-                View Pricing
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
+      {/* ── CTA ── */}
+      <section className="px-4 max-w-4xl mx-auto mb-20">
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Link href="/contact">
+            <Button className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 text-base font-semibold">
+              Talk to an AI Architect
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+          <Link href="/pricing">
+            <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-base">
+              View Pricing
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </section>
-
-      <Footer />
+            <Footer />
       <ScrollToTop />
     </div>
   );
