@@ -88,6 +88,15 @@
     <!-- Defer non-critical CSS with media="print" + JS swap -->
     <link rel="stylesheet" href="/assets/index.css" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="/assets/index.css" /></noscript>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/assets/index.css" as="style" />
+    <link rel="preload" href="/assets/index-CpUSZ4Nb.js" as="script" />
+    
+    <!-- DNS prefetch for CloudFront -->
+    <link rel="dns-prefetch" href="https://d2xsxph8kpxj0f.cloudfront.net" />
+    <link rel="dns-prefetch" href="https://d36hbw14aib5lz.cloudfront.net" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    
     <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
     <script type="speculationrules">
     {
@@ -271,8 +280,9 @@
       }
     </script>
 
-    <!-- Umami Analytics (existing) -->
+    <!-- Umami Analytics (async + defer for non-blocking) -->
     <script
+      async
       defer
       src="%VITE_ANALYTICS_ENDPOINT%/umami"
       data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
