@@ -4296,6 +4296,24 @@
 - [x] Database migration 0067 applied: stepsAttempted column + expanded category enum (email, printer, internet, network, other)
 
 
+## Phase 1: PageSpeed Quick Wins (May 5, 2026) — Mobile 30 → 45+, Desktop 36 → 50+
+- [x] Set cache headers: static assets 1yr, HTML no-cache, API responses TTL (519 KiB saved)
+- [x] Defer Google Tag Manager to requestIdleCallback (233ms saved)
+- [x] Defer Cloudflare email-decode and Beacon scripts (async loading)
+- [x] Extract and inline critical CSS in <head> tag (40ms saved)
+- [x] Defer non-critical CSS with media="print" + JS swap
+- [ ] Test Phase 1 and verify PageSpeed score improvement
+
+## Phase 2: Medium Optimizations (Planned)
+- [ ] Responsive images with srcset (275 KiB saved)
+- [ ] Code split by route (1,012 KiB saved)
+- [ ] Defer Manus platform scripts (1,003ms saved)
+
+## Phase 3: Advanced Optimizations (Planned)
+- [ ] Tree-shake unused dependencies (1,012 KiB saved)
+- [ ] Reduce main-thread work (5.4s saved on mobile)
+- [ ] Optimize React bundle
+
 ## PageSpeed Performance Optimization (May 5, 2026) — Score: 30 → Target 70+
 - [ ] Inline critical CSS: move above-fold styles to <style> tag, defer non-critical CSS (170ms saved)
 - [x] Compress hero logo: convert PNG to WebP, 81KB → 34KB (47KB saved, 58% reduction)

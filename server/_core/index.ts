@@ -83,6 +83,29 @@ async function startServer() {
   // ── Security Middleware ──────────────────────────────────────────────────
   app.use(securityHeaders);
 
+  // ── Cache Headers Middleware ───────────────────────────────────────────────
+  // Set aggressive caching for static assets, no-cache for HTML and API
+  app.use((req, res, next) => {
+    const isStaticAsset = /\.(js|css|woff2|webp|png|jpg|jpeg|gif|svg|ico)$/i.test(req.path);
+    const isHtml = req.path === '/' || req.path.endsWith('.html');
+    const isApi = req.path.startsWith('/api/');
+
+    if (isStaticAsset) {
+      // Cache static assets for 1 year (immutable)
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (isHtml) {
+      // Don't cache HTML (always check for updates)
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    } else if (isApi) {
+      // Cache API responses for 1 hour
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    } else {
+      // Default: cache for 1 hour
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+    next();
+  });
+
   // ── Rate Limiting ───────────────────────────────────────────────────────
   // Auth endpoints: 10 attempts per 15 min (OAuth + custom admin login)
   app.use("/api/oauth", authLimiter);
