@@ -43,8 +43,6 @@ import {
   Video,
   Phone,
   Headphones,
-  Globe,
-  Brain,
 } from "lucide-react";
 
 interface NavItem {
@@ -122,8 +120,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Integrations",
     items: [
       { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
-      { label: "Dynamics 365 Setup", icon: <Globe size={16} />, href: "/admin/dynamics365-setup" },
-      { label: "Copilot for Service", icon: <Brain size={16} />, href: "/admin/copilot-service" },
     ],
   },
   {
@@ -205,15 +201,15 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       <div className={`flex items-center gap-3 px-4 py-4 border-b border-slate-700/50 ${collapsed ? "justify-center" : ""}`}>
         {collapsed ? (
           <img
-            src=""
+            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
             alt="GigitekAI"
-            className="h-8 w-8 object-contain flex-shrink-0" loading="lazy"
+            className="h-8 w-8 object-contain flex-shrink-0"
           />
         ) : (
           <img
-            src=""
+            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
             alt="GigitekAI logo"
-            className="h-10 w-auto object-contain max-w-[160px]" loading="lazy"
+            className="h-10 w-auto object-contain max-w-[160px]"
           />
         )}
       </div>

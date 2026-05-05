@@ -54,10 +54,9 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
-  // Blog posts — only fetch when search is opened (not on every page load)
+  // Blog posts — fetch all once, filter client-side
   const { data: allPosts } = trpc.blog.listPosts.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
-    enabled: open, // ← critical: don't fire on initial page load
   });
 
   // KB articles — server search

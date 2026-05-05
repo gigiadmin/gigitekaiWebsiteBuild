@@ -15,16 +15,4 @@ export const ENV = {
   msGraphClientSecret: process.env.MS_GRAPH_CLIENT_SECRET ?? "",
   acsConnectionString: process.env.ACS_CONNECTION_STRING ?? "",
   acsResourceId: process.env.ACS_RESOURCE_ID ?? "",
-  // Dynamics 365 Contact Center
-  d365OrgUrl: process.env.D365_ORG_URL ?? "",
-  d365ClientId: process.env.D365_CLIENT_ID ?? "",
-  d365ClientSecret: process.env.D365_CLIENT_SECRET ?? "",
-  d365TenantId: process.env.D365_TENANT_ID ?? "",
-  // Copilot Studio / Power Platform
-  copilotStudioEnvironmentId: process.env.COPILOT_STUDIO_ENVIRONMENT_ID ?? "",
-  copilotStudioTenantId: process.env.COPILOT_STUDIO_TENANT_ID ?? "",
-  copilotStudioApiKey: process.env.COPILOT_STUDIO_API_KEY ?? "",
-  copilotTicketClassifierAgentId: process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID ?? "",
-  copilotKbQaAgentId: process.env.COPILOT_KB_QA_AGENT_ID ?? "",
-  copilotContactCenterAgentId: process.env.COPILOT_CONTACT_CENTER_AGENT_ID ?? "",
 };

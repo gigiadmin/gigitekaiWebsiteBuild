@@ -1,4 +1,3 @@
-import "@/styles/chat-widget.css";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -375,7 +374,8 @@ function UserChatWidgetInner({ user }: { user: any }) {
                 src={fileData.fileUrl}
                 alt={fileData.fileName}
                 className="max-w-[200px] rounded-lg"
-              loading="lazy"            />
+              loading="lazy"
+            />
               <p className="text-xs text-gray-400">{fileData.fileName}</p>
             </div>
           ) : (

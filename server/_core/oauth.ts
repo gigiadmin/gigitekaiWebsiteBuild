@@ -44,25 +44,32 @@ export function registerOAuthRoutes(app: Express) {
       const cookieOptions = getSessionCookieOptions(req);
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      // Extract origin from the decoded state (which is btoa(redirectUri))
-      // The redirectUri is like https://gigitekai.com/api/oauth/callback
-      let origin: string;
-      try {
-        const decodedRedirectUri = atob(state);
-        const redirectUrl = new URL(decodedRedirectUri);
-        origin = redirectUrl.origin;
-      } catch {
-        // Fallback: use forwarded headers
-        const proto = req.get("x-forwarded-proto") || req.protocol || "https";
-        const host = req.get("x-forwarded-host") || req.get("host") || "gigitekai.com";
-        origin = `${proto}://${host}`;
+      // Determine returnPath (where to redirect after login):
+      // Priority 1: query string returnPath param (set by getLoginUrl for non-admin routes e.g. /helpdesk)
+      // Priority 2: JSON-encoded state (legacy format used before the SDK fix)
+      // Priority 3: default to /admin
+      let returnPath = "/admin";
+
+      const queryReturnPath = getQueryParam(req, "returnPath");
+      if (queryReturnPath && queryReturnPath.startsWith("/") && !queryReturnPath.startsWith("//")) {
+        // New format: returnPath passed as explicit query param
+        returnPath = queryReturnPath;
+      } else {
+        try {
+          const decoded = JSON.parse(atob(state));
+          if (decoded.returnPath && typeof decoded.returnPath === "string") {
+            const path = decoded.returnPath;
+            if (path.startsWith("/") && !path.startsWith("//")) {
+              returnPath = path;
+            }
+          }
+        } catch {
+          // Current format: state is plain btoa(redirectUri) — default to /admin
+          returnPath = "/admin";
+        }
       }
 
-      // Redirect to /oauth-callback page which waits for cookie to be processed
-      // Then redirects to the final destination (/admin or stored returnPath)
-      const redirectUrl = `${origin}/oauth-callback`;
-      console.log("[OAuth] User:", userInfo.email, "| Redirect:", redirectUrl);
-      res.redirect(302, redirectUrl);
+      res.redirect(302, returnPath);
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
       res.status(500).json({ error: "OAuth callback failed" });

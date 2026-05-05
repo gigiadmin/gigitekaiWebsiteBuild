@@ -1,12 +1,12 @@
 /*
-  GigitekAI Stats Section — Fortune 500 Quality Professional Design
-  - Professional metrics display with animations
-  - Trust badges and social proof
-  - How It Works 6-step process with professional styling
-  - Smooth animations and transitions
+  GigitekAI Stats Section — Social Proof & Trust Signals
+  - Stats render as static text immediately (SEO + accessibility)
+  - Optional count-up animation when section scrolls into view
+  - Social proof bar: trust badges
+  - How It Works 6-step process
 */
 import { useEffect, useRef, useState } from "react";
-import { Star, Shield, Award, TrendingUp, Users, Clock, CheckCircle } from "lucide-react";
+import { Star, Shield, Award, TrendingUp, Users, Clock } from "lucide-react";
 
 const stats = [
   { icon: TrendingUp, value: 10, suffix: "+", label: "Years of Enterprise IT", sublabel: "Founder's hands-on experience" },
@@ -20,6 +20,7 @@ const trustBadges = [
   { label: "NIST Framework", color: "#00D4FF" },
   { label: "Zero Trust Ready", color: "#7C3AED" },
   { label: "ITIL Aligned", color: "#059669" },
+
 ];
 
 const formatValue = (value: number, target: number) => {
@@ -28,6 +29,7 @@ const formatValue = (value: number, target: number) => {
 };
 
 function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
+  // Always start with the real target value — never "0"
   const [displayValue, setDisplayValue] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
   const hasAnimated = useRef(false);
@@ -40,6 +42,7 @@ function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffi
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
+          // Run count-up animation from 0 → target
           const steps = 60;
           const increment = target / steps;
           let current = 0;
@@ -61,6 +64,7 @@ function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffi
     return () => observer.disconnect();
   }, [target, duration]);
 
+  // The static text is always the real number in the HTML
   return (
     <span ref={ref}>
       {formatValue(displayValue, target)}{suffix}
@@ -82,63 +86,57 @@ export default function StatsSection() {
   }, []);
 
   return (
-    <section className="py-24 bg-[#0A0E1A]" ref={ref}>
+    <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
       <div className="container">
         {/* Header */}
         <div
-          className={`text-center mb-16 transition-all duration-700 ${
+          className={`text-center mb-14 transition-all duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
           <h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             You Deserve Expert Cloud & AI Strategy
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto">
             Numbers that reflect our commitment to delivering measurable results for every client we serve.
           </p>
         </div>
 
-        {/* Stat cards - Professional grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {stats.map((stat, i) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.label}
-                className={`relative bg-gradient-to-br from-[#0F1629] to-[#141B2D] rounded-xl p-8 text-center border border-[rgba(0,212,255,0.15)] hover:border-[rgba(0,212,255,0.3)] hover:shadow-2xl hover:shadow-[#00D4FF]/10 transition-all duration-300 group ${
+                className={`relative bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-xl hover:shadow-[#00D4FF]/5 transition-all duration-300 group ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
-                {/* Background gradient on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00D4FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none" />
-                
-                {/* Content */}
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 flex items-center justify-center mx-auto mb-4 group-hover:from-[#00D4FF]/30 group-hover:to-[#00D4FF]/10 transition-colors duration-300">
-                    <Icon size={24} className="text-[#00D4FF]" />
-                  </div>
-                  <div
-                    className="text-4xl md:text-5xl font-bold text-white mb-2 group-hover:text-[#00D4FF] transition-colors duration-300"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    <StatNumber target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="w-8 h-1 bg-gradient-to-r from-[#00D4FF]/0 via-[#00D4FF] to-[#00D4FF]/0 mx-auto mb-4" />
-                  <p className="text-white text-sm font-semibold leading-snug mb-1">{stat.label}</p>
-                  <p className="text-gray-500 text-xs">{stat.sublabel}</p>
+                <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <Icon size={18} className="text-[#00D4FF]" />
                 </div>
+                <div
+                  className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-1"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  <StatNumber target={stat.value} suffix={stat.suffix} />
+                </div>
+                <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
+                <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs">{stat.sublabel}</p>
               </div>
             );
           })}
         </div>
 
-        {/* Social proof bar - Professional styling */}
+        {/* Social proof bar */}
         <div
-          className={`flex flex-col md:flex-row items-center justify-between gap-8 rounded-xl border border-[rgba(0,212,255,0.2)] bg-gradient-to-r from-[#0F1629] to-[#141B2D] px-8 py-8 mb-24 transition-all duration-700 delay-500 ${
+          className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-[#00D4FF]/15 bg-gray-50 dark:bg-[#141B2D] px-8 py-5 mb-20 transition-all duration-700 delay-500 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -146,10 +144,10 @@ export default function StatsSection() {
             {trustBadges.map((badge) => (
               <span
                 key={badge.label}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
                 style={{ color: badge.color, borderColor: `${badge.color}33`, backgroundColor: `${badge.color}10` }}
               >
-                <Award size={14} />
+                <Award size={11} />
                 {badge.label}
               </span>
             ))}
@@ -157,22 +155,21 @@ export default function StatsSection() {
         </div>
 
         {/* How it works */}
-        <div className="mt-24">
+        <div className="mt-20">
           <div
-            className={`text-center mb-16 transition-all duration-700 delay-300 ${
+            className={`text-center mb-12 transition-all duration-700 delay-300 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="section-label justify-center mb-6">HOW IT WORKS</div>
+            <div className="section-label justify-center">How It Works</div>
             <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"
+              className="text-4xl font-bold text-gray-900 dark:text-white mt-2"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Discover New Capabilities with GigitekAI
             </h2>
           </div>
 
-          {/* Process steps grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { num: "01", title: "Assess & Strategize", desc: "We begin with a comprehensive audit of your current infrastructure and business goals to build a tailored cloud and AI roadmap." },
@@ -184,27 +181,25 @@ export default function StatsSection() {
             ].map((step, i) => (
               <div
                 key={step.num}
-                className={`flex gap-4 p-6 rounded-lg border border-[rgba(0,212,255,0.15)] bg-[#0F1629] hover:border-[rgba(0,212,255,0.3)] hover:bg-[#141B2D] hover:shadow-lg transition-all duration-300 group ${
+                className={`flex gap-4 p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${400 + i * 80}ms` }}
               >
-                <div className="flex-shrink-0">
-                  <div
-                    className="text-3xl font-bold text-[#00D4FF]/40 group-hover:text-[#00D4FF]/60 transition-colors duration-300 leading-none"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {step.num}
-                  </div>
+                <div
+                  className="text-3xl font-bold text-[#00D4FF]/30 flex-shrink-0 leading-none"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  {step.num}
                 </div>
-                <div className="flex-1">
+                <div>
                   <h3
-                    className="text-white font-bold mb-2 group-hover:text-[#00D4FF] transition-colors duration-300"
+                    className="text-gray-900 dark:text-white font-bold mb-2"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
                     {step.title}
                   </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}

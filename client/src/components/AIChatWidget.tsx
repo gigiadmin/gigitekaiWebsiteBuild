@@ -1,4 +1,3 @@
-import "@/styles/chat-widget.css";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

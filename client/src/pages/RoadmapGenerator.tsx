@@ -2,34 +2,14 @@ import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
-import { Zap, CheckCircle, ArrowRight } from "lucide-react";
+import { Download, Zap, CheckCircle, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
-import { trpc } from "@/lib/trpc";
 
 export default function RoadmapGenerator() {
   const [score, setScore] = useState<number | null>(null);
   const [email, setEmail] = useState("");
+  const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  const roadmapMutation = trpc.roadmap.generate.useMutation({
-    onSuccess: (result) => {
-      if (result.success) {
-        setGenerated(true);
-        setTimeout(() => {
-          setScore(null);
-          setEmail("");
-          setGenerated(false);
-        }, 3000);
-      } else {
-        setError(result.error || "Failed to generate roadmap");
-      }
-    },
-    onError: (err) => {
-      setError("An error occurred. Please try again.");
-      console.error("Error:", err);
-    },
-  });
 
   useSEO({
     title: "AI Roadmap Generator | GigitekAI",
@@ -40,9 +20,28 @@ export default function RoadmapGenerator() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!score || !email) return;
-    
-    setError(null);
-    roadmapMutation.mutate({ score, email });
+
+    setGenerating(true);
+    try {
+      const response = await fetch("/api/trpc/roadmap.generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ score, email }),
+      });
+
+      if (response.ok) {
+        setGenerated(true);
+        setTimeout(() => {
+          setScore(null);
+          setEmail("");
+          setGenerated(false);
+        }, 3000);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -97,11 +96,11 @@ export default function RoadmapGenerator() {
                 </div>
                 <button
                   type="submit"
-                  disabled={roadmapMutation.isPending || !score || !email}
+                  disabled={generating || !score || !email}
                   className="w-full bg-[#00D4FF] text-[#0A0E1A] px-6 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <Zap size={18} />
-                  {roadmapMutation.isPending ? "Generating..." : "Generate Roadmap"}
+                  {generating ? "Generating..." : "Generate Roadmap"}
                 </button>
               </form>
 
@@ -112,12 +111,6 @@ export default function RoadmapGenerator() {
                     <p className="font-semibold">Roadmap Generated!</p>
                     <p className="text-sm text-gray-300">Check your email for your personalized 90-day plan</p>
                   </div>
-                </div>
-              )}
-
-              {error && (
-                <div className="mt-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30">
-                  <p className="text-red-400">{error}</p>
                 </div>
               )}
             </div>

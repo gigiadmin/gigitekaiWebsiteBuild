@@ -1,7 +1,6 @@
 /*
   GigitekAI Blog Detail Page — Database-driven individual article view
 */
-import "@/styles/blog.css";
 
 import { useLocation, useRoute } from "wouter";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";

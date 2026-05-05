@@ -107,7 +107,7 @@ export default function ManagedITMiami() {
       });
       
       const link = document.createElement("a");
-      link.href = "";
+      link.href = "/manus-storage/florida-it-audit-checklist_b6957c2d.pdf";
       link.download = "Florida-IT-Audit-Checklist.pdf";
       document.body.appendChild(link);
       link.click();

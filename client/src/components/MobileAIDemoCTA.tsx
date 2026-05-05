@@ -83,8 +83,8 @@ export default function MobileAIDemoCTA() {
         {/* Dismiss */}
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 p-2.5 text-gray-500 hover:text-gray-300 transition-colors"
-          aria-label="Dismiss AI demo CTA bar"
+          className="flex-shrink-0 p-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+          aria-label="Dismiss"
         >
           <X size={16} />
         </button>

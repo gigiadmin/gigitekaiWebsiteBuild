@@ -10,17 +10,15 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 // ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
 import Home from "./pages/Home";
 import ApprovalGuard from "./components/ApprovalGuard";
-// Widgets — all lazy loaded to reduce initial bundle size
-// Secondary UI (deferred 3s on mobile): AnnouncementBar, CookieConsent, FloatingContactDial, MobileAIDemoCTA
-const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
-const CookieConsent = lazy(() => import("./components/CookieConsent"));
-const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
-const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
-// Heavy widgets (deferred 8s on mobile): AIChatWidget, UserChatWidget, CopilotChat
-const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
-const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
-const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
-const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
+// Widgets — loaded eagerly (always visible on public pages)
+import AnnouncementBar from "./components/AnnouncementBar";
+import CookieConsent from "./components/CookieConsent";
+import AIChatWidget from "./components/AIChatWidget";
+import FloatingContactDial from "./components/FloatingContactDial";
+import UserChatWidget from "./components/UserChatWidget";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { CopilotChat } from "./components/CopilotChat";
+import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
@@ -57,26 +55,21 @@ const Contact = lazy(() => import("./pages/Contact"));
 const ContactHarry = lazy(() => import("./pages/ContactHarry"));
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
-const MicrosoftCopilotPage = lazy(() => import("./pages/MicrosoftCopilotPage"));
-const AIPoweredMSPPage = lazy(() => import("./pages/AIPoweredMSPPage"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
-// Lazy loaded — rarely visited pages
-const TicketDetail = lazy(() => import("./pages/TicketDetail"));
-const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
+// Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
+import TicketDetail from "./pages/TicketDetail";
+import TicketFeedback from "./pages/TicketFeedback";
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 
 // ── Auth pages — lazy loaded ──────────────────────────────────────────────
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const LogoutConfirmation = lazy(() => import("./pages/LogoutConfirmation"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminMagicLink = lazy(() => import("./pages/AdminMagicLink"));
-const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 
 // ── Meeting management — lazy loaded ─────────────────────────────────────
 const CancelMeeting = lazy(() => import("./pages/CancelMeeting"));
@@ -109,8 +102,6 @@ const AdminAgentDashboardPage = lazy(() => import("./pages/AdminAgentDashboardPa
 const AdminAgentLeaderboard = lazy(() => import("./pages/AdminAgentLeaderboard"));
 const AdminCopilot = lazy(() => import("./pages/AdminCopilot"));
 const AdminCopilotM365 = lazy(() => import("./pages/AdminCopilotM365"));
-const AdminDynamics365SetupPage = lazy(() => import("./pages/AdminDynamics365SetupPage"));
-const AdminCopilotServicePage = lazy(() => import("./pages/AdminCopilotServicePage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminSurveysPage = lazy(() => import("./pages/AdminSurveysPage"));
 const AdminWorkloadPage = lazy(() => import("./pages/AdminWorkloadPage"));
@@ -190,7 +181,6 @@ function Router() {
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
           <Route path={"/case-studies"} component={CaseStudiesPage} />
-          <Route path={"/insights"}>{() => { window.location.replace("/blog"); return null; }}</Route>
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
           <Route path={"/about"}>{() => { window.location.replace("/about-us"); return null; }}</Route>
@@ -198,10 +188,8 @@ function Router() {
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />
-          <Route path={"/services/microsoft-copilot"} component={MicrosoftCopilotPage} />
           <Route path={"/services/:slug"} component={ServiceDetail} />
           <Route path={"/managed-it-services-tampa"} component={ManagedITTampa} />
-          <Route path={"/ai-powered-msp"} component={AIPoweredMSPPage} />
           <Route path={"/managed-it-services-miami"} component={ManagedITMiami} />
           <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />
           <Route path={"/switch-program"} component={SwitchProgram} />
@@ -240,91 +228,84 @@ function Router() {
           {/* ── Auth ── */}
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />
-          <Route path={"/admin/login"} component={AdminLogin} />
-          <Route path={"/admin/magic-link"} component={AdminMagicLink} />
-          <Route path={"/oauth-callback"} component={OAuthCallback} />
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
           {/* ── Admin Portal ── */}
-          <Route path={"/admin"}>{() => <AdminHome />}</Route>
-          <Route path={"/admin/home"}>{() => <AdminHome />}</Route>
+          <Route path={"/admin"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
+          <Route path={"/admin/home"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
           {/* Operations */}
-          <Route path={"/admin/helpdesk"}>{() => <AdminHelpdeskPage />}</Route>
-          <Route path={"/admin/call-review"}>{() => <AdminCallReviewPage />}</Route>
+          <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/call-review"}>{() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>}</Route>
           {/* Contact Center Dashboard */}
-          <Route path={"/admin/contact-center-dashboard"}>{() => <AdminContactCenterDashboard />}</Route>
-          <Route path={"/admin/chat"}>{() => <AdminChatPage />}</Route>
-          <Route path={"/admin/agents"}>{() => <AdminAgentsPage />}</Route>
-          <Route path={"/admin/notifications"}>{() => <AdminNotificationsPage />}</Route>
+          <Route path={"/admin/contact-center-dashboard"}>{() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>}</Route>
+          <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>
           {/* Content */}
-          <Route path={"/admin/blog"}>{() => <AdminBlogPage />}</Route>
-          <Route path={"/admin/newsletter"}>{() => <AdminNewsletterPage />}</Route>
-          <Route path={"/admin/scorecard-results"}>{() => <AdminScorecardDashboard />}</Route>
+          <Route path={"/admin/blog"}>{() => <ApprovalGuard><AdminBlogPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/newsletter"}>{() => <ApprovalGuard><AdminNewsletterPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/scorecard-results"}>{() => <ApprovalGuard><AdminScorecardDashboard /></ApprovalGuard>}</Route>
           {/* Overview */}
-          <Route path={"/admin/metrics"}>{() => <AdminMetricsPage />}</Route>
+          <Route path={"/admin/metrics"}>{() => <ApprovalGuard><AdminMetricsPage /></ApprovalGuard>}</Route>
           {/* Customers */}
-          <Route path={"/admin/accounts"}>{() => <AdminAccountsPage />}</Route>
-          <Route path={"/admin/invites"}>{() => <AdminInvitesPage />}</Route>
+          <Route path={"/admin/accounts"}>{() => <ApprovalGuard><AdminAccountsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/invites"}>{() => <ApprovalGuard><AdminInvitesPage /></ApprovalGuard>}</Route>
           {/* Email */}
-          <Route path={"/admin/email"}>{() => <AdminEmailPage />}</Route>
+          <Route path={"/admin/email"}>{() => <ApprovalGuard><AdminEmailPage /></ApprovalGuard>}</Route>
           {/* Settings */}
-          <Route path={"/admin/preferences"}>{() => <AdminPreferencesPage />}</Route>
-          <Route path={"/admin/email-digest"}>{() => <AdminEmailDigestPage />}</Route>
-          <Route path={"/admin/guide"}>{() => <AdminGuidePage />}</Route>
+          <Route path={"/admin/preferences"}>{() => <ApprovalGuard><AdminPreferencesPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/email-digest"}>{() => <ApprovalGuard><AdminEmailDigestPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/guide"}>{() => <ApprovalGuard><AdminGuidePage /></ApprovalGuard>}</Route>
           {/* Knowledge Base */}
-          <Route path={"/admin/kb"}>{() => <KnowledgeBase />}</Route>
-          <Route path={"/admin/kb-generation"}>{() => <AdminKbGenerationPage />}</Route>
+          <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
+          <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
           {/* KB Analytics Dashboard */}
-          <Route path={"/admin/kb-analytics"}>{() => <AdminKBAnalytics />}</Route>
-          <Route path={"/admin/recordings"}>{() => <AdminRecordingsPage />}</Route>
+          <Route path={"/admin/kb-analytics"}>{() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>}</Route>
+          <Route path={"/admin/recordings"}>{() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>}</Route>
           <Route path={"/helpdesk/session-history"}>{() => <ClientSessionHistory />}</Route>
-          <Route path={"/admin/call-transcripts"}>{() => <CallTranscriptSearch />}</Route>
+          <Route path={"/admin/call-transcripts"}>{() => <ApprovalGuard><CallTranscriptSearch /></ApprovalGuard>}</Route>
           {/* Social Publishing Hub */}
-          <Route path={"/admin/social"}>{() => <AdminSocialPage />}</Route>
+          <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
           {/* Leads & CRM */}
-          <Route path={"/admin/leads"}>{() => <AdminLeadsPage />}</Route>
+          <Route path={"/admin/leads"}>{() => <ApprovalGuard><AdminLeadsPage /></ApprovalGuard>}</Route>
           {/* AI Demo Leads */}
-          <Route path={"/admin/demo-leads"}>{() => <AdminDemoLeadsPage />}</Route>
+          <Route path={"/admin/demo-leads"}>{() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>}</Route>
           {/* Contact Submissions */}
-          <Route path={"/admin/contacts"}>{() => <AdminContactsPage />}</Route>
+          <Route path={"/admin/contacts"}>{() => <ApprovalGuard><AdminContactsPage /></ApprovalGuard>}</Route>
           {/* Canned Responses */}
-          <Route path={"/admin/canned-responses"}>{() => <AdminCannedResponsesPage />}</Route>
+          <Route path={"/admin/canned-responses"}>{() => <ApprovalGuard><AdminCannedResponsesPage /></ApprovalGuard>}</Route>
           {/* Closed Tickets Report */}
-          <Route path={"/admin/closed-tickets"}>{() => <AdminClosedTicketsReportPage />}</Route>
+          <Route path={"/admin/closed-tickets"}>{() => <ApprovalGuard><AdminClosedTicketsReportPage /></ApprovalGuard>}</Route>
           {/* Helpdesk Metrics Dashboard */}
-          <Route path={"/admin/helpdesk-metrics"}>{() => <AdminHelpdeskMetricsPage />}</Route>
+          <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
           {/* Real-Time Dashboard */}
-          <Route path={"/admin/dashboard"}>{() => <Dashboard />}</Route>
+          <Route path={"/admin/dashboard"}>{() => <ApprovalGuard><Dashboard /></ApprovalGuard>}</Route>
           {/* Agent Dashboard */}
-          <Route path={"/admin/agent-dashboard"}>{() => <AdminAgentDashboardPage />}</Route>
-          <Route path={"/admin/agent-leaderboard"}>{() => <AdminAgentLeaderboard />}</Route>
+          <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/agent-leaderboard"}>{() => <ApprovalGuard><AdminAgentLeaderboard /></ApprovalGuard>}</Route>
           {/* Copilot for M365 */}
-          <Route path={"/admin/copilot"}>{() => <AdminCopilot />}</Route>
+          <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
           {/* Copilot M365 Intelligence */}
-          <Route path={"/admin/copilot-m365"}>{() => <AdminCopilotM365 />}</Route>
-          {/* Dynamics 365 Contact Center Setup */}
-          <Route path={"/admin/dynamics365-setup"}>{() => <AdminDynamics365SetupPage />}</Route>
-          {/* Copilot for Service / Contact Center AI */}
-          <Route path={"/admin/copilot-service"}>{() => <AdminCopilotServicePage />}</Route>
+          <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
           {/* Analytics */}
-          <Route path={"/admin/surveys"}>{() => <AdminSurveysPage />}</Route>
-          <Route path={"/admin/workload"}>{() => <AdminWorkloadPage />}</Route>
+          <Route path={"/admin/surveys"}>{() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>
           {/* Settings & Users */}
-          <Route path={"/admin/users"}>{() => <AdminUsersPage />}</Route>
-          <Route path={"/admin/team-members"}>{() => <TeamMembersEnhanced />}</Route>
-          <Route path={"/admin/settings"}>{() => <AdminSettingsPage />}</Route>
+          <Route path={"/admin/users"}>{() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/team-members"}>{() => <ApprovalGuard><TeamMembersEnhanced /></ApprovalGuard>}</Route>
+          <Route path={"/admin/settings"}>{() => <ApprovalGuard><AdminSettingsPage /></ApprovalGuard>}</Route>
           {/* Service Health Monitoring */}
-          <Route path={"/admin/service-health"}>{() => <AdminServiceHealthMonitoring />}</Route>
-          <Route path={"/admin/m365-health"}>{() => <AdminM365Health />}</Route>
-          <Route path={"/admin/m365-status"}>{() => <M365HealthPage />}</Route>
-          <Route path={"/admin/m365-notifications"}>{() => <M365NotificationsPreferencesPage />}</Route>
+          <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
+          <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
+          <Route path={"/admin/m365-status"}>{() => <ApprovalGuard><M365HealthPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/m365-notifications"}>{() => <ApprovalGuard><M365NotificationsPreferencesPage /></ApprovalGuard>}</Route>
           {/* Teams Channels — per-client channel management */}
-          <Route path={"/admin/teams-channels"}>{() => <AdminTeamsChannelsPage />}</Route>
-          <Route path={"/admin/escalation-patterns"}>{() => <AdminEscalationPatternsPage />}</Route>
-          <Route path={"/admin/ms-learn-sync"}>{() => <AdminMsLearnSyncPage />}</Route>
+          <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
+          <Route path={"/admin/ms-learn-sync"}>{() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>}</Route>
           {/* Client Onboarding */}
-          <Route path={"/admin/client-onboarding"}>{() => <AdminClientOnboarding />}</Route>
+          <Route path={"/admin/client-onboarding"}>{() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>}</Route>
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
@@ -339,31 +320,17 @@ export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
   const [location] = useLocation();
-  // Defer non-critical widgets to reduce TBT and improve LCP on mobile
+  // Defer heavy widgets until after first user interaction to reduce TBT
   const [widgetsReady, setWidgetsReady] = useState(false);
-  const [uiReady, setUiReady] = useState(false);
   useEffect(() => {
-    // Mobile gets longer defer (8s) to give LCP more time; desktop gets 3s
-    const isMobileDevice = window.innerWidth <= 768;
-    const heavyDelay = isMobileDevice ? 8000 : 5000;
-    const uiDelay = isMobileDevice ? 3000 : 1500;
-
-    // Defer secondary UI (AnnouncementBar, CookieConsent, FloatingDial) until after LCP
-    const uiTimer = setTimeout(() => setUiReady(true), uiDelay);
-    // Defer heavy widgets (chat, copilot) even longer
-    const timer = setTimeout(() => setWidgetsReady(true), heavyDelay);
-    const onInteract = () => {
-      setUiReady(true);
-      setWidgetsReady(true);
-      clearTimeout(timer);
-      clearTimeout(uiTimer);
-    };
+    // Mount heavy widgets after 3s or on first interaction — whichever comes first
+    const timer = setTimeout(() => setWidgetsReady(true), 3000);
+    const onInteract = () => { setWidgetsReady(true); clearTimeout(timer); };
     window.addEventListener('scroll', onInteract, { once: true, passive: true });
     window.addEventListener('click', onInteract, { once: true });
     window.addEventListener('touchstart', onInteract, { once: true, passive: true });
     return () => {
       clearTimeout(timer);
-      clearTimeout(uiTimer);
       window.removeEventListener('scroll', onInteract);
       window.removeEventListener('click', onInteract);
       window.removeEventListener('touchstart', onInteract);
@@ -387,13 +354,12 @@ function App() {
             Skip to main content
           </a>
           <Toaster />
-          {/* Secondary UI deferred 3s on mobile to reduce TBT during LCP */}
-          {uiReady && !hideWidgets && <AnnouncementBar />}
+          {!hideWidgets && <AnnouncementBar />}
           <Router />
-          {uiReady && !hideWidgets && <CookieConsent />}
-          {uiReady && !hideWidgets && <FloatingContactDial />}
-          {uiReady && !hideWidgets && <MobileAIDemoCTA />}
-          {/* Heavy widgets deferred until after interaction/8s on mobile to reduce TBT */}
+          {!hideWidgets && <CookieConsent />}
+          {!hideWidgets && <FloatingContactDial />}
+          {!hideWidgets && <MobileAIDemoCTA />}
+          {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
           {widgetsReady && (
             <>
               {!hideWidgets && <AIChatWidget />}

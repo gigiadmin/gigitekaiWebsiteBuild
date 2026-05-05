@@ -14,8 +14,6 @@ const ADMIN_JWT_SECRET = new TextEncoder().encode(
 );
 const ADMIN_SESSION_COOKIE = "admin_session";
 const SESSION_DURATION = "7d";
-// Increment this to invalidate ALL existing admin sessions
-const TOKEN_VERSION = 2; // bumped May 2026 — forces re-auth via magic link
 
 // ── Password helpers ──────────────────────────────────────────────────────────
 
@@ -43,7 +41,7 @@ export interface AdminTokenPayload {
 export async function signAdminToken(
   payload: AdminTokenPayload
 ): Promise<string> {
-  return new SignJWT({ ...payload, v: TOKEN_VERSION })
+  return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(SESSION_DURATION)
@@ -55,8 +53,6 @@ export async function verifyAdminToken(
 ): Promise<AdminTokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, ADMIN_JWT_SECRET);
-    // Reject tokens from before the current version (forces re-auth)
-    if ((payload as any).v !== TOKEN_VERSION) return null;
     return payload as unknown as AdminTokenPayload;
   } catch {
     return null;
@@ -170,29 +166,4 @@ export async function deleteAdminAccount(id: number) {
   const database = await getDb();
   if (!database) throw new Error("Database not available");
   await database.delete(adminCredentials).where(eq(adminCredentials.id, id));
-}
-
-// Create default admin account if it doesn't exist
-export async function ensureDefaultAdminExists() {
-  try {
-    const existing = await findAdminByEmail("harry@gigitekai.com");
-    if (existing) {
-      console.log("[Admin Auth] Default admin account already exists");
-      return existing;
-    }
-
-    // Create default admin account
-    console.log("[Admin Auth] Creating default admin account...");
-    const admin = await createAdminAccount({
-      email: "harry@gigitekai.com",
-      name: "Harry Santiago",
-      password: "YGnali421!!!",
-      role: "admin",
-    });
-    console.log("[Admin Auth] Default admin account created successfully");
-    return admin;
-  } catch (error) {
-    console.error("[Admin Auth] Error ensuring default admin:", error);
-    return null;
-  }
 }

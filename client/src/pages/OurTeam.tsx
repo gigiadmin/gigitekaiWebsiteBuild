@@ -127,7 +127,7 @@ export default function OurTeam() {
               <div className="text-center md:text-left">
                 <div className="w-40 h-40 mx-auto md:mx-0 rounded-full overflow-hidden border-2 border-cyan-500/50 mb-5">
                   <img
-                    src=""
+                    src="/manus-storage/harry-headshot_df3577a8.jpeg"
                     alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
                     className="w-full h-full object-cover"
               loading="lazy"

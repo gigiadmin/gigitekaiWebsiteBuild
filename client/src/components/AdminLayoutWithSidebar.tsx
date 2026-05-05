@@ -176,9 +176,9 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
         <div className="p-4 border-b border-gray-800/40">
           <div className="flex items-center gap-2 mb-4">
             <img
-              src=""
+              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
               alt="GigitekAI logo"
-              className="h-10 w-auto object-contain max-w-[160px]" loading="lazy"
+              className="h-10 w-auto object-contain max-w-[160px]"
             />
           </div>
         </div>

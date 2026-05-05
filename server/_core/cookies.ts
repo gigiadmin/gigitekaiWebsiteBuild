@@ -25,26 +25,12 @@ export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
   const isSecure = isSecureRequest(req);
-  
-  // Extract domain from host header
-  let domain: string | undefined = undefined;
-  const host = req.get("x-forwarded-host") || req.get("host") || "localhost";
-  
-  // Only set domain for non-localhost to avoid cookie issues
-  if (!LOCAL_HOSTS.has(host) && !isIpAddress(host)) {
-    // Set domain to root domain (e.g., .gigitekai.com from www.gigitekai.com)
-    const parts = host.split(":")[0].split(".");
-    if (parts.length > 1) {
-      domain = "." + parts.slice(-2).join(".");
-    }
-  }
 
   // Safari (including iOS PWA) blocks SameSite=none cookies unless Secure is also set.
   // For same-origin OAuth flows (gigitekai.com → gigitekai.com), SameSite=lax is correct
   // and works on all browsers including Safari ITP and iOS PWA standalone mode.
   // SameSite=none is only needed for cross-origin embeds (iframes, third-party contexts).
   return {
-    domain,
     httpOnly: true,
     path: "/",
     sameSite: isSecure ? "lax" : "lax",

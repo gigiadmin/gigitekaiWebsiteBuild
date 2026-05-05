@@ -9,9 +9,9 @@ export interface PageSEO {
 
 export const SEO_CONFIG: Record<string, PageSEO> = {
   "/": {
-    title: "GigitekAI — AI-Powered Managed Service Provider (MSP) | Tampa Bay IT Services",
+    title: "GigitekAI — Enterprise Cloud & AI Solutions | Managed IT",
     description:
-      "AI-first MSP in Tampa Bay. Enterprise cloud, Microsoft 365, cybersecurity, and AI automation. 99.9% SLA, 24/7 support, 40% cost savings.",
+      "GigitekAI delivers enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA, 24/7 support. Free IT assessment — call (727) 382-5776.",
   },
   "/about-us": {
     title: "About GigitekAI | Cloud & AI Technology Partner",
@@ -154,31 +154,17 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "Browse GigitekAI's knowledge base for IT support articles, troubleshooting guides, and best practices for cloud, AI, and Microsoft 365.",
   },
   "/managed-it-services-tampa": {
-    title: "Managed IT Services Tampa Bay | 24/7 AI-Powered IT Support | GigitekAI",
+    title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
     description:
-      "Tampa Bay's #1 AI-powered managed IT provider. 24/7 helpdesk, Microsoft 365 architecture, cloud migration, Zero Trust cybersecurity. 99.9% uptime guaranteed. Free IT assessment — (727) 382-5776.",
-  },
-  "/managed-it-services-miami": {
-    title: "Managed IT Services Miami | AI-Powered IT Support | GigitekAI",
-    description:
-      "Miami's trusted managed IT provider. 24/7 AI-powered helpdesk, Microsoft 365, cloud infrastructure, and cybersecurity for South Florida businesses. Free IT assessment — (727) 382-5776.",
+      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-5776.",
   },
   "/hh": {
     title: "Contact Harry Henry Santiago | GigitekAI Founder",
     description:
       "Connect with Harry Henry Santiago, Microsoft 365 Architect and founder of GigitekAI. Schedule a consultation or get in touch directly.",
   },
-  "/services/microsoft-copilot": {
-    title: "Microsoft Copilot for Business | Tampa Bay Deployment & Training | GigitekAI",
-    description:
-      "Expert Microsoft Copilot deployment for Tampa Bay businesses. GigitekAI delivers end-to-end Copilot setup, security configuration, training, and ROI tracking. Up to 353% ROI. Free readiness assessment — (727) 382-5776.",
-  },
-  "/ai-powered-msp": {
-    title: "AI-Powered Managed Service Provider Tampa Bay | GigitekAI",
-    description:
-      "GigitekAI is Tampa Bay's AI-first MSP. AI agents handle helpdesk, security, and provisioning — delivering 40% cost reduction, 99.9% uptime, and 280+ hours freed monthly. Free IT assessment — (727) 382-5776.",
-  },
 };
+
 /**
  * Get SEO config for a given path. Falls back to homepage config.
  */

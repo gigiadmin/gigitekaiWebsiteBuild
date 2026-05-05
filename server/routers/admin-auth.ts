@@ -50,7 +50,7 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 // ── Router ────────────────────────────────────────────────────────────────────
 
 export const adminAuthRouter = router({
-  // Login with email/password — DISABLED: use Magic Link login instead
+  // Login with email/password
   login: publicProcedure
     .input(
       z.object({
@@ -59,7 +59,6 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Password-based login enabled for admin portal
       const admin = await findAdminByEmail(input.email);
 
       if (!admin) {

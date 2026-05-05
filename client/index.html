@@ -51,13 +51,8 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-384_7b9bb6fe.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
-    <!-- LCP: Preload hero background for fastest Largest Contentful Paint -->
-    <!-- Desktop: 51KB compressed WebP -->
-    <link rel="preload" as="image" href="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" fetchpriority="high" media="(min-width: 769px)" />
-    <!-- Mobile: same image but browser will load it faster with explicit preload -->
-    <link rel="preload" as="image" href="/manus-storage/gigitekai-hero-bg-compressed_6c5cc1ac.webp" fetchpriority="high" media="(max-width: 768px)" />
-    <!-- Optimized logo: 18KB WebP (was 81KB PNG) -->
-    <link rel="preload" as="image" href="/manus-storage/gigitekai-logo-167x112_31e424d0.webp" fetchpriority="high" />
+    <!-- LCP: Preload hero image and logo for fastest Largest Contentful Paint -->
+    <link rel="preload" as="image" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-transparent.png" fetchpriority="high" />
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gozuPTPgn2.woff2" type="font/woff2" crossorigin />
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg3EsZ4lzW_dxiJHOHYslrcuWcX20cPToRg.woff2" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -66,33 +61,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <!-- Fallback for browsers without JS -->
     <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
-    <!-- Preconnect for manus-storage CDN (logo, hero poster) -->
-    <link rel="preconnect" href="https://d36hbw14aib5lz.cloudfront.net" crossorigin />
-    <!-- Preconnect to analytics to reduce connection time -->
-    <link rel="preconnect" href="https://plausible.io" />
-    <!-- Analytics deferred to reduce initial load -->
-    <link rel="dns-prefetch" href="https://manus-analytics.com" />
+    <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
     <!-- Preload critical vendor chunks for faster navigation -->
     <link rel="dns-prefetch" href="https://www.gigitekai.com" />
-    <!-- Defer 3rd party scripts to improve LCP -->
-    <script>
-      window.addEventListener('load', () => {
-        // Load Cloudflare Insights after page load
-        const cfScript = document.createElement('script');
-        cfScript.defer = true;
-        cfScript.src = 'https://static.cloudflareinsights.com/beacon.min.js/v8c78df7ec1a37eaf9f83d7526dcb98f5';
-        document.head.appendChild(cfScript);
-      });
-    </script>
-    <style>
-      :root { --cyan-accent: #00D4FF; --navy-deep: #0A0E1A; }
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 100%; height: 100%; }
-      body { background: #0A0E1A; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'DM Sans', sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-      #root, #gigitekai-app { width: 100%; min-height: 100vh; }
-      nav { position: sticky; top: 0; z-index: 50; background: #0A0E1A; border-bottom: 1px solid rgba(0,212,255,0.1); }
-      .btn-cyan { background: #00D4FF; color: #0A0E1A; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
-    </style>
     <script>
       // Preload react-core and radix-ui chunks after initial paint
       // so they are cached before the user navigates to any page
@@ -111,7 +82,6 @@
       }
     </script>
     <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
-    <!-- Cloudflare email-decode removed: 404 error, no value -->
     <script type="speculationrules">
     {
       "prerender": [
@@ -255,58 +225,6 @@
       }
     ]
     </script>
-      <style>@import "tailwindcss";
-@import "tw-animate-css";
-@custom-variant dark (&:is(.dark *));
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-accent: var(--accent);
-  --color-border: var(--border);
-}
-:root {
-  --radius: 0.5rem;
-  --cyan-accent: #00D4FF;
-  --cyan-glow: rgba(0, 212, 255, 0.15);
-  --navy-deep: #0A0E1A;
-  --navy-mid: #0F1629;
-  --navy-card: #141B2D;
-  --navy-border: rgba(0, 212, 255, 0.2);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.1 0.01 250);
-  --card: oklch(0.98 0.002 250);
-  --card-foreground: oklch(0.1 0.01 250);
-  --primary: oklch(0.65 0.2 200);
-  --primary-foreground: oklch(1 0 0);
-  --accent: oklch(0.65 0.2 200);
-  --accent-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0.005 250);
-}
-.dark {
-  --background: oklch(0.08 0.02 250);
-  --foreground: oklch(0.95 0.005 250);
-  --card: oklch(0.12 0.025 250);
-  --card-foreground: oklch(0.95 0.005 250);
-  --primary: oklch(0.75 0.2 200);
-  --primary-foreground: oklch(0.05 0.01 250);
-  --accent: oklch(0.75 0.2 200);
-  --accent-foreground: oklch(0.05 0.01 250);
-  --border: oklch(1 0 0 / 10%);
-}
-@layer base {
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; min-height: 100dvh; }
-  #root { min-height: 100dvh; }
-}</style>
-    <!-- Defer analytics scripts to load after page content -->
-    <script async src="https://plausible.io/js/script.js" data-domain="gigitekai.com"></script>
-    <script async src="https://cdn.amplitude.com/libs/analytics-browser-2.0.0-beta.5.umd.production.min.js"></script>
-    <script async src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7ec1a37eaf9f83d7526dcb98f5" data-cf-beacon='{"token": "46ac3f9d1a6f4a6a8f6a6a6a6a6a6a6a"}' defer></script>
   </head>
   <body>
     <div id="root"></div>
@@ -330,18 +248,17 @@
           'page_title': document.title
         });
       }
-      // Load after user interaction or 8s on mobile / 4s on desktop
+      // Load after user interaction or 3 seconds, whichever comes first
       var gaLoaded = false;
       function triggerGA() {
         if (gaLoaded) return;
         gaLoaded = true;
         loadGA4();
       }
-      var gaDelay = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 8000 : 4000;
       if (document.readyState === 'complete') {
-        setTimeout(triggerGA, gaDelay);
+        setTimeout(triggerGA, 1000);
       } else {
-        window.addEventListener('load', function() { setTimeout(triggerGA, gaDelay); });
+        window.addEventListener('load', function() { setTimeout(triggerGA, 1000); });
       }
       ['click','scroll','keydown','touchstart'].forEach(function(e) {
         document.addEventListener(e, triggerGA, { once: true, passive: true });

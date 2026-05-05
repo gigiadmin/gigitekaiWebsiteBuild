@@ -1,6 +1,6 @@
 /**
  * AdminHome — Unified Admin Portal Dashboard
- * Tabbed interface: Overview, Operations, Metrics, System Status
+ * Live KPI cards, activity feed, quick actions
  * Rendered inside AdminLayout
  */
 import { useState } from "react";
@@ -35,7 +35,6 @@ const [DAYS] = [30];
 
 export default function AdminHome() {
   const [days] = useState(DAYS);
-  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: metrics, isLoading: metricsLoading, refetch: refetchMetrics } = trpc.helpdesk.getMetrics.useQuery(undefined, {
     refetchInterval: 60_000,
@@ -136,14 +135,9 @@ export default function AdminHome() {
     { label: "Canned Responses", href: "/admin/canned-responses", icon: <MessageSquareText size={14} />, color: "text-purple-400" },
   ];
 
-  const tabs = [
-    { id: "overview", label: "Overview", icon: <Activity size={16} /> },
-    { id: "operations", label: "Operations", icon: <Zap size={16} /> },
-    { id: "metrics", label: "Metrics", icon: <TrendingUp size={16} /> },
-    { id: "system", label: "System Status", icon: <CheckCircle size={16} /> },
-  ];
-
   return (
+    
+    
     <AdminLayout title="Dashboard">
       <div className="space-y-6">
         {/* Welcome header */}
@@ -166,237 +160,152 @@ export default function AdminHome() {
           </Button>
         </div>
 
-        {/* Tabbed Interface */}
-        <Card className="bg-[#161B22] border-slate-700/50">
-          {/* Tab Navigation */}
-          <div className="flex border-b border-slate-700/50 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "text-[#00D4FF] border-b-2 border-[#00D4FF]"
-                    : "text-slate-400 hover:text-slate-300"
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <CardContent className="pt-6">
-            {/* Overview Tab */}
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                {/* KPI Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {kpiCards.map((card) => (
-                    <Link key={card.label} href={card.href}>
-                      <Card className="bg-[#0F1419] border-slate-700/50 hover:border-slate-600 transition-all duration-200 cursor-pointer group">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className={`${card.bg} ${card.color} p-1.5 rounded-md`}>
-                                  {card.icon}
-                                </div>
-                                <span className="text-slate-400 text-xs font-medium">{card.label}</span>
-                              </div>
-                              <div className={`text-2xl font-bold ${card.color} mb-0.5`}>{card.value}</div>
-                              <div className="text-slate-500 text-xs truncate">{card.sub}</div>
-                            </div>
-                            <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors mt-1 flex-shrink-0" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-
-                {/* Support Ticket Widget */}
-                <SupportTicketWidget />
-              </div>
-            )}
-
-            {/* Operations Tab */}
-            {activeTab === "operations" && (
-              <div className="space-y-6">
-                {/* Quick Actions */}
-                <Card className="bg-[#0F1419] border-slate-700/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
-                      <Zap size={14} className="text-cyan-400" />
-                      Quick Actions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                      {quickActions.map((action) => (
-                        <Link key={action.label} href={action.href}>
-                          <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors cursor-pointer group text-center">
-                            <span className={`${action.color} flex-shrink-0`}>{action.icon}</span>
-                            <span className="text-slate-300 text-xs font-medium group-hover:text-white transition-colors">{action.label}</span>
-                          </div>
-                        </Link>
-                      ))}
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {kpiCards.map((card) => (
+            <Link key={card.label} href={card.href}>
+              <Card className="bg-[#161B22] border-slate-700/50 hover:border-slate-600 transition-all duration-200 cursor-pointer group">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`${card.bg} ${card.color} p-1.5 rounded-md`}>
+                          {card.icon}
+                        </div>
+                        <span className="text-slate-400 text-xs font-medium">{card.label}</span>
+                      </div>
+                      <div className={`text-2xl font-bold ${card.color} mb-0.5`}>{card.value}</div>
+                      <div className="text-slate-500 text-xs truncate">{card.sub}</div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors mt-1 flex-shrink-0" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
 
-                {/* Ticket Priority Overview */}
-                {totalTickets > 0 && (
-                  <Card className="bg-[#0F1419] border-slate-700/50">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
-                        <AlertCircle size={14} className="text-amber-400" />
-                        Ticket Priority Overview
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {[
-                          { label: "Critical", value: metrics?.byPriority?.critical ?? 0, color: "text-red-400", bg: "bg-red-500/10" },
-                          { label: "High", value: metrics?.byPriority?.high ?? 0, color: "text-orange-400", bg: "bg-orange-500/10" },
-                          { label: "Medium", value: metrics?.byPriority?.medium ?? 0, color: "text-amber-400", bg: "bg-amber-500/10" },
-                          { label: "Low", value: metrics?.byPriority?.low ?? 0, color: "text-green-400", bg: "bg-green-500/10" },
-                        ].map((p) => (
-                          <div key={p.label} className={`${p.bg} rounded-lg p-3 text-center`}>
-                            <div className={`text-xl font-bold ${p.color}`}>{p.value}</div>
-                            <div className="text-slate-400 text-xs mt-0.5">{p.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
+        {/* Support Ticket Widget */}
+        <SupportTicketWidget />
 
-            {/* Metrics Tab */}
-            {activeTab === "metrics" && (
-              <div className="space-y-6">
-                <Card className="bg-[#0F1419] border-slate-700/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
-                      <TrendingUp size={14} className="text-pink-400" />
-                      Performance Metrics
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div>
-                          <div className="text-slate-400 text-xs font-medium mb-1">Resolution Rate</div>
-                          <div className="text-3xl font-bold text-green-400">{resolutionRate}%</div>
-                          <div className="text-slate-500 text-xs mt-1">{resolvedTickets} resolved of {totalTickets} total</div>
-                        </div>
-                        <div>
-                          <div className="text-slate-400 text-xs font-medium mb-1">Average Response Time</div>
-                          <div className="text-3xl font-bold text-cyan-400">2.5h</div>
-                          <div className="text-slate-500 text-xs mt-1">Across all channels</div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="text-slate-400 text-xs font-medium mb-1">Customer Satisfaction</div>
-                          <div className="text-3xl font-bold text-emerald-400">4.8/5</div>
-                          <div className="text-slate-500 text-xs mt-1">Based on 127 ratings</div>
-                        </div>
-                        <div>
-                          <div className="text-slate-400 text-xs font-medium mb-1">First Contact Resolution</div>
-                          <div className="text-3xl font-bold text-violet-400">68%</div>
-                          <div className="text-slate-500 text-xs mt-1">Resolved on first interaction</div>
-                        </div>
-                      </div>
+        {/* Two-column: Quick Actions + Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Quick Actions */}
+          <Card className="bg-[#161B22] border-slate-700/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                <Zap size={14} className="text-cyan-400" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-2">
+                {quickActions.map((action) => (
+                  <Link key={action.label} href={action.href}>
+                    <div className="flex items-center gap-2.5 p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors cursor-pointer group">
+                      <span className={`${action.color} flex-shrink-0`}>{action.icon}</span>
+                      <span className="text-slate-300 text-xs font-medium group-hover:text-white transition-colors">{action.label}</span>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <div className="flex justify-end">
-                  <Link href="/admin/metrics">
-                    <Button variant="outline" size="sm" className="gap-2">
-                      View Full Metrics
-                      <ArrowRight size={12} />
-                    </Button>
                   </Link>
-                </div>
+                ))}
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            {/* System Status Tab */}
-            {activeTab === "system" && (
-              <div className="space-y-6">
-                <Card className="bg-[#0F1419] border-slate-700/50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
-                      <Activity size={14} className="text-cyan-400" />
-                      System Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-3">
-                      {[
-                        {
-                          label: "Helpdesk",
-                          status: openTickets > 10 ? "warning" : "operational",
-                          detail: openTickets > 10 ? `${openTickets} tickets need attention` : "All systems normal",
-                        },
-                        {
-                          label: "Live Chat",
-                          status: "operational",
-                          detail: `${chatAnalytics?.activeSessions ?? 0} active sessions`,
-                        },
-                        {
-                          label: "AI Agents",
-                          status: "operational",
-                          detail: `${chatAnalytics?.aiChatSessions ?? 0} AI sessions (30d)`,
-                        },
-                        {
-                          label: "Newsletter",
-                          status: "operational",
-                          detail: `${subscriberStats?.total ?? 0} active subscribers`,
-                        },
-                        {
-                          label: "Email (SendGrid)",
-                          status: "operational",
-                          detail: "support@gigitekai.com · Verified",
-                        },
-                        {
-                          label: "M365 Services",
-                          status: "operational",
-                          detail: "View health status",
-                          href: "/admin/m365-health",
-                        },
-                      ].map((item: any) => (
-                        <Link key={item.label} href={item.href || "#"}>
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors cursor-pointer">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                item.status === "operational" ? "bg-emerald-400" :
-                                item.status === "warning" ? "bg-amber-400 animate-pulse" :
-                                "bg-red-400"
-                              }`} />
-                              <div>
-                                <div className="text-slate-300 text-sm font-medium">{item.label}</div>
-                                <div className="text-slate-500 text-xs">{item.detail}</div>
-                              </div>
-                            </div>
-                            <Badge variant={item.status === "operational" ? "default" : "secondary"} className="text-xs">
-                              {item.status === "operational" ? "Operational" : item.status === "warning" ? "Warning" : "Down"}
-                            </Badge>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* System Status */}
+          <Card className="bg-[#161B22] border-slate-700/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                <Activity size={14} className="text-cyan-400" />
+                System Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {[
+                {
+                  label: "Helpdesk",
+                  status: openTickets > 10 ? "warning" : "operational",
+                  detail: openTickets > 10 ? `${openTickets} tickets need attention` : "All systems normal",
+                },
+                {
+                  label: "Live Chat",
+                  status: "operational",
+                  detail: `${chatAnalytics?.activeSessions ?? 0} active sessions`,
+                },
+                {
+                  label: "AI Agents",
+                  status: "operational",
+                  detail: `${chatAnalytics?.aiChatSessions ?? 0} AI sessions (30d)`,
+                },
+                {
+                  label: "Newsletter",
+                  status: "operational",
+                  detail: `${subscriberStats?.total ?? 0} active subscribers`,
+                },
+                {
+                  label: "Email (SendGrid)",
+                  status: "operational",
+                  detail: "support@gigitekai.com · Verified",
+                },
+                {
+                  label: "M365 Services",
+                  status: "operational",
+                  detail: "View health status",
+                  href: "/admin/m365-health",
+                },
+              ].map((item: any) => (
+                <Link key={item.label} href={item.href || "#"}>
+                  <div className="flex items-center justify-between hover:opacity-80 transition-opacity cursor-pointer">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      item.status === "operational" ? "bg-emerald-400" :
+                      item.status === "warning" ? "bg-amber-400 animate-pulse" :
+                      "bg-red-400"
+                    }`} />
+                    <span className="text-slate-300 text-xs">{item.label}</span>
+                  </div>
+                    <span className="text-slate-500 text-xs">{item.detail}</span>
+                  </div>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Helpdesk Priority Breakdown */}
+        {totalTickets > 0 && (
+          <Card className="bg-[#161B22] border-slate-700/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                <AlertCircle size={14} className="text-amber-400" />
+                Ticket Priority Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { label: "Critical", value: metrics?.byPriority?.critical ?? 0, color: "text-red-400", bg: "bg-red-500/10" },
+                  { label: "High", value: metrics?.byPriority?.high ?? 0, color: "text-orange-400", bg: "bg-orange-500/10" },
+                  { label: "Medium", value: metrics?.byPriority?.medium ?? 0, color: "text-amber-400", bg: "bg-amber-500/10" },
+                  { label: "Low", value: metrics?.byPriority?.low ?? 0, color: "text-green-400", bg: "bg-green-500/10" },
+                ].map((p) => (
+                  <div key={p.label} className={`${p.bg} rounded-lg p-3 text-center`}>
+                    <div className={`text-xl font-bold ${p.color}`}>{p.value}</div>
+                    <div className="text-slate-400 text-xs mt-0.5">{p.label}</div>
+                  </div>
+                ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="mt-4 flex justify-end">
+                <Link href="/admin/metrics">
+                  <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-400 hover:text-white gap-1.5">
+                    View Full Metrics
+                    <ArrowRight size={12} />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer note */}
         <div className="text-center text-slate-600 text-xs">
