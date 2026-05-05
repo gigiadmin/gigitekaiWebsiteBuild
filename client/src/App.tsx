@@ -78,51 +78,12 @@ const CancelMeeting = lazy(() => import("./pages/CancelMeeting"));
 const RescheduleMeeting = lazy(() => import("./pages/RescheduleMeeting"));
 
 // ── Admin portal — lazy loaded (all behind ApprovalGuard) ────────────────
-const AdminHome = lazy(() => import("./pages/AdminHome"));
-const AdminHelpdeskPage = lazy(() => import("./pages/AdminHelpdeskPage"));
-const AdminChatPage = lazy(() => import("./pages/AdminChatPage"));
-const AdminAgentsPage = lazy(() => import("./pages/AdminAgentsPage"));
-const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage"));
-const AdminBlogPage = lazy(() => import("./pages/AdminBlogPage"));
-const AdminNewsletterPage = lazy(() => import("./pages/AdminNewsletterPage"));
-const AdminMetricsPage = lazy(() => import("./pages/AdminMetricsPage"));
-const AdminAccountsPage = lazy(() => import("./pages/AdminAccountsPage"));
-const AdminInvitesPage = lazy(() => import("./pages/AdminInvitesPage"));
-const AdminEmailPage = lazy(() => import("./pages/AdminEmailPage"));
-const AdminPreferencesPage = lazy(() => import("./pages/AdminPreferencesPage"));
-const AdminEmailDigestPage = lazy(() => import("./pages/AdminEmailDigestPage"));
-const AdminGuidePage = lazy(() => import("./pages/AdminGuidePage"));
-const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase"));
-const AdminKbGenerationPage = lazy(() => import("./pages/AdminKbGenerationPage"));
-const AdminSocialPage = lazy(() => import("./pages/AdminSocialPage"));
-const AdminLeadsPage = lazy(() => import("./pages/AdminLeadsPage"));
-const AdminContactsPage = lazy(() => import("./pages/AdminContactsPage"));
-const AdminCannedResponsesPage = lazy(() => import("./pages/AdminCannedResponsesPage"));
-const AdminClosedTicketsReportPage = lazy(() => import("./pages/AdminClosedTicketsReportPage"));
-const AdminHelpdeskMetricsPage = lazy(() => import("./pages/AdminHelpdeskMetricsPage"));
-const AdminAgentDashboardPage = lazy(() => import("./pages/AdminAgentDashboardPage"));
-const AdminAgentLeaderboard = lazy(() => import("./pages/AdminAgentLeaderboard"));
-const AdminCopilot = lazy(() => import("./pages/AdminCopilot"));
-const AdminCopilotM365 = lazy(() => import("./pages/AdminCopilotM365"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const AdminSurveysPage = lazy(() => import("./pages/AdminSurveysPage"));
-const AdminWorkloadPage = lazy(() => import("./pages/AdminWorkloadPage"));
-const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
-const TeamMembersEnhanced = lazy(() => import("./pages/TeamMembersEnhanced"));
-const AdminSettingsPage = lazy(() => import("./pages/AdminSettingsPage"));
-const AdminServiceHealthMonitoring = lazy(() => import("./pages/AdminServiceHealthMonitoring"));
-const AdminM365Health = lazy(() => import("./pages/AdminM365Health"));
+// Admin portal — loaded dynamically only when accessing /admin routes (saves 1,012 KiB)
+const AdminApp = lazy(() => import("./AdminApp"));
+
+// M365 health pages (public-facing)
 const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
 const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365NotificationsPreferencesPage"));
-const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage"));
-const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
-const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
-const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
-const AdminContactCenterDashboard = lazy(() => import("./pages/AdminContactCenterDashboard"));
-const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
-const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
-const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
-const AdminRecordingsPage = lazy(() => import("./pages/AdminRecordingsPage"));
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
@@ -235,81 +196,15 @@ function Router() {
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
-          {/* ── Admin Portal ── */}
-          <Route path={"/admin"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
-          <Route path={"/admin/home"}>{() => <ApprovalGuard><AdminHome /></ApprovalGuard>}</Route>
-          {/* Operations */}
-          <Route path={"/admin/helpdesk"}>{() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/call-review"}>{() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>}</Route>
-          {/* Contact Center Dashboard */}
-          <Route path={"/admin/contact-center-dashboard"}>{() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>}</Route>
-          <Route path={"/admin/chat"}>{() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/agents"}>{() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/notifications"}>{() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>}</Route>
-          {/* Content */}
-          <Route path={"/admin/blog"}>{() => <ApprovalGuard><AdminBlogPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/newsletter"}>{() => <ApprovalGuard><AdminNewsletterPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/scorecard-results"}>{() => <ApprovalGuard><AdminScorecardDashboard /></ApprovalGuard>}</Route>
-          {/* Overview */}
-          <Route path={"/admin/metrics"}>{() => <ApprovalGuard><AdminMetricsPage /></ApprovalGuard>}</Route>
-          {/* Customers */}
-          <Route path={"/admin/accounts"}>{() => <ApprovalGuard><AdminAccountsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/invites"}>{() => <ApprovalGuard><AdminInvitesPage /></ApprovalGuard>}</Route>
-          {/* Email */}
-          <Route path={"/admin/email"}>{() => <ApprovalGuard><AdminEmailPage /></ApprovalGuard>}</Route>
-          {/* Settings */}
-          <Route path={"/admin/preferences"}>{() => <ApprovalGuard><AdminPreferencesPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/email-digest"}>{() => <ApprovalGuard><AdminEmailDigestPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/guide"}>{() => <ApprovalGuard><AdminGuidePage /></ApprovalGuard>}</Route>
-          {/* Knowledge Base */}
-          <Route path={"/admin/kb"}>{() => <ApprovalGuard><KnowledgeBase /></ApprovalGuard>}</Route>
-          <Route path={"/admin/kb-generation"}>{() => <ApprovalGuard><AdminKbGenerationPage /></ApprovalGuard>}</Route>
-          {/* KB Analytics Dashboard */}
-          <Route path={"/admin/kb-analytics"}>{() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>}</Route>
-          <Route path={"/admin/recordings"}>{() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>}</Route>
-          <Route path={"/helpdesk/session-history"}>{() => <ClientSessionHistory />}</Route>
-          <Route path={"/admin/call-transcripts"}>{() => <ApprovalGuard><CallTranscriptSearch /></ApprovalGuard>}</Route>
-          {/* Social Publishing Hub */}
-          <Route path={"/admin/social"}>{() => <ApprovalGuard><AdminSocialPage /></ApprovalGuard>}</Route>
-          {/* Leads & CRM */}
-          <Route path={"/admin/leads"}>{() => <ApprovalGuard><AdminLeadsPage /></ApprovalGuard>}</Route>
-          {/* AI Demo Leads */}
-          <Route path={"/admin/demo-leads"}>{() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>}</Route>
-          {/* Contact Submissions */}
-          <Route path={"/admin/contacts"}>{() => <ApprovalGuard><AdminContactsPage /></ApprovalGuard>}</Route>
-          {/* Canned Responses */}
-          <Route path={"/admin/canned-responses"}>{() => <ApprovalGuard><AdminCannedResponsesPage /></ApprovalGuard>}</Route>
-          {/* Closed Tickets Report */}
-          <Route path={"/admin/closed-tickets"}>{() => <ApprovalGuard><AdminClosedTicketsReportPage /></ApprovalGuard>}</Route>
-          {/* Helpdesk Metrics Dashboard */}
-          <Route path={"/admin/helpdesk-metrics"}>{() => <ApprovalGuard><AdminHelpdeskMetricsPage /></ApprovalGuard>}</Route>
-          {/* Real-Time Dashboard */}
-          <Route path={"/admin/dashboard"}>{() => <ApprovalGuard><Dashboard /></ApprovalGuard>}</Route>
-          {/* Agent Dashboard */}
-          <Route path={"/admin/agent-dashboard"}>{() => <ApprovalGuard><AdminAgentDashboardPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/agent-leaderboard"}>{() => <ApprovalGuard><AdminAgentLeaderboard /></ApprovalGuard>}</Route>
-          {/* Copilot for M365 */}
-          <Route path={"/admin/copilot"}>{() => <ApprovalGuard><AdminCopilot /></ApprovalGuard>}</Route>
-          {/* Copilot M365 Intelligence */}
-          <Route path={"/admin/copilot-m365"}>{() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>}</Route>
-          {/* Analytics */}
-          <Route path={"/admin/surveys"}>{() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/workload"}>{() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>}</Route>
-          {/* Settings & Users */}
-          <Route path={"/admin/users"}>{() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/team-members"}>{() => <ApprovalGuard><TeamMembersEnhanced /></ApprovalGuard>}</Route>
-          <Route path={"/admin/settings"}>{() => <ApprovalGuard><AdminSettingsPage /></ApprovalGuard>}</Route>
-          {/* Service Health Monitoring */}
-          <Route path={"/admin/service-health"}>{() => <ApprovalGuard><AdminServiceHealthMonitoring /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-health"}>{() => <ApprovalGuard><AdminM365Health /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-status"}>{() => <ApprovalGuard><M365HealthPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/m365-notifications"}>{() => <ApprovalGuard><M365NotificationsPreferencesPage /></ApprovalGuard>}</Route>
-          {/* Teams Channels — per-client channel management */}
-          <Route path={"/admin/teams-channels"}>{() => <ApprovalGuard><AdminTeamsChannelsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/escalation-patterns"}>{() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>}</Route>
-          <Route path={"/admin/ms-learn-sync"}>{() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>}</Route>
-          {/* Client Onboarding */}
-          <Route path={"/admin/client-onboarding"}>{() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>}</Route>
+          {/* ── Admin Portal — all routes handled by AdminApp ── */}
+          <Route path="/admin*" component={AdminApp} />
+          {/* M365 Health Pages (public-facing) */}
+          <Route path={"/m365-status"} component={M365HealthPage} />
+          <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
+          {/* Client Session History */}
+          <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
+          {/* Call Transcript Search */}
+          <Route path={"/call-transcripts"} component={CallTranscriptSearch} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />
