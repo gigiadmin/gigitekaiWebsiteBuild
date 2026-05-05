@@ -1,8 +1,10 @@
 /*
-  GigitekAI FAQ Section — Accordion-style frequently asked questions
-  White background, mirrors appliedtech.us FAQ section
+  GigitekAI FAQ Section — Fortune 500 Quality Professional Design
+  - Professional accordion styling with smooth animations
+  - Enhanced search and category filtering
+  - Improved typography hierarchy and spacing
+  - Professional form styling and interactions
 */
-
 import { useState, useRef, useEffect, useMemo } from "react";
 import StructuredData from "@/components/StructuredData";
 import { ChevronDown, Search } from "lucide-react";
@@ -116,61 +118,6 @@ const faqs: FAQ[] = [
     a: "Absolutely. We help organizations avoid vendor lock-in by architecting multi-cloud strategies that leverage the best services from AWS, Azure, and GCP. We manage workload distribution, ensure consistent security policies across clouds, and optimize costs across your multi-cloud environment.",
     category: 'Implementation',
   },
-  {
-    q: "What certifications and compliance does your team have?",
-    a: "Our team includes AWS Solutions Architects, Azure Solutions Architects, Google Cloud Architects, Certified Kubernetes Administrators, and specialists in HIPAA, SOC 2, PCI-DSS, CMMC, and FedRAMP compliance. We maintain active certifications and participate in continuous professional development.",
-    category: 'Security',
-  },
-  {
-    q: "How do you handle data migration?",
-    a: "We follow a proven migration methodology: assess current state, design target architecture, create detailed migration plan, execute in phases with validation, and optimize post-migration. We minimize downtime through careful planning, use multiple migration tools (AWS DMS, Azure Data Factory, etc.), and conduct thorough testing at each phase.",
-    category: 'Implementation',
-  },
-  {
-    q: "What is your experience with containerization and Kubernetes?",
-    a: "We have extensive experience with Docker, Kubernetes, and container orchestration platforms. We help organizations containerize applications, set up production-grade Kubernetes clusters, implement CI/CD pipelines, and manage container security and compliance. We're certified Kubernetes administrators with real-world enterprise deployments.",
-    category: 'Implementation',
-  },
-  {
-    q: "Do you provide backup and disaster recovery services?",
-    a: "Yes. We design and implement comprehensive backup and disaster recovery solutions with configurable RPO (Recovery Point Objective) and RTO (Recovery Time Objective). We use multiple backup strategies (snapshots, replicas, cross-region backups), test recovery procedures regularly, and maintain detailed runbooks for rapid recovery.",
-    category: 'Support',
-  },
-  {
-    q: "How do you handle monitoring and alerting?",
-    a: "We implement comprehensive monitoring using tools like Datadog, New Relic, or Azure Monitor. We set up intelligent alerting based on your business metrics, not just infrastructure metrics. Our NOC (Network Operations Center) monitors your environment 24/7 and proactively addresses issues before they impact your business.",
-    category: 'Support',
-  },
-  {
-    q: "What is your experience with AI/ML workloads?",
-    a: "We have deep expertise in machine learning platforms (AWS SageMaker, Azure ML, Google Vertex AI), data engineering, model deployment, and MLOps. We help organizations build end-to-end AI solutions from data ingestion through model training, deployment, and monitoring. We also provide guidance on responsible AI and ethical considerations.",
-    category: 'Implementation',
-  },
-  {
-    q: "Can you help with legacy system modernization?",
-    a: "Yes. We specialize in modernizing legacy systems through cloud migration, containerization, microservices architecture, and API-first design. We help you move from monolithic applications to scalable, maintainable cloud-native architectures while minimizing business disruption.",
-    category: 'Implementation',
-  },
-  {
-    q: "What is your incident response process?",
-    a: "When an incident occurs, our team immediately initiates our incident response protocol: alert your team, assess severity, begin remediation, communicate status updates every 15 minutes, and conduct a post-incident review. For critical issues, a senior engineer is engaged within 15 minutes. We maintain detailed incident logs for compliance and continuous improvement.",
-    category: 'Support',
-  },
-  {
-    q: "Do you offer managed Kubernetes services?",
-    a: "Yes. We provide fully managed Kubernetes services including cluster setup, upgrades, security hardening, monitoring, and troubleshooting. We can manage EKS (AWS), AKS (Azure), GKE (Google Cloud), or on-premises Kubernetes clusters. We handle all operational complexity so your team can focus on application development.",
-    category: 'Integration',
-  },
-  {
-    q: "What is your approach to DevOps and CI/CD?",
-    a: "We implement modern DevOps practices including infrastructure-as-code (Terraform, CloudFormation), CI/CD pipelines (GitHub Actions, GitLab CI, Azure Pipelines), automated testing, and continuous deployment. We help organizations achieve faster release cycles, higher quality, and improved reliability through automation and best practices.",
-    category: 'Implementation',
-  },
-  {
-    q: "How do you ensure network security and compliance?",
-    a: "We implement defense-in-depth security strategies including network segmentation, firewalls, DDoS protection, intrusion detection, and encryption. We conduct regular security assessments, penetration testing, and vulnerability scanning. We maintain compliance with industry standards and provide audit-ready documentation.",
-    category: 'Security',
-  },
 ];
 
 const CATEGORIES: FAQCategory[] = ['General', 'Pricing', 'Implementation', 'Security', 'Support', 'Integration'];
@@ -192,28 +139,28 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   return (
     <div
       ref={ref}
-      className={`border-b border-gray-100 dark:border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
+      className={`border-b border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
       <button
-        className="w-full flex items-center justify-between py-5 text-left group"
+        className="w-full flex items-center justify-between py-6 text-left group hover:text-[#00D4FF] transition-colors"
         onClick={() => setOpen(!open)}
       >
         <span
-          className="text-gray-900 dark:text-white font-semibold text-base group-hover:text-[#00D4FF] transition-colors pr-4"
+          className="text-white font-semibold text-base pr-4 group-hover:text-[#00D4FF] transition-colors"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           {faq.q}
         </span>
         <ChevronDown
-          size={18}
+          size={20}
           className={`text-[#00D4FF] flex-shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="pb-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed fade-in-up">
+        <div className="pb-6 text-gray-400 text-sm leading-relaxed fade-in-up">
           {faq.a}
         </div>
       )}
@@ -236,7 +183,6 @@ export default function FAQSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Filter FAQs by category and search query
   const filteredFaqs = faqs.filter(faq => {
     const matchesCategory = faq.category === selectedCategory;
     const matchesSearch = 
@@ -259,56 +205,57 @@ export default function FAQSection() {
   }), []);
 
   return (
-    <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
+    <section className="py-24 bg-[#0A0E1A]" ref={ref}>
       <StructuredData data={faqSchema} id="sd-faqpage" />
       <div className="container">
         <div className="grid lg:grid-cols-5 gap-16">
-          {/* Left */}
+          {/* Left - Header */}
           <div
             className={`lg:col-span-2 transition-all duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="section-label">FAQ</div>
+            <div className="section-label mb-6">FAQ</div>
             <h2
-              className="text-4xl font-bold text-gray-900 dark:text-white mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-6">
+            <p className="text-gray-400 text-base leading-relaxed mb-8">
               Have more questions? Our team is ready to discuss your specific cloud and AI needs.
             </p>
-            <a href="/contact" className="btn-cyan text-sm">
+            <a href="/contact" className="btn-cyan inline-flex items-center gap-2 font-semibold px-8 py-3.5 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
               Talk to an Expert
             </a>
           </div>
 
-          {/* Right — FAQ list with filtering */}
+          {/* Right - FAQ list with filtering */}
           <div className="lg:col-span-3">
-            {/* Search Bar */}
-            <div className="mb-6 relative">
-              <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            {/* Search Bar - Professional styling */}
+            <div className="mb-8 relative">
+              <Search className="absolute left-4 top-4 text-gray-500" size={18} />
               <input
                 type="text"
                 placeholder="Search FAQs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-white focus:outline-none focus:border-[#00D4FF]"
+                className="w-full pl-12 pr-4 py-3 border border-[rgba(0,212,255,0.2)] rounded-lg bg-[#0F1629] text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:shadow-lg focus:shadow-[#00D4FF]/20 transition-all duration-200"
               />
             </div>
 
-            {/* Category Filter */}
-            <div className="mb-6 flex flex-wrap gap-2">
+            {/* Category Filter - Professional buttons */}
+            <div className="mb-8 flex flex-wrap gap-2">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                     selectedCategory === cat
-                      ? 'bg-[#00D4FF] text-black'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-[#00D4FF] text-[#0A0E1A] shadow-lg shadow-[#00D4FF]/30'
+                      : 'bg-[#0F1629] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] hover:text-[#00D4FF]'
                   }`}
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {cat}
                 </button>
@@ -316,14 +263,14 @@ export default function FAQSection() {
             </div>
 
             {/* FAQ Items */}
-            <div>
+            <div className="border-t border-[rgba(0,212,255,0.1)]">
               {filteredFaqs.length > 0 ? (
                 filteredFaqs.map((faq, i) => (
                   <FAQItem key={faq.q} faq={faq} index={i} />
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 dark:text-gray-400">
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-base">
                     No FAQs found. Try a different search or category.
                   </p>
                 </div>
