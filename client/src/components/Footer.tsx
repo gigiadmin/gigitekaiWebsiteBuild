@@ -47,7 +47,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-100 dark:bg-[#050810] border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)]">
       {/* Main footer */}
-      <div className="py-16" style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="container py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
@@ -132,7 +132,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.08)]">
-        <div className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+        <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <p className="text-gray-600 text-xs">
               © {new Date().getFullYear()} GigitekAI LLC. All rights reserved.

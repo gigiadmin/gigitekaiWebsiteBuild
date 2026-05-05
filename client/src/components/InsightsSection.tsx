@@ -34,7 +34,7 @@ export default function InsightsSection() {
 
   return (
     <section id="insights" className="py-20 bg-gray-50 dark:bg-[#0F1629]" ref={ref}>
-      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="container">
 
         {/* Header */}
         <div

@@ -1,10 +1,12 @@
 /*
-  GigitekAI Stats Section — Professional Enterprise Layout
-  Full-width centering, social proof, Fortune 100 quality
+  GigitekAI Stats Section — Social Proof & Trust Signals
+  - Stats render as static text immediately (SEO + accessibility)
+  - Optional count-up animation when section scrolls into view
+  - Social proof bar: trust badges
+  - How It Works 6-step process
 */
-
 import { useEffect, useRef, useState } from "react";
-import { TrendingUp, Users, Shield, Clock } from "lucide-react";
+import { Star, Shield, Award, TrendingUp, Users, Clock } from "lucide-react";
 
 const stats = [
   { icon: TrendingUp, value: 10, suffix: "+", label: "Years of Enterprise IT", sublabel: "Founder's hands-on experience" },
@@ -18,6 +20,7 @@ const trustBadges = [
   { label: "NIST Framework", color: "#00D4FF" },
   { label: "Zero Trust Ready", color: "#7C3AED" },
   { label: "ITIL Aligned", color: "#059669" },
+
 ];
 
 const formatValue = (value: number, target: number) => {
@@ -26,6 +29,7 @@ const formatValue = (value: number, target: number) => {
 };
 
 function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
+  // Always start with the real target value — never "0"
   const [displayValue, setDisplayValue] = useState(target);
   const ref = useRef<HTMLSpanElement>(null);
   const hasAnimated = useRef(false);
@@ -38,6 +42,7 @@ function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffi
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
           hasAnimated.current = true;
+          // Run count-up animation from 0 → target
           const steps = 60;
           const increment = target / steps;
           let current = 0;
@@ -59,6 +64,7 @@ function StatNumber({ target, suffix, duration = 2000 }: { target: number; suffi
     return () => observer.disconnect();
   }, [target, duration]);
 
+  // The static text is always the real number in the HTML
   return (
     <span ref={ref}>
       {formatValue(displayValue, target)}{suffix}
@@ -72,9 +78,7 @@ export default function StatsSection() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.1 }
     );
     if (ref.current) observer.observe(ref.current);
@@ -82,101 +86,123 @@ export default function StatsSection() {
   }, []);
 
   return (
-    <section className="relative w-full bg-[#0A0E1A] py-20 sm:py-32 lg:py-40" ref={ref}>
-      {/* Background gradient */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#00D4FF]/5 rounded-full blur-3xl" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 w-full" style={{ padding: '0 1.5rem' }}>
-        <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto' }}>
-          {/* Header */}
-          <div
-            className={`text-center mb-16 transition-all duration-700 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+    <section className="py-20 bg-white dark:bg-[#0A0E1A]" ref={ref}>
+      <div className="container">
+        {/* Header */}
+        <div
+          className={`text-center mb-14 transition-all duration-700 ${
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <h2
+            className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            <div className="inline-flex items-center gap-2 mb-6">
-              <div className="w-2 h-2 rounded-full bg-[#00D4FF]" />
-              <span className="text-xs font-semibold uppercase tracking-widest text-[#00D4FF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                Why Choose GigitekAI
-              </span>
-            </div>
-            <h2
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 max-w-3xl mx-auto"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Proven Results. Enterprise Trust.
-            </h2>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Our track record speaks for itself. We've helped 50+ enterprises transform their cloud and AI infrastructure.
-            </p>
-          </div>
+            You Deserve Expert Cloud & AI Strategy
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+            Numbers that reflect our commitment to delivering measurable results for every client we serve.
+          </p>
+        </div>
 
-          {/* Stats grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {stats.map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <div
-                  key={i}
-                  className={`text-center transition-all duration-700 ${
-                    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                  }`}
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                >
-                  <div className="flex justify-center mb-4">
-                    <Icon size={32} className="text-[#00D4FF]" />
-                  </div>
-                  <div className="text-4xl sm:text-5xl font-bold text-[#00D4FF] mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    <StatNumber target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <p className="font-semibold text-white mb-1">{stat.label}</p>
-                  <p className="text-sm text-gray-400">{stat.sublabel}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Trust badges */}
-          <div
-            className={`flex flex-wrap justify-center gap-4 py-12 border-t border-b border-[#00D4FF]/20 transition-all duration-700 delay-300 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            {trustBadges.map((badge, i) => (
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
               <div
-                key={i}
-                className="px-6 py-3 rounded-full border border-[#00D4FF]/30 bg-[#00D4FF]/5 hover:bg-[#00D4FF]/10 transition-colors"
+                key={stat.label}
+                className={`relative bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-xl hover:shadow-[#00D4FF]/5 transition-all duration-300 group ${
+                  visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${i * 100}ms` }}
               >
-                <span className="text-sm font-semibold text-gray-300">{badge.label}</span>
+                <div className="w-10 h-10 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <Icon size={18} className="text-[#00D4FF]" />
+                </div>
+                <div
+                  className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-1"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  <StatNumber target={stat.value} suffix={stat.suffix} />
+                </div>
+                <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
+                <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs">{stat.sublabel}</p>
               </div>
+            );
+          })}
+        </div>
+
+        {/* Social proof bar */}
+        <div
+          className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-[#00D4FF]/15 bg-gray-50 dark:bg-[#141B2D] px-8 py-5 mb-20 transition-all duration-700 delay-500 ${
+            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {trustBadges.map((badge) => (
+              <span
+                key={badge.label}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+                style={{ color: badge.color, borderColor: `${badge.color}33`, backgroundColor: `${badge.color}10` }}
+              >
+                <Award size={11} />
+                {badge.label}
+              </span>
             ))}
           </div>
+        </div>
 
-          {/* How It Works */}
+        {/* How it works */}
+        <div className="mt-20">
           <div
-            className={`mt-16 text-center transition-all duration-700 delay-400 ${
+            className={`text-center mb-12 transition-all duration-700 delay-300 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <h3 className="text-3xl font-bold text-white mb-12" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              How We Deliver Results
-            </h3>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { step: "1", title: "Assess", desc: "We evaluate your current infrastructure and business goals" },
-                { step: "2", title: "Design", desc: "We architect a custom cloud and AI strategy for your needs" },
-                { step: "3", title: "Deploy", desc: "We implement and optimize your solution with 24/7 support" },
-              ].map((item, i) => (
-                <div key={i} className="p-6 rounded-xl border border-[#00D4FF]/20 bg-[#0F1629]/50 hover:bg-[#0F1629]/80 transition-colors">
-                  <div className="text-4xl font-bold text-[#00D4FF] mb-3">{item.step}</div>
-                  <h4 className="text-lg font-semibold text-white mb-2">{item.title}</h4>
-                  <p className="text-gray-400">{item.desc}</p>
+            <div className="section-label justify-center">How It Works</div>
+            <h2
+              className="text-4xl font-bold text-gray-900 dark:text-white mt-2"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              Discover New Capabilities with GigitekAI
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { num: "01", title: "Assess & Strategize", desc: "We begin with a comprehensive audit of your current infrastructure and business goals to build a tailored cloud and AI roadmap." },
+              { num: "02", title: "Design & Architect", desc: "Our engineers design scalable, secure cloud architectures and AI pipelines optimized for your specific workloads and compliance requirements." },
+              { num: "03", title: "Deploy & Integrate", desc: "Seamless migration and deployment with zero-downtime strategies, ensuring your business continues operating throughout the transition." },
+              { num: "04", title: "Monitor & Optimize", desc: "Continuous 24/7 monitoring, cost optimization, and performance tuning to ensure your cloud and AI investments deliver maximum ROI." },
+              { num: "05", title: "Protect & Secure", desc: "Enterprise-grade cybersecurity woven into every layer of your cloud environment, with real-time threat detection and automated response." },
+              { num: "06", title: "Scale & Innovate", desc: "As your business grows, we scale your infrastructure and introduce new AI capabilities to keep you ahead of the competition." },
+            ].map((step, i) => (
+              <div
+                key={step.num}
+                className={`flex gap-4 p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 ${
+                  visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${400 + i * 80}ms` }}
+              >
+                <div
+                  className="text-3xl font-bold text-[#00D4FF]/30 flex-shrink-0 leading-none"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  {step.num}
                 </div>
-              ))}
-            </div>
+                <div>
+                  <h3
+                    className="text-gray-900 dark:text-white font-bold mb-2"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

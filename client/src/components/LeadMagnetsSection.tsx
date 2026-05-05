@@ -27,7 +27,7 @@ export default function LeadMagnetsSection() {
 
   return (
     <section className="py-16 md:py-24 bg-[#0A0E1A] border-t border-slate-700/50">
-      <div style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/30 mb-4">

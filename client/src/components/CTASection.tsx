@@ -72,7 +72,7 @@ export default function CTASection() {
         }}
       />
 
-      <div className="relative z-10" style={{ maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="container relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left — headline */}
           <div
