@@ -1,13 +1,13 @@
 /*
-  GigitekAI Benefits Section — Fortune 500 Quality Professional Design
-  - Professional split layout with image and text
-  - Enhanced typography hierarchy and spacing
-  - Professional benefit cards with icons
-  - Smooth animations and transitions
+  GigitekAI Benefits Section — Deloitte-Style Professional Design
+  - Clean split layout with image and text
+  - +25% larger font sizes for better hierarchy
+  - Massive whitespace and professional spacing
+  - Minimal design without excessive gradients
 */
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, TrendingUp, Zap, Shield, Users } from "lucide-react";
+import { CheckCircle2, TrendingUp, Zap, Shield, Users, ArrowRight } from "lucide-react";
 
 const TEAM_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-team-cta-PY3uvsu8QsxmiZuTiMiXda.webp";
 
@@ -48,12 +48,12 @@ export default function BenefitsSection() {
   }, []);
 
   return (
-    <section className="py-24 bg-[#0A0E1A]">
+    <section className="py-40 lg:py-56 bg-white dark:bg-[#0A0E1A]">
       <div className="container">
-        <div className="grid lg:grid-cols-2 gap-16 items-center" ref={ref}>
+        <div className="grid lg:grid-cols-2 gap-32 items-center" ref={ref}>
           {/* Image side - Professional styling */}
           <div
-            className={`relative rounded-2xl overflow-hidden h-[480px] shadow-2xl transition-all duration-700 group ${
+            className={`relative rounded-2xl overflow-hidden h-[500px] lg:h-[600px] shadow-lg transition-all duration-700 group ${
               visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
             }`}
           >
@@ -68,16 +68,16 @@ export default function BenefitsSection() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 via-transparent to-transparent" />
             
             {/* Overlay card with professional styling */}
-            <div className="absolute bottom-8 left-8 right-8 bg-[#0F1629]/95 backdrop-blur-md border border-[rgba(0,212,255,0.2)] rounded-xl p-6 shadow-2xl hover:border-[rgba(0,212,255,0.4)] transition-all duration-300">
+            <div className="absolute bottom-10 left-10 right-10 bg-[#0F1629]/95 backdrop-blur-md border border-[rgba(0,212,255,0.2)] rounded-xl p-8 shadow-2xl hover:border-[rgba(0,212,255,0.4)] transition-all duration-300">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#00D4FF]/30 to-[#00D4FF]/10 flex items-center justify-center text-[#00D4FF] text-xl flex-shrink-0">
+                <div className="w-14 h-14 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center text-[#00D4FF] text-2xl flex-shrink-0">
                   🤖
                 </div>
                 <div>
-                  <p className="text-white text-sm font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <p className="text-white text-base font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     AI-Driven Insights
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">Real-time analytics powering smarter decisions</p>
+                  <p className="text-gray-400 text-sm mt-1">Real-time analytics powering smarter decisions</p>
                 </div>
               </div>
             </div>
@@ -89,40 +89,40 @@ export default function BenefitsSection() {
               visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
             }`}
           >
-            <div className="section-label mb-6">BENEFITS OF CLOUD & AI</div>
+            <div className="section-label mb-8">BENEFITS OF CLOUD & AI</div>
             
             <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8"
+              className="text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight mb-10"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Drive Better Business Outcomes
             </h2>
             
-            <p className="text-gray-400 text-lg leading-relaxed mb-12">
+            <p className="text-gray-600 dark:text-gray-400 text-xl leading-relaxed mb-14">
               Technology shouldn't be a burden — it should be your competitive advantage. GigitekAI's cloud and AI solutions give you the infrastructure and intelligence to evolve your business for sustained growth.
             </p>
 
-            {/* Benefits grid with professional styling */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+            {/* Benefits grid with professional styling - +25% larger */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-14">
               {benefits.map((benefit, i) => {
                 const Icon = benefit.icon;
                 return (
                   <div
                     key={i}
-                    className={`bg-[#0F1629] border border-[rgba(0,212,255,0.15)] rounded-lg p-6 hover:border-[rgba(0,212,255,0.3)] hover:shadow-lg transition-all duration-300 group/card ${
+                    className={`bg-white dark:bg-[#0F1629] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] rounded-lg p-8 hover:border-gray-300 dark:hover:border-[rgba(0,212,255,0.3)] hover:shadow-md transition-all duration-300 group/card ${
                       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                     }`}
                     style={{ transitionDelay: `${300 + i * 100}ms` }}
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 flex items-center justify-center flex-shrink-0 group-hover/card:from-[#00D4FF]/30 transition-colors duration-300">
-                        <Icon size={20} className="text-[#00D4FF]" />
+                      <div className="w-12 h-12 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0 group-hover/card:border-[#00D4FF]/50 transition-all duration-300">
+                        <Icon size={24} className="text-[#00D4FF]" />
                       </div>
                       <div>
-                        <h3 className="text-white font-bold text-sm mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                        <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                           {benefit.title}
                         </h3>
-                        <p className="text-gray-400 text-xs leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
                           {benefit.description}
                         </p>
                       </div>
@@ -132,15 +132,13 @@ export default function BenefitsSection() {
               })}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button - +25% larger */}
             <a 
               href="/contact" 
-              className="btn-cyan inline-flex items-center gap-2 font-semibold px-8 py-3.5 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+              className="btn-cyan inline-flex items-center gap-3 font-semibold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
             >
               Start Your Transformation
-              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-label="Arrow icon">
-                <path d="M1 8H15M8 1L15 8L8 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <ArrowRight size={22} />
             </a>
           </div>
         </div>

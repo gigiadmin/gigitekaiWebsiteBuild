@@ -28,12 +28,21 @@ export function getSessionCookieOptions(
   
   // Extract domain from host header
   let domain: string | undefined = undefined;
+  let sameSite: "lax" | "strict" | "none" = "lax";
   const host = req.get("x-forwarded-host") || req.get("host") || "localhost";
+  const hostWithoutPort = host.split(":")[0];
   
-  // Only set domain for non-localhost to avoid cookie issues
-  if (!LOCAL_HOSTS.has(host) && !isIpAddress(host)) {
-    // Set domain to root domain (e.g., .gigitekai.com from www.gigitekai.com)
-    const parts = host.split(":")[0].split(".");
+  // Check if this is a Manus preview domain (*.manus.space or *.manus.computer)
+  const isManusDomain = hostWithoutPort.includes(".manus.space") || hostWithoutPort.includes(".manus.computer");
+  
+  // For Manus preview domains, don't set a domain cookie (use default/current domain only)
+  // This ensures the cookie is accessible within the same preview domain
+  if (isManusDomain) {
+    // Don't set domain - cookie will be scoped to exact domain
+    domain = undefined;
+  } else if (!LOCAL_HOSTS.has(hostWithoutPort) && !isIpAddress(hostWithoutPort)) {
+    // For production domains, set root domain (e.g., .gigitekai.com from www.gigitekai.com)
+    const parts = hostWithoutPort.split(".");
     if (parts.length > 1) {
       domain = "." + parts.slice(-2).join(".");
     }
@@ -47,7 +56,7 @@ export function getSessionCookieOptions(
     domain,
     httpOnly: true,
     path: "/",
-    sameSite: isSecure ? "lax" : "lax",
+    sameSite,
     secure: isSecure,
   };
 }
