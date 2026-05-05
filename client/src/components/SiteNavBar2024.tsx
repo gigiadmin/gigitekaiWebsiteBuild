@@ -91,7 +91,7 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
-              src="/manus-storage/gigitekai-logo_30b1a872.png" 
+              src="/manus-storage/gigitekai-logo_70722465.webp" 
               alt="GigitekAI logo" 
               className="h-12 sm:h-14 lg:h-14 w-auto object-contain"
               style={{ maxWidth: '200px' }}

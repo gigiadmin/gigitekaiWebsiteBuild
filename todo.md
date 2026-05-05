@@ -4294,3 +4294,13 @@
 - [x] Google Fonts converted from render-blocking to async non-blocking load (media="print" trick, saves ~750ms)
 - [x] Heavy widgets (AIChatWidget, UserChatWidget, CopilotChat, PWAInstallPrompt) deferred until 3s after load or first user interaction (reduces TBT)
 - [x] Database migration 0067 applied: stepsAttempted column + expanded category enum (email, printer, internet, network, other)
+
+
+## PageSpeed Performance Optimization (May 5, 2026) — Score: 30 → Target 70+
+- [ ] Inline critical CSS: move above-fold styles to <style> tag, defer non-critical CSS (170ms saved)
+- [x] Compress hero logo: convert PNG to WebP, 81KB → 34KB (47KB saved, 58% reduction)
+- [x] Defer third-party scripts: move analytics/tracking to requestIdleCallback, add async/defer attributes (500ms+ saved)
+- [ ] Compress hero video poster: increase compression, verify WebP format (39KB saved)
+- [ ] Reduce unused JavaScript: tree-shake dependencies, code split admin routes (907KB saved)
+- [ ] Set cache headers: static assets 1yr, HTML no-cache, API responses TTL (124KB saved)
+- [ ] Reduce DOM size: virtualize lists, lazy-load below-fold, remove unused UI (1,528 → <1,000 elements)
