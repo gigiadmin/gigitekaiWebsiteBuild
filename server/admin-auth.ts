@@ -167,3 +167,28 @@ export async function deleteAdminAccount(id: number) {
   if (!database) throw new Error("Database not available");
   await database.delete(adminCredentials).where(eq(adminCredentials.id, id));
 }
+
+// Create default admin account if it doesn't exist
+export async function ensureDefaultAdminExists() {
+  try {
+    const existing = await findAdminByEmail("harry@gigitekai.com");
+    if (existing) {
+      console.log("[Admin Auth] Default admin account already exists");
+      return existing;
+    }
+
+    // Create default admin account
+    console.log("[Admin Auth] Creating default admin account...");
+    const admin = await createAdminAccount({
+      email: "harry@gigitekai.com",
+      name: "Harry Santiago",
+      password: "YGnali421!!!",
+      role: "admin",
+    });
+    console.log("[Admin Auth] Default admin account created successfully");
+    return admin;
+  } catch (error) {
+    console.error("[Admin Auth] Error ensuring default admin:", error);
+    return null;
+  }
+}

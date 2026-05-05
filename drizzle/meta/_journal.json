@@ -477,6 +477,20 @@
       "when": 1777832523213,
       "tag": "0067_dry_lilith",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "5",
+      "when": 1777865589535,
+      "tag": "0068_redundant_angel",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "5",
+      "when": 1777954636282,
+      "tag": "0069_abandoned_cannonball",
+      "breakpoints": true
     }
   ]
 }
