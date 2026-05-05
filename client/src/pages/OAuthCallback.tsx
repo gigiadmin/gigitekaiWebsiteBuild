@@ -11,8 +11,9 @@ export default function OAuthCallback() {
     // Use window.location.href (not navigate) to force a full page reload
     // This ensures the session cookie is re-read fresh by the app
     const timer = setTimeout(() => {
-      const returnPath = sessionStorage.getItem("oauth_return_path") || "/admin";
-      sessionStorage.removeItem("oauth_return_path");
+      // Read returnPath from URL query params (encoded by getLoginUrl)
+      const params = new URLSearchParams(window.location.search);
+      const returnPath = params.get("returnPath") || "/admin";
       window.location.href = returnPath;
     }, 800);
 
@@ -40,7 +41,7 @@ export default function OAuthCallback() {
           <p className="text-sm text-gray-500">You will be redirected shortly.</p>
           <p className="text-xs text-gray-600 mt-4">
             Not redirected?{" "}
-            <a href="/admin" className="text-[#00D4FF] hover:underline">Click here</a>
+            <a href={new URLSearchParams(window.location.search).get("returnPath") || "/admin"} className="text-[#00D4FF] hover:underline">Click here</a>
           </p>
         </div>
       </div>
