@@ -4623,3 +4623,5 @@
 - [ ] Fix missing menu/navbar on main page
 - [ ] Fix blog page 'Failed to load articles' error
 - [ ] Fix all pages missing container padding (content flush to left edge)
+- [ ] Fix JavaScript initialization crash on admin page ("Cannot access 'w' before initialization")
+- [ ] Add simple username/password login form to admin (no OAuth, no magic links)
