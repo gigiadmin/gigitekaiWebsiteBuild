@@ -87,7 +87,7 @@ export default function SiteNavBar2024() {
             : "bg-[#0A0E1A]"
         }`}
       >
-        <div className="container flex items-center h-[120px] sm:h-[130px] lg:h-[140px] gap-4">
+        <div className="container flex items-center h-auto min-h-[70px] sm:min-h-[80px] lg:min-h-[90px] gap-4 py-3 sm:py-4 lg:py-5">
           {/* Logo — Text-based */}
           <a href="/" className="flex-shrink-0 flex items-center group">
             <span className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -95,8 +95,8 @@ export default function SiteNavBar2024() {
             </span>
           </a>
 
-          {/* Desktop nav links — centered, compact */}
-          <div className="hidden lg:flex items-center gap-0 flex-1 justify-center overflow-hidden">
+          {/* Desktop nav links — centered, with proper spacing */}
+          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center flex-wrap">
             {/* Services dropdown */}
             <div className="relative group">
               <button
