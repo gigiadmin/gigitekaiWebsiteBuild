@@ -1,9 +1,9 @@
 /*
-  GigitekAI Who We Serve Section — Fortune 500 Quality Professional Design
+  GigitekAI Who We Serve Section — Deloitte-Style Professional Design
   - Professional option cards with enhanced styling
-  - Improved typography hierarchy and spacing
-  - Professional hover effects and transitions
-  - Left-right layout with proper alignment
+  - +25% larger font sizes
+  - Massive whitespace and professional spacing
+  - Clean minimal design
 */
 
 import { useEffect, useRef, useState } from "react";
@@ -44,71 +44,68 @@ export default function WhoWeServeSection() {
   }, []);
 
   return (
-    <section className="py-24 bg-[#0A0E1A]" ref={ref}>
+    <section className="py-40 lg:py-56 bg-white dark:bg-[#0A0E1A]" ref={ref}>
       <div className="container">
-        <div className="grid lg:grid-cols-5 gap-16 items-start">
-          {/* Left text - Professional header */}
+        <div className="grid lg:grid-cols-5 gap-24 items-start">
+          {/* Left text - Professional header - +25% larger */}
           <div
             className={`lg:col-span-2 transition-all duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="section-label mb-6">SOLUTIONS BUILT FOR YOU</div>
+            <div className="section-label mb-8">SOLUTIONS BUILT FOR YOU</div>
             <h2
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-8"
+              className="text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight mb-10"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               GigitekAI Makes Your Business Stronger
             </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-gray-600 dark:text-gray-400 text-xl leading-relaxed mb-12">
               Whether you're a startup scaling fast, an enterprise modernizing legacy systems, or a regulated business navigating compliance — we have the cloud and AI expertise to match your exact needs.
             </p>
-            <a href="/contact" className="btn-cyan inline-flex items-center gap-2 font-semibold px-8 py-3.5 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
+            <a href="/contact" className="btn-cyan inline-flex items-center gap-3 font-semibold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
               Find Your Solution
-              <ArrowRight size={18} />
+              <ArrowRight size={22} />
             </a>
           </div>
 
-          {/* Right option cards - Professional styling */}
-          <div className="lg:col-span-3 space-y-5">
+          {/* Right option cards - Professional styling - +25% larger */}
+          <div className="lg:col-span-3 space-y-8">
             {options.map((option, i) => {
               const Icon = option.icon;
               return (
                 <div
                   key={option.title}
-                  className={`bg-gradient-to-br from-[#0F1629] to-[#141B2D] border border-[rgba(0,212,255,0.15)] hover:border-[rgba(0,212,255,0.3)] hover:shadow-2xl hover:shadow-[#00D4FF]/10 rounded-lg p-8 group cursor-pointer transition-all duration-300 overflow-hidden ${
+                  className={`bg-white dark:bg-[#0F1629] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] hover:border-gray-300 dark:hover:border-[rgba(0,212,255,0.3)] hover:shadow-lg dark:hover:shadow-[#00D4FF]/10 rounded-lg p-12 group cursor-pointer transition-all duration-300 overflow-hidden ${
                     visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
                   }`}
                   style={{ transitionDelay: `${200 + i * 100}ms` }}
                 >
-                  {/* Background gradient on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00D4FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                  
                   {/* Content */}
-                  <div className="relative z-10 flex items-start gap-6">
-                    {/* Icon container */}
-                    <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 border border-[#00D4FF]/30 flex items-center justify-center flex-shrink-0 group-hover:border-[#00D4FF]/50 group-hover:from-[#00D4FF]/30 transition-all duration-300">
-                      <Icon size={24} className="text-[#00D4FF]" />
+                  <div className="relative z-10 flex items-start gap-8">
+                    {/* Icon container - +25% larger */}
+                    <div className="w-16 h-16 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0 group-hover:border-[#00D4FF]/50 transition-all duration-300">
+                      <Icon size={28} className="text-[#00D4FF]" />
                     </div>
                     
-                    {/* Text content */}
+                    {/* Text content - +25% larger */}
                     <div className="flex-1">
                       <h3
-                        className="text-white font-bold text-lg mb-3 group-hover:text-[#00D4FF] transition-colors duration-300"
+                        className="text-gray-900 dark:text-white font-bold text-xl mb-4 group-hover:text-[#00D4FF] transition-colors duration-300"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
                         {option.title}
                       </h3>
-                      <p className="text-gray-400 text-base leading-relaxed mb-5">
+                      <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
                         {option.description}
                       </p>
                       <a
                         href="/contact"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-[#00D4FF] hover:text-[#00EEFF] transition-all duration-200 group/link"
+                        className="inline-flex items-center gap-3 text-base font-semibold text-[#00D4FF] hover:text-[#00EEFF] transition-all duration-200 group/link"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
                         {option.cta}
-                        <ArrowRight size={16} className="group-hover/link:translate-x-1 transition-transform duration-200" />
+                        <ArrowRight size={18} className="group-hover/link:translate-x-1 transition-transform duration-200" />
                       </a>
                     </div>
                   </div>
