@@ -151,6 +151,21 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
     setMobileOpen(false);
   }, [location]);
 
+  const isActive = (href: string) => {
+    if (href === "/admin") return location === "/admin";
+    return location.startsWith(href);
+  };
+
+  const getCurrentTitle = () => {
+    if (title) return title;
+    for (const section of NAV_SECTIONS) {
+      for (const item of section.items) {
+        if (isActive(item.href)) return item.label;
+      }
+    }
+    return "Admin";
+  };
+
   // Track current page in recently viewed
   useEffect(() => {
     if (location.startsWith("/admin") && location !== "/admin") {
@@ -166,21 +181,6 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       </div>
     );
   }
-
-  const isActive = (href: string) => {
-    if (href === "/admin") return location === "/admin";
-    return location.startsWith(href);
-  };
-
-  const getCurrentTitle = () => {
-    if (title) return title;
-    for (const section of NAV_SECTIONS) {
-      for (const item of section.items) {
-        if (isActive(item.href)) return item.label;
-      }
-    }
-    return "Admin";
-  };
 
   const formatTime = (timestamp: number) => {
     const now = Date.now();

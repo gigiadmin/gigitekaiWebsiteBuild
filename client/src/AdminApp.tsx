@@ -120,6 +120,17 @@ export default function AdminApp() {
               <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>} />
               <Route path="/admin/kb-analytics" component={() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>} />
               <Route path="/admin/recordings" component={() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>} />
+              <Route path="/:rest*" component={() => (
+                <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+                  <div className="text-center">
+                    <h1 className="text-6xl font-bold text-[#00D4FF] mb-4">404</h1>
+                    <p className="text-white text-xl mb-8">Admin page not found</p>
+                    <a href="/admin" className="bg-[#00D4FF] text-black px-6 py-2 rounded-lg font-semibold hover:bg-cyan-400 transition-colors">
+                      Back to Admin Home
+                    </a>
+                  </div>
+                </div>
+              )} />
             </Switch>
           </Suspense>
         </TooltipProvider>

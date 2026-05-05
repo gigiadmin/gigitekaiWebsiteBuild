@@ -4348,3 +4348,10 @@
 - [x] Add file upload to Aria — PDF/documents/images, 5MB limit, visible in chat history
 - [x] Test voice and file upload features end-to-end
 - [x] Create checkpoint with all Aria enhancements
+
+
+## Admin Pages 404 Fix (May 5, 2026)
+- [x] Fix admin routing: changed `/admin*` to `/admin/:rest*` and `/admin` in App.tsx
+- [x] Fix getCurrentTitle hoisting error in AdminLayout.tsx (moved function definition before usage)
+- [x] Add 404 catch-all route in AdminApp.tsx
+- [x] Verify all admin pages load correctly (/admin/metrics, /admin/dashboard, /admin/helpdesk)
