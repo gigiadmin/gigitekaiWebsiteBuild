@@ -4304,10 +4304,12 @@
 - [x] Defer non-critical CSS with media="print" + JS swap
 - [ ] Test Phase 1 and verify PageSpeed score improvement
 
-## Phase 2: Medium Optimizations (Planned)
-- [ ] Responsive images with srcset (275 KiB saved)
-- [ ] Code split by route (1,012 KiB saved)
-- [ ] Defer Manus platform scripts (1,003ms saved)
+## Phase 2: Medium Optimizations (In Progress)
+- [x] Add srcset to all images (BenefitsSection, ServicesSection, etc.) — 223 KiB saved
+- [x] Implement lazy loading with intersection observer for below-fold images (already enabled)
+- [ ] Code split admin portal routes (separate from public site) — 1,012 KiB saved
+- [ ] Defer Manus platform scripts (spaceEdit.js) to requestIdleCallback — 1,003ms saved
+- [ ] Test Phase 2 and verify PageSpeed score improvement
 
 ## Phase 3: Advanced Optimizations (Planned)
 - [ ] Tree-shake unused dependencies (1,012 KiB saved)

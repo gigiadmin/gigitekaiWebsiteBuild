@@ -166,6 +166,8 @@ export default function ServicesSection() {
           <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
             <img
               src={CLOUD_IMG}
+              srcSet={`${CLOUD_IMG}?w=300 300w, ${CLOUD_IMG}?w=600 600w, ${CLOUD_IMG}?w=900 900w`}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 596px"
               alt="Cloud Infrastructure - AWS, Azure, Google Cloud services for enterprise digital transformation"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -182,6 +184,8 @@ export default function ServicesSection() {
           <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
             <img
               src={AI_IMG}
+              srcSet={`${AI_IMG}?w=300 300w, ${AI_IMG}?w=600 600w, ${AI_IMG}?w=900 900w`}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 596px"
               alt="AI Solutions - Machine Learning, Artificial Intelligence, and predictive analytics for business automation"
               className="w-full h-full object-cover"
               loading="lazy"
