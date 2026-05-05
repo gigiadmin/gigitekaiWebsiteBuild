@@ -163,14 +163,14 @@ export default function SiteNavBar2024() {
             {/* Standout Help Desk Link */}
             <a
               href="/helpdesk"
-              className="helpdesk-nav-link flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all ml-1"
+              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg transition-all ml-0 whitespace-nowrap"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               <div className="relative">
-                <LifeBuoy size={18} className="text-[#00D4FF]" />
+                <LifeBuoy size={16} className="text-[#00D4FF]" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </div>
-              <span>Support</span>
+              <span className="hidden xl:inline">Support</span>
             </a>
           </div>
 
@@ -230,24 +230,6 @@ export default function SiteNavBar2024() {
             />
             {/* Full-screen mobile menu */}
             <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
-              {/* Mobile menu header with logo + close */}
-              <div className="flex items-center justify-between px-4 py-4 border-b border-[rgba(0,212,255,0.1)]">
-                <a href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
-                  <img 
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
-                    alt="GigitekAI" 
-                    className="h-14 w-auto object-contain"
-                    style={{ maxWidth: '240px' }}
-                  />
-                </a>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  className="p-2 text-gray-400 hover:text-white transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X size={24} />
-                </button>
-              </div>
               {/* Home link */}
               <div className="px-4 pt-4 pb-2">
                 <a
