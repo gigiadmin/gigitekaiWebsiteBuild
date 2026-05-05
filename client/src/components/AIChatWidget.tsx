@@ -679,39 +679,8 @@ export default function AIChatWidget() {
             </button>
           )}
 
-          {/* Input Area */}
-          <div className="p-4 border-t border-cyan-500/20 bg-slate-900">
-            {/* Proactive KB Suggestions (shown while typing) */}
-            {kbSuggestions.length > 0 && inputValue.length >= 10 && (
-              <div className="mb-2">
-                <div className="flex items-center gap-1 mb-1">
-                  <BookOpen className="w-3 h-3 text-cyan-400" />
-                  <span className="text-xs text-cyan-400/80">Suggested articles:</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  {kbSuggestions.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => {
-                        setInputValue(`Tell me about: ${s.title}`);
-                        setDebouncedQuery("");
-                        // Track KB suggestion click
-                        recordAriaClick.mutate({
-                          query: debouncedQuery || inputValue,
-                          articleId: s.id,
-                          source: "aria_chat",
-                        });
-                      }}
-                      className="text-left text-xs bg-slate-800/80 border border-cyan-500/20 hover:border-cyan-500/50 rounded-md px-2 py-1.5 text-cyan-300 hover:text-cyan-200 transition-colors truncate"
-                      title={s.excerpt}
-                    >
-                      <span className="font-medium">{s.title}</span>
-                      <span className="text-gray-500 ml-1">· {s.category}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Input Area - Fixed at bottom */}
+          <div className="bg-slate-800 border-t border-cyan-500/20 p-4 flex flex-col gap-2">
             <div className="flex gap-2">
               <input
                 ref={inputRef}
@@ -727,12 +696,12 @@ export default function AIChatWidget() {
                 }}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Ask anything about our services..."
-                className="flex-1 bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                className="flex-1 bg-slate-700 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
               />
               {isRecording ? (
                 <button
                   onClick={handleStopRecording}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 transition-all flex items-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-3 py-2 transition-all flex items-center gap-2 text-sm"
                 >
                   <Square className="w-4 h-4" />
                   {recordingTime}s
@@ -741,7 +710,7 @@ export default function AIChatWidget() {
                 <button
                   onClick={handleStartRecording}
                   disabled={isLoading}
-                  className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   title="Record voice message"
                 >
                   <Mic className="w-4 h-4" />
@@ -750,7 +719,7 @@ export default function AIChatWidget() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
-                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 title="Upload file (PDF, images, documents)"
               >
                 <Upload className="w-4 h-4" />
@@ -765,7 +734,7 @@ export default function AIChatWidget() {
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputValue.trim()}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -775,7 +744,7 @@ export default function AIChatWidget() {
               </button>
             </div>
             {isLoading && (
-              <div className="mt-2 flex items-center gap-2 text-cyan-400 text-xs">
+              <div className="flex items-center gap-2 text-cyan-400 text-xs">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 <span>AI is thinking...</span>
               </div>

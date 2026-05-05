@@ -4355,3 +4355,11 @@
 - [x] Fix getCurrentTitle hoisting error in AdminLayout.tsx (moved function definition before usage)
 - [x] Add 404 catch-all route in AdminApp.tsx
 - [x] Verify all admin pages load correctly (/admin/metrics, /admin/dashboard, /admin/helpdesk)
+
+
+## Aria Voice & Upload Buttons - Debugging (May 5, 2026)
+- [ ] Voice record button (Mic icon) - code exists but not rendering in chat widget UI
+- [ ] File upload button (Upload icon) - code exists but not rendering in chat widget UI
+- [ ] Issue: Buttons are in AIChatWidget.tsx (lines 741-757) but not visible when chat is open
+- [ ] Possible causes: CSS hiding, conditional rendering, or chat widget not fully initializing
+- [ ] Need to verify: Is the chat widget opening? Are buttons hidden by CSS? Are they in the correct container?
