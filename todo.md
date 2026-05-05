@@ -4332,3 +4332,11 @@
 ## Aria Chat Widget Fixes (May 5, 2026)
 - [x] Fix chat messages container scroll overflow — messages cut off at bottom, can't scroll down (added min-h-0 to flex container)
 - [x] Verify chat box height and scrolling behavior on mobile and desktop
+
+
+## Navbar UI Fixes (May 5, 2026) — PRIORITY
+- [x] Remove search functionality (SuppQ search icon overlaying nav items)
+- [x] Fix navbar layout overlapping issues (support icon on top of Watch AI Work Live)
+- [x] Verify navbar spacing and alignment on mobile and desktop
+- [x] Test all navbar links work correctly after search removal
+- [x] Logo already links home (confirmed on line 92 of SiteNavBar2024.tsx)

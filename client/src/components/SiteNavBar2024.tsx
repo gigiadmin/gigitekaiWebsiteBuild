@@ -6,15 +6,13 @@
 */
 
 import { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar, Search } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import SiteSearch from "@/components/SiteSearch";
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   // Track Watch AI Work Live CTA clicks
@@ -175,18 +173,7 @@ export default function SiteNavBar2024() {
           </div>
 
           {/* CTA + Notifications + Theme Toggle */}
-          <div className="hidden lg:flex items-center gap-2">
-            {/* Search Button */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
-              title="Search"
-              aria-label="Search site"
-            >
-              <Search size={18} />
-            </button>
-
-
+          <div className="hidden lg:flex items-center gap-3">
             {/* Theme Toggle */}
             {toggleTheme && (
               <button
@@ -329,7 +316,6 @@ export default function SiteNavBar2024() {
           </>
         )}
       </nav>
-      <SiteSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
