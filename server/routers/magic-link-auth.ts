@@ -15,8 +15,8 @@ import { getSessionCookieOptions } from "../_core/cookies";
 import { sdk } from "../_core/sdk";
 import type { Request, Response } from "express";
 import { randomBytes } from "crypto";
-import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
+const COOKIE_NAME = "session";
 const TOKEN_EXPIRY_MINUTES = 15;
 
 /**

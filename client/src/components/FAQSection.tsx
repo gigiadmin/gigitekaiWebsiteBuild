@@ -1,13 +1,13 @@
 /*
-  GigitekAI FAQ Section — Deloitte-Style Professional Design
+  GigitekAI FAQ Section — Fortune 500 Quality Professional Design
   - Professional accordion styling with smooth animations
-  - +25% larger font sizes
-  - Massive whitespace and professional spacing
-  - Clean minimal design
+  - Enhanced search and category filtering
+  - Improved typography hierarchy and spacing
+  - Professional form styling and interactions
 */
 import { useState, useRef, useEffect, useMemo } from "react";
 import StructuredData from "@/components/StructuredData";
-import { ChevronDown, Search, ArrowRight } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 
 type FAQCategory = 'Pricing' | 'Implementation' | 'Security' | 'Support' | 'Integration' | 'General';
 
@@ -139,28 +139,28 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   return (
     <div
       ref={ref}
-      className={`border-b border-gray-200 dark:border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
+      className={`border-b border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
       <button
-        className="w-full flex items-center justify-between py-8 text-left group hover:text-[#00D4FF] transition-colors"
+        className="w-full flex items-center justify-between py-6 text-left group hover:text-[#00D4FF] transition-colors"
         onClick={() => setOpen(!open)}
       >
         <span
-          className="text-gray-900 dark:text-white font-semibold text-lg pr-4 group-hover:text-[#00D4FF] transition-colors"
+          className="text-white font-semibold text-base pr-4 group-hover:text-[#00D4FF] transition-colors"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           {faq.q}
         </span>
         <ChevronDown
-          size={24}
+          size={20}
           className={`text-[#00D4FF] flex-shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
-        <div className="pb-8 text-gray-600 dark:text-gray-400 text-base leading-relaxed fade-in-up">
+        <div className="pb-6 text-gray-400 text-sm leading-relaxed fade-in-up">
           {faq.a}
         </div>
       )}
@@ -205,56 +205,55 @@ export default function FAQSection() {
   }), []);
 
   return (
-    <section className="py-40 lg:py-56 bg-white dark:bg-[#0A0E1A]" ref={ref}>
+    <section className="py-24 bg-[#0A0E1A]" ref={ref}>
       <StructuredData data={faqSchema} id="sd-faqpage" />
       <div className="container">
-        <div className="grid lg:grid-cols-5 gap-24">
-          {/* Left - Header - +25% larger */}
+        <div className="grid lg:grid-cols-5 gap-16">
+          {/* Left - Header */}
           <div
             className={`lg:col-span-2 transition-all duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="section-label mb-8">FAQ</div>
+            <div className="section-label mb-6">FAQ</div>
             <h2
-              className="text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-gray-400 text-base leading-relaxed mb-8">
               Have more questions? Our team is ready to discuss your specific cloud and AI needs.
             </p>
-            <a href="/contact" className="btn-cyan inline-flex items-center gap-3 font-semibold px-10 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
+            <a href="/contact" className="btn-cyan inline-flex items-center gap-2 font-semibold px-8 py-3.5 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200">
               Talk to an Expert
-              <ArrowRight size={22} />
             </a>
           </div>
 
           {/* Right - FAQ list with filtering */}
           <div className="lg:col-span-3">
             {/* Search Bar - Professional styling */}
-            <div className="mb-10 relative">
-              <Search className="absolute left-4 top-4 text-gray-500" size={20} />
+            <div className="mb-8 relative">
+              <Search className="absolute left-4 top-4 text-gray-500" size={18} />
               <input
                 type="text"
                 placeholder="Search FAQs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 dark:border-[rgba(0,212,255,0.2)] rounded-lg bg-white dark:bg-[#0F1629] text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:shadow-lg focus:shadow-[#00D4FF]/20 transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 border border-[rgba(0,212,255,0.2)] rounded-lg bg-[#0F1629] text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] focus:shadow-lg focus:shadow-[#00D4FF]/20 transition-all duration-200"
               />
             </div>
 
-            {/* Category Filter - Professional buttons - +25% larger */}
-            <div className="mb-10 flex flex-wrap gap-3">
+            {/* Category Filter - Professional buttons */}
+            <div className="mb-8 flex flex-wrap gap-2">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-3 rounded-lg text-base font-semibold transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                     selectedCategory === cat
                       ? 'bg-[#00D4FF] text-[#0A0E1A] shadow-lg shadow-[#00D4FF]/30'
-                      : 'bg-white dark:bg-[#0F1629] text-gray-700 dark:text-gray-400 border border-gray-300 dark:border-[rgba(0,212,255,0.1)] hover:border-[#00D4FF] hover:text-[#00D4FF]'
+                      : 'bg-[#0F1629] text-gray-400 border border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] hover:text-[#00D4FF]'
                   }`}
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
@@ -264,14 +263,14 @@ export default function FAQSection() {
             </div>
 
             {/* FAQ Items */}
-            <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.1)]">
+            <div className="border-t border-[rgba(0,212,255,0.1)]">
               {filteredFaqs.length > 0 ? (
                 filteredFaqs.map((faq, i) => (
                   <FAQItem key={faq.q} faq={faq} index={i} />
                 ))
               ) : (
-                <div className="text-center py-16">
-                  <p className="text-gray-500 dark:text-gray-500 text-lg">
+                <div className="text-center py-12">
+                  <p className="text-gray-500 text-base">
                     No FAQs found. Try a different search or category.
                   </p>
                 </div>

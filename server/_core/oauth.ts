@@ -42,8 +42,6 @@ export function registerOAuthRoutes(app: Express) {
       });
 
       const cookieOptions = getSessionCookieOptions(req);
-      const host = req.get("x-forwarded-host") || req.get("host") || "unknown";
-      console.log("[OAuth] Setting cookie with options:", JSON.stringify({ ...cookieOptions, host, protocol: req.protocol, xForwardedProto: req.get('x-forwarded-proto') }));
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
       // Extract origin from the decoded state (which is btoa(redirectUri))

@@ -231,16 +231,10 @@ const isAnalyze = process.env.ANALYZE === 'true';
 export default defineConfig({
   plugins,
   resolve: {
-    // Force single React instance to prevent TRPCProvider useState crash
-    // caused by manus-runtime injecting its own React copy
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client'],
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
-      // Explicit aliases to ensure single React instance
-      "react": path.resolve(import.meta.dirname, "node_modules/react"),
-      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
     },
   },
   envDir: path.resolve(import.meta.dirname),

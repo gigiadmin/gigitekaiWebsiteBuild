@@ -1,9 +1,9 @@
 /*
-  GigitekAI Industries Section — Deloitte-Style Professional Design
+  GigitekAI Industries Section — Fortune 500 Quality Professional Design
   - Professional card grid with enhanced styling
-  - +25% larger font sizes
-  - Massive whitespace and professional spacing
-  - Minimal design without excessive gradients
+  - Improved typography hierarchy and spacing
+  - Professional hover effects and transitions
+  - Industry-specific icons and descriptions
 */
 
 import { useEffect, useRef, useState } from "react";
@@ -34,62 +34,65 @@ export default function IndustriesSection() {
   }, []);
 
   return (
-    <section id="industries" className="py-40 lg:py-56 bg-white dark:bg-[#0A0E1A]" ref={ref}>
+    <section id="industries" className="py-24 bg-[#0A0E1A]" ref={ref}>
       <div className="container">
-        {/* Header - +25% larger */}
+        {/* Header */}
         <div
-          className={`max-w-3xl mb-24 transition-all duration-700 ${
+          className={`max-w-3xl mb-16 transition-all duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="section-label mb-8">FOCUS INDUSTRIES</div>
+          <div className="section-label mb-6">FOCUS INDUSTRIES</div>
           <h2
-            className="text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight mb-8"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Cloud & AI Solutions Designed for Your Industry
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-xl leading-relaxed">
+          <p className="text-gray-400 text-lg leading-relaxed">
             With deep sector expertise across regulated and high-growth industries, GigitekAI delivers technology strategies that align with your specific compliance requirements, operational challenges, and growth objectives.
           </p>
         </div>
 
-        {/* Industry cards grid - Professional 4-column layout with generous spacing */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Industry cards grid - Professional 4-column layout */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {industries.map((industry, i) => {
             const Icon = industry.icon;
             return (
               <div
                 key={industry.name}
-                className={`group relative bg-white dark:bg-[#0F1629] p-10 rounded-lg border border-gray-200 dark:border-[rgba(0,212,255,0.15)] hover:border-gray-300 dark:hover:border-[rgba(0,212,255,0.3)] hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden ${
+                className={`group relative bg-gradient-to-br from-[#0F1629] to-[#141B2D] p-8 rounded-lg border border-[rgba(0,212,255,0.15)] hover:border-[rgba(0,212,255,0.3)] hover:shadow-2xl hover:shadow-[#00D4FF]/10 transition-all duration-300 cursor-pointer overflow-hidden ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 60}ms` }}
               >
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00D4FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                
                 {/* Content */}
                 <div className="relative z-10">
-                  {/* Icon container - +25% larger */}
-                  <div className="w-14 h-14 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-8 group-hover:border-[#00D4FF]/50 transition-all duration-300">
-                    <Icon size={28} className="text-[#00D4FF]" />
+                  {/* Icon container */}
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 border border-[#00D4FF]/30 flex items-center justify-center mb-6 group-hover:border-[#00D4FF]/50 group-hover:from-[#00D4FF]/30 transition-all duration-300">
+                    <Icon size={24} className="text-[#00D4FF]" />
                   </div>
 
-                  {/* Title - +25% larger */}
+                  {/* Title */}
                   <h3
-                    className="text-gray-900 dark:text-white font-bold text-xl mb-4 group-hover:text-[#00D4FF] transition-colors duration-300"
+                    className="text-white font-bold text-base mb-3 group-hover:text-[#00D4FF] transition-colors duration-300"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
                     {industry.name}
                   </h3>
 
-                  {/* Description - +25% larger */}
-                  <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed mb-8">
+                  {/* Description */}
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6">
                     {industry.desc}
                   </p>
 
                   {/* Arrow indicator */}
-                  <div className="flex items-center gap-2 text-[#00D4FF] text-base font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex items-center gap-2 text-[#00D4FF] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     Learn More
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-200" />
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
                   </div>
                 </div>
               </div>

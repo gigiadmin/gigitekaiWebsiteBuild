@@ -145,7 +145,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
   const [location] = useLocation();
-  const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: "/admin/login" });
+  const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: getLoginUrl() });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { items: recentItems, addItem: addRecentItem, clearAll: clearRecentItems } = useRecentlyViewed();

@@ -1,154 +1,335 @@
 /*
-  GigitekAI Hero Section — Deloitte-Inspired Professional Design
-  - Clean, spacious layout with proper breathing room
-  - Professional font sizes (not oversized)
-  - Proper container usage with padding
-  - Minimal, elegant design
+  GigitekAI Hero Section — Fortune 500 Quality Professional Design
+  - Premium background with professional overlay
+  - Exceptional typography hierarchy with proper sizing and spacing
+  - Professional CTA buttons with hover states
+  - Live system health dashboard with professional styling
+  - Optimized for desktop and mobile with perfect responsiveness
 */
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar, CheckCircle } from "lucide-react";
+import { useLocation } from "wouter";
+
+const HERO_VIDEO_MOBILE = "";
+const HERO_VIDEO_DESKTOP = "";
+const HERO_VIDEO_POSTER_MOBILE = "";
+const HERO_VIDEO_POSTER = "";
+const HERO_BG = "";
 
 export default function HeroSection() {
-  const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [ended, setEnded] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [volume, setVolume] = useState(0.5);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768;
+  });
+  const [videoRequested, setVideoRequested] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [, navigate] = useLocation();
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  return (
-    <section
-      ref={ref}
-      className="pt-24 pb-28 lg:pt-32 lg:pb-36 bg-[#0A0E1A] relative overflow-hidden"
-    >
-      {/* Subtle background accent */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00D4FF]/3 rounded-full blur-[120px] pointer-events-none" />
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
-      <div className="container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left content */}
-          <div
-            className={`transition-all duration-700 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            {/* Label */}
-            <div className="mb-6">
-              <span className="text-[#00D4FF] font-semibold text-sm tracking-[0.2em] uppercase">
-                Next-Gen Cloud & AI Solutions
-              </span>
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || (isMobile && !videoRequested)) return;
+
+    video.muted = true;
+    video.volume = 0.5;
+    video.load();
+
+    const tryPlay = () => {
+      video.play()
+        .then(() => setPlaying(true))
+        .catch(() => {
+          const onInteract = () => {
+            video.play().then(() => setPlaying(true)).catch(() => {});
+            document.removeEventListener("touchstart", onInteract);
+            document.removeEventListener("click", onInteract);
+          };
+          document.addEventListener("touchstart", onInteract, { once: true });
+          document.addEventListener("click", onInteract, { once: true });
+        });
+    };
+
+    if (video.readyState >= 2) {
+      tryPlay();
+    } else {
+      video.addEventListener("loadeddata", tryPlay, { once: true });
+    }
+  }, [isMobile, videoRequested]);
+
+  const handleUnmute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.volume = volume;
+    setMuted(false);
+  };
+
+  const handleMute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    setMuted(true);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setVolume(val);
+    if (videoRef.current) {
+      videoRef.current.volume = val;
+      if (val === 0) {
+        videoRef.current.muted = true;
+        setMuted(true);
+      } else if (muted) {
+        videoRef.current.muted = false;
+        setMuted(false);
+      }
+    }
+  };
+
+  const handleRestart = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.play().catch(() => {});
+    setPlaying(true);
+    setEnded(false);
+  };
+
+  return (
+    <section 
+      className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]"
+    >
+      {/* LCP hero background — img tag so browser preloader discovers it immediately */}
+      <img
+        src={HERO_BG}
+        alt="GigitekAI cloud and AI solutions dashboard"
+        aria-hidden="true"
+        fetchPriority="high"
+        loading="eager"
+        decoding="sync"
+        width={1920}
+        height={1080}
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        style={{ zIndex: 0, contentVisibility: 'auto' }}
+      />
+      
+      {/* Professional overlay with gradient and grid pattern */}
+      <style>{`
+        .hero-overlay::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: 
+            linear-gradient(to right, rgba(10,14,26,0.92) 0%, rgba(10,14,26,0.70) 40%, rgba(10,14,26,0.40) 100%),
+            linear-gradient(to top, rgba(10,14,26,1) 0%, transparent 100%);
+          pointer-events: none;
+          z-index: 1;
+        }
+        .hero-overlay::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: 
+            linear-gradient(rgba(0,212,255,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,212,255,0.08) 1px, transparent 1px);
+          background-size: 60px 60px;
+          opacity: 0.1;
+          pointer-events: none;
+          z-index: 2;
+        }
+      `}</style>
+
+      {/* Overlays */}
+      <div className="hero-overlay absolute inset-0" />
+
+      {/* Main content - Professional layout */}
+      <div className="container relative z-10 py-20 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left column - Content */}
+          <div className="max-w-2xl">
+            {/* Section label with professional styling */}
+            <div
+              className={`section-label mb-8 transition-all duration-700 ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
+            >
+              NEXT-GEN CLOUD & AI SOLUTIONS
             </div>
 
-            {/* Main headline */}
+            {/* Professional headline with proper hierarchy */}
             <h1
-              className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-white leading-[1.15] mb-6"
+              className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-8 transition-all duration-700 delay-100 ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Intelligent Cloud & AI Solutions
+              Intelligent
+              <br />
+              Cloud & AI{" "}
+              <span
+                style={{
+                  background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Solutions
+              </span>
             </h1>
 
-            {/* Subheading */}
-            <p className="text-lg lg:text-xl text-gray-400 leading-relaxed mb-10 max-w-xl">
-              We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale.
+            {/* Professional subheading */}
+            <p
+              className={`text-lg md:text-xl text-gray-300 max-w-xl mb-12 leading-relaxed transition-all duration-700 delay-200 ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
+              We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale. Trusted by 50+ enterprises across North America.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <a href="/contact" className="btn-cyan px-8 py-4 text-base font-semibold rounded-lg inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+            {/* Professional CTA buttons */}
+            <div
+              className={`flex flex-wrap gap-4 mb-12 transition-all duration-700 delay-300 ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
+              <a 
+                href="/contact" 
+                className="btn-cyan text-base px-8 py-3.5 font-semibold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+              >
                 Start Your Transformation
                 <ArrowRight size={18} />
               </a>
-              <a href="/contact" className="px-8 py-4 text-base font-semibold rounded-lg border border-gray-600 text-white hover:border-[#00D4FF] hover:text-[#00D4FF] transition-colors inline-flex items-center justify-center gap-2">
+              <a
+                href="/contact"
+                className="flex items-center gap-2 text-base px-8 py-3.5 rounded-lg font-semibold transition-all duration-200 hover:scale-105"
+                style={{
+                  background: "rgba(0,212,255,0.08)",
+                  border: "1.5px solid rgba(0,212,255,0.45)",
+                  color: "#00D4FF",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.18)";
+                  (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 20px rgba(0, 212, 255, 0.2)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.08)";
+                  (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
+                }}
+              >
+                <Calendar size={18} />
                 Book a Free Demo
-                <ArrowRight size={18} />
               </a>
             </div>
 
-            {/* Contact info */}
-            <div className="flex flex-col sm:flex-row gap-8 pt-8 border-t border-gray-800">
-              <a href="tel:+17273825776" className="flex items-center gap-3 text-gray-400 hover:text-[#00D4FF] transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-white">(727) 382-5776</div>
-                  <div className="text-xs text-gray-500">Available 24/7</div>
-                </div>
+            {/* Professional contact info */}
+            <div
+              className={`flex flex-wrap items-center gap-6 text-sm transition-all duration-700 delay-[350ms] ${
+                visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
+              <a
+                href="tel:+16096764483"
+                className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                (609) 676-4483
               </a>
-              <a href="mailto:support@gigitekai.com" className="flex items-center gap-3 text-gray-400 hover:text-[#00D4FF] transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-white">support@gigitekai.com</div>
-                  <div className="text-xs text-gray-500">Response in 1 hour</div>
-                </div>
+              <span className="text-gray-600 hidden sm:block">|</span>
+              <a
+                href="mailto:support@gigitekai.com"
+                className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                support@gigitekai.com
               </a>
             </div>
           </div>
 
-          {/* Right side - System Status */}
+          {/* Right column - System Health Dashboard */}
           <div
-            className={`transition-all duration-700 delay-200 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`hidden lg:flex flex-col gap-6 transition-all duration-700 delay-400 ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <div className="bg-[#0F1629] rounded-2xl p-8 lg:p-10 border border-[rgba(0,212,255,0.08)]">
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>System Status</h3>
+            {/* Professional dashboard card */}
+            <div className="bg-[#0F1629]/80 backdrop-blur-sm border border-[rgba(0,212,255,0.15)] rounded-xl p-8 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  System Status
+                </h3>
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium text-green-400">All Systems Operational</span>
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-green-400 font-medium">All Systems Operational</span>
                 </div>
               </div>
 
-              {/* Status items */}
-              <div className="space-y-5 mb-8">
+              {/* Status metrics */}
+              <div className="space-y-4">
                 {[
                   { label: "Cloud Infrastructure", status: "99.9% Uptime" },
                   { label: "AI Services", status: "Fully Operational" },
                   { label: "Support Team", status: "24/7 Available" },
                   { label: "Security", status: "SOC 2 Compliant" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between">
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-[#141B2D]/50 rounded-lg border border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.2)] transition-colors">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 size={18} className="text-[#00D4FF] flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-300">{item.label}</span>
+                      <CheckCircle size={18} className="text-[#00D4FF]" />
+                      <span className="text-gray-300 font-medium">{item.label}</span>
                     </div>
-                    <span className="text-sm font-semibold text-[#00D4FF]">{item.status}</span>
+                    <span className="text-sm text-[#00D4FF] font-semibold">{item.status}</span>
                   </div>
                 ))}
               </div>
 
               {/* Trust badges */}
-              <div className="pt-6 border-t border-gray-700/50">
-                <p className="text-xs font-semibold text-gray-500 mb-4 uppercase tracking-wider">Trusted by Enterprise Leaders</p>
-                <div className="flex flex-wrap gap-3">
-                  {["AWS", "Azure", "GCP", "M365"].map((badge) => (
-                    <div key={badge} className="px-4 py-2 bg-[#0A0E1A] border border-gray-700 rounded-md text-xs font-semibold text-white">
-                      {badge}
-                    </div>
-                  ))}
+              <div className="mt-8 pt-6 border-t border-[rgba(0,212,255,0.1)]">
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-3 font-semibold">Trusted by Enterprise Leaders</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-[#141B2D] rounded-lg border border-[rgba(0,212,255,0.15)]">
+                    <span className="text-xs font-bold text-[#00D4FF]">AWS</span>
+                  </div>
+                  <div className="flex items-center justify-center w-10 h-10 bg-[#141B2D] rounded-lg border border-[rgba(0,212,255,0.15)]">
+                    <span className="text-xs font-bold text-[#00D4FF]">Azure</span>
+                  </div>
+                  <div className="flex items-center justify-center w-10 h-10 bg-[#141B2D] rounded-lg border border-[rgba(0,212,255,0.15)]">
+                    <span className="text-xs font-bold text-[#00D4FF]">GCP</span>
+                  </div>
+                  <div className="flex items-center justify-center w-10 h-10 bg-[#141B2D] rounded-lg border border-[rgba(0,212,255,0.15)]">
+                    <span className="text-xs font-bold text-[#00D4FF]">M365</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Key metrics */}
-              <div className="grid grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-700/50">
-                <div>
-                  <div className="text-2xl font-bold text-white">50+</div>
-                  <div className="text-xs text-gray-500">Enterprise Clients</div>
+            {/* Key metrics */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { number: "50+", label: "Enterprise Clients" },
+                { number: "280h", label: "Hours Saved Monthly" },
+              ].map((metric, idx) => (
+                <div key={idx} className="bg-[#0F1629]/80 backdrop-blur-sm border border-[rgba(0,212,255,0.15)] rounded-xl p-6 text-center hover:border-[rgba(0,212,255,0.3)] transition-colors">
+                  <div className="text-3xl font-bold text-[#00D4FF] mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {metric.number}
+                  </div>
+                  <p className="text-sm text-gray-400">{metric.label}</p>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">280h</div>
-                  <div className="text-xs text-gray-500">Hours Saved Monthly</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

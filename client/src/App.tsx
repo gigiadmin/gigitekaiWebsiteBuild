@@ -397,6 +397,7 @@ function App() {
           {widgetsReady && (
             <>
               {!hideWidgets && <AIChatWidget />}
+              {!hideWidgets && <UserChatWidget />}
               {!hideWidgets && <CopilotChat />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </>
