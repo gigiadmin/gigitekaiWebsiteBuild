@@ -4340,3 +4340,11 @@
 - [x] Verify navbar spacing and alignment on mobile and desktop
 - [x] Test all navbar links work correctly after search removal
 - [x] Logo already links home (confirmed on line 92 of SiteNavBar2024.tsx)
+
+
+## Aria Chatbot Enhancements (May 5, 2026)
+- [x] Disable KB article recommendations in Aria — removed KB search logic from sendMessage
+- [x] Add voice input to Aria — record button, transcribe audio to text, show in chat
+- [x] Add file upload to Aria — PDF/documents/images, 5MB limit, visible in chat history
+- [x] Test voice and file upload features end-to-end
+- [x] Create checkpoint with all Aria enhancements

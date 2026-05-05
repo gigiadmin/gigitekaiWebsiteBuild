@@ -456,41 +456,8 @@ export const aibotRouter = router({
         console.warn("[AIBot] Failed to save chat analytics (non-critical):", err);
       });
 
-      // Search knowledge base for relevant context (hybrid: KB articles first, then legacy KB fallback)
-      let relevantDocs: any[] = [];
-      let kbArticleMatches: any[] = [];
-      let kbArticleContext = "";
-      let legacyKBContext = "";
-
-      // Phase 1: Search published KB articles
-      try {
-        kbArticleMatches = await searchKBArticles(message, 3);
-        if (kbArticleMatches.length > 0) {
-          kbArticleContext = kbArticleMatches
-            .map(article => `[${article.category || 'General'}] ${article.title}: ${article.content.substring(0, 500)}...`)
-            .join("\n\n");
-        }
-      } catch (error) {
-        console.error("[AIBot] KB article search failed:", error);
-      }
-
-      // Phase 2: Fall back to legacy knowledge base if no KB articles found
-      if (kbArticleMatches.length === 0) {
-        try {
-          relevantDocs = await searchKnowledgeBase(message);
-          if (relevantDocs.length > 0) {
-            legacyKBContext = relevantDocs
-              .slice(0, 3)
-              .map(doc => `[${doc.category}] ${doc.title}: ${doc.content}`)
-              .join("\n\n");
-          }
-        } catch (error) {
-          console.error("[AIBot] Legacy KB search failed:", error);
-        }
-      }
-
-      // Combine contexts: KB articles take priority
-      const context = kbArticleContext || legacyKBContext;
+      // KB search temporarily disabled - knowledge base needs to be built up
+      const context = "";
 
       // Build conversation history for LLM
       const conversationHistory = history.map(msg => ({
@@ -521,36 +488,7 @@ export const aibotRouter = router({
           ? assistantMessageContent 
           : "I apologize, I'm having trouble responding. Please try again.";
 
-        // Add KB attribution if KB articles were used
-        if (kbArticleMatches.length > 0) {
-          const topArticle = kbArticleMatches[0];
-          assistantMessage += `\n\n📚 **This is covered in our KB:** [${topArticle.title}](/kb/${topArticle.id})`;
-        }
-
-        // Proactive KB suggestions: check if other KB articles might be helpful
-        if (kbArticleMatches.length === 0 && message.length > 10) {
-          try {
-            const allKBArticles = await getAllPublishedKBArticles();
-            const suggestedArticles = [];
-            
-            for (const article of allKBArticles.slice(0, 5)) {
-              const isRelevant = await isKBArticleRelevant(article.id, message, 50);
-              if (isRelevant) {
-                suggestedArticles.push(article);
-                if (suggestedArticles.length >= 2) break; // Limit to 2 suggestions
-              }
-            }
-
-            if (suggestedArticles.length > 0) {
-              assistantMessage += `\n\n💡 **Hey, this might help:**`;
-              suggestedArticles.forEach(article => {
-                assistantMessage += `\n- [${article.title}](/kb/${article.id})`;
-              });
-            }
-          } catch (error) {
-            console.error("[AIBot] Failed to generate proactive KB suggestions:", error);
-          }
-        }
+        // KB recommendations temporarily disabled - knowledge base being built up
 
         // Check if escalation is needed (angry customers or complex issues)
         const autoEscalateFromSentiment = shouldAutoEscalate(analysis.sentiment, analysis.sentimentScore);
@@ -573,7 +511,7 @@ export const aibotRouter = router({
               sentiment: analysis.sentiment || 'neutral',
               sentimentScore: String(analysis.sentimentScore || '0.5'),
               escalationReason: 'auto_escalation_angry_sentiment',
-              kbArticleSuggested: kbArticleMatches.length > 0,
+              kbArticleSuggested: false,
               createdAt: new Date(),
             });
           } catch (logError) {
@@ -587,14 +525,14 @@ export const aibotRouter = router({
           role: "assistant",
           message: assistantMessage,
           metadata: JSON.stringify({
-            confidence: kbArticleMatches.length > 0 ? 0.9 : (relevantDocs.length > 0 ? 0.8 : 0.5),
-            sources: [...kbArticleMatches.map(d => d.id), ...relevantDocs.map(d => d.id)],
+            confidence: 0.5,
+            sources: [],
             shouldEscalate,
             sentiment: analysis.sentiment,
             intent: analysis.intent,
             routedTo: analysis.routedTo,
-            kbArticlesUsed: kbArticleMatches.length,
-            proactiveSuggestions: assistantMessage.includes("Hey, this might help")
+            kbArticlesUsed: 0,
+            proactiveSuggestions: false
           }),
         });
         const assistantMessageId = (assistantMsgResult as any)?.[0]?.insertId || 1;
@@ -1316,7 +1254,46 @@ export const aibotRouter = router({
         return { success: true, stats };
       } catch (error) {
         console.error('[AIBot] Failed to get escalation stats:', error);
-        return { success: false, stats: { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 } };
+        return { success: true, stats: { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 } };
+      }
+    }),
+
+  transcribeVoiceMessage: publicProcedure
+    .input(z.object({ audioUrl: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const { transcribeAudio } = await import("../_core/voiceTranscription");
+        const result = await transcribeAudio({ audioUrl: input.audioUrl, language: "en" });
+        const text = (result as any)?.text || (result as any)?.content || "";
+        return { success: true, text };
+      } catch (error) {
+        console.error("[AIBot] Voice transcription failed:", error);
+        return { success: false, text: "" };
+      }
+    }),
+
+  uploadFileForReview: publicProcedure
+    .input(z.object({ fileName: z.string(), fileSize: z.number(), mimeType: z.string(), sessionId: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        if (input.fileSize > 5 * 1024 * 1024) {
+          return { success: false, error: "File size exceeds 5MB limit" };
+        }
+        const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+        if (!allowedTypes.includes(input.mimeType)) {
+          return { success: false, error: "File type not supported" };
+        }
+        const fileId = nanoid();
+        await saveChatMessage({
+          sessionId: input.sessionId,
+          role: "user",
+          message: `📎 Uploaded file: ${input.fileName}`,
+          metadata: JSON.stringify({ type: "file_upload", fileId, fileName: input.fileName, mimeType: input.mimeType, fileSize: input.fileSize }),
+        });
+        return { success: true, fileId };
+      } catch (error) {
+        console.error("[AIBot] File upload failed:", error);
+        return { success: false, error: "Failed to upload file" };
       }
     }),
 });

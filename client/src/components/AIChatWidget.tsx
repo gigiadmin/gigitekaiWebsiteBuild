@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle } from "lucide-react";
+import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle, Mic, Square, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +30,12 @@ export default function AIChatWidget() {
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [handoffComplete, setHandoffComplete] = useState(false);
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Debounced query for proactive KB suggestions
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,6 +43,7 @@ export default function AIChatWidget() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
   const initInProgressRef = useRef(false); // Prevent double-init race condition
 
@@ -252,6 +259,116 @@ export default function AIChatWidget() {
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitekai.com or call 609-676-4483.", timestamp: Date.now() }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Voice recording handler
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstart = () => {
+        setIsRecording(true);
+        setRecordingTime(0);
+        recordingTimerRef.current = setInterval(() => {
+          setRecordingTime((prev) => prev + 1);
+        }, 1000);
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        audioChunksRef.current = [];
+        stream.getTracks().forEach((track) => track.stop());
+        
+        await handleTranscribeAudio(audioBlob);
+      };
+
+      mediaRecorder.start();
+    } catch (error) {
+      console.error("[Chat] Microphone access denied:", error);
+      toast.error("Microphone access denied. Please allow microphone permissions.");
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  const handleTranscribeAudio = async (audioBlob: Blob) => {
+    try {
+      setIsLoading(true);
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      const response = await fetch("/api/trpc/aibot.transcribeVoiceMessage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audioUrl }),
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Transcription failed");
+      }
+      
+      const data = await response.json();
+      const transcribedText = data.result?.text || "";
+      
+      if (transcribedText) {
+        setInputValue(transcribedText);
+        toast.success("Voice message transcribed");
+      } else {
+        toast.error("Could not transcribe audio. Please try again.");
+      }
+    } catch (error) {
+      console.error("[Chat] Transcription error:", error);
+      toast.error("Failed to transcribe voice message.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !sessionId) return;
+    try {
+      setIsLoading(true);
+      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("File type not supported. Allowed: PDF, images, Word documents");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size exceeds 5MB limit");
+        return;
+      }
+      const response = await fetch("/api/trpc/aibot.uploadFileForReview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name, fileSize: file.size, mimeType: file.type, sessionId }),
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Upload failed");
+      setMessages((prev) => [...prev, { role: "user", message: `📎 Uploaded: ${file.name}`, timestamp: Date.now() }]);
+      toast.success(`File uploaded: ${file.name}`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (error) {
+      console.error("[Chat] File upload error:", error);
+      toast.error("Failed to upload file.");
     } finally {
       setIsLoading(false);
     }
@@ -611,6 +728,39 @@ export default function AIChatWidget() {
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Ask anything about our services..."
                 className="flex-1 bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+              />
+              {isRecording ? (
+                <button
+                  onClick={handleStopRecording}
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 transition-all flex items-center gap-2"
+                >
+                  <Square className="w-4 h-4" />
+                  {recordingTime}s
+                </button>
+              ) : (
+                <button
+                  onClick={handleStartRecording}
+                  disabled={isLoading}
+                  className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  title="Record voice message"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
+                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-4 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                title="Upload file (PDF, images, documents)"
+              >
+                <Upload className="w-4 h-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+                onChange={handleFileUpload}
+                className="hidden"
               />
               <button
                 onClick={handleSendMessage}
