@@ -1,4 +1,3 @@
-import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminLogin — Temporary Admin Portal Login
  * Email/password authentication (bypasses OAuth while waiting for redirect URI setup)
@@ -48,8 +47,7 @@ export default function AdminLogin() {
   };
 
   return (
-    
-    <AdminLayout><div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0D1117] to-[#161B22] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0D1117] to-[#161B22] flex items-center justify-center p-4">
       {/* Background grid effect */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -154,6 +152,5 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
-  
-    </AdminLayout>);
+  );
 }
