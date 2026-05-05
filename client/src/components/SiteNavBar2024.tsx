@@ -91,10 +91,10 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
             <img 
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
+              src="/manus-storage/gigitekai-logo_30b1a872.png" 
               alt="GigitekAI logo" 
-              className="h-16 sm:h-20 lg:h-20 w-auto object-contain"
-              style={{ maxWidth: '340px', filter: 'brightness(1.05)' }}
+              className="h-12 sm:h-14 lg:h-14 w-auto object-contain"
+              style={{ maxWidth: '200px' }}
             />
           </a>
 
