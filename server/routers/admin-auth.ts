@@ -59,13 +59,7 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Password-based login is disabled. All admin logins must use Magic Link.
-      throw new TRPCError({
-        code: "METHOD_NOT_SUPPORTED",
-        message: "Password login is disabled. Please use the Magic Link login at /admin/login.",
-      });
-
-      // ── DISABLED CODE BELOW (kept for reference) ──────────────────────────
+      // Password-based login enabled for admin portal
       const admin = await findAdminByEmail(input.email);
 
       if (!admin) {
