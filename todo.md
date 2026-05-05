@@ -4307,8 +4307,6 @@
 ## Phase 2: Medium Optimizations (In Progress)
 - [x] Add srcset to all images (BenefitsSection, ServicesSection, etc.) — 223 KiB saved
 - [x] Implement lazy loading with intersection observer for below-fold images (already enabled)
-- [x] Fix render-blocking CSS: Inject CSS dynamically via requestIdleCallback — 470ms saved
-- [x] Optimize hero video poster with responsive sizing — 21.2 KiB saved
 - [ ] Code split admin portal routes (separate from public site) — 1,012 KiB saved
 - [ ] Defer Manus platform scripts (spaceEdit.js) to requestIdleCallback — 1,003ms saved
 - [ ] Test Phase 2 and verify PageSpeed score improvement

@@ -141,15 +141,6 @@ export default function HeroSection() {
             height={1080}
             src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
             poster={HERO_VIDEO_POSTER}
-            onLoadedMetadata={(e) => {
-              // Preload poster image with srcset for responsive sizing
-              const video = e.currentTarget as HTMLVideoElement;
-              if (video.poster) {
-                const img = new Image();
-                img.srcset = `${HERO_VIDEO_POSTER}?w=600 600w, ${HERO_VIDEO_POSTER}?w=1200 1200w, ${HERO_VIDEO_POSTER}?w=1920 1920w`;
-                img.sizes = '(max-width: 768px) 100vw, 100vw';
-              }
-            }}
             onEnded={() => { setPlaying(false); setEnded(true); }}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
               playing ? "opacity-100" : "opacity-0"
