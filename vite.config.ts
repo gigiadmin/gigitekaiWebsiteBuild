@@ -238,7 +238,7 @@ function vitePluginStripMsalStaticImport(): Plugin {
       const msalBase = msalFile.replace('.js', ''); // e.g. msal-CZsMGMEI
       // Strip static msal imports from main.js and all public-page chunks
       // Admin chunks legitimately need msal, so we keep their imports
-      const ADMIN_CHUNKS = ['AdminApp-', 'AdminLogin', 'AdminHome-', 'AdminUnlock-', 'redirect-'];
+      const ADMIN_CHUNKS = ['AdminApp-', 'AdminLogin', 'AdminHome-', 'AdminUnlock-', 'redirect-', 'admin-editor-', 'admin-ui-'];
       let stripped = 0;
       for (const [chunkName, chunk] of Object.entries(bundle)) {
         if (chunk.type !== 'chunk') continue;
@@ -391,6 +391,19 @@ export default defineConfig({
           // Splitting into its own chunk allows public pages to skip this ~300KB library
           if (id.includes("@azure/msal-browser") || id.includes("@azure/msal-react") || id.includes("@azure/msal-common")) {
             return "msal";
+          }
+          // TipTap/ProseMirror rich text editor — only needed in admin newsletter/blog pages
+          // Splitting saves ~530KB from the vendor bundle (ProseMirror + TipTap extensions)
+          if (
+            id.includes('node_modules/@tiptap/') ||
+            id.includes('node_modules/prosemirror-') ||
+            id.includes('node_modules/prosemirror/')
+          ) {
+            return 'admin-editor';
+          }
+          // cmdk command palette — only needed in admin pages
+          if (id.includes('node_modules/cmdk')) {
+            return 'admin-ui';
           }
           // Charts/data-viz — only needed in admin dashboards (recharts, d3, victory)
           // Splitting saves ~200KB from the public page critical path

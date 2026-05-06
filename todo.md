@@ -4464,3 +4464,11 @@
 - [x] Result: Initial download reduced from 606KB gzip → 466KB gzip (140KB / 23% reduction)
 - [x] Admin portal unaffected: AdminApp.js and 4 other admin chunks retain msal import
 - [x] All 927 tests passing after fix
+
+## TipTap/ProseMirror + cmdk Bundle Split (May 6, 2026)
+- [x] Split TipTap/ProseMirror rich text editor into admin-editor chunk (355KB raw / 108KB gzip)
+- [x] Split cmdk command palette into admin-ui chunk (12KB raw / 5KB gzip)
+- [x] Made AdminNewsletterBroadcast lazy-loaded to prevent TipTap from being pulled into vendor
+- [x] Result: vendor bundle reduced from 1230KB → 827KB raw (403KB saved)
+- [x] Combined with msal strip: public page initial download 2075KB → 1155KB raw / 606KB → 355KB gzip (41% reduction)
+- [x] All 927 tests passing after optimization
