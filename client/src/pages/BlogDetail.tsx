@@ -12,7 +12,7 @@ import AuthorBioCard from "@/components/AuthorBioCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import { ArrowLeft, Calendar, Clock, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet-async";
 import Breadcrumb from "@/components/Breadcrumb";

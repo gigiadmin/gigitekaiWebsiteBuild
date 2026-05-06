@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Trash2, Edit2, BookOpen, Eye, Mail, Share2 } from "lucide-react";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 import { CodeBlockWithCopy } from "@/components/CodeBlockWithCopy";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";

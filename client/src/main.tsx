@@ -7,7 +7,13 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import { HelmetProvider } from "react-helmet-async";
+import { PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
+import { MSAL_CONFIG } from "@/lib/msalConfig";
 import "./index.css";
+
+// Initialize MSAL instance (singleton — must be created before render)
+const msalInstance = new PublicClientApplication(MSAL_CONFIG);
 
 // ============================================================
 // PRODUCTION FIX: Manus platform injects manus-runtime which
@@ -101,13 +107,15 @@ const mountPoint = getOrCreateMountPoint();
 try {
   const reactRoot = createRoot(mountPoint);
   reactRoot.render(
-    <HelmetProvider>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
-      </trpc.Provider>
-    </HelmetProvider>
+    <MsalProvider instance={msalInstance}>
+      <HelmetProvider>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </trpc.Provider>
+      </HelmetProvider>
+    </MsalProvider>
   );
   console.log('[GigitekAI] React mounted successfully');
 } catch (err) {
@@ -121,13 +129,15 @@ try {
       document.body.appendChild(freshEl);
       const retryRoot = createRoot(freshEl);
       retryRoot.render(
-        <HelmetProvider>
-          <trpc.Provider client={trpcClient} queryClient={queryClient}>
-            <QueryClientProvider client={queryClient}>
-              <App />
-            </QueryClientProvider>
-          </trpc.Provider>
-        </HelmetProvider>
+        <MsalProvider instance={msalInstance}>
+          <HelmetProvider>
+            <trpc.Provider client={trpcClient} queryClient={queryClient}>
+              <QueryClientProvider client={queryClient}>
+                <App />
+              </QueryClientProvider>
+            </trpc.Provider>
+          </HelmetProvider>
+        </MsalProvider>
       );
       console.log('[GigitekAI] React mounted on retry');
     } catch (retryErr) {

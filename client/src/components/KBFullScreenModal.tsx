@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { X, Copy, Mail, Share2, Edit2 } from "lucide-react";
 import { KBArticleContent } from "./KBArticleContent";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 interface KBFullScreenModalProps {
   article: any;

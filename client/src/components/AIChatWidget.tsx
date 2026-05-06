@@ -10,7 +10,7 @@ import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle, Mic, 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";

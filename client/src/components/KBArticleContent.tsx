@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { CodeBlockWithCopy } from "./CodeBlockWithCopy";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 interface KBArticleContentProps {
   content: string;

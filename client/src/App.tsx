@@ -70,7 +70,7 @@ const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 // ── Auth pages — lazy loaded ──────────────────────────────────────────────
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const LogoutConfirmation = lazy(() => import("./pages/LogoutConfirmation"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminLogin = lazy(() => import("./pages/AdminLoginAzure"));
 const AdminUnlock = lazy(() => import("./pages/AdminUnlock"));
 
 // ── Meeting management — lazy loaded ─────────────────────────────────────
@@ -188,6 +188,7 @@ function Router() {
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />
           <Route path={"/admin/login"} component={AdminLogin} />
+          <Route path={"/admin/auth/callback"} component={AdminLogin} />
           <Route path={"/admin/unlock"} component={AdminUnlock} />
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />

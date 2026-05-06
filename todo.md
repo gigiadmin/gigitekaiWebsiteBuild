@@ -4371,3 +4371,13 @@
 - [x] Add staging environment indicator banner on hh.gigitekai.com
 - [ ] Validate staging environment end-to-end before next performance work
 - [ ] Run PageSpeed on staging before pushing performance changes to production
+
+## Mobile Homepage Black Screen & Azure AD Migration
+- [ ] Fix homepage black screen on mobile — reduce critical path JS so React mounts fast
+- [ ] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO
+
+## Performance Fix - May 2026
+- [x] Fix homepage black screen on mobile — replaced streamdown (11MB) with react-markdown (50KB) in all 6 files
+- [x] Vendor chunk reduced from 13.8MB to 1.89MB (7x reduction)
+- [x] Build time reduced from 240s+ (killed) to 35s
+- [ ] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO

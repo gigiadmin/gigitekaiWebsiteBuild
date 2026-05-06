@@ -370,4 +370,70 @@ export const adminAuthRouter = router({
         },
       };
     }),
+
+  // Azure AD (MSAL) login — validates Microsoft access token via Graph API, issues admin session cookie
+  azureLogin: publicProcedure
+    .input(
+      z.object({
+        accessToken: z.string(),
+        email: z.string().email(),
+        name: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const res = (ctx as unknown as { res: Response }).res;
+
+      // Validate the access token with Microsoft Graph
+      const graphRes = await fetch("https://graph.microsoft.com/v1.0/me", {
+        headers: { Authorization: `Bearer ${input.accessToken}` },
+      });
+      if (!graphRes.ok) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid Microsoft access token. Please sign in again.",
+        });
+      }
+      const graphUser = await graphRes.json() as { mail?: string; userPrincipalName?: string; displayName?: string };
+      const verifiedEmail = (graphUser.mail || graphUser.userPrincipalName || "").toLowerCase();
+
+      // Allowed admin emails — only these M365 accounts can access the admin portal
+      const ALLOWED_ADMINS = ["harry@gigitekai.com"];
+      if (!ALLOWED_ADMINS.includes(verifiedEmail)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Access denied. ${verifiedEmail} is not authorized to access this portal.`,
+        });
+      }
+
+      // Find or auto-create the admin account (first-time Azure AD login)
+      let admin = await findAdminByEmail(verifiedEmail);
+      if (!admin) {
+        admin = await createAdminAccount({
+          email: verifiedEmail,
+          name: graphUser.displayName || input.name,
+          password: crypto.randomUUID(), // random — Azure AD is the auth method
+          role: "admin",
+        });
+      }
+      if (!admin) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to create admin account" });
+      }
+      if (!admin.isActive) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Account is disabled. Contact your administrator." });
+      }
+
+      await updateLastLogin(admin.id);
+      const token = await signAdminToken({
+        adminId: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      });
+      if (res) res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token));
+
+      return {
+        success: true,
+        admin: { id: admin.id, email: admin.email, name: admin.name, role: admin.role },
+      };
+    }),
 });

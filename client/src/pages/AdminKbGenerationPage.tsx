@@ -31,7 +31,7 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 type Tab = "pending" | "metrics";
 
