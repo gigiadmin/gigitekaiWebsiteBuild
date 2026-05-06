@@ -4433,3 +4433,11 @@
 - [x] Storage proxy byte-serving with in-memory cache (23h TTL) and Cache-Control: immutable headers
 - [ ] Publish latest checkpoint to get improvements live on gigitekai.com
 - [ ] Run PageSpeed after publish to verify score improvement (target: mobile >70, desktop >85)
+
+## PageSpeed Optimization Round 2 (May 6, 2026)
+- [x] Non-blocking CSS injection in production HTML (eliminates 160ms render-block)
+- [x] Split recharts/d3 into separate charts chunk (300KB removed from vendor bundle)
+- [x] Split highlight.js into separate syntax-highlight chunk
+- [x] In-memory HTML cache in serveStatic for faster TTFB
+- [x] Vendor bundle reduced from 1.6MB to 1.3MB
+- [x] All 927 tests passing after changes

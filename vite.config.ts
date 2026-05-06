@@ -272,6 +272,27 @@ export default defineConfig({
           if (id.includes("@azure/msal-browser") || id.includes("@azure/msal-react") || id.includes("@azure/msal-common")) {
             return "msal";
           }
+          // Charts/data-viz — only needed in admin dashboards (recharts, d3, victory)
+          // Splitting saves ~200KB from the public page critical path
+          if (
+            id.includes("node_modules/recharts") ||
+            id.includes("node_modules/d3-") ||
+            id.includes("node_modules/d3/") ||
+            id.includes("node_modules/victory") ||
+            id.includes("node_modules/victory-") ||
+            id.includes("node_modules/internmap") ||
+            id.includes("node_modules/robust-predicates")
+          ) {
+            return "charts";
+          }
+          // Syntax highlighting — only needed in blog/AI chat code blocks
+          if (
+            id.includes("node_modules/highlight.js") ||
+            id.includes("node_modules/lowlight") ||
+            id.includes("node_modules/fault")
+          ) {
+            return "syntax-highlight";
+          }
           // All other node_modules go into a single vendor chunk.
           // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
           // some node_module in vendor has a static import of streamdown, which would

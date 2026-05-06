@@ -61,6 +61,28 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+// ─── In-memory HTML cache for production ──────────────────────────────────
+// Caches the transformed index.html (with non-blocking CSS injection) so
+// every page request doesn't re-read disk. Cache is busted on server restart.
+let cachedHtml: string | null = null;
+let cachedHtmlMtime: number = 0;
+
+/**
+ * Transform the built index.html for production:
+ * 1. Make the main CSS non-blocking (media=print trick) to eliminate render-blocking
+ * 2. Add noscript fallback for CSS
+ */
+function transformHtmlForProduction(html: string): string {
+  // Make the Vite-injected CSS link non-blocking
+  // Pattern: <link rel="stylesheet" crossorigin href="/assets/main-HASH.css">
+  // Match both: <link rel="stylesheet" crossorigin href="..."> and <link rel="stylesheet" href="...">
+  return html.replace(
+    /<link rel="stylesheet"(?: crossorigin)? href="(\/assets\/[^"]+\.css)">/g,
+    (_, href) =>
+      `<link rel="preload" as="style" href="${href}" onload="this.onload=null;this.rel='stylesheet'" /><noscript><link rel="stylesheet" href="${href}" /></noscript>`
+  );
+}
+
 export function serveStatic(app: Express) {
   const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
   if (!fs.existsSync(distPath)) {
@@ -91,7 +113,24 @@ export function serveStatic(app: Express) {
         return res.sendFile(redirectPath);
       }
     }
-    res.sendFile(path.resolve(distPath, "index.html"));
+
+    // Serve index.html from in-memory cache (re-read if file changed on disk)
+    const indexPath = path.resolve(distPath, "index.html");
+    try {
+      const stat = fs.statSync(indexPath);
+      const mtime = stat.mtimeMs;
+      if (!cachedHtml || cachedHtmlMtime !== mtime) {
+        const raw = fs.readFileSync(indexPath, "utf-8");
+        cachedHtml = transformHtmlForProduction(raw);
+        cachedHtmlMtime = mtime;
+        console.log("[Server] index.html cache refreshed");
+      }
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(cachedHtml);
+    } catch {
+      // Fallback to sendFile if cache fails
+      res.sendFile(indexPath);
+    }
   });
   
   // 404 handler for API routes that weren't matched
