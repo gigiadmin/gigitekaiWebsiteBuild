@@ -93,7 +93,9 @@ export function serveStatic(app: Express) {
     console.log(`[Server] Serving static files from: ${distPath}`);
   }
 
-  app.use(express.static(distPath));
+  // Serve static assets but NOT index.html — the catch-all below applies the
+  // non-blocking CSS transform before sending index.html.
+  app.use(express.static(distPath, { index: false }));
 
   // fall through to index.html if the file doesn't exist
   // IMPORTANT: Skip /api/* routes so they reach the tRPC middleware
