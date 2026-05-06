@@ -5,9 +5,7 @@
  */
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useRecentlyViewed } from "@/_core/hooks/useRecentlyViewed";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -140,8 +138,14 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
-  const [location] = useLocation();
-  const { user, logout, loading } = useAuth({ redirectOnUnauthenticated: true, redirectPath: getLoginUrl() });
+  const [location, navigate] = useLocation();
+  // Use custom admin JWT auth (not Manus OAuth) — admin portal has its own email/password login
+  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  const logoutMutation = trpc.adminAuth.logout.useMutation();
+  const logout = async () => {
+    await logoutMutation.mutateAsync();
+    navigate("/admin/login");
+  };
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { items: recentItems, addItem: addRecentItem, clearAll: clearRecentItems } = useRecentlyViewed();
@@ -150,6 +154,13 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
   useEffect(() => {
     setMobileOpen(false);
   }, [location]);
+
+  // Redirect to admin login if not authenticated
+  useEffect(() => {
+    if (!loading && !adminUser) {
+      navigate("/admin/login");
+    }
+  }, [loading, adminUser]);
 
   const isActive = (href: string) => {
     if (href === "/admin") return location === "/admin";
@@ -302,11 +313,11 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xs font-bold">
-                {user?.name?.charAt(0)?.toUpperCase() ?? "A"}
+                {adminUser?.name?.charAt(0)?.toUpperCase() ?? "A"}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-medium truncate">{user?.name ?? "Admin"}</div>
+              <div className="text-white text-xs font-medium truncate">{adminUser?.name ?? "Admin"}</div>
               <div className="text-slate-500 text-xs truncate">Admin</div>
             </div>
             <div className="group relative">
