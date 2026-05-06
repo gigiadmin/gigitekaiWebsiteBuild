@@ -1,7 +1,16 @@
 /**
  * AdminLoginAzure — Azure AD (Microsoft Entra ID) login for the admin portal
- * Uses MSAL redirect flow — works on ALL browsers including iOS Safari & Mobile Edge.
- * (Popup flow is blocked by iOS WebKit; redirect flow with localStorage cache is universal.)
+ *
+ * Flow:
+ *   1. Page loads → show "Sign in with Microsoft" button (nothing auto-fires)
+ *   2. User clicks → loginRedirect() navigates the whole page to Microsoft
+ *   3. Microsoft redirects back to /redirect.html → MSAL processes token
+ *   4. User returns to /admin/login with MSAL account populated
+ *   5. useEffect detects account + inProgress==="none" → calls azureLogin mutation
+ *   6. Server validates token, sets admin_session cookie → navigate to /admin
+ *
+ * Why redirect (not popup): iOS Safari/Edge blocks JavaScript popups.
+ * Why localStorage: sessionStorage is wiped on cross-origin navigation in iOS.
  */
 import { useState, useEffect, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
@@ -14,85 +23,81 @@ import { trpc } from "@/lib/trpc";
 export default function AdminLoginAzure() {
   const { instance, accounts, inProgress } = useMsal();
   const [, navigate] = useLocation();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Guard: prevent processing the redirect result more than once
-  const redirectHandled = useRef(false);
+  const [processingReturn, setProcessingReturn] = useState(false);
+  // Prevent double-processing the redirect result
+  const mutationFired = useRef(false);
 
   const utils = trpc.useUtils();
 
   const azureLoginMutation = trpc.adminAuth.azureLogin.useMutation({
     onSuccess: async () => {
       await utils.adminAuth.me.invalidate();
-      await new Promise((resolve) => setTimeout(resolve, 200));
       navigate("/admin");
     },
     onError: (err) => {
       setError(err.message || "Login failed. Please try again.");
-      setLoading(false);
-      redirectHandled.current = false;
+      setProcessingReturn(false);
+      mutationFired.current = false;
     },
   });
 
-  // Handle the result after returning from Microsoft redirect
+  // After returning from Microsoft redirect, process the account exactly once
   useEffect(() => {
-    // inProgress === "none" means MSAL has finished processing the redirect response
+    // Wait until MSAL has finished processing the redirect response
     if (inProgress !== "none") return;
-    if (redirectHandled.current) return;
+    // Only run if we have an account (i.e. just returned from Microsoft)
     if (accounts.length === 0) return;
+    // Don't fire twice
+    if (mutationFired.current) return;
 
-    redirectHandled.current = true;
-    handleMsalAccount(accounts[0]);
-  }, [accounts, inProgress]);
-
-  async function handleMsalAccount(account: (typeof accounts)[0]) {
+    const account = accounts[0];
     const email = account.username?.toLowerCase();
+
     if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
-      setError(`Access denied. ${email} is not authorized to access this portal.`);
-      setLoading(false);
+      // Clear the account without navigating away
+      instance.clearCache();
+      setError(`Access denied. ${email} is not authorized.`);
       return;
     }
-    setLoading(true);
-    try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...LOGIN_REQUEST,
-        account,
-      });
-      azureLoginMutation.mutate({
-        accessToken: tokenResponse.accessToken,
-        email: account.username,
-        name: account.name || account.username,
-      });
-    } catch {
-      // Silent token acquisition failed — trigger redirect again
-      setError("Session expired. Please sign in again.");
-      setLoading(false);
-      redirectHandled.current = false;
-    }
-  }
 
-  async function handleMicrosoftLogin() {
-    setLoading(true);
+    mutationFired.current = true;
+    setProcessingReturn(true);
+
+    instance.acquireTokenSilent({ ...LOGIN_REQUEST, account })
+      .then((tokenResponse) => {
+        azureLoginMutation.mutate({
+          accessToken: tokenResponse.accessToken,
+          email: account.username,
+          name: account.name || account.username,
+        });
+      })
+      .catch(() => {
+        setError("Session expired. Please sign in again.");
+        setProcessingReturn(false);
+        mutationFired.current = false;
+        // Clear the stale account so the button shows clean
+        instance.clearCache();
+      });
+  }, [accounts, inProgress]);
+
+  async function handleSignIn() {
     setError(null);
-    redirectHandled.current = false;
+    mutationFired.current = false;
     try {
-      // loginRedirect navigates the whole page to Microsoft — works on ALL browsers
       await instance.loginRedirect({
         ...LOGIN_REQUEST,
-        // Return to /admin/login after Microsoft redirects back to /redirect.html
-        // MSAL will then call handleRedirectPromise and populate accounts[]
         redirectStartPage: window.location.href,
       });
-      // Note: code after loginRedirect() does NOT execute — the page navigates away
-    } catch (err: unknown) {
-      setError("Microsoft sign-in failed. Please try again.");
-      setLoading(false);
+      // Page navigates away — nothing runs after this
+    } catch {
+      setError("Could not start Microsoft sign-in. Please try again.");
     }
   }
 
-  // Show loading state while MSAL is processing the redirect response
-  const isMsalProcessing = inProgress !== "none";
-  const isSigningIn = loading || azureLoginMutation.isPending || isMsalProcessing;
+  // Show spinner while: MSAL is processing redirect OR mutation is running
+  const isMsalBusy = inProgress !== "none";
+  const isSigningIn = processingReturn || azureLoginMutation.isPending || isMsalBusy;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
@@ -125,21 +130,26 @@ export default function AdminLoginAzure() {
           )}
 
           <Button
-            onClick={handleMicrosoftLogin}
+            onClick={handleSignIn}
             disabled={isSigningIn}
             className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all"
           >
             {isSigningIn ? (
-              <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
+              <>
+                <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
+                <span>Signing in…</span>
+              </>
             ) : (
-              <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none">
-                <rect x="1" y="1" width="9" height="9" fill="#F25022" />
-                <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
-                <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
-                <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
-              </svg>
+              <>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 21 21" fill="none">
+                  <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                  <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                  <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                  <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+                </svg>
+                <span>Sign in with Microsoft</span>
+              </>
             )}
-            {isSigningIn ? "Signing in..." : "Sign in with Microsoft"}
           </Button>
 
           <p className="text-center text-slate-500 text-xs mt-6">

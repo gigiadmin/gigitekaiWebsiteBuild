@@ -4410,3 +4410,4 @@
 - [x] Re-enable Aria KB article recommendations in sendMessage — KB search + proactive suggestions active, all 924 tests passing
 - [x] Fix admin login loop — added Secure flag to admin_session cookie for HTTPS + useRef guard to prevent auto-login re-triggering
 - [x] Fix admin login on mobile Safari/Edge — switched from loginPopup to loginRedirect, changed cacheLocation from sessionStorage to localStorage so MSAL state survives iOS navigation
+- [x] Clean rewrite admin login — no auto-login on page load, explicit loginRedirect on button click, useRef guard prevents double-fire, proper HTTPS cookie detection via x-forwarded-proto

@@ -91,11 +91,11 @@ export const adminAuthRouter = router({
         role: admin.role,
       });
 
-      // Set cookie on response
-      const res = (ctx as unknown as { res: Response }).res;
-      if (res) {
-        res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token));
-      }
+      // Set cookie on response — detect HTTPS via x-forwarded-proto
+      const forwardedProtoLogin = ctx.req.headers["x-forwarded-proto"];
+      const isSecureLogin = ctx.req.protocol === "https" ||
+        (typeof forwardedProtoLogin === "string" && forwardedProtoLogin.split(",")[0].trim() === "https");
+      ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecureLogin));
 
       // Update last login timestamp
       await updateLastLogin(admin.id);
@@ -113,16 +113,16 @@ export const adminAuthRouter = router({
 
   // Logout - clear session cookie
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    const res = (ctx as unknown as { res: Response }).res;
-    if (res) {
-      res.setHeader("Set-Cookie", clearAdminSessionCookieHeader());
-    }
+      const forwardedProtoLogout = ctx.req.headers["x-forwarded-proto"];
+      const isSecureLogout = ctx.req.protocol === "https" ||
+        (typeof forwardedProtoLogout === "string" && forwardedProtoLogout.split(",")[0].trim() === "https");
+      ctx.res.setHeader("Set-Cookie", clearAdminSessionCookieHeader(isSecureLogout));
     return { success: true };
   }),
 
   // Get current admin session
   me: publicProcedure.query(async ({ ctx }) => {
-    const req = (ctx as unknown as { req: Request }).req;
+    const req = ctx.req;
     if (!req) return null;
     const admin = await getAdminFromRequest(req);
     if (!admin) return null;
@@ -184,7 +184,7 @@ export const adminAuthRouter = router({
 
   // List all admin accounts (admin only)
   listAccounts: publicProcedure.query(async ({ ctx }) => {
-    const req = (ctx as unknown as { req: Request }).req;
+    const req = ctx.req;
     const admin = req ? await getAdminFromRequest(req) : null;
     if (!admin || admin.role !== "admin") {
       throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
@@ -204,7 +204,7 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const req = (ctx as unknown as { req: Request }).req;
+      const req = ctx.req;
       const admin = req ? await getAdminFromRequest(req) : null;
       if (!admin || admin.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
@@ -217,7 +217,7 @@ export const adminAuthRouter = router({
   deleteAccount: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const req = (ctx as unknown as { req: Request }).req;
+      const req = ctx.req;
       const admin = req ? await getAdminFromRequest(req) : null;
       if (!admin || admin.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
@@ -235,7 +235,7 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const req = (ctx as unknown as { req: Request }).req;
+      const req = ctx.req;
       const admin = req ? await getAdminFromRequest(req) : null;
       if (!admin) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
@@ -342,7 +342,7 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const req = (ctx as unknown as { req: Request }).req;
+      const req = ctx.req;
       const admin = req ? await getAdminFromRequest(req) : null;
       if (!admin || admin.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
@@ -381,7 +381,10 @@ export const adminAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const res = (ctx as unknown as { res: Response }).res;
+      // Detect HTTPS via x-forwarded-proto (production is behind a reverse proxy)
+      const forwardedProto = ctx.req.headers["x-forwarded-proto"];
+      const isSecure = ctx.req.protocol === "https" ||
+        (typeof forwardedProto === "string" && forwardedProto.split(",")[0].trim() === "https");
 
       // Validate the access token with Microsoft Graph
       const graphRes = await fetch("https://graph.microsoft.com/v1.0/me", {
@@ -429,7 +432,7 @@ export const adminAuthRouter = router({
         name: admin.name,
         role: admin.role,
       });
-      if (res) res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token));
+      ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecure));
 
       return {
         success: true,
