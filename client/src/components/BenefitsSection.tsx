@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
-const TEAM_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-team-cta-PY3uvsu8QsxmiZuTiMiXda.webp";
+const TEAM_IMG = "/manus-storage/team-cta-opt_6cfd0f96.webp";
 
 const benefits = [
   "Reduce operational costs by up to 40% with optimized cloud architecture",
@@ -42,7 +42,6 @@ export default function BenefitsSection() {
           >
             <img
               src={TEAM_IMG}
-              srcSet={`${TEAM_IMG}?w=400 400w, ${TEAM_IMG}?w=600 600w, ${TEAM_IMG}?w=800 800w`}
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 630px"
               alt="GigitekAI team collaborating"
               className="w-full h-full object-cover"

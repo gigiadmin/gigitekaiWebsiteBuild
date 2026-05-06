@@ -152,27 +152,64 @@ function vitePluginManusDebugCollector(): Plugin {
 }
 
 /**
- * PERFORMANCE: Vite plugin that converts render-blocking CSS links to non-blocking.
- * At build time, transforms <link rel="stylesheet"> into a preload pattern so the
- * browser can start painting with the inline critical CSS while the full stylesheet
- * loads asynchronously. This is deterministic and works regardless of server config.
+ * PERFORMANCE: Vite plugin that:
+ * 1. Converts render-blocking CSS links to non-blocking preload pattern
+ * 2. Removes modulepreload tags for admin-only chunks (msal, syntax-highlight, charts)
+ *    so the browser doesn't eagerly download them on public pages
  */
 function vitePluginNonBlockingCSS(): Plugin {
+  // Chunks that should NOT be preloaded on public pages (admin-only)
+  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'charts-'];
+
   return {
     name: 'vite-plugin-non-blocking-css',
     enforce: 'post',
     transformIndexHtml(html) {
       if (process.env.NODE_ENV !== 'production') return html;
-      // Transform: <link rel="stylesheet" crossorigin href="/assets/main-XXX.css">
-      // Into: <link rel="preload" as="style" href="..." onload="this.onload=null;this.rel='stylesheet'">
-      //       <noscript><link rel="stylesheet" href="..."></noscript>
-      return html.replace(
-        /<link rel="stylesheet"(?: crossorigin)? href="(\/assets\/[^"]+\.css)">/g,
-        (_, cssHref) => [
-          `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
-          `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
-        ].join('\n    ')
+
+      // Step 1: Remove modulepreload tags for admin-only chunks
+      // These chunks are only needed on /admin routes, not public pages
+      let result = html.replace(
+        /<link rel="modulepreload"[^>]*href="\/assets\/(msal-|syntax-highlight-|charts-)[^"]+"[^>]*>\n?/g,
+        ''
       );
+
+      // Step 2: Transform render-blocking CSS into non-blocking preload
+      // Vite injects two forms of CSS link:
+      //   a) <link rel="stylesheet" crossorigin href="/assets/main-XXX.css"> (initial Vite inject)
+      //   b) <link rel="stylesheet" href="/assets/main-XXX.css"> (sometimes added by other plugins)
+      // We convert form (a) to a preload, and remove form (b) as a duplicate.
+      
+      // First pass: convert the crossorigin form to non-blocking preload
+      const seenCssHrefs = new Set<string>();
+      result = result.replace(
+        /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
+        (_, cssHref) => {
+          seenCssHrefs.add(cssHref);
+          return [
+            `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
+            `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
+          ].join('\n    ');
+        }
+      );
+      
+      // Second pass: remove any remaining blocking stylesheet links for /assets/ CSS
+      // (these are duplicates added by other plugins after our preload was injected)
+      result = result.replace(
+        /<link rel="stylesheet" href="(\/assets\/[^"]+\.css)">/g,
+        (match, cssHref) => {
+          // Only remove if we already have a preload for this CSS file
+          if (seenCssHrefs.has(cssHref)) return '';
+          // If no preload exists yet, convert this one
+          seenCssHrefs.add(cssHref);
+          return [
+            `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
+            `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
+          ].join('\n    ');
+        }
+      );
+
+      return result;
     },
   };
 }
