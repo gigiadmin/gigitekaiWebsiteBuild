@@ -23,6 +23,10 @@ import {
   Phone,
   Video,
   Mail,
+  Bot,
+  Eye,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import VideoCallModal from "@/components/VideoCallModal";
 import QuickReplyModal from "@/components/QuickReplyModal";
@@ -71,7 +75,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-type Tab = "chat" | "analytics" | "transcripts";
+type Tab = "chat" | "analytics" | "transcripts" | "aria";
 
 export default function AdminChat() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -147,6 +151,33 @@ export default function AdminChat() {
     { sessionId: transcriptSessionId || 0, format: "text" },
     { enabled: !!transcriptSessionId }
   );
+
+  // ── Aria Monitor state ──────────────────────────────────────────────────────
+  const [ariaStatusFilter, setAriaStatusFilter] = useState<"all" | "active" | "escalated" | "closed">("all");
+  const [selectedAriaSessionId, setSelectedAriaSessionId] = useState<string | null>(null);
+  const [ariaAdminMessage, setAriaAdminMessage] = useState("");
+
+  const { data: ariaSessions, isLoading: ariaSessionsLoading, refetch: refetchAriaSessions } = trpc.aibot.getAriaSessions.useQuery(
+    { status: ariaStatusFilter, limit: 50, offset: 0 },
+    { enabled: isAuthenticated && activeTab === "aria", refetchInterval: 30000 }
+  );
+
+  const { data: ariaMessages, isLoading: ariaMessagesLoading, refetch: refetchAriaMessages } = trpc.aibot.getAriaSessionMessages.useQuery(
+    { sessionId: selectedAriaSessionId || "" },
+    { enabled: !!selectedAriaSessionId && activeTab === "aria" }
+  );
+
+  const adminSendAriaMutation = trpc.aibot.adminSendAriaMessage.useMutation({
+    onSuccess: () => {
+      setAriaAdminMessage("");
+      refetchAriaMessages();
+      refetchAriaSessions();
+      toast.success("Admin message sent to Aria session");
+    },
+    onError: () => {
+      toast.error("Failed to send message");
+    },
+  });
 
   // Redirect if not authenticated — send to Manus OAuth login
   useEffect(() => {
@@ -552,6 +583,7 @@ export default function AdminChat() {
         <div className="flex gap-1 mb-6 bg-[#0A0E1A] p-1 rounded-lg w-fit">
           {[
             { id: "chat" as Tab, label: "Live Chat", icon: MessageCircle },
+            { id: "aria" as Tab, label: "Aria Monitor", icon: Bot },
             { id: "analytics" as Tab, label: "Analytics", icon: BarChart3 },
             { id: "transcripts" as Tab, label: "Transcripts", icon: FileText },
           ].map((tab) => (
@@ -906,6 +938,228 @@ export default function AdminChat() {
             ) : (
               <p className="text-gray-400 text-center py-8">No analytics data available</p>
             )}
+          </div>
+        )}
+
+        {activeTab === "aria" && (
+          <div className="space-y-4">
+            {/* Header with filter and refresh */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Bot className="w-5 h-5 text-[#00D4FF]" />
+                Aria AI Conversations
+                {ariaSessions && <span className="text-sm font-normal text-gray-400 ml-2">({ariaSessions.total} total)</span>}
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { refetchAriaSessions(); toast.success("Refreshed"); }}
+                  className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-[#00D4FF] transition-colors"
+                  title="Refresh"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Status Filter Buttons */}
+            <div className="flex gap-1 bg-[#0A0E1A] p-1 rounded-lg w-fit">
+              {(["all", "active", "escalated", "closed"] as const).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => { setAriaStatusFilter(status); setSelectedAriaSessionId(null); }}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
+                    ariaStatusFilter === status
+                      ? "bg-[#00D4FF]/20 text-[#00D4FF] border border-[#00D4FF]/30"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {status === "all" ? "All" : status}
+                </button>
+              ))}
+            </div>
+
+            {/* Main Content: Session List + Message Thread */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Left: Session List */}
+              <div className="lg:col-span-1 space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                {ariaSessionsLoading ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00D4FF] mx-auto mb-3"></div>
+                    <p className="text-gray-400 text-sm">Loading sessions...</p>
+                  </div>
+                ) : !ariaSessions || ariaSessions.sessions.length === 0 ? (
+                  <Card className="bg-[#141B2D] border-[#00D4FF]/15 p-8 text-center">
+                    <Bot className="w-10 h-10 mx-auto mb-3 text-gray-500" />
+                    <p className="text-gray-400 text-sm">No Aria sessions found</p>
+                  </Card>
+                ) : (
+                  ariaSessions.sessions.map((session: any) => (
+                    <Card
+                      key={session.id}
+                      onClick={() => setSelectedAriaSessionId(session.sessionId)}
+                      className={`bg-[#141B2D] border p-3 cursor-pointer transition-all hover:border-[#00D4FF]/50 ${
+                        selectedAriaSessionId === session.sessionId
+                          ? "border-[#00D4FF]/60 bg-[#00D4FF]/5"
+                          : "border-[#00D4FF]/15"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm truncate">
+                              {session.visitorName || session.visitorEmail || `Session ${session.sessionId.substring(0, 8)}...`}
+                            </p>
+                            <span
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                session.status === "active"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : session.status === "escalated"
+                                  ? "bg-orange-500/20 text-orange-400"
+                                  : "bg-gray-500/20 text-gray-400"
+                              }`}
+                            >
+                              {session.status}
+                            </span>
+                          </div>
+                          {session.visitorEmail && session.visitorName && (
+                            <p className="text-xs text-gray-500 truncate">{session.visitorEmail}</p>
+                          )}
+                          {session.lastMessage && (
+                            <p className="text-xs text-gray-400 mt-1 truncate">
+                              {session.lastMessageRole === "user" ? "🗣️ " : "🤖 "}
+                              {session.lastMessage}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-[10px] text-gray-500">
+                            {session.updatedAt ? new Date(session.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            {session.messageCount} msgs
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+
+              {/* Right: Message Thread */}
+              <div className="lg:col-span-2">
+                {!selectedAriaSessionId ? (
+                  <Card className="bg-[#141B2D] border-[#00D4FF]/15 p-12 text-center h-full flex flex-col items-center justify-center">
+                    <Eye className="w-12 h-12 text-gray-600 mb-3" />
+                    <p className="text-gray-400">Select a session to view the conversation</p>
+                    <p className="text-xs text-gray-500 mt-1">Click on any Aria session from the list</p>
+                  </Card>
+                ) : ariaMessagesLoading ? (
+                  <Card className="bg-[#141B2D] border-[#00D4FF]/15 p-12 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00D4FF] mx-auto mb-3"></div>
+                    <p className="text-gray-400 text-sm">Loading messages...</p>
+                  </Card>
+                ) : (
+                  <Card className="bg-[#141B2D] border-[#00D4FF]/15 flex flex-col h-[600px]">
+                    {/* Session Header */}
+                    <div className="p-3 border-b border-[#00D4FF]/15 flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-sm">
+                          {ariaMessages?.session?.visitorName || ariaMessages?.session?.visitorEmail || "Anonymous Visitor"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {ariaMessages?.session?.visitorEmail && <span>{ariaMessages.session.visitorEmail} &middot; </span>}
+                          {ariaMessages?.session?.messageCount} messages &middot; Status: {ariaMessages?.session?.status}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => refetchAriaMessages()}
+                        className="p-1.5 rounded hover:bg-white/5 text-gray-400 hover:text-[#00D4FF] transition-colors"
+                        title="Refresh messages"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                      {ariaMessages?.messages && ariaMessages.messages.length > 0 ? (
+                        ariaMessages.messages.map((msg: any) => {
+                          const isAdmin = msg.metadata && JSON.parse(msg.metadata || '{}').type === 'admin_takeover';
+                          return (
+                            <div
+                              key={msg.id}
+                              className={`flex ${
+                                msg.role === "user" ? "justify-end" : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                                  msg.role === "user"
+                                    ? "bg-[#00D4FF]/15 text-white border border-[#00D4FF]/30"
+                                    : isAdmin
+                                    ? "bg-purple-500/15 text-white border border-purple-500/30"
+                                    : "bg-[#0A0E1A] text-gray-200 border border-gray-700"
+                                }`}
+                              >
+                                <div className="flex items-center gap-1.5 mb-1">
+                                  <span className={`text-[10px] font-medium ${
+                                    msg.role === "user" ? "text-[#00D4FF]" : isAdmin ? "text-purple-400" : "text-gray-500"
+                                  }`}>
+                                    {msg.role === "user" ? "Visitor" : isAdmin ? `Admin (${JSON.parse(msg.metadata || '{}').adminEmail || 'admin'})` : "Aria AI"}
+                                  </span>
+                                  <span className="text-[10px] text-gray-600">
+                                    {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : ""}
+                                  </span>
+                                </div>
+                                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{msg.message}</p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500 text-sm">No messages in this session</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Admin Reply Input */}
+                    <div className="p-3 border-t border-[#00D4FF]/15">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={ariaAdminMessage}
+                          onChange={(e) => setAriaAdminMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey && ariaAdminMessage.trim()) {
+                              e.preventDefault();
+                              adminSendAriaMutation.mutate({ sessionId: selectedAriaSessionId!, message: ariaAdminMessage.trim() });
+                            }
+                          }}
+                          placeholder="Send message as admin (appears as Aria to visitor)..."
+                          className="flex-1 bg-[#0A0E1A] border-gray-700 text-sm"
+                        />
+                        <Button
+                          onClick={() => {
+                            if (ariaAdminMessage.trim() && selectedAriaSessionId) {
+                              adminSendAriaMutation.mutate({ sessionId: selectedAriaSessionId, message: ariaAdminMessage.trim() });
+                            }
+                          }}
+                          disabled={!ariaAdminMessage.trim() || adminSendAriaMutation.isPending}
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-gray-500 mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Messages appear as "assistant" in the visitor's Aria chat. Press Enter to send.
+                      </p>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

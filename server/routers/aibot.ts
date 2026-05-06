@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
@@ -40,7 +40,10 @@ import {
   getEscalationPatterns,
   getEscalationPatternStats
 } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
+import { chatSessions, chatMessages } from "../../drizzle/schema";
+import { getAdminFromRequest } from "./admin-auth";
+import type { Request } from "express";
 import { nanoid } from "nanoid";
 import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite } from "../db";
 
@@ -1294,6 +1297,166 @@ export const aibotRouter = router({
       } catch (error) {
         console.error("[AIBot] File upload failed:", error);
         return { success: false, error: "Failed to upload file" };
+      }
+    }),
+
+  // ── Admin Aria Monitoring Procedures ─────────────────────────────────────────
+
+  getAriaSessions: publicProcedure
+    .input(z.object({
+      status: z.enum(["active", "escalated", "closed", "all"]).default("all"),
+      limit: z.number().min(1).max(200).default(50),
+      offset: z.number().min(0).default(0),
+    }))
+    .query(async ({ input, ctx }) => {
+      // Verify admin access via OAuth or custom admin JWT
+      const req = (ctx as unknown as { req: Request }).req;
+      let isAdmin = ctx.user?.role === 'admin';
+      if (!isAdmin && req) {
+        const admin = await getAdminFromRequest(req);
+        if (admin) isAdmin = true;
+      }
+      if (!isAdmin) {
+        return { sessions: [], total: 0 };
+      }
+
+      const db = await getDb();
+      if (!db) return { sessions: [], total: 0 };
+
+      try {
+        // Get total count
+        const countCondition = input.status !== "all" 
+          ? eq(chatSessions.status, input.status) 
+          : undefined;
+        const countResult = await db
+          .select({ cnt: sql<number>`count(*)` })
+          .from(chatSessions)
+          .where(countCondition);
+        const total = Number(countResult[0]?.cnt || 0);
+
+        // Get sessions with last message preview
+        let sessionsQuery = db
+          .select()
+          .from(chatSessions)
+          .orderBy(desc(chatSessions.updatedAt))
+          .limit(input.limit)
+          .offset(input.offset);
+
+        if (input.status !== "all") {
+          sessionsQuery = sessionsQuery.where(eq(chatSessions.status, input.status)) as any;
+        }
+
+        const sessions = await sessionsQuery;
+
+        // Get last message for each session
+        const sessionsWithPreview = await Promise.all(
+          sessions.map(async (session) => {
+            const lastMsg = await db
+              .select()
+              .from(chatMessages)
+              .where(eq(chatMessages.sessionId, session.sessionId))
+              .orderBy(desc(chatMessages.createdAt))
+              .limit(1);
+            return {
+              ...session,
+              lastMessage: lastMsg[0]?.message?.substring(0, 120) || null,
+              lastMessageRole: lastMsg[0]?.role || null,
+              lastMessageAt: lastMsg[0]?.createdAt || null,
+            };
+          })
+        );
+
+        return { sessions: sessionsWithPreview, total };
+      } catch (error) {
+        console.error('[AIBot Admin] Failed to get Aria sessions:', error);
+        return { sessions: [], total: 0 };
+      }
+    }),
+
+  getAriaSessionMessages: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+    }))
+    .query(async ({ input, ctx }) => {
+      // Verify admin access
+      const req = (ctx as unknown as { req: Request }).req;
+      let isAdmin = ctx.user?.role === 'admin';
+      if (!isAdmin && req) {
+        const admin = await getAdminFromRequest(req);
+        if (admin) isAdmin = true;
+      }
+      if (!isAdmin) {
+        return { messages: [], session: null };
+      }
+
+      const db = await getDb();
+      if (!db) return { messages: [], session: null };
+
+      try {
+        const session = await getChatSession(input.sessionId);
+        const messages = await db
+          .select()
+          .from(chatMessages)
+          .where(eq(chatMessages.sessionId, input.sessionId))
+          .orderBy(chatMessages.createdAt);
+
+        return { messages, session };
+      } catch (error) {
+        console.error('[AIBot Admin] Failed to get session messages:', error);
+        return { messages: [], session: null };
+      }
+    }),
+
+  adminSendAriaMessage: publicProcedure
+    .input(z.object({
+      sessionId: z.string(),
+      message: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      // Verify admin access
+      const req = (ctx as unknown as { req: Request }).req;
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminEmail = ctx.user?.email || 'admin';
+      if (!isAdmin && req) {
+        const admin = await getAdminFromRequest(req);
+        if (admin) {
+          isAdmin = true;
+          adminEmail = admin.email;
+        }
+      }
+      if (!isAdmin) {
+        return { success: false, error: 'Admin access required' };
+      }
+
+      const db = await getDb();
+      if (!db) return { success: false, error: 'Database unavailable' };
+
+      try {
+        // Insert admin message as "assistant" role with metadata indicating admin takeover
+        await saveChatMessage({
+          sessionId: input.sessionId,
+          role: "assistant",
+          message: input.message,
+          metadata: JSON.stringify({
+            type: "admin_takeover",
+            adminEmail,
+            sentAt: new Date().toISOString(),
+          }),
+        });
+
+        // Update session status to indicate admin is involved
+        await updateChatSessionStatus(input.sessionId, "active");
+
+        // Increment message count
+        await db
+          .update(chatSessions)
+          .set({ messageCount: sql`${chatSessions.messageCount} + 1` })
+          .where(eq(chatSessions.sessionId, input.sessionId));
+
+        return { success: true };
+      } catch (error) {
+        console.error('[AIBot Admin] Failed to send admin message:', error);
+        return { success: false, error: 'Failed to send message' };
       }
     }),
 });
