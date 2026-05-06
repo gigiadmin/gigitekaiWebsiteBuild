@@ -4373,11 +4373,18 @@
 - [ ] Run PageSpeed on staging before pushing performance changes to production
 
 ## Mobile Homepage Black Screen & Azure AD Migration
-- [ ] Fix homepage black screen on mobile — reduce critical path JS so React mounts fast
-- [ ] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO
+- [x] Fix homepage black screen on mobile — reduce critical path JS so React mounts fast (replaced streamdown 11MB with react-markdown 50KB)
+- [x] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO — MSAL v5 popup flow with Azure AD App Registration
 
 ## Performance Fix - May 2026
 - [x] Fix homepage black screen on mobile — replaced streamdown (11MB) with react-markdown (50KB) in all 6 files
 - [x] Vendor chunk reduced from 13.8MB to 1.89MB (7x reduction)
 - [x] Build time reduced from 240s+ (killed) to 35s
-- [ ] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO
+- [x] Migrate admin portal auth from custom JWT to Azure AD (MSAL) SSO — MSAL v5 initialization, popup flow, azureLogin procedure, AdminLayout JWT auth
+
+## MSAL Config Update - May 2026
+- [x] Add login_hint to MSAL loginPopup request to default to harry@gigitekai.com
+- [x] Fix popup callback handling - implemented MSAL v5 redirect bridge page (redirect.html)
+- [x] Updated redirectUri from /admin/auth/callback to /redirect.html
+- [x] Added multi-page entry in vite.config.ts for redirect.html
+- [x] Updated server vite.ts to serve redirect.html in both dev and production modes

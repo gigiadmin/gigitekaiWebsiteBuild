@@ -17,7 +17,7 @@ const msalInstance = new PublicClientApplication(MSAL_CONFIG);
 
 // MSAL v5 requires explicit initialization before any operations
 const msalReady = msalInstance.initialize().then(() => {
-  // Handle redirect/popup responses (required for popup flow to work)
+  // handleRedirectPromise on main page picks up cached responses from redirect bridge
   return msalInstance.handleRedirectPromise();
 }).catch((err) => {
   console.warn('[MSAL] Init warning:', err);

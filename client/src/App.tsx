@@ -188,7 +188,7 @@ function Router() {
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />
           <Route path={"/admin/login"} component={AdminLogin} />
-          <Route path={"/admin/auth/callback"} component={AdminLogin} />
+          {/* Redirect bridge page handles /redirect.html for MSAL popup flow */}
           <Route path={"/admin/unlock"} component={AdminUnlock} />
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />

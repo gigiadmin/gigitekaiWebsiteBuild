@@ -246,6 +246,10 @@ export default defineConfig({
     // ALL chunks (including vendor/streamdown-deps) on initial page load.
     modulePreload: false,
     rollupOptions: {
+      input: {
+        main: path.resolve(import.meta.dirname, "client", "index.html"),
+        redirect: path.resolve(import.meta.dirname, "client", "redirect.html"),
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',

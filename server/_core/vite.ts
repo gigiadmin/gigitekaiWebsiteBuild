@@ -25,6 +25,20 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     try {
+      // Serve redirect.html for MSAL redirect bridge page (popup auth callback)
+      if (url === "/redirect.html" || url === "/redirect") {
+        const redirectTemplate = path.resolve(
+          import.meta.dirname,
+          "../..",
+          "client",
+          "redirect.html"
+        );
+        let template = await fs.promises.readFile(redirectTemplate, "utf-8");
+        const page = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+        return;
+      }
+
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "../..",
@@ -66,10 +80,17 @@ export function serveStatic(app: Express) {
     if (req.path.startsWith("/api/")) {
       return next();
     }
-    // Prevent caching of index.html to ensure users always get the latest version
+    // Prevent caching of HTML pages to ensure users always get the latest version
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
+    // Serve redirect.html for MSAL redirect bridge page
+    if (req.path === "/redirect.html" || req.path === "/redirect") {
+      const redirectPath = path.resolve(distPath, "redirect.html");
+      if (fs.existsSync(redirectPath)) {
+        return res.sendFile(redirectPath);
+      }
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
   
