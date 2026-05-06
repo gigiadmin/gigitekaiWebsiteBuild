@@ -294,6 +294,28 @@ export default defineConfig({
           if (id.includes("@azure/msal-browser") || id.includes("@azure/msal-react") || id.includes("@azure/msal-common")) {
             return "msal";
           }
+          // Charts — recharts + chart.js are only used on /admin dashboard pages.
+          // Splitting them out saves ~350KB from the vendor chunk on public pages.
+          if (
+            id.includes("node_modules/recharts") ||
+            id.includes("node_modules/chart.js") ||
+            id.includes("node_modules/react-chartjs-2") ||
+            id.includes("node_modules/d3-") ||
+            id.includes("node_modules/victory") ||
+            id.includes("node_modules/victory-") ||
+            id.includes("node_modules/d3/")
+          ) {
+            return "charts";
+          }
+          // Code highlighting — only used in admin KB editor (RichTextEditor + TipTap)
+          if (
+            id.includes("node_modules/highlight.js") ||
+            id.includes("node_modules/lowlight") ||
+            id.includes("node_modules/@tiptap") ||
+            id.includes("node_modules/prosemirror")
+          ) {
+            return "editor";
+          }
           // All other node_modules go into a single vendor chunk.
           // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
           // some node_module in vendor has a static import of streamdown, which would

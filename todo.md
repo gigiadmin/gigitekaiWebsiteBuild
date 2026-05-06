@@ -4431,3 +4431,8 @@
 - [x] Responsive hero images (mobile 33KB, desktop 74KB — was 119KB for all devices)
 - [x] Optimized video poster for mobile
 - [x] Optimized logo from 29KB to 6KB (79% reduction)
+
+## PageSpeed Round 4 - May 6, 2026 (Suggestions Implementation)
+- [x] Disable hero background video on mobile — confirmed already implemented (video only loads after user taps play button)
+- [x] Tree-shake vendor bundle — split recharts+chart.js (473KB) and editor/highlight.js (388KB) into separate lazy chunks. Vendor: 1.6MB → 738KB (55% reduction)
+- [ ] Run PageSpeed after deployment and report actual scores
