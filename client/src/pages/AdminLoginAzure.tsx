@@ -3,7 +3,7 @@
  * Uses MSAL popup flow (no redirect needed, works on all browsers)
  * Only allows users in ALLOWED_ADMIN_EMAILS list
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
 import { useLocation } from "wouter";
 import { LOGIN_REQUEST, ALLOWED_ADMIN_EMAILS } from "@/lib/msalConfig";
@@ -16,6 +16,8 @@ export default function AdminLoginAzure() {
   const [, navigate] = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Guard: prevent auto-login from re-triggering after a failed attempt
+  const autoLoginAttempted = useRef(false);
 
   const utils = trpc.useUtils();
 
@@ -24,18 +26,21 @@ export default function AdminLoginAzure() {
       // Invalidate the adminAuth.me cache so AdminLayout re-fetches with the new cookie
       await utils.adminAuth.me.invalidate();
       // Small delay to ensure cookie is committed before navigation
-      await new Promise((resolve) => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 200));
       navigate("/admin");
     },
     onError: (err) => {
       setError(err.message || "Login failed. Please try again.");
       setLoading(false);
+      // Mark as attempted so we don't loop
+      autoLoginAttempted.current = true;
     },
   });
 
-  // If already signed in via MSAL, auto-proceed
+  // If already signed in via MSAL, auto-proceed (but only once)
   useEffect(() => {
-    if (accounts.length > 0) {
+    if (accounts.length > 0 && !autoLoginAttempted.current && !loading && !azureLoginMutation.isPending) {
+      autoLoginAttempted.current = true;
       handleMsalAccount(accounts[0]);
     }
   }, [accounts]);
@@ -47,6 +52,7 @@ export default function AdminLoginAzure() {
       setLoading(false);
       return;
     }
+    setLoading(true);
     // Get an access token silently
     try {
       const tokenResponse = await instance.acquireTokenSilent({
@@ -67,6 +73,8 @@ export default function AdminLoginAzure() {
   async function handleMicrosoftLogin() {
     setLoading(true);
     setError(null);
+    // Reset the guard so manual login can proceed
+    autoLoginAttempted.current = false;
     try {
       const result = await instance.loginPopup(LOGIN_REQUEST);
       if (result?.account) {
