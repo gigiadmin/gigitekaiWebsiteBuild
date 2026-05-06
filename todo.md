@@ -4402,3 +4402,8 @@
 ## Aria Chat UX Improvements - May 2026
 - [x] Expand textarea after voice transcription so user can read/edit full text before sending (auto-expands to 200px max, cursor placed at end, focused)
 - [x] Add file upload status indicator (blue spinner while uploading, green checkmark on success, auto-clears after 4s)
+
+## New Features - May 2026
+- [x] Add Whisper language hint (language: "en") to voice transcription for better IT terminology accuracy — already set in aibot.ts line 1266
+- [ ] Fix MS Learn KB links going to 404 pages
+- [ ] Admin live chat monitoring — real-time view of active Aria conversations with takeover capability

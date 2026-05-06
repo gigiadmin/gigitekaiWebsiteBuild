@@ -130,8 +130,12 @@ export default function KBPublic() {
     }
   }, [searchQuery]);
 
-  // Filter articles
-  const filteredArticles = articles?.filter((article: any) => {
+  // Separate MS Learn articles from manual KB articles
+  const msLearnArticles = articles?.filter((a: any) => a.syncSource === 'ms-learn') || [];
+  const manualArticles = articles?.filter((a: any) => a.syncSource !== 'ms-learn') || [];
+
+  // Filter articles (manual KB articles for the main list; MS Learn shown separately)
+  const filteredArticles = (searchQuery ? articles : manualArticles)?.filter((article: any) => {
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (article.tags && article.tags.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -139,9 +143,9 @@ export default function KBPublic() {
     return matchesSearch && matchesCategory;
   }) || [];
 
-  // Get unique categories
+  // Get unique categories (from manual articles only for the category filter)
   const categories = Array.from(
-    new Set(articles?.map((a: any) => a.category) || [])
+    new Set(manualArticles?.map((a: any) => a.category) || [])
   );
 
   const categoryColors: Record<string, string> = {
@@ -591,42 +595,48 @@ export default function KBPublic() {
           articleTitle={selectedArticle?.title || "Article"}
         />
       )}
-          {/* MS Learn Section */}
+          {/* MS Learn Section — dynamically shows synced articles */}
+          {msLearnArticles.length > 0 && (
           <div className="mt-16 pt-8 border-t border-slate-700">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-blue-400" />
                 Microsoft Learn
               </h2>
-              <p className="text-gray-400">Official Microsoft training and certification resources</p>
+              <p className="text-gray-400">Official Microsoft training and certification resources — synced from learn.microsoft.com</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-fundamentals/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">Microsoft 365 Fundamentals</h3>
-                <p className="text-sm text-gray-400">Learn the basics of Microsoft 365 services</p>
-              </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-security-compliance/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">Security & Compliance</h3>
-                <p className="text-sm text-gray-400">Master Microsoft 365 security features</p>
-              </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-teams-collaboration/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">Teams & Collaboration</h3>
-                <p className="text-sm text-gray-400">Optimize teamwork with Microsoft Teams</p>
-              </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-exchange-online/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">Exchange Online</h3>
-                <p className="text-sm text-gray-400">Master email and calendar management</p>
-              </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-sharepoint-online/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">SharePoint Online</h3>
-                <p className="text-sm text-gray-400">Build and manage SharePoint sites</p>
-              </a>
-              <a href="https://learn.microsoft.com/en-us/training/paths/m365-onedrive/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors">
-                <h3 className="font-semibold text-white mb-2">OneDrive & Files</h3>
-                <p className="text-sm text-gray-400">Manage cloud storage and file sharing</p>
-              </a>
+              {msLearnArticles.slice(0, 12).map((article: any) => (
+                <div
+                  key={article.id}
+                  onClick={() => handleArticleClick(article)}
+                  className="p-4 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-400 transition-colors cursor-pointer"
+                >
+                  <h3 className="font-semibold text-white mb-2 line-clamp-2">{article.title}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge className="bg-blue-900/40 text-blue-400 text-xs">{article.category?.replace(/-/g, ' ')}</Badge>
+                    {article.sourceUrl && (
+                      <a
+                        href={article.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-cyan-400 hover:text-cyan-300 ml-auto"
+                      >
+                        Open in MS Learn →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
+            {msLearnArticles.length > 12 && (
+              <p className="text-center text-gray-400 mt-4 text-sm">
+                Showing 12 of {msLearnArticles.length} Microsoft Learn modules. Use search to find more.
+              </p>
+            )}
           </div>
+          )}
           <ScrollToTop />
       <Footer />
       </div>
