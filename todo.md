@@ -4409,3 +4409,4 @@
 - [x] Admin live chat monitoring — real-time view of active Aria conversations with takeover capability (Aria Monitor tab in AdminChat.tsx, backend procedures: getAriaSessions, getAriaSessionMessages, adminSendAriaMessage)
 - [x] Re-enable Aria KB article recommendations in sendMessage — KB search + proactive suggestions active, all 924 tests passing
 - [x] Fix admin login loop — added Secure flag to admin_session cookie for HTTPS + useRef guard to prevent auto-login re-triggering
+- [x] Fix admin login on mobile Safari/Edge — switched from loginPopup to loginRedirect, changed cacheLocation from sessionStorage to localStorage so MSAL state survives iOS navigation

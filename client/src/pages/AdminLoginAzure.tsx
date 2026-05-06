@@ -1,7 +1,7 @@
 /**
  * AdminLoginAzure — Azure AD (Microsoft Entra ID) login for the admin portal
- * Uses MSAL popup flow (no redirect needed, works on all browsers)
- * Only allows users in ALLOWED_ADMIN_EMAILS list
+ * Uses MSAL redirect flow — works on ALL browsers including iOS Safari & Mobile Edge.
+ * (Popup flow is blocked by iOS WebKit; redirect flow with localStorage cache is universal.)
  */
 import { useState, useEffect, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
@@ -12,38 +12,38 @@ import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 
 export default function AdminLoginAzure() {
-  const { instance, accounts } = useMsal();
+  const { instance, accounts, inProgress } = useMsal();
   const [, navigate] = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Guard: prevent auto-login from re-triggering after a failed attempt
-  const autoLoginAttempted = useRef(false);
+  // Guard: prevent processing the redirect result more than once
+  const redirectHandled = useRef(false);
 
   const utils = trpc.useUtils();
 
   const azureLoginMutation = trpc.adminAuth.azureLogin.useMutation({
     onSuccess: async () => {
-      // Invalidate the adminAuth.me cache so AdminLayout re-fetches with the new cookie
       await utils.adminAuth.me.invalidate();
-      // Small delay to ensure cookie is committed before navigation
       await new Promise((resolve) => setTimeout(resolve, 200));
       navigate("/admin");
     },
     onError: (err) => {
       setError(err.message || "Login failed. Please try again.");
       setLoading(false);
-      // Mark as attempted so we don't loop
-      autoLoginAttempted.current = true;
+      redirectHandled.current = false;
     },
   });
 
-  // If already signed in via MSAL, auto-proceed (but only once)
+  // Handle the result after returning from Microsoft redirect
   useEffect(() => {
-    if (accounts.length > 0 && !autoLoginAttempted.current && !loading && !azureLoginMutation.isPending) {
-      autoLoginAttempted.current = true;
-      handleMsalAccount(accounts[0]);
-    }
-  }, [accounts]);
+    // inProgress === "none" means MSAL has finished processing the redirect response
+    if (inProgress !== "none") return;
+    if (redirectHandled.current) return;
+    if (accounts.length === 0) return;
+
+    redirectHandled.current = true;
+    handleMsalAccount(accounts[0]);
+  }, [accounts, inProgress]);
 
   async function handleMsalAccount(account: (typeof accounts)[0]) {
     const email = account.username?.toLowerCase();
@@ -53,7 +53,6 @@ export default function AdminLoginAzure() {
       return;
     }
     setLoading(true);
-    // Get an access token silently
     try {
       const tokenResponse = await instance.acquireTokenSilent({
         ...LOGIN_REQUEST,
@@ -65,30 +64,35 @@ export default function AdminLoginAzure() {
         name: account.name || account.username,
       });
     } catch {
-      setError("Failed to acquire token. Please sign in again.");
+      // Silent token acquisition failed — trigger redirect again
+      setError("Session expired. Please sign in again.");
       setLoading(false);
+      redirectHandled.current = false;
     }
   }
 
   async function handleMicrosoftLogin() {
     setLoading(true);
     setError(null);
-    // Reset the guard so manual login can proceed
-    autoLoginAttempted.current = false;
+    redirectHandled.current = false;
     try {
-      const result = await instance.loginPopup(LOGIN_REQUEST);
-      if (result?.account) {
-        await handleMsalAccount(result.account);
-      }
+      // loginRedirect navigates the whole page to Microsoft — works on ALL browsers
+      await instance.loginRedirect({
+        ...LOGIN_REQUEST,
+        // Return to /admin/login after Microsoft redirects back to /redirect.html
+        // MSAL will then call handleRedirectPromise and populate accounts[]
+        redirectStartPage: window.location.href,
+      });
+      // Note: code after loginRedirect() does NOT execute — the page navigates away
     } catch (err: unknown) {
-      if (err instanceof Error && err.message?.includes("user_cancelled")) {
-        setError(null);
-      } else {
-        setError("Microsoft sign-in failed. Please try again.");
-      }
+      setError("Microsoft sign-in failed. Please try again.");
       setLoading(false);
     }
   }
+
+  // Show loading state while MSAL is processing the redirect response
+  const isMsalProcessing = inProgress !== "none";
+  const isSigningIn = loading || azureLoginMutation.isPending || isMsalProcessing;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
@@ -122,10 +126,10 @@ export default function AdminLoginAzure() {
 
           <Button
             onClick={handleMicrosoftLogin}
-            disabled={loading || azureLoginMutation.isPending}
+            disabled={isSigningIn}
             className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all"
           >
-            {loading || azureLoginMutation.isPending ? (
+            {isSigningIn ? (
               <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
             ) : (
               <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none">
@@ -135,9 +139,7 @@ export default function AdminLoginAzure() {
                 <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
               </svg>
             )}
-            {loading || azureLoginMutation.isPending
-              ? "Signing in..."
-              : "Sign in with Microsoft"}
+            {isSigningIn ? "Signing in..." : "Sign in with Microsoft"}
           </Button>
 
           <p className="text-center text-slate-500 text-xs mt-6">

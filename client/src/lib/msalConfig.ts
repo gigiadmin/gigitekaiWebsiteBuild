@@ -1,4 +1,4 @@
-import { Configuration, PopupRequest } from "@azure/msal-browser";
+import { Configuration, RedirectRequest } from "@azure/msal-browser";
 
 // Azure AD App Registration details for GigitekAI Admin Portal
 export const MSAL_CONFIG: Configuration = {
@@ -9,12 +9,15 @@ export const MSAL_CONFIG: Configuration = {
     postLogoutRedirectUri: `${window.location.origin}/admin/login`,
   },
   cache: {
-    cacheLocation: "sessionStorage",
+    // CRITICAL: Must use localStorage (not sessionStorage) for redirect flow on iOS.
+    // sessionStorage is cleared when the browser navigates away to Microsoft login,
+    // causing MSAL to lose its state and loop on return. localStorage persists across navigation.
+    cacheLocation: "localStorage",
   },
 };
 
 // Login request scopes — openid + profile gives us name and email
-export const LOGIN_REQUEST: PopupRequest = {
+export const LOGIN_REQUEST: RedirectRequest = {
   scopes: ["openid", "profile", "email", "User.Read"],
   loginHint: "harry@gigitekai.com",
 };
