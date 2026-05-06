@@ -1,5 +1,4 @@
 import React from "react";
-import "@/lib/vite-polyfill"; // Ensures modulepreload polyfill lives in react-core, not msal chunk
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
