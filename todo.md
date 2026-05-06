@@ -4421,3 +4421,15 @@
 - [x] Split MSAL into separate chunk in vite.config.ts — vendor bundle: 1.88MB → 1.64MB (240KB reduction)
 - [x] Add cache headers to storage proxy — changed from no-store to public max-age=86400 for /manus-storage/* assets
 - [ ] Verify PageSpeed score improvements after deployment
+
+## PageSpeed Optimization (May 2026)
+- [x] MSAL lazy loading — only loads on /admin routes (~277KB removed from public critical path)
+- [x] Logo optimization — resized from 1320x377 to 490x140, 29KB → 6KB (79% savings)
+- [x] Responsive hero images — mobile gets 33KB, desktop gets 74KB
+- [x] Mobile PageSpeed score improved from 51 → 67 (stable checkpoint 45285145)
+- [x] Cloudflare WAF skip rule for /assets/ and /manus-storage/ — prevents challenge injection on mobile
+- [x] Cloudflare security level set to Medium
+- [x] Lazy-load below-fold homepage sections (WhoWeServe, Stats, Industries, Agentic, ROI, LeadMagnets, IndustryBenchmarks, Newsletter, Insights, ProjectUntouchable, FAQ, CTA, Footer, ScrollToTop)
+- [x] Storage proxy byte-serving with in-memory cache (23h TTL) and Cache-Control: immutable headers
+- [ ] Publish latest checkpoint to get improvements live on gigitekai.com
+- [ ] Run PageSpeed after publish to verify score improvement (target: mobile >70, desktop >85)
