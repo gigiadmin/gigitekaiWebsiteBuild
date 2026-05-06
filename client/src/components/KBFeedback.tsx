@@ -88,7 +88,7 @@ export function KBFeedback({
                 className={`w-6 h-6 ${
                   star <= (hoverRating || userRating)
                     ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-600"
+                    : "text-gray-400"
                 }`}
               />
             </button>

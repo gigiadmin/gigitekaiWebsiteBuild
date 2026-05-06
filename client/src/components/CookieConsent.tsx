@@ -188,7 +188,7 @@ export default function CookieConsent() {
             </button>
             <button
               onClick={rejectNonEssential}
-              className="ml-auto p-1.5 rounded-lg text-gray-600 hover:text-gray-400 hover:bg-white/5 transition-all"
+              className="ml-auto p-1.5 rounded-lg text-gray-400 hover:text-gray-400 hover:bg-white/5 transition-all"
               aria-label="Dismiss"
             >
               <X size={14} />

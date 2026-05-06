@@ -150,7 +150,7 @@ export default function ClientSessionHistory() {
   };
 
   const SortIcon = ({ field }: { field: typeof sortField }) => {
-    if (sortField !== field) return <ChevronDown className="w-3.5 h-3.5 text-gray-600" />;
+    if (sortField !== field) return <ChevronDown className="w-3.5 h-3.5 text-gray-400" />;
     return sortDir === "desc"
       ? <ChevronDown className="w-3.5 h-3.5 text-cyan-400" />
       : <ChevronUp className="w-3.5 h-3.5 text-cyan-400" />;
@@ -269,7 +269,7 @@ export default function ClientSessionHistory() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="bg-gray-900/40 border border-gray-700/40 rounded-lg p-8 text-center">
-              <Video className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+              <Video className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-400">No sessions found</p>
               <p className="text-xs text-gray-500 mt-1">
                 Your remote assistance sessions will appear here

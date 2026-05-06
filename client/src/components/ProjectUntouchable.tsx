@@ -200,7 +200,7 @@ export default function ProjectUntouchable() {
 
                 {/* Expand hint */}
                 {!isExpanded && (
-                  <p className="text-[10px] text-gray-600 mt-3 text-center">Click to expand</p>
+                  <p className="text-[10px] text-gray-400 mt-3 text-center">Click to expand</p>
                 )}
               </div>
             );

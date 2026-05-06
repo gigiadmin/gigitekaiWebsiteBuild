@@ -54,7 +54,7 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
 
       {/* Search Input */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
           type="text"
           placeholder="Search knowledge base..."
@@ -84,7 +84,7 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
             >
               <div className="flex items-start gap-2">
                 <ChevronRight className={`w-4 h-4 mt-0.5 flex-shrink-0 transition-colors ${
-                  selectedArticle === article.id ? "text-cyan-400" : "text-gray-600"
+                  selectedArticle === article.id ? "text-cyan-400" : "text-gray-400"
                 }`} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-300 truncate">{article.title}</p>

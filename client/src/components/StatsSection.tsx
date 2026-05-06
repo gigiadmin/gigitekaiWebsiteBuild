@@ -128,7 +128,7 @@ export default function StatsSection() {
                 </div>
                 <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
                 <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
-                <p className="text-gray-400 dark:text-gray-500 text-xs">{stat.sublabel}</p>
+                <p className="text-gray-400 dark:text-gray-300 text-xs">{stat.sublabel}</p>
               </div>
             );
           })}

@@ -213,7 +213,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
         />
       </button>
       {open && (
-        <div className="pb-5 text-gray-600 dark:text-gray-400 text-sm leading-relaxed fade-in-up">
+        <div className="pb-5 text-gray-400 dark:text-gray-400 text-sm leading-relaxed fade-in-up">
           {faq.a}
         </div>
       )}

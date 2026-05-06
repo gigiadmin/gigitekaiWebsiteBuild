@@ -136,7 +136,7 @@ export default function Footer() {
       <div className="border-t border-gray-200 dark:border-[rgba(0,212,255,0.08)]">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-gray-600 text-xs">
+            <p className="text-gray-400 text-xs">
               © {new Date().getFullYear()} GigitekAI LLC. All rights reserved.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function Footer() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 (727) 382-5776
               </a>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-400">|</span>
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors font-medium">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 support@gigitekai.com
@@ -162,14 +162,14 @@ export default function Footer() {
               >
                 Privacy Policy
               </a>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-400">|</span>
               <a
                 href="/terms-of-service"
                 className="text-gray-400 text-xs hover:text-[#00D4FF] transition-colors font-medium underline underline-offset-2"
               >
                 Terms of Service
               </a>
-              <span className="text-gray-600">|</span>
+              <span className="text-gray-400">|</span>
               <a
                 href="/sitemap.xml"
                 className="text-gray-400 text-xs hover:text-[#00D4FF] transition-colors"

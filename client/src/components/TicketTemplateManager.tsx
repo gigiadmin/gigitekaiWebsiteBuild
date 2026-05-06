@@ -166,7 +166,7 @@ export function TicketTemplateManager({
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-medium">{template.name}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-400 dark:text-gray-400">
                           {template.category}
                         </p>
                         <p className="text-sm mt-1 line-clamp-2">
@@ -188,7 +188,7 @@ export function TicketTemplateManager({
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-400 dark:text-gray-400">
                 No templates yet. Create one above.
               </p>
             )}

@@ -166,7 +166,7 @@ export default function CustomerPortal() {
                                 </span>
                               </div>
                             </div>
-                            <Eye className="w-5 h-5 text-gray-600" />
+                            <Eye className="w-5 h-5 text-gray-400" />
                           </div>
                         </div>
                       </Card>

@@ -323,7 +323,7 @@ export default function HelpdeskAgentGuide() {
 
         {/* Footer */}
         <div className="text-center border-t border-slate-800 pt-8">
-          <p className="text-gray-600 text-xs mb-4">Last updated: April 10, 2026 — GigitekAI Helpdesk Agent Guide</p>
+          <p className="text-gray-400 text-xs mb-4">Last updated: April 10, 2026 — GigitekAI Helpdesk Agent Guide</p>
           <button
             onClick={() => setLocation("/helpdesk")}
             className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg transition-colors text-sm"

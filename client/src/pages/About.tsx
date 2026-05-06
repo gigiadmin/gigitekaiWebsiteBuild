@@ -31,7 +31,7 @@ export default function About() {
             >
               About GigitekAI
             </h1>
-            <p className="text-gray-600 text-lg max-w-2xl">
+            <p className="text-gray-400 text-lg max-w-2xl">
               Enterprise cloud infrastructure and AI solutions built by engineers who understand what it takes to scale.
             </p>
           </div>
@@ -48,10 +48,10 @@ export default function About() {
                 >
                   Our Mission
                 </h2>
-                <p className="text-gray-600 text-lg leading-relaxed mb-4">
+                <p className="text-gray-400 text-lg leading-relaxed mb-4">
                   At GigitekAI, we believe that technology should be a competitive advantage, not a burden. We're on a mission to help enterprises harness the power of cloud infrastructure and artificial intelligence to drive measurable business outcomes.
                 </p>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-400 text-lg leading-relaxed">
                   Founded in 2024 by Harry Henry Santiago — a Microsoft 365 Subject Matter Expert with 20+ years of enterprise IT experience and a U.S. Army veteran — GigitekAI brings deep technical expertise combined with genuine business acumen. We don't just implement technology — we partner with our clients to transform how they operate.
                 </p>
               </div>
@@ -73,7 +73,7 @@ export default function About() {
                         >
                           {title}
                         </h4>
-                        <p className="text-gray-600 text-sm">{desc}</p>
+                        <p className="text-gray-400 text-sm">{desc}</p>
                       </div>
                     </div>
                   ))}
@@ -126,7 +126,7 @@ export default function About() {
                   >
                     {item.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -142,7 +142,7 @@ export default function About() {
             >
               Ready to Partner with GigitekAI?
             </h2>
-            <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
               Let's discuss how we can help you accelerate your cloud and AI transformation.
             </p>
             <button

@@ -89,7 +89,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
       <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         {service.title}
       </h3>
-      <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">{service.description}</p>
+      <p className="text-gray-400 dark:text-gray-400 text-sm leading-relaxed mb-4">{service.description}</p>
       <a
         href={service.href}
         className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
@@ -131,7 +131,7 @@ export default function ServicesSection() {
             </h2>
           </div>
           <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-6">
+            <p className="text-gray-400 dark:text-gray-400 text-lg leading-relaxed mb-6">
               GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
             <a href="/services" className="btn-cyan text-sm">
@@ -152,8 +152,8 @@ export default function ServicesSection() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">24/7 Managed Help Desk</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">Three pricing tiers: Essential ($69/user/month), Professional ($119/user/month), Elite ($189/user/month)</p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">Volume discounts available • No hidden fees • Flat monthly rates</p>
+              <p className="text-gray-400 dark:text-gray-400 mb-4">Three pricing tiers: Essential ($69/user/month), Professional ($119/user/month), Elite ($189/user/month)</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300">Volume discounts available • No hidden fees • Flat monthly rates</p>
             </div>
             <a href="/helpdesk-pricing" className="btn-cyan whitespace-nowrap">
               View Pricing <ArrowRight size={16} />

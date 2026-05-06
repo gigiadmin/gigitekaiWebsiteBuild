@@ -138,7 +138,7 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
               {query && !isLoading && (
                 <button
                   onClick={() => setQuery("")}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-gray-400 dark:hover:text-white transition-colors"
                   aria-label="Clear search"
                 >
                   <X size={16} />
@@ -229,7 +229,7 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
                 <button
                   key={hint}
                   onClick={() => setQuery(hint)}
-                  className="px-3 py-1.5 rounded-full text-xs bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-all"
+                  className="px-3 py-1.5 rounded-full text-xs bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-400 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-all"
                 >
                   {hint}
                 </button>

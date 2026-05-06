@@ -114,7 +114,7 @@ export default function CannedResponsePicker({ onSelect }: CannedResponsePickerP
           <div className="p-2 border-t border-gray-800 text-center">
             <button
               onClick={() => setOpen(false)}
-              className="text-[10px] text-gray-600 hover:text-gray-400"
+              className="text-[10px] text-gray-400 hover:text-gray-400"
             >
               Close
             </button>

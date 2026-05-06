@@ -4450,3 +4450,9 @@
 - [x] Charts/syntax-highlight chunks split from vendor bundle (saves ~300KB on public pages)
 - [x] Vite plugin for non-blocking CSS at build time (deterministic, no server-side transform needed)
 - [x] Verified MSAL has zero static imports from main bundle (truly lazy on /admin only)
+
+## PageSpeed AI Analysis Fixes (May 2026)
+- [ ] Add rel=canonical meta tag to all pages (SEO)
+- [ ] Add <main> landmark to page layout (Accessibility)
+- [ ] Split lucide-react icons to reduce vendor bundle
+- [ ] Color contrast audit and fixes

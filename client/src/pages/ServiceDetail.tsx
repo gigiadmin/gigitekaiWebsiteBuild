@@ -394,7 +394,7 @@ export default function ServiceDetail() {
                   <h3 className="text-lg font-bold text-gray-900 mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
                 </div>
               ))}
             </div>

@@ -277,7 +277,7 @@ export default function TicketDetail() {
         <HelpdeskNav />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="w-16 h-16 bg-gray-800/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <MessageSquare className="w-8 h-8 text-gray-600" />
+            <MessageSquare className="w-8 h-8 text-gray-400" />
           </div>
           <h2 className="text-white font-bold text-xl mb-2">Ticket not found</h2>
           <p className="text-gray-400 text-sm mb-6">This ticket may have been removed or you don't have access.</p>
@@ -888,7 +888,7 @@ export default function TicketDetail() {
               </div>
             ) : (
               <div className="bg-[#141B2D]/40 border border-gray-800/30 rounded-xl p-8 text-center">
-                <MessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-3" />
+                <MessageSquare className="w-8 h-8 text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-400 text-sm">No replies yet</p>
                 <p className="text-gray-500 text-xs mt-1">Our support team will respond shortly.</p>
               </div>
@@ -953,7 +953,7 @@ export default function TicketDetail() {
                   className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
                 />
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs text-gray-600">Press Ctrl+Enter to send</p>
+                  <p className="text-xs text-gray-400">Press Ctrl+Enter to send</p>
                   <div className="flex items-center gap-2">
                     {isAdmin && (
                       <>
@@ -1129,7 +1129,7 @@ export default function TicketDetail() {
                           </div>
                           <button
                             onClick={() => deleteNoteMutation.mutate({ noteId: note.id })}
-                            className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"
+                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
                             title="Delete note"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1140,7 +1140,7 @@ export default function TicketDetail() {
                     ))
                   ) : (
                     <div className="p-8 text-center">
-                      <StickyNote className="w-7 h-7 text-gray-600 mx-auto mb-2" />
+                      <StickyNote className="w-7 h-7 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-500 text-xs">No internal notes yet</p>
                     </div>
                   )}
@@ -1168,7 +1168,7 @@ export default function TicketDetail() {
                           <div className="flex-1 min-w-0">
                             <p className="text-xs text-white font-medium">{entry.actorName}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{getActivityLabel(entry)}</p>
-                            <p className="text-[10px] text-gray-600 mt-1">
+                            <p className="text-[10px] text-gray-400 mt-1">
                               {new Date(entry.createdAt).toLocaleString("en-US", {
                                 month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
                               })}
@@ -1179,7 +1179,7 @@ export default function TicketDetail() {
                     ))
                   ) : (
                     <div className="p-8 text-center">
-                      <History className="w-7 h-7 text-gray-600 mx-auto mb-2" />
+                      <History className="w-7 h-7 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-500 text-xs">No activity recorded yet</p>
                     </div>
                   )}

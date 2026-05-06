@@ -191,7 +191,7 @@ export function AgentAssignmentDashboard() {
       {/* Empty State */}
       {!selectedAgentId && (
         <div className="bg-gray-800/20 border border-gray-700/30 rounded-lg p-8 text-center">
-          <Users className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+          <Users className="w-10 h-10 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-400 text-sm">Select an agent to view their workload details</p>
         </div>
       )}

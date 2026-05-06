@@ -335,14 +335,14 @@ export default function RichTextEditor({
                 onChange={(e) => { setVideoUrl(e.target.value); setVideoError(""); }}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); insertVideo(); } }}
                 placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
-                className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600 font-mono text-sm"
+                className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-400 font-mono text-sm"
                 autoFocus
               />
               {videoError && (
                 <p className="text-xs text-red-400 mt-1">{videoError}</p>
               )}
             </div>
-            <div className="text-xs text-gray-600 space-y-0.5">
+            <div className="text-xs text-gray-400 space-y-0.5">
               <p>Supported formats:</p>
               <p className="font-mono">youtube.com/watch?v=… · youtu.be/… · vimeo.com/…</p>
             </div>

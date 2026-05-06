@@ -529,7 +529,7 @@ export default function ROIRoadmapGenerator() {
                 <Mail size={16} className="mr-2" />
                 Download My Roadmap
               </Button>
-              <p className="text-[10px] text-gray-600 text-center">No spam. Unsubscribe anytime.</p>
+              <p className="text-[10px] text-gray-400 text-center">No spam. Unsubscribe anytime.</p>
             </form>
           </div>
         )}

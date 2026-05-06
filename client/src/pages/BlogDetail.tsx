@@ -276,7 +276,7 @@ export default function BlogDetail() {
               >
                 Ready to transform your business?
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-400 mb-6">
                 Let's discuss how GigitekAI can help you achieve your cloud and AI goals.
               </p>
               <button

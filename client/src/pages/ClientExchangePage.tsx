@@ -302,7 +302,7 @@ export default function ClientExchangePage() {
                   <Zap size={16} className="mr-2" />
                   Get Instant Access
                 </Button>
-                <p className="text-[10px] text-gray-600 text-center">Free for GigitekAI clients. Community review for others.</p>
+                <p className="text-[10px] text-gray-400 text-center">Free for GigitekAI clients. Community review for others.</p>
               </form>
             </div>
           </div>

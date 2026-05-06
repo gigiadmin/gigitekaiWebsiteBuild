@@ -17,7 +17,7 @@ export default function TermsOfService() {
             <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Terms of Service
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-400 dark:text-gray-400">
               Last updated: April 2026
             </p>
           </div>

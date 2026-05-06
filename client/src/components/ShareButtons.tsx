@@ -96,7 +96,7 @@ export default function ShareButtons({ url, title, className = "" }: ShareButton
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
           copied
             ? "bg-green-500 text-white border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.35)]"
-            : "bg-white text-gray-600 border-gray-300 hover:bg-[#00D4FF] hover:text-[#0A0E1A] hover:border-[#00D4FF] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)]"
+            : "bg-white text-gray-400 border-gray-300 hover:bg-[#00D4FF] hover:text-[#0A0E1A] hover:border-[#00D4FF] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)]"
         }`}
       >
         {copied ? <Check size={15} /> : <Link2 size={15} />}

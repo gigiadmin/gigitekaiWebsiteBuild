@@ -168,7 +168,7 @@ export default function CreateTicket() {
               minLength={10}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
             />
-            <p className="text-gray-600 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 10) {formData.title.length >= 10 ? "✓" : ""}</p>
+            <p className="text-gray-400 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 10) {formData.title.length >= 10 ? "✓" : ""}</p>
           </div>
 
           {/* Description */}
@@ -187,7 +187,7 @@ export default function CreateTicket() {
               rows={6}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
             />
-            <p className="text-gray-600 text-xs mt-1.5">{formData.description.length} characters (minimum 30) {formData.description.length >= 30 ? "✓" : ""}</p>
+            <p className="text-gray-400 text-xs mt-1.5">{formData.description.length} characters (minimum 30) {formData.description.length >= 30 ? "✓" : ""}</p>
           </div>
 
           {/* KB Search Widget */}
@@ -215,7 +215,7 @@ export default function CreateTicket() {
               rows={4}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
             />
-            <p className="text-gray-600 text-xs mt-1.5">{formData.stepsAttempted.length} characters (minimum 20) {formData.stepsAttempted.length >= 20 ? "✓" : ""}</p>
+            <p className="text-gray-400 text-xs mt-1.5">{formData.stepsAttempted.length} characters (minimum 20) {formData.stepsAttempted.length >= 20 ? "✓" : ""}</p>
           </div>
 
           {/* Priority */}

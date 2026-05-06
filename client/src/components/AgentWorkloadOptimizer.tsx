@@ -176,7 +176,7 @@ export function AgentWorkloadOptimizer() {
           })
         ) : (
           <Card className="bg-[#141B2D]/40 border-gray-800/30 p-8 col-span-full text-center">
-            <Users className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+            <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
             <p className="text-gray-400">No agents found</p>
           </Card>
         )}

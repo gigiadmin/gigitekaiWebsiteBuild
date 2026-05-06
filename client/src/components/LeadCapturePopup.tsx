@@ -241,7 +241,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                     "Book My Free Consultation →"
                   )}
                 </button>
-                <p className="text-center text-gray-600 text-xs">
+                <p className="text-center text-gray-400 text-xs">
                   No spam. Unsubscribe anytime. We respect your privacy.
                 </p>
               </form>

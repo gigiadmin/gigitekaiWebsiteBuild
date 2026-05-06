@@ -82,7 +82,7 @@ export default function NewsletterSignup({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-600 focus:border-[#00D4FF]"
+              className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white placeholder:text-gray-400 focus:border-[#00D4FF]"
               disabled={subscribe.isPending}
             />
             {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -155,7 +155,7 @@ export default function NewsletterSignup({
           <p className="text-red-400 text-sm mt-2">{error}</p>
         )}
 
-        <p className="text-gray-600 text-xs mt-4">
+        <p className="text-gray-400 text-xs mt-4">
           No spam, ever. Unsubscribe anytime.
         </p>
       </div>

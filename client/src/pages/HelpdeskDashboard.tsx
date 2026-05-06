@@ -313,7 +313,7 @@ export default function HelpdeskDashboard() {
                         </span>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-[#00D4FF] transition-colors flex-shrink-0 mt-1" />
+                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#00D4FF] transition-colors flex-shrink-0 mt-1" />
                   </div>
                 </div>
               );
@@ -321,7 +321,7 @@ export default function HelpdeskDashboard() {
           </div>
         ) : tickets && tickets.length > 0 ? (
           <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-12 text-center">
-            <Search className="w-10 h-10 text-gray-600 mx-auto mb-4" />
+            <Search className="w-10 h-10 text-gray-400 mx-auto mb-4" />
             <h3 className="text-white font-semibold text-lg mb-2">No matching tickets</h3>
             <p className="text-gray-400 text-sm mb-4">Try adjusting your search or filters</p>
             <Button

@@ -228,7 +228,7 @@ export default function KBPublic() {
         {/* Empty State */}
         {!isLoading && filteredArticles.length === 0 && (
           <div className="text-center py-12">
-            <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+            <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <p className="text-gray-400">No articles found</p>
           </div>
         )}

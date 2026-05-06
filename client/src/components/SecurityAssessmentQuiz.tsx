@@ -128,7 +128,7 @@ export function SecurityAssessmentQuiz() {
       case "low":
         return "text-green-600";
       default:
-        return "text-gray-600";
+        return "text-gray-400";
     }
   };
 

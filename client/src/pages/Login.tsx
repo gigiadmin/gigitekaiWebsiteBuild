@@ -210,7 +210,7 @@ export default function Login() {
             Back to GigitekAI.com
           </a>
 
-          <p className="text-center text-gray-600 text-xs mt-6">
+          <p className="text-center text-gray-400 text-xs mt-6">
             Secure access for GigitekAI admins and agents only
           </p>
         </div>

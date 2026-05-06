@@ -13,7 +13,7 @@ function StarRating({ count }: { count: number }) {
         <Star
           key={i}
           size={14}
-          className={i < count ? "text-amber-400 fill-amber-400" : "text-gray-600"}
+          className={i < count ? "text-amber-400 fill-amber-400" : "text-gray-400"}
         />
       ))}
     </div>

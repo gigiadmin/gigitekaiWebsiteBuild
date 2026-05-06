@@ -18,7 +18,7 @@ export default function TrustedBySection() {
   return (
     <section className="py-12 bg-gray-50 dark:bg-[#0F1629] border-y border-gray-100 dark:border-[rgba(0,212,255,0.1)]">
       <div className="container">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-8">
+        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-300 mb-8">
           Trusted Technology Partners
         </p>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">

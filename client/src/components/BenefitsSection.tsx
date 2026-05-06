@@ -76,7 +76,7 @@ export default function BenefitsSection() {
             >
               Drive Better Business Outcomes with Intelligent Technology
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-8">
+            <p className="text-gray-400 dark:text-gray-400 text-lg leading-relaxed mb-8">
               Technology shouldn't be a burden — it should be your competitive advantage. GigitekAI's cloud and AI solutions give you the infrastructure and intelligence to evolve your business for sustained growth.
             </p>
 

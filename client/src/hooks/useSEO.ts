@@ -18,7 +18,7 @@ interface SEOConfig {
   injectSchema?: boolean;
 }
 
-const BASE_URL = "https://www.gigitekai.com";
+const BASE_URL = "https://gigitekai.com";
 const DEFAULT_OG_IMAGE =
   "https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png";
 

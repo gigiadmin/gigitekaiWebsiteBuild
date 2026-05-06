@@ -152,14 +152,14 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
       </div>
 
       {/* Hint */}
-      <p className="text-xs text-gray-600 text-center">
+      <p className="text-xs text-gray-400 text-center">
         Drag a post to reschedule · Click empty day to draft · Click post day to manage
       </p>
 
       {/* Day-of-week headers */}
       <div className="grid grid-cols-7 gap-1">
         {DAYS_OF_WEEK.map(d => (
-          <div key={d} className="text-center text-xs text-gray-600 font-medium py-1">
+          <div key={d} className="text-center text-xs text-gray-400 font-medium py-1">
             {d}
           </div>
         ))}
@@ -258,7 +258,7 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                   className="flex items-start gap-3 bg-gray-800/40 rounded-lg p-3 cursor-grab active:cursor-grabbing group"
                 >
                   {/* Drag handle */}
-                  <GripVertical className="w-3.5 h-3.5 text-gray-600 group-hover:text-gray-400 mt-0.5 shrink-0 transition-colors" />
+                  <GripVertical className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-400 mt-0.5 shrink-0 transition-colors" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       {platforms.map((pid) => (
@@ -334,7 +334,7 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
                 className="bg-[#0A0E1A] border-gray-700 text-white resize-none focus:border-cyan-500/50"
                 placeholder="Post content..."
               />
-              <div className="text-xs text-gray-600 text-right">{editContent.length} chars</div>
+              <div className="text-xs text-gray-400 text-right">{editContent.length} chars</div>
             </div>
           )}
           <DialogFooter className="gap-2">

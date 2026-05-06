@@ -133,7 +133,7 @@ export default function SiteNavBar2024() {
                     <a
                       key={s.href}
                       href={s.href}
-                      className="block px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] hover:bg-gray-50 dark:hover:bg-[rgba(0,212,255,0.05)] transition-colors"
+                      className="block px-4 py-2.5 text-sm text-gray-400 dark:text-gray-300 hover:text-[#00D4FF] hover:bg-gray-50 dark:hover:bg-[rgba(0,212,255,0.05)] transition-colors"
                     >
                       {s.label}
                     </a>
@@ -302,7 +302,7 @@ export default function SiteNavBar2024() {
               {toggleTheme && (
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
+                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-400 dark:text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>

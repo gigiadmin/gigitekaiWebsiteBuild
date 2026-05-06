@@ -12,17 +12,17 @@ const COMPONENTS_DIR = resolve(CLIENT_DIR, "src/components");
  */
 describe("Phase 1 Audit: SEO & Credibility Fixes", () => {
   // 1.1 — Canonical tags
-  it("index.html canonical uses www.gigitekai.com", () => {
+  it("index.html canonical uses gigitekai.com (non-www)", () => {
     const html = readFileSync(resolve(CLIENT_DIR, "index.html"), "utf-8");
-    expect(html).toContain('href="https://www.gigitekai.com"');
-    expect(html).not.toContain('href="https://gigitekai.com"');
+    expect(html).toContain('href="https://gigitekai.com"');
+    expect(html).not.toContain('href="https://www.gigitekai.com"');
   });
 
   // 1.2 — useSEO hook exists
   it("useSEO hook file exists", () => {
     const hook = readFileSync(resolve(CLIENT_DIR, "src/hooks/useSEO.ts"), "utf-8");
     expect(hook).toContain("export function useSEO");
-    expect(hook).toContain("www.gigitekai.com");
+    expect(hook).toContain("gigitekai.com");
   });
 
   // 1.3 — SEO config has unique entries for all major pages

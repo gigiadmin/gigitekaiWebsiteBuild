@@ -87,7 +87,7 @@ export default function CTASection() {
             >
               Ready to Transform Your Technology?
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-gray-400 dark:text-gray-400 text-lg leading-relaxed mb-10">
               Maximize your business potential with enterprise cloud infrastructure and AI solutions. Start with a complimentary Cloud & AI Readiness Assessment — no obligation, no pressure.
             </p>
 
@@ -101,7 +101,7 @@ export default function CTASection() {
                 <a
                   key={label}
                   href={href}
-                  className="flex items-center gap-3 text-gray-600 dark:text-gray-300 hover:text-[#00D4FF] transition-colors group"
+                  className="flex items-center gap-3 text-gray-400 dark:text-gray-300 hover:text-[#00D4FF] transition-colors group"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center group-hover:bg-[#00D4FF]/20 transition-colors">
                     <Icon size={16} className="text-[#00D4FF]" />
@@ -127,7 +127,7 @@ export default function CTASection() {
                 >
                   Message Received!
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-400 dark:text-gray-400">
                   Our team will reach out within 1 business day to schedule your complimentary Cloud & AI Readiness Assessment.
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function CTASection() {
                 >
                   Request Your Free Assessment
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
+                <p className="text-gray-400 dark:text-gray-400 text-sm mb-6">
                   Tell us about your business and we'll design a tailored cloud and AI strategy.
                 </p>
 
@@ -243,7 +243,7 @@ export default function CTASection() {
                   )}
                 </button>
 
-                <p className="text-gray-600 text-xs text-center">
+                <p className="text-gray-400 text-xs text-center">
                   No spam. No obligation. We respect your privacy.
                 </p>
               </form>
