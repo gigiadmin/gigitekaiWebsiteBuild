@@ -331,7 +331,7 @@ const plugins = [
   vitePluginManusDebugCollector(),
   vitePluginNonBlockingCSS(),
   vitePluginBootstrapFallback(),
-  vitePluginStripMsalStaticImport(),
+  // DISABLED: vitePluginStripMsalStaticImport() — caused 'n is not defined' crash by removing named imports that were actually used at runtime
   visualizer({
     open: false,
     gzipSize: true,
