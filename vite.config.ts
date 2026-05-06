@@ -7,7 +7,6 @@ import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { visualizer } from "rollup-plugin-visualizer";
 import { inlineModulePreloadPolyfill } from "./vite-plugin-inline-polyfill";
-import { stripModulePreloadLinks } from "./vite-plugin-strip-modulepreload";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -217,7 +216,6 @@ const plugins = [
   vitePluginManusDebugCollector(),
   vitePluginBootstrapFallback(),
   inlineModulePreloadPolyfill(), // Inlines the modulepreload polyfill to remove forced msal download on public pages
-  stripModulePreloadLinks(), // Removes all <link rel=modulepreload> from built HTML to prevent eager chunk downloads
   visualizer({
     open: false,
     gzipSize: true,
@@ -246,14 +244,12 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-    // Disable ALL modulepreload injection:
-    // 1. polyfill:false - stops the 277KB polyfill from being placed in the msal chunk
-    // 2. resolveDependencies:false - stops Vite from injecting <link rel=modulepreload>
-    //    for msal, vendor, trpc-query in the HTML. These modulepreload links force the
-    //    browser to eagerly download ALL chunks (including 277KB msal + 466KB vendor)
-    //    on every page load, even for public pages that never use admin/MSAL features.
-    //    Removing them means chunks are only downloaded when actually needed.
-    modulePreload: { polyfill: false, resolveDependencies: () => [] },
+    // Disable modulepreload polyfill injection — the polyfill was being placed in the
+    // msal chunk, forcing browsers to download the entire 277KB MSAL bundle on every
+    // page load just to get a tiny polyfill function. All modern browsers (Chrome 66+,
+    // Firefox 115+, Safari 17+) support modulepreload natively, so the polyfill is
+    // unnecessary. Setting polyfill:false eliminates the forced MSAL download on public pages.
+    modulePreload: { polyfill: false },
     rollupOptions: {
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),

@@ -71,41 +71,7 @@ export function serveStatic(app: Express) {
     console.log(`[Server] Serving static files from: ${distPath}`);
   }
 
-  // ── In-memory HTML cache to eliminate TTFB disk I/O ──────────────────────
-  // The main index.html is read from disk on first request and cached in memory.
-  // This reduces TTFB from ~2-3s (cold disk read + Cloud Run cold start) to <50ms.
-  // Cache is invalidated if the file changes on disk (checked via mtime).
-  let cachedHtml: string | null = null;
-  let cachedHtmlMtime: number = 0;
-
-  function getIndexHtml(): string {
-    const indexPath = path.resolve(distPath, "index.html");
-    try {
-      const stat = fs.statSync(indexPath);
-      const mtime = stat.mtimeMs;
-      if (cachedHtml && mtime === cachedHtmlMtime) {
-        return cachedHtml;
-      }
-      cachedHtml = fs.readFileSync(indexPath, "utf-8");
-      cachedHtmlMtime = mtime;
-      console.log(`[Server] HTML cache refreshed (${Math.round(cachedHtml.length / 1024)}KB)`);
-      return cachedHtml;
-    } catch {
-      return "";
-    }
-  }
-
-  // Pre-warm the cache at startup
-  try { getIndexHtml(); } catch { /* ignore */ }
-
-  app.use(express.static(distPath, {
-    // Static assets (JS/CSS/images) get 1-year immutable cache
-    setHeaders(res, filePath) {
-      if (/\.(js|css|woff2|webp|png|jpg|jpeg|gif|svg|ico)$/i.test(filePath)) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      }
-    }
-  }));
+  app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
   // IMPORTANT: Skip /api/* routes so they reach the tRPC middleware
@@ -124,12 +90,6 @@ export function serveStatic(app: Express) {
       if (fs.existsSync(redirectPath)) {
         return res.sendFile(redirectPath);
       }
-    }
-    // Serve from in-memory cache for fast TTFB
-    const html = getIndexHtml();
-    if (html) {
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.send(html);
     }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
