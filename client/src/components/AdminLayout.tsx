@@ -140,7 +140,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
   const [location, navigate] = useLocation();
   // Use custom admin JWT auth (not Manus OAuth) — admin portal has its own email/password login
-  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery();
+  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery(undefined, { retry: false, staleTime: 30_000 });
   const logoutMutation = trpc.adminAuth.logout.useMutation();
   const logout = async () => {
     await logoutMutation.mutateAsync();

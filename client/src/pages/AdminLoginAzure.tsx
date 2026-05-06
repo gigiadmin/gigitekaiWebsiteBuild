@@ -17,8 +17,14 @@ export default function AdminLoginAzure() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const utils = trpc.useUtils();
+
   const azureLoginMutation = trpc.adminAuth.azureLogin.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Invalidate the adminAuth.me cache so AdminLayout re-fetches with the new cookie
+      await utils.adminAuth.me.invalidate();
+      // Small delay to ensure cookie is committed before navigation
+      await new Promise((resolve) => setTimeout(resolve, 150));
       navigate("/admin");
     },
     onError: (err) => {
