@@ -242,15 +242,19 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
+    // Disable automatic modulepreload injection — prevents browser from
+    // downloading the massive vendor chunk before first paint.
+    // Critical chunks still load via static ES module imports.
+    modulePreload: false,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
-          // IMPORTANT: Chunk grouping must avoid circular dependencies.
-          // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
-          // Now we use a flat, non-overlapping grouping strategy.
+          // Performance-optimized chunk splitting strategy
+          // Goal: Reduce initial JS payload by separating rarely-needed code
+          // Uses flat, non-overlapping groups to avoid circular dependencies
 
           // React core — smallest possible initial chunk
           if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
@@ -260,10 +264,39 @@ export default defineConfig({
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
           }
-          // All other node_modules go into a single vendor chunk.
-          // Splitting further (radix-ui, icons, utils, admin-heavy, charts)
-          // caused circular dependencies and TDZ errors in production.
-          // A single vendor chunk is larger but guaranteed cycle-free.
+          // Lucide icons — large icon library, tree-shaken but still significant
+          if (id.includes("lucide-react")) {
+            return "icons";
+          }
+          // Radix UI primitives — used by shadcn/ui components (deferred via lazy TooltipProvider)
+          if (id.includes("@radix-ui")) {
+            return "radix-ui";
+          }
+          // TipTap rich text editor — admin-only, very large (~800KB)
+          if (id.includes("@tiptap") || id.includes("prosemirror") || id.includes("lowlight") || id.includes("highlight.js")) {
+            return "tiptap";
+          }
+          // Recharts — admin dashboard charts
+          if (id.includes("recharts") || id.includes("d3-")) {
+            return "charts";
+          }
+          // Chart.js — admin analytics
+          if (id.includes("chart.js")) {
+            return "chartjs";
+          }
+          // date-fns — large date library, only needed by calendar/scheduling pages
+          if (id.includes("date-fns")) {
+            return "date-fns";
+          }
+          // Socket.io — only needed for real-time features
+          if (id.includes("socket.io")) {
+            return "socketio";
+          }
+          // react-hook-form + zod — form handling, not needed on homepage
+          if (id.includes("react-hook-form") || id.includes("@hookform") || id.includes("node_modules/zod")) {
+            return "forms";
+          }
+          // All other node_modules go into a single vendor chunk
           if (id.includes("node_modules")) {
             return "vendor";
           }

@@ -4363,3 +4363,19 @@
 - [ ] Issue: Buttons are in AIChatWidget.tsx (lines 741-757) but not visible when chat is open
 - [ ] Possible causes: CSS hiding, conditional rendering, or chat widget not fully initializing
 - [ ] Need to verify: Is the chat widget opening? Are buttons hidden by CSS? Are they in the correct container?
+
+## PageSpeed Performance Audit & Optimization (May 2026)
+- [x] Convert hero background from CSS url() to img tag with fetchpriority=high for LCP discoverability
+- [x] Lazy-load 15 below-fold homepage sections with IntersectionObserver (200px rootMargin)
+- [x] Convert 8 widgets from eager to lazy imports (CopilotChat, AIChatWidget, FloatingContactDial, etc.)
+- [x] Convert Toaster and TooltipProvider to lazy imports (removes radix-ui from critical path)
+- [x] Convert TicketDetail and TicketFeedback from eager to lazy imports
+- [x] Disable Vite modulePreload injection (prevents 12.5MB vendor chunk from being downloaded upfront)
+- [x] Split vendor bundle into 10 named chunks (tiptap, charts, chartjs, radix-ui, icons, date-fns, socketio, forms, react-core, trpc-query)
+- [x] Replace next-themes with local ThemeContext in sonner.tsx (removed unnecessary dependency)
+- [x] Remove next-themes package entirely
+- [x] Add explicit width/height to navbar logo (CLS prevention)
+- [x] Add explicit width/height and loading=lazy to footer logo
+- [x] Preload hero background WebP image in index.html
+- [x] Remove broken chunk prefetch script from index.html
+- [x] Remove stale CSS/JS preload links referencing old hashed filenames
