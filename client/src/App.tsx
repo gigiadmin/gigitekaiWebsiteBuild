@@ -18,7 +18,7 @@ const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
 const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
 const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
-const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
+// CopilotChat removed - AIChatWidget is the primary AI chat with voice/upload
 const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
@@ -267,7 +267,6 @@ function App() {
             <Suspense fallback={null}>
               {!hideWidgets && <AIChatWidget />}
               {!hideWidgets && <UserChatWidget />}
-              {!hideWidgets && <CopilotChat />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
           )}

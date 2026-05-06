@@ -4388,3 +4388,8 @@
 - [x] Updated redirectUri from /admin/auth/callback to /redirect.html
 - [x] Added multi-page entry in vite.config.ts for redirect.html
 - [x] Updated server vite.ts to serve redirect.html in both dev and production modes
+
+## Aria Chat Widget Fix - May 2026
+- [x] Remove CopilotChat component from App.tsx (duplicate overlapping widget hiding AIChatWidget)
+- [x] Ensure AIChatWidget is the sole bottom-right chat with voice record + file upload visible
+- [x] Verify no z-index/position conflicts with other floating widgets (UserChatWidget is auth-gated, no conflict for public visitors)
