@@ -150,7 +150,7 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* Desktop: always render video. Mobile: only render after user taps play — eliminates video download on mobile */}
+        {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}
         {(!isMobile || videoRequested) && (
           <video
             key={isMobile ? 'mobile' : 'desktop'}
