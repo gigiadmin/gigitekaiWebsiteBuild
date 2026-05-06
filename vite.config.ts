@@ -6,6 +6,7 @@ import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { visualizer } from "rollup-plugin-visualizer";
+import { inlineModulePreloadPolyfill } from "./vite-plugin-inline-polyfill";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -214,6 +215,7 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   vitePluginBootstrapFallback(),
+  inlineModulePreloadPolyfill(), // Inlines the modulepreload polyfill to remove forced msal download on public pages
   visualizer({
     open: false,
     gzipSize: true,
@@ -242,9 +244,12 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-    // Disable modulepreload injection — prevents browser from eagerly downloading
-    // ALL chunks (including vendor/streamdown-deps) on initial page load.
-    modulePreload: false,
+    // Disable modulepreload polyfill injection — the polyfill was being placed in the
+    // msal chunk, forcing browsers to download the entire 277KB MSAL bundle on every
+    // page load just to get a tiny polyfill function. All modern browsers (Chrome 66+,
+    // Firefox 115+, Safari 17+) support modulepreload natively, so the polyfill is
+    // unnecessary. Setting polyfill:false eliminates the forced MSAL download on public pages.
+    modulePreload: { polyfill: false },
     rollupOptions: {
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
@@ -260,7 +265,9 @@ export default defineConfig({
           // Now we use a flat, non-overlapping grouping strategy.
 
           // React core — smallest possible initial chunk
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
+          // Also include the vite-polyfill module so the Rollup __modulepreload helper
+          // lives here instead of in the msal chunk (which would force 277KB download on public pages)
+          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/") || id.includes("client/src/lib/vite-polyfill")) {
             return "react-core";
           }
           // tRPC + React Query — needed on first paint for auth

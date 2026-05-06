@@ -11,7 +11,11 @@ import { trpc } from "@/lib/trpc";
 export default function InsightsSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const { data: posts, isLoading } = trpc.blog.listPosts.useQuery();
+  // Only fetch blog posts when the section scrolls into view — prevents 3 redundant
+  // trpc/blog.listPosts requests from appearing in the initial mobile critical path.
+  const { data: posts, isLoading } = trpc.blog.listPosts.useQuery(undefined, {
+    enabled: visible,
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(

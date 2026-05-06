@@ -13,8 +13,13 @@ import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp"; // WebP format for better compression
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
+const HERO_VIDEO_POSTER_DESKTOP = "/manus-storage/hero-video-poster_128d587c.webp"; // 1280x720, 61KB
+const HERO_VIDEO_POSTER_MOBILE = "/manus-storage/hero-video-poster-mobile_bea1b2a6.webp"; // 828x466, 25KB
+const HERO_VIDEO_POSTER = HERO_VIDEO_POSTER_DESKTOP; // default, overridden per device below
+const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_5d6fe221.webp"; // 828px, 33KB
+const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_f37c55d2.webp"; // 1280px, 74KB
+// Fallback for non-JS / SSR
+const HERO_BG = HERO_BG_DESKTOP;
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
@@ -123,16 +128,18 @@ export default function HeroSection() {
 
       {/* ── Video layer ── */}
       <div className="absolute inset-0 z-0">
-        {/* LCP element: img tag with fetchpriority=high for fastest Largest Contentful Paint */}
+        {/* LCP element: responsive img with fetchpriority=high — mobile gets 33KB, desktop gets 74KB */}
         <img
-          src={HERO_BG}
+          src={isMobile ? HERO_BG_MOBILE : HERO_BG_DESKTOP}
+          srcSet={`${HERO_BG_MOBILE} 828w, ${HERO_BG_DESKTOP} 1280w`}
+          sizes="(max-width: 768px) 828px, 1280px"
           alt=""
           aria-hidden="true"
           fetchPriority="high"
           loading="eager"
           decoding="async"
-          width={1920}
-          height={1080}
+          width={isMobile ? 828 : 1280}
+          height={isMobile ? 552 : 853}
           className="absolute inset-0 w-full h-full object-cover"
           style={{ zIndex: 0 }}
         />
@@ -154,7 +161,7 @@ export default function HeroSection() {
             width={1920}
             height={1080}
             src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={HERO_VIDEO_POSTER}
+            poster={isMobile ? HERO_VIDEO_POSTER_MOBILE : HERO_VIDEO_POSTER_DESKTOP}
             onEnded={() => { setPlaying(false); setEnded(true); }}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
               playing ? "opacity-100" : "opacity-0"
