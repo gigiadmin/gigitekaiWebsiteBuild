@@ -4421,3 +4421,13 @@
 - [x] Split MSAL into separate chunk in vite.config.ts — vendor bundle: 1.88MB → 1.64MB (240KB reduction)
 - [x] Add cache headers to storage proxy — changed from no-store to public max-age=86400 for /manus-storage/* assets
 - [x] Verify PageSpeed score improvements after deployment — scores will improve after next publish (MSAL lazy load saves ~71KB gzip on public pages, LCP fix, logo optimization)
+
+## PageSpeed Optimization Round 3 - May 6, 2026 (Score: 70 → Target 75+)
+- [x] Remove all modulepreload links from built HTML (prevents browser from eagerly downloading msal+vendor on public pages)
+- [x] Make main CSS non-blocking (media="print" onload trick — eliminates 160ms render-blocking delay)
+- [x] Add storage proxy in-memory caching (serve hero image bytes directly with Cache-Control: immutable — eliminates 2.35s redirect chain)
+- [x] Add HTML in-memory cache to reduce TTFB from 2-3s to <50ms
+- [x] Add 1-year immutable cache headers for all static JS/CSS/font/image assets
+- [x] Responsive hero images (mobile 33KB, desktop 74KB — was 119KB for all devices)
+- [x] Optimized video poster for mobile
+- [x] Optimized logo from 29KB to 6KB (79% reduction)

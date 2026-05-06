@@ -6,7 +6,10 @@ import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { visualizer } from "rollup-plugin-visualizer";
-import { inlineModulePreloadPolyfill } from "./vite-plugin-inline-polyfill";
+// inlineModulePreloadPolyfill removed - caused "Can't find variable" crash in production
+// because the inlined 'g' function name collided with minified bundle variable names.
+// Using HTML-level modulepreload stripping instead (safe - no JS modification).
+import { stripModulePreloadLinks } from "./vite-plugin-strip-modulepreload";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -215,7 +218,7 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   vitePluginBootstrapFallback(),
-  inlineModulePreloadPolyfill(), // Inlines the modulepreload polyfill to remove forced msal download on public pages
+  stripModulePreloadLinks(), // SAFE: strips <link rel=modulepreload> from HTML only, no JS modification
   visualizer({
     open: false,
     gzipSize: true,
@@ -244,12 +247,14 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-    // Disable modulepreload polyfill injection — the polyfill was being placed in the
-    // msal chunk, forcing browsers to download the entire 277KB MSAL bundle on every
-    // page load just to get a tiny polyfill function. All modern browsers (Chrome 66+,
-    // Firefox 115+, Safari 17+) support modulepreload natively, so the polyfill is
-    // unnecessary. Setting polyfill:false eliminates the forced MSAL download on public pages.
-    modulePreload: { polyfill: false },
+    // Disable modulepreload polyfill entirely.
+    // { polyfill: false } only stops Vite from injecting the polyfill in HTML but Rollup
+    // still generates the polyfill code inside the msal chunk (because msal uses dynamic
+    // imports internally). Setting modulePreload: false completely stops the polyfill
+    // generation, removing the static import{_ as g}from'./msal-*.js' in main.js.
+    // All modern browsers (Chrome 66+, Firefox 115+, Safari 17+) support modulepreload
+    // natively — the polyfill is not needed.
+    modulePreload: false,
     rollupOptions: {
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
@@ -270,8 +275,18 @@ export default defineConfig({
           if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/") || id.includes("client/src/lib/vite-polyfill")) {
             return "react-core";
           }
-          // tRPC + React Query — needed on first paint for auth
-          if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
+          // tRPC + React Query + shared client utils — needed on first paint for auth.
+          // IMPORTANT: client/src/lib/trpc.ts and client/src/const.ts must be in this chunk
+          // (not in main.js) so that useAuth.ts can import them without depending on main.js.
+          // If useAuth depends on main.js, and main.js imports the msal polyfill, then
+          // every lazy component that uses useAuth forces a 277KB msal download.
+          if (
+            id.includes("@trpc") ||
+            id.includes("@tanstack/react-query") ||
+            id.includes("client/src/lib/trpc") ||
+            id.includes("client/src/const") ||
+            id.includes("client/src/_core/hooks/useAuth")
+          ) {
             return "trpc-query";
           }
           // MSAL (Azure AD auth) — only needed on /admin routes
