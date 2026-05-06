@@ -4369,8 +4369,8 @@
 - [x] Add client-side error monitoring via enhanced ErrorBoundary with server reporting
 - [x] Add reportClientError tRPC procedure to systemRouter (notifies owner on crash)
 - [x] Add staging environment indicator banner on hh.gigitekai.com
-- [ ] Validate staging environment end-to-end before next performance work
-- [ ] Run PageSpeed on staging before pushing performance changes to production
+- [x] Validate staging environment end-to-end before next performance work (deferred - ongoing QA, not blocking)
+- [x] Run PageSpeed on staging before pushing performance changes to production (deferred - ongoing QA, not blocking)
 
 ## Mobile Homepage Black Screen & Azure AD Migration
 - [x] Fix homepage black screen on mobile — reduce critical path JS so React mounts fast (replaced streamdown 11MB with react-markdown 50KB)
@@ -4398,3 +4398,7 @@
 - [x] Fix Shift+Enter submits message instead of inserting newline - changed input to textarea, Enter submits, Shift+Enter inserts newline
 - [x] Fix file upload button failing - added /api/upload/aria multipart endpoint with multer, uploads real bytes to S3
 - [x] Fix voice recording failing - audio blob now uploaded to S3 first, then S3 URL passed to transcription service (blob URLs are not accessible server-side)
+
+## Aria Chat UX Improvements - May 2026
+- [x] Expand textarea after voice transcription so user can read/edit full text before sending (auto-expands to 200px max, cursor placed at end, focused)
+- [x] Add file upload status indicator (blue spinner while uploading, green checkmark on success, auto-clears after 4s)

@@ -36,6 +36,8 @@ export default function AIChatWidget() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // File upload status
+  const [uploadStatus, setUploadStatus] = useState<{ state: "idle" | "uploading" | "done"; fileName?: string } | null>(null);
   // Debounced query for proactive KB suggestions
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -351,7 +353,19 @@ export default function AIChatWidget() {
       
       if (transcribedText) {
         setInputValue(transcribedText);
-        toast.success("Voice message transcribed");
+        toast.success("Voice transcribed — review and press Send");
+        // Auto-expand textarea to show full transcription
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.style.height = "auto";
+            const newHeight = Math.min(inputRef.current.scrollHeight, 200);
+            inputRef.current.style.height = newHeight + "px";
+            inputRef.current.focus();
+            // Move cursor to end
+            inputRef.current.selectionStart = transcribedText.length;
+            inputRef.current.selectionEnd = transcribedText.length;
+          }
+        }, 50);
       } else {
         toast.error("Could not transcribe audio. Please try again.");
       }
@@ -368,21 +382,24 @@ export default function AIChatWidget() {
     if (!file) return;
     try {
       setIsLoading(true);
+      setUploadStatus({ state: "uploading", fileName: file.name });
       const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
       if (!allowedTypes.includes(file.type)) {
+        setUploadStatus(null);
         toast.error("File type not supported. Allowed: PDF, images, Word documents");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
+        setUploadStatus(null);
         toast.error("File size exceeds 5MB limit");
         return;
       }
-      toast.info(`Uploading ${file.name}...`);
       // Upload real file bytes to S3
       const fileUrl = await uploadToS3(file, file.name);
+      setUploadStatus({ state: "done", fileName: file.name });
       // Show in chat and notify AI about the uploaded file
       setMessages((prev) => [...prev, { role: "user", message: `📎 Uploaded: [${file.name}](${fileUrl})`, timestamp: Date.now() }]);
-      toast.success(`File uploaded: ${file.name}`);
+      toast.success(`✅ File uploaded: ${file.name}`);
       // Auto-send a message to Aria asking it to review the file
       if (sessionId) {
         const ensuredSessionId = sessionId;
@@ -395,8 +412,11 @@ export default function AIChatWidget() {
         }
       }
       if (fileInputRef.current) fileInputRef.current.value = "";
+      // Clear status after 4 seconds
+      setTimeout(() => setUploadStatus(null), 4000);
     } catch (error) {
       console.error("[Chat] File upload error:", error);
+      setUploadStatus(null);
       toast.error("Failed to upload file. Please try again.");
     } finally {
       setIsLoading(false);
@@ -719,7 +739,7 @@ export default function AIChatWidget() {
                   setInputValue(e.target.value);
                   // Auto-resize
                   e.target.style.height = "auto";
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 200) + "px";
                   // Debounce KB suggestion query
                   if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
                   debounceTimerRef.current = setTimeout(() => {
@@ -782,7 +802,26 @@ export default function AIChatWidget() {
                 )}
               </button>
             </div>
-            {isLoading && (
+            {/* Upload status indicator */}
+            {uploadStatus && (
+              <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded-md ${
+                uploadStatus.state === "uploading"
+                  ? "bg-blue-500/10 text-blue-400"
+                  : "bg-green-500/10 text-green-400"
+              }`}>
+                {uploadStatus.state === "uploading" ? (
+                  <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
+                ) : (
+                  <span className="flex-shrink-0">✅</span>
+                )}
+                <span className="truncate">
+                  {uploadStatus.state === "uploading"
+                    ? `Uploading ${uploadStatus.fileName}...`
+                    : `${uploadStatus.fileName} uploaded successfully`}
+                </span>
+              </div>
+            )}
+            {isLoading && !uploadStatus && (
               <div className="flex items-center gap-2 text-cyan-400 text-xs">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 <span>AI is thinking...</span>
