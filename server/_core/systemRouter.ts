@@ -39,6 +39,39 @@ export const systemRouter = router({
     return await triggerEmailPollerRun();
   }),
 
+  reportClientError: publicProcedure
+    .input(
+      z.object({
+        message: z.string().max(500),
+        stack: z.string().max(5000).optional(),
+        componentStack: z.string().max(5000).optional().nullable(),
+        url: z.string().max(500).optional(),
+        userAgent: z.string().max(500).optional(),
+        timestamp: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const title = `🚨 Client Error: ${input.message.slice(0, 100)}`;
+      const content = [
+        `**Error:** ${input.message}`,
+        `**URL:** ${input.url || 'unknown'}`,
+        `**Time:** ${input.timestamp || new Date().toISOString()}`,
+        input.stack ? `**Stack:**\n\`\`\`\n${input.stack.slice(0, 1000)}\n\`\`\`` : '',
+        input.componentStack ? `**Component Stack:**\n\`\`\`\n${input.componentStack.slice(0, 500)}\n\`\`\`` : '',
+      ].filter(Boolean).join('\n\n');
+
+      console.error('[Client Error Report]', input.message, input.url);
+      
+      // Notify owner but don't fail if notification fails
+      try {
+        await notifyOwner({ title, content });
+      } catch {
+        // Silently ignore notification failures
+      }
+
+      return { received: true };
+    }),
+
   getNewTickets: protectedProcedure
     .input(
       z.object({

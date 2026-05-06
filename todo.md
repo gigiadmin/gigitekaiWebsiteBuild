@@ -4363,3 +4363,11 @@
 - [ ] Issue: Buttons are in AIChatWidget.tsx (lines 741-757) but not visible when chat is open
 - [ ] Possible causes: CSS hiding, conditional rendering, or chat widget not fully initializing
 - [ ] Need to verify: Is the chat widget opening? Are buttons hidden by CSS? Are they in the correct container?
+
+## Phase 3 — Stability & Staging (May 6, 2026)
+- [x] Create reusable PageSpeed optimization skill (gigitekai-pagespeed-optimizer)
+- [x] Add client-side error monitoring via enhanced ErrorBoundary with server reporting
+- [x] Add reportClientError tRPC procedure to systemRouter (notifies owner on crash)
+- [x] Add staging environment indicator banner on hh.gigitekai.com
+- [ ] Validate staging environment end-to-end before next performance work
+- [ ] Run PageSpeed on staging before pushing performance changes to production

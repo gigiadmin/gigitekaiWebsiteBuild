@@ -9,16 +9,46 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  reported: boolean;
+}
+
+function reportErrorToServer(error: Error, info: { componentStack?: string | null }) {
+  try {
+    const payload = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: info?.componentStack,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    };
+    // Fire-and-forget — don't block the UI
+    fetch("/api/trpc/system.reportClientError", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ json: payload }),
+    }).catch(() => {/* silently ignore network errors */});
+  } catch {
+    // Never throw from error reporter
+  }
 }
 
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, reported: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: { componentStack?: string | null }) {
+    if (!this.state.reported) {
+      this.setState({ reported: true });
+      reportErrorToServer(error, info);
+    }
   }
 
   render() {

@@ -254,6 +254,12 @@ function App() {
             Skip to main content
           </a>
           <Toaster />
+          {/* Staging environment indicator — only shows on hh.gigitekai.com */}
+          {typeof window !== 'undefined' && window.location.hostname === 'hh.gigitekai.com' && (
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, background: '#ff6b00', color: '#fff', textAlign: 'center', padding: '6px 16px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em' }}>
+              ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com
+            </div>
+          )}
           {!hideWidgets && <AnnouncementBar />}
           <Router />
           {!hideWidgets && <CookieConsent />}
