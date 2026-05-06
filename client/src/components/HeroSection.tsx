@@ -14,7 +14,10 @@ import { useLocation } from "wouter";
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp"; // WebP format for better compression
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp";
+// Optimized hero background served via storage proxy (adds Cache-Control headers)
+// Desktop: 74KB | Mobile: 34KB — vs old 119KB CloudFront URL with no cache headers
+const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_58bf0bdd.webp";
+const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_d1ad476e.webp";
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
@@ -125,7 +128,9 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         {/* LCP element: img tag with fetchpriority=high for fastest Largest Contentful Paint */}
         <img
-          src={HERO_BG}
+          src={HERO_BG_DESKTOP}
+          srcSet={`${HERO_BG_MOBILE} 768w, ${HERO_BG_DESKTOP} 1920w`}
+          sizes="(max-width: 768px) 768px, 1920px"
           alt=""
           aria-hidden="true"
           fetchPriority="high"

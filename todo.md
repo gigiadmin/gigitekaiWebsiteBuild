@@ -4441,3 +4441,10 @@
 - [x] In-memory HTML cache in serveStatic for faster TTFB
 - [x] Vendor bundle reduced from 1.6MB to 1.3MB
 - [x] All 927 tests passing after changes
+
+## PageSpeed Round 2 Optimizations (May 6, 2026)
+- [x] Fix modulePreload polyfill placement — removed static main→msal dependency (MSAL now truly lazy)
+- [x] Hero image: moved to /manus-storage/ proxy (74KB desktop, 34KB mobile vs 119KB CloudFront no-cache)
+- [x] Hero image: responsive srcset for mobile/desktop with proper preload in index.html
+- [x] CSS non-blocking transform: fixed express.static { index: false } so transform applies in production
+- [x] Charts/syntax-highlight chunks split from vendor bundle (saves ~300KB on public pages)

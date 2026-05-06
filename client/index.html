@@ -52,7 +52,12 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <!-- LCP: Preload hero background image for fastest Largest Contentful Paint -->
-    <link rel="preload" as="image" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-bg-Yex2Szdfrds8LdaKDfNGNQ.webp" fetchpriority="high" imagesizes="100vw" />
+    <!-- Desktop: 74KB | Mobile: 34KB via storage proxy (adds Cache-Control headers) -->
+    <link rel="preload" as="image"
+      href="/manus-storage/hero-bg-desktop_58bf0bdd.webp"
+      imagesrcset="/manus-storage/hero-bg-mobile_d1ad476e.webp 768w, /manus-storage/hero-bg-desktop_58bf0bdd.webp 1920w"
+      imagesizes="(max-width: 768px) 768px, 1920px"
+      fetchpriority="high" />
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mQoQDjQSkFtoMM3T6r8E7mF71Q-gozuPTPgn2.woff2" type="font/woff2" crossorigin />
     <link rel="preload" as="font" href="https://fonts.gstatic.com/s/dmsans/v11/rP2Hp2ywxg3EsZ4lzW_dxiJHOHYslrcuWcX20cPToRg.woff2" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

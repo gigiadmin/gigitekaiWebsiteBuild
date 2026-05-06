@@ -242,9 +242,11 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-    // Disable modulepreload injection — prevents browser from eagerly downloading
-    // ALL chunks (including vendor/streamdown-deps) on initial page load.
-    modulePreload: false,
+    // Disable modulepreload polyfill — we target modern browsers that natively support
+    // modulepreload, so the polyfill is unnecessary. Setting polyfill:false also prevents
+    // Rollup from injecting the polyfill code into the msal chunk (which would create a
+    // static main→msal dependency on public pages, defeating the lazy-loading strategy).
+    modulePreload: { polyfill: false },
     rollupOptions: {
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
