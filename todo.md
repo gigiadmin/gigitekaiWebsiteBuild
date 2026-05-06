@@ -4448,3 +4448,5 @@
 - [x] Hero image: responsive srcset for mobile/desktop with proper preload in index.html
 - [x] CSS non-blocking transform: fixed express.static { index: false } so transform applies in production
 - [x] Charts/syntax-highlight chunks split from vendor bundle (saves ~300KB on public pages)
+- [x] Vite plugin for non-blocking CSS at build time (deterministic, no server-side transform needed)
+- [x] Verified MSAL has zero static imports from main bundle (truly lazy on /admin only)

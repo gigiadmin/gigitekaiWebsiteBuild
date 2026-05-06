@@ -152,6 +152,32 @@ function vitePluginManusDebugCollector(): Plugin {
 }
 
 /**
+ * PERFORMANCE: Vite plugin that converts render-blocking CSS links to non-blocking.
+ * At build time, transforms <link rel="stylesheet"> into a preload pattern so the
+ * browser can start painting with the inline critical CSS while the full stylesheet
+ * loads asynchronously. This is deterministic and works regardless of server config.
+ */
+function vitePluginNonBlockingCSS(): Plugin {
+  return {
+    name: 'vite-plugin-non-blocking-css',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      if (process.env.NODE_ENV !== 'production') return html;
+      // Transform: <link rel="stylesheet" crossorigin href="/assets/main-XXX.css">
+      // Into: <link rel="preload" as="style" href="..." onload="this.onload=null;this.rel='stylesheet'">
+      //       <noscript><link rel="stylesheet" href="..."></noscript>
+      return html.replace(
+        /<link rel="stylesheet"(?: crossorigin)? href="(\/assets\/[^"]+\.css)">/g,
+        (_, cssHref) => [
+          `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
+          `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
+        ].join('\n    ')
+      );
+    },
+  };
+}
+
+/**
  * PRODUCTION FIX: Vite plugin that injects a bootstrap script into the built HTML.
  * The manus-runtime script (injected by vitePluginManusRuntime) blocks ES module
  * execution in production. This bootstrap script detects when the app fails to mount
@@ -213,6 +239,7 @@ const plugins = [
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
+  vitePluginNonBlockingCSS(),
   vitePluginBootstrapFallback(),
   visualizer({
     open: false,
