@@ -68,6 +68,9 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
+  // Admin routes use Azure AD auth, not Manus OAuth — don't redirect to Manus login
+  if (window.location.pathname.startsWith("/admin")) return;
+
   window.location.href = getLoginUrl();
 };
 
