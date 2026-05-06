@@ -459,8 +459,23 @@ export const aibotRouter = router({
         console.warn("[AIBot] Failed to save chat analytics (non-critical):", err);
       });
 
-      // KB search temporarily disabled - knowledge base needs to be built up
-      const context = "";
+      // Search KB articles for relevant context
+      let context = "";
+      let kbArticlesFound: any[] = [];
+      try {
+        kbArticlesFound = await searchKBArticles(message, 3);
+        if (kbArticlesFound.length > 0) {
+          context = kbArticlesFound.map(a => `[KB: ${a.title}]\n${a.content}`).join("\n\n");
+        } else {
+          // Fallback to legacy knowledge base
+          const legacyResults = await searchKnowledgeBase(message);
+          if (legacyResults.length > 0) {
+            context = legacyResults.slice(0, 3).map(r => `[${r.title}]\n${r.content}`).join("\n\n");
+          }
+        }
+      } catch (kbError) {
+        console.warn('[AIBot] KB search failed (non-critical):', kbError);
+      }
 
       // Build conversation history for LLM
       const conversationHistory = history.map(msg => ({
@@ -491,7 +506,28 @@ export const aibotRouter = router({
           ? assistantMessageContent 
           : "I apologize, I'm having trouble responding. Please try again.";
 
-        // KB recommendations temporarily disabled - knowledge base being built up
+        // Append KB article recommendations if found
+        if (kbArticlesFound.length > 0) {
+          const kbSection = kbArticlesFound.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
+          assistantMessage += `\n\n\ud83d\udcda **This is covered in our KB:**\n${kbSection}`;
+        } else {
+          // Proactive KB suggestions: check all published articles for relevance
+          try {
+            const allArticles = await getAllPublishedKBArticles();
+            const relevantSuggestions: any[] = [];
+            for (const article of allArticles.slice(0, 10)) {
+              if (relevantSuggestions.length >= 2) break;
+              const isRelevant = await isKBArticleRelevant(article.id, message);
+              if (isRelevant) relevantSuggestions.push(article);
+            }
+            if (relevantSuggestions.length > 0) {
+              const suggestSection = relevantSuggestions.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
+              assistantMessage += `\n\n\ud83d\udca1 **Hey, this might help:**\n${suggestSection}`;
+            }
+          } catch (proactiveErr) {
+            console.warn('[AIBot] Proactive KB suggestion failed (non-critical):', proactiveErr);
+          }
+        }
 
         // Check if escalation is needed (angry customers or complex issues)
         const autoEscalateFromSentiment = shouldAutoEscalate(analysis.sentiment, analysis.sentimentScore);
@@ -534,8 +570,8 @@ export const aibotRouter = router({
             sentiment: analysis.sentiment,
             intent: analysis.intent,
             routedTo: analysis.routedTo,
-            kbArticlesUsed: 0,
-            proactiveSuggestions: false
+            kbArticlesUsed: kbArticlesFound.length,
+            proactiveSuggestions: kbArticlesFound.length === 0
           }),
         });
         const assistantMessageId = (assistantMsgResult as any)?.[0]?.insertId || 1;

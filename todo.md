@@ -4407,3 +4407,4 @@
 - [x] Add Whisper language hint (language: "en") to voice transcription for better IT terminology accuracy — already set in aibot.ts line 1266
 - [x] Fix MS Learn KB links going to 404 pages — removed ne(syncSource, 'ms-learn') filter from kb.ts, updated KBPublic.tsx with dynamic MS Learn section
 - [x] Admin live chat monitoring — real-time view of active Aria conversations with takeover capability (Aria Monitor tab in AdminChat.tsx, backend procedures: getAriaSessions, getAriaSessionMessages, adminSendAriaMessage)
+- [x] Re-enable Aria KB article recommendations in sendMessage — KB search + proactive suggestions active, all 924 tests passing
