@@ -242,6 +242,9 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
+    // Disable modulepreload injection — prevents browser from eagerly downloading
+    // ALL chunks (including vendor/streamdown-deps) on initial page load.
+    modulePreload: false,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
@@ -259,6 +262,20 @@ export default defineConfig({
           // tRPC + React Query — needed on first paint for auth
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
+          }
+          // Heavy syntax-highlighting deps — ONLY safe to split because AIChatWidget
+          // is now lazy-loaded. These packages are NOT in the entry chunk.
+          if (
+            id.includes("/shiki/") ||
+            id.includes("/@shikijs/") ||
+            id.includes("/streamdown/") ||
+            id.includes("/mermaid/") ||
+            id.includes("/cytoscape/") ||
+            id.includes("/dagre/") ||
+            id.includes("/langium/") ||
+            id.includes("/katex/")
+          ) {
+            return "streamdown-deps";
           }
           // All other node_modules go into a single vendor chunk.
           // Splitting further (radix-ui, icons, utils, admin-heavy, charts)

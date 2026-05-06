@@ -9,16 +9,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 // ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
 import Home from "./pages/Home";
-import ApprovalGuard from "./components/ApprovalGuard";
-// Widgets — loaded eagerly (always visible on public pages)
-import AnnouncementBar from "./components/AnnouncementBar";
-import CookieConsent from "./components/CookieConsent";
-import AIChatWidget from "./components/AIChatWidget";
-import FloatingContactDial from "./components/FloatingContactDial";
-import UserChatWidget from "./components/UserChatWidget";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import { CopilotChat } from "./components/CopilotChat";
-import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
+
+// ── Widgets — lazy loaded (deferred to reduce initial bundle / TBT) ────────
+const ApprovalGuard = lazy(() => import("./components/ApprovalGuard"));
+const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
+const CookieConsent = lazy(() => import("./components/CookieConsent"));
+const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
+const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
+const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
+const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
+const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
+const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
@@ -61,9 +62,8 @@ const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
-// Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
-import TicketDetail from "./pages/TicketDetail";
-import TicketFeedback from "./pages/TicketFeedback";
+const TicketDetail = lazy(() => import("./pages/TicketDetail"));
+const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 
@@ -175,7 +175,8 @@ function Router() {
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
           <Route path={"/kb"} component={KBPublic} />
-          <Route path={"/kb/:slug"} component={KBPublic} />          {/* ── Helpdesk (customer-facing) ── */}
+          <Route path={"/kb/:slug"} component={KBPublic} />
+          {/* ── Helpdesk (customer-facing) ── */}
           {/* Remote Session (PeerChat-style WebRTC) */}
           <Route path={"/remote-session/:roomId"} component={RemoteSession} />
           <Route path={"/helpdesk"} component={HelpDesk} />
@@ -260,19 +261,24 @@ function App() {
               ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com
             </div>
           )}
-          {!hideWidgets && <AnnouncementBar />}
+          {/* Lazy-loaded lightweight widgets — rendered immediately but loaded on demand */}
+          <Suspense fallback={null}>
+            {!hideWidgets && <AnnouncementBar />}
+          </Suspense>
           <Router />
-          {!hideWidgets && <CookieConsent />}
-          {!hideWidgets && <FloatingContactDial />}
-          {!hideWidgets && <MobileAIDemoCTA />}
+          <Suspense fallback={null}>
+            {!hideWidgets && <CookieConsent />}
+            {!hideWidgets && <FloatingContactDial />}
+            {!hideWidgets && <MobileAIDemoCTA />}
+          </Suspense>
           {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
           {widgetsReady && (
-            <>
+            <Suspense fallback={null}>
               {!hideWidgets && <AIChatWidget />}
               {!hideWidgets && <UserChatWidget />}
               {!hideWidgets && <CopilotChat />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
-            </>
+            </Suspense>
           )}
         </TooltipProvider>
       </ThemeProvider>
