@@ -121,24 +121,12 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
 
-      {/* ── Background + Video layer ── */}
+      {/* ── Video layer ── */}
       <div className="absolute inset-0 z-0">
-        {/* LCP image: uses <img> with fetchpriority=high for browser preloader discoverability */}
-        <img
-          src={HERO_BG}
-          alt=""
-          role="presentation"
-          width={1920}
-          height={1080}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Gradient overlay on top of image */}
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%)",
+            background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
           }}
         />
         {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}

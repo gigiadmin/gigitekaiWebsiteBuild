@@ -55,9 +55,6 @@ export default function Footer() {
               <img 
                 src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png" 
                 alt="GigitekAI logo" 
-                width={200}
-                height={40}
-                loading="lazy"
                 className="h-10 w-auto object-contain"
               />
             </a>

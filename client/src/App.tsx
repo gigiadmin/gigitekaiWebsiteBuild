@@ -1,26 +1,24 @@
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
 import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-
-// Deferred UI providers — not needed for initial paint
-const Toaster = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
-const TooltipProvider = lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
+  // make sure to consider if you need authentication for certain routes
 
 // ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
 import Home from "./pages/Home";
-// ApprovalGuard only used in AdminApp (lazy-loaded)
-
-// ── Widgets — lazy loaded (deferred until after first paint) ───────────
-const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
-const CookieConsent = lazy(() => import("./components/CookieConsent"));
-const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
-const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
-const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
-const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
-const CopilotChat = lazy(() => import("./components/CopilotChat").then(m => ({ default: m.CopilotChat })));
-const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
+import ApprovalGuard from "./components/ApprovalGuard";
+// Widgets — loaded eagerly (always visible on public pages)
+import AnnouncementBar from "./components/AnnouncementBar";
+import CookieConsent from "./components/CookieConsent";
+import AIChatWidget from "./components/AIChatWidget";
+import FloatingContactDial from "./components/FloatingContactDial";
+import UserChatWidget from "./components/UserChatWidget";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { CopilotChat } from "./components/CopilotChat";
+import MobileAIDemoCTA from "./components/MobileAIDemoCTA";
 
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
@@ -63,8 +61,9 @@ const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
-const TicketDetail = lazy(() => import("./pages/TicketDetail"));
-const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
+// Eagerly load TicketDetail and TicketFeedback to prevent mobile 404 on slow networks
+import TicketDetail from "./pages/TicketDetail";
+import TicketFeedback from "./pages/TicketFeedback";
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 
@@ -246,37 +245,30 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
-        <Suspense fallback={null}>
-          <TooltipProvider>
-            {/* Skip to main content link for accessibility */}
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-[9999] focus:bg-[#00D4FF] focus:text-[#0A0E1A] focus:px-4 focus:py-2 focus:font-semibold"
-            >
-              Skip to main content
-            </a>
-            <Suspense fallback={null}><Toaster /></Suspense>
-            <Suspense fallback={null}>
-              {!hideWidgets && <AnnouncementBar />}
-            </Suspense>
-            <Router />
-            {/* Deferred widgets — lazy loaded after first paint */}
-            <Suspense fallback={null}>
-              {!hideWidgets && <CookieConsent />}
-              {!hideWidgets && <FloatingContactDial />}
-              {!hideWidgets && <MobileAIDemoCTA />}
-            </Suspense>
-            {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
-            {widgetsReady && (
-              <Suspense fallback={null}>
-                {!hideWidgets && <AIChatWidget />}
-                {!hideWidgets && <UserChatWidget />}
-                {!hideWidgets && <CopilotChat />}
-                {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
-              </Suspense>
-            )}
-          </TooltipProvider>
-        </Suspense>
+        <TooltipProvider>
+          {/* Skip to main content link for accessibility */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-[9999] focus:bg-[#00D4FF] focus:text-[#0A0E1A] focus:px-4 focus:py-2 focus:font-semibold"
+          >
+            Skip to main content
+          </a>
+          <Toaster />
+          {!hideWidgets && <AnnouncementBar />}
+          <Router />
+          {!hideWidgets && <CookieConsent />}
+          {!hideWidgets && <FloatingContactDial />}
+          {!hideWidgets && <MobileAIDemoCTA />}
+          {/* Heavy widgets deferred until after interaction/3s to reduce TBT */}
+          {widgetsReady && (
+            <>
+              {!hideWidgets && <AIChatWidget />}
+              {!hideWidgets && <UserChatWidget />}
+              {!hideWidgets && <CopilotChat />}
+              {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
+            </>
+          )}
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
