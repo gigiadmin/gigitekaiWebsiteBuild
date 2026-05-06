@@ -89,9 +89,13 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group flex-shrink-0">
             <img 
-              src="/manus-storage/gigitekai-logo-cropped_6206ee8a.webp" 
+              src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp" 
               alt="GigitekAI logo" 
               className="h-10 sm:h-12 lg:h-12 w-auto object-contain"
+              width="245"
+              height="70"
+              fetchPriority="high"
+              decoding="async"
               style={{ maxWidth: '200px', minWidth: '130px' }}
             />
           </a>

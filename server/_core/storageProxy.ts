@@ -32,7 +32,9 @@ export function registerStorageProxy(app: Express) {
         res.status(502).send("Empty signed URL from backend");
         return;
       }
-      res.set("Cache-Control", "no-store");
+      // Allow browsers to cache the redirected URL for 1 year (immutable assets)
+      // The signed URL itself changes, but the content is the same
+      res.set("Cache-Control", "public, max-age=86400"); // 1 day cache for the redirect itself
       res.redirect(307, url);
     } catch (err) {
       console.error("[StorageProxy] failed:", err);

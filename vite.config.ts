@@ -267,6 +267,11 @@ export default defineConfig({
           if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
             return "trpc-query";
           }
+          // MSAL (Azure AD auth) — only needed on /admin routes
+          // Splitting into its own chunk allows public pages to skip this ~300KB library
+          if (id.includes("@azure/msal-browser") || id.includes("@azure/msal-react") || id.includes("@azure/msal-common")) {
+            return "msal";
+          }
           // All other node_modules go into a single vendor chunk.
           // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
           // some node_module in vendor has a static import of streamdown, which would

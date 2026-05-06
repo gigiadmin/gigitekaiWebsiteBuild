@@ -123,10 +123,24 @@ export default function HeroSection() {
 
       {/* ── Video layer ── */}
       <div className="absolute inset-0 z-0">
+        {/* LCP element: img tag with fetchpriority=high for fastest Largest Contentful Paint */}
+        <img
+          src={HERO_BG}
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          width={1920}
+          height={1080}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 0 }}
+        />
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%), url(${HERO_BG}) center/cover no-repeat`,
+            background: `linear-gradient(to right, rgba(10,14,26,0.97) 0%, rgba(10,14,26,0.75) 60%, rgba(10,14,26,0.4) 100%)`,
+            zIndex: 1,
           }}
         />
         {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}
@@ -145,6 +159,7 @@ export default function HeroSection() {
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
               playing ? "opacity-100" : "opacity-0"
             }`}
+            style={{ zIndex: 2 }}
           />
         )}
         {/* ── Play icon overlay on poster (shown before video starts) ── */}
