@@ -237,11 +237,14 @@ export default defineConfig({
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
-  build: {
+   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
+    // Disable modulepreload injection — prevents browser from eagerly downloading
+    // ALL chunks (including vendor/streamdown-deps) on initial page load.
+    modulePreload: false,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
@@ -261,9 +264,10 @@ export default defineConfig({
             return "trpc-query";
           }
           // All other node_modules go into a single vendor chunk.
-          // Splitting further (radix-ui, icons, utils, admin-heavy, charts)
-          // caused circular dependencies and TDZ errors in production.
-          // A single vendor chunk is larger but guaranteed cycle-free.
+          // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
+          // some node_module in vendor has a static import of streamdown, which would
+          // create a vendor→streamdown-deps static dependency (defeating the purpose).
+          // modulePreload:false still prevents eager browser preloading of vendor.
           if (id.includes("node_modules")) {
             return "vendor";
           }
