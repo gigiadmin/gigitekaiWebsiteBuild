@@ -4,8 +4,8 @@
  */
 import AdminLayout from "@/components/AdminLayout";
 import AdminNewsletter from "./AdminNewsletter";
-import { lazy, Suspense, useState } from "react";
-const AdminNewsletterBroadcast = lazy(() => import("./AdminNewsletterBroadcast"));
+import AdminNewsletterBroadcast from "./AdminNewsletterBroadcast";
+import { useState } from "react";
 import { Mail, Send } from "lucide-react";
 
 type Tab = "subscribers" | "broadcast";
@@ -36,7 +36,7 @@ export default function AdminNewsletterPage() {
           ))}
         </div>
         {tab === "subscribers" && <AdminNewsletter />}
-        {tab === "broadcast" && <Suspense fallback={<div className="text-slate-400 text-sm p-4">Loading editor...</div>}><AdminNewsletterBroadcast /></Suspense>}
+        {tab === "broadcast" && <AdminNewsletterBroadcast />}
       </div>
     </AdminLayout>
   );
