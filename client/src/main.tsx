@@ -15,6 +15,14 @@ import "./index.css";
 // Initialize MSAL instance (singleton — must be created before render)
 const msalInstance = new PublicClientApplication(MSAL_CONFIG);
 
+// MSAL v5 requires explicit initialization before any operations
+const msalReady = msalInstance.initialize().then(() => {
+  // Handle redirect/popup responses (required for popup flow to work)
+  return msalInstance.handleRedirectPromise();
+}).catch((err) => {
+  console.warn('[MSAL] Init warning:', err);
+});
+
 // ============================================================
 // PRODUCTION FIX: Manus platform injects manus-runtime which
 // bundles its own React and targets elements with id="root" or
@@ -105,7 +113,8 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-// Mount React to our isolated element
+// Mount React AFTER MSAL is initialized (required for popup flow in v5)
+msalReady.then(() => {
 const mountPoint = getOrCreateMountPoint();
 try {
   const reactRoot = createRoot(mountPoint);
@@ -158,3 +167,4 @@ try {
     }
   }, 100);
 }
+}); // end msalReady.then()
