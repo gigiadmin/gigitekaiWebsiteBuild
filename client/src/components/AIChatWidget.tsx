@@ -42,7 +42,7 @@ export default function AIChatWidget() {
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
   const initInProgressRef = useRef(false); // Prevent double-init race condition
@@ -308,16 +308,37 @@ export default function AIChatWidget() {
     }
   };
 
+  // Upload a Blob/File to S3 via the /api/upload/aria multipart endpoint
+  const uploadToS3 = async (blob: Blob, fileName: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", blob, fileName);
+    const response = await fetch("/api/upload/aria", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || "Upload failed");
+    }
+    const data = await response.json();
+    if (!data.success || !data.url) throw new Error("Upload returned no URL");
+    return data.url;
+  };
+
   const handleTranscribeAudio = async (audioBlob: Blob) => {
     try {
       setIsLoading(true);
+      toast.info("Uploading audio for transcription...");
       
-      const audioUrl = URL.createObjectURL(audioBlob);
+      // Step 1: Upload audio blob to S3 to get a real URL the server can fetch
+      const audioUrl = await uploadToS3(audioBlob, `voice-${Date.now()}.webm`);
       
+      // Step 2: Send the S3 URL to the transcription endpoint
       const response = await fetch("/api/trpc/aibot.transcribeVoiceMessage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audioUrl }),
+        body: JSON.stringify({ json: { audioUrl } }),
         credentials: "include",
       });
       
@@ -326,7 +347,7 @@ export default function AIChatWidget() {
       }
       
       const data = await response.json();
-      const transcribedText = data.result?.text || "";
+      const transcribedText = data.result?.data?.json?.text || data.result?.text || "";
       
       if (transcribedText) {
         setInputValue(transcribedText);
@@ -344,7 +365,7 @@ export default function AIChatWidget() {
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !sessionId) return;
+    if (!file) return;
     try {
       setIsLoading(true);
       const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
@@ -356,19 +377,27 @@ export default function AIChatWidget() {
         toast.error("File size exceeds 5MB limit");
         return;
       }
-      const response = await fetch("/api/trpc/aibot.uploadFileForReview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: file.name, fileSize: file.size, mimeType: file.type, sessionId }),
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Upload failed");
-      setMessages((prev) => [...prev, { role: "user", message: `📎 Uploaded: ${file.name}`, timestamp: Date.now() }]);
+      toast.info(`Uploading ${file.name}...`);
+      // Upload real file bytes to S3
+      const fileUrl = await uploadToS3(file, file.name);
+      // Show in chat and notify AI about the uploaded file
+      setMessages((prev) => [...prev, { role: "user", message: `📎 Uploaded: [${file.name}](${fileUrl})`, timestamp: Date.now() }]);
       toast.success(`File uploaded: ${file.name}`);
+      // Auto-send a message to Aria asking it to review the file
+      if (sessionId) {
+        const ensuredSessionId = sessionId;
+        const reviewMsg = `I've uploaded a file for your review: ${file.name} (${fileUrl}). Please analyze it.`;
+        setMessages((prev) => [...prev, { role: "user", message: reviewMsg, timestamp: Date.now() }]);
+        try {
+          await sendMessageMutation.mutateAsync({ sessionId: ensuredSessionId, message: reviewMsg });
+        } catch (e) {
+          console.error("[Chat] Auto-review message failed:", e);
+        }
+      }
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("[Chat] File upload error:", error);
-      toast.error("Failed to upload file.");
+      toast.error("Failed to upload file. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -681,22 +710,32 @@ export default function AIChatWidget() {
 
           {/* Input Area - Fixed at bottom */}
           <div className="bg-slate-800 border-t border-cyan-500/20 p-4 flex flex-col gap-2">
-            <div className="flex gap-2">
-              <input
+            <div className="flex gap-2 items-end">
+              <textarea
                 ref={inputRef}
-                type="text"
+                rows={1}
                 value={inputValue}
                 onChange={(e) => {
                   setInputValue(e.target.value);
+                  // Auto-resize
+                  e.target.style.height = "auto";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
                   // Debounce KB suggestion query
                   if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
                   debounceTimerRef.current = setTimeout(() => {
                     setDebouncedQuery(e.target.value);
                   }, 300);
                 }}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Ask anything about our services..."
-                className="flex-1 bg-slate-700 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                  // Shift+Enter inserts newline (default textarea behavior)
+                }}
+                placeholder="Ask anything... (Shift+Enter for new line)"
+                className="flex-1 bg-slate-700 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm resize-none overflow-hidden min-h-[38px]"
+                style={{ height: "38px" }}
               />
               {isRecording ? (
                 <button

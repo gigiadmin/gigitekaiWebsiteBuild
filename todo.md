@@ -4358,11 +4358,11 @@
 
 
 ## Aria Voice & Upload Buttons - Debugging (May 5, 2026)
-- [ ] Voice record button (Mic icon) - code exists but not rendering in chat widget UI
-- [ ] File upload button (Upload icon) - code exists but not rendering in chat widget UI
-- [ ] Issue: Buttons are in AIChatWidget.tsx (lines 741-757) but not visible when chat is open
-- [ ] Possible causes: CSS hiding, conditional rendering, or chat widget not fully initializing
-- [ ] Need to verify: Is the chat widget opening? Are buttons hidden by CSS? Are they in the correct container?
+- [x] Voice record button (Mic icon) - FIXED: CopilotChat was overlapping AIChatWidget at same position
+- [x] File upload button (Upload icon) - FIXED: Removed CopilotChat, AIChatWidget now sole widget
+- [x] Issue: Buttons are in AIChatWidget.tsx (lines 710-726) and now visible since CopilotChat removed
+- [x] Root cause: CopilotChat rendered on top of AIChatWidget (both fixed bottom-6 right-6 z-40)
+- [x] Fix: Removed CopilotChat from App.tsx, kept AIChatWidget as primary AI-first chat
 
 ## Phase 3 — Stability & Staging (May 6, 2026)
 - [x] Create reusable PageSpeed optimization skill (gigitekai-pagespeed-optimizer)
@@ -4393,3 +4393,8 @@
 - [x] Remove CopilotChat component from App.tsx (duplicate overlapping widget hiding AIChatWidget)
 - [x] Ensure AIChatWidget is the sole bottom-right chat with voice record + file upload visible
 - [x] Verify no z-index/position conflicts with other floating widgets (UserChatWidget is auth-gated, no conflict for public visitors)
+
+## Aria Chat Bug Fixes - May 2026
+- [x] Fix Shift+Enter submits message instead of inserting newline - changed input to textarea, Enter submits, Shift+Enter inserts newline
+- [x] Fix file upload button failing - added /api/upload/aria multipart endpoint with multer, uploads real bytes to S3
+- [x] Fix voice recording failing - audio blob now uploaded to S3 first, then S3 URL passed to transcription service (blob URLs are not accessible server-side)

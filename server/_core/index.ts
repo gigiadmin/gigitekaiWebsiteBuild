@@ -208,6 +208,36 @@ async function startServer() {
   app.get("/hh", (_req, res) => {
     res.redirect("/contact");
   });
+
+  // ── Aria Chat File Upload (multipart) ──────────────────────────────────────
+  // Accepts real file bytes and uploads to S3, returns a public URL for AI review
+  {
+    const multer = (await import("multer")).default;
+    const { storagePut } = await import("../storage");
+    const { nanoid } = await import("nanoid");
+    const upload = multer({
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+      fileFilter: (_req, file, cb) => {
+        const allowed = ["application/pdf", "image/jpeg", "image/png", "image/webp",
+          "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "audio/webm", "audio/mp4", "audio/ogg", "audio/wav", "audio/mpeg"];
+        cb(null, allowed.includes(file.mimetype));
+      },
+    });
+    app.post("/api/upload/aria", upload.single("file"), async (req: any, res) => {
+      try {
+        if (!req.file) return res.status(400).json({ success: false, error: "No file provided" });
+        const ext = req.file.originalname.split(".").pop() || "bin";
+        const key = `aria-uploads/${nanoid()}.${ext}`;
+        const { url } = await storagePut(key, req.file.buffer, req.file.mimetype);
+        return res.json({ success: true, url, fileName: req.file.originalname, mimeType: req.file.mimetype });
+      } catch (err: any) {
+        console.error("[Aria Upload] Error:", err);
+        return res.status(500).json({ success: false, error: err.message });
+      }
+    });
+  }
   
   // tRPC API
   app.use(
