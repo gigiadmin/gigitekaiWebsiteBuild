@@ -232,6 +232,9 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // Redirect lowlight to only export createLowlight (not all 200+ highlight.js languages)
+      // This saves ~9MB from the vendor chunk
+      "lowlight": path.resolve(import.meta.dirname, "node_modules/lowlight/lib/index.js"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
@@ -272,12 +275,18 @@ export default defineConfig({
           if (id.includes("@radix-ui")) {
             return "radix-ui";
           }
+          // Streamdown + all its heavy deps (shiki, mermaid, katex, cytoscape, dagre, hast/rehype)
+          // Only needed by chat widgets which are lazy-loaded after 3s/interaction
+          if (id.includes("shiki") || id.includes("@shikijs") || id.includes("streamdown") || id.includes("oniguruma") || id.includes("mermaid") || id.includes("cytoscape") || id.includes("dagre") || id.includes("katex") || id.includes("hast") || id.includes("rehype") || id.includes("remark") || id.includes("unified") || id.includes("mdast") || id.includes("micromark") || id.includes("unist") || id.includes("elkjs") || id.includes("langium") || id.includes("chevrotain") || id.includes("react-markdown") || id.includes("property-information") || id.includes("vfile") || id.includes("bail") || id.includes("trough") || id.includes("devlop")) {
+            return "streamdown-deps";
+          }
           // TipTap rich text editor — admin-only, very large (~800KB)
-          if (id.includes("@tiptap") || id.includes("prosemirror") || id.includes("lowlight") || id.includes("highlight.js")) {
+          if (id.includes("@tiptap") || id.includes("prosemirror") || id.includes("lowlight") || id.includes("highlight.js") || id.includes("highlight")) {
             return "tiptap";
           }
-          // Recharts — admin dashboard charts
-          if (id.includes("recharts") || id.includes("d3-")) {
+
+          // Recharts + dependencies — admin dashboard charts (lodash, react-smooth, victory-vendor are recharts deps)
+          if (id.includes("recharts") || id.includes("d3-") || id.includes("lodash") || id.includes("react-smooth") || id.includes("victory-vendor")) {
             return "charts";
           }
           // Chart.js — admin analytics

@@ -4379,3 +4379,15 @@
 - [x] Preload hero background WebP image in index.html
 - [x] Remove broken chunk prefetch script from index.html
 - [x] Remove stale CSS/JS preload links referencing old hashed filenames
+
+## PageSpeed Phase 2 Optimization (May 6, 2026) — Score: 55 → Target 65+
+- [x] Identified 9.2MB shiki/TextMate grammars in vendor chunk (via streamdown markdown renderer)
+- [x] Isolated shiki + all streamdown deps into separate lazy chunk (saves 9.2MB from initial load)
+- [x] Identified mermaid (65MB on disk), cytoscape, dagre, langium in vendor chunk
+- [x] Isolated mermaid/cytoscape/dagre/langium/katex into streamdown-deps chunk
+- [x] Identified lodash (4.9MB), react-smooth, victory-vendor (recharts deps) in vendor chunk
+- [x] Isolated recharts + all dependencies into charts chunk
+- [x] Added static hero HTML shell in index.html (instant LCP without waiting for React hydration)
+- [x] Added dns-prefetch hints for CDN and analytics domains
+- [x] Final vendor chunk: 811KB (261KB gzip) — down from 12,555KB (2,515KB gzip) = 93.5% reduction
+- [x] Total initial JS: 441KB gzip (down from 2,646KB gzip) = 83.3% reduction
