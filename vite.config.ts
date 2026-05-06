@@ -215,6 +215,59 @@ function vitePluginNonBlockingCSS(): Plugin {
 }
 
 /**
+ * PERFORMANCE: Vite plugin that strips the static msal import from main.js and all
+ * public-page lazy chunks after build. Vite places its __vite__preloadHelper function
+ * in the msal chunk, causing a static main→msal dependency that forces browsers to
+ * download the full 271KB MSAL library on every public page load.
+ *
+ * The helper is only needed for lazy-loading admin chunks, so it's safe to remove
+ * the static import from public-page chunks. The msal chunk will still be loaded
+ * dynamically when admin routes are accessed.
+ */
+function vitePluginStripMsalStaticImport(): Plugin {
+  return {
+    name: 'vite-plugin-strip-msal-static-import',
+    enforce: 'post',
+    writeBundle(options, bundle) {
+      if (process.env.NODE_ENV !== 'production') return;
+      const outDir = options.dir || 'dist/public';
+      // Find the msal chunk name
+      const msalChunkName = Object.keys(bundle).find(name => name.startsWith('assets/msal-') && name.endsWith('.js'));
+      if (!msalChunkName) return;
+      const msalFile = msalChunkName.split('/').pop()!; // e.g. msal-CZsMGMEI.js
+      const msalBase = msalFile.replace('.js', ''); // e.g. msal-CZsMGMEI
+      // Strip static msal imports from main.js and all public-page chunks
+      // Admin chunks legitimately need msal, so we keep their imports
+      const ADMIN_CHUNKS = ['AdminApp-', 'AdminLogin', 'AdminHome-', 'AdminUnlock-', 'redirect-'];
+      let stripped = 0;
+      for (const [chunkName, chunk] of Object.entries(bundle)) {
+        if (chunk.type !== 'chunk') continue;
+        if (!chunkName.endsWith('.js')) continue;
+        // Skip admin chunks - they need msal
+        const baseName = chunkName.split('/').pop() || '';
+        if (ADMIN_CHUNKS.some(prefix => baseName.startsWith(prefix))) continue;
+        const chunkInfo = chunk as { code: string };
+        if (!chunkInfo.code) continue;
+        // Remove side-effect import: import"./msal-XXX.js";
+        const sideEffectPattern = new RegExp(`import"\.\/${msalBase}\.js";`, 'g');
+        // Remove named import: import{_ as s}from"./msal-XXX.js";
+        const namedPattern = new RegExp(`import\\{[^}]+\\}from"\.\/${msalBase}\.js";`, 'g');
+        const original = chunkInfo.code;
+        chunkInfo.code = chunkInfo.code.replace(sideEffectPattern, '').replace(namedPattern, '');
+        if (chunkInfo.code !== original) {
+          const filePath = path.join(outDir, chunkName);
+          fs.writeFileSync(filePath, chunkInfo.code);
+          stripped++;
+        }
+      }
+      if (stripped > 0) {
+        console.log(`[strip-msal] Removed static msal imports from ${stripped} public chunks (saves ~70KB gzip per page load)`);
+      }
+    },
+  };
+}
+
+/**
  * PRODUCTION FIX: Vite plugin that injects a bootstrap script into the built HTML.
  * The manus-runtime script (injected by vitePluginManusRuntime) blocks ES module
  * execution in production. This bootstrap script detects when the app fails to mount
@@ -278,6 +331,7 @@ const plugins = [
   vitePluginManusDebugCollector(),
   vitePluginNonBlockingCSS(),
   vitePluginBootstrapFallback(),
+  vitePluginStripMsalStaticImport(),
   visualizer({
     open: false,
     gzipSize: true,

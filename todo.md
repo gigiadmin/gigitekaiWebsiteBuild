@@ -4452,7 +4452,15 @@
 - [x] Verified MSAL has zero static imports from main bundle (truly lazy on /admin only)
 
 ## PageSpeed AI Analysis Fixes (May 2026)
-- [ ] Add rel=canonical meta tag to all pages (SEO)
-- [ ] Add <main> landmark to page layout (Accessibility)
-- [ ] Split lucide-react icons to reduce vendor bundle
-- [ ] Color contrast audit and fixes
+- [x] Add rel=canonical meta tag to all pages (SEO) — canonical in index.html + useSEO.ts per-page dynamic canonical
+- [x] Add <main> landmark to page layout (Accessibility) — <main id="main-content"> in App.tsx with skip-to-content link
+- [x] Split lucide-react icons to reduce vendor bundle — Vite tree-shakes lucide automatically (sideEffects:false), only 144 icons included vs 1500+ available
+- [x] Color contrast audit and fixes — dark:text-gray-500/600 → dark:text-gray-300 across all public-facing components
+
+## MSAL Static Import Fix (May 6, 2026)
+- [x] Discovered msal chunk (271KB raw / 70KB gzip) was statically imported on every public page
+- [x] Root cause: Vite places __vite__preloadHelper in msal chunk, creating static main→msal dependency
+- [x] Fix: Added vitePluginStripMsalStaticImport() Vite plugin to strip static msal imports from all public chunks post-build
+- [x] Result: Initial download reduced from 606KB gzip → 466KB gzip (140KB / 23% reduction)
+- [x] Admin portal unaffected: AdminApp.js and 4 other admin chunks retain msal import
+- [x] All 927 tests passing after fix
