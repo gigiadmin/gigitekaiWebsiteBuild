@@ -6,14 +6,19 @@ import { tickets } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 // ── Copilot Studio Agent Configuration ──────────────────────────────────
-const COPILOT_STUDIO_CONFIG = {
-  tenantId: process.env.COPILOT_STUDIO_TENANT_ID || process.env.MS_GRAPH_TENANT_ID,
-  environmentId: process.env.COPILOT_STUDIO_ENVIRONMENT_ID,
-  ticketClassifierAgentId: process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID,
-  kbQAAgentId: process.env.COPILOT_KB_QA_AGENT_ID,
-  voiceAgentId: process.env.COPILOT_VOICE_AGENT_ID,
-  apiKey: process.env.COPILOT_STUDIO_API_KEY,
-};
+// Runtime getter to handle late-binding of env vars in production
+function getCopilotStudioConfig() {
+  return {
+    tenantId: process.env.COPILOT_STUDIO_TENANT_ID || process.env.MS_GRAPH_TENANT_ID || process.env.AZURE_TENANT_ID,
+    environmentId: process.env.COPILOT_STUDIO_ENVIRONMENT_ID,
+    ticketClassifierAgentId: process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID,
+    kbQAAgentId: process.env.COPILOT_KB_QA_AGENT_ID,
+    voiceAgentId: process.env.COPILOT_VOICE_AGENT_ID,
+    apiKey: process.env.COPILOT_STUDIO_API_KEY,
+  };
+}
+// Backward compat reference for existing code paths
+const COPILOT_STUDIO_CONFIG = getCopilotStudioConfig();
 
 // ── Ticket Classification Agent ──────────────────────────────────────────
 async function invokeTicketClassificationAgent(ticket: {
@@ -227,13 +232,15 @@ export const copilotStudioRouter = router({
       }
     }),
 
-  // Get agent status
-  getAgentStatus: protectedProcedure.query(async () => {
+  // Get agent status — public + runtime env read to prevent auth/caching issues
+  getAgentStatus: publicProcedure.query(async () => {
+    const config = getCopilotStudioConfig();
     return {
-      ticketClassifierConfigured: !!COPILOT_STUDIO_CONFIG.ticketClassifierAgentId,
-      kbQAConfigured: !!COPILOT_STUDIO_CONFIG.kbQAAgentId,
-      tenantId: COPILOT_STUDIO_CONFIG.tenantId ? "configured" : "not configured",
-      environmentId: COPILOT_STUDIO_CONFIG.environmentId ? "configured" : "not configured",
+      ticketClassifierConfigured: !!config.ticketClassifierAgentId,
+      kbQAConfigured: !!config.kbQAAgentId,
+      voiceAgentConfigured: !!config.voiceAgentId,
+      tenantId: config.tenantId ? "configured" : "not configured",
+      environmentId: config.environmentId ? "configured" : "not configured",
     };
   }),
 });
