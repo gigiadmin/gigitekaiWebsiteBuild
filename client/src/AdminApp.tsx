@@ -55,6 +55,7 @@ const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 const AdminRecordingsPage = lazy(() => import("./pages/AdminRecordingsPage"));
+const AdminSmsCampaignsPage = lazy(() => import("./pages/AdminSmsCampaignsPage"));
 
 function PageLoader() {
   return (
@@ -120,6 +121,7 @@ export default function AdminApp() {
               <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>} />
               <Route path="/admin/kb-analytics" component={() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>} />
               <Route path="/admin/recordings" component={() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>} />
+              <Route path="/admin/sms-campaigns" component={() => <ApprovalGuard><AdminSmsCampaignsPage /></ApprovalGuard>} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
                   <div className="text-center">

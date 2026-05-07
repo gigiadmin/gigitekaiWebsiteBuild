@@ -4479,3 +4479,13 @@
 - [x] Teams adaptive card updated with AI Category badge (shows category + confidence %)
 - [x] TicketDetail.tsx updated — AI Category badge with color-coded confidence (cyan=high, yellow=medium, gray=low)
 - [x] All 927 tests passing
+
+## SMS Campaign Admin Dashboard
+- [x] DB schema: smsContacts, smsCampaigns, smsMessages, smsOptOuts tables
+- [x] Twilio SDK installed and SMS send helper wired
+- [x] Backend router: contacts CRUD, campaign CRUD, send, test SMS, metrics, opt-out log
+- [x] Router registered in server/routers.ts
+- [x] AdminSmsCampaignsPage.tsx: Overview, Contacts, Campaigns, Opt-Out Log tabs
+- [x] Sidebar nav entry added under Content section
+- [x] Route added to AdminApp.tsx at /admin/sms-campaigns
+- [x] 927 tests passing, 0 TypeScript errors

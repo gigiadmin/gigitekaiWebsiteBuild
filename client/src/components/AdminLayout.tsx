@@ -93,6 +93,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Knowledge Base", icon: <BookOpen size={16} />, href: "/admin/kb" },
       { label: "KB Generation", icon: <Sparkles size={16} />, href: "/admin/kb-generation" },
       { label: "Social Hub", icon: <Send size={16} />, href: "/admin/social" },
+      { label: "SMS Campaigns", icon: <MessageSquare size={16} />, href: "/admin/sms-campaigns" },
     ],
   },
   {

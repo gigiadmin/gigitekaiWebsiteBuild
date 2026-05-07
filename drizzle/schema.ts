@@ -1884,3 +1884,82 @@ export const demoLeads = mysqlTable("demoLeads", {
 
 export type DemoLead = typeof demoLeads.$inferSelect;
 export type InsertDemoLead = typeof demoLeads.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SMS CAMPAIGN SYSTEM
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** SMS Contacts — opted-in recipients */
+export const smsContacts = mysqlTable("smsContacts", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(), // E.164 format: +12125551234
+  email: varchar("email", { length: 320 }),
+  company: varchar("company", { length: 255 }),
+  source: varchar("source", { length: 50 }).default("manual").notNull(),
+  optedIn: boolean("optedIn").default(true).notNull(),
+  optedInAt: timestamp("optedInAt").defaultNow().notNull(),
+  optedOutAt: timestamp("optedOutAt"),
+  optOutReason: varchar("optOutReason", { length: 100 }),
+  tags: json("tags"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SmsContact = typeof smsContacts.$inferSelect;
+export type InsertSmsContact = typeof smsContacts.$inferInsert;
+
+/** SMS Campaigns */
+export const smsCampaigns = mysqlTable("smsCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  message: text("message").notNull(),
+  status: mysqlEnum("status", ["draft", "scheduled", "sending", "sent", "paused", "cancelled"]).default("draft").notNull(),
+  scheduledAt: timestamp("scheduledAt"),
+  sentAt: timestamp("sentAt"),
+  createdBy: int("createdBy"),
+  totalRecipients: int("totalRecipients").default(0).notNull(),
+  totalSent: int("totalSent").default(0).notNull(),
+  totalDelivered: int("totalDelivered").default(0).notNull(),
+  totalFailed: int("totalFailed").default(0).notNull(),
+  totalOptedOut: int("totalOptedOut").default(0).notNull(),
+  fromNumber: varchar("fromNumber", { length: 20 }),
+  tags: json("tags"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SmsCampaign = typeof smsCampaigns.$inferSelect;
+export type InsertSmsCampaign = typeof smsCampaigns.$inferInsert;
+
+/** SMS Messages — individual send records */
+export const smsMessages = mysqlTable("smsMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  campaignId: int("campaignId"),
+  contactId: int("contactId").notNull(),
+  toPhone: varchar("toPhone", { length: 20 }).notNull(),
+  fromPhone: varchar("fromPhone", { length: 20 }).notNull(),
+  body: text("body").notNull(),
+  status: mysqlEnum("status", ["queued", "sent", "delivered", "failed", "undelivered"]).default("queued").notNull(),
+  provider: mysqlEnum("provider", ["twilio", "acs"]).default("twilio").notNull(),
+  providerMessageId: varchar("providerMessageId", { length: 100 }),
+  errorCode: varchar("errorCode", { length: 50 }),
+  errorMessage: text("errorMessage"),
+  sentAt: timestamp("sentAt"),
+  deliveredAt: timestamp("deliveredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SmsMessage = typeof smsMessages.$inferSelect;
+export type InsertSmsMessage = typeof smsMessages.$inferInsert;
+
+/** SMS Opt-Out Log — TCPA compliance */
+export const smsOptOuts = mysqlTable("smsOptOuts", {
+  id: int("id").autoincrement().primaryKey(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  contactId: int("contactId"),
+  reason: varchar("reason", { length: 100 }).default("STOP").notNull(),
+  source: varchar("source", { length: 50 }).default("inbound").notNull(),
+  processedAt: timestamp("processedAt").defaultNow().notNull(),
+});
+export type SmsOptOut = typeof smsOptOuts.$inferSelect;
+export type InsertSmsOptOut = typeof smsOptOuts.$inferInsert;

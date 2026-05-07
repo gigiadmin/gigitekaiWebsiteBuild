@@ -31,6 +31,7 @@ import { aiTriageRouter } from "./routers/aiTriage";
 import { kbRouter } from "./routers/kb";
 import { kbFeedbackRouter } from "./routers/kbFeedback";
 import { emailDripRouter } from "./routers/emailDrip";
+import { smsCampaignRouter } from "./routers/sms-campaigns";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
@@ -841,5 +842,6 @@ Submitted from GigitekAI website contact form.
       }),
    }),
   emailDrip: emailDripRouter,
+  smsCampaign: smsCampaignRouter,
 })
 export type AppRouter = typeof appRouter;
