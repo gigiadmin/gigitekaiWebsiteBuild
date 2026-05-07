@@ -117,6 +117,7 @@ export default function AdminApp() {
               <Route path="/admin/ms-learn-sync" component={() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>} />
               <Route path="/admin/call-review" component={() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>} />
               <Route path="/admin/contact-center" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
+              <Route path="/admin/contact-center-dashboard" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
               <Route path="/admin/demo-leads" component={() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>} />
               <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>} />
               <Route path="/admin/kb-analytics" component={() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>} />
