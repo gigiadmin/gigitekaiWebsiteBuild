@@ -4467,3 +4467,15 @@
 
 ## Mobile Navigation Fix (May 6, 2026)
 - [x] Fix mobile menu not visible when scrolled down — nav switches to fixed positioning when menu is open, body scroll locked
+
+## Ticket Classification Agent — Phase 1 & 2 (May 6, 2026)
+- [x] Created gigitekai-ticket-classifier.ts (429 lines) — LLM-based classifier using invokeLLM()
+- [x] 8 AI categories: Security, M365, Billing, General, Hardware, Network, M365 Apps, Needs Review
+- [x] Confidence thresholds: >75% auto-classify, 40-75% flag as Needs Review, <40% ask clarifying questions
+- [x] Wired classifyTicket() into helpdesk.createTicket via setImmediate (non-blocking)
+- [x] saveClassificationToTicket() saves to aiCategory/aiConfidence/aiReasoning fields
+- [x] sendClassificationEmail() sends classification details to support@gigitekai.com
+- [x] Registered gigitekAITicketClassifierRouter in server/routers.ts
+- [x] Teams adaptive card updated with AI Category badge (shows category + confidence %)
+- [x] TicketDetail.tsx updated — AI Category badge with color-coded confidence (cyan=high, yellow=medium, gray=low)
+- [x] All 927 tests passing

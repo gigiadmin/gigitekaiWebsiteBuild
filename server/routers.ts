@@ -9,6 +9,7 @@ import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, log
 import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
+import { gigitekAITicketClassifierRouter } from "./routers/gigitekai-ticket-classifier";
 import { aibotRouter } from "./routers/aibot";
 import { chatRouter } from "./routers/chat";
 import { customerInvitesRouter } from "./routers/customer-invites";
@@ -154,6 +155,7 @@ export const appRouter = router({
   }),
 
   helpdesk: helpdeskRouter,
+  ticketClassifier: gigitekAITicketClassifierRouter,
   helpdeskAgentSla: helpdeskAgentSlaRouter,
   ticketMerge: ticketMergeRouter,
   bulkActions: bulkActionsRouter,

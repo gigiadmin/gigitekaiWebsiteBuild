@@ -354,6 +354,28 @@ export default function TicketDetail() {
                 label="Category"
                 value={<span className="text-white font-medium capitalize">{ticket.category.replace(/_/g, " ")}</span>}
               />
+              {ticket.aiCategory && (
+                <MetaItem
+                  icon={<span className="text-base">🤖</span>}
+                  label="AI Category"
+                  value={
+                    <span className="flex flex-col gap-0.5">
+                      <span className={`inline-flex items-center font-semibold text-xs px-2 py-0.5 rounded-full ${
+                        Number(ticket.aiConfidence ?? 0) >= 75
+                          ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                          : Number(ticket.aiConfidence ?? 0) >= 40
+                          ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
+                          : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
+                      }`}>
+                        {ticket.aiCategory}
+                      </span>
+                      {ticket.aiConfidence != null && (
+                        <span className="text-xs text-gray-400">{ticket.aiConfidence}% confidence</span>
+                      )}
+                    </span>
+                  }
+                />
+              )}
               <MetaItem
                 icon={<User className="w-4 h-4" />}
                 label="Assigned To"

@@ -10,6 +10,7 @@ import {
   formatReceivedAt,
 } from "../emailTemplates";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
+import { classifyTicket, saveClassificationToTicket, sendClassificationEmail } from "./gigitekai-ticket-classifier";
 import { customerFeedback } from "../../drizzle/schema";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
 import { z } from "zod";
@@ -63,6 +64,23 @@ export const helpdeskRouter = router({
         }
       }
 
+
+      // ── GigitekAI Ticket Classification Agent (Phase 1 & 2) ──────────────
+      // Runs async so it never blocks ticket creation response
+      setImmediate(async () => {
+        try {
+          const classification = await classifyTicket(
+            ticket.title,
+            ticket.description,
+            ticket.stepsAttempted ?? undefined
+          );
+          await saveClassificationToTicket(ticket.id, classification);
+          await sendClassificationEmail(ticket.id, ticket.title, classification);
+          console.log(`[Helpdesk] Ticket #${ticket.id} classified as "${classification.category}" (${classification.confidence}% confidence)`);
+        } catch (e) {
+          console.error("[Helpdesk] Classification agent error:", e);
+        }
+      });
       // Send Teams notification
       try {
         await sendTicketNotificationToTeams(ticket);

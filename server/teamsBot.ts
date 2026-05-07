@@ -168,6 +168,7 @@ export async function sendTicketNotificationToTeams(ticket: Ticket): Promise<voi
                   { title: "Category:", value: ticket.category.replace(/_/g, " ").toUpperCase() },
                   { title: "Customer:", value: creatorName },
                   { title: "Created:", value: new Date(ticket.createdAt).toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" }) + " EST" },
+                  ...(ticket.aiCategory ? [{ title: "🤖 AI Category:", value: `${ticket.aiCategory}${ticket.aiConfidence ? ` (${ticket.aiConfidence}% confidence)` : ""}` }] : []),
                 ],
               },
             ],
