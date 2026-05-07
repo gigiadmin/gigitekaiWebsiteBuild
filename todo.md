@@ -4521,3 +4521,20 @@
 - [x] Auto-refresh dashboard with WebSocket or polling (10-15 second intervals)
 - [x] Individual refresh button per agent/service (not just global refresh all)
 - [x] Add agent performance metrics (calls handled, avg handle time, resolution rate)
+
+
+## Mobile Performance Optimization (PageSpeed 52→70+)
+- [ ] Optimize hero image to WebP format with responsive sizes
+- [ ] Implement lazy loading for below-fold images
+- [ ] Defer non-critical JavaScript (analytics, chat widget)
+- [ ] Minimize CSS and optimize critical rendering path
+- [ ] Test mobile PageSpeed after optimizations (target >70)
+
+
+## Automated Health Checks & Monitoring
+- [x] Set up automatic weekly health checks for Contact Center and Teams
+  - [x] Created health check script (/home/ubuntu/gigitekai-weekly-health-check.mjs)
+  - [x] Scheduled for every Monday at 8:00 AM EDT
+  - [x] Checks 6 critical system categories
+  - [x] Sends automated reports to owner via notification API
+  - [x] Includes remediation recommendations
