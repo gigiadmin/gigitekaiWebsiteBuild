@@ -5,7 +5,7 @@
   Font: Space Grotesk
 */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -13,6 +13,8 @@ export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [menuTop, setMenuTop] = useState(72);
+  const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
 
   // Track Watch AI Work Live CTA clicks
@@ -43,6 +45,14 @@ export default function SiteNavBar2024() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Measure actual nav bottom position when menu opens
+  useEffect(() => {
+    if (mobileOpen && navRef.current) {
+      const rect = navRef.current.getBoundingClientRect();
+      setMenuTop(rect.bottom);
+    }
+  }, [mobileOpen]);
 
   // Handle Escape key to close mobile menu
   useEffect(() => {
@@ -89,6 +99,7 @@ export default function SiteNavBar2024() {
 
       {/* Main navigation */}
       <nav
+        ref={navRef}
         className={`w-full z-50 transition-all duration-300 ${
           mobileOpen
             ? "fixed top-0 left-0 right-0"
@@ -236,8 +247,8 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
-              style={{ top: '72px' }}
+            <div className="fixed left-0 right-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
+              style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)` }}
             >
               {/* Home link */}
               <div className="px-4 pt-4 pb-2">
