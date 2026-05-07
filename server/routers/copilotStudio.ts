@@ -7,10 +7,11 @@ import { eq } from "drizzle-orm";
 
 // ── Copilot Studio Agent Configuration ──────────────────────────────────
 const COPILOT_STUDIO_CONFIG = {
-  tenantId: process.env.COPILOT_STUDIO_TENANT_ID,
+  tenantId: process.env.COPILOT_STUDIO_TENANT_ID || process.env.MS_GRAPH_TENANT_ID,
   environmentId: process.env.COPILOT_STUDIO_ENVIRONMENT_ID,
   ticketClassifierAgentId: process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID,
   kbQAAgentId: process.env.COPILOT_KB_QA_AGENT_ID,
+  voiceAgentId: process.env.COPILOT_VOICE_AGENT_ID,
   apiKey: process.env.COPILOT_STUDIO_API_KEY,
 };
 
