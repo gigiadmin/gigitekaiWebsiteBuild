@@ -55,6 +55,16 @@ export default function SiteNavBar2024() {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [mobileOpen]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
   return (
     <>
       {/* Top utility bar */}
@@ -79,8 +89,12 @@ export default function SiteNavBar2024() {
 
       {/* Main navigation */}
       <nav
-        className={`w-full sticky top-[env(safe-area-inset-top)] z-50 transition-all duration-300 ${
-          scrolled
+        className={`w-full z-50 transition-all duration-300 ${
+          mobileOpen
+            ? "fixed top-0 left-0 right-0"
+            : "sticky top-[env(safe-area-inset-top)]"
+        } ${
+          scrolled || mobileOpen
             ? "bg-[#0A0E1A]/98 backdrop-blur-md shadow-lg shadow-black/40 border-b border-[rgba(0,212,255,0.15)]"
             : "bg-[#0A0E1A]"
         }`}
@@ -222,7 +236,9 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden">
+            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
+              style={{ top: '72px' }}
+            >
               {/* Home link */}
               <div className="px-4 pt-4 pb-2">
                 <a

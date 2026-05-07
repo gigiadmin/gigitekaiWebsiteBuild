@@ -4464,3 +4464,6 @@
 - [x] Result: Initial download reduced from 606KB gzip → 466KB gzip (140KB / 23% reduction)
 - [x] Admin portal unaffected: AdminApp.js and 4 other admin chunks retain msal import
 - [x] All 927 tests passing after fix
+
+## Mobile Navigation Fix (May 6, 2026)
+- [x] Fix mobile menu not visible when scrolled down — nav switches to fixed positioning when menu is open, body scroll locked
