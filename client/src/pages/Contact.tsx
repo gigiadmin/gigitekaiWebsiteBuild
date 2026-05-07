@@ -37,6 +37,7 @@ interface ContactFormData {
   message: string;
   pricingTier?: string;
   companySize?: string;
+  smsOptIn?: boolean;
 }
 
 export default function Contact() {
@@ -51,6 +52,7 @@ export default function Contact() {
     message: "",
     pricingTier: "",
     companySize: "",
+    smsOptIn: false,
   });
   const [submitted, setSubmitted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -231,6 +233,7 @@ export default function Contact() {
                         message: "",
                         pricingTier: "",
                         companySize: "",
+                        smsOptIn: false,
                       });
                     }}
                   >
@@ -393,6 +396,26 @@ export default function Contact() {
                         className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50 min-h-[140px] resize-none"
                         required
                       />
+                    </div>
+
+                    {/* SMS Opt-In Checkbox — TCPA Compliant */}
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          id="smsOptIn"
+                          name="smsOptIn"
+                          checked={formData.smsOptIn || false}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, smsOptIn: e.target.checked }))}
+                          className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[#00d4ff] cursor-pointer accent-[#00d4ff]"
+                        />
+                        <label htmlFor="smsOptIn" className="text-sm text-gray-300 cursor-pointer flex-1">
+                          <span className="font-medium">Opt in to SMS updates</span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            I consent to receive SMS text messages from GigitekAI about service updates, offers, and support information. Standard message rates apply. Reply STOP to opt out. See our <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#00d4ff] hover:underline">Privacy Policy</a> for details.
+                          </p>
+                        </label>
+                      </div>
                     </div>
 
                     <Button

@@ -239,7 +239,28 @@ export default function PrivacyPolicy() {
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                10. Children's Privacy
+                10. SMS Communications and Text Message Marketing
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <strong>Opt-In Consent:</strong> If you provide your phone number and opt in to receive SMS text messages from GigitekAI, we will send you service updates, promotional offers, account notifications, and support information via SMS. By checking the "Opt in to SMS updates" box on our contact form, you explicitly consent to receive text messages at the phone number you provide.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <strong>TCPA Compliance:</strong> We comply with the Telephone Consumer Protection Act (TCPA) and all applicable SMS regulations. You will only receive SMS messages if you have provided explicit written consent. We maintain a record of your opt-in consent and will honor your preferences.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <strong>Opting Out:</strong> You can opt out of SMS communications at any time by replying "STOP" to any text message you receive from us. We will remove your phone number from our SMS list within 24 hours of receiving your opt-out request. You may also contact us at support@gigitekai.com or call (727) 382-5776 to request removal from our SMS list.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <strong>Message Frequency:</strong> Message frequency varies based on your preferences and the campaigns you are enrolled in. Standard message and data rates apply. We typically send 1–2 messages per week during active campaigns.
+              </p>
+              <p className="text-gray-700 dark:text-gray-300">
+                <strong>Support:</strong> If you have questions about SMS communications or need assistance, reply "HELP" to any text message, or contact us at support@gigitekai.com or (727) 382-5776.
+              </p>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                11. Children's Privacy
               </h2>
               <p className="text-gray-700 dark:text-gray-300">
                 Our Website and Services are not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will promptly delete such information and take appropriate steps to notify the parent or guardian.
@@ -248,7 +269,7 @@ export default function PrivacyPolicy() {
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                11. International Data Transfers
+                12. International Data Transfers
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 GigitekAI is based in the United States. Your information may be transferred to, stored in, and processed in the United States or other countries where we or our service providers operate. These countries may have data protection laws that differ from your country of residence.
@@ -260,7 +281,7 @@ export default function PrivacyPolicy() {
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                12. Contact Us
+                13. Contact Us
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 If you have questions about this Privacy Policy or our privacy practices, please contact us:
@@ -275,7 +296,7 @@ export default function PrivacyPolicy() {
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                13. Changes to This Privacy Policy
+                14. Changes to This Privacy Policy
               </h2>
               <p className="text-gray-700 dark:text-gray-300">
                 We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of material changes by posting the updated Privacy Policy on our Website and updating the "Last updated" date at the top of this page. Your continued use of our Website and Services after any changes constitutes your acceptance of the updated Privacy Policy.

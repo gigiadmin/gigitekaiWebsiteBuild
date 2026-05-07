@@ -4489,3 +4489,10 @@
 - [x] Sidebar nav entry added under Content section
 - [x] Route added to AdminApp.tsx at /admin/sms-campaigns
 - [x] 927 tests passing, 0 TypeScript errors
+
+## SMS Campaign Compliance (May 7, 2026)
+
+- [x] SMS opt-in checkbox added to contact form (/contact)
+- [x] SMS terms added to Privacy Policy (Section 10)
+- [x] TypeScript check passing
+- [x] All 927 tests passing
