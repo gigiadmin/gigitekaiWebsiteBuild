@@ -236,7 +236,7 @@ export default function SiteNavBar2024() {
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed top-[72px] left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
+            <div className="fixed left-0 right-0 bottom-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
               style={{ top: '72px' }}
             >
               {/* Home link */}
