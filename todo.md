@@ -4496,3 +4496,19 @@
 - [x] SMS terms added to Privacy Policy (Section 10)
 - [x] TypeScript check passing
 - [x] All 927 tests passing
+
+
+## Phase 3: Ticket Auto-Routing by AI Category (COMPLETE)
+- [x] Wire ticket classifier into auto-routing logic in helpdesk.ts
+  - [x] Add team/agent assignment mapping for each AI category (Security, M365, Billing, etc.)
+  - [x] Auto-assign tickets to appropriate teams based on aiCategory
+  - [x] Send assignment notification email to assigned agent
+  - [x] Update Teams notification to show assigned team/agent
+- [x] Create Teams AI First Collective channel structure documentation
+  - [x] Document recommended channel hierarchy (Main, Security, M365, Billing, etc.)
+  - [x] Provide setup guide for manual team creation in M365
+  - [x] Include webhook URL and configuration instructions
+- [x] Create SMS campaign launch guide
+  - [x] Document how to add opted-in contacts to smsContacts table
+  - [x] Create "Q2 Welcome" campaign template
+  - [x] Provide step-by-step guide for sending first campaign via admin dashboard

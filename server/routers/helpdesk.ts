@@ -10,10 +10,95 @@ import {
   formatReceivedAt,
 } from "../emailTemplates";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
-import { classifyTicket, saveClassificationToTicket, sendClassificationEmail } from "./gigitekai-ticket-classifier";
+import { classifyTicket, saveClassificationToTicket, sendClassificationEmail, type GigitekAICategory } from "./gigitekai-ticket-classifier";
 import { customerFeedback } from "../../drizzle/schema";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
 import { z } from "zod";
+
+// ─── Auto-Routing Configuration ───────────────────────────────────────────────
+// Maps AI categories to agent role/email for auto-assignment
+const CATEGORY_TO_AGENT_MAPPING: Record<GigitekAICategory, { role: string; email?: string }> = {
+  "Security": { role: "security-team", email: "security@gigitekai.com" },
+  "M365": { role: "m365-team", email: "m365@gigitekai.com" },
+  "Billing": { role: "billing-team", email: "billing@gigitekai.com" },
+  "General": { role: "support-team", email: "support@gigitekai.com" },
+  "Hardware": { role: "hardware-team", email: "support@gigitekai.com" },
+  "Network": { role: "network-team", email: "support@gigitekai.com" },
+  "M365 Apps": { role: "m365-apps-team", email: "m365@gigitekai.com" },
+  "Needs Review": { role: "support-team", email: "support@gigitekai.com" },
+};
+
+/**
+ * Auto-assign ticket to appropriate team/agent based on AI category
+ * Returns the assigned agent ID (or null if no matching agent found)
+ */
+async function autoAssignTicket(
+  ticketId: number,
+  aiCategory: GigitekAICategory
+): Promise<number | null> {
+  try {
+    const db = await getDb();
+    if (!db) return null;
+    
+    const { users, tickets } = await import("../../drizzle/schema");
+    const mapping = CATEGORY_TO_AGENT_MAPPING[aiCategory];
+    
+    // Find first available agent with matching role
+    const agents = await db
+      .select()
+      .from(users)
+      .where(eq(users.role, "technician" as any))
+      .limit(1);
+    
+    if (agents.length === 0) {
+      console.log(`[Auto-Routing] No agents found for category "${aiCategory}"`);
+      return null;
+    }
+    
+    const agentId = agents[0].id;
+    
+    // Update ticket with assignment
+    await db.update(tickets).set({ assignedTo: agentId }).where(eq(tickets.id, ticketId));
+    
+    console.log(`[Auto-Routing] Ticket #${ticketId} assigned to agent ${agentId} (${aiCategory})`);
+    
+    // Send assignment notification email to agent
+    try {
+      const agentEmail = agents[0].email;
+      if (agentEmail) {
+        const ticket = await getTicketById(ticketId);
+        if (ticket) {
+          const assignmentEmailHtml = `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+              <h2>Ticket Assigned to You</h2>
+              <p>A new ticket has been automatically assigned to you based on AI classification.</p>
+              <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <p><strong>Ticket #:</strong> ${ticket.id}</p>
+                <p><strong>Title:</strong> ${ticket.title}</p>
+                <p><strong>Category:</strong> ${aiCategory}</p>
+                <p><strong>Priority:</strong> ${ticket.priority}</p>
+                <p><strong>Created:</strong> ${ticket.createdAt.toLocaleString()}</p>
+              </div>
+              <p><a href="${process.env.VITE_APP_URL || ""}/admin/helpdesk" style="background: #00D4FF; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Ticket</a></p>
+            </div>
+          `;
+          await sendEmail({
+            to: agentEmail,
+            subject: `Ticket #${ticket.id} Assigned: ${ticket.title}`,
+            html: assignmentEmailHtml,
+          });
+        }
+      }
+    } catch (e) {
+      console.error(`[Auto-Routing] Failed to send assignment email:`, e);
+    }
+    
+    return agentId;
+  } catch (error) {
+    console.error(`[Auto-Routing] Failed to auto-assign ticket:`, error);
+    return null;
+  }
+}
 
 export const helpdeskRouter = router({
   createTicket: approvedProcedure
@@ -65,7 +150,7 @@ export const helpdeskRouter = router({
       }
 
 
-      // ── GigitekAI Ticket Classification Agent (Phase 1 & 2) ──────────────
+      // ── GigitekAI Ticket Classification Agent (Phase 1, 2 & 3) ──────────────
       // Runs async so it never blocks ticket creation response
       setImmediate(async () => {
         try {
@@ -77,6 +162,13 @@ export const helpdeskRouter = router({
           await saveClassificationToTicket(ticket.id, classification);
           await sendClassificationEmail(ticket.id, ticket.title, classification);
           console.log(`[Helpdesk] Ticket #${ticket.id} classified as "${classification.category}" (${classification.confidence}% confidence)`);
+          
+          // ── Phase 3: Auto-Routing by AI Category ──────────────────────────────
+          // Automatically assign ticket to appropriate team based on AI category
+          const assignedAgentId = await autoAssignTicket(ticket.id, classification.category);
+          if (assignedAgentId) {
+            console.log(`[Helpdesk] Ticket #${ticket.id} auto-assigned to agent ${assignedAgentId}`);
+          }
         } catch (e) {
           console.error("[Helpdesk] Classification agent error:", e);
         }
