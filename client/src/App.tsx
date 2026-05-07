@@ -24,7 +24,7 @@ const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
-const AboutUs = lazy(() => import("./pages/AboutUs"));
+// const AboutUs = lazy(() => import("./pages/AboutUs")); // hidden - NDA
 const OurTeam = lazy(() => import("./pages/OurTeam"));
 const Partners = lazy(() => import("./pages/Partners"));
 const IndustryHealthcare = lazy(() => import("./pages/IndustryHealthcare"));
@@ -53,7 +53,7 @@ const CaseStudiesPage = lazy(() => import("./pages/CaseStudiesPage"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
-const ContactHarry = lazy(() => import("./pages/ContactHarry"));
+// const ContactHarry = lazy(() => import("./pages/ContactHarry")); // hidden - NDA
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
 
@@ -142,8 +142,8 @@ function Router() {
           <Route path={"/case-studies"} component={CaseStudiesPage} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
-          <Route path={"/about"}>{() => { window.location.replace("/about-us"); return null; }}</Route>
-          <Route path={"/about-us"} component={AboutUs} />
+          <Route path={"/about"}>{() => { window.location.replace("/"); return null; }}</Route>
+          <Route path={"/about-us"}>{() => { window.location.replace("/"); return null; }}</Route>
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />
@@ -167,7 +167,7 @@ function Router() {
           <Route path={"/terms-of-service"} component={TermsOfService} />
           {/* Contact */}
           <Route path={"/contact"} component={Contact} />
-          <Route path={"/hh"} component={ContactHarry} />
+          {/* /hh hidden - NDA */}
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
           <Route path={"/kb"} component={KBPublic} />

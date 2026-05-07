@@ -125,7 +125,7 @@ export default function BlogDetail() {
     dateModified: new Date(post.updatedAt || post.createdAt).toISOString(),
     author: {
       "@type": "Person",
-      name: post.authorName || "Harry Henry Santiago",
+      name: post.authorName || "GigitekAI Team",
       jobTitle: "CEO & Founder, GigitekAI",
       url: "https://www.linkedin.com/in/gigitekinc",
     },

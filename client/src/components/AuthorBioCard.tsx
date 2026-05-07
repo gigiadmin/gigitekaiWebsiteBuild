@@ -55,7 +55,7 @@ export default function AuthorBioCard({ name, title, bio, avatar }: AuthorBioCar
         {bio && (
           <p className="text-sm text-gray-300 leading-relaxed">{bio}</p>
         )}
-        {name === "Harry Henry Santiago" && (
+        {name === "GigitekAI Team" && (
           <a
             href="https://www.linkedin.com/in/gigitekinc"
             target="_blank"

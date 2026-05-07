@@ -15,8 +15,6 @@ const footerLinks = {
     "IT Strategy",
   ],
   Company: [
-    "About Us",
-    "Our Team",
     "Partners",
     "Contact Us",
   ],

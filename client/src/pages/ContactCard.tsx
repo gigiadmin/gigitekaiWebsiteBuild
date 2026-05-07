@@ -24,7 +24,7 @@ export default function ContactCard() {
         </div>
 
         {/* Name */}
-        <h1 className="text-3xl font-bold text-black my-6">Harry Henry-Santiago</h1>
+        <h1 className="text-3xl font-bold text-black my-6">GigitekAI</h1>
 
         {/* Website */}
         <div className="my-5">
@@ -50,10 +50,10 @@ export default function ContactCard() {
 
           {/* Email */}
           <a 
-            href="mailto:harry@gigitekai.com"
+            href="mailto:support@gigitekai.com"
             className="block text-lg text-black hover:text-blue-600 font-medium"
           >
-            ✉️ harry@gigitekai.com
+            ✉️ support@gigitekai.com
           </a>
         </div>
       </div>

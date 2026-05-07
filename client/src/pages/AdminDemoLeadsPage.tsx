@@ -330,7 +330,7 @@ export default function AdminDemoLeadsPage() {
                                     className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 h-7 text-xs"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      window.open(`mailto:${lead.email}?subject=Following up on your GigitekAI Demo Request&body=Hi ${lead.name},%0A%0AThank you for your interest in GigitekAI! I'd love to schedule a personalized demo for you.%0A%0ABest regards,%0AHarry Henry-Santiago%0AGIGITEKAI LLC`, "_blank");
+                                      window.open(`mailto:${lead.email}?subject=Following up on your GigitekAI Demo Request&body=Hi ${lead.name},%0A%0AThank you for your interest in GigitekAI! I'd love to schedule a personalized demo for you.%0A%0ABest regards,%0AGigitekAI Team%0AGIGITEKAI LLC`, "_blank");
                                     }}
                                   >
                                     <Mail size={11} className="mr-1" />

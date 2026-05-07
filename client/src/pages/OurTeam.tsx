@@ -128,25 +128,25 @@ export default function OurTeam() {
                 <div className="w-40 h-40 mx-auto md:mx-0 rounded-full overflow-hidden border-2 border-cyan-500/50 mb-5">
                   <img
                     src="/manus-storage/harry-headshot_df3577a8.jpeg"
-                    alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
+                    alt="GigitekAI Leadership — CEO & Founder, GigitekAI"
                     className="w-full h-full object-cover"
               loading="lazy"
             />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-1">Harry Henry Santiago</h2>
+                <h2 className="text-2xl font-bold text-white mb-1">GigitekAI Leadership</h2>
                 <p className="text-cyan-400 font-semibold mb-1">CEO & Founder</p>
                 <p className="text-gray-400 text-sm mb-1">Microsoft 365 SME | Exchange Online & Email Security</p>
                 <p className="text-gray-400 text-sm mb-1">Cloud Migration | M365 Enterprise Admin Expert</p>
                 <p className="text-gray-500 text-sm mt-3">📍 Tampa, Florida</p>
                 <p className="text-gray-500 text-sm">🎖️ U.S. Army Veteran (1993–1997)</p>
                 <p className="text-gray-500 text-sm">🔗 <a href="https://www.linkedin.com/in/gigitekinc" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition">linkedin.com/in/gigitekinc</a></p>
-                <p className="text-gray-500 text-sm mt-2">📧 <a href="mailto:harry@gigitekai.com" className="text-cyan-400 hover:text-cyan-300 transition">harry@gigitekai.com</a></p>
+                <p className="text-gray-500 text-sm mt-2">📧 <a href="mailto:support@gigitekai.com" className="text-cyan-400 hover:text-cyan-300 transition">support@gigitekai.com</a></p>
               </div>
 
               {/* Bio */}
               <div className="md:col-span-2 space-y-5 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-white">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
+                  <strong className="text-white">GigitekAI Leadership</strong> is a Microsoft 365 Subject Matter Expert with 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
                 </p>
                 <p>
                   Harry has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. He brings a hands-on approach to complex infrastructure challenges — from advanced email flow troubleshooting to full tenant migrations — and serves as a trusted SME for teams that need deep Microsoft 365 expertise.
