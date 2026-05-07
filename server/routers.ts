@@ -103,7 +103,6 @@ import { dynamicsIntegrationRouter } from "./routers/phase2-dynamicsIntegration"
 import { callAnalyticsRouter } from "./routers/phase2-callAnalytics";
 import { acsRouter } from "./routers/acs";
 import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
-import { contactCenterRouter } from "./routers/contact-center";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -188,10 +187,8 @@ export const appRouter = router({
     ticketAutoEscalation: ticketAutoEscalationRouter,
     clientSatisfactionSurvey: clientSatisfactionSurveyRouter,
     slaComplianceReports: slaComplianceReportsRouter,
-  acs: acsRouter,
   userAccountMgmt: userAccountMgmtRouter,
-  contactCenter: contactCenterRouter,
-  ticketAICategorization: ticketAICategorizationRouter,
+    ticketAICategorization: ticketAICategorizationRouter,
   sessionInviteEmail: sessionInviteEmailRouter,
   turnCredentials: turnCredentialsRouter,
   customerPortal: customerPortalRouter,
