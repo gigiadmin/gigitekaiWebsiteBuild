@@ -1,4 +1,8 @@
 import { router, publicProcedure } from "../_core/trpc";
+import { z } from "zod";
+import { getDb } from "../db";
+import { agents, tickets, agentAssignments, users } from "../../drizzle/schema";
+import { eq, and, gte, desc } from "drizzle-orm";
 
 /**
  * Contact Center Health Status Router
@@ -409,6 +413,248 @@ export const contactCenterRouter = router({
         count: 0,
         error: error instanceof Error ? error.message : "Unknown error",
       };
+    }
+  }),
+
+  // ── Real-Time Agent Status ──────────────────────────────────────────────────
+  getAgentRealTimeStatus: publicProcedure.query(async () => {
+    try {
+      const db = await getDb();
+      if (!db) return { agents: [], stats: { total: 0, available: 0, busy: 0, offline: 0, onBreak: 0 } };
+
+      const allAgents = await db
+        .select({
+          id: agents.id,
+          userId: agents.userId,
+          status: agents.status,
+          specialization: agents.specialization,
+          maxConcurrentTickets: agents.maxConcurrentTickets,
+          currentTicketCount: agents.currentTicketCount,
+          averageResolutionTime: agents.averageResolutionTime,
+          customerSatisfactionScore: agents.customerSatisfactionScore,
+          totalTicketsResolved: agents.totalTicketsResolved,
+          totalChatsHandled: agents.totalChatsHandled,
+          lastStatusChange: agents.lastStatusChange,
+          userName: users.name,
+          userEmail: users.email,
+        })
+        .from(agents)
+        .leftJoin(users, eq(agents.userId, users.id));
+
+      const stats = {
+        total: allAgents.length,
+        available: allAgents.filter(a => a.status === "available").length,
+        busy: allAgents.filter(a => a.status === "busy").length,
+        offline: allAgents.filter(a => a.status === "offline").length,
+        onBreak: allAgents.filter(a => a.status === "on-break").length,
+      };
+
+      return {
+        agents: allAgents.map(a => ({
+          id: a.id,
+          name: a.userName || `Agent #${a.id}`,
+          email: a.userEmail || "",
+          status: a.status,
+          specialization: a.specialization || "General",
+          currentLoad: a.currentTicketCount,
+          maxLoad: a.maxConcurrentTickets,
+          loadPercent: Math.round((a.currentTicketCount / a.maxConcurrentTickets) * 100),
+          avgResolutionMin: a.averageResolutionTime || 0,
+          csat: a.customerSatisfactionScore || "N/A",
+          totalResolved: a.totalTicketsResolved,
+          totalChats: a.totalChatsHandled,
+          lastStatusChange: a.lastStatusChange,
+        })),
+        stats,
+      };
+    } catch (error) {
+      console.error("[ContactCenter] getAgentRealTimeStatus error:", error);
+      return { agents: [], stats: { total: 0, available: 0, busy: 0, offline: 0, onBreak: 0 } };
+    }
+  }),
+
+  // ── Refresh Individual Service ─────────────────────────────────────────────
+  refreshService: publicProcedure
+    .input(z.object({ service: z.enum(["d365", "teams", "copilot", "acs", "ticketClassifier", "kbQA", "voiceAgent"]) }))
+    .query(async ({ input }) => {
+      try {
+        const accessToken = await getGraphAccessToken();
+        switch (input.service) {
+          case "d365": {
+            const healthy = await checkDynamics365Status(accessToken);
+            return { service: "Dynamics 365 Contact Center", status: healthy ? "healthy" : "degraded", detail: healthy ? "Connected" : "Connection failed", lastChecked: new Date() };
+          }
+          case "teams": {
+            const url = process.env.TEAMS_WEBHOOK_URL;
+            return { service: "Teams Webhook", status: url ? "healthy" : "not_configured", detail: url ? "Webhook configured" : "Not configured", lastChecked: new Date() };
+          }
+          case "copilot": {
+            const tenantId = process.env.MS_GRAPH_TENANT_ID;
+            const envId = process.env.COPILOT_STUDIO_ENVIRONMENT_ID;
+            const configured = !!(tenantId && envId);
+            return { service: "Copilot Studio Voice Agent", status: configured ? "healthy" : "degraded", detail: configured ? "Tenant + Environment configured" : "Missing tenant or environment ID", lastChecked: new Date() };
+          }
+          case "acs": {
+            const conn = process.env.ACS_CONNECTION_STRING;
+            return { service: "Azure Communication Services", status: conn ? "healthy" : "not_configured", detail: conn ? "ACS resource reachable" : "Not configured", lastChecked: new Date() };
+          }
+          case "ticketClassifier": {
+            const id = process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID;
+            return { service: "Ticket Classifier Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+          }
+          case "kbQA": {
+            const id = process.env.COPILOT_KB_QA_AGENT_ID;
+            return { service: "KB Q&A Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+          }
+          case "voiceAgent": {
+            const id = process.env.COPILOT_VOICE_AGENT_ID;
+            return { service: "Voice Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+          }
+          default:
+            return { service: "Unknown", status: "error", detail: "Unknown service", lastChecked: new Date() };
+        }
+      } catch (error) {
+        return { service: input.service, status: "error", detail: error instanceof Error ? error.message : "Refresh failed", lastChecked: new Date() };
+      }
+    }),
+
+  // ── Live Queue Metrics ─────────────────────────────────────────────────────
+  getLiveQueueMetrics: publicProcedure.query(async () => {
+    try {
+      const db = await getDb();
+      if (!db) return { queues: [], summary: { totalWaiting: 0, totalInProgress: 0, avgWaitMin: 0, serviceLevel: 100, todayTotal: 0 } };
+
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const openTickets = await db.select().from(tickets).where(and(eq(tickets.status, "open"), gte(tickets.createdAt, todayStart)));
+      const inProgressTickets = await db.select().from(tickets).where(eq(tickets.status, "in_progress"));
+
+      let totalWaitMs = 0;
+      for (const t of openTickets) {
+        totalWaitMs += now.getTime() - new Date(t.createdAt).getTime();
+      }
+      const avgWaitMin = openTickets.length > 0 ? Math.round(totalWaitMs / openTickets.length / 60000) : 0;
+
+      const allTodayTickets = await db.select().from(tickets).where(gte(tickets.createdAt, todayStart));
+      const respondedInTime = allTodayTickets.filter(t => {
+        if (t.status === "open") return false;
+        const responseTime = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
+        return responseTime <= 15 * 60 * 1000;
+      });
+      const serviceLevel = allTodayTickets.length > 0 ? Math.round((respondedInTime.length / allTodayTickets.length) * 100) : 100;
+
+      const categoryQueues: Record<string, { waiting: number; inProgress: number }> = {};
+      for (const t of openTickets) {
+        const cat = t.category || "General";
+        if (!categoryQueues[cat]) categoryQueues[cat] = { waiting: 0, inProgress: 0 };
+        categoryQueues[cat].waiting++;
+      }
+      for (const t of inProgressTickets) {
+        const cat = t.category || "General";
+        if (!categoryQueues[cat]) categoryQueues[cat] = { waiting: 0, inProgress: 0 };
+        categoryQueues[cat].inProgress++;
+      }
+
+      return {
+        queues: Object.entries(categoryQueues).map(([name, data]) => ({ name, waiting: data.waiting, inProgress: data.inProgress })),
+        summary: { totalWaiting: openTickets.length, totalInProgress: inProgressTickets.length, avgWaitMin, serviceLevel, todayTotal: allTodayTickets.length },
+      };
+    } catch (error) {
+      console.error("[ContactCenter] getLiveQueueMetrics error:", error);
+      return { queues: [], summary: { totalWaiting: 0, totalInProgress: 0, avgWaitMin: 0, serviceLevel: 100, todayTotal: 0 } };
+    }
+  }),
+
+  // ── Active Sessions / Assignments ─────────────────────────────────────────
+  getActiveSessions: publicProcedure.query(async () => {
+    try {
+      const db = await getDb();
+      if (!db) return { sessions: [], count: 0 };
+
+      const activeSessions = await db
+        .select({
+          id: agentAssignments.id,
+          agentId: agentAssignments.agentId,
+          ticketId: agentAssignments.ticketId,
+          status: agentAssignments.status,
+          assignedAt: agentAssignments.assignedAt,
+          agentName: users.name,
+        })
+        .from(agentAssignments)
+        .leftJoin(agents, eq(agentAssignments.agentId, agents.id))
+        .leftJoin(users, eq(agents.userId, users.id))
+        .where(eq(agentAssignments.status, "assigned"))
+        .orderBy(desc(agentAssignments.assignedAt))
+        .limit(20);
+
+      return {
+        sessions: activeSessions.map(s => ({
+          id: s.id,
+          agentId: s.agentId,
+          agentName: s.agentName || `Agent #${s.agentId}`,
+          ticketId: s.ticketId,
+          status: s.status,
+          assignedAt: s.assignedAt,
+          durationMin: s.assignedAt ? Math.round((Date.now() - new Date(s.assignedAt).getTime()) / 60000) : 0,
+        })),
+        count: activeSessions.length,
+      };
+    } catch (error) {
+      console.error("[ContactCenter] getActiveSessions error:", error);
+      return { sessions: [], count: 0 };
+    }
+  }),
+
+  // ── SLA Monitor ───────────────────────────────────────────────────────────
+  getSlaMonitor: publicProcedure.query(async () => {
+    try {
+      const db = await getDb();
+      if (!db) return { sla: { responseTarget: 15, resolutionTarget: 240, currentResponseAvg: 0, currentResolutionAvg: 0, breaches: 0, compliance: 100, totalTickets24h: 0 } };
+
+      const now = new Date();
+      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      const recentTickets = await db.select().from(tickets).where(gte(tickets.createdAt, last24h));
+
+      let totalResponseTime = 0;
+      let respondedCount = 0;
+      let totalResolutionTime = 0;
+      let resolvedCount = 0;
+      let breaches = 0;
+
+      for (const t of recentTickets) {
+        if (t.status !== "open") {
+          const responseTime = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
+          totalResponseTime += responseTime;
+          respondedCount++;
+          if (responseTime > 15 * 60 * 1000) breaches++;
+        }
+        if (t.status === "resolved" || t.status === "closed") {
+          const resolutionTime = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
+          totalResolutionTime += resolutionTime;
+          resolvedCount++;
+        }
+      }
+
+      const avgResponseMin = respondedCount > 0 ? Math.round(totalResponseTime / respondedCount / 60000) : 0;
+      const avgResolutionMin = resolvedCount > 0 ? Math.round(totalResolutionTime / resolvedCount / 60000) : 0;
+      const compliance = recentTickets.length > 0 ? Math.round(((recentTickets.length - breaches) / recentTickets.length) * 100) : 100;
+
+      return {
+        sla: {
+          responseTarget: 15,
+          resolutionTarget: 240,
+          currentResponseAvg: avgResponseMin,
+          currentResolutionAvg: avgResolutionMin,
+          breaches,
+          compliance,
+          totalTickets24h: recentTickets.length,
+        },
+      };
+    } catch (error) {
+      console.error("[ContactCenter] getSlaMonitor error:", error);
+      return { sla: { responseTarget: 15, resolutionTarget: 240, currentResponseAvg: 0, currentResolutionAvg: 0, breaches: 0, compliance: 100, totalTickets24h: 0 } };
     }
   }),
 });

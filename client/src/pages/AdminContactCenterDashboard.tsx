@@ -1,10 +1,10 @@
 /**
- * AdminContactCenterDashboard — Contact Center Monitoring Dashboard
- * Real-time status for: Teams call queue, D365 Contact Center, Copilot Studio,
- * Azure Communication Services, queue metrics, and agent performance.
- * Route: /admin/contact-center-dashboard
+ * AdminContactCenterDashboard — Contact Center Real-Time Monitoring
+ * Enhanced with: live agent status, queue metrics, SLA monitor,
+ * active sessions, and individual service refresh.
+ * Route: /admin/contact-center, /admin/contact-center-dashboard
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,12 @@ import {
   PhoneCall,
   Wifi,
   WifiOff,
+  Timer,
+  UserCheck,
+  UserX,
+  Coffee,
+  Loader2,
+  Target,
 } from "lucide-react";
 
 // ── Status helpers ────────────────────────────────────────────────────────────
@@ -51,6 +57,16 @@ function StatusBadge({ status }: { status: "healthy" | "degraded" | "error" | "u
       {s.label}
     </span>
   );
+}
+
+function AgentStatusDot({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    available: "bg-emerald-400",
+    busy: "bg-red-400",
+    offline: "bg-slate-500",
+    "on-break": "bg-yellow-400",
+  };
+  return <span className={`inline-block w-2.5 h-2.5 rounded-full ${colors[status] || colors.offline}`} />;
 }
 
 function MetricCard({
@@ -99,12 +115,16 @@ function IntegrationStatusRow({
   status,
   detail,
   configured,
+  onRefresh,
+  refreshing,
 }: {
   icon: React.ReactNode;
   label: string;
   status: string;
   detail?: string;
   configured?: boolean;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-slate-800/60 last:border-0">
@@ -121,6 +141,16 @@ function IntegrationStatusRow({
         {configured === false && (
           <span className="text-xs text-slate-500 italic">Not configured</span>
         )}
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="p-1 rounded hover:bg-slate-700/50 text-slate-500 hover:text-cyan-400 transition-colors disabled:opacity-50"
+            title={`Refresh ${label}`}
+          >
+            <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} />
+          </button>
+        )}
         <StatusBadge status={status} />
       </div>
     </div>
@@ -129,33 +159,40 @@ function IntegrationStatusRow({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function AdminContactCenterDashboard() {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshingService, setRefreshingService] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(15);
+  const utils = trpc.useUtils();
+
+  // Auto-refresh countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) return 15;
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   const { data: d365Status, isLoading: d365Loading } = trpc.dynamicsIntegration.checkConnection.useQuery(undefined, {
     refetchInterval: 30000,
   });
-
   const { data: copilotStatus, isLoading: copilotLoading } = trpc.copilotStudio.getAgentStatus.useQuery(undefined, {
     refetchInterval: 30000,
   });
-
   const { data: teamsWebhook, isLoading: teamsLoading } = trpc.teamsChannels.getWebhookHealth.useQuery(undefined, {
     refetchInterval: 30000,
   });
-
   const { data: queueMetrics, isLoading: queueLoading } = trpc.helpdeskDashboardMetrics.getQueueMetrics.useQuery(undefined, {
     refetchInterval: 15000,
   });
-
   const { data: overallMetrics, isLoading: metricsLoading } = trpc.helpdeskDashboardMetrics.getOverallMetrics.useQuery(undefined, {
     refetchInterval: 15000,
   });
-
   const { data: callStats, isLoading: callsLoading } = trpc.calls.getStats.useQuery(undefined, {
     refetchInterval: 15000,
   });
-
   const { data: agentMetrics, isLoading: agentsLoading } = trpc.helpdeskDashboardMetrics.getAgentMetrics.useQuery(undefined, {
     refetchInterval: 30000,
   });
@@ -166,9 +203,55 @@ export default function AdminContactCenterDashboard() {
     refetchInterval: 60000,
   });
 
+  // ── NEW: Real-time monitoring data ────────────────────────────────────────
+  const { data: agentRealTime, isLoading: agentRealTimeLoading } = trpc.contactCenter.getAgentRealTimeStatus.useQuery(undefined, {
+    refetchInterval: 10000,
+  });
+  const { data: liveQueue } = trpc.contactCenter.getLiveQueueMetrics.useQuery(undefined, {
+    refetchInterval: 10000,
+  });
+  const { data: activeSessions } = trpc.contactCenter.getActiveSessions.useQuery(undefined, {
+    refetchInterval: 10000,
+  });
+  const { data: slaData } = trpc.contactCenter.getSlaMonitor.useQuery(undefined, {
+    refetchInterval: 15000,
+  });
+
   const isLoading = d365Loading || copilotLoading || teamsLoading || queueLoading || metricsLoading || callsLoading;
 
-  const refresh = () => setRefreshKey((k) => k + 1);
+  // ── Individual service refresh ────────────────────────────────────────────
+  const refreshServiceQuery = trpc.contactCenter.refreshService.useQuery(
+    { service: refreshingService as any },
+    { enabled: !!refreshingService }
+  );
+
+  useEffect(() => {
+    if (refreshServiceQuery.data && refreshingService) {
+      // Invalidate the relevant queries after refresh
+      utils.copilotStudio.getAgentStatus.invalidate();
+      utils.dynamicsIntegration.checkConnection.invalidate();
+      utils.teamsChannels.getWebhookHealth.invalidate();
+      utils.acs.getStatus.invalidate();
+      setTimeout(() => setRefreshingService(null), 500);
+    }
+  }, [refreshServiceQuery.data]);
+
+  const handleRefreshService = (service: string) => {
+    setRefreshingService(service);
+  };
+
+  const refreshAll = () => {
+    utils.contactCenter.getAgentRealTimeStatus.invalidate();
+    utils.contactCenter.getLiveQueueMetrics.invalidate();
+    utils.contactCenter.getActiveSessions.invalidate();
+    utils.contactCenter.getSlaMonitor.invalidate();
+    utils.copilotStudio.getAgentStatus.invalidate();
+    utils.dynamicsIntegration.checkConnection.invalidate();
+    utils.teamsChannels.getWebhookHealth.invalidate();
+    utils.acs.getStatus.invalidate();
+    utils.helpdeskDashboardMetrics.getOverallMetrics.invalidate();
+    utils.calls.getStats.invalidate();
+  };
 
   // ── Derived status values ─────────────────────────────────────────────────
   const d365StatusValue = d365Status?.status ?? "unknown";
@@ -178,32 +261,283 @@ export default function AdminContactCenterDashboard() {
   return (
     <AdminLayout title="Contact Center Dashboard">
       <div className="space-y-6">
-        {/* ── Header ── */}
+        {/* ── Header with refresh ── */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-white flex items-center gap-2">
+            <h1 className="text-xl font-bold text-white flex items-center gap-2">
               <Headphones size={20} className="text-cyan-400" />
               Contact Center Dashboard
             </h1>
-            <p className="text-slate-400 text-sm mt-0.5">
+            <p className="text-sm text-slate-400 mt-1">
               Real-time monitoring — Teams · D365 · Copilot Studio · ACS
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-slate-400 hover:text-white gap-2 text-xs"
-            onClick={refresh}
-            disabled={isLoading}
-          >
-            <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Auto-refresh in {countdown}s</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-700 text-slate-300 hover:text-white hover:border-cyan-500/50 gap-2"
+              onClick={refreshAll}
+            >
+              <RefreshCw size={13} />
+              Refresh All
+            </Button>
+          </div>
         </div>
 
-        {/* ── Integration Status Cards ── */}
+        {/* ── Real-Time Agent Status Panel ── */}
+        <div>
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Users size={14} />
+            Live Agent Status
+            {agentRealTime?.stats && (
+              <span className="text-xs font-normal text-slate-500 ml-2">
+                {agentRealTime.stats.available} available · {agentRealTime.stats.busy} busy · {agentRealTime.stats.total} total
+              </span>
+            )}
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <UserCheck size={14} className="text-emerald-400" />
+              <span className="text-sm text-emerald-400 font-semibold">{agentRealTime?.stats?.available ?? 0}</span>
+              <span className="text-xs text-slate-400">Available</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+              <Phone size={14} className="text-red-400" />
+              <span className="text-sm text-red-400 font-semibold">{agentRealTime?.stats?.busy ?? 0}</span>
+              <span className="text-xs text-slate-400">Busy</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <Coffee size={14} className="text-yellow-400" />
+              <span className="text-sm text-yellow-400 font-semibold">{agentRealTime?.stats?.onBreak ?? 0}</span>
+              <span className="text-xs text-slate-400">On Break</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-500/10 border border-slate-500/20">
+              <UserX size={14} className="text-slate-400" />
+              <span className="text-sm text-slate-400 font-semibold">{agentRealTime?.stats?.offline ?? 0}</span>
+              <span className="text-xs text-slate-400">Offline</span>
+            </div>
+          </div>
+          {agentRealTimeLoading ? (
+            <div className="flex items-center gap-2 text-slate-500 text-sm py-4">
+              <Loader2 size={14} className="animate-spin" /> Loading agent status...
+            </div>
+          ) : agentRealTime?.agents && agentRealTime.agents.length > 0 ? (
+            <Card className="bg-slate-900/60 border-slate-800">
+              <CardContent className="pt-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800">
+                        <th className="text-left text-xs text-slate-400 font-medium pb-2 pr-4">Agent</th>
+                        <th className="text-left text-xs text-slate-400 font-medium pb-2 pr-4">Status</th>
+                        <th className="text-left text-xs text-slate-400 font-medium pb-2 pr-4">Specialization</th>
+                        <th className="text-right text-xs text-slate-400 font-medium pb-2 pr-4">Load</th>
+                        <th className="text-right text-xs text-slate-400 font-medium pb-2 pr-4">Resolved</th>
+                        <th className="text-right text-xs text-slate-400 font-medium pb-2 pr-4">CSAT</th>
+                        <th className="text-right text-xs text-slate-400 font-medium pb-2">Last Change</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {agentRealTime.agents.map((agent: any) => (
+                        <tr key={agent.id} className="border-b border-slate-800/40 last:border-0">
+                          <td className="py-2.5 pr-4">
+                            <div className="flex items-center gap-2">
+                              <AgentStatusDot status={agent.status} />
+                              <span className="text-white font-medium">{agent.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 pr-4">
+                            <span className={`text-xs font-medium capitalize ${
+                              agent.status === "available" ? "text-emerald-400" :
+                              agent.status === "busy" ? "text-red-400" :
+                              agent.status === "on-break" ? "text-yellow-400" :
+                              "text-slate-400"
+                            }`}>
+                              {agent.status}
+                            </span>
+                          </td>
+                          <td className="py-2.5 pr-4 text-slate-400 text-xs">{agent.specialization}</td>
+                          <td className="py-2.5 pr-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    agent.loadPercent >= 80 ? "bg-red-400" :
+                                    agent.loadPercent >= 50 ? "bg-yellow-400" :
+                                    "bg-emerald-400"
+                                  }`}
+                                  style={{ width: `${Math.min(agent.loadPercent, 100)}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-slate-400">{agent.currentLoad}/{agent.maxLoad}</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 pr-4 text-right text-emerald-400 text-sm">{agent.totalResolved}</td>
+                          <td className="py-2.5 pr-4 text-right text-slate-300 text-sm">{agent.csat}</td>
+                          <td className="py-2.5 text-right text-xs text-slate-500">
+                            {agent.lastStatusChange ? new Date(agent.lastStatusChange).toLocaleTimeString() : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="text-sm text-slate-500 py-4">No agents configured. Add agents in the Agents management page.</div>
+          )}
+        </div>
+
+        {/* ── SLA & Queue Metrics Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* D365 + Teams */}
+          {/* SLA Monitor */}
+          <Card className="bg-slate-900/60 border-slate-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <Target size={14} className="text-cyan-400" />
+                SLA Compliance (24h)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                  <div className="text-xs text-slate-400 mb-1">Response Time</div>
+                  <div className="text-lg font-bold text-white">
+                    {slaData?.sla?.currentResponseAvg ?? 0}<span className="text-xs text-slate-400 ml-1">min</span>
+                  </div>
+                  <div className="text-xs text-slate-500">Target: {slaData?.sla?.responseTarget ?? 15} min</div>
+                  <div className="w-full h-1.5 bg-slate-700 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        (slaData?.sla?.currentResponseAvg ?? 0) <= (slaData?.sla?.responseTarget ?? 15) ? "bg-emerald-400" : "bg-red-400"
+                      }`}
+                      style={{ width: `${Math.min(((slaData?.sla?.currentResponseAvg ?? 0) / (slaData?.sla?.responseTarget ?? 15)) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                  <div className="text-xs text-slate-400 mb-1">Resolution Time</div>
+                  <div className="text-lg font-bold text-white">
+                    {slaData?.sla?.currentResolutionAvg ?? 0}<span className="text-xs text-slate-400 ml-1">min</span>
+                  </div>
+                  <div className="text-xs text-slate-500">Target: {slaData?.sla?.resolutionTarget ?? 240} min</div>
+                  <div className="w-full h-1.5 bg-slate-700 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        (slaData?.sla?.currentResolutionAvg ?? 0) <= (slaData?.sla?.resolutionTarget ?? 240) ? "bg-emerald-400" : "bg-red-400"
+                      }`}
+                      style={{ width: `${Math.min(((slaData?.sla?.currentResolutionAvg ?? 0) / (slaData?.sla?.resolutionTarget ?? 240)) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                  <div className="text-xs text-slate-400 mb-1">Compliance Rate</div>
+                  <div className={`text-lg font-bold ${(slaData?.sla?.compliance ?? 100) >= 95 ? "text-emerald-400" : (slaData?.sla?.compliance ?? 100) >= 80 ? "text-yellow-400" : "text-red-400"}`}>
+                    {slaData?.sla?.compliance ?? 100}%
+                  </div>
+                  <div className="text-xs text-slate-500">{slaData?.sla?.totalTickets24h ?? 0} tickets in 24h</div>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
+                  <div className="text-xs text-slate-400 mb-1">SLA Breaches</div>
+                  <div className={`text-lg font-bold ${(slaData?.sla?.breaches ?? 0) === 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    {slaData?.sla?.breaches ?? 0}
+                  </div>
+                  <div className="text-xs text-slate-500">Response &gt; 15 min</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Live Queue */}
+          <Card className="bg-slate-900/60 border-slate-800">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                <Activity size={14} className="text-orange-400" />
+                Live Queue
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                <div className="text-center p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                  <div className="text-xl font-bold text-orange-400">{liveQueue?.summary?.totalWaiting ?? 0}</div>
+                  <div className="text-xs text-slate-400">Waiting</div>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                  <div className="text-xl font-bold text-cyan-400">{liveQueue?.summary?.totalInProgress ?? 0}</div>
+                  <div className="text-xs text-slate-400">In Progress</div>
+                </div>
+                <div className="text-center p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="text-xl font-bold text-emerald-400">{liveQueue?.summary?.serviceLevel ?? 100}%</div>
+                  <div className="text-xs text-slate-400">Service Level</div>
+                </div>
+              </div>
+              <div className="text-xs text-slate-400 mb-2">
+                Avg Wait: <span className="text-white font-medium">{liveQueue?.summary?.avgWaitMin ?? 0} min</span>
+                {" · "}Today Total: <span className="text-white font-medium">{liveQueue?.summary?.todayTotal ?? 0}</span>
+              </div>
+              {liveQueue?.queues && liveQueue.queues.length > 0 && (
+                <div className="space-y-1.5 mt-3">
+                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-1">By Category</div>
+                  {liveQueue.queues.map((q: any) => (
+                    <div key={q.name} className="flex items-center justify-between py-1.5 px-2 rounded bg-slate-800/40">
+                      <span className="text-xs text-slate-300">{q.name}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-orange-400">{q.waiting} waiting</span>
+                        <span className="text-xs text-cyan-400">{q.inProgress} active</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── Active Sessions ── */}
+        {activeSessions && activeSessions.sessions.length > 0 && (
+          <div>
+            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <Timer size={14} />
+              Active Sessions ({activeSessions.count})
+            </h2>
+            <Card className="bg-slate-900/60 border-slate-800">
+              <CardContent className="pt-4">
+                <div className="space-y-2">
+                  {activeSessions.sessions.map((s: any) => (
+                    <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/40 border border-slate-700/30">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-xs font-bold">
+                          {(s.agentName || "?")[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="text-sm text-white font-medium">{s.agentName}</div>
+                          <div className="text-xs text-slate-400">Ticket #{s.ticketId}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-400">
+                          <Clock size={10} className="inline mr-1" />
+                          {s.durationMin} min
+                        </span>
+                        <Badge variant="outline" className="text-xs border-cyan-500/30 text-cyan-400">Active</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* ── Integration Status (with individual refresh) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Microsoft Integration Status */}
           <Card className="bg-slate-900/60 border-slate-800">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold text-slate-300 flex items-center gap-2">
@@ -217,12 +551,16 @@ export default function AdminContactCenterDashboard() {
                 label="Dynamics 365 Contact Center"
                 status={d365StatusValue}
                 detail={d365Status?.message ?? "Checking connection..."}
+                onRefresh={() => handleRefreshService("d365")}
+                refreshing={refreshingService === "d365"}
               />
               <IntegrationStatusRow
                 icon={<MessageSquare size={14} />}
                 label="Teams Webhook"
                 status={teamsWebhookStatus}
                 detail={teamsWebhook?.health?.configured ? `Webhook configured · Last check: ${teamsWebhook?.health?.lastCheckedAt ? new Date(teamsWebhook.health.lastCheckedAt).toLocaleTimeString() : 'never'}` : 'Webhook not configured'}
+                onRefresh={() => handleRefreshService("teams")}
+                refreshing={refreshingService === "teams"}
               />
               <IntegrationStatusRow
                 icon={<Bot size={14} />}
@@ -230,16 +568,19 @@ export default function AdminContactCenterDashboard() {
                 status={copilotConfigured ? "healthy" : "degraded"}
                 detail={copilotConfigured ? "Tenant + Environment configured" : "Missing tenant or environment ID"}
                 configured={copilotConfigured}
+                onRefresh={() => handleRefreshService("copilot")}
+                refreshing={refreshingService === "copilot"}
               />
               <IntegrationStatusRow
                 icon={<Server size={14} />}
                 label="Azure Communication Services"
                 status={acsStatus?.healthy ? "healthy" : acsStatus?.configured === false ? "error" : "unknown"}
                 detail={acsStatus?.message ?? "ACS telephony channel"}
+                onRefresh={() => handleRefreshService("acs")}
+                refreshing={refreshingService === "acs"}
               />
             </CardContent>
           </Card>
-
           {/* Copilot Studio Agents */}
           <Card className="bg-slate-900/60 border-slate-800">
             <CardHeader className="pb-3">
@@ -254,24 +595,32 @@ export default function AdminContactCenterDashboard() {
                 label="Ticket Classifier Agent"
                 status={copilotStatus?.ticketClassifierConfigured ? "healthy" : "error"}
                 detail={copilotStatus?.ticketClassifierConfigured ? "Agent ID configured" : "Agent ID not configured"}
+                onRefresh={() => handleRefreshService("ticketClassifier")}
+                refreshing={refreshingService === "ticketClassifier"}
               />
               <IntegrationStatusRow
                 icon={<MessageSquare size={14} />}
                 label="KB Q&A Agent"
                 status={copilotStatus?.kbQAConfigured ? "healthy" : "error"}
                 detail={copilotStatus?.kbQAConfigured ? "Agent ID configured" : "Agent ID not configured"}
+                onRefresh={() => handleRefreshService("kbQA")}
+                refreshing={refreshingService === "kbQA"}
               />
               <IntegrationStatusRow
                 icon={<Shield size={14} />}
                 label="Tenant Configuration"
                 status={copilotStatus?.tenantId === "configured" ? "healthy" : "error"}
                 detail={`Tenant: ${copilotStatus?.tenantId ?? "unknown"} · Env: ${copilotStatus?.environmentId ?? "unknown"}`}
+                onRefresh={() => handleRefreshService("copilot")}
+                refreshing={refreshingService === "copilot"}
               />
               <IntegrationStatusRow
                 icon={<Activity size={14} />}
                 label="Voice Routing (IVR)"
                 status={copilotConfigured ? "healthy" : "degraded"}
                 detail="Copilot Studio → Teams Call Queue routing"
+                onRefresh={() => handleRefreshService("voiceAgent")}
+                refreshing={refreshingService === "voiceAgent"}
               />
             </CardContent>
           </Card>
@@ -319,42 +668,7 @@ export default function AdminContactCenterDashboard() {
           </div>
         </div>
 
-        {/* ── Queue Metrics ── */}
-        <div>
-          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Support Queue Status</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            <MetricCard
-              title="Unassigned"
-              value={queueMetrics?.queueDepth?.unassigned ?? 0}
-              sub="Need assignment"
-              icon={<Users size={16} />}
-              color="orange"
-            />
-            <MetricCard
-              title="Waiting Response"
-              value={queueMetrics?.queueDepth?.waitingForResponse ?? 0}
-              sub="Open tickets"
-              icon={<Clock size={16} />}
-              color="cyan"
-            />
-            <MetricCard
-              title="In Progress"
-              value={queueMetrics?.queueDepth?.inProgress ?? 0}
-              sub="Being worked"
-              icon={<Activity size={16} />}
-              color="emerald"
-            />
-            <MetricCard
-              title="Avg Wait"
-              value={queueMetrics?.estimatedWaitTime ?? "—"}
-              sub={`${queueMetrics?.urgentTickets ?? 0} critical tickets`}
-              icon={<Zap size={16} />}
-              color={queueMetrics?.urgentTickets && queueMetrics.urgentTickets > 0 ? "red" : "emerald"}
-            />
-          </div>
-        </div>
-
-        {/* ── Ticket Metrics ── */}
+        {/* ── Helpdesk Performance ── */}
         <div>
           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Helpdesk Performance</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -390,7 +704,7 @@ export default function AdminContactCenterDashboard() {
           </div>
         </div>
 
-        {/* ── Agent Performance ── */}
+        {/* ── Agent Performance Table ── */}
         {agentMetrics && agentMetrics.agents && agentMetrics.agents.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Agent Performance</h2>
@@ -444,21 +758,20 @@ export default function AdminContactCenterDashboard() {
           <Card className="bg-slate-900/60 border-slate-800">
             <CardContent className="pt-4">
               <div className="space-y-3">
-                {/* Teams Direct Routing number — always shown as static (not in ACS) */}
+                {/* Teams Direct Routing number — always shown as static */}
                 <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
-                      <PhoneIncoming size={14} className="text-cyan-400" />
+                      <Phone size={14} className="text-cyan-400" />
                     </div>
                     <div>
-                      <div className="text-white font-mono font-medium text-sm">+1 813-467-9582</div>
-                      <div className="text-xs text-slate-400">GigitekAI Support Queue · Teams Direct Routing</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Round-robin · 3 agents · Voicemail fallback</div>
+                      <div className="text-white font-mono font-medium text-sm">(727) 382-5776</div>
+                      <div className="text-xs text-slate-400">Teams Direct Routing · Primary Support Line</div>
                     </div>
                   </div>
                   <StatusBadge status="healthy" />
                 </div>
-                {/* ACS-acquired numbers — live from API */}
+                {/* ACS Phone Numbers from API */}
                 {acsPhoneLoading && (
                   <div className="text-xs text-slate-500 px-3 py-2">Loading ACS phone numbers...</div>
                 )}
@@ -470,7 +783,7 @@ export default function AdminContactCenterDashboard() {
                     <div className="flex-1">
                       <div className="text-slate-400 text-sm font-medium">ACS Phone Numbers</div>
                       <div className="text-xs text-slate-500 mt-0.5">
-                        Add <code className="bg-slate-700 px-1 rounded text-cyan-400">ACS_CONNECTION_STRING</code> in project secrets to show live status for 844-421-2441 and 866-683-1117
+                        Add <code className="bg-slate-700 px-1 rounded text-cyan-400">ACS_CONNECTION_STRING</code> in project secrets to show live status
                       </div>
                     </div>
                     <StatusBadge status="unknown" />
@@ -479,7 +792,7 @@ export default function AdminContactCenterDashboard() {
                 {!acsPhoneLoading && acsPhoneNumbers?.configured && acsPhoneNumbers.numbers.length === 0 && (
                   <div className="text-xs text-slate-500 px-3 py-2">No ACS phone numbers found in this resource.</div>
                 )}
-                {!acsPhoneLoading && acsPhoneNumbers?.configured && acsPhoneNumbers.numbers.map((line) => (
+                {!acsPhoneLoading && acsPhoneNumbers?.configured && acsPhoneNumbers.numbers.map((line: any) => (
                   <div key={line.phoneNumber} className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/40">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
