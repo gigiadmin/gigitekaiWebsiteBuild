@@ -462,6 +462,24 @@ export default function PortfolioDemoSite({ site }: Props) {
         </div>
       </section>
 
+      {/* ── POWERED BY GIGITEKAI BANNER ── */}
+      <div className="bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 py-4 px-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">Powered by</span>
+            <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="font-bold text-sm hover:underline" style={{ color: "#00D4FF" }}>
+              GigitekAI
+            </a>
+          </div>
+          <button
+            onClick={() => setChatOpen(true)}
+            className="text-xs px-3 py-1.5 rounded border border-gray-700 hover:border-gray-600 text-gray-400 hover:text-gray-300 transition"
+          >
+            💬 Contact GigitekAI
+          </button>
+        </div>
+      </div>
+
       {/* ── FOOTER ── */}
       <footer className="py-10 px-6 bg-gray-900 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
