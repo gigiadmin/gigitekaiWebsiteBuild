@@ -18,6 +18,7 @@ interface FeaturedSite {
   bgGradient: string;
   href: string;
   isReal?: boolean;
+  external?: boolean;
 }
 
 const FEATURED_SITES: FeaturedSite[] = [
@@ -29,8 +30,9 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: '🚀',
     color: '#00D4FF',
     bgGradient: 'from-cyan-900/30 to-blue-900/30',
-    href: '/portfolio/gigitekai',
+    href: 'https://gigitekai.com',
     isReal: true,
+    external: true,
   },
   {
     id: 'divinesounds',
@@ -40,8 +42,9 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: '🎵',
     color: '#FF6B9D',
     bgGradient: 'from-pink-900/30 to-purple-900/30',
-    href: '/portfolio/divinesounds',
+    href: 'https://divinesounds.info',
     isReal: true,
+    external: true,
   },
   {
     id: 'finance',
@@ -139,57 +142,71 @@ export default function PortfolioPage() {
       {/* Featured Sites Grid */}
       <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_SITES.map((site) => (
-            <Link key={site.id} href={site.href}>
-              <a className="group h-full">
+          {FEATURED_SITES.map((site) => {
+            const cardContent = (
+              <div
+                className={`relative h-full rounded-xl border border-gray-700/50 bg-gradient-to-br ${site.bgGradient} p-6 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer overflow-hidden`}
+              >
+                {/* Background accent */}
                 <div
-                  className={`relative h-full rounded-xl border border-gray-700/50 bg-gradient-to-br ${site.bgGradient} p-6 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer overflow-hidden`}
-                >
-                  {/* Background accent */}
-                  <div
-                    className="absolute top-0 right-0 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-full blur-3xl"
-                    style={{ backgroundColor: site.color }}
-                  />
+                  className="absolute top-0 right-0 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-full blur-3xl"
+                  style={{ backgroundColor: site.color }}
+                />
 
-                  {/* Content */}
-                  <div className="relative z-10 space-y-4">
-                    {/* Icon & Badge */}
-                    <div className="flex items-start justify-between">
-                      <span className="text-4xl">{site.icon}</span>
-                      {site.isReal && (
-                        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                          Live Client
-                        </span>
-                      )}
-                    </div>
+                {/* Content */}
+                <div className="relative z-10 space-y-4">
+                  {/* Icon & Badge */}
+                  <div className="flex items-start justify-between">
+                    <span className="text-4xl">{site.icon}</span>
+                    {site.isReal && (
+                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        Live Client
+                      </span>
+                    )}
+                  </div>
 
-                    {/* Title & Category */}
-                    <div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-[#00D4FF] transition-colors">
-                        {site.name}
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1">{site.category}</p>
-                    </div>
+                  {/* Title & Category */}
+                  <div>
+                    <h3 className="text-xl font-bold text-white group-hover:text-[#00D4FF] transition-colors">
+                      {site.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 mt-1">{site.category}</p>
+                  </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-gray-300 leading-relaxed">{site.description}</p>
+                  {/* Description */}
+                  <p className="text-sm text-gray-300 leading-relaxed">{site.description}</p>
 
-                    {/* Features */}
-                    <div className="flex items-center gap-2 pt-2">
-                      <MessageCircle className="w-4 h-4 text-[#00D4FF]" />
-                      <span className="text-xs text-gray-400">AI Chat Support</span>
-                    </div>
+                  {/* Features */}
+                  <div className="flex items-center gap-2 pt-2">
+                    <MessageCircle className="w-4 h-4 text-[#00D4FF]" />
+                    <span className="text-xs text-gray-400">{site.isReal ? 'Live Website' : 'AI Chat Support'}</span>
+                  </div>
 
-                    {/* CTA */}
-                    <div className="flex items-center gap-2 pt-4 text-[#00D4FF] group-hover:gap-3 transition-all">
-                      <span className="text-sm font-semibold">View Demo</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </div>
+                  {/* CTA */}
+                  <div className="flex items-center gap-2 pt-4 text-[#00D4FF] group-hover:gap-3 transition-all">
+                    <span className="text-sm font-semibold">{site.isReal ? 'Visit Site' : 'View Demo'}</span>
+                    <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
+              </div>
+            );
+
+            return site.external ? (
+              <a
+                key={site.id}
+                href={site.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group h-full block"
+              >
+                {cardContent}
               </a>
-            </Link>
-          ))}
+            ) : (
+              <Link key={site.id} href={site.href}>
+                <a className="group h-full">{cardContent}</a>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
