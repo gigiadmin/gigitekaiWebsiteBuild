@@ -4583,3 +4583,15 @@
   - Document API requirements for YouTube Data API v3
   - Design UI for additional platform cards
   - Plan database schema updates for new platforms
+
+## Rich Industry Demo Sites Redesign
+- [ ] Redesign PortfolioDemoSite component with full one-page layout (hero, stats, services, testimonials, team, contact, footer)
+- [ ] Finance demo: FinTech Solutions - banking/investment theme, green accent
+- [ ] Legal demo: Legal Pro - law firm theme, dark navy/gold accent
+- [ ] Insurance demo: InsureFlow - insurance theme, amber/blue accent
+- [ ] VC demo: VenturePeak - venture capital theme, pink/purple accent
+- [ ] Health demo: HealthFirst - healthcare theme, red/teal accent
+- [ ] Consulting demo: Consulting Plus - management consulting theme, purple accent
+- [ ] Tech demo: TechVision - SaaS/tech startup theme, blue accent
+- [ ] Add "Powered by GigitekAI" footer banner on all demo sites
+- [ ] Add AI chat demo modal with "Contact GigitekAI" CTA

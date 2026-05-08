@@ -1,12 +1,10 @@
 /**
- * PortfolioPage.tsx — Portfolio showcase landing page
- * Displays 9 featured client sites (2 real + 7 mock industry demos)
- * Each site links to a demo page with AI chat integration
+ * PortfolioPage.tsx — GigitekAI Website Building Capabilities Showcase
+ * Displays 9 featured sites (2 real + 7 industry demos)
+ * Designed to convert visitors into leads for GigitekAI web development services
  */
-
-import { Link } from 'wouter';
-import { ArrowRight, MessageCircle, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link } from "wouter";
+import { ArrowRight, MessageCircle, Zap, Globe, Shield, Cpu, BarChart3, Smartphone, CheckCircle } from "lucide-react";
 
 interface FeaturedSite {
   id: string;
@@ -19,227 +17,382 @@ interface FeaturedSite {
   href: string;
   isReal?: boolean;
   external?: boolean;
+  tags: string[];
 }
 
 const FEATURED_SITES: FeaturedSite[] = [
   {
-    id: 'gigitekai',
-    name: 'GigitekAI',
-    category: 'Cloud & AI Solutions',
-    description: 'Enterprise-grade cloud infrastructure and AI automation for MSPs',
-    icon: '🚀',
-    color: '#00D4FF',
-    bgGradient: 'from-cyan-900/30 to-blue-900/30',
-    href: 'https://gigitekai.com',
+    id: "gigitekai",
+    name: "GigitekAI",
+    category: "Cloud & AI Solutions",
+    description: "Enterprise-grade cloud infrastructure, AI automation, and managed IT services for modern businesses.",
+    icon: "🚀",
+    color: "#00D4FF",
+    bgGradient: "from-cyan-900/40 to-blue-900/40",
+    href: "https://gigitekai.com",
     isReal: true,
     external: true,
+    tags: ["AI/ML", "Cloud", "MSP", "Enterprise"],
   },
   {
-    id: 'divinesounds',
-    name: 'Divine Sounds',
-    category: 'Audio & Sound Services',
-    description: 'Professional audio production and sound engineering services',
-    icon: '🎵',
-    color: '#FF6B9D',
-    bgGradient: 'from-pink-900/30 to-purple-900/30',
-    href: 'https://divinesounds.info',
+    id: "divinesounds",
+    name: "Divine Sounds",
+    category: "Audio & Sound Services",
+    description: "Professional audio production, sound engineering, and music services for creators and businesses.",
+    icon: "🎵",
+    color: "#FF6B9D",
+    bgGradient: "from-pink-900/40 to-purple-900/40",
+    href: "https://divinesounds.info",
     isReal: true,
     external: true,
+    tags: ["Creative", "Audio", "Production"],
   },
   {
-    id: 'finance',
-    name: 'FinTech Solutions',
-    category: 'Financial Services',
-    description: 'Digital banking, investment management, and financial advisory',
-    icon: '💰',
-    color: '#00D97E',
-    bgGradient: 'from-green-900/30 to-emerald-900/30',
-    href: '/portfolio/finance',
+    id: "finance",
+    name: "FinTech Solutions",
+    category: "Financial Services",
+    description: "Digital banking, investment management, and AI-powered financial advisory for modern institutions.",
+    icon: "💰",
+    color: "#00D97E",
+    bgGradient: "from-green-900/40 to-emerald-900/40",
+    href: "/portfolio/finance",
+    tags: ["FinTech", "Banking", "AI Analytics", "Compliance"],
   },
   {
-    id: 'legal',
-    name: 'Legal Pro',
-    category: 'Legal Services',
-    description: 'Corporate law, litigation, and legal consulting services',
-    icon: '⚖️',
-    color: '#6366F1',
-    bgGradient: 'from-indigo-900/30 to-purple-900/30',
-    href: '/portfolio/legal',
+    id: "legal",
+    name: "Legal Pro",
+    category: "Legal Services",
+    description: "Corporate law, litigation support, and AI-powered document analysis for law firms and enterprises.",
+    icon: "⚖️",
+    color: "#818CF8",
+    bgGradient: "from-indigo-900/40 to-purple-900/40",
+    href: "/portfolio/legal",
+    tags: ["Corporate Law", "AI Docs", "Compliance", "M&A"],
   },
   {
-    id: 'insurance',
-    name: 'InsureFlow',
-    category: 'Insurance',
-    description: 'Health, property, and liability insurance solutions',
-    icon: '🛡️',
-    color: '#F59E0B',
-    bgGradient: 'from-amber-900/30 to-orange-900/30',
-    href: '/portfolio/insurance',
+    id: "insurance",
+    name: "InsureFlow",
+    category: "Insurance",
+    description: "Health, property, and liability insurance with AI-powered underwriting and rapid claims processing.",
+    icon: "🛡️",
+    color: "#FBBF24",
+    bgGradient: "from-amber-900/40 to-orange-900/40",
+    href: "/portfolio/insurance",
+    tags: ["InsurTech", "AI Claims", "Health", "Property"],
   },
   {
-    id: 'vc',
-    name: 'VenturePeak',
-    category: 'Venture Capital',
-    description: 'Early-stage funding, mentorship, and portfolio management',
-    icon: '📈',
-    color: '#EC4899',
-    bgGradient: 'from-rose-900/30 to-pink-900/30',
-    href: '/portfolio/vc',
+    id: "vc",
+    name: "VenturePeak",
+    category: "Venture Capital",
+    description: "Early-stage funding, strategic mentorship, and portfolio management for high-growth startups.",
+    icon: "📈",
+    color: "#F472B6",
+    bgGradient: "from-rose-900/40 to-pink-900/40",
+    href: "/portfolio/vc",
+    tags: ["VC", "Startups", "Seed Funding", "Portfolio"],
   },
   {
-    id: 'health',
-    name: 'HealthFirst',
-    category: 'Health Services',
-    description: 'Telemedicine, wellness programs, and patient care management',
-    icon: '🏥',
-    color: '#EF4444',
-    bgGradient: 'from-red-900/30 to-rose-900/30',
-    href: '/portfolio/health',
+    id: "health",
+    name: "HealthFirst",
+    category: "Healthcare",
+    description: "Telemedicine, wellness programs, and HIPAA-compliant patient management for healthcare providers.",
+    icon: "🏥",
+    color: "#F87171",
+    bgGradient: "from-red-900/40 to-rose-900/40",
+    href: "/portfolio/health",
+    tags: ["HealthTech", "Telemedicine", "HIPAA", "Wellness"],
   },
   {
-    id: 'consulting',
-    name: 'Consulting Plus',
-    category: 'Management Consulting',
-    description: 'Strategy, operations, and digital transformation consulting',
-    icon: '🎯',
-    color: '#8B5CF6',
-    bgGradient: 'from-violet-900/30 to-purple-900/30',
-    href: '/portfolio/consulting',
+    id: "consulting",
+    name: "Consulting Plus",
+    category: "Management Consulting",
+    description: "Strategy, operations optimization, and digital transformation consulting for enterprise clients.",
+    icon: "🎯",
+    color: "#A78BFA",
+    bgGradient: "from-violet-900/40 to-purple-900/40",
+    href: "/portfolio/consulting",
+    tags: ["Strategy", "Operations", "Digital Transformation"],
   },
   {
-    id: 'tech',
-    name: 'TechVision',
-    category: 'Technology Startup',
-    description: 'SaaS platform, cloud infrastructure, and software development',
-    icon: '💻',
-    color: '#3B82F6',
-    bgGradient: 'from-blue-900/30 to-cyan-900/30',
-    href: '/portfolio/tech',
+    id: "tech",
+    name: "TechVision",
+    category: "Technology",
+    description: "SaaS platforms, cloud infrastructure, and custom software development for tech-forward companies.",
+    icon: "💻",
+    color: "#60A5FA",
+    bgGradient: "from-blue-900/40 to-cyan-900/40",
+    href: "/portfolio/tech",
+    tags: ["SaaS", "Cloud", "DevOps", "Custom Dev"],
+  },
+];
+
+const CAPABILITIES = [
+  {
+    icon: <Globe className="w-6 h-6" />,
+    title: "Industry-Specific Design",
+    desc: "Custom websites tailored to your industry's unique needs, compliance requirements, and target audience.",
+  },
+  {
+    icon: <Cpu className="w-6 h-6" />,
+    title: "AI Chat Integration",
+    desc: "Embedded AI chatbots trained on your business data — available 24/7 to qualify leads and support customers.",
+  },
+  {
+    icon: <Shield className="w-6 h-6" />,
+    title: "Enterprise Security",
+    desc: "Zero Trust architecture, SOC 2 compliance, and HIPAA/PCI-DSS ready infrastructure built in from day one.",
+  },
+  {
+    icon: <Smartphone className="w-6 h-6" />,
+    title: "Mobile-First Responsive",
+    desc: "Pixel-perfect on every device. Optimized for Core Web Vitals and SEO performance out of the box.",
+  },
+  {
+    icon: <BarChart3 className="w-6 h-6" />,
+    title: "Analytics & Lead Gen",
+    desc: "Built-in conversion tracking, lead capture forms, and CRM integrations to turn visitors into clients.",
+  },
+  {
+    icon: <Zap className="w-6 h-6" />,
+    title: "Rapid Deployment",
+    desc: "From concept to live website in days, not months. Agile development with continuous delivery.",
   },
 ];
 
 export default function PortfolioPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
-      {/* Header */}
-      <div className="border-b border-cyan-500/20 bg-gradient-to-b from-cyan-500/10 to-transparent">
-        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-5xl sm:text-6xl font-bold text-white">
-              Our <span className="text-[#00D4FF]">Portfolio</span>
-            </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Explore how GigitekAI transforms businesses across industries with intelligent cloud solutions and AI automation
+    <div className="min-h-screen" style={{ backgroundColor: "#0A0E1A", color: "#F1F5F9" }}>
+
+      {/* ── HERO ── */}
+      <section className="relative overflow-hidden py-24 px-4 border-b border-cyan-500/20">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+        </div>
+        <div className="max-w-6xl mx-auto relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">
+            <Zap className="w-3.5 h-3.5" />
+            Website Building Capabilities
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            We Build Websites That<br />
+            <span style={{ color: "#00D4FF" }}>Drive Real Results</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+            Explore our portfolio of industry-specific websites — each one showcasing GigitekAI's ability to build
+            professional, AI-powered digital experiences for any business sector. All pricing is custom-quoted based on your project scope.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/contact">
+              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-all hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
+                Start Your Project
+                <ArrowRight className="w-5 h-5" />
+              </a>
+            </Link>
+            <a
+              href="#demos"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all"
+            >
+              View Demo Sites
+            </a>
+          </div>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 pt-12 border-t border-cyan-500/20">
+            {[
+              { value: "9+", label: "Industries Served" },
+              { value: "50+", label: "Websites Delivered" },
+              { value: "99.9%", label: "Uptime SLA" },
+              { value: "24/7", label: "AI Support" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-3xl font-bold mb-1" style={{ color: "#00D4FF" }}>{s.value}</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wider">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CAPABILITIES ── */}
+      <section className="py-20 px-4 border-b border-cyan-500/20" style={{ backgroundColor: "#00D4FF08" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">What We Build Into Every Site</h2>
+            <p className="text-slate-400 max-w-xl mx-auto">Every website we deliver is engineered for performance, security, and conversion — not just aesthetics.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {CAPABILITIES.map((cap) => (
+              <div key={cap.title} className="flex gap-4 p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:border-cyan-500/40 transition-colors">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-cyan-300" style={{ backgroundColor: "#00D4FF22" }}>
+                  {cap.icon}
+                </div>
+                <div>
+                  <h3 className="font-bold text-white mb-1">{cap.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{cap.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURED SITES GRID ── */}
+      <section id="demos" className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Featured Sites</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Click any industry card to explore a fully functional demo website. Each demo showcases how your industry's website could look and function — complete with AI chat, contact forms, and professional design.
             </p>
-            <div className="flex items-center justify-center gap-3 pt-4">
-              <Zap className="w-5 h-5 text-[#00D4FF]" />
-              <span className="text-sm text-gray-400">Each site includes AI chat support • Custom pricing available</span>
+          </div>
+
+          {/* Live Client Sites */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-cyan-500/20" />
+              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest px-3">Live Client Sites</span>
+              <div className="h-px flex-1 bg-cyan-500/20" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {FEATURED_SITES.filter((s) => s.isReal).map((site) => (
+                <a
+                  key={site.id}
+                  href={site.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <div
+                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                    style={{ borderColor: site.color + "44" }}
+                  >
+                    <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
+                    <div className="relative z-10">
+                      <div className="flex items-start justify-between mb-4">
+                        <span className="text-5xl">{site.icon}</span>
+                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
+                          ✓ Live Site
+                        </span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
+                      <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {site.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 font-semibold text-sm transition-all group-hover:gap-3" style={{ color: site.color }}>
+                        Visit Live Site <ArrowRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Demo Sites */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px flex-1 bg-cyan-500/20" />
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-3">Industry Demo Sites — Click to Explore</span>
+              <div className="h-px flex-1 bg-cyan-500/20" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {FEATURED_SITES.filter((s) => !s.isReal).map((site) => (
+                <Link key={site.id} href={site.href}>
+                  <a className="group block h-full">
+                    <div
+                      className={`relative h-full rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                      style={{ borderColor: site.color + "33" }}
+                    >
+                      <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity" style={{ backgroundColor: site.color }} />
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="flex items-start justify-between mb-4">
+                          <span className="text-4xl">{site.icon}</span>
+                          <span className="text-xs font-semibold px-2 py-1 rounded-full text-slate-400 bg-white/5 border border-white/10">Demo Site</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-1">{site.name}</h3>
+                        <p className="text-xs font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-4 flex-1">{site.description}</p>
+                        <div className="flex flex-wrap gap-1.5 mb-5">
+                          {site.tags.map((tag) => (
+                            <span key={tag} className="text-xs px-2 py-0.5 rounded-md text-slate-400" style={{ backgroundColor: site.color + "12" }}>{tag}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: site.color + "22" }}>
+                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                            <MessageCircle className="w-3.5 h-3.5" style={{ color: site.color }} />
+                            AI Chat Included
+                          </div>
+                          <div className="flex items-center gap-1.5 text-sm font-semibold transition-all group-hover:gap-2" style={{ color: site.color }}>
+                            View Demo <ArrowRight className="w-4 h-4" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Featured Sites Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_SITES.map((site) => {
-            const cardContent = (
-              <div
-                className={`relative h-full rounded-xl border border-gray-700/50 bg-gradient-to-br ${site.bgGradient} p-6 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer overflow-hidden`}
-              >
-                {/* Background accent */}
-                <div
-                  className="absolute top-0 right-0 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-full blur-3xl"
-                  style={{ backgroundColor: site.color }}
-                />
-
-                {/* Content */}
-                <div className="relative z-10 space-y-4">
-                  {/* Icon & Badge */}
-                  <div className="flex items-start justify-between">
-                    <span className="text-4xl">{site.icon}</span>
-                    {site.isReal && (
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                        Live Client
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Title & Category */}
-                  <div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-[#00D4FF] transition-colors">
-                      {site.name}
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-1">{site.category}</p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-gray-300 leading-relaxed">{site.description}</p>
-
-                  {/* Features */}
-                  <div className="flex items-center gap-2 pt-2">
-                    <MessageCircle className="w-4 h-4 text-[#00D4FF]" />
-                    <span className="text-xs text-gray-400">{site.isReal ? 'Live Website' : 'AI Chat Support'}</span>
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex items-center gap-2 pt-4 text-[#00D4FF] group-hover:gap-3 transition-all">
-                    <span className="text-sm font-semibold">{site.isReal ? 'Visit Site' : 'View Demo'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
+      {/* ── WHAT'S INCLUDED ── */}
+      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ backgroundColor: "#00D4FF05" }}>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Every Site We Build Includes</h2>
+          <p className="text-slate-400 mb-12">No hidden fees. No cookie-cutter templates. Every project is custom-scoped and priced accordingly.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-12">
+            {[
+              "Custom design aligned with your brand",
+              "Mobile-first, responsive layout",
+              "AI chat widget (Copilot Studio powered)",
+              "Lead capture & contact forms",
+              "SEO optimization & Core Web Vitals",
+              "Analytics & conversion tracking",
+              "SSL, CDN & 99.9% uptime hosting",
+              "Admin dashboard & content management",
+              "Microsoft 365 & CRM integrations",
+              "Ongoing support & monthly updates",
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5">
+                <CheckCircle className="w-5 h-5 flex-shrink-0 text-cyan-400" />
+                <span className="text-slate-300 text-sm">{item}</span>
               </div>
-            );
-
-            return site.external ? (
-              <a
-                key={site.id}
-                href={site.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group h-full block"
-              >
-                {cardContent}
-              </a>
-            ) : (
-              <Link key={site.id} href={site.href}>
-                <a className="group h-full">{cardContent}</a>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="border-t border-cyan-500/20 bg-gradient-to-b from-transparent to-cyan-500/5">
-        <div className="max-w-4xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center space-y-8">
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold text-white">Ready to Transform Your Business?</h2>
-            <p className="text-xl text-gray-300">
-              See how GigitekAI can deliver enterprise-grade solutions tailored to your industry
-            </p>
+            ))}
           </div>
+          <p className="text-slate-500 text-sm mb-8">
+            Pricing is custom-quoted based on project scope, complexity, and required integrations. Contact us for a free consultation.
+          </p>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="py-20 px-4 border-t border-cyan-500/20">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Build Your Website?</h2>
+          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+            Tell us about your industry and goals. We'll design and build a website that converts visitors into clients — powered by AI.
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/contact">
-              <a>
-                <Button className="bg-[#00D4FF] text-black hover:bg-cyan-400 font-semibold px-8 py-6 text-lg">
-                  Get In Touch
-                </Button>
+              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-all hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
+                Start Your Project
+                <ArrowRight className="w-5 h-5" />
               </a>
             </Link>
             <Link href="/">
-              <a>
-                <Button
-                  variant="outline"
-                  className="border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10 font-semibold px-8 py-6 text-lg"
-                >
-                  Learn More
-                </Button>
+              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all">
+                Learn About GigitekAI
               </a>
             </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
