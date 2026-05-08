@@ -70,20 +70,20 @@ export default function PortfolioDemoSite({ site }: Props) {
   return (
     <div className="min-h-screen font-sans bg-white text-gray-900" style={{ fontFamily: "'Inter', 'DM Sans', sans-serif" }}>
 
-      {/* Demo Banner — thin, professional */}
-      <div className="text-center py-2 px-4 text-xs font-medium bg-gray-900 text-gray-300">
-        <span className="text-white font-semibold">DEMO SITE</span>
-        <span className="mx-2 text-gray-500">·</span>
-        <span>Powered by </span>
-        <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-white hover:underline">
+      {/* Demo Banner — professional top bar */}
+      <div className="text-center py-2.5 px-4 text-xs font-medium" style={{ backgroundColor: '#0A0E1A', color: '#9CA3AF' }}>
+        <span className="text-gray-400">DEMO SITE</span>
+        <span className="mx-2 text-gray-600">·</span>
+        <span className="text-gray-300">Powered by{' '}</span>
+        <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline" style={{ color: '#00D4FF' }}>
           GigitekAI
         </a>
-        <span className="mx-2 text-gray-500">·</span>
-        <span>Custom pricing based on project scope</span>
-        <span className="mx-2 text-gray-500">·</span>
-        <a href="https://gigitekai.com/contact" target="_blank" rel="noopener noreferrer" className="font-semibold text-white hover:underline">
-          Contact Us
+        <span className="mx-2 text-gray-600">·</span>
+        <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-200 transition-colors">
+          GigitekAI.com
         </a>
+        <span className="mx-2 text-gray-600">·</span>
+        <a href="/portfolio" className="text-gray-400 hover:text-gray-200 transition-colors">← Back to Portfolio</a>
       </div>
 
       {/* Sticky Navbar — white, clean border */}
@@ -91,10 +91,12 @@ export default function PortfolioDemoSite({ site }: Props) {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: accent }}>
-                {site.name.charAt(0)}
-              </div>
-              <span className="font-bold text-lg text-gray-900 tracking-tight">{site.name}</span>
+              <img
+                src={site.logoUrl}
+                alt={`${site.companyName} logo`}
+                className="h-10 w-auto object-contain"
+                style={{ maxWidth: '220px' }}
+              />
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
               <a href="#services" className="hover:text-gray-900 transition-colors">Services</a>
@@ -462,10 +464,12 @@ export default function PortfolioDemoSite({ site }: Props) {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: accent }}>
-                {site.name.charAt(0)}
-              </div>
-              <span className="font-bold text-gray-900">{site.name}</span>
+              <img
+                src={site.logoUrl}
+                alt={`${site.companyName} logo`}
+                className="h-8 w-auto object-contain"
+                style={{ maxWidth: '160px' }}
+              />
             </div>
             <p className="text-xs text-gray-400 text-center">
               © 2025 {site.name}. All rights reserved. · Demo site for portfolio purposes only.
