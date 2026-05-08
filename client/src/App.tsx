@@ -50,6 +50,16 @@ const AIStrategicBriefingPage = lazy(() => import("./pages/AIStrategicBriefingPa
 const AIDemoPage = lazy(() => import("./pages/AIDemoPage"));
 const ClientExchangePage = lazy(() => import("./pages/ClientExchangePage"));
 const CaseStudiesPage = lazy(() => import("./pages/CaseStudiesPage"));
+const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const PortfolioFinanceDemo = lazy(() => import("./pages/PortfolioFinanceDemo"));
+const PortfolioLegalDemo = lazy(() => import("./pages/PortfolioLegalDemo"));
+const PortfolioInsuranceDemo = lazy(() => import("./pages/PortfolioInsuranceDemo"));
+const PortfolioVCDemo = lazy(() => import("./pages/PortfolioVCDemo"));
+const PortfolioHealthDemo = lazy(() => import("./pages/PortfolioHealthDemo"));
+const PortfolioConsultingDemo = lazy(() => import("./pages/PortfolioConsultingDemo"));
+const PortfolioTechDemo = lazy(() => import("./pages/PortfolioTechDemo"));
+const PortfolioGigitekDemo = lazy(() => import("./pages/PortfolioGigitekDemo"));
+const PortfolioDivineSoundsDemo = lazy(() => import("./pages/PortfolioDivineSoundsDemo"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -140,6 +150,17 @@ function Router() {
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
           <Route path={"/case-studies"} component={CaseStudiesPage} />
+          {/* Portfolio showcase */}
+          <Route path={"/portfolio"} component={PortfolioPage} />
+          <Route path={"/portfolio/finance"} component={PortfolioFinanceDemo} />
+          <Route path={"/portfolio/legal"} component={PortfolioLegalDemo} />
+          <Route path={"/portfolio/insurance"} component={PortfolioInsuranceDemo} />
+          <Route path={"/portfolio/vc"} component={PortfolioVCDemo} />
+          <Route path={"/portfolio/health"} component={PortfolioHealthDemo} />
+          <Route path={"/portfolio/consulting"} component={PortfolioConsultingDemo} />
+          <Route path={"/portfolio/tech"} component={PortfolioTechDemo} />
+          <Route path={"/portfolio/gigitekai"} component={PortfolioGigitekDemo} />
+          <Route path={"/portfolio/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
           <Route path={"/about"}>{() => { window.location.replace("/"); return null; }}</Route>

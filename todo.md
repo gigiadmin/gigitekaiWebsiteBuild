@@ -4538,3 +4538,34 @@
   - [x] Checks 6 critical system categories
   - [x] Sends automated reports to owner via notification API
   - [x] Includes remediation recommendations
+
+
+## Social Hub OAuth Connection Fixes
+- [ ] Fix LinkedIn redirect URI mismatch error
+  - Issue: "The redirect_uri does not match the registered value"
+  - Solution: Update redirect URI in LinkedIn Developer Console to match current domain
+  - Current redirect URI: {origin}/api/social/linkedin/callback
+  - Need to register all domains: gigitekai.com, www.gigitekai.com, gigitekai-mmtcdmc2.manus.space
+  
+- [ ] Fix Twitter/X OAuth callback error
+  - Issue: "Desktop applications only support the oauth_callback value 'oob'"
+  - Root cause: Using OAuth 1.0a with web callback URL instead of desktop app flow
+  - Solution: Switch to Twitter OAuth 2.0 with PKCE flow for web apps
+  - Update: Use oauth_callback parameter correctly in request token flow
+  
+- [ ] Fix Facebook connection
+  - Issue: Connection attempt failing (need to verify error in console)
+  - Solution: Verify Facebook App ID and Secret are set correctly
+  - Update redirect URI in Facebook App Settings to match current domain
+  
+- [ ] Test all social connections after fixes
+  - Verify LinkedIn connection works
+  - Verify Twitter/X connection works
+  - Verify Facebook connection works
+  - Test post publishing to all platforms
+  
+- [ ] Plan TikTok and YouTube integration for future
+  - Document API requirements for TikTok Creator API
+  - Document API requirements for YouTube Data API v3
+  - Design UI for additional platform cards
+  - Plan database schema updates for new platforms
