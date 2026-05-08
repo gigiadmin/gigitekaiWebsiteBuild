@@ -4595,3 +4595,7 @@
 - [ ] Tech demo: TechVision - SaaS/tech startup theme, blue accent
 - [ ] Add "Powered by GigitekAI" footer banner on all demo sites
 - [ ] Add AI chat demo modal with "Contact GigitekAI" CTA
+
+## Demo Site Fortune 500 Redesign
+- [ ] Redesign PortfolioDemoSite component with Fortune 500 aesthetic (light/white backgrounds, premium typography, clean minimal layout)
+- [ ] Verify all 7 demo sites look premium and professional

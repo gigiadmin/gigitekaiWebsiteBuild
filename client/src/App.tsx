@@ -257,7 +257,9 @@ function App() {
   const isMeetingPage = location.startsWith("/cancel-meeting") || location.startsWith("/reschedule-meeting");
   const isAdminPage = location.startsWith("/admin");
   const isHelpdeskPage = location.startsWith("/helpdesk");
-  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage;
+  // Hide global widgets on portfolio demo pages so they look like standalone sites
+  const isPortfolioDemoPage = /^\/portfolio\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
+  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
 
   return (
     <ErrorBoundary>
