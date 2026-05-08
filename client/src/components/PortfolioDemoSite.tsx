@@ -35,6 +35,9 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function PortfolioDemoSite({ site }: Props) {
+  // Guard against undefined site
+  if (!site) return <div className="flex items-center justify-center min-h-screen"><p>Site not found</p></div>;
+
   const [chatOpen, setChatOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -175,7 +178,7 @@ export default function PortfolioDemoSite({ site }: Props) {
 
             {/* Stats panel — right side */}
             <div className="grid grid-cols-2 gap-5">
-              {site.stats.map((stat) => (
+                {site.stats?.map((stat) => (
                 <div key={stat.label} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                   <div className="text-3xl font-bold mb-1 tracking-tight" style={{ color: accent }}>{stat.value}</div>
                   <div className="text-xs text-gray-500 uppercase tracking-wider font-medium">{stat.label}</div>
@@ -197,7 +200,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {site.services.map((service, idx) => (
+            {site.services?.map((service, idx) => (
               <div
                 key={service.title}
                 className="rounded-2xl p-8 border border-gray-100 hover:shadow-lg transition-shadow bg-white group"
@@ -211,7 +214,7 @@ export default function PortfolioDemoSite({ site }: Props) {
                 <h3 className="text-lg font-bold text-gray-900 mb-3">{service.title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-6">{service.description}</p>
                 <ul className="space-y-2 mb-6">
-                  {service.features.map((f) => (
+                  {service.features?.map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
                       <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
                       {f}
@@ -249,7 +252,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 tracking-tight">Why Choose {site.name}?</h2>
               <p className="text-gray-600 leading-relaxed mb-8 text-base">{site.aboutText}</p>
               <ul className="space-y-4 mb-10">
-                {site.aboutPoints.map((point) => (
+                {site.aboutPoints?.map((point) => (
                   <li key={point} className="flex items-start gap-3 text-sm text-gray-700">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: accent + "20" }}>
                       <svg className="w-3 h-3" fill="none" stroke={accent} viewBox="0 0 24 24">
@@ -298,7 +301,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             <p className="text-gray-500">What our clients say about working with {site.name}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {site.testimonials.map((t) => (
+            {site.testimonials?.map((t) => (
               <div key={t.name} className="rounded-2xl p-8 border border-gray-100 shadow-sm bg-white flex flex-col">
                 <StarRating rating={t.rating} />
                 <p className="text-gray-600 text-sm leading-relaxed my-6 flex-1">"{t.quote}"</p>
@@ -329,7 +332,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             <p className="text-gray-500">Experienced professionals dedicated to your success</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {site.team.map((member) => (
+            {site.team?.map((member) => (
               <div key={member.name} className="text-center rounded-2xl p-6 bg-white border border-gray-100 shadow-sm">
                 <div
                   className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold text-white mx-auto mb-4"
@@ -358,9 +361,9 @@ export default function PortfolioDemoSite({ site }: Props) {
               </p>
               <div className="space-y-6">
                 {[
-                  { icon: "📞", label: "Phone", value: site.contactInfo.phone },
-                  { icon: "✉️", label: "Email", value: site.contactInfo.email },
-                  { icon: "📍", label: "Address", value: site.contactInfo.address },
+                  { icon: "📞", label: "Phone", value: site.contactInfo?.phone || "N/A" },
+                  { icon: "✉️", label: "Email", value: site.contactInfo?.email || "N/A" },
+                  { icon: "📍", label: "Address", value: site.contactInfo?.address || "N/A" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-start gap-4">
                     <div
@@ -426,7 +429,7 @@ export default function PortfolioDemoSite({ site }: Props) {
                       <input
                         type={f.type}
                         required={f.required}
-                        value={contactForm[f.field]}
+                        value={contactForm?.[f.field] || ''}
                         onChange={(e) => setContactForm((p) => ({ ...p, [f.field]: e.target.value }))}
                         placeholder={f.placeholder}
                         className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all text-sm bg-white"
