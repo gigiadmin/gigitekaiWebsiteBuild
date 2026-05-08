@@ -168,6 +168,7 @@ export default function SiteNavBar2024() {
             </div>
 
             {[
+              { label: "Portfolio", href: "/portfolio", show: 'always' },
               { label: "Industries", href: "/industries/healthcare", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
@@ -274,6 +275,7 @@ export default function SiteNavBar2024() {
               </div>
               <div className="px-4 pb-2 space-y-2 border-t border-[rgba(0,212,255,0.1)] pt-2">
               {[
+                { label: "Portfolio", href: "/portfolio", id: "nav-portfolio" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
                 { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency", id: "nav-florida" },
