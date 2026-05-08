@@ -86,24 +86,24 @@ export default function PortfolioDemoSite({ site }: Props) {
         <a href="/portfolio" className="text-gray-400 hover:text-gray-200 transition-colors">← Back to Portfolio</a>
       </div>
 
-      {/* Sticky Navbar — white, clean border */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      {/* Sticky Navbar — dark, premium enterprise style */}
+      <nav className="sticky top-0 z-40 bg-gray-900 border-b border-gray-800 shadow-lg">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <img
                 src={site.logoUrl}
                 alt={`${site.companyName} logo`}
-                className="h-10 w-auto object-contain"
-                style={{ maxWidth: '220px' }}
+                className="h-9 w-auto object-contain"
+                style={{ maxWidth: '200px' }}
               />
             </div>
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-              <a href="#services" className="hover:text-gray-900 transition-colors">Services</a>
-              <a href="#about" className="hover:text-gray-900 transition-colors">About</a>
-              <a href="#team" className="hover:text-gray-900 transition-colors">Team</a>
-              <a href="#contact" className="hover:text-gray-900 transition-colors">Contact</a>
-              <a href="/portfolio" className="text-xs text-gray-400 hover:text-gray-600">← Portfolio</a>
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+              <a href="#services" className="hover:text-white transition-colors">Services</a>
+              <a href="#about" className="hover:text-white transition-colors">About</a>
+              <a href="#team" className="hover:text-white transition-colors">Team</a>
+              <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+              <a href="/portfolio" className="text-xs text-gray-500 hover:text-gray-300">← Portfolio</a>
               <a
                 href="#contact"
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 shadow-sm"
@@ -112,18 +112,18 @@ export default function PortfolioDemoSite({ site }: Props) {
                 Get Started
               </a>
             </div>
-            <button className="md:hidden p-2 text-gray-500" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <button className="md:hidden p-2 text-gray-300" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
               </svg>
             </button>
           </div>
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-100 space-y-1">
+            <div className="md:hidden py-4 border-t border-gray-700 space-y-1">
               {["services", "about", "team", "contact"].map((s) => (
-                <a key={s} href={`#${s}`} className="block py-2.5 px-2 text-gray-700 hover:text-gray-900 capitalize font-medium" onClick={() => setMobileMenuOpen(false)}>{s}</a>
+                <a key={s} href={`#${s}`} className="block py-2.5 px-2 text-gray-200 hover:text-white capitalize font-medium" onClick={() => setMobileMenuOpen(false)}>{s}</a>
               ))}
-              <a href="/portfolio" className="block py-2.5 px-2 text-gray-400 text-sm" onClick={() => setMobileMenuOpen(false)}>← Back to Portfolio</a>
+              <a href="/portfolio" className="block py-2.5 px-2 text-gray-500 text-sm" onClick={() => setMobileMenuOpen(false)}>← Back to Portfolio</a>
               <a href="#contact" className="block w-full py-3 rounded-lg text-sm font-semibold text-white text-center mt-2" style={{ backgroundColor: accent }} onClick={() => setMobileMenuOpen(false)}>
                 Get Started
               </a>
@@ -193,7 +193,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Our Services</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">Comprehensive Solutions</h2>
             <p className="text-gray-500 text-lg leading-relaxed">
-              Tailored {site.industry.toLowerCase()} solutions designed for your specific needs. All pricing is custom-quoted based on project scope.
+              Tailored {site.industry?.toLowerCase() || 'custom'} solutions designed for your specific needs. All pricing is custom-quoted based on project scope.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -354,7 +354,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Contact Us</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 tracking-tight">Let's Work Together</h2>
               <p className="text-gray-400 text-base leading-relaxed mb-10">
-                Ready to transform your {site.industry.toLowerCase()} operations? Contact us today for a free consultation. All pricing is custom-quoted based on your specific needs.
+                Ready to transform your {site.industry?.toLowerCase() || 'business'} operations? Contact us today for a free consultation. All pricing is custom-quoted based on your specific needs.
               </p>
               <div className="space-y-6">
                 {[
@@ -460,7 +460,7 @@ export default function PortfolioDemoSite({ site }: Props) {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="py-10 px-6 bg-white border-t border-gray-100">
+      <footer className="py-10 px-6 bg-gray-900 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
@@ -471,11 +471,11 @@ export default function PortfolioDemoSite({ site }: Props) {
                 style={{ maxWidth: '160px' }}
               />
             </div>
-            <p className="text-xs text-gray-400 text-center">
+            <p className="text-xs text-gray-500 text-center">
               © 2025 {site.name}. All rights reserved. · Demo site for portfolio purposes only.
             </p>
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400">Built by</span>
+              <span className="text-gray-500">Built by</span>
               <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline flex items-center gap-1 text-sm" style={{ color: "#00D4FF" }}>
                 GigitekAI
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,13 +484,13 @@ export default function PortfolioDemoSite({ site }: Props) {
               </a>
             </div>
           </div>
-          <div className="mt-6 pt-6 border-t border-gray-100 flex flex-wrap justify-center gap-6 text-xs text-gray-400">
-            <a href="#services" className="hover:text-gray-700">Services</a>
-            <a href="#about" className="hover:text-gray-700">About</a>
-            <a href="#team" className="hover:text-gray-700">Team</a>
-            <a href="#contact" className="hover:text-gray-700">Contact</a>
-            <a href="/portfolio" className="hover:text-gray-700">← Back to Portfolio</a>
-            <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700">GigitekAI.com</a>
+          <div className="mt-6 pt-6 border-t border-gray-800 flex flex-wrap justify-center gap-6 text-xs text-gray-500">
+            <a href="#services" className="hover:text-gray-300">Services</a>
+            <a href="#about" className="hover:text-gray-300">About</a>
+            <a href="#team" className="hover:text-gray-300">Team</a>
+            <a href="#contact" className="hover:text-gray-300">Contact</a>
+            <a href="/portfolio" className="hover:text-gray-300">← Back to Portfolio</a>
+            <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">GigitekAI.com</a>
           </div>
         </div>
       </footer>

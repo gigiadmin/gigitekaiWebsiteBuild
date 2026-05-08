@@ -54,7 +54,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "finance",
     name: "Meridian Capital",
     companyName: "Meridian Capital",
-    logoUrl: "/manus-storage/fintech-logo_20611fc1.png",
+    logoUrl: "/manus-storage/fintech-logo_fae4db7b.png",
     tagline: "Digital Banking & Investment Management",
     industry: "Financial Services",
     description:
@@ -136,7 +136,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "legal",
     name: "Sterling & Associates",
     companyName: "Sterling & Associates",
-    logoUrl: "/manus-storage/legal-logo_0310c103.png",
+    logoUrl: "/manus-storage/legal-logo_a6771a47.png",
     tagline: "Corporate Law & Legal Consulting",
     industry: "Legal Services",
     description:
@@ -218,7 +218,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "insurance",
     name: "Pinnacle Insurance Group",
     companyName: "Pinnacle Insurance Group",
-    logoUrl: "/manus-storage/insurance-logo_09469955.png",
+    logoUrl: "/manus-storage/insurance-logo_ea0f8444.png",
     tagline: "Health, Property & Liability Insurance",
     industry: "Insurance",
     description:
@@ -300,7 +300,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "vc",
     name: "Apex Ventures",
     companyName: "Apex Ventures",
-    logoUrl: "/manus-storage/vc-logo_e3e2df49.png",
+    logoUrl: "/manus-storage/vc-logo_3e310c4e.png",
     tagline: "Venture Capital & Startup Funding",
     industry: "Venture Capital",
     description:
@@ -382,7 +382,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "health",
     name: "Vitara Health",
     companyName: "Vitara Health",
-    logoUrl: "/manus-storage/health-logo_7af6a77a.png",
+    logoUrl: "/manus-storage/health-logo_1af43473.png",
     tagline: "Telemedicine & Wellness Services",
     industry: "Healthcare",
     description:
@@ -464,7 +464,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "consulting",
     name: "Stratford Advisory",
     companyName: "Stratford Advisory",
-    logoUrl: "/manus-storage/consulting-logo_b76a369e.png",
+    logoUrl: "/manus-storage/consulting-logo_5d8e67e2.png",
     tagline: "Management & Digital Transformation",
     industry: "Management Consulting",
     description:
@@ -546,7 +546,7 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
     id: "tech",
     name: "NovaTech Solutions",
     companyName: "NovaTech Solutions",
-    logoUrl: "/manus-storage/tech-logo_4f3135a5.png",
+    logoUrl: "/manus-storage/tech-logo_3292abd5.png",
     tagline: "SaaS & Cloud Infrastructure",
     industry: "Technology",
     description:
