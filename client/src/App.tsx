@@ -215,6 +215,8 @@ function Router() {
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
+          {/* ── Admin Dashboard ── */}
+          <Route path={"/admin/jira"} component={JiraDashboard} />
           {/* ── Admin Portal ── */}
           <Route path="/admin/:rest*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
@@ -225,8 +227,6 @@ function Router() {
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
           {/* Call Transcript Search */}
           <Route path={"/call-transcripts"} component={CallTranscriptSearch} />
-          {/* ── Admin Dashboard ── */}
-          <Route path={"/admin/jira"} component={JiraDashboard} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route path={"/:rest*"} component={NotFound} />
