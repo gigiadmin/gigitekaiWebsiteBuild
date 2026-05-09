@@ -92,14 +92,16 @@ export default function PortfolioDemoSite({ site }: Props) {
       {/* Sticky Navbar — dark, premium enterprise style */}
       <nav className="sticky top-0 z-40 bg-gray-900 border-b border-gray-800 shadow-lg">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
               <img
                 src={site.logoUrl}
                 alt={`${site.companyName} logo`}
-                className="h-9 w-auto object-contain"
-                style={{ maxWidth: '200px' }}
+                className="h-10 w-10 object-contain flex-shrink-0"
               />
+              <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                {site.companyName}
+              </span>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
               <a href="#services" className="hover:text-white transition-colors">Services</a>
@@ -488,8 +490,8 @@ export default function PortfolioDemoSite({ site }: Props) {
               <img
                 src={site.logoUrl}
                 alt={`${site.companyName} logo`}
-                className="h-8 w-auto object-contain"
-                style={{ maxWidth: '160px' }}
+                className="h-12 w-auto object-contain"
+                style={{ maxWidth: '180px' }}
               />
             </div>
             <p className="text-xs text-gray-500 text-center">
