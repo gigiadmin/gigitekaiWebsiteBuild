@@ -48,6 +48,19 @@ const FEATURED_SITES: FeaturedSite[] = [
     tags: ["Creative", "Audio", "Production"],
   },
   {
+    id: "karilife",
+    name: "Kari & Co.",
+    category: "Health & Wellness Coaching",
+    description: "Holistic life and business coaching helping clients heal, transform, and build a life they love through HealThy Life & Business programs.",
+    icon: "🌿",
+    color: "#A78B6F",
+    bgGradient: "from-amber-900/30 to-stone-900/40",
+    href: "https://karilife-yujvfmqf.manus.space",
+    isReal: true,
+    external: true,
+    tags: ["Wellness", "Life Coaching", "Business Coaching", "Podcast"],
+  },
+  {
     id: "finance",
     name: "FinTech Solutions",
     category: "Financial Services",
@@ -254,14 +267,53 @@ export default function PortfolioPage() {
               <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest px-3">Live Client Sites</span>
               <div className="h-px flex-1 bg-cyan-500/20" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {FEATURED_SITES.filter((s) => s.isReal).map((site) => (
+            {/* First two cards side-by-side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {FEATURED_SITES.filter((s) => s.isReal).slice(0, 2).map((site) => (
                 <a
                   key={site.id}
                   href={site.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block"
+                >
+                  <div
+                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                    style={{ borderColor: site.color + "44" }}
+                  >
+                    <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
+                    <div className="relative z-10">
+                      <div className="flex items-start justify-between mb-4">
+                        <span className="text-5xl">{site.icon}</span>
+                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
+                          ✓ Live Site
+                        </span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
+                      <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {site.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 font-semibold text-sm transition-all group-hover:gap-3" style={{ color: site.color }}>
+                        Visit Live Site <ArrowRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+            {/* Third card centered at full width on md, half-width centered on lg */}
+            <div className="flex justify-center">
+              {FEATURED_SITES.filter((s) => s.isReal).slice(2).map((site) => (
+                <a
+                  key={site.id}
+                  href={site.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full md:w-1/2"
                 >
                   <div
                     className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
