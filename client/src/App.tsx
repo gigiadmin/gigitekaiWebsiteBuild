@@ -96,6 +96,7 @@ const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365Notifica
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
+const JiraDashboard = lazy(() => import("./pages/JiraDashboard"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -224,9 +225,11 @@ function Router() {
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
           {/* Call Transcript Search */}
           <Route path={"/call-transcripts"} component={CallTranscriptSearch} />
+          {/* ── Admin Dashboard ── */}
+          <Route path={"/admin/jira"} component={JiraDashboard} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
-          <Route component={NotFound} />
+          <Route path={"/:rest*"} component={NotFound} />
         </Switch>
       </main>
     </Suspense>
