@@ -51,8 +51,10 @@ export default function AdminLogin() {
       clearTimeout(timeoutId);
     } catch (error) {
       clearTimeout(timeoutId);
-      setIsLoading(false);
       // Error is already handled by mutation's onError
+    } finally {
+      // Always clear loading state, even if request hangs or fails
+      setIsLoading(false);
     }
   };
 

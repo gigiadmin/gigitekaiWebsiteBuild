@@ -100,10 +100,12 @@ export function cloudflareWAFBypassMiddleware(
     res.setHeader('X-Mobile-Optimized', '1');
     res.setHeader('X-UA-Compatible', 'IE=edge');
     
-    // Add origin header for CORS
-    const origin = req.headers.origin || req.headers.referer || `${req.protocol}://${req.get('host')}`;
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    // Add origin header for CORS (use origin header only, not referer)
+    const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
     
     // Log mobile request for monitoring
     console.log(`[Mobile Request] IP: ${clientIP}, UA: ${userAgent.substring(0, 100)}`);
@@ -112,7 +114,8 @@ export function cloudflareWAFBypassMiddleware(
   // Handle preflight requests (OPTIONS)
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    // Include all headers that tRPC and mobile clients might use
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, trpc-batch, x-trpc-source, accept, accept-encoding');
     res.setHeader('Access-Control-Max-Age', '86400');
     res.status(204).send();
     return;

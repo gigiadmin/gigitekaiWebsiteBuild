@@ -93,7 +93,7 @@ export const adminAuthRouter = router({
 
       // Set cookie on response — detect HTTPS via x-forwarded-proto
       const forwardedProtoLogin = ctx.req.headers["x-forwarded-proto"];
-      const isSecureLogin = ctx.req.protocol === "https" ||
+      const isSecureLogin = process.env.NODE_ENV === "production" || ctx.req.protocol === "https" ||
         (typeof forwardedProtoLogin === "string" && forwardedProtoLogin.split(",")[0].trim() === "https");
       ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecureLogin));
 
