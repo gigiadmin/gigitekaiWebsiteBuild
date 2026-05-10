@@ -96,7 +96,6 @@ const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365Notifica
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
-const JiraDashboard = lazy(() => import("./pages/JiraDashboard"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -215,8 +214,6 @@ function Router() {
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
-          {/* ── Admin Dashboard ── */}
-          <Route path={"/admin/jira"} component={JiraDashboard} />
           {/* ── Admin Portal ── */}
           <Route path="/admin/:rest*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
@@ -229,7 +226,7 @@ function Router() {
           <Route path={"/call-transcripts"} component={CallTranscriptSearch} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
-          <Route path={"/:rest*"} component={NotFound} />
+          <Route component={NotFound} />
         </Switch>
       </main>
     </Suspense>

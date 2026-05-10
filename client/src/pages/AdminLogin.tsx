@@ -39,10 +39,20 @@ export default function AdminLogin() {
     }
 
     setIsLoading(true);
+    
+    // Add timeout to prevent infinite loading on mobile
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      toast.error("Login request timed out. Please try again.");
+    }, 15000); // 15 second timeout
+    
     try {
       await loginMutation.mutateAsync({ email, password });
-    } finally {
+      clearTimeout(timeoutId);
+    } catch (error) {
+      clearTimeout(timeoutId);
       setIsLoading(false);
+      // Error is already handled by mutation's onError
     }
   };
 
@@ -120,17 +130,17 @@ export default function AdminLogin() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium h-9"
+                className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium h-10 text-base font-semibold active:scale-95 transition-transform"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 size={16} className="mr-2 animate-spin" />
-                    Signing in...
+                    <Loader2 size={18} className="mr-2 animate-spin" />
+                    <span>Signing in...</span>
                   </>
                 ) : (
                   <>
-                    <LogIn size={16} className="mr-2" />
-                    Sign In
+                    <LogIn size={18} className="mr-2" />
+                    <span>Sign In</span>
                   </>
                 )}
               </Button>
