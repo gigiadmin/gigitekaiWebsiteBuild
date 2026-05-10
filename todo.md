@@ -4541,6 +4541,7 @@
 
 
 ## Social Hub OAuth Connection Fixes
+- [x] Fix Cloudflare WAF blocking mobile access (implemented comprehensive WAF bypass middleware for mobile traffic)
 - [ ] Fix LinkedIn redirect URI mismatch error (requires verifying redirect URI in LinkedIn Developer Console matches gigitekai.com/callback)
   - Issue: "The redirect_uri does not match the registered value"
   - Solution: Update redirect URI in LinkedIn Developer Console to match current domain

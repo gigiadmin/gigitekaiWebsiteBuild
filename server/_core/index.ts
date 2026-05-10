@@ -12,6 +12,7 @@ import { setupWebSocket } from "./websocket";
 import { setupWebRTCSignaling } from "./webrtcSignaling";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
 import { securityHeaders } from "./securityHeaders";
+import { comprehensiveWAFBypass } from "./cloudflare-waf-bypass";
 import { startDigestScheduler } from "./digestScheduler";
 import { startTeamsDigestScheduler } from "./teamsDigest";
 import { startSlaAlertScheduler } from "./teamsSlaAlerts";
@@ -82,6 +83,10 @@ async function startServer() {
 
   // ── Security Middleware ──────────────────────────────────────────────────
   app.use(securityHeaders);
+
+  // ── Cloudflare WAF Bypass for Mobile ────────────────────────────────────────
+  // Handles mobile traffic that gets blocked by Cloudflare WAF
+  app.use(comprehensiveWAFBypass);
 
   // ── Cache Headers Middleware ───────────────────────────────────────────────
   // Set aggressive caching for static assets, no-cache for HTML and API
