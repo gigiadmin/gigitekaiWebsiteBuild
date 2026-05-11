@@ -1,7 +1,6 @@
 /**
- * AdminLogin — Temporary Admin Portal Login
- * Email/password authentication (bypasses OAuth while waiting for redirect URI setup)
- * This is a temporary solution until Manus support configures the OAuth redirect URI
+ * AdminLogin — Admin Portal Login
+ * Email/password authentication for GigitekAI admin portal
  */
 
 import { useState } from "react";
@@ -11,7 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Loader2, LogIn, Zap } from "lucide-react";
+import { Loader2, LogIn, Zap } from "lucide-react";
 
 export default function AdminLogin() {
   const [, navigate] = useLocation();
@@ -22,11 +21,11 @@ export default function AdminLogin() {
   const loginMutation = trpc.adminAuth.login.useMutation({
     onSuccess: () => {
       toast.success("Login successful!");
-      // Redirect to admin dashboard
-      navigate("/admin");
+      // Redirect to admin dashboard — use hard navigation to ensure cookie is sent
+      window.location.href = "/admin";
     },
     onError: (error: any) => {
-      toast.error(error.message || "Login failed");
+      toast.error(error.message || "Invalid email or password");
     },
   });
 
@@ -44,7 +43,7 @@ export default function AdminLogin() {
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
       toast.error("Login request timed out. Please try again.");
-    }, 15000); // 15 second timeout
+    }, 30000); // 30 second timeout
     
     try {
       await loginMutation.mutateAsync({ email, password });
@@ -61,7 +60,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0D1117] to-[#161B22] flex items-center justify-center p-4">
       {/* Background grid effect */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div className="absolute inset-0" style={{
           backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 212, 255, 0.05) 25%, rgba(0, 212, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 212, 255, 0.05) 75%, rgba(0, 212, 255, 0.05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 212, 255, 0.05) 25%, rgba(0, 212, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 212, 255, 0.05) 75%, rgba(0, 212, 255, 0.05) 76%, transparent 77%, transparent)',
           backgroundSize: '50px 50px'
@@ -75,7 +74,7 @@ export default function AdminLogin() {
             <Zap size={20} className="text-black" />
           </div>
           <div>
-            <div className="text-white font-bold text-lg">GigitekAI</div>
+            <div className="text-white font-bold text-lg tracking-tight">GigitekAI</div>
             <div className="text-slate-400 text-xs">Admin Portal</div>
           </div>
         </div>
@@ -88,19 +87,11 @@ export default function AdminLogin() {
               Admin Login
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Temporary authentication while OAuth is being configured
+              Sign in to the GigitekAI admin portal
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            {/* Info Banner */}
-            <div className="mb-6 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex gap-2">
-              <AlertCircle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-200">
-                <strong>Temporary Login:</strong> This is a temporary solution while we configure OAuth for gigitekai.com. Your credentials are stored securely.
-              </div>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Input */}
               <div className="space-y-2">
@@ -111,6 +102,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="email"
                   className="bg-[#0D1117] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:ring-cyan-500/20"
                 />
               </div>
@@ -124,6 +116,7 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="current-password"
                   className="bg-[#0D1117] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:ring-cyan-500/20"
                 />
               </div>
@@ -132,7 +125,7 @@ export default function AdminLogin() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium h-10 text-base font-semibold active:scale-95 transition-transform"
+                className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold h-11 text-base active:scale-95 transition-transform"
               >
                 {isLoading ? (
                   <>
@@ -159,8 +152,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <div className="mt-6 text-center text-xs text-slate-500">
-          <p>GigitekAI Admin Portal • Temporary Authentication</p>
-          <p className="mt-1">OAuth will be fully configured shortly</p>
+          <p>GigitekAI Admin Portal · Secure Access</p>
         </div>
       </div>
     </div>

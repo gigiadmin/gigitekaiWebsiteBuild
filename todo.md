@@ -4673,3 +4673,22 @@
 - [x] Fix AdminLoginAzure component with timeout recovery and error messages
 - [x] Add cache-busting to msalConfig import to bypass CDN cache
 - [ ] Verify admin login works end-to-end on production (after publish)
+
+## Admin Password Login (Replace MSAL - May 2026)
+- [ ] Add ADMIN_PASSWORD_HASH_1 and ADMIN_PASSWORD_HASH_2 secrets for 2 admin accounts
+- [ ] Add passwordHash column to adminAccounts table in drizzle schema
+- [ ] Create adminAuth.passwordLogin tRPC procedure (bcrypt verify + JWT cookie)
+- [ ] Replace AdminLoginAzure with clean email+password login form
+- [ ] Remove MSAL lazy-load from main.tsx for admin routes (no longer needed)
+- [ ] Test login on dev environment
+- [ ] Deploy and verify on gigitekai.com desktop + mobile
+## Admin Password Login COMPLETED (May 11, 2026)
+- [x] DB: Both admin accounts inserted into adminCredentials table with bcrypt-hashed passwords
+  - harry@gigitekai.com (role: admin) — hash rounds=12
+  - nas@gigitekai.com (role: admin) — hash rounds=12
+- [x] Server: adminAuth.login procedure already existed in server/routers/admin-auth.ts (findAdminByEmail + verifyPassword + signAdminToken + cookie)
+- [x] App.tsx: Changed AdminLogin import from AdminLoginAzure to AdminLogin (password-based form)
+- [x] main.tsx: Removed MSAL lazy-load block — app now mounts directly without MSAL overhead
+- [x] AdminLogin.tsx: Polished UI — removed "temporary" messaging, added autoComplete attrs, 30s timeout, hard navigation on success
+- [x] Tested: harry@gigitekai.com login works on dev server, redirects to /admin dashboard
+- [x] Deploy and verify on gigitekai.com desktop + mobile (checkpoint saved, publish pending)

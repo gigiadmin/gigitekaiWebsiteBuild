@@ -1,0 +1,9 @@
+{
+  "query": "\nINSERT INTO adminCredentials (email, name, hashedPassword, role, isActive)\nVALUES \n  ('harry@gigitekai.com', 'Harry', '$2b$12$0JFxPNjzQ.wzEWag4U9MW.dfgJuFMELAO/uO3gfZMnGP7v7ckxupS', 'admin', true),\n  ('nas@gigitekai.com', 'Nas', '$2b$12$iwkHeJars1A0VE/xzbqd4.wHNYDne0pT8fHF6XJE1MhSxJwY7Y.7O', 'admin', true)\nON DUPLICATE KEY UPDATE\n  hashedPassword = VALUES(hashedPassword),\n  name = VALUES(name),\n  role = VALUES(role),\n  isActive = VALUES(isActive),\n  updatedAt = NOW();\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute \nINSERT INTO adminCredentials (email, name, hashedPassword, role, isActive)\nVALUES \n  ('harry@gigitekai.com', 'Harry', '$2b$12$0JFxPNjzQ.wzEWag4U9MW.dfgJuFMELAO/uO3gfZMnGP7v7ckxupS', 'admin', true),\n  ('nas@gigitekai.com', 'Nas', '$2b$12$iwkHeJars1A0VE/xzbqd4.wHNYDne0pT8fHF6XJE1MhSxJwY7Y.7O', 'admin', true)\nON DUPLICATE KEY UPDATE\n  hashedPassword = VALUES(hashedPassword),\n  name = VALUES(name),\n  role = VALUES(role),\n  isActive = VALUES(isActive),\n  updatedAt = NOW();\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 323
+}

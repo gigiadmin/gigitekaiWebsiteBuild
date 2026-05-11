@@ -80,7 +80,7 @@ const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 // ── Auth pages — lazy loaded ──────────────────────────────────────────────
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const LogoutConfirmation = lazy(() => import("./pages/LogoutConfirmation"));
-const AdminLogin = lazy(() => import("./pages/AdminLoginAzure"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminUnlock = lazy(() => import("./pages/AdminUnlock"));
 
 // ── Meeting management — lazy loaded ─────────────────────────────────────

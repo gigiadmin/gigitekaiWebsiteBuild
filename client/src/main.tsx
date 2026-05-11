@@ -11,16 +11,6 @@ import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 
 // ============================================================
-// MSAL is only needed on /admin routes.
-// We lazy-load it to avoid adding ~300KB to the public bundle.
-// On admin routes, we initialize MSAL before mounting React.
-// On public routes, we mount immediately without MSAL overhead.
-// ============================================================
-
-const isAdminRoute = window.location.pathname.startsWith("/admin") ||
-                     window.location.pathname === "/redirect.html";
-
-// ============================================================
 // PRODUCTION FIX: Manus platform injects manus-runtime which
 // bundles its own React and targets elements with id="root" or
 // id="app". To avoid the dual-React conflict, we create a fresh
@@ -72,7 +62,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  // Admin routes use Azure AD auth, not Manus OAuth — don't redirect to Manus login
+  // Admin routes use password auth, not Manus OAuth — don't redirect to Manus login
   if (window.location.pathname.startsWith("/admin")) return;
 
   window.location.href = getLoginUrl();
@@ -109,7 +99,7 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-function mountApp(MsalProvider?: React.ComponentType<{ instance: any; children: React.ReactNode }>, msalInstance?: any) {
+function mountApp() {
   const mountPoint = getOrCreateMountPoint();
   try {
     const reactRoot = createRoot(mountPoint);
@@ -124,11 +114,7 @@ function mountApp(MsalProvider?: React.ComponentType<{ instance: any; children: 
       </HelmetProvider>
     );
 
-    reactRoot.render(
-      MsalProvider && msalInstance
-        ? <MsalProvider instance={msalInstance}>{appContent}</MsalProvider>
-        : appContent
-    );
+    reactRoot.render(appContent);
     console.log('[GigitekAI] React mounted successfully');
   } catch (err) {
     console.error('[GigitekAI] React mount failed, retrying...', err);
@@ -151,11 +137,7 @@ function mountApp(MsalProvider?: React.ComponentType<{ instance: any; children: 
           </HelmetProvider>
         );
 
-        retryRoot.render(
-          MsalProvider && msalInstance
-            ? <MsalProvider instance={msalInstance}>{appContent}</MsalProvider>
-            : appContent
-        );
+        retryRoot.render(appContent);
         console.log('[GigitekAI] React mounted on retry');
       } catch (retryErr) {
         console.error('[GigitekAI] React mount retry also failed:', retryErr);
@@ -173,51 +155,5 @@ function mountApp(MsalProvider?: React.ComponentType<{ instance: any; children: 
   }
 }
 
-if (isAdminRoute) {
-  // Admin route: load MSAL dynamically before mounting
-  Promise.all([
-    import("@azure/msal-browser"),
-    import("@azure/msal-react"),
-    import("@/lib/msalConfig"),
-  ]).then(([{ PublicClientApplication }, { MsalProvider }, { MSAL_CONFIG }]) => {
-    const msalInstance = new PublicClientApplication(MSAL_CONFIG);
-
-    // Helper: clear all stale MSAL localStorage entries
-    const clearMsalCache = () => {
-      try {
-        const keysToRemove = Object.keys(localStorage).filter(k =>
-          k.startsWith('msal.') || k.startsWith('server-telemetry-')
-        );
-        keysToRemove.forEach(k => localStorage.removeItem(k));
-        console.log('[MSAL] Cleared', keysToRemove.length, 'stale cache entries');
-      } catch (e) {
-        console.warn('[MSAL] Could not clear cache:', e);
-      }
-    };
-
-    return msalInstance.initialize()
-      .then(() => msalInstance.handleRedirectPromise())
-      .then((response) => {
-        if (response) {
-          // Successfully processed Microsoft redirect — account is now populated
-          console.log('[MSAL] Redirect processed for:', response.account?.username);
-        }
-        // No response = normal page load (not returning from Microsoft)
-      })
-      .catch((err) => {
-        // handleRedirectPromise failed — nonce/state mismatch or expired auth code.
-        // This leaves a ghost nonce entry in localStorage that makes MSAL think
-        // an account exists (hasEmail=false), causing "Signing in..." to get stuck.
-        // Fix: clear the stale cache so the user gets a clean login button.
-        console.warn('[MSAL] Redirect processing failed, clearing stale cache:', err?.message || err);
-        clearMsalCache();
-      })
-      .then(() => mountApp(MsalProvider, msalInstance));
-  }).catch((err) => {
-    console.error('[MSAL] Failed to load, mounting without MSAL:', err);
-    mountApp();
-  });
-} else {
-  // Public route: mount immediately without MSAL for fastest load
-  mountApp();
-}
+// Mount immediately — no MSAL overhead
+mountApp();
