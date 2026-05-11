@@ -181,9 +181,37 @@ if (isAdminRoute) {
     import("@/lib/msalConfig"),
   ]).then(([{ PublicClientApplication }, { MsalProvider }, { MSAL_CONFIG }]) => {
     const msalInstance = new PublicClientApplication(MSAL_CONFIG);
+
+    // Helper: clear all stale MSAL localStorage entries
+    const clearMsalCache = () => {
+      try {
+        const keysToRemove = Object.keys(localStorage).filter(k =>
+          k.startsWith('msal.') || k.startsWith('server-telemetry-')
+        );
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        console.log('[MSAL] Cleared', keysToRemove.length, 'stale cache entries');
+      } catch (e) {
+        console.warn('[MSAL] Could not clear cache:', e);
+      }
+    };
+
     return msalInstance.initialize()
       .then(() => msalInstance.handleRedirectPromise())
-      .catch((err) => { console.warn('[MSAL] Init warning:', err); })
+      .then((response) => {
+        if (response) {
+          // Successfully processed Microsoft redirect — account is now populated
+          console.log('[MSAL] Redirect processed for:', response.account?.username);
+        }
+        // No response = normal page load (not returning from Microsoft)
+      })
+      .catch((err) => {
+        // handleRedirectPromise failed — nonce/state mismatch or expired auth code.
+        // This leaves a ghost nonce entry in localStorage that makes MSAL think
+        // an account exists (hasEmail=false), causing "Signing in..." to get stuck.
+        // Fix: clear the stale cache so the user gets a clean login button.
+        console.warn('[MSAL] Redirect processing failed, clearing stale cache:', err?.message || err);
+        clearMsalCache();
+      })
       .then(() => mountApp(MsalProvider, msalInstance));
   }).catch((err) => {
     console.error('[MSAL] Failed to load, mounting without MSAL:', err);
