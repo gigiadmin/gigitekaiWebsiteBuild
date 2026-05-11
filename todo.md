@@ -4656,9 +4656,10 @@
 - [ ] Verify fix on gigitekai.com/admin/login
 
 ## Admin Hub Portal Directory Page
-- [ ] Extract all 157 portal entries from the Admin Hub page (categories, names, descriptions, URLs)
-- [ ] Create AdminHub.tsx page in the gigitekai admin section
-- [ ] Add sidebar navigation entry for Admin Hub in AdminLayout
+- [x] Extract all 157 portal entries from the Admin Hub page (categories, names, descriptions, URLs)
+- [x] Create AdminHubPage component with all portals, search, favorites, and category sidebar
+- [x] Add sidebar navigation entry for Admin Hub in AdminLayout
+- [x] Add route to AdminApp.tsx
 - [ ] Add route /admin/hub in App.tsx
 - [ ] Implement category filter tabs (left sidebar per design preference)
 - [ ] Implement search functionality
@@ -4667,5 +4668,8 @@
 - [ ] Test all links and navigation
 
 ## Admin Login Fix - Azure Redirect URI
-- [ ] Add https://gigitekai.com/admin/login to Azure App Registration SPA redirect URIs (manual step needed)
-- [ ] Verify admin login works end-to-end on production
+- [x] Add https://gigitekai.com/admin/login to Azure App Registration SPA redirect URIs (manual step completed)
+- [x] Fix MSAL handleRedirectPromise error handling in main.tsx (added stale cache clearing)
+- [x] Fix AdminLoginAzure component with timeout recovery and error messages
+- [x] Add cache-busting to msalConfig import to bypass CDN cache
+- [ ] Verify admin login works end-to-end on production (after publish)

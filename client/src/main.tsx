@@ -178,7 +178,7 @@ if (isAdminRoute) {
   Promise.all([
     import("@azure/msal-browser"),
     import("@azure/msal-react"),
-    import(`@/lib/msalConfig?v=${Date.now()}`),
+    import("@/lib/msalConfig"),
   ]).then(([{ PublicClientApplication }, { MsalProvider }, { MSAL_CONFIG }]) => {
     const msalInstance = new PublicClientApplication(MSAL_CONFIG);
 
