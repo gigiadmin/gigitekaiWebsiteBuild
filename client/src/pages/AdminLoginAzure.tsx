@@ -2,7 +2,7 @@
  * AdminLoginAzure — Azure AD (Microsoft Entra ID) login for the admin portal
  *
  * Flow:
- *   1. Page loads → show "Sign in with Microsoft" button (nothing auto-fires)
+ *   1. Page loads → clear stale MSAL cache → show "Sign in with Microsoft" button
  *   2. User clicks → loginRedirect() navigates the whole page to Microsoft
  *   3. Microsoft redirects back to /redirect.html → MSAL processes token
  *   4. User returns to /admin/login with MSAL account populated
@@ -11,12 +11,18 @@
  *
  * Why redirect (not popup): iOS Safari/Edge blocks JavaScript popups.
  * Why localStorage: sessionStorage is wiped on cross-origin navigation in iOS.
+ *
+ * Fixes:
+ *   - Clears stale/corrupted MSAL cache on mount to prevent stuck "Signing in..." state
+ *   - 30-second timeout resets button if Microsoft doesn't respond
+ *   - "Cancel" link appears while spinning so user can recover
+ *   - Better error messages for each failure scenario
  */
 import { useState, useEffect, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
 import { useLocation } from "wouter";
 import { LOGIN_REQUEST, ALLOWED_ADMIN_EMAILS } from "@/lib/msalConfig";
-import { Shield, Loader2, AlertCircle } from "lucide-react";
+import { Shield, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 
@@ -25,17 +31,43 @@ export default function AdminLoginAzure() {
   const [, navigate] = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [processingReturn, setProcessingReturn] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   // Prevent double-processing the redirect result
   const mutationFired = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const utils = trpc.useUtils();
 
+  // ── On mount: clear stale MSAL cache ─────────────────────────────────────
+  // Stale/corrupted localStorage entries from previous sessions cause MSAL to
+  // think an account exists, triggering acquireTokenSilent with an expired token
+  // and leaving the button stuck in "Signing in..." forever.
+  useEffect(() => {
+    if (inProgress === "none" && accounts.length > 0) {
+      const account = accounts[0];
+      const hasValidUsername = account.username && account.username.includes("@");
+      if (!hasValidUsername) {
+        console.log("[AdminLogin] Clearing stale MSAL cache (no valid username)");
+        instance.clearCache();
+      }
+    }
+  }, []); // Run once on mount only
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
   const azureLoginMutation = trpc.adminAuth.azureLogin.useMutation({
     onSuccess: async () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       await utils.adminAuth.me.invalidate();
       navigate("/admin");
     },
     onError: (err) => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       setError(err.message || "Login failed. Please try again.");
       setProcessingReturn(false);
       mutationFired.current = false;
@@ -54,15 +86,31 @@ export default function AdminLoginAzure() {
     const account = accounts[0];
     const email = account.username?.toLowerCase();
 
-    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
-      // Clear the account without navigating away
+    // Validate the account has a real email (not a stale nonce blob)
+    if (!email || !email.includes("@")) {
+      console.log("[AdminLogin] Skipping stale account (no valid email)");
       instance.clearCache();
-      setError(`Access denied. ${email} is not authorized.`);
+      return;
+    }
+
+    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+      instance.clearCache();
+      setError(`Access denied. ${email} is not authorized to access this portal.`);
       return;
     }
 
     mutationFired.current = true;
     setProcessingReturn(true);
+    setTimedOut(false);
+
+    // 30-second timeout in case acquireTokenSilent hangs
+    timeoutRef.current = setTimeout(() => {
+      setProcessingReturn(false);
+      mutationFired.current = false;
+      setTimedOut(true);
+      setError("Sign-in timed out. Please try again.");
+      instance.clearCache();
+    }, 30000);
 
     instance.acquireTokenSilent({ ...LOGIN_REQUEST, account })
       .then((tokenResponse) => {
@@ -72,27 +120,48 @@ export default function AdminLoginAzure() {
           name: account.name || account.username,
         });
       })
-      .catch(() => {
-        setError("Session expired. Please sign in again.");
+      .catch((silentErr) => {
+        console.warn("[AdminLogin] Silent token failed:", silentErr);
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setProcessingReturn(false);
         mutationFired.current = false;
-        // Clear the stale account so the button shows clean
         instance.clearCache();
+        setError("Your session expired. Please sign in again.");
       });
   }, [accounts, inProgress]);
 
   async function handleSignIn() {
     setError(null);
+    setTimedOut(false);
     mutationFired.current = false;
+
+    // Clear any stale cache before starting fresh login
+    try { await instance.clearCache(); } catch { /* ignore */ }
+
     try {
       await instance.loginRedirect({
         ...LOGIN_REQUEST,
         redirectStartPage: window.location.href,
       });
       // Page navigates away — nothing runs after this
-    } catch {
-      setError("Could not start Microsoft sign-in. Please try again.");
+    } catch (err: any) {
+      const msg = err?.message || "";
+      if (msg.includes("interaction_in_progress")) {
+        await instance.clearCache();
+        setError("A previous sign-in is still pending. Please wait a moment and try again.");
+      } else if (msg.includes("redirect_uri")) {
+        setError("Configuration error: redirect URI not registered in Azure. Contact your administrator.");
+      } else {
+        setError("Could not start Microsoft sign-in. Please try again.");
+      }
     }
+  }
+
+  function handleTryAgain() {
+    setError(null);
+    setTimedOut(false);
+    mutationFired.current = false;
+    instance.clearCache().catch(() => {});
   }
 
   // Show spinner while: MSAL is processing redirect OR mutation is running
@@ -125,7 +194,18 @@ export default function AdminLoginAzure() {
           {error && (
             <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-red-300 text-sm">{error}</p>
+              <div className="flex-1">
+                <p className="text-red-300 text-sm">{error}</p>
+                {(timedOut || error.includes("expired") || error.includes("timed out") || error.includes("pending")) && (
+                  <button
+                    onClick={handleTryAgain}
+                    className="mt-2 flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 text-xs font-medium transition-colors"
+                  >
+                    <RefreshCw size={12} />
+                    Clear & Try Again
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -151,6 +231,18 @@ export default function AdminLoginAzure() {
               </>
             )}
           </Button>
+
+          {isSigningIn && (
+            <p className="text-center text-slate-500 text-xs mt-4">
+              Redirecting to Microsoft…{" "}
+              <button
+                onClick={handleTryAgain}
+                className="text-cyan-400 hover:text-cyan-300 underline transition-colors"
+              >
+                Cancel
+              </button>
+            </p>
+          )}
 
           <p className="text-center text-slate-500 text-xs mt-6">
             Access restricted to authorized GigitekAI administrators only.

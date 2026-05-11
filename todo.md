@@ -4624,8 +4624,33 @@
 - [x] Fix heading structure - only one H1 on homepage (HeroSection.tsx)
 
 ## Cookie Consent Banner
-- [ ] Build GDPR-compliant cookie consent banner component (bottom of screen)
-- [ ] Accept All / Reject Non-Essential / Manage Preferences options
-- [ ] Persist consent in localStorage
-- [ ] Link to Privacy Policy from banner
-- [ ] Integrate into App.tsx (global, all pages)
+- [x] Build GDPR-compliant cookie consent banner component (bottom of screen)
+- [x] Accept All / Reject Non-Essential / Manage Preferences options
+- [x] Persist consent in localStorage
+- [x] Link to Privacy Policy from banner
+- [x] Integrate into App.tsx (global, all pages)
+
+## Testing & QA Standards (Permanent Workflow)
+- [x] Test all website pages after every update/optimization (dev + production)
+- [x] Verify mobile and desktop responsiveness
+- [x] Check all links, forms, and navigation functionality
+- [x] Validate performance and load times
+- [x] Document test results before checkpoint/publish
+
+## Admin Login Bug (Critical - May 2026)
+- [ ] Fix /admin/login failing on Edge desktop, Chrome desktop, and Edge mobile
+- [ ] Diagnose root cause (CORS, cookie, redirect loop, or auth flow issue)
+- [ ] Test fix on all affected browsers
+- [ ] Deploy fix to production gigitekai.com
+
+## Admin Login Bug Fix (May 2026)
+- [x] Diagnose stuck "Signing in..." issue on /admin/login (Edge, Chrome, Edge Mobile)
+- [x] Root cause: stale/corrupted MSAL localStorage cache from previous sessions
+- [x] Fix: clear stale cache on mount if account has no valid email (@)
+- [x] Fix: clear cache before every new loginRedirect() call
+- [x] Fix: validate account has real email before processing redirect result
+- [x] Fix: 30-second timeout resets button if Microsoft doesn't respond
+- [x] Fix: "Cancel" link visible while spinning so user can recover
+- [x] Fix: better error messages (expired, timeout, redirect_uri, interaction_in_progress)
+- [ ] Deploy fix to production (checkpoint + publish)
+- [ ] Verify fix on gigitekai.com/admin/login
