@@ -68,12 +68,12 @@ export function getAdminSessionCookie(cookies: Record<string, string>): string |
 export function buildAdminSessionCookieHeader(token: string, isSecure = true): string {
   const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
   const securePart = isSecure ? "; Secure" : "";
-  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Strict; Max-Age=${maxAge}${securePart}`;
+  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${securePart}`;
 }
 
 export function clearAdminSessionCookieHeader(isSecure = true): string {
   const securePart = isSecure ? "; Secure" : "";
-  return `${ADMIN_SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0${securePart}`;
+  return `${ADMIN_SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${securePart}`;
 }
 
 // ── Database helpers ──────────────────────────────────────────────────────────
