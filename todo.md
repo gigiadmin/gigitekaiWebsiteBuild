@@ -4622,3 +4622,10 @@
 - [x] Add Privacy Policy and Terms of Service links to footer (confirmed in Footer.tsx)
 - [x] Add JSON-LD schema markup to homepage (Organization, ProfessionalService, LocalBusiness schemas in index.html)
 - [x] Fix heading structure - only one H1 on homepage (HeroSection.tsx)
+
+## Cookie Consent Banner
+- [ ] Build GDPR-compliant cookie consent banner component (bottom of screen)
+- [ ] Accept All / Reject Non-Essential / Manage Preferences options
+- [ ] Persist consent in localStorage
+- [ ] Link to Privacy Policy from banner
+- [ ] Integrate into App.tsx (global, all pages)
