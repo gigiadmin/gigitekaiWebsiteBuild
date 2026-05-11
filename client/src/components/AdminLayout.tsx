@@ -148,7 +148,12 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
   const [location, navigate] = useLocation();
   // Use custom admin JWT auth (not Manus OAuth) — admin portal has its own email/password login
-  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery(undefined, { retry: false, staleTime: 30_000 });
+  // retry: 2 handles the mobile race condition where the cookie hasn't committed yet on first load
+  const { data: adminUser, isLoading: loading } = trpc.adminAuth.me.useQuery(undefined, {
+    retry: 2,
+    retryDelay: 400,
+    staleTime: 30_000,
+  });
   const logoutMutation = trpc.adminAuth.logout.useMutation();
   const logout = async () => {
     await logoutMutation.mutateAsync();
@@ -163,7 +168,10 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
     setMobileOpen(false);
   }, [location]);
 
-  // Redirect to admin login if not authenticated
+  // Redirect to admin login if not authenticated.
+  // We only redirect after all retries are exhausted (isLoading=false, no data).
+  // This prevents a false redirect when the cookie is present but the first
+  // request races against the browser committing the Set-Cookie header on mobile.
   useEffect(() => {
     if (!loading && !adminUser) {
       navigate("/admin/login");

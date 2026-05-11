@@ -21,8 +21,13 @@ export default function AdminLogin() {
   const loginMutation = trpc.adminAuth.login.useMutation({
     onSuccess: () => {
       toast.success("Login successful!");
-      // Redirect to admin dashboard — use hard navigation to ensure cookie is sent
-      window.location.href = "/admin";
+      // Delay redirect by 600ms to ensure the browser commits the Set-Cookie header
+      // before the new page loads. On mobile (iOS Safari, Chrome Android), the cookie
+      // store write is async — a hard redirect fired immediately races against it,
+      // causing adminAuth.me to return null and redirect back to login.
+      setTimeout(() => {
+        window.location.replace("/admin");
+      }, 600);
     },
     onError: (error: any) => {
       toast.error(error.message || "Invalid email or password");
