@@ -102,12 +102,29 @@ async function startServer() {
       // Don't cache HTML (always check for updates)
       res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     } else if (isApi) {
-      // Cache API responses for 1 hour
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      // Never cache API responses — auth endpoints set cookies that must not be cached
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.setHeader('Pragma', 'no-cache');
     } else {
       // Default: cache for 1 hour
       res.setHeader('Cache-Control', 'public, max-age=3600');
     }
+    next();
+  });
+
+  // ── Auth Endpoint No-Cache ─────────────────────────────────────────────────
+  // Explicitly prevent any caching on auth endpoints that set cookies.
+  // Cloudflare and CDNs MUST NOT cache these responses or the Set-Cookie header will be stripped.
+  app.use("/api/trpc/adminAuth", (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Vary', 'Cookie, Authorization');
+    next();
+  });
+  app.use("/api/oauth", (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Vary', 'Cookie, Authorization');
     next();
   });
 

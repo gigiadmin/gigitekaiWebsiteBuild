@@ -91,8 +91,8 @@ export function cloudflareWAFBypassMiddleware(
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   
-  // Add Cloudflare-specific headers
-  res.setHeader('Cache-Control', 'public, max-age=3600');
+  // NOTE: Do NOT set Cache-Control here — the dedicated cache middleware handles this per-route.
+  // Setting it here would override no-cache on auth endpoints and break Set-Cookie delivery.
   
   // For mobile requests, add additional headers to bypass WAF
   if (isMobile) {
