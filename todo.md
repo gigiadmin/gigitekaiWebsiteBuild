@@ -4654,3 +4654,18 @@
 - [x] Fix: better error messages (expired, timeout, redirect_uri, interaction_in_progress)
 - [ ] Deploy fix to production (checkpoint + publish)
 - [ ] Verify fix on gigitekai.com/admin/login
+
+## Admin Hub Portal Directory Page
+- [ ] Extract all 157 portal entries from the Admin Hub page (categories, names, descriptions, URLs)
+- [ ] Create AdminHub.tsx page in the gigitekai admin section
+- [ ] Add sidebar navigation entry for Admin Hub in AdminLayout
+- [ ] Add route /admin/hub in App.tsx
+- [ ] Implement category filter tabs (left sidebar per design preference)
+- [ ] Implement search functionality
+- [ ] Implement favorites toggle (localStorage persistence)
+- [ ] Match GigitekAI dark cyberpunk brand styling
+- [ ] Test all links and navigation
+
+## Admin Login Fix - Azure Redirect URI
+- [ ] Add https://gigitekai.com/admin/login to Azure App Registration SPA redirect URIs (manual step needed)
+- [ ] Verify admin login works end-to-end on production

@@ -41,6 +41,7 @@ import {
   Video,
   Phone,
   Headphones,
+  Grid3X3,
 } from "lucide-react";
 
 interface NavItem {
@@ -119,6 +120,12 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Integrations",
     items: [
       { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
+    ],
+  },
+  {
+    title: "Tools",
+    items: [
+      { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
     ],
   },
   {

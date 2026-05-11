@@ -5,7 +5,11 @@ export const MSAL_CONFIG: Configuration = {
   auth: {
     clientId: "c8ec9f2c-a3df-4bfb-a5dd-badf653aa04d",
     authority: "https://login.microsoftonline.com/b7595a11-d451-46a6-aff1-c98ee3bda4f9",
-    redirectUri: `${window.location.origin}/redirect.html`,
+    // Redirect directly to /admin/login (not /redirect.html).
+    // The redirect-bridge approach (redirect.html + broadcastResponseToMainFrame) was causing
+    // MSAL to store encrypted nonce blobs instead of real account objects, breaking the login loop.
+    // Direct redirect to the SPA page is more reliable across all browsers including Edge/iOS.
+    redirectUri: `${window.location.origin}/admin/login`,
     postLogoutRedirectUri: `${window.location.origin}/admin/login`,
   },
   cache: {
