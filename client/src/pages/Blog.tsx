@@ -30,7 +30,7 @@ export default function Blog() {
   }, [posts]);
 
   const filteredPosts = useMemo(() => {
-    if (!posts) return [];
+    if (!posts || !Array.isArray(posts)) return [];
     if (activeCategory === "All") return posts;
     return posts.filter((p) => p.category === activeCategory);
   }, [posts, activeCategory]);
