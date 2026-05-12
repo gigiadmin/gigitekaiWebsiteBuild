@@ -103,6 +103,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
       { label: "AI Strategic Briefing", icon: <Sparkles size={16} />, href: "/AIStrategicBriefing" },
+      { label: "Uptime Status", icon: <Zap size={16} />, href: "/admin/uptime" },
     ],
   },
   {
@@ -127,6 +128,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Tools",
     items: [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
+      { label: "Uptime Status", icon: <Zap size={16} />, href: "/admin/uptime" },
     ],
   },
   {
