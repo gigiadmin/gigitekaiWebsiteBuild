@@ -9,7 +9,6 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AlertCircle, CheckCircle, Clock, TrendingUp, RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
 
 interface Monitor {
   id: number;
@@ -179,8 +178,13 @@ export default function AdminUptimeRobotDashboard() {
       {/* Monitors List */}
       <div className="space-y-4">
         {monitors.map((monitor) => (
-          <Link key={monitor.id} href={`/admin/uptime/${monitor.id}`}>
-            <a className={`block rounded-lg border p-6 transition-all hover:scale-[1.01] cursor-pointer ${getStatusColor(monitor.statusCode)}`}>
+          <a
+            key={monitor.id}
+            href={`https://dashboard.uptimerobot.com/monitors/${monitor.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`block rounded-lg border p-6 transition-all hover:scale-[1.01] cursor-pointer ${getStatusColor(monitor.statusCode)}`}
+          >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-4 flex-1">
                   <div className="mt-1">{getStatusIcon(monitor.statusCode)}</div>
@@ -220,8 +224,7 @@ export default function AdminUptimeRobotDashboard() {
                 <p className="text-lg font-semibold text-white">{monitor.averageResponseTime}ms</p>
               </div>
             </div>
-            </a>
-          </Link>
+          </a>
         ))}
       </div>
 
