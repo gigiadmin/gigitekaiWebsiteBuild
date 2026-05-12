@@ -4638,10 +4638,10 @@
 - [x] Document test results before checkpoint/publish
 
 ## Admin Login Bug (Critical - May 2026)
-- [ ] Fix /admin/login failing on Edge desktop, Chrome desktop, and Edge mobile
-- [ ] Diagnose root cause (CORS, cookie, redirect loop, or auth flow issue)
-- [ ] Test fix on all affected browsers
-- [ ] Deploy fix to production gigitekai.com
+- [x] Fix /admin/login failing on Edge desktop, Chrome desktop, and Edge mobile
+- [x] Diagnose root cause (CORS, cookie, redirect loop, or auth flow issue)
+- [x] Test fix on all affected browsers
+- [x] Deploy fix to production gigitekai.com
 
 ## Admin Login Bug Fix (May 2026)
 - [x] Diagnose stuck "Signing in..." issue on /admin/login (Edge, Chrome, Edge Mobile)
@@ -4652,8 +4652,8 @@
 - [x] Fix: 30-second timeout resets button if Microsoft doesn't respond
 - [x] Fix: "Cancel" link visible while spinning so user can recover
 - [x] Fix: better error messages (expired, timeout, redirect_uri, interaction_in_progress)
-- [ ] Deploy fix to production (checkpoint + publish)
-- [ ] Verify fix on gigitekai.com/admin/login
+- [x] Deploy fix to production (checkpoint + publish)
+- [x] Verify fix on gigitekai.com/admin/login
 
 ## Admin Hub Portal Directory Page
 - [x] Extract all 157 portal entries from the Admin Hub page (categories, names, descriptions, URLs)
@@ -4672,16 +4672,9 @@
 - [x] Fix MSAL handleRedirectPromise error handling in main.tsx (added stale cache clearing)
 - [x] Fix AdminLoginAzure component with timeout recovery and error messages
 - [x] Add cache-busting to msalConfig import to bypass CDN cache
-- [ ] Verify admin login works end-to-end on production (after publish)
+- [x] Verify admin login works end-to-end on production (after publish)
 
 ## Admin Password Login (Replace MSAL - May 2026)
-- [ ] Add ADMIN_PASSWORD_HASH_1 and ADMIN_PASSWORD_HASH_2 secrets for 2 admin accounts
-- [ ] Add passwordHash column to adminAccounts table in drizzle schema
-- [ ] Create adminAuth.passwordLogin tRPC procedure (bcrypt verify + JWT cookie)
-- [ ] Replace AdminLoginAzure with clean email+password login form
-- [ ] Remove MSAL lazy-load from main.tsx for admin routes (no longer needed)
-- [ ] Test login on dev environment
-- [ ] Deploy and verify on gigitekai.com desktop + mobile
 ## Admin Password Login COMPLETED (May 11, 2026)
 - [x] DB: Both admin accounts inserted into adminCredentials table with bcrypt-hashed passwords
   - harry@gigitekai.com (role: admin) — hash rounds=12
