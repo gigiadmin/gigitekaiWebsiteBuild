@@ -33,9 +33,11 @@ export default function AdminUptimeRobotDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
+  // getMonitors uses publicProcedure — no auth required.
+  // Previously `enabled: !!user` caused infinite loading for unauthenticated visitors.
   const getMonitorsQuery = trpc.uptime.getMonitors.useQuery(undefined, {
-    enabled: !!user,
     refetchInterval: 60000, // Refresh every 60 seconds
+    retry: 2,
   });
 
   useEffect(() => {
@@ -94,9 +96,10 @@ export default function AdminUptimeRobotDashboard() {
     }
   };
 
-  if (loading && monitors.length === 0) {
+  // Show loading only while the query is actually fetching (not stuck due to auth guard)
+  if (getMonitorsQuery.isLoading && monitors.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin text-cyan-400 mx-auto mb-4" />
           <p className="text-slate-300">Loading uptime data...</p>
@@ -128,29 +131,29 @@ export default function AdminUptimeRobotDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Uptime Monitoring</h1>
           <p className="text-slate-400">Real-time status of monitored client sites</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
             <p className="text-xs text-slate-500 uppercase tracking-wider">Last Updated</p>
             <p className="text-sm text-slate-300">{lastRefresh.toLocaleTimeString()}</p>
           </div>
           <Button
             onClick={handleRefresh}
-            disabled={loading}
+            disabled={getMonitorsQuery.isFetching}
             className="bg-cyan-600 hover:bg-cyan-700 text-white"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 mr-2 ${getMonitorsQuery.isFetching ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-4">
           <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Total Monitors</p>
           <p className="text-3xl font-bold text-cyan-300">{monitors.length}</p>
@@ -202,7 +205,7 @@ export default function AdminUptimeRobotDashboard() {
               </div>
 
             {/* Uptime Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-4 border-t border-white/10">
               <div>
                 <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">24h Uptime</p>
                 <p className="text-lg font-semibold text-white">{monitor.uptime24h}%</p>

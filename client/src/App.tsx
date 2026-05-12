@@ -9,6 +9,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 // ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
 import Home from "./pages/Home";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 
 // ── Widgets — lazy loaded (deferred to reduce initial bundle / TBT) ────────
 const ApprovalGuard = lazy(() => import("./components/ApprovalGuard"));
@@ -94,6 +96,19 @@ const AdminApp = lazy(() => import("./AdminApp"));
 // M365 health pages (public-facing)
 const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
 const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365NotificationsPreferencesPage"));
+// Uptime monitoring (public-facing)
+const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
+function UptimePublicPage() {
+  return (
+    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
+      <SiteNavBar2024 />
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
+        <AdminUptimeRobotDashboard />
+      </main>
+      <Footer />
+    </div>
+  );
+}
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
@@ -222,6 +237,8 @@ function Router() {
           {/* M365 Health Pages */}
           <Route path={"/m365-status"} component={M365HealthPage} />
           <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
+          {/* Public Uptime Monitoring */}
+          <Route path={"/uptime"} component={UptimePublicPage} />
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
           {/* Call Transcript Search */}
