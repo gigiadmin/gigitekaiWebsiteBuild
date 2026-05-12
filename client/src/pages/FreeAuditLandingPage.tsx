@@ -1,5 +1,8 @@
 import { useEffect } from "react";
-import FreeAuditPricingPage from "./FreeAuditPricingPage";
+import WebsitePricingTiers from "./WebsitePricingTiers";
+import WebsiteFeatureComparison from "./WebsiteFeatureComparison";
+import WebsiteAddOns from "./WebsiteAddOns";
+import WebsiteROICalculator from "./WebsiteROICalculator";
 import FreeAuditForm from "./FreeAuditForm";
 import TestimonialsSection from "./TestimonialsSection";
 import FAQSection from "./FAQSection";
@@ -7,7 +10,7 @@ import FAQSection from "./FAQSection";
 export default function FreeAuditLandingPage() {
   useEffect(() => {
     // Update page title
-    document.title = "Free IT Audit + 50% Off | GigitekAI";
+    document.title = "Free Website Audit + 50% Off | GigitekAI";
     
     // Update meta description
     const updateMetaTag = (name: string, content: string) => {
@@ -20,8 +23,8 @@ export default function FreeAuditLandingPage() {
       tag.setAttribute("content", content);
     };
     
-    updateMetaTag("description", "Get a free comprehensive IT audit and save 50% on your first month of managed IT services. Limited time offer - 1 month only!");
-    updateMetaTag("keywords", "free IT audit, managed IT services, MSP, IT consulting, Tampa, Florida");
+    updateMetaTag("description", "Get a free comprehensive website audit and save 50% on professional website design & SEO services. Limited time offer - 1 month free on 1-year commitment!");
+    updateMetaTag("keywords", "website design, SEO services, website audit, web development, Tampa MSP");
   }, []);
 
   return (
@@ -45,29 +48,55 @@ export default function FreeAuditLandingPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <FreeAuditPricingPage />
-      <FreeAuditForm />
-      <TestimonialsSection />
-      <FAQSection />
-
-      {/* Footer CTA */}
-      <div className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-900/40 border-t border-gray-800/40">
+      {/* Hero Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/50 to-transparent border-b border-gray-800/40">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Transform Your IT?</h2>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-[#00D4FF] to-[#9D4EDD] bg-clip-text text-transparent">
+            Professional Websites Built for Growth
+          </h1>
           <p className="text-xl text-gray-400 mb-8">
-            Get your free audit today and discover how much you could save
+            Get a free website audit + save 50% on professional web design, SEO, and integrations
           </p>
+          <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-6 py-3 mb-8">
+            <p className="text-green-300 font-semibold">
+              🎁 Limited Time: 50% OFF + 1 Month FREE on 1-Year Commitment
+            </p>
+          </div>
           <button
             onClick={() =>
               document.getElementById("audit-form")?.scrollIntoView({ behavior: "smooth" })
             }
             className="inline-block px-8 py-4 bg-[#00D4FF] text-black font-bold rounded-lg hover:bg-[#00D4FF]/90 transition-colors text-lg"
           >
-            Get Your Free Audit Now
+            Get Your Free Website Audit
           </button>
         </div>
-      </div>
+      </section>
+
+      {/* Main Content */}
+      <WebsitePricingTiers />
+      <WebsiteFeatureComparison />
+      <WebsiteAddOns />
+      <WebsiteROICalculator />
+      <FreeAuditForm />
+      <TestimonialsSection />
+      <FAQSection />
+
+      {/* Helpdesk Services CTA */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-900/40 border-t border-gray-800/40">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-4">Also Need Managed IT Services?</h2>
+          <p className="text-xl text-gray-400 mb-8">
+            Combine your website with our comprehensive helpdesk support, AI automation, and managed IT services
+          </p>
+          <a
+            href="https://gigitekai.com/helpdesk-pricing"
+            className="inline-block px-8 py-4 bg-[#9D4EDD] text-white font-bold rounded-lg hover:bg-[#9D4EDD]/90 transition-colors text-lg"
+          >
+            View Helpdesk Pricing
+          </a>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-800/40 bg-gray-900/20">
@@ -98,32 +127,32 @@ export default function FreeAuditLandingPage() {
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
                   <a href="https://gigitekai.com/services" className="hover:text-[#00D4FF]">
-                    Helpdesk
+                    Services
                   </a>
                 </li>
                 <li>
-                  <a href="https://gigitekai.com/services" className="hover:text-[#00D4FF]">
-                    Cloud Infrastructure
+                  <a href="https://gigitekai.com/helpdesk-pricing" className="hover:text-[#00D4FF]">
+                    Helpdesk Pricing
                   </a>
                 </li>
                 <li>
-                  <a href="https://gigitekai.com/services" className="hover:text-[#00D4FF]">
-                    AI Automation
+                  <a href="https://gigitekai.com/portfolio" className="hover:text-[#00D4FF]">
+                    Portfolio
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold mb-4">Support</h3>
+              <h3 className="font-bold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="mailto:support@gigitekai.com" className="hover:text-[#00D4FF]">
-                    Email Support
+                  <a href="https://gigitekai.com/roi-calculator" className="hover:text-[#00D4FF]">
+                    ROI Calculator
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+16096764483" className="hover:text-[#00D4FF]">
-                    (609) 676-4483
+                  <a href="https://gigitekai.com/case-studies" className="hover:text-[#00D4FF]">
+                    Case Studies
                   </a>
                 </li>
                 <li>
@@ -134,28 +163,28 @@ export default function FreeAuditLandingPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold mb-4">Legal</h3>
+              <h3 className="font-bold mb-4">Contact</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="https://gigitekai.com/privacy-policy" className="hover:text-[#00D4FF]">
-                    Privacy Policy
+                  <a href="tel:+16096764483" className="hover:text-[#00D4FF]">
+                    (609) 676-4483
                   </a>
                 </li>
                 <li>
-                  <a href="https://gigitekai.com/terms-of-service" className="hover:text-[#00D4FF]">
-                    Terms of Service
+                  <a href="mailto:support@gigitekai.com" className="hover:text-[#00D4FF]">
+                    support@gigitekai.com
                   </a>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800/40 pt-8 text-center text-sm text-gray-500">
-            <p>
-              © 2026 GigitekAI. All rights reserved. | 
-              <span className="ml-2">
-                Offer valid for 1 month only. 30-day money-back guarantee applies.
-              </span>
+          <div className="border-t border-gray-800/40 pt-8">
+            <p className="text-center text-sm text-gray-500">
+              © 2026 GigitekAI LLC. All rights reserved. | 
+              <a href="https://gigitekai.com/privacy" className="hover:text-[#00D4FF] ml-2">
+                Privacy Policy
+              </a>
             </p>
           </div>
         </div>

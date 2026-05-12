@@ -4749,3 +4749,14 @@
 - [ ] Configure free-audit.gigitekai.com subdomain
 - [ ] Add audit submission email notifications
 - [ ] Create admin dashboard for audit submissions
+
+
+## Website Pricing Landing Page (May 12, 2026)
+- [x] Create 4-tier website pricing cards (Black Cat model, 50% off + 1 month free)
+- [x] Build feature comparison table (Standard vs Custom side-by-side)
+- [x] Create à la carte add-ons section with bundles
+- [x] Build interactive ROI calculator (revenue/conversion rate sliders)
+- [x] Update free audit form with no-strings-attached messaging
+- [x] Integrate all components into FreeAuditLandingPage
+- [x] Test on dev server (all sections rendering correctly)
+- [ ] Deploy to production and verify on www.ggai.llc/free-audit

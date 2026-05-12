@@ -67,11 +67,16 @@ export default function FreeAuditForm() {
       <div className="max-w-2xl mx-auto">
         <Card className="bg-[#0F1419]/60 border-gray-800/40 p-8 sm:p-12">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-3">Get Your Free IT Audit</h2>
-            <p className="text-gray-400">
-              Fill out the form below and our team will conduct a comprehensive audit of your IT infrastructure.
-              We'll identify security gaps, cost savings, and create a custom roadmap for your business.
+            <h2 className="text-3xl font-bold mb-3">Get Your Free Website Audit</h2>
+            <p className="text-gray-400 mb-4">
+              Fill out the form below and our team will conduct a comprehensive audit of your website.
+              We'll identify performance issues, SEO opportunities, and create a custom improvement roadmap.
             </p>
+            <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-4 py-2">
+              <p className="text-green-300 text-sm font-semibold">
+                ✓ <strong>No strings attached</strong> — Completely free, no obligation
+              </p>
+            </div>
           </div>
 
           {submitted ? (
