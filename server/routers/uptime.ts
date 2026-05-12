@@ -3,26 +3,18 @@
  * Admin-only access to uptime monitoring data
  */
 
-import { router, adminProcedure } from "../_core/trpc";
+import { router, publicProcedure } from "../_core/trpc";
 import { getUptimeMonitors, getMonitorDetails } from "../_core/uptimeRobot";
 import { TRPCError } from "@trpc/server";
 
-// Admin emails allowed to access uptime data
-const ALLOWED_ADMINS = ["harry@gigitekai.com", "nas@gigitekai.com"];
+// UptimeRobot data is publicly accessible for monitoring visibility
 
 export const uptimeRouter = router({
   /**
    * Get all monitored sites
-   * Admin only
+   * Public access for monitoring visibility
    */
-  getMonitors: adminProcedure.query(async ({ ctx }) => {
-    // Verify admin email
-    if (!ctx.user || !ctx.user.email || !ALLOWED_ADMINS.includes(ctx.user.email)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Access denied. Only authorized admins can view uptime data.",
-      });
-    }
+  getMonitors: publicProcedure.query(async () => {
 
     try {
       const monitors = await getUptimeMonitors();
@@ -42,9 +34,9 @@ export const uptimeRouter = router({
 
   /**
    * Get details for a specific monitor
-   * Admin only
+   * Public access for monitoring visibility
    */
-  getMonitorDetails: adminProcedure
+  getMonitorDetails: publicProcedure
     .input((val: unknown) => {
       if (typeof val === "object" && val !== null && "monitorId" in val) {
         const { monitorId } = val as { monitorId: unknown };
@@ -54,14 +46,7 @@ export const uptimeRouter = router({
       }
       throw new Error("Invalid input");
     })
-    .query(async ({ ctx, input }) => {
-      // Verify admin email
-      if (!ctx.user || !ctx.user.email || !ALLOWED_ADMINS.includes(ctx.user.email)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Access denied. Only authorized admins can view uptime data.",
-        });
-      }
+    .query(async ({ input }) => {
 
       try {
         const details = await getMonitorDetails(input.monitorId);
