@@ -106,10 +106,12 @@ import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
 import { contactCenterRouter } from "./routers/contact-center";
 import { jiraRouter } from "./routers/jira";
 import { freeAuditRouter } from "./routers/freeAuditRouter";
+import { uptimeRouter } from "./routers/uptime";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
+  uptime: uptimeRouter,
   uptimerobot: uptimerobotRouter,
   m365Health: m365HealthRouter,
   serviceHealthMonitoring: serviceHealthMonitoringRouter,

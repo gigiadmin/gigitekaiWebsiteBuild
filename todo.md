@@ -4763,3 +4763,25 @@
 - [x] Fix logo on free audit page (changed from broken image to text logo)
 - [x] Add website packages section to Portfolio page (4 tiers with pricing, features, promotion)
 - [x] Verified packages display correctly on portfolio page
+
+
+## UptimeRobot Status Dashboard (May 12, 2026)
+- [ ] Create UptimeRobot API integration (m802953531-e87c723b4f07e9ad9ddb2ca5)
+- [ ] Build status dashboard component (uptime %, response times, incident history)
+- [ ] Add admin-only access control (harry@gigitekai.com, nas@gigitekai.com)
+- [ ] Add dashboard to admin analytics section
+- [ ] Test on dev server
+- [ ] Deploy to production
+
+
+## UptimeRobot Status Dashboard (May 12, 2026)
+- [x] Create UptimeRobot API integration service (_core/uptimeRobot.ts)
+- [x] Create tRPC backend router for admin access (routers/uptime.ts)
+- [x] Create AdminUptimeRobotDashboard component with monitor list
+- [x] Create AdminUptimeRobotDetailPage with response time graph and incidents
+- [x] Add routes to AdminApp.tsx (/admin/uptime and /admin/uptime/:monitorId)
+- [x] Add UptimeRobot API key to environment variables
+- [x] Validate API key with vitest test (successfully fetched 3 monitors)
+- [x] Admin-only access control (harry@gigitekai.com, nas@gigitekai.com)
+- [ ] Add UptimeRobot dashboard link to admin sidebar (ANALYTICS section)
+- [ ] Deploy to production and test live
