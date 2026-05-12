@@ -4697,6 +4697,40 @@
 - [x] Create AdminJiraDashboard component with project list and issue display
 - [x] Register jiraRouter in server/routers.ts main appRouter export
 - [x] Add /admin/jira route to AdminApp.tsx with lazy loading and ApprovalGuard
-- [ ] Test Jira dashboard on live site (fetch projects and issues)
-- [ ] Add Jira dashboard link to admin sidebar navigation
+- [x] Test Jira dashboard on live site (refactored to use tRPC client, dashboard renders with loading states)
+- [x] Add Jira dashboard link to admin sidebar navigation (added to ANALYTICS section with Wrench icon)
 - [ ] Implement real-time Jira sync (daily or on-demand)
+
+## Admin Hub Portal Backlog Items (from Jira Integration)
+- [ ] Add route /admin/hub in App.tsx
+- [ ] Implement category filter tabs (left sidebar per design preference)
+- [ ] Implement search functionality
+- [ ] Implement favorites toggle (localStorage persistence)
+- [ ] Match GigitekAI dark cyberpunk brand styling
+- [ ] Test all links and navigation
+
+## Social OAuth Fixes Backlog Items
+- [ ] Fix LinkedIn OAuth redirect URI configuration
+- [ ] Fix Twitter/X OAuth redirect URI configuration
+- [ ] Fix Facebook OAuth redirect URI configuration
+- [ ] Test OAuth flows on all three platforms
+
+## Comprehensive Feature Backlog
+
+### High Priority
+- [ ] Complete Jira integration testing and sidebar link
+- [ ] Complete Admin Hub Portal implementation
+- [ ] Fix all Social OAuth integrations
+- [ ] Real-time Jira sync automation
+
+### Medium Priority
+- [ ] Implement Teams Bot integration enhancements
+- [ ] Add advanced helpdesk reporting and analytics
+- [ ] Implement AI-powered ticket categorization improvements
+- [ ] Add customer satisfaction survey system
+
+### Low Priority
+- [ ] Performance optimization and caching improvements
+- [ ] Additional admin portal features
+- [ ] Enhanced mobile experience
+- [ ] Advanced analytics and dashboards

@@ -25,6 +25,7 @@ import {
   Trash2,
   Wifi,
   Home,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -115,6 +116,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "kb-analytics", label: "KB Analytics", section: "ANALYTICS", icon: TrendingUp, path: "/admin/kb-analytics" },
     { id: "m365-health", label: "M365 Health Status", section: "ANALYTICS", icon: TrendingUp, path: "/admin/m365-health" },
     { id: "escalation-patterns", label: "Escalation Patterns", section: "ANALYTICS", icon: BarChart3, path: "/admin/escalation-patterns" },
+    { id: "jira", label: "Jira Dashboard", section: "ANALYTICS", icon: Wrench, path: "/admin/jira" },
     { id: "users", label: "Users", section: "SETTINGS", icon: Users, path: "/admin/users" },
     { id: "team-members", label: "Team Members", section: "SETTINGS", icon: Users, path: "/admin/team-members" },
     { id: "settings", label: "Settings", section: "SETTINGS", icon: Settings, path: "/admin/settings" },

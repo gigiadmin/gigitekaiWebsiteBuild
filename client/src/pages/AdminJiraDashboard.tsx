@@ -3,6 +3,7 @@ import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
 import {
   ExternalLink,
   AlertCircle,
@@ -47,60 +48,47 @@ interface JiraIssue {
 }
 
 export default function AdminJiraDashboard() {
-  const [projects, setProjects] = useState<JiraProject[]>([]);
-  const [issues, setIssues] = useState<JiraIssue[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch projects on mount
+  // Fetch projects using tRPC
+  const {
+    data: projectsData,
+    isLoading: projectsLoading,
+    error: projectsError,
+  } = trpc.jira.getProjects.useQuery();
+
+  const projects = (projectsData as JiraProject[]) || [];
+
+  // Set first project as default when projects load
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/jira/projects");
-        if (!response.ok) throw new Error("Failed to fetch projects");
-        const data = await response.json();
-        setProjects(data);
-        if (data.length > 0) {
-          setSelectedProject(data[0].key);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (projects.length > 0 && !selectedProject) {
+      setSelectedProject(projects[0].key);
+    }
+  }, [projects, selectedProject]);
 
-    fetchProjects();
-  }, []);
+  // Fetch issues using tRPC
+  const {
+    data: issuesData,
+    isLoading: issuesLoading,
+    error: issuesError,
+  } = trpc.jira.getIssues.useQuery(
+    {
+      jql: selectedProject
+        ? `project = "${selectedProject}"${
+            searchQuery ? ` AND text ~ "${searchQuery}"` : ""
+          }`
+        : undefined,
+      maxResults: 100,
+    },
+    {
+      enabled: !!selectedProject,
+    }
+  );
 
-  // Fetch issues when project changes
-  useEffect(() => {
-    if (!selectedProject) return;
-
-    const fetchIssues = async () => {
-      try {
-        setLoading(true);
-        const jql = `project = "${selectedProject}"${
-          searchQuery ? ` AND text ~ "${searchQuery}"` : ""
-        }`;
-        const response = await fetch(
-          `/api/jira/issues?jql=${encodeURIComponent(jql)}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch issues");
-        const data = await response.json();
-        setIssues(data.issues || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchIssues();
-  }, [selectedProject, searchQuery]);
+  const issues = (issuesData?.issues as JiraIssue[]) || [];
+  const loading = projectsLoading || issuesLoading;
+  const error = projectsError?.message || issuesError?.message;
 
   const getStatusIcon = (status: string) => {
     const statusLower = status.toLowerCase();
@@ -148,9 +136,13 @@ export default function AdminJiraDashboard() {
         <Card className="bg-[#0F1419] border-gray-800/40">
           <div className="p-6 space-y-4">
             <h2 className="text-lg font-semibold text-white">Projects</h2>
-            {loading && projects.length === 0 ? (
+            {projectsLoading && projects.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-5 h-5 text-[#00D4FF] animate-spin" />
+              </div>
+            ) : projects.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <p>No projects found. Check your Jira credentials.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -203,7 +195,7 @@ export default function AdminJiraDashboard() {
               </div>
 
               {/* Issues List */}
-              {loading ? (
+              {issuesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-5 h-5 text-[#00D4FF] animate-spin" />
                 </div>
