@@ -194,17 +194,17 @@ export default function BlogDetail() {
               >
                 {post.category}
               </span>
-              <span className="text-xs text-gray-400">{post.readTime}</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">{post.readTime}</span>
             </div>
             <h1
-              className="text-5xl font-bold text-gray-900 mb-4 leading-tight"
+              className="text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               {post.title}
             </h1>
 
             {/* Meta row: date · read time · author */}
-            <div className="flex flex-wrap items-center gap-6 text-gray-500 text-sm mb-6">
+            <div className="flex flex-wrap items-center gap-6 text-gray-500 dark:text-gray-400 text-sm mb-6">
               <div className="flex items-center gap-2">
                 <Calendar size={16} />
                 {displayDate}
