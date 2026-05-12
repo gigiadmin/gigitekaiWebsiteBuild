@@ -177,7 +177,7 @@ export default function BlogDetail() {
       <SiteNavBar2024 />
       <main className="flex-1">
         {/* Header */}
-        <section className="py-12 bg-white border-b border-gray-100">
+        <section className="py-12 bg-white dark:bg-[#0A0E1A] border-b border-gray-100 dark:border-white/10">
           <div className="container max-w-3xl">
             <Breadcrumb items={breadcrumbs} />
             <button
@@ -226,9 +226,9 @@ export default function BlogDetail() {
         </section>
 
         {/* Content */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-gray-50 dark:bg-[#141B2D]">
           <div className="container max-w-3xl">
-            <article className="bg-white rounded-2xl p-12 prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900 prose-li:text-gray-800 prose-blockquote:text-gray-700 prose-a:text-[#00D4FF] prose-th:text-gray-900 prose-td:text-gray-800 [&_*]:text-gray-800 [&_h1]:text-gray-900 [&_h2]:text-gray-900 [&_h3]:text-gray-900 [&_h4]:text-gray-900 [&_p]:text-gray-800 [&_li]:text-gray-800 [&_blockquote]:text-gray-700 [&_strong]:text-gray-900 [&_td]:text-gray-800 [&_th]:text-gray-900">
+            <article className="bg-white dark:bg-[#1a2240] rounded-2xl p-12 prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-white prose-li:text-gray-800 dark:prose-li:text-gray-300 prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-400 prose-a:text-[#00D4FF] prose-th:text-gray-900 dark:prose-th:text-white prose-td:text-gray-800 dark:prose-td:text-gray-300 [&_*]:text-gray-800 dark:[&_*]:text-gray-300 [&_h1]:text-gray-900 dark:[&_h1]:text-white [&_h2]:text-gray-900 dark:[&_h2]:text-white [&_h3]:text-gray-900 dark:[&_h3]:text-white [&_h4]:text-gray-900 dark:[&_h4]:text-white [&_p]:text-gray-800 dark:[&_p]:text-gray-300 [&_li]:text-gray-800 dark:[&_li]:text-gray-300 [&_blockquote]:text-gray-700 dark:[&_blockquote]:text-gray-400 [&_strong]:text-gray-900 dark:[&_strong]:text-white [&_td]:text-gray-800 dark:[&_td]:text-gray-300 [&_th]:text-gray-900 dark:[&_th]:text-white">
               {/* Render HTML from TipTap editor; fall back to Markdown for legacy posts */}
               {post.content.trimStart().startsWith("<") ? (
                 <div
@@ -255,28 +255,28 @@ export default function BlogDetail() {
             />
 
             {/* Share buttons — bottom of article */}
-            <div className="mt-4 bg-white rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="mt-4 bg-white dark:bg-[#1a2240] rounded-2xl p-6 border border-gray-100 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <p
-                  className="font-semibold text-gray-900 mb-0.5"
+                  className="font-semibold text-gray-900 dark:text-white mb-0.5"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   Found this article useful?
                 </p>
-                <p className="text-sm text-gray-500">Share it with your network.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Share it with your network.</p>
               </div>
               <ShareButtons url={articleUrl} title={post.title} />
             </div>
 
             {/* CTA */}
-            <div className="mt-6 bg-white rounded-2xl p-8 border border-gray-100 text-center">
+            <div className="mt-6 bg-white dark:bg-[#1a2240] rounded-2xl p-8 border border-gray-100 dark:border-white/10 text-center">
               <h3
-                className="text-2xl font-bold text-gray-900 mb-2"
+                className="text-2xl font-bold text-gray-900 dark:text-white mb-2"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Ready to transform your business?
               </h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 dark:text-gray-400 mb-6">
                 Let's discuss how GigitekAI can help you achieve your cloud and AI goals.
               </p>
               <button
@@ -290,7 +290,7 @@ export default function BlogDetail() {
         </section>
 
         {/* Newsletter signup — below article */}
-        <section className="py-10 bg-gray-50">
+        <section className="py-10 bg-gray-50 dark:bg-[#141B2D]">
           <div className="container max-w-3xl">
             <NewsletterSignup variant="compact" source={typeof window !== 'undefined' ? window.location.pathname : '/blog'} />
           </div>
