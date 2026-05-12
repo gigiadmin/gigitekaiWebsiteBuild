@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, subject, status, scheduledAt, sentCount, failedCount, createdAt FROM newsletterCampaigns ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute SELECT id, subject, status, scheduledAt, sentCount, failedCount, createdAt FROM newsletterCampaigns ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "30001",
+      "subject": "🚀 Gigitek AI Daily Recap: The Future of Work is Here (May 11, 2026)",
+      "status": "completed",
+      "scheduledAt": "2026-05-12 06:21:48",
+      "sentCount": "5",
+      "failedCount": "0",
+      "createdAt": "2026-05-12 06:21:18"
+    },
+    {
+      "id": "1",
+      "subject": "Test Broadcast to Newsletter Subscribers",
+      "status": "completed",
+      "scheduledAt": "NULL",
+      "sentCount": "3",
+      "failedCount": "0",
+      "createdAt": "2026-04-14 01:53:01"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsubject\tstatus\tscheduledAt\tsentCount\tfailedCount\tcreatedAt\n30001\t🚀 Gigitek AI Daily Recap: The Future of Work is Here (May 11, 2026)\tcompleted\t2026-05-12 06:21:48\t5\t0\t2026-05-12 06:21:18\n1\tTest Broadcast to Newsletter Subscribers\tcompleted\tNULL\t3\t0\t2026-04-14 01:53:01\n",
+  "stderr": "",
+  "execution_time_ms": 256
+}

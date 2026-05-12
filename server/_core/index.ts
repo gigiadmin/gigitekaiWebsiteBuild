@@ -23,6 +23,7 @@ import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
+import { startAiNewsScheduler } from "../schedulers/aiNewsScheduler";
 import { startEmailPoller } from "./emailPoller";
 import { startCallPoller } from "./callPoller";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
@@ -308,6 +309,8 @@ async function startServer() {
     startEmailFlowE2EScheduler();
     // Start nightly MS Learn catalog sync (2:00 AM ET)
     startMsLearnSyncScheduler();
+    // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
+    startAiNewsScheduler();
     // Start M365 Graph email poller (every 5 minutes)
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)
