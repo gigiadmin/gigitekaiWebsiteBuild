@@ -42,6 +42,7 @@ import {
   Phone,
   Headphones,
   Grid3X3,
+  Home,
 } from "lucide-react";
 
 interface NavItem {
@@ -431,8 +432,19 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             {mobileOpen ? <X size={16} /> : <Menu size={16} />}
           </Button>
 
-          {/* Breadcrumb / Page title */}
+          {/* Home button + Breadcrumb / Page title */}
           <div className="flex items-center gap-2 text-sm">
+            <Link href="/admin">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+                title="Go to admin home"
+                aria-label="Go to admin home"
+              >
+                <Home size={16} />
+              </Button>
+            </Link>
             <span className="text-slate-500">Admin</span>
             <ChevronRight size={12} className="text-slate-600" />
             <span className="text-white font-medium">{getCurrentTitle()}</span>

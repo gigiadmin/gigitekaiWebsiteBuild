@@ -4685,3 +4685,9 @@
 - [x] AdminLogin.tsx: Polished UI — removed "temporary" messaging, added autoComplete attrs, 30s timeout, hard navigation on success
 - [x] Tested: harry@gigitekai.com login works on dev server, redirects to /admin dashboard
 - [x] Deploy and verify on gigitekai.com desktop + mobile (checkpoint saved, publish pending)
+
+
+## Home Button Navigation (May 12, 2026)
+- [x] Add home button to AdminLayout top bar — navigates to /admin from any admin page
+- [x] Add home button to AdminLayoutWithSidebar top bar — consistent navigation across all admin pages
+- [x] Test home button on multiple admin pages (contact-center, closed-tickets, etc.)
