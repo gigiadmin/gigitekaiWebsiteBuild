@@ -1,0 +1,16 @@
+{
+  "query": "\n-- Delete core ticket and call data\nDELETE FROM ticketReplies;\nDELETE FROM tickets;\nDELETE FROM callDraftTickets;\nDELETE FROM callLogs;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM callLogs) as remaining_callLogs,\n  (SELECT COUNT(*) FROM callDraftTickets) as remaining_drafts,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets,\n  (SELECT COUNT(*) FROM ticketReplies) as remaining_replies;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute \n-- Delete core ticket and call data\nDELETE FROM ticketReplies;\nDELETE FROM tickets;\nDELETE FROM callDraftTickets;\nDELETE FROM callLogs;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM callLogs) as remaining_callLogs,\n  (SELECT COUNT(*) FROM callDraftTickets) as remaining_drafts,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets,\n  (SELECT COUNT(*) FROM ticketReplies) as remaining_replies;\n",
+  "rows": [
+    {
+      "remaining_callLogs": "0",
+      "remaining_drafts": "0",
+      "remaining_tickets": "0",
+      "remaining_replies": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "remaining_callLogs\tremaining_drafts\tremaining_tickets\tremaining_replies\n0\t0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 290
+}

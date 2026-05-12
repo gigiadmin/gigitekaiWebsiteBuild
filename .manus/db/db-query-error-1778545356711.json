@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Delete all call records and their associated data\nDELETE FROM callTranscripts WHERE callId IN (SELECT id FROM calls);\nDELETE FROM calls;\n\n-- Delete all tickets and their replies\nDELETE FROM ticketReplies WHERE ticketId IN (SELECT id FROM tickets);\nDELETE FROM tickets;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM calls) as remaining_calls,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets,\n  (SELECT COUNT(*) FROM callTranscripts) as remaining_transcripts,\n  (SELECT COUNT(*) FROM ticketReplies) as remaining_replies;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute \n-- Delete all call records and their associated data\nDELETE FROM callTranscripts WHERE callId IN (SELECT id FROM calls);\nDELETE FROM calls;\n\n-- Delete all tickets and their replies\nDELETE FROM ticketReplies WHERE ticketId IN (SELECT id FROM tickets);\nDELETE FROM tickets;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM calls) as remaining_calls,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets,\n  (SELECT COUNT(*) FROM callTranscripts) as remaining_transcripts,\n  (SELECT COUNT(*) FROM ticketReplies) as remaining_replies;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 3: Table 'mmtcdmc2kttvctkwoy8f9u.callTranscripts' doesn't exist"
+  ]
+}

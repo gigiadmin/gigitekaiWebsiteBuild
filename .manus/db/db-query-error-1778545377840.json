@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Delete only the tables that actually exist\nDELETE FROM call_transcripts;\nDELETE FROM call_recordings;\nDELETE FROM callRouting;\nDELETE FROM callLogs;\nDELETE FROM callDraftTickets;\n\n-- Delete ticket-related data\nDELETE FROM ticketKbSuggestions;\nDELETE FROM ticketSurveys;\nDELETE FROM ticketMerges;\nDELETE FROM ticketActivity;\nDELETE FROM ticketNotes;\nDELETE FROM ticketFeedback;\nDELETE FROM ticketReplies;\nDELETE FROM tickets;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM callLogs) as remaining_callLogs,\n  (SELECT COUNT(*) FROM callDraftTickets) as remaining_drafts,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute \n-- Delete only the tables that actually exist\nDELETE FROM call_transcripts;\nDELETE FROM call_recordings;\nDELETE FROM callRouting;\nDELETE FROM callLogs;\nDELETE FROM callDraftTickets;\n\n-- Delete ticket-related data\nDELETE FROM ticketKbSuggestions;\nDELETE FROM ticketSurveys;\nDELETE FROM ticketMerges;\nDELETE FROM ticketActivity;\nDELETE FROM ticketNotes;\nDELETE FROM ticketFeedback;\nDELETE FROM ticketReplies;\nDELETE FROM tickets;\n\n-- Verify deletion\nSELECT \n  (SELECT COUNT(*) FROM callLogs) as remaining_callLogs,\n  (SELECT COUNT(*) FROM callDraftTickets) as remaining_drafts,\n  (SELECT COUNT(*) FROM tickets) as remaining_tickets;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 5: Table 'mmtcdmc2kttvctkwoy8f9u.callRouting' doesn't exist"
+  ]
+}

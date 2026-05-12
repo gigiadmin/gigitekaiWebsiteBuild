@@ -20,7 +20,7 @@ interface SEOConfig {
 
 const BASE_URL = "https://gigitekai.com";
 const DEFAULT_OG_IMAGE =
-  "https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png";
+  "https://cdn.gigitekai.com/gigitekai-logo.webp";
 
 const ORG_SCHEMA = {
   "@type": "Organization",

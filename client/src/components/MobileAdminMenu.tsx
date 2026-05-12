@@ -86,7 +86,7 @@ export default function MobileAdminMenu() {
         {/* Header */}
         <div className="p-4 border-b border-gray-800 flex items-center justify-between">
           <img
-            src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663509163804/KiSfSgDgUjhCCPEP.png"
+            src="https://cdn.gigitekai.com/gigitekai-logo.webp"
             alt="GigitekAI logo"
             className="h-10 w-auto object-contain max-w-[150px]"
           />
