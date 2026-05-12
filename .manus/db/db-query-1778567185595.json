@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, email, active FROM newsletterSubscribers WHERE active = true;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute SELECT id, email, active FROM newsletterSubscribers WHERE active = true;",
+  "rows": [
+    {
+      "id": "120001",
+      "email": "harry@gigitekai.com",
+      "active": "1"
+    },
+    {
+      "id": "120002",
+      "email": "nas@gigitekai.com",
+      "active": "1"
+    },
+    {
+      "id": "120003",
+      "email": "info@divinesounds.info",
+      "active": "1"
+    },
+    {
+      "id": "120004",
+      "email": "dvrbjv@gmail.com",
+      "active": "1"
+    },
+    {
+      "id": "120005",
+      "email": "karivazquezco@gmail.com",
+      "active": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tactive\n120001\tharry@gigitekai.com\t1\n120002\tnas@gigitekai.com\t1\n120003\tinfo@divinesounds.info\t1\n120004\tdvrbjv@gmail.com\t1\n120005\tkarivazquezco@gmail.com\t1\n",
+  "stderr": "",
+  "execution_time_ms": 257
+}

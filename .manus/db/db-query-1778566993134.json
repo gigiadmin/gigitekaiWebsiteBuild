@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as activeCount FROM newsletterSubscribers WHERE active = true;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute SELECT COUNT(*) as activeCount FROM newsletterSubscribers WHERE active = true;",
+  "rows": [
+    {
+      "activeCount": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "activeCount\n0\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE newsletterCampaigns SET status = 'scheduled', scheduledAt = DATE_SUB(NOW(), INTERVAL 5 MINUTE) WHERE id = 30001 AND status = 'draft';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute UPDATE newsletterCampaigns SET status = 'scheduled', scheduledAt = DATE_SUB(NOW(), INTERVAL 5 MINUTE) WHERE id = 30001 AND status = 'draft';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 266
+}

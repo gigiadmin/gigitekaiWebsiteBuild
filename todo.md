@@ -4777,3 +4777,11 @@
 - [x] Add UptimeRobot dashboard link to admin sidebar (ANALYTICS section)
 - [x] Deploy to production and test live
 - [x] Fix UptimeRobot uptime percentages not displaying (add custom_uptime_ratios to API call)
+- [x] Create and post AI Daily Recap newsletter (May 11, 2026) to newsletter section
+
+## Newsletter Auto-Post API + Blog Integration (May 12, 2026)
+- [ ] Build /api/newsletter/auto-post endpoint (accepts content, sends to subscribers + creates blog post)
+- [ ] Secure endpoint with API key authentication
+- [ ] Write vitest tests for the auto-post endpoint
+- [ ] Update generate_newsletter.py to POST to the endpoint
+- [ ] Provide integration instructions for the scheduled task

@@ -36,6 +36,7 @@ import {
   facebookConnect, facebookCallback,
 } from "../socialOAuth";
 import cronEndpoints from "../cronEndpoints";
+import newsletterAutoPost from "../newsletterAutoPost";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -192,6 +193,9 @@ async function startServer() {
 
   // Cron job endpoints
   app.use("/api/cron", cronEndpoints);
+
+  // Newsletter auto-post API (used by daily AI recap scheduled task)
+  app.use("/api/newsletter", newsletterAutoPost);
   
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);
