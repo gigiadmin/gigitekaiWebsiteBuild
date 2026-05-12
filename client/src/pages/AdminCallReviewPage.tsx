@@ -91,6 +91,16 @@ function ReviewModal({
     onError: (err) => toast.error(`Failed to approve: ${err.message}`),
   });
 
+  const deleteMutation = trpc.calls.deleteDraft.useMutation({
+    onSuccess: () => {
+      toast.success("Draft ticket deleted.");
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+      onRejected();
+    },
+    onError: (err) => toast.error(`Failed to delete: ${err.message}`),
+  });
+
   const rejectMutation = trpc.calls.rejectDraft.useMutation({
     onSuccess: () => {
       toast.success("Draft ticket rejected.");
@@ -240,6 +250,14 @@ function ReviewModal({
             {mode === "review" ? "Reject Instead" : "Back to Review"}
           </Button>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => deleteMutation.mutate({ draftId: d.id })}
+              disabled={deleteMutation.isPending}
+              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "🗑 Delete"}
+            </Button>
             <Button variant="outline" onClick={onClose} className="border-white/10 text-gray-400">
               Cancel
             </Button>

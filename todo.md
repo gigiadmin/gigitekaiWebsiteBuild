@@ -102,6 +102,13 @@
   - 18 new tests added and passing
 
 
+## Drafts Management Feature
+- [ ] Add delete functionality for call ticket drafts in admin panel
+- [ ] Understand what drafts are in the call ticket system
+- [ ] Add delete button/option to draft items in UI
+- [ ] Implement backend delete procedure for drafts
+- [ ] Test draft deletion feature
+
 ## Current Issues to Fix
 - [x] Fix intermittent OAuth account popup — session verification was rejecting empty name field (fixed in sdk.ts line 215-227)
 - [x] Fix mobile menu anchor links not scrolling to correct sections

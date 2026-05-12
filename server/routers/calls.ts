@@ -214,6 +214,25 @@ export const callsRouter = router({
       return { success: true };
     }),
 
+  // ── Delete draft ──────────────────────────────────────────────────────────
+  deleteDraft: adminProcedure
+    .input(
+      z.object({
+        draftId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      // Delete the draft ticket
+      await db
+        .delete(callDraftTickets)
+        .where(eq(callDraftTickets.id, input.draftId));
+
+      return { success: true };
+    }),
+
   // ── Update draft fields before approving ─────────────────────────────────
   updateDraft: adminProcedure
     .input(
