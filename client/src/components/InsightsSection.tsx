@@ -11,7 +11,7 @@ import { trpc } from "@/lib/trpc";
 export default function InsightsSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const { data: posts, isLoading } = trpc.blog.listPosts.useQuery();
+  const { data: posts, isLoading, error } = trpc.blog.listPosts.useQuery();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -199,8 +199,26 @@ export default function InsightsSection() {
           </div>
         )}
 
+        {/* Error state */}
+        {error && (
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 mb-4">
+              <span className="text-red-500 text-xl">⚠</span>
+            </div>
+            <p className="text-red-400 font-semibold mb-2">Failed to load articles</p>
+            <p className="text-gray-400 text-sm mb-4">Please try again later or contact support.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[#00D4FF]/30 rounded-lg text-[#00D4FF] text-sm font-semibold transition-colors"
+            >
+              <ArrowRight size={14} className="rotate-180" />
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!isLoading && displayPosts.length === 0 && (
+        {!isLoading && !error && displayPosts.length === 0 && (
           <div className="text-center py-16">
             <Sparkles size={32} className="text-[#00D4FF]/30 mx-auto mb-3" />
             <p className="text-gray-400">New insights coming soon. Check back shortly.</p>

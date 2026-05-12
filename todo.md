@@ -103,11 +103,17 @@
 
 
 ## Drafts Management Feature
-- [ ] Add delete functionality for call ticket drafts in admin panel
-- [ ] Understand what drafts are in the call ticket system
-- [ ] Add delete button/option to draft items in UI
-- [ ] Implement backend delete procedure for drafts
-- [ ] Test draft deletion feature
+- [x] Add delete functionality for call ticket drafts in admin panel
+- [x] Understand what drafts are in the call ticket system (AI-generated ticket summaries from phone calls)
+- [x] Add delete button/option to draft items in UI (red trash icon in review modal)
+- [x] Implement backend delete procedure for drafts (deleteDraft tRPC procedure)
+- [x] Test draft deletion feature (working on dev server)
+
+## KB Manual Creation Feature
+- [ ] Add backend procedure for creating KB articles manually
+- [ ] Add frontend form/modal for creating KB articles in admin KB Generation page
+- [ ] Test manual KB creation feature
+- [ ] Goal: Reach 50 KB articles (currently auto-generating from resolved tickets)
 
 ## Current Issues to Fix
 - [x] Fix intermittent OAuth account popup — session verification was rejecting empty name field (fixed in sdk.ts line 215-227)
