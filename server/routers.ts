@@ -105,6 +105,7 @@ import { acsRouter } from "./routers/acs";
 import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
 import { contactCenterRouter } from "./routers/contact-center";
 import { jiraRouter } from "./routers/jira";
+import { freeAuditRouter } from "./routers/freeAuditRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -185,14 +186,15 @@ export const appRouter = router({
   remoteAssistanceAnalytics: remoteAssistanceAnalyticsRouter,
   teamsRemoteAssistance: teamsRemoteAssistanceRouter,
   sessionRecording: sessionRecordingRouter,
-    slaBreachAlerts: slaBreachAlertsRouter,
-    ticketAutoEscalation: ticketAutoEscalationRouter,
-    clientSatisfactionSurvey: clientSatisfactionSurveyRouter,
-    slaComplianceReports: slaComplianceReportsRouter,
+  slaBreachAlerts: slaBreachAlertsRouter,
+  ticketAutoEscalation: ticketAutoEscalationRouter,
+  clientSatisfactionSurvey: clientSatisfactionSurveyRouter,
+  slaComplianceReports: slaComplianceReportsRouter,
   userAccountMgmt: userAccountMgmtRouter,
   contactCenter: contactCenterRouter,
   jira: jiraRouter,
-    ticketAICategorization: ticketAICategorizationRouter,
+  freeAudit: freeAuditRouter,
+  ticketAICategorization: ticketAICategorizationRouter,
   sessionInviteEmail: sessionInviteEmailRouter,
   turnCredentials: turnCredentialsRouter,
   customerPortal: customerPortalRouter,

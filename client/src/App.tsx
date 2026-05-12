@@ -60,6 +60,7 @@ const PortfolioConsultingDemo = lazy(() => import("./pages/PortfolioConsultingDe
 const PortfolioTechDemo = lazy(() => import("./pages/PortfolioTechDemo"));
 const PortfolioGigitekDemo = lazy(() => import("./pages/PortfolioGigitekDemo"));
 const PortfolioDivineSoundsDemo = lazy(() => import("./pages/PortfolioDivineSoundsDemo"));
+const FreeAuditLandingPage = lazy(() => import("./pages/FreeAuditLandingPage"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -144,6 +145,7 @@ function Router() {
           {/* ── Public ── */}
           <Route path={"/"} component={Home} />
           <Route path={"/pricing"} component={Pricing} />
+          <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
           <Route path={"/roi-calculator"} component={ROICalculatorPage} />
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
