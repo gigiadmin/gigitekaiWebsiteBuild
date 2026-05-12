@@ -4691,3 +4691,12 @@
 - [x] Add home button to AdminLayout top bar — navigates to /admin from any admin page
 - [x] Add home button to AdminLayoutWithSidebar top bar — consistent navigation across all admin pages
 - [x] Test home button on multiple admin pages (contact-center, closed-tickets, etc.)
+## Jira Integration (May 12, 2026)
+- [x] Create backend Jira router with API procedures (getProjects, getIssues, getProjectDetails)
+- [x] Validate Jira API credentials via vitest test
+- [x] Create AdminJiraDashboard component with project list and issue display
+- [x] Register jiraRouter in server/routers.ts main appRouter export
+- [x] Add /admin/jira route to AdminApp.tsx with lazy loading and ApprovalGuard
+- [ ] Test Jira dashboard on live site (fetch projects and issues)
+- [ ] Add Jira dashboard link to admin sidebar navigation
+- [ ] Implement real-time Jira sync (daily or on-demand)

@@ -57,6 +57,7 @@ const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
 const AdminRecordingsPage = lazy(() => import("./pages/AdminRecordingsPage"));
 const AdminSmsCampaignsPage = lazy(() => import("./pages/AdminSmsCampaignsPage"));
 const AdminHubPage = lazy(() => import("./pages/AdminHubPage"));
+const AdminJiraDashboard = lazy(() => import("./pages/AdminJiraDashboard"));
 
 function PageLoader() {
   return (
@@ -125,6 +126,7 @@ export default function AdminApp() {
               <Route path="/admin/recordings" component={() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>} />
               <Route path="/admin/sms-campaigns" component={() => <ApprovalGuard><AdminSmsCampaignsPage /></ApprovalGuard>} />
               <Route path="/admin/hub" component={() => <ApprovalGuard><AdminHubPage /></ApprovalGuard>} />
+              <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
                   <div className="text-center">
