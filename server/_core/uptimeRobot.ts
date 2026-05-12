@@ -73,6 +73,7 @@ export async function getUptimeMonitors() {
         logs: "1",
         response_times: "1",
         response_times_average_interval: "24",
+        custom_uptime_ratios: "1-7-30-365",
       }).toString(),
     });
 
@@ -86,21 +87,25 @@ export async function getUptimeMonitors() {
       throw new Error("UptimeRobot API returned error status");
     }
 
-    return data.monitors.map((monitor) => ({
-      id: monitor.id,
-      name: monitor.friendly_name,
-      url: monitor.url,
-      status: getStatusLabel(monitor.status),
-      statusCode: monitor.status,
-      uptime24h: monitor.custom_uptime_24h,
-      uptime7d: monitor.custom_uptime_7d,
-      uptime30d: monitor.custom_uptime_30d,
-      uptime365d: monitor.custom_uptime_365d,
-      totalUptime: monitor.total_uptime_percentage,
-      averageResponseTime: monitor.average_response_time,
-      lastCheck: monitor.response_times?.[0]?.datetime || null,
-      lastResponseTime: monitor.response_times?.[0]?.response_time || null,
-    }));
+    return data.monitors.map((monitor) => {
+      // custom_uptime_ratios returns as "ratio1-ratio2-ratio3-ratio4" string
+      const ratios = monitor.custom_uptime_ratio ? monitor.custom_uptime_ratio.split("-") : [];
+      return {
+        id: monitor.id,
+        name: monitor.friendly_name,
+        url: monitor.url,
+        status: getStatusLabel(monitor.status),
+        statusCode: monitor.status,
+        uptime24h: ratios[0] || "N/A",
+        uptime7d: ratios[1] || "N/A",
+        uptime30d: ratios[2] || "N/A",
+        uptime365d: ratios[3] || "N/A",
+        totalUptime: ratios[2] || "N/A", // Use 30d as total uptime approximation
+        averageResponseTime: monitor.average_response_time,
+        lastCheck: monitor.response_times?.[0]?.datetime || null,
+        lastResponseTime: monitor.response_times?.[0]?.response_time || null,
+      };
+    });
   } catch (error) {
     console.error("Error fetching UptimeRobot data:", error);
     throw error;
@@ -125,6 +130,7 @@ export async function getMonitorDetails(monitorId: number) {
         logs: "1",
         response_times: "1",
         response_times_average_interval: "24",
+        custom_uptime_ratios: "1-7-30-365",
       }).toString(),
     });
 
@@ -139,6 +145,7 @@ export async function getMonitorDetails(monitorId: number) {
     }
 
     const monitor = data.monitors[0];
+    const ratios = monitor.custom_uptime_ratio ? monitor.custom_uptime_ratio.split("-") : [];
 
     return {
       id: monitor.id,
@@ -146,11 +153,11 @@ export async function getMonitorDetails(monitorId: number) {
       url: monitor.url,
       status: getStatusLabel(monitor.status),
       statusCode: monitor.status,
-      uptime24h: monitor.custom_uptime_24h,
-      uptime7d: monitor.custom_uptime_7d,
-      uptime30d: monitor.custom_uptime_30d,
-      uptime365d: monitor.custom_uptime_365d,
-      totalUptime: monitor.total_uptime_percentage,
+      uptime24h: ratios[0] || "N/A",
+      uptime7d: ratios[1] || "N/A",
+      uptime30d: ratios[2] || "N/A",
+      uptime365d: ratios[3] || "N/A",
+      totalUptime: ratios[2] || "N/A",
       averageResponseTime: monitor.average_response_time,
       responseTimes: monitor.response_times || [],
       createdAt: new Date(monitor.create_datetime * 1000),

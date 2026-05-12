@@ -4776,3 +4776,4 @@
 - [x] Admin-only access control (harry@gigitekai.com, nas@gigitekai.com)
 - [x] Add UptimeRobot dashboard link to admin sidebar (ANALYTICS section)
 - [x] Deploy to production and test live
+- [x] Fix UptimeRobot uptime percentages not displaying (add custom_uptime_ratios to API call)
