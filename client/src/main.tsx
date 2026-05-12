@@ -84,13 +84,52 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+/**
+ * Strip empty superjson meta from tRPC GET request URLs.
+ * Cloudflare WAF on gigitekai.com blocks requests containing
+ * `"meta":{"values":{}}` in the query string (superjson format).
+ * When meta.values is empty there are no special types to deserialize,
+ * so removing it is safe and the server still processes the request correctly.
+ */
+function stripEmptySuperjsonMeta(url: string | URL | Request): string | URL | Request {
+  if (typeof url !== 'string') return url;
+  try {
+    const urlObj = new URL(url, window.location.origin);
+    const inputParam = urlObj.searchParams.get('input');
+    if (!inputParam) return url;
+    const parsed = JSON.parse(decodeURIComponent(inputParam));
+    let changed = false;
+    // Iterate over each batch item ("0", "1", etc.)
+    for (const key of Object.keys(parsed)) {
+      const item = parsed[key];
+      if (item && typeof item === 'object' && item.meta && typeof item.meta === 'object') {
+        // Remove meta if values is empty or missing
+        const values = item.meta.values;
+        if (!values || (typeof values === 'object' && Object.keys(values).length === 0)) {
+          delete item.meta;
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      urlObj.searchParams.set('input', JSON.stringify(parsed));
+      return urlObj.toString();
+    }
+  } catch {
+    // If parsing fails, return original URL unchanged
+  }
+  return url;
+}
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        return globalThis.fetch(input, {
+        // Strip empty superjson meta to bypass Cloudflare WAF on gigitekai.com
+        const cleanInput = stripEmptySuperjsonMeta(input as string);
+        return globalThis.fetch(cleanInput as string, {
           ...(init ?? {}),
           credentials: "include",
         });
