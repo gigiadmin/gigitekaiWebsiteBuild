@@ -118,6 +118,8 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
     { id: "escalation-patterns", label: "Escalation Patterns", section: "ANALYTICS", icon: BarChart3, path: "/admin/escalation-patterns" },
     { id: "jira", label: "Jira Dashboard", section: "ANALYTICS", icon: Wrench, path: "/admin/jira" },
     { id: "uptime", label: "Uptime Status", section: "ANALYTICS", icon: Wifi, path: "/admin/uptime" },
+    { id: "uptime-tools", label: "Uptime Status", section: "TOOLS", icon: Wifi, path: "/admin/uptime" },
+    { id: "hub", label: "Admin Hub", section: "TOOLS", icon: Home, path: "/admin/hub" },
     { id: "users", label: "Users", section: "SETTINGS", icon: Users, path: "/admin/users" },
     { id: "team-members", label: "Team Members", section: "SETTINGS", icon: Users, path: "/admin/team-members" },
     { id: "settings", label: "Settings", section: "SETTINGS", icon: Settings, path: "/admin/settings" },
@@ -151,6 +153,10 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
       title: "ANALYTICS",
       items: filteredItems.filter(i => i.section === "ANALYTICS"),
       collapsible: true,
+    },
+    {
+      title: "TOOLS",
+      items: filteredItems.filter(i => i.section === "TOOLS"),
     },
     {
       title: "SETTINGS",
