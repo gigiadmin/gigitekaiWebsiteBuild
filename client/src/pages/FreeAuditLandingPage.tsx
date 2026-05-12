@@ -33,11 +33,7 @@ export default function FreeAuditLandingPage() {
       <nav className="sticky top-0 z-50 bg-[#0A0E1A]/95 backdrop-blur border-b border-gray-800/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
-            <img
-              src="https://cdn.gigitekai.com/gigitekai-logo.webp"
-              alt="GigitekAI"
-              className="h-8 w-auto"
-            />
+            <span className="text-xl font-bold text-white">Gigitek<span className="text-[#00D4FF]">AI</span></span>
           </a>
           <a
             href="https://gigitekai.com"

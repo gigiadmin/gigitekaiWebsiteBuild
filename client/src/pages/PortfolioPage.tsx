@@ -423,6 +423,89 @@ export default function PortfolioPage() {
         </div>
       </section>
 
+      {/* ── WEBSITE PACKAGES ── */}
+      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ backgroundColor: "#00D4FF08" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Website Packages</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">Choose the perfect package for your business. All include ongoing support and monthly updates.</p>
+            <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-6 py-3 mt-6">
+              <p className="text-green-300 font-semibold">🎁 Limited Time: 50% OFF + 1 Month FREE on 1-Year Commitment</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                name: "Starter",
+                price: "$1,250",
+                originalPrice: "$2,500",
+                description: "Perfect for businesses just getting started",
+                features: ["5-10 Page Website", "Mobile Responsive Design", "Basic SEO", "Contact Form", "Google Analytics", "SSL Certificate", "Monthly Backups", "Email Support"],
+                color: "#00D4FF"
+              },
+              {
+                name: "Growth",
+                price: "$2,250",
+                originalPrice: "$4,500",
+                description: "For scaling businesses ready to leverage AI",
+                features: ["Unlimited Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "Lead Tracking", "Priority Support"],
+                color: "#9D4EDD",
+                popular: true
+              },
+              {
+                name: "Pro",
+                price: "$3,750",
+                originalPrice: "$7,500",
+                description: "Complete web solutions with custom integrations",
+                features: ["Custom Website + Landing Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced Integrations"],
+                color: "#00D97E"
+              },
+              {
+                name: "Enterprise",
+                price: "$6,000+",
+                originalPrice: "$12,000+",
+                description: "For companies with complex needs",
+                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AEO (AI Engine Optimization)", "PPC & Google Ads", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
+                color: "#FF6B9D"
+              }
+            ].map((pkg, idx) => (
+              <div key={idx} className={`relative rounded-2xl border p-8 transition-all duration-300 hover:scale-[1.02] ${
+                pkg.popular ? "border-purple-500/60 bg-gradient-to-br from-purple-900/40 to-purple-900/20 ring-2 ring-purple-500/30" : "border-cyan-500/20 bg-gradient-to-br from-cyan-900/20 to-blue-900/20"
+              }`}>
+                {pkg.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-4 py-1 rounded-full text-xs font-bold">MOST POPULAR</div>
+                )}
+                <h3 className="text-2xl font-bold text-white mb-2">{pkg.name}</h3>
+                <p className="text-sm text-slate-400 mb-4">{pkg.description}</p>
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold" style={{ color: pkg.color }}>{pkg.price}</span>
+                    <span className="text-sm text-slate-500">/month</span>
+                  </div>
+                  <p className="text-xs text-slate-500 line-through mt-1">Regular {pkg.originalPrice}/month</p>
+                  <p className="text-xs text-green-400 font-semibold mt-2">✓ 1 month free on 1-year commitment</p>
+                </div>
+                <div className="space-y-2 mb-6">
+                  {pkg.features.map((feature, fidx) => (
+                    <div key={fidx} className="flex items-start gap-2 text-sm text-slate-300">
+                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full py-3 rounded-lg font-semibold transition-all" style={{
+                  backgroundColor: pkg.popular ? pkg.color : pkg.color + "22",
+                  color: pkg.popular ? "#000" : pkg.color,
+                  border: pkg.popular ? "none" : `1px solid ${pkg.color}44`
+                }}>
+                  Get Started
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="py-20 px-4 border-t border-cyan-500/20">
         <div className="max-w-4xl mx-auto text-center">
