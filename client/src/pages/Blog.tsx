@@ -77,6 +77,7 @@ export default function Blog() {
             {error && (
               <div className="text-center py-20">
                 <p className="text-red-400 text-lg">Failed to load articles. Please try again later.</p>
+                <p className="text-gray-500 text-sm mt-2">{(error as any).message || String(error)}</p>
               </div>
             )}
 
