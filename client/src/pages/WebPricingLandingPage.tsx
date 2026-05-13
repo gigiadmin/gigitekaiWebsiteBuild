@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Zap, MessageSquare, Wrench, Check, Mail, Phone, MapPin, Globe, Shield, BarChart3, Palette, Menu, X, Send, Rocket, Music, Leaf, ExternalLink } from "lucide-react";
-import AIChatWidget from "@/components/AIChatWidget";
 
 export default function WebPricingLandingPage() {
   const [currentSection, setCurrentSection] = useState("home");
@@ -117,7 +116,7 @@ export default function WebPricingLandingPage() {
       description: "Professional audio production, sound engineering, and music services for creators and businesses.",
       tags: ["Creative", "Audio", "Production"],
       icon: Music,
-      url: "https://divine-sounds.com",
+      url: "https://divinesounds.com",
       bgColor: "from-purple-900 to-pink-900",
       borderColor: "border-pink-500"
     },
@@ -127,7 +126,7 @@ export default function WebPricingLandingPage() {
       description: "Holistic life and business coaching helping clients heal, transform, and build a life they love.",
       tags: ["Wellness", "Life Coaching", "Business Coaching", "Podcast"],
       icon: Leaf,
-      url: "https://kari-coaching.com",
+      url: "https://karicoaching.com",
       bgColor: "from-amber-900 to-orange-900",
       borderColor: "border-amber-400"
     },
@@ -223,35 +222,74 @@ export default function WebPricingLandingPage() {
                 <span className="text-gray-400 text-sm ml-4">yourbusiness.com</span>
               </div>
 
-              {/* Browser Content */}
-              <div className="p-8 space-y-6">
-                {/* Hero Section in Demo */}
+              {/* Browser Content - Real Website Preview */}
+              <div className="bg-gradient-to-b from-gray-900 to-gray-950 p-6 space-y-6 max-h-96 overflow-y-auto">
+                {/* Navigation */}
+                <div className="flex items-center justify-between pb-4 border-b border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-cyan-500"></div>
+                    <span className="text-sm font-bold text-white">Your Business</span>
+                  </div>
+                  <div className="flex gap-4 text-xs text-gray-400">
+                    <span>Home</span>
+                    <span>Services</span>
+                    <span>Contact</span>
+                  </div>
+                </div>
+
+                {/* Hero Section */}
                 <div className="space-y-3">
-                  <div className="h-3 bg-gradient-to-r from-cyan-500 to-purple-500 rounded w-3/4"></div>
-                  <div className="h-2 bg-gray-700 rounded w-full"></div>
-                  <div className="h-2 bg-gray-700 rounded w-5/6"></div>
+                  <h2 className="text-lg font-bold text-white">Welcome to Your Business</h2>
+                  <p className="text-xs text-gray-300 leading-relaxed">Professional solutions tailored to your needs. Fast, reliable, and built to scale.</p>
+                  <div className="flex gap-2">
+                    <div className="px-3 py-1 bg-cyan-500/30 rounded text-xs text-cyan-300 border border-cyan-500/50">Learn More</div>
+                    <div className="px-3 py-1 bg-gray-700/50 rounded text-xs text-gray-300 border border-gray-600/50">Contact Us</div>
+                  </div>
                 </div>
 
-                {/* Feature Cards in Demo */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="h-12 bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 rounded border border-cyan-500/50"></div>
-                  <div className="h-12 bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 rounded border border-cyan-500/50"></div>
-                  <div className="h-12 bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 rounded border border-cyan-500/50"></div>
+                {/* Features Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-800/50 border border-gray-700 rounded p-3">
+                    <div className="text-xs font-semibold text-cyan-400 mb-1">Fast</div>
+                    <div className="text-xs text-gray-300">Lightning quick performance</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded p-3">
+                    <div className="text-xs font-semibold text-cyan-400 mb-1">Secure</div>
+                    <div className="text-xs text-gray-300">Enterprise-grade security</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded p-3">
+                    <div className="text-xs font-semibold text-cyan-400 mb-1">Smart</div>
+                    <div className="text-xs text-gray-300">AI-powered insights</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700 rounded p-3">
+                    <div className="text-xs font-semibold text-cyan-400 mb-1">Support</div>
+                    <div className="text-xs text-gray-300">24/7 expert help</div>
+                  </div>
                 </div>
 
-                {/* CTA Button in Demo */}
-                <div className="h-3 bg-cyan-500/40 rounded w-1/3"></div>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <div className="text-sm font-bold text-cyan-400">500+</div>
+                    <div className="text-xs text-gray-400">Clients</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-cyan-400">99.9%</div>
+                    <div className="text-xs text-gray-400">Uptime</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-cyan-400">24/7</div>
+                    <div className="text-xs text-gray-400">Support</div>
+                  </div>
+                </div>
 
-                {/* Floating Chatbot */}
-                <div className="absolute bottom-6 right-6 bg-[#1a2847] border border-cyan-500/50 rounded-lg p-4 w-48 shadow-lg">
-                  <div className="flex items-center gap-2 mb-3">
-                    <MessageSquare size={16} className="text-cyan-400" />
-                    <span className="text-sm font-semibold text-cyan-400">AI Chatbot</span>
+                {/* Floating Chat Demo */}
+                <div className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 border border-cyan-500/50 rounded-lg p-3 mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MessageSquare size={14} className="text-cyan-400" />
+                    <span className="text-xs font-semibold text-cyan-400">AI Chat</span>
                   </div>
-                  <div className="space-y-2 text-xs">
-                    <div className="h-2 bg-gray-700 rounded w-4/5"></div>
-                    <div className="h-2 bg-gray-700 rounded w-3/5"></div>
-                  </div>
+                  <div className="text-xs text-gray-300">"How can we help?"</div>
                 </div>
               </div>
             </div>
@@ -574,9 +612,6 @@ export default function WebPricingLandingPage() {
           </div>
         </div>
       )}
-
-      {/* AI Chat Widget */}
-      <AIChatWidget />
 
       {/* Footer */}
       <footer className="bg-[#0A0E1A] border-t border-cyan-500/20 py-12 px-4">
