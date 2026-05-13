@@ -22,6 +22,8 @@ export const users = mysqlTable("users", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  /** Soft-delete timestamp. When set, the account is in the 30-day recycle bin. */
+  deletedAt: timestamp("deletedAt"),
 });
 
 export type User = typeof users.$inferSelect;

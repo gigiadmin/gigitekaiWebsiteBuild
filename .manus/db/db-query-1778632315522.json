@@ -1,0 +1,20 @@
+{
+  "query": "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'deletedAt';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'deletedAt';",
+  "rows": [
+    {
+      "COLUMN_NAME": "deletedAt",
+      "DATA_TYPE": "timestamp",
+      "IS_NULLABLE": "YES"
+    },
+    {
+      "COLUMN_NAME": "deletedAt",
+      "DATA_TYPE": "timestamp",
+      "IS_NULLABLE": "YES"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\tDATA_TYPE\tIS_NULLABLE\ndeletedAt\ttimestamp\tYES\ndeletedAt\ttimestamp\tYES\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}

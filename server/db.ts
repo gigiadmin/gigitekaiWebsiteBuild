@@ -444,6 +444,61 @@ export async function revokeUser(userId: number) {
   }
 }
 
+// ─── Recycle Bin (30-day soft delete) ─────────────────────────────────────────
+
+export async function softDeleteUser(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db.update(users).set({ deletedAt: new Date() }).where(eq(users.id, userId));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to soft-delete user:", error);
+    throw error;
+  }
+}
+
+export async function restoreUser(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db.update(users).set({ deletedAt: null }).where(eq(users.id, userId));
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to restore user:", error);
+    throw error;
+  }
+}
+
+export async function listDeletedUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db
+      .select()
+      .from(users)
+      .where(sql`${users.deletedAt} IS NOT NULL`)
+      .orderBy(desc(users.deletedAt));
+  } catch (error) {
+    console.error("[Database] Failed to list deleted users:", error);
+    throw error;
+  }
+}
+
+export async function purgeExpiredDeletedUsers() {
+  const db = await getDb();
+  if (!db) return 0;
+  try {
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const result = await db
+      .delete(users)
+      .where(sql`${users.deletedAt} IS NOT NULL AND ${users.deletedAt} <= ${cutoff}`);
+    return (result as any)[0]?.affectedRows ?? 0;
+  } catch (error) {
+    console.error("[Database] Failed to purge expired users:", error);
+    throw error;
+  }
+}
 
 // ─── Sentiment Analysis & Intent Detection ────────────────────────────────────
 

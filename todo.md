@@ -4798,3 +4798,10 @@
 - [ ] Write vitest tests for the auto-post endpoint
 - [ ] Update generate_newsletter.py to POST to the endpoint
 - [ ] Provide integration instructions for the scheduled task
+
+## Account Recycle Bin (30-day soft delete) — May 13, 2026
+- [x] Add `deletedAt` column to users table (soft-delete)
+- [x] Add DB helpers: softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers
+- [x] Add tRPC procedures: users.softDelete, users.restore, users.listDeleted, users.purgeExpired
+- [x] Update AdminAccountManagement UI: Delete action, Recycle Bin tab, restore, countdown badge
+- [x] Write vitest tests for recycle bin (13 tests, all passing)

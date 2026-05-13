@@ -5,7 +5,7 @@ import { publicProcedure, adminProcedure, protectedProcedure, router } from "./_
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
-import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers } from "./db";
 import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
@@ -537,8 +537,34 @@ Submitted from GigitekAI website contact form.
   users: router({
     getAll: adminProcedure.query(async () => {
       const allUsers = await getAllUsers();
-      return allUsers;
+      // Exclude soft-deleted users from the active list
+      return allUsers.filter((u) => !u.deletedAt);
     }),
+
+    softDelete: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.id === input.userId) throw new Error("You cannot delete your own account.");
+        const result = await softDeleteUser(input.userId);
+        return { success: result };
+      }),
+
+    restore: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input }) => {
+        const result = await restoreUser(input.userId);
+        return { success: result };
+      }),
+
+    listDeleted: adminProcedure.query(async () => {
+      return await listDeletedUsers();
+    }),
+
+    purgeExpired: adminProcedure.mutation(async () => {
+      const count = await purgeExpiredDeletedUsers();
+      return { success: true, purged: count };
+    }),
+
     approve: adminProcedure
       .input(z.object({ userId: z.number() }))
       .mutation(async ({ input }) => {

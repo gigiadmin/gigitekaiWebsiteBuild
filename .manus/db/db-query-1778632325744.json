@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `__drizzle_migrations` (hash, created_at) SELECT '0071_square_sunfire', UNIX_TIMESTAMP() * 1000 WHERE NOT EXISTS (SELECT 1 FROM `__drizzle_migrations` WHERE hash = '0071_square_sunfire');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user UhWFWtnzYdiVL8G.root --database mmTCDMc2kTTVcTkwoY8f9U --execute INSERT INTO `__drizzle_migrations` (hash, created_at) SELECT '0071_square_sunfire', UNIX_TIMESTAMP() * 1000 WHERE NOT EXISTS (SELECT 1 FROM `__drizzle_migrations` WHERE hash = '0071_square_sunfire');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 274
+}

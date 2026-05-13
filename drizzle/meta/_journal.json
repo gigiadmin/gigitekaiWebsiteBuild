@@ -498,6 +498,13 @@
       "when": 1778122755001,
       "tag": "0070_wooden_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "5",
+      "when": 1778632297238,
+      "tag": "0071_square_sunfire",
+      "breakpoints": true
     }
   ]
 }
