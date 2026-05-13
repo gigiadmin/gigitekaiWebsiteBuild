@@ -63,6 +63,7 @@ const PortfolioTechDemo = lazy(() => import("./pages/PortfolioTechDemo"));
 const PortfolioGigitekDemo = lazy(() => import("./pages/PortfolioGigitekDemo"));
 const PortfolioDivineSoundsDemo = lazy(() => import("./pages/PortfolioDivineSoundsDemo"));
 const FreeAuditLandingPage = lazy(() => import("./pages/FreeAuditLandingPage"));
+const WebPricingLandingPage = lazy(() => import("./pages/WebPricingLandingPage"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -164,6 +165,7 @@ function Router() {
           <Route path={"/"} component={Home} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
+          <Route path={"/web-pricing"} component={WebPricingLandingPage} />
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
           <Route path={"/roi-calculator"} component={ROICalculatorPage} />
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
@@ -284,7 +286,8 @@ function App() {
   const isHelpdeskPage = location.startsWith("/helpdesk");
   // Hide global widgets on portfolio demo pages so they look like standalone sites
   const isPortfolioDemoPage = /^\/portfolio\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
-  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
+  const isWebPricingPage = location.startsWith("/web-pricing");
+  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage || isWebPricingPage;
 
   return (
     <ErrorBoundary>

@@ -4862,3 +4862,12 @@
   - Runs exactly once per day at 9:00 AM Eastern Time
 - [x] Dev server restarted with new scheduler logic
 - [x] Newsletter will now send ONLY at 9:00 AM ET, no duplicates
+
+## Web Pricing Landing Page
+- [x] Create /web-pricing route as standalone landing page within gigitekai project
+- [x] Include Home, Services, Contact sections in single-page layout
+- [x] Display $300 one-time + $100/month pricing
+- [ ] Add Stripe checkout integration (CTA links to contact section for now)
+- [x] Register route in App.tsx
+- [x] Hide global widgets on /web-pricing for standalone look
+- [x] Verified all sections render correctly (hero, features, 3 pages, chatbot, pricing, contact)
