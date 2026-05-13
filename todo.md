@@ -4847,3 +4847,18 @@
   - /payment/canceled → PaymentCanceled component
 - [x] All TypeScript errors resolved
 - [x] Stripe integration ready for testing
+
+
+## Newsletter Scheduler Fix (COMPLETE)
+- [x] Identified duplicate Daily Recap emails being sent multiple times per day
+- [x] Root cause: Scheduler timing issue in aiNewsScheduler.ts
+- [x] Added deduplication logic using lastRunDate tracking
+  - Prevents duplicate sends on the same calendar day
+  - Skips if already ran today (checks ET timezone)
+  - Allows retry on error
+- [x] Fixed scheduler timing to recalculate 9 AM ET on each interval
+  - Uses msUntilNext9amET() to ensure precision
+  - Prevents drift from 24-hour intervals
+  - Runs exactly once per day at 9:00 AM Eastern Time
+- [x] Dev server restarted with new scheduler logic
+- [x] Newsletter will now send ONLY at 9:00 AM ET, no duplicates

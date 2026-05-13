@@ -130,7 +130,21 @@ function generateNewsletterHtml(newsItems: NewsItem[]): string {
 
 // ─── Main Runner ──────────────────────────────────────────────────────────────
 
+/** Track last successful run date to prevent duplicates */
+let lastRunDate: string | null = null;
+
 export async function runAiNewsRecap(): Promise<void> {
+  // Get today's date in ET
+  const now = new Date();
+  const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const todayET = etNow.toISOString().split("T")[0]; // YYYY-MM-DD
+
+  // Prevent duplicate runs on the same day
+  if (lastRunDate === todayET) {
+    console.log(`[AI News Scheduler] Already ran today (${todayET}) — skipping duplicate`);
+    return;
+  }
+
   console.log("[AI News Scheduler] Starting daily AI news recap generation...");
 
   try {
@@ -179,11 +193,14 @@ export async function runAiNewsRecap(): Promise<void> {
       return;
     }
 
+    // Mark run as successful for today
+    lastRunDate = todayET;
     console.log(
       `[AI News Scheduler] ✅ Done — Blog: ${result.blog?.url ?? "skipped"} | Newsletter: ${result.newsletter?.sentCount ?? 0}/${result.newsletter?.recipientCount ?? 0} delivered`
     );
   } catch (err) {
     console.error("[AI News Scheduler] Unexpected error:", err);
+    // Don't mark as run on error — allow retry
   }
 }
 
@@ -207,15 +224,22 @@ export function startAiNewsScheduler(): void {
   const hours = (ms / 3_600_000).toFixed(1);
   console.log(`[AI News Scheduler] Scheduled — first run in ${hours}h (9:00 AM ET daily)`);
 
+  // Initial timeout to run at 9 AM ET
   setTimeout(() => {
     runAiNewsRecap().catch((e) =>
       console.error("[AI News Scheduler] Scheduled run failed:", e)
     );
+    
+    // After first run, schedule to run every 24 hours at exactly 9 AM ET
     _intervalId = setInterval(() => {
-      runAiNewsRecap().catch((e) =>
-        console.error("[AI News Scheduler] Scheduled run failed:", e)
-      );
-    }, 24 * 60 * 60 * 1000);
+      // Recalculate time to next 9 AM to ensure we are always on schedule
+      const delayMs = msUntilNext9amET();
+      setTimeout(() => {
+        runAiNewsRecap().catch((e) =>
+          console.error("[AI News Scheduler] Scheduled run failed:", e)
+        );
+      }, delayMs);
+    }, 24 * 60 * 60 * 1000); // Check every 24 hours
   }, ms);
 }
 
