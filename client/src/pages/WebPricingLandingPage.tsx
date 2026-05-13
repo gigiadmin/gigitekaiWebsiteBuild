@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Zap, MessageSquare, Wrench, Check, Mail, Phone, MapPin, Globe, Shield, BarChart3, Palette, Menu, X, Send, Rocket, Music, Leaf, ExternalLink } from "lucide-react";
+import AIChatWidget from "@/components/AIChatWidget";
 
 export default function WebPricingLandingPage() {
   const [currentSection, setCurrentSection] = useState("home");
@@ -573,6 +574,9 @@ export default function WebPricingLandingPage() {
           </div>
         </div>
       )}
+
+      {/* AI Chat Widget */}
+      <AIChatWidget />
 
       {/* Footer */}
       <footer className="bg-[#0A0E1A] border-t border-cyan-500/20 py-12 px-4">
