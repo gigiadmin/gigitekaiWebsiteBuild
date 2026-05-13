@@ -4876,3 +4876,60 @@
   - Reduced text sizes for mobile (text-3xl, text-base)
   - Added explicit order-1/order-2 so text always appears before browser mockup
   - Reduced padding for mobile viewport
+
+## Web Pricing Page Enhancements
+- [ ] Replace browser mockup with realistic website preview (actual content, not skeleton)
+- [ ] Add functional AI chatbot widget with message history
+- [ ] Integrate Stripe checkout for $300 one-time + $100/month subscription
+- [ ] Add pre-payment discovery form (site details: business name, industry, description, etc.)
+- [ ] Form should capture info before payment, deeper discovery after
+
+
+## Web Pricing Landing Page (/web-pricing) - COMPLETE
+- [x] Created standalone landing page at /web-pricing route
+- [x] Replaced browser mockup with realistic website preview
+  - Shows realistic browser header with tabs
+  - Displays actual website content (hero section, feature cards, CTA button)
+  - Floating chatbot preview widget in corner
+- [x] Added functional AI chatbot widget
+  - Interactive chat interface with message history
+  - User and bot messages with different styling
+  - Send button and input field with Enter key support
+- [x] Added pre-payment discovery form (modal)
+  - Business Name field (required)
+  - Industry dropdown (Retail, Services, Consulting, Healthcare, Tech, Other)
+  - Business Description textarea (required)
+  - Target Audience field (optional)
+  - Current Website URL field (optional)
+  - Form validation on required fields
+  - Continue to Payment and Cancel buttons
+  - Form data logged to console on submit
+- [x] Integrated Stripe checkout buttons (ready for Stripe keys)
+  - Get Started button opens discovery form
+  - Get Your Website Today button on pricing section
+  - Buttons styled with cyan color and hover effects
+- [x] Full page navigation and sections
+  - Sticky navigation with Home, Services, Pricing, Contact links
+  - Mobile menu with hamburger icon
+  - Smooth scroll to sections
+  - Back to GigitekAI link in nav
+- [x] Pricing display
+  - $300 one-time setup
+  - $100/month hosting + maintenance
+  - 12 included features listed
+  - Most Popular badge on pricing card
+- [x] Contact form on Contact section
+  - Name, Email, Phone, Message fields
+  - Send Message button
+  - Success message after submission
+- [x] Mobile responsive design
+  - Hero text visible on mobile
+  - Proper text sizing for mobile
+  - Mobile menu navigation
+  - Stacked layout on small screens
+- [x] GigitekAI branding applied
+  - Dark navy background (#0A0E1A)
+  - Cyan accent color (#00D4FF)
+  - Purple gradient accents (#9D4EDD)
+  - Professional typography
+  - Footer with Created by GigitekAI link
