@@ -4871,3 +4871,8 @@
 - [x] Register route in App.tsx
 - [x] Hide global widgets on /web-pricing for standalone look
 - [x] Verified all sections render correctly (hero, features, 3 pages, chatbot, pricing, contact)
+
+- [x] Fix mobile layout: hero headline, description, and badge not visible on mobile
+  - Reduced text sizes for mobile (text-3xl, text-base)
+  - Added explicit order-1/order-2 so text always appears before browser mockup
+  - Reduced padding for mobile viewport

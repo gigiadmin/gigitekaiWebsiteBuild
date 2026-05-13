@@ -104,19 +104,19 @@ export default function WebPricingLandingPage() {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* ── SECTION 1: HERO ── */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <section id="home" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/50 to-transparent border-b border-gray-800/40">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
+      <section id="home" className="pt-12 pb-16 lg:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/50 to-transparent border-b border-gray-800/40">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="space-y-5 order-1">
             <div className="inline-block bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-full px-4 py-1.5 text-sm text-[#00D4FF] font-medium">
               Limited Time Offer
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">
               Professional Website <span className="bg-gradient-to-r from-[#00D4FF] to-[#9D4EDD] bg-clip-text text-transparent">Made Simple</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-xl">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-xl">
               Get a stunning 3-page website with an AI-powered chatbot for just <strong className="text-white">$300</strong>. Perfect for small businesses looking to establish their online presence fast.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button onClick={() => scrollToSection("pricing")} className="bg-[#00D4FF] text-[#0A0E1A] px-8 py-3.5 rounded-lg font-bold hover:bg-[#00B8CC] transition-colors flex items-center justify-center gap-2">
                 Get Started <ArrowRight size={20} />
               </button>
@@ -127,7 +127,7 @@ export default function WebPricingLandingPage() {
           </div>
 
           {/* Hero visual */}
-          <div className="relative">
+          <div className="relative order-2">
             <div className="bg-gradient-to-br from-[#00D4FF]/20 to-[#0F1A30] rounded-xl p-8 border border-[#00D4FF]/30">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-6">
