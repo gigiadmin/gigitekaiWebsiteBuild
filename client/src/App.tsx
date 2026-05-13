@@ -286,8 +286,8 @@ function App() {
   const isHelpdeskPage = location.startsWith("/helpdesk");
   // Hide global widgets on portfolio demo pages so they look like standalone sites
   const isPortfolioDemoPage = /^\/portfolio\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
-  const isWebPricingPage = location.startsWith("/web-pricing");
-  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage || isWebPricingPage;
+  // Note: /web-pricing shows AI chat widget but hides other global widgets
+  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
 
   return (
     <ErrorBoundary>
@@ -316,7 +316,7 @@ function App() {
           </Suspense>
           {widgetsReady && (
             <Suspense fallback={null}>
-              {!hideWidgets && <AIChatWidget />}
+              <AIChatWidget />
               {!hideWidgets && <UserChatWidget />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
