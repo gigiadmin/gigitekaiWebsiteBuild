@@ -1965,3 +1965,39 @@ export const smsOptOuts = mysqlTable("smsOptOuts", {
 });
 export type SmsOptOut = typeof smsOptOuts.$inferSelect;
 export type InsertSmsOptOut = typeof smsOptOuts.$inferInsert;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STRIPE PAYMENT SYSTEM
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Stripe Customers — maps users to Stripe customer IDs */
+export const stripeCustomers = mysqlTable("stripeCustomers", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: varchar("userId", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 320 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type StripeCustomer = typeof stripeCustomers.$inferSelect;
+export type InsertStripeCustomer = typeof stripeCustomers.$inferInsert;
+
+/** Stripe Subscriptions — tracks active helpdesk subscriptions */
+export const stripeSubscriptions = mysqlTable("stripeSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: varchar("userId", { length: 255 }).notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull(),
+  planName: varchar("planName", { length: 50 }).notNull(), // Essential, Professional, Elite
+  userCount: int("userCount").notNull(), // Number of users in subscription
+  isAnnual: boolean("isAnnual").default(false).notNull(),
+  status: varchar("status", { length: 50 }).notNull(), // active, past_due, canceled, unpaid
+  currentPeriodStart: timestamp("currentPeriodStart").notNull(),
+  currentPeriodEnd: timestamp("currentPeriodEnd").notNull(),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type StripeSubscription = typeof stripeSubscriptions.$inferSelect;
+export type InsertStripeSubscription = typeof stripeSubscriptions.$inferInsert;

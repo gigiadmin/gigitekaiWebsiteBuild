@@ -4805,3 +4805,45 @@
 - [x] Add tRPC procedures: users.softDelete, users.restore, users.listDeleted, users.purgeExpired
 - [x] Update AdminAccountManagement UI: Delete action, Recycle Bin tab, restore, countdown badge
 - [x] Write vitest tests for recycle bin (13 tests, all passing)
+
+
+## Stripe Hosted Checkout Integration (COMPLETE)
+- [x] Create Stripe products and pricing in Stripe Dashboard
+  - Essential: $69/user/month
+  - Professional: $119/user/month (most popular)
+  - Elite: $189/user/month
+  - Volume discounts: 8% off at 25+ users
+  - Annual discounts: 10% off annual prepayment
+- [x] Build checkout button component (StripeCheckoutButton.tsx)
+  - Integrated into HelpdeskPricing.tsx
+  - Shows "Get Started" for authenticated users (Essential/Professional)
+  - Shows "Contact Sales" for Elite plan
+  - Shows "Sign in to Purchase" for unauthenticated users
+  - Opens Stripe hosted checkout in new tab
+- [x] Create webhook handler for payment completion
+  - Stripe webhook route at /api/stripe/webhook
+  - Signature verification using stripe.webhooks.constructEvent()
+  - Event handlers for:
+    - checkout.session.completed → Creates Stripe customer and subscription records
+    - customer.subscription.updated → Syncs subscription status changes
+    - customer.subscription.deleted → Marks subscriptions as canceled
+    - invoice.paid → Payment tracking
+    - invoice.payment_failed → Payment failure handling
+  - Test event detection (returns {verified: true} for evt_test_* events)
+- [x] Add Stripe database schema
+  - stripeCustomers table (userId, stripeCustomerId, email)
+  - stripeSubscriptions table (userId, stripeSubscriptionId, planName, userCount, isAnnual, status, periods)
+  - Database migration applied successfully
+- [x] Create payment success page (/payment/success)
+  - Displays session ID
+  - Shows next steps guidance
+  - Links to subscription management and home
+- [x] Create payment canceled page (/payment/canceled)
+  - Explains cancellation
+  - Option to retry checkout
+  - Support contact link
+- [x] Add payment routes to App.tsx
+  - /payment/success → PaymentSuccess component
+  - /payment/canceled → PaymentCanceled component
+- [x] All TypeScript errors resolved
+- [x] Stripe integration ready for testing

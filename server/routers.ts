@@ -87,6 +87,7 @@ import { callsRouter } from "./routers/calls";
 import { clientOnboardingRouter } from "./routers/client-onboarding";
 import { uptimerobotRouter } from "./routers/uptimerobot";
 import { slaPredicationRouter } from "./routers/sla-prediction";
+import { stripeRouter } from "./stripe-router";
 import { sentimentAnalysisRouter } from "./routers/sentiment-analysis";
 import { kbAutoLinkingRouter } from "./routers/kb-auto-linking";
 import { agentGamificationRouter } from "./routers/agent-gamification";
@@ -149,6 +150,7 @@ export const appRouter = router({
   copilotM365: copilotM365Router,
   copilotStudio: copilotStudioRouter,
   pricing: pricingRouter,
+  stripe: stripeRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

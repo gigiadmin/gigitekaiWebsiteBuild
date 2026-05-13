@@ -38,6 +38,7 @@ import {
 } from "../socialOAuth";
 import cronEndpoints from "../cronEndpoints";
 import newsletterAutoPost from "../newsletterAutoPost";
+import stripeWebhookRoute from "../routes/stripe-webhook-route";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -197,6 +198,9 @@ async function startServer() {
 
   // Newsletter auto-post API (used by daily AI recap scheduled task)
   app.use("/api/newsletter", newsletterAutoPost);
+  
+  // Stripe webhook endpoint
+  app.use("/api/stripe/webhook", stripeWebhookRoute);
   
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);

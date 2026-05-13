@@ -96,6 +96,9 @@ const AdminApp = lazy(() => import("./AdminApp"));
 // M365 health pages (public-facing)
 const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
 const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365NotificationsPreferencesPage"));
+// Payment pages (Stripe checkout results)
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 // Uptime monitoring (public-facing)
 const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
 function UptimePublicPage() {
@@ -239,6 +242,9 @@ function Router() {
           <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
           {/* Public Uptime Monitoring */}
           <Route path={"/uptime"} component={UptimePublicPage} />
+          {/* Payment Pages */}
+          <Route path={"/payment/success"} component={PaymentSuccess} />
+          <Route path={"/payment/canceled"} component={PaymentCanceled} />
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
           {/* Call Transcript Search */}
