@@ -116,7 +116,7 @@ export default function WebPricingLandingPage() {
       description: "Professional audio production, sound engineering, and music services for creators and businesses.",
       tags: ["Creative", "Audio", "Production"],
       icon: Music,
-      url: "https://divinesounds.com",
+      url: "https://divinesounds.info",
       bgColor: "from-purple-900 to-pink-900",
       borderColor: "border-pink-500"
     },
@@ -126,7 +126,7 @@ export default function WebPricingLandingPage() {
       description: "Holistic life and business coaching helping clients heal, transform, and build a life they love.",
       tags: ["Wellness", "Life Coaching", "Business Coaching", "Podcast"],
       icon: Leaf,
-      url: "https://karicoaching.com",
+      url: "https://karilife-yujvfmqf.manus.space/",
       bgColor: "from-amber-900 to-orange-900",
       borderColor: "border-amber-400"
     },
