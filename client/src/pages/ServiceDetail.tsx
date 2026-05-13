@@ -15,6 +15,7 @@ import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, 
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import StructuredData from "@/components/StructuredData";
+import TechStackLogos from "@/components/TechStackLogos";
 import { useMemo } from "react";
 
 const serviceData: Record<string, {
@@ -249,7 +250,6 @@ export default function ServiceDetail() {
   if (!service) {
     return (
       <div className="min-h-screen flex flex-col">
-        <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center bg-[#0A0E1A]">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -449,16 +449,7 @@ export default function ServiceDetail() {
                 Tools & Platforms We Use
               </h2>
             </div>
-            <div className="flex flex-wrap justify-center gap-3">
-              {service.technologies.map((tech, i) => (
-                <span
-                  key={i}
-                  className="px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-all"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
+            <TechStackLogos technologies={service.technologies} />
           </div>
         </section>
 
