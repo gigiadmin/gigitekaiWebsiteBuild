@@ -5,11 +5,12 @@ import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SchemaMarkup } from "./components/SchemaMarkup";
+import { Toaster } from "@/components/ui/sonner";
   // make sure to consider if you need authentication for certain routes
 // ── Critical pages — loaded eagerly (part of initial bundle) ────────────
 import Home from "./pages/Home";
-// Toaster, SiteNavBar2024, Footer lazy-loaded to reduce initial bundle on mobile
-const Toaster = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+// SiteNavBar2024, Footer lazy-loaded to reduce initial bundle on mobile
+// Toaster now statically imported to fix dynamic import module loading errors
 const SiteNavBar2024 = lazy(() => import("@/components/SiteNavBar2024"));
 const FooterLazy = lazy(() => import("@/components/Footer"));
 
