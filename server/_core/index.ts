@@ -278,6 +278,33 @@ async function startServer() {
       createContext,
     })
   );
+
+  // ── Serve static legal pages (pre-rendered HTML) ──────────────────────────
+  // These must be served BEFORE the SPA catch-all to intercept requests
+  const path = await import("path");
+  const fs = await import("fs");
+  const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
+  
+  app.get("/privacy-policy", (req, res, next) => {
+    const filePath = path.resolve(distPath, "privacy-policy.html");
+    if (fs.existsSync(filePath)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.sendFile(filePath);
+    }
+    next();
+  });
+
+  app.get("/terms-of-service", (req, res, next) => {
+    const filePath = path.resolve(distPath, "terms-of-service.html");
+    if (fs.existsSync(filePath)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.sendFile(filePath);
+    }
+    next();
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

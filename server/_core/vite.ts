@@ -21,6 +21,49 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
+  
+  // ── Serve static legal pages in development mode ──────────────────────────
+  // These are pre-rendered HTML files for optimal SEO
+  app.get("/privacy-policy", async (req, res, next) => {
+    try {
+      const legalTemplate = path.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "public",
+        "privacy-policy.html"
+      );
+      if (fs.existsSync(legalTemplate)) {
+        let template = await fs.promises.readFile(legalTemplate, "utf-8");
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+        return;
+      }
+    } catch (e) {
+      console.error("[Privacy Policy] Error:", e);
+    }
+    next();
+  });
+
+  app.get("/terms-of-service", async (req, res, next) => {
+    try {
+      const legalTemplate = path.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "public",
+        "terms-of-service.html"
+      );
+      if (fs.existsSync(legalTemplate)) {
+        let template = await fs.promises.readFile(legalTemplate, "utf-8");
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+        return;
+      }
+    } catch (e) {
+      console.error("[Terms of Service] Error:", e);
+    }
+    next();
+  });
+  
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
