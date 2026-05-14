@@ -127,9 +127,9 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
-        // Strip empty superjson meta to bypass Cloudflare WAF on gigitekai.com
-        const cleanInput = stripEmptySuperjsonMeta(input as string);
-        return globalThis.fetch(cleanInput as string, {
+        // NOTE: stripEmptySuperjsonMeta is disabled because it was breaking Date deserialization
+        // The server now handles WAF bypass via response headers instead
+        return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
         });
