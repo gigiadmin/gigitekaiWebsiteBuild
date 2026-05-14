@@ -4,8 +4,8 @@ import { ENV } from "./env";
 // In-memory cache for storage assets to avoid repeated S3 fetches
 // Key: storage path, Value: { data: Buffer, contentType: string, expiresAt: number }
 const assetCache = new Map<string, { data: Buffer; contentType: string; expiresAt: number }>();
-const CACHE_TTL_MS = 23 * 60 * 60 * 1000; // 23 hours
-const MAX_CACHE_SIZE = 50; // max number of cached assets
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — reduces cold-start LCP penalty
+const MAX_CACHE_SIZE = 100; // increased to cache more assets
 const MAX_ASSET_SIZE = 5 * 1024 * 1024; // 5MB max per asset to cache
 
 function evictExpiredEntries() {
@@ -32,7 +32,7 @@ export function registerStorageProxy(app: Express) {
     // Check in-memory cache first
     const cached = assetCache.get(key);
     if (cached && cached.expiresAt > Date.now()) {
-      res.set("Cache-Control", "public, max-age=86400, immutable");
+      res.set("Cache-Control", "public, max-age=604800, immutable"); // 7 days
       res.set("Content-Type", cached.contentType);
       res.set("X-Cache", "HIT");
       res.send(cached.data);
@@ -91,7 +91,7 @@ export function registerStorageProxy(app: Express) {
       }
 
       // Serve bytes directly with long-lived cache headers
-      res.set("Cache-Control", "public, max-age=86400, immutable");
+      res.set("Cache-Control", "public, max-age=604800, immutable"); // 7 days
       res.set("Content-Type", contentType);
       res.set("X-Cache", "MISS");
       res.send(data);

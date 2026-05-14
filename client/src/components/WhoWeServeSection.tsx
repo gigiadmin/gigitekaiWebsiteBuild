@@ -58,7 +58,7 @@ export default function WhoWeServeSection() {
             >
               GigitekAI Makes Your Business Stronger
             </h2>
-            <p className="text-gray-400 dark:text-gray-400 text-lg leading-relaxed mb-6">
+            <p className="text-gray-400 dark:text-gray-300 text-lg leading-relaxed mb-6">
               Whether you're a startup scaling fast, an enterprise modernizing legacy systems, or a regulated business navigating compliance — we have the cloud and AI expertise to match your exact needs.
             </p>
             <a href="/contact" className="btn-outline-cyan text-sm">
@@ -89,7 +89,7 @@ export default function WhoWeServeSection() {
                       >
                         {option.title}
                       </h3>
-                      <p className="text-gray-400 dark:text-gray-400 text-sm leading-relaxed mb-3">
+                      <p className="text-gray-400 dark:text-gray-300 text-sm leading-relaxed mb-3">
                         {option.description}
                       </p>
                       <a

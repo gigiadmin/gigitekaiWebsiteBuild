@@ -55,7 +55,7 @@ export default function ScrollToTop() {
           )}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="relative w-11 h-11 rounded-full bg-[#00D4FF] text-[#0A0E1A] flex items-center justify-center shadow-lg shadow-[#00D4FF]/30 hover:bg-[#00EEFF] hover:shadow-[#00D4FF]/50 hover:-translate-y-1.5 active:scale-95 transition-all duration-200"
+            className="relative w-12 h-12 rounded-full bg-[#00D4FF] text-[#0A0E1A] flex items-center justify-center shadow-lg shadow-[#00D4FF]/30 hover:bg-[#00EEFF] hover:shadow-[#00D4FF]/50 hover:-translate-y-1.5 active:scale-95 transition-all duration-200"
             aria-label="Scroll to top"
           >
             <ArrowUp size={18} strokeWidth={2.5} />

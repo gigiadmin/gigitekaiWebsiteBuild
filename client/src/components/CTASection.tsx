@@ -87,7 +87,7 @@ export default function CTASection() {
             >
               Ready to Transform Your Technology?
             </h2>
-            <p className="text-gray-400 dark:text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-gray-400 dark:text-gray-300 text-lg leading-relaxed mb-10">
               Maximize your business potential with enterprise cloud infrastructure and AI solutions. Start with a complimentary Cloud & AI Readiness Assessment — no obligation, no pressure.
             </p>
 
@@ -127,7 +127,7 @@ export default function CTASection() {
                 >
                   Message Received!
                 </h3>
-                <p className="text-gray-400 dark:text-gray-400">
+                <p className="text-gray-400 dark:text-gray-300">
                   Our team will reach out within 1 business day to schedule your complimentary Cloud & AI Readiness Assessment.
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function CTASection() {
                 >
                   Request Your Free Assessment
                 </h3>
-                <p className="text-gray-400 dark:text-gray-400 text-sm mb-6">
+                <p className="text-gray-400 dark:text-gray-300 text-sm mb-6">
                   Tell us about your business and we'll design a tailored cloud and AI strategy.
                 </p>
 
@@ -176,7 +176,7 @@ export default function CTASection() {
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Full Name *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1.5 font-medium">Full Name *</label>
                     <input
                       type="text"
                       required
@@ -188,7 +188,7 @@ export default function CTASection() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Work Email *</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1.5 font-medium">Work Email *</label>
                     <input
                       type="email"
                       required
@@ -202,7 +202,7 @@ export default function CTASection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">Company Name</label>
+                  <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1.5 font-medium">Company Name</label>
                   <input
                     type="text"
                     value={form.company}
@@ -214,7 +214,7 @@ export default function CTASection() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5 font-medium">How can we help?</label>
+                  <label className="block text-xs text-gray-500 dark:text-gray-300 mb-1.5 font-medium">How can we help?</label>
                   <textarea
                     rows={4}
                     value={form.message}

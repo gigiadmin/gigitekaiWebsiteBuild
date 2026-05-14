@@ -413,6 +413,40 @@ export default defineConfig({
           ) {
             return "syntax-highlight";
           }
+          // Animation libraries — only needed on pages with motion effects
+          if (
+            id.includes("node_modules/framer-motion") ||
+            id.includes("node_modules/motion")
+          ) {
+            return "animation";
+          }
+          // Form libraries — only needed on pages with forms
+          if (
+            id.includes("node_modules/react-hook-form") ||
+            id.includes("node_modules/@hookform") ||
+            id.includes("node_modules/zod")
+          ) {
+            return "forms";
+          }
+          // Stripe — only needed on pricing/checkout pages
+          if (
+            id.includes("node_modules/@stripe") ||
+            id.includes("node_modules/stripe")
+          ) {
+            return "stripe-sdk";
+          }
+          // Date/time utilities — only needed in admin/helpdesk
+          if (
+            id.includes("node_modules/date-fns") ||
+            id.includes("node_modules/dayjs")
+          ) {
+            return "date-utils";
+          }
+          // Radix UI primitives — needed for shadcn/ui components
+          // Keep together to avoid excessive chunk count
+          if (id.includes("node_modules/@radix-ui")) {
+            return "radix-ui";
+          }
           // All other node_modules go into a single vendor chunk.
           // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
           // some node_module in vendor has a static import of streamdown, which would

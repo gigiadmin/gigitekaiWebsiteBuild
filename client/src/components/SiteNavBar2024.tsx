@@ -227,9 +227,9 @@ export default function SiteNavBar2024() {
             </a>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile hamburger - min 48x48px touch target */}
           <button
-            className="lg:hidden text-white p-2"
+            className="lg:hidden text-white p-3 min-w-[48px] min-h-[48px] flex items-center justify-center"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -266,7 +266,7 @@ export default function SiteNavBar2024() {
                 <a
                   key={s.href}
                   href={s.href}
-                  className="block py-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
+                  className="block py-3 text-sm text-gray-200 hover:text-[#00D4FF] transition-colors min-h-[48px] flex items-center"
                   onClick={() => setMobileOpen(false)}
                 >
                   {s.label}
@@ -290,7 +290,7 @@ export default function SiteNavBar2024() {
                   key={item.href}
                   href={item.href}
                   data-nav-id={item.id}
-                  className={`block py-2 text-sm transition-colors ${
+                  className={`block py-3 text-sm transition-colors min-h-[48px] flex items-center ${
                     item.id === "nav-ai-demo"
                       ? "text-[#00D4FF] font-semibold hover:text-cyan-300"
                       : "text-white hover:text-[#00D4FF]"
@@ -308,7 +308,7 @@ export default function SiteNavBar2024() {
                   setMobileOpen(false);
                   window.location.href = "/contact";
                 }}
-                className="flex items-center gap-2 w-full py-2 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors"
+                className="flex items-center gap-2 w-full py-3 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors min-h-[48px]"
               >
                 <Calendar size={14} />
                 <span>Book a Consultation</span>
@@ -329,7 +329,7 @@ export default function SiteNavBar2024() {
               {toggleTheme && (
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 py-2.5 px-3 text-sm text-gray-400 dark:text-gray-300 hover:text-[#00D4FF] transition-colors w-full mt-1"
+                  className="flex items-center gap-2 py-3 px-3 text-sm text-gray-200 hover:text-[#00D4FF] transition-colors w-full mt-1 min-h-[48px]"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>

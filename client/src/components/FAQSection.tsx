@@ -213,7 +213,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
         />
       </button>
       {open && (
-        <div className="pb-5 text-gray-400 dark:text-gray-400 text-sm leading-relaxed fade-in-up">
+        <div className="pb-5 text-gray-400 dark:text-gray-300 text-sm leading-relaxed fade-in-up">
           {faq.a}
         </div>
       )}
@@ -276,7 +276,7 @@ export default function FAQSection() {
             >
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-6">
+            <p className="text-gray-500 dark:text-gray-300 text-base leading-relaxed mb-6">
               Have more questions? Our team is ready to discuss your specific cloud and AI needs.
             </p>
             <a href="/contact" className="btn-cyan text-sm">
@@ -323,7 +323,7 @@ export default function FAQSection() {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-500 dark:text-gray-300">
                     No FAQs found. Try a different search or category.
                   </p>
                 </div>

@@ -122,6 +122,28 @@
 - [x] Changed border colors from slate to cyan for brand cohesion
 - [x] Comprehensive testing: all pages load correctly, 955/958 tests passing
 
+## Service Worker Caching Fix (COMPLETE)
+- [x] Identified root cause: Service worker caching versioned asset chunks
+- [x] Changed from cache-first to network-first strategy for /assets/
+- [x] Prevents "Failed to fetch dynamically imported module" errors
+- [x] Eliminated "refresh fixes the error" pattern
+- [x] Maintained cache fallback for network failures
+
+## Mobile Performance Optimization (gigitekai.com - Score: 57% → Target 80%+)
+- [x] GTM/GA4 already deferred via requestIdleCallback (3s timeout) — confirmed
+- [x] Hero LCP image already preloaded with fetchpriority="high" — confirmed
+- [x] Google Fonts already non-blocking via media="print" trick — confirmed
+- [x] Critical CSS already inlined in index.html — confirmed
+- [x] Improved Vite chunk splitting: framer-motion, zod, react-hook-form, radix-ui, date-fns, stripe into separate chunks
+- [x] Storage proxy cache TTL increased from 23h to 7 days (reduces LCP cold-start)
+- [x] Cache-Control max-age increased to 7 days for hero images
+- [x] Fixed touch targets: mobile nav links py-2→py-3 + min-h-[48px]
+- [x] Fixed hamburger button: p-2→p-3 + min-w/h-[48px]
+- [x] Fixed social icons in Footer: w-9 h-9→w-12 h-12 (36px→48px)
+- [x] Fixed video mute button in HeroSection: w-8 h-8→w-12 h-12 (32px→48px)
+- [x] Fixed ScrollToTop button: w-11 h-11→w-12 h-12 (44px→48px)
+- [x] Improved color contrast: text-gray-300/400→text-gray-200 on dark backgrounds
+
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
 - [ ] Add frontend form/modal for creating KB articles in admin KB Generation page

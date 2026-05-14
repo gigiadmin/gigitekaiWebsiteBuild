@@ -60,7 +60,7 @@ export default function InsightsSection() {
             >
               Latest from GigitekAI
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-2 text-base max-w-xl">
+            <p className="text-gray-500 dark:text-gray-300 mt-2 text-base max-w-xl">
               Stay ahead with our latest insights on AI, cloud infrastructure, and managed IT.
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function InsightsSection() {
                   >
                     {featured.title}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-8 flex-1">
+                  <p className="text-gray-500 dark:text-gray-300 text-base leading-relaxed mb-8 flex-1">
                     {featured.excerpt}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-white/5">
@@ -175,7 +175,7 @@ export default function InsightsSection() {
                     >
                       {post.title}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                    <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-white/5">

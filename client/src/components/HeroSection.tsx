@@ -229,7 +229,7 @@ export default function HeroSection() {
           )}
           <button
             onClick={muted ? handleUnmute : handleMute}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
