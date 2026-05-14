@@ -109,6 +109,16 @@
 - [x] Implement backend delete procedure for drafts (deleteDraft tRPC procedure)
 - [x] Test draft deletion feature (working on dev server)
 
+## Admin Layout Sidebar Continuity (COMPLETE)
+- [x] Audit all admin pages for consistent left sidebar navigation
+- [x] Created 6 new route-wrapper pages (AdminPanelPage, AdminSLADashboardPage, AdminSatisfactionDashboardPage, AdminScorecardDashboardPage, AdminClientOnboardingPage, AdminUptimeRobotDetailPagePage)
+- [x] Updated AdminApp.tsx routing to use new wrapper pages
+- [x] Fixed AdminUptimeRobotDashboard type error
+- [x] All admin pages now have consistent left sidebar navigation via AdminLayout
+- [x] Removed "Uptime Status" from TOOLS section (kept in ANALYTICS)
+- [x] Removed "Recently Viewed" section from sidebar
+- [x] Followed scalable route-wrapper pattern (no modification to legacy code)
+
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
 - [ ] Add frontend form/modal for creating KB articles in admin KB Generation page

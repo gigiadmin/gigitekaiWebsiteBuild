@@ -227,7 +227,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo / Brand */}
-      <div className={`flex items-center gap-3 px-4 py-4 border-b border-slate-700/50 ${collapsed ? "justify-center" : ""}`}>
+      <div className={`flex items-center gap-3 px-4 py-4 border-b border-cyan-500/10 ${collapsed ? "justify-center" : ""}`}>
         {collapsed ? (
           <img
             src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
@@ -254,7 +254,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
                 </span>
               </div>
             )}
-            {collapsed && <div className="border-t border-slate-700/50 my-2" />}
+            {collapsed && <div className="border-t border-cyan-500/10 my-2" />}
             <div className="space-y-0.5">
               {section.items.map((item) => {
                 const active = isActive(item.href);
@@ -295,7 +295,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       {/* Recently Viewed Section - REMOVED */}
 
       {/* User Profile */}
-      <div className={`border-t border-slate-700/50 p-3 ${collapsed ? "flex justify-center" : ""}`}>
+      <div className={`border-t border-cyan-500/10 p-3 ${collapsed ? "flex justify-center" : ""}`}>
         {!collapsed ? (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
@@ -359,7 +359,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       {/* Sidebar — desktop */}
       <aside
         className={`
-          hidden lg:flex flex-col flex-shrink-0 bg-[#161B22] border-r border-slate-700/50
+          hidden lg:flex flex-col flex-shrink-0 bg-gradient-to-b from-[#0F1419] via-[#0A0E1A] to-[#050709] border-r border-cyan-500/10
           transition-all duration-200 ease-in-out
           ${collapsed ? "w-16" : "w-56"}
         `}
@@ -368,7 +368,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-full w-5 h-10 bg-[#161B22] border border-slate-700/50 border-l-0 rounded-r-md flex items-center justify-center text-slate-500 hover:text-slate-300 transition-colors z-10"
+          className="absolute left-0 top-1/2 -translate-y-1/2 translate-x-full w-5 h-10 bg-gradient-to-r from-[#0A0E1A] to-[#0F1419] border border-cyan-500/10 border-l-0 rounded-r-md flex items-center justify-center text-slate-500 hover:text-cyan-400 transition-colors z-10"
           style={{ left: collapsed ? "3.5rem" : "13.5rem" }}
         >
           {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
@@ -378,7 +378,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       {/* Sidebar — mobile drawer */}
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 bg-[#161B22] border-r border-slate-700/50 z-50
+          fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0F1419] via-[#0A0E1A] to-[#050709] border-r border-cyan-500/10 z-50
           transform transition-transform duration-200 ease-in-out lg:hidden
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
         `}
