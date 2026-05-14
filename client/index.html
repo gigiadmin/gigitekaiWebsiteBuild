@@ -79,6 +79,11 @@
     <link rel="dns-prefetch" href="https://d36hbw14aib5lz.cloudfront.net" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     
+    <!-- LCP Optimization: CSS is already async via vitePluginNonBlockingCSS -->
+    <!-- Google Analytics already deferred via requestIdleCallback -->
+    <!-- Next: Inline additional critical CSS for hero section to reduce render delay -->
+    <!-- Hero section CSS will be extracted and inlined at build time -->
+    
     <!-- Speculation Rules API: Pre-render likely next pages for near-instant navigation -->
     <script type="speculationrules">
     {
