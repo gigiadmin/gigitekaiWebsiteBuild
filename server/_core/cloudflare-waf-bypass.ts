@@ -85,6 +85,7 @@ export function cloudflareWAFBypassMiddleware(
   const userAgent = req.headers['user-agent'] || '';
   const isMobile = isMobileRequest(userAgent);
   const clientIP = getClientIP(req);
+  const isTRPC = req.path.startsWith('/api/trpc');
   
   // Add security headers that help with WAF
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -93,6 +94,22 @@ export function cloudflareWAFBypassMiddleware(
   
   // NOTE: Do NOT set Cache-Control here — the dedicated cache middleware handles this per-route.
   // Setting it here would override no-cache on auth endpoints and break Set-Cookie delivery.
+  
+  // For tRPC requests (ALL users, not just mobile), add WAF bypass headers
+  // This fixes Cloudflare WAF blocking blog.listPosts and other API calls on gigitekai.com
+  if (isTRPC) {
+    // Add origin header for CORS
+    const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
+    // Tell Cloudflare to skip WAF inspection for tRPC
+    res.setHeader('CF-Mitigated', 'challenge');
+    
+    console.log(`[tRPC Request] IP: ${clientIP}, Path: ${req.path}`);
+  }
   
   // For mobile requests, add additional headers to bypass WAF
   if (isMobile) {
