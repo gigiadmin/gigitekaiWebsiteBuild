@@ -149,7 +149,10 @@
 - [x] All other sections (Services, Benefits, FAQ, etc.) only download JS when scrolled near
 - [x] Lazy-loaded Toaster, SiteNavBar2024, Footer in App.tsx to reduce main bundle
 - [x] Removed UserChatWidget from App.tsx layout (was loading at 4,986ms and blocking LCP)
-- [ ] Deploy checkpoint 6172785c and re-run PageSpeed Insights to measure improvement
+- [x] Deploy checkpoint 6172785c and re-run PageSpeed Insights to measure improvement
+- [x] Add JSON-LD Schema Markup (Organization, LocalBusiness, Service, FAQPage, BreadcrumbList)
+- [x] Integrate SchemaMarkup component into App.tsx for SEO
+- [x] Create Core Web Vitals optimization guide with implementation checklist
 
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
