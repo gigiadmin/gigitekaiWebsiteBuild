@@ -464,6 +464,30 @@ export default defineConfig({
           ) {
             return "syntax-highlight";
           }
+          // Markdown rendering — only needed in blog/KB/AI chat pages, NOT on homepage
+          // Splitting saves ~400KB from vendor chunk (react-markdown + remark + rehype + unified)
+          if (
+            id.includes("node_modules/react-markdown") ||
+            id.includes("node_modules/remark") ||
+            id.includes("node_modules/rehype") ||
+            id.includes("node_modules/unified") ||
+            id.includes("node_modules/vfile") ||
+            id.includes("node_modules/hast") ||
+            id.includes("node_modules/mdast") ||
+            id.includes("node_modules/micromark") ||
+            id.includes("node_modules/unist") ||
+            id.includes("node_modules/marked") ||
+            id.includes("node_modules/property-information") ||
+            id.includes("node_modules/decode-named-character-reference") ||
+            id.includes("node_modules/character-entities") ||
+            id.includes("node_modules/html-url-attributes") ||
+            id.includes("node_modules/zwitch") ||
+            id.includes("node_modules/hastscript") ||
+            id.includes("node_modules/comma-separated-tokens") ||
+            id.includes("node_modules/space-separated-tokens")
+          ) {
+            return "markdown-renderer";
+          }
           // Animation libraries — only needed on pages with motion effects
           if (
             id.includes("node_modules/framer-motion") ||

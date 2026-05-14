@@ -13,10 +13,10 @@ import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster_128d587c.webp"; // WebP format for better compression
-// Optimized hero background served via storage proxy (adds Cache-Control headers)
-// Desktop: 74KB | Mobile: 34KB — vs old 119KB CloudFront URL with no cache headers
-const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_58bf0bdd.webp";
+const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
+// Optimized hero background — recompressed at q=50 for faster LCP
+// Desktop: 73KB -> 44KB | Mobile: 34KB
+const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop-opt_74642977.webp"; // Optimized: 73KB -> 44KB (40% smaller)
 const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_d1ad476e.webp";
 
 export default function HeroSection() {
