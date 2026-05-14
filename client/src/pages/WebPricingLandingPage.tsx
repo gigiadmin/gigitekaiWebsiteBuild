@@ -365,58 +365,282 @@ export default function WebPricingLandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16">Simple, Transparent Pricing</h2>
+      {/* Limited Time Offer Banner */}
+      <section className="py-8 px-4 bg-gradient-to-r from-purple-900/50 to-cyan-900/50 border-y border-cyan-500/30">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-lg font-bold text-cyan-400">🚀 Limited Time: <span className="text-white">50% OFF + 1 Month FREE</span> on 1-Year Commitment</p>
+        </div>
+      </section>
 
-          <div className="bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border-2 border-cyan-500/50 rounded-xl p-8 md:p-12">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-3xl font-bold mb-4">Everything You Need</h3>
-                <ul className="space-y-3">
-                  {included.slice(0, 6).map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <Check size={20} className="text-cyan-400" />
-                      <span className="text-gray-200">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+      {/* Consultation Button */}
+      <section className="py-6 px-4">
+        <div className="max-w-6xl mx-auto flex justify-center">
+          <button
+            onClick={() => setDiscoveryFormOpen(true)}
+            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold rounded-lg transition flex items-center gap-2"
+          >
+            📞 Book a Free Consultation
+          </button>
+        </div>
+      </section>
+
+      {/* Website Packages Pricing Section */}
+      <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-4">Website Packages</h2>
+            <p className="text-xl text-gray-300">Choose the perfect package for your business. All include ongoing support and monthly updates.</p>
+          </div>
+
+          {/* Trust Elements */}
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🤖</div>
+              <p className="font-semibold text-cyan-400">AI-Powered Solutions</p>
+              <p className="text-sm text-gray-400">Advanced automation & optimization</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl mb-2">⚡</div>
+              <p className="font-semibold text-cyan-400">99.9% Uptime</p>
+              <p className="text-sm text-gray-400">Enterprise-grade reliability</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl mb-2">👥</div>
+              <p className="font-semibold text-cyan-400">Expert Support</p>
+              <p className="text-sm text-gray-400">Dedicated team always available</p>
+            </div>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-4 gap-6 mb-12">
+            {/* Starter */}
+            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
+              <h3 className="text-2xl font-bold mb-2">Starter</h3>
+              <p className="text-sm text-gray-400 mb-6">Perfect for businesses just getting started</p>
+              
+              <div className="mb-6">
+                <p className="text-sm text-gray-500 line-through">$1,798/month</p>
+                <p className="text-4xl font-bold text-cyan-400">$899</p>
+                <p className="text-sm text-gray-400">/month</p>
               </div>
 
-              <div className="bg-[#0F1428] border border-cyan-500/50 rounded-lg p-8 text-center">
-                <div className="mb-4">
-                  <span className="text-5xl font-bold text-cyan-400">$300</span>
-                  <p className="text-gray-400 mt-2">One-time setup</p>
-                </div>
+              <button
+                onClick={() => setDiscoveryFormOpen(true)}
+                className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mb-6"
+              >
+                Get Started
+              </button>
 
-                <div className="border-t border-cyan-500/30 my-6 pt-6">
-                  <span className="text-3xl font-bold">$100</span>
-                  <p className="text-gray-400 mt-2">/month (hosting + support)</p>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>5-10 Page Website</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Mobile Responsive Design</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Basic SEO</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Contact Form</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Google Analytics</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>SSL Certificate</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Monthly Backups</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Email Support</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Growth - Most Popular */}
+            <div className="md:col-span-1 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold">MOST POPULAR</div>
+              <div className="bg-gradient-to-br from-purple-900/60 to-[#0f1428]/80 border-2 border-purple-500/60 rounded-xl p-8 hover:border-purple-400/80 transition backdrop-blur-sm shadow-lg shadow-purple-500/20 md:scale-105">
+                <h3 className="text-2xl font-bold mb-2">Growth</h3>
+                <p className="text-sm text-gray-400 mb-6">For scaling businesses ready to leverage AI</p>
+                
+                <div className="mb-6">
+                  <p className="text-sm text-gray-500 line-through">$3,398/month</p>
+                  <p className="text-4xl font-bold text-purple-400">$1,699</p>
+                  <p className="text-sm text-gray-400">/month</p>
                 </div>
 
                 <button
                   onClick={() => setDiscoveryFormOpen(true)}
-                  className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mt-6"
+                  className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition mb-6"
                 >
-                  Get Started Now
+                  Get Started
                 </button>
 
-                <p className="text-xs text-gray-500 mt-4">Most Popular</p>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Unlimited Pages</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Custom Design</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Full SEO Services</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Google Business Profile</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Google Ads Management</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Back-linking & Technical SEO</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Lead Tracking</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check size={16} className="text-purple-400" />
+                    <span>Priority Support</span>
+                  </li>
+                </ul>
               </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-cyan-500/30">
-              <h4 className="font-semibold mb-4">Also Included:</h4>
-              <ul className="grid md:grid-cols-2 gap-3">
-                {included.slice(6).map((item, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <Check size={16} className="text-cyan-400" />
-                    <span className="text-sm text-gray-300">{item}</span>
-                  </li>
-                ))}
+            {/* Pro */}
+            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
+              <h3 className="text-2xl font-bold mb-2">Pro</h3>
+              <p className="text-sm text-gray-400 mb-6">Complete web solutions with custom integrations</p>
+              
+              <div className="mb-6">
+                <p className="text-sm text-gray-500 line-through">$5,598/month</p>
+                <p className="text-4xl font-bold text-cyan-400">$2,799</p>
+                <p className="text-sm text-gray-400">/month</p>
+              </div>
+
+              <button
+                onClick={() => setDiscoveryFormOpen(true)}
+                className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mb-6"
+              >
+                Get Started
+              </button>
+
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Custom Website + Landing Pages</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Full Custom Design</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Full SEO Services</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Google Business Profile</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Google Ads Management</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Back-linking & Technical SEO</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>E-commerce Capability</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Advanced Integrations</span>
+                </li>
               </ul>
             </div>
+
+            {/* Enterprise */}
+            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
+              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
+              <p className="text-sm text-gray-400 mb-6">For companies with complex needs</p>
+              
+              <div className="mb-6">
+                <p className="text-4xl font-bold text-cyan-400">$4,999+</p>
+                <p className="text-sm text-gray-400">/month (custom quoted)</p>
+              </div>
+
+              <button
+                onClick={() => setDiscoveryFormOpen(true)}
+                className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mb-6"
+              >
+                Contact Sales
+              </button>
+
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Custom Website + Landing Pages</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Full Custom Design</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Full SEO Services</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>AI Engine Optimization</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>PPC & Google Ads</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Multi-site Management</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Custom API Development</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check size={16} className="text-cyan-400" />
+                  <span>Dedicated Account Manager</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Consultation Button */}
+          <div className="text-center">
+            <button
+              onClick={() => setDiscoveryFormOpen(true)}
+              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold rounded-lg transition flex items-center gap-2 mx-auto"
+            >
+              📞 Book a Free Consultation
+            </button>
+            <p className="text-sm text-gray-500 mt-4">All packages include ongoing support, monthly updates, and 1 month free on 1-year commitment</p>
           </div>
         </div>
       </section>

@@ -4978,4 +4978,5 @@
   - Kari & Co.: https://karilife-yujvfmqf.manus.space/ (corrected)
   - GigitekAI: https://gigitekai.com (verified correct)
 - [x] Verify page loads correctly with all fixes
-- [x] Checkpoint saved (version ac1137ee)
+- [x] Fix AIChatWidget visibility (was hidden on /web-pricing page)
+- [x] Checkpoint saved (version 6dd5eb3b)

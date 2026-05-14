@@ -437,16 +437,16 @@ export default function PortfolioPage() {
             {[
               {
                 name: "Starter",
-                price: "$1,250",
-                originalPrice: "$2,500",
+                price: "$899",
+                originalPrice: "$1,798",
                 description: "Perfect for businesses just getting started",
                 features: ["5-10 Page Website", "Mobile Responsive Design", "Basic SEO", "Contact Form", "Google Analytics", "SSL Certificate", "Monthly Backups", "Email Support"],
                 color: "#00D4FF"
               },
               {
                 name: "Growth",
-                price: "$2,250",
-                originalPrice: "$4,500",
+                price: "$1,699",
+                originalPrice: "$3,398",
                 description: "For scaling businesses ready to leverage AI",
                 features: ["Unlimited Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "Lead Tracking", "Priority Support"],
                 color: "#9D4EDD",
@@ -454,18 +454,18 @@ export default function PortfolioPage() {
               },
               {
                 name: "Pro",
-                price: "$3,750",
-                originalPrice: "$7,500",
+                price: "$2,799",
+                originalPrice: "$5,598",
                 description: "Complete web solutions with custom integrations",
-                features: ["Custom Website + Landing Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced Integrations"],
+                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced Integrations"],
                 color: "#00D97E"
               },
               {
                 name: "Enterprise",
-                price: "$6,000+",
-                originalPrice: "$12,000+",
+                price: "$4,999+",
+                originalPrice: "Custom",
                 description: "For companies with complex needs",
-                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AEO (AI Engine Optimization)", "PPC & Google Ads", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
+                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AI Engine Optimization", "PPC & Google Ads", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
                 color: "#FF6B9D"
               }
             ].map((pkg, idx) => (
