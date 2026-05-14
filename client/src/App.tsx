@@ -18,7 +18,8 @@ const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
 const CookieConsent = lazy(() => import("./components/CookieConsent"));
 const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
 const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
-const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
+// UserChatWidget removed from initial render to improve LCP
+// const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
 // CopilotChat removed - AIChatWidget is the primary AI chat with voice/upload
 const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
@@ -317,10 +318,10 @@ function App() {
           {widgetsReady && (
             <Suspense fallback={null}>
               <AIChatWidget />
-              {!hideWidgets && <UserChatWidget />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
           )}
+          {/* UserChatWidget removed from initial render — load on-demand only */}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
