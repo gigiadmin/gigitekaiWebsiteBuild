@@ -23,6 +23,16 @@ import {
   deleteAdminAccount,
   hashPassword,
 } from "../admin-auth";
+import {
+  getMsOAuthUrl,
+  exchangeCodeForToken,
+  getUserFromToken,
+  isAuthorizedAdmin,
+  signAdminToken as signMs365Token,
+  verifyAdminToken as verifyMs365Token,
+  buildAdminSessionCookieHeader as buildMs365Cookie,
+  getAdminSessionCookie as getMs365Cookie,
+} from "../ms365-admin-auth";
 import type { Request, Response } from "express";
 
 // ── Helper: get admin from request cookies ────────────────────────────────────
@@ -50,7 +60,79 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 // ── Router ────────────────────────────────────────────────────────────────────
 
 export const adminAuthRouter = router({
-  // Login with email/password
+  // Get MS 365 OAuth login URL
+  getMsOAuthUrl: publicProcedure
+    .input(
+      z.object({
+        redirectUri: z.string().url(),
+      })
+    )
+    .query(({ input }) => {
+      try {
+        const url = getMsOAuthUrl(input.redirectUri);
+        return { url };
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate OAuth URL",
+        });
+      }
+    }),
+
+  // Handle MS 365 OAuth callback
+  handleMsOAuthCallback: publicProcedure
+    .input(
+      z.object({
+        code: z.string(),
+        redirectUri: z.string().url(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Exchange code for token
+        const accessToken = await exchangeCodeForToken(input.code, input.redirectUri);
+
+        // Get user info
+        const user = await getUserFromToken(accessToken);
+
+        // Check if user is authorized
+        const isAuthorized = await isAuthorizedAdmin(user.email);
+        if (!isAuthorized) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You are not authorized to access the admin portal.",
+          });
+        }
+
+        // Sign JWT token
+        const token = await signMs365Token({
+          adminId: user.id,
+          email: user.email,
+          name: user.name,
+          role: "admin",
+        });
+
+        // Set cookie on response
+        const forwardedProto = ctx.req.headers["x-forwarded-proto"];
+        const isSecure = process.env.NODE_ENV === "production" || ctx.req.protocol === "https" ||
+          (typeof forwardedProto === "string" && forwardedProto.split(",")[0].trim() === "https");
+        ctx.res.setHeader("Set-Cookie", buildMs365Cookie(token, isSecure));
+
+        return {
+          success: true,
+          email: user.email,
+          name: user.name,
+        };
+      } catch (error) {
+        console.error("[Admin Auth] MS OAuth callback failed:", error);
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: error instanceof Error ? error.message : "Authentication failed",
+        });
+      }
+    }),
+
+  // Legacy: Login with email/password (kept for backward compatibility)
   login: publicProcedure
     .input(
       z.object({
@@ -97,7 +179,7 @@ export const adminAuthRouter = router({
         (typeof forwardedProtoLogin === "string" && forwardedProtoLogin.split(",")[0].trim() === "https");
       ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecureLogin));
 
-      // Update last login timestamp
+      // Update last login timestamp (legacy)
       await updateLastLogin(admin.id);
 
       return {
@@ -112,6 +194,7 @@ export const adminAuthRouter = router({
     }),
 
   // Logout - clear session cookie
+  // Logout (works for both OAuth and legacy)
   logout: publicProcedure.mutation(async ({ ctx }) => {
       const forwardedProtoLogout = ctx.req.headers["x-forwarded-proto"];
       const isSecureLogout = ctx.req.protocol === "https" ||
