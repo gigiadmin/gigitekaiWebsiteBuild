@@ -542,7 +542,6 @@ export default function WebPricingLandingPage() {
               <p className="text-sm text-gray-400 mb-6">Complete web solutions with custom integrations</p>
               
               <div className="mb-6">
-                <p className="text-sm text-gray-500 line-through">$5,598/month</p>
                 <p className="text-4xl font-bold text-cyan-400">$2,799</p>
                 <p className="text-sm text-gray-400">/month</p>
               </div>
