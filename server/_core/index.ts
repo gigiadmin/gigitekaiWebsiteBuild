@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import compression from "compression";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
@@ -67,6 +68,21 @@ async function startServer() {
   setupWebSocket(server);
   // Setup WebRTC Signaling (PeerChat-style)
   setupWebRTCSignaling(server);
+  // ── Compression Middleware ──────────────────────────────────────────────
+  // Enable Brotli compression for better performance (1.2 MB vendor → ~400 KB)
+  // Fallback to gzip for browsers that don't support Brotli
+  app.use(compression({
+    level: 6, // Balance between compression ratio and CPU usage
+    threshold: 1024, // Only compress responses > 1KB
+    filter: (req, res) => {
+      // Don't compress if already compressed
+      if (res.getHeader('content-encoding')) return false;
+      // Compress everything except images and video
+      const contentType = res.getHeader('content-type')?.toString() || '';
+      return !contentType.includes('image') && !contentType.includes('video');
+    }
+  }));
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

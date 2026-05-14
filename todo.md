@@ -5049,3 +5049,40 @@
 - [x] Maintain responsive design for mobile/tablet/desktop
 - [x] Verify AI chatbot widget visible on page
 - [x] Checkpoint saved (version 7f930327)
+
+
+## PageSpeed Insights Mobile Optimization (57% → 80%+) - May 14, 2026
+
+### Phase 1: Image Optimization
+- [ ] Analyze hero image compression and WebP conversion
+- [ ] Implement responsive image loading for mobile
+- [ ] Optimize all images in bundle (compress, convert to WebP)
+- [ ] Measure LCP improvement after image optimization
+
+### Phase 2: CSS Optimization
+- [ ] Minify and compress CSS bundle (114 KB)
+- [ ] Remove unused Tailwind classes
+- [ ] Optimize critical CSS for above-the-fold content
+- [ ] Measure FCP improvement after CSS optimization
+
+### Phase 3: JavaScript Optimization
+- [ ] Analyze main bundle (280 KB) for unused code
+- [ ] Remove unused Radix UI components
+- [ ] Optimize vendor bundle (1.2 MB) - tree-shake unused dependencies
+- [ ] Defer non-critical JavaScript execution
+- [ ] Measure TTI improvement after JS optimization
+
+### Phase 4: Accessibility & Best Practices Fixes
+- [ ] Fix contrast ratio issues (WCAG AA compliance)
+- [ ] Increase touch target sizes to 48x48px minimum
+- [ ] Update deprecated APIs
+- [ ] Fix console errors
+- [ ] Generate source maps for production
+
+### Phase 5: Verification & Testing
+- [ ] Re-run PageSpeed Insights on mobile
+- [ ] Verify LCP < 2.5s (target)
+- [ ] Verify FCP < 1.8s (target)
+- [ ] Verify TTI < 3.8s (target)
+- [ ] Test on real mobile devices (slow 4G)
+- [ ] Verify all fixes don't break functionality
