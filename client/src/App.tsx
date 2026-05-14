@@ -4,6 +4,7 @@ import { Route, Switch, useLocation } from "wouter";
 import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { SchemaMarkup } from "./components/SchemaMarkup";
   // make sure to consider if you need authentication for certain routes
 // ── Critical pages — loaded eagerly (part of initial bundle) ────────────
 import Home from "./pages/Home";
@@ -292,6 +293,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <SchemaMarkup />
       <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
           <a
