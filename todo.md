@@ -143,6 +143,11 @@
 - [x] Fixed video mute button in HeroSection: w-8 h-8→w-12 h-12 (32px→48px)
 - [x] Fixed ScrollToTop button: w-11 h-11→w-12 h-12 (44px→48px)
 - [x] Improved color contrast: text-gray-300/400→text-gray-200 on dark backgrounds
+- [x] Disabled Vite modulePreload entirely (was injecting 7 modulepreload links = ~1.6MB eager downloads)
+- [x] Implemented TRUE IntersectionObserver-based lazy loading (factory pattern) for all below-fold sections
+- [x] Only Navbar + Hero load eagerly (above fold on mobile = 90vh)
+- [x] All other sections (Services, Benefits, FAQ, etc.) only download JS when scrolled near
+- [x] Lazy-loaded Toaster, SiteNavBar2024, Footer in App.tsx to reduce main bundle
 
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually

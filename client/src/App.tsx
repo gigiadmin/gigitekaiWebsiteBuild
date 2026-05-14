@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
@@ -6,11 +5,12 @@ import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
   // make sure to consider if you need authentication for certain routes
-
-// ── Critical pages — loaded eagerly (part of initial bundle) ──────────────
+// ── Critical pages — loaded eagerly (part of initial bundle) ────────────
 import Home from "./pages/Home";
-import SiteNavBar2024 from "@/components/SiteNavBar2024";
-import Footer from "@/components/Footer";
+// Toaster, SiteNavBar2024, Footer lazy-loaded to reduce initial bundle on mobile
+const Toaster = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+const SiteNavBar2024 = lazy(() => import("@/components/SiteNavBar2024"));
+const FooterLazy = lazy(() => import("@/components/Footer"));
 
 // ── Widgets — lazy loaded (deferred to reduce initial bundle / TBT) ────────
 const ApprovalGuard = lazy(() => import("./components/ApprovalGuard"));
@@ -105,11 +105,11 @@ const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDas
 function UptimePublicPage() {
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
-      <SiteNavBar2024 />
+      <Suspense fallback={null}><SiteNavBar2024 /></Suspense>
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
         <AdminUptimeRobotDashboard />
       </main>
-      <Footer />
+      <Suspense fallback={null}><FooterLazy /></Suspense>
     </div>
   );
 }
@@ -299,7 +299,7 @@ function App() {
           >
             Skip to main content
           </a>
-          <Toaster />
+          <Suspense fallback={null}><Toaster /></Suspense>
           {typeof window !== 'undefined' && window.location.hostname === 'hh.gigitekai.com' && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, background: '#ff6b00', color: '#fff', textAlign: 'center', padding: '6px 16px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em' }}>
               ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com

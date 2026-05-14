@@ -360,11 +360,12 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-    // Disable modulepreload polyfill — we target modern browsers that natively support
-    // modulepreload, so the polyfill is unnecessary. Setting polyfill:false also prevents
-    // Rollup from injecting the polyfill code into the msal chunk (which would create a
-    // static main→msal dependency on public pages, defeating the lazy-loading strategy).
-    modulePreload: { polyfill: false },
+    // Disable modulePreload entirely — prevents Vite from injecting <link rel="modulepreload">
+    // tags in index.html. Without this, the browser eagerly downloads ALL referenced chunks
+    // (vendor 1MB, react-core 388KB, icons 79KB, etc.) before the page renders, causing
+    // Lighthouse to flag 448+ KiB of "unused JavaScript" on mobile. With modulePreload
+    // disabled, chunks are only fetched when their dynamic import() actually executes.
+    modulePreload: false,
     rollupOptions: {
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
@@ -441,6 +442,15 @@ export default defineConfig({
             id.includes("node_modules/dayjs")
           ) {
             return "date-utils";
+          }
+          // Lucide icons — ~200KB of SVG icon components
+          // Most icons are only used in admin pages, not on the public homepage
+          if (id.includes("node_modules/lucide-react") || id.includes("node_modules/lucide/")) {
+            return "icons";
+          }
+          // Sonner toast library — used across pages but not critical for first paint
+          if (id.includes("node_modules/sonner")) {
+            return "toast";
           }
           // Radix UI primitives — needed for shadcn/ui components
           // Keep together to avoid excessive chunk count
