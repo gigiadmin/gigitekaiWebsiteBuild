@@ -150,10 +150,10 @@ export default function Blog() {
                             >
                               {post.title}
                             </h2>
-                            <p className="text-gray-400 text-base leading-relaxed mb-4">
+                            <p className="text-gray-200 text-base leading-relaxed mb-4">
                               {post.excerpt}
                             </p>
-                            <div className="flex items-center gap-4 text-gray-400 text-sm">
+                            <div className="flex items-center gap-4 text-gray-300 text-sm">
                               <div className="flex items-center gap-1">
                                 <Calendar size={14} />
                                 {post.publishedAt
