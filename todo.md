@@ -4979,4 +4979,13 @@
   - GigitekAI: https://gigitekai.com (verified correct)
 - [x] Verify page loads correctly with all fixes
 - [x] Fix AIChatWidget visibility (was hidden on /web-pricing page)
-- [x] Checkpoint saved (version 6dd5eb3b)
+- [x] Update pricing tiers on Portfolio page:
+  - Starter: $899/month (was $1,250)
+  - Growth: $1,699/month (was $2,250) - MOST POPULAR
+  - Pro: $2,799/month (was $3,750)
+  - Enterprise: $4,999+/month (was $6,000+)
+- [x] Update pricing tiers on Web-Pricing page with same structure
+- [x] Add limited-time offer banner (50% OFF + 1 Month FREE)
+- [x] Add consultation buttons and trust elements
+- [x] Implement glassmorphism design with neon accents
+- [x] Checkpoint saved (version 0c1c08df)

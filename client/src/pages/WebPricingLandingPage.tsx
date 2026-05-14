@@ -365,22 +365,34 @@ export default function WebPricingLandingPage() {
         </div>
       </section>
 
-      {/* Limited Time Offer Banner */}
-      <section className="py-8 px-4 bg-gradient-to-r from-purple-900/50 to-cyan-900/50 border-y border-cyan-500/30">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-lg font-bold text-cyan-400">🚀 Limited Time: <span className="text-white">50% OFF + 1 Month FREE</span> on 1-Year Commitment</p>
+      {/* LIMITED TIME OFFER - PRIMARY FOCUS */}
+      <section className="py-20 px-4 bg-gradient-to-r from-red-900/40 via-cyan-900/40 to-purple-900/40 border-y-2 border-red-500/60 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-red-500 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500 rounded-full blur-3xl"></div>
         </div>
-      </section>
-
-      {/* Consultation Button */}
-      <section className="py-6 px-4">
-        <div className="max-w-6xl mx-auto flex justify-center">
-          <button
-            onClick={() => setDiscoveryFormOpen(true)}
-            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold rounded-lg transition flex items-center gap-2"
-          >
-            📞 Book a Free Consultation
-          </button>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="inline-block bg-red-600/30 border border-red-500/60 rounded-full px-6 py-2 mb-6">
+            <p className="text-red-300 font-bold text-sm">⏰ LIMITED TIME OFFER - ENDS SOON</p>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">Get Your Website for Just <span className="text-cyan-400">$300</span></h2>
+          <p className="text-2xl text-gray-200 mb-2">+ <span className="text-cyan-400 font-bold">$100/month</span> for hosting & maintenance</p>
+          <p className="text-lg text-gray-400 mb-8">Perfect 3-page website with AI chatbot, SEO, and 24/7 support</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => setDiscoveryFormOpen(true)}
+              className="px-10 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold text-lg rounded-lg transition transform hover:scale-105 shadow-lg shadow-red-500/50"
+            >
+              🚀 Claim Your Website Now
+            </button>
+            <button
+              onClick={() => scrollToSection("pricing")}
+              className="px-10 py-4 border-2 border-cyan-400 text-cyan-400 font-bold text-lg rounded-lg hover:bg-cyan-400/10 transition"
+            >
+              View All Packages
+            </button>
+          </div>
+          <p className="text-sm text-gray-500 mt-6">✓ Free domain • ✓ SSL included • ✓ 1 month free trial • ✓ Money-back guarantee</p>
         </div>
       </section>
 
@@ -388,8 +400,8 @@ export default function WebPricingLandingPage() {
       <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4">Website Packages</h2>
-            <p className="text-xl text-gray-300">Choose the perfect package for your business. All include ongoing support and monthly updates.</p>
+            <h2 className="text-4xl font-bold mb-4">Upgrade Your Package</h2>
+            <p className="text-xl text-gray-300">Need more pages or features? Explore our professional tiers.</p>
           </div>
 
           {/* Trust Elements */}
@@ -632,15 +644,30 @@ export default function WebPricingLandingPage() {
             </div>
           </div>
 
-          {/* Bottom Consultation Button */}
-          <div className="text-center">
-            <button
-              onClick={() => setDiscoveryFormOpen(true)}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold rounded-lg transition flex items-center gap-2 mx-auto"
-            >
-              📞 Book a Free Consultation
-            </button>
-            <p className="text-sm text-gray-500 mt-4">All packages include ongoing support, monthly updates, and 1 month free on 1-year commitment</p>
+          {/* Bottom CTA with Urgency */}
+          <div className="text-center mt-12 p-8 bg-gradient-to-r from-red-900/30 to-cyan-900/30 border border-red-500/40 rounded-xl">
+            <h3 className="text-3xl font-bold mb-4">Ready to Get Started?</h3>
+            <p className="text-lg text-gray-300 mb-6">Join 50+ businesses that transformed their online presence with GigitekAI</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+              <button
+                onClick={() => setDiscoveryFormOpen(true)}
+                className="px-10 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold text-lg rounded-lg transition transform hover:scale-105 shadow-lg shadow-red-500/50"
+              >
+                🚀 Start Your $300 Website
+              </button>
+              <button
+                onClick={() => setDiscoveryFormOpen(true)}
+                className="px-10 py-4 border-2 border-cyan-400 text-cyan-400 font-bold text-lg rounded-lg hover:bg-cyan-400/10 transition"
+              >
+                📞 Talk to Our Team
+              </button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-400 mt-8">
+              <div>✓ <span className="text-cyan-300">30-Day Money Back</span> Guarantee</div>
+              <div>✓ <span className="text-cyan-300">No Setup Fees</span> Ever</div>
+              <div>✓ <span className="text-cyan-300">Cancel Anytime</span> (Monthly)</div>
+            </div>
+            <p className="text-xs text-gray-500 mt-6">⏰ <span className="text-red-400 font-bold">Limited spots available</span> - Only 5 websites at $300 this month</p>
           </div>
         </div>
       </section>
