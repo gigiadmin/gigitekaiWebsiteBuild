@@ -118,6 +118,9 @@
 - [x] Removed "Uptime Status" from TOOLS section (kept in ANALYTICS)
 - [x] Removed "Recently Viewed" section from sidebar
 - [x] Followed scalable route-wrapper pattern (no modification to legacy code)
+- [x] Updated sidebar background gradient to blend with cyberpunk theme (from stark #161B22 to gradient)
+- [x] Changed border colors from slate to cyan for brand cohesion
+- [x] Comprehensive testing: all pages load correctly, 955/958 tests passing
 
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually

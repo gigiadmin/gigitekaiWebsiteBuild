@@ -22,6 +22,7 @@ const NO_CACHE_PATHS = [
   '/auth',
   '/admin',
   '/helpdesk',
+  '/assets/', // Never cache versioned chunks — they have hash in filename
 ];
 
 // Check if a URL should never be cached
@@ -99,25 +100,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets (JS, CSS, images, fonts) — cache-first with network fallback
+  // Static assets (JS, CSS, images, fonts) — network-first for versioned assets
+  // Versioned assets (with hash in filename) should always fetch fresh to avoid stale chunk errors
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         // Don't cache opaque responses (cross-origin without CORS) — Safari issue
         if (!response || response.type === 'opaque' || response.status !== 200) {
           return response;
         }
-
-        const clone = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
         return response;
-      }).catch(() => {
-        // Return nothing for failed asset requests — don't break the page
-        return new Response('', { status: 503 });
-      });
-    })
+      })
+      .catch(() => {
+        // Try cache as fallback for network failures
+        return caches.match(request).then((cached) => {
+          if (cached) return cached;
+          // Return nothing for failed asset requests — don't break the page
+          return new Response('', { status: 503 });
+        });
+      })
   );
 });
 
