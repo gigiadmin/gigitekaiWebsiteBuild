@@ -159,7 +159,7 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
+          <SidebarHeader className="h-16 justify-center bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-b border-cyan-500/20">
             <div className="flex items-center gap-3 px-2 transition-all w-full">
               <button
                 onClick={toggleSidebar}
@@ -169,18 +169,18 @@ function DashboardLayoutContent({
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 bg-white rounded-lg px-2 py-1">
                   <img
                     src="https://cdn.gigitekai.com/gigitekai-logo.webp"
                     alt="GigitekAI logo"
-                    className="h-8 w-auto object-contain max-w-[140px]"
+                    className="h-6 w-auto object-contain max-w-[120px]"
                   />
                 </div>
               ) : null}
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
+          <SidebarContent className="gap-0 overflow-y-auto">
             <SidebarMenu className="px-2 py-1">
               {menuItems.map(item => {
                 const isActive = location === item.path;
