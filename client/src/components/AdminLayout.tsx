@@ -128,7 +128,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Tools",
     items: [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
-      { label: "Uptime Status", icon: <Zap size={16} />, href: "/admin/uptime" },
     ],
   },
   {
@@ -293,38 +292,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
         ))}
       </nav>
 
-      {/* Recently Viewed Section */}
-      {!collapsed && recentItems.length > 0 && (
-        <div className="border-t border-slate-700/50 p-3 space-y-2">
-          <div className="flex items-center justify-between px-3 mb-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-              <Clock size={12} /> Recent
-            </span>
-            <button
-              onClick={clearRecentItems}
-              className="text-slate-600 hover:text-slate-400 transition-colors"
-              title="Clear history"
-            >
-              <Trash2 size={12} />
-            </button>
-          </div>
-          <div className="space-y-0.5">
-            {recentItems.slice(-4).map((item) => (
-              <Link key={item.href} href={item.href}>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-150 group cursor-pointer text-xs">
-                  <span className="text-slate-600 group-hover:text-slate-400 flex-shrink-0">
-                    <Clock size={12} />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="truncate text-slate-300">{item.label}</div>
-                    <div className="text-slate-600 text-xs">{formatTime(item.timestamp)}</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Recently Viewed Section - REMOVED */}
 
       {/* User Profile */}
       <div className={`border-t border-slate-700/50 p-3 ${collapsed ? "flex justify-center" : ""}`}>
