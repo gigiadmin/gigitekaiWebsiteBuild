@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { Clock, CheckCircle, AlertCircle, MessageSquare, RefreshCw, TrendingUp } from "lucide-react";

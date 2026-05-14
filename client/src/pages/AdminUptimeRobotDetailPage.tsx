@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminUptimeRobotDetailPage.tsx
  * Detailed monitor view with response time graph and incident history

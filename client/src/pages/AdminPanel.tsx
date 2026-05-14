@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";

@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminLogin — Admin Portal Login
  * Email/password authentication for GigitekAI admin portal

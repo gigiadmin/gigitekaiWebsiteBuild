@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * Admin SLA Compliance & Categorization Dashboard
  * Displays real-time SLA metrics, ticket categorization, and performance analytics

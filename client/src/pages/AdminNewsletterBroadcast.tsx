@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminNewsletterBroadcast — compose, draft, schedule, and send newsletter campaigns.
  * Tabs: Compose | Drafts | Scheduled | Sent History

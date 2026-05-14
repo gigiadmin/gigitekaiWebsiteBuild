@@ -59,6 +59,12 @@ const AdminSmsCampaignsPage = lazy(() => import("./pages/AdminSmsCampaignsPage")
 const AdminHubPage = lazy(() => import("./pages/AdminHubPage"));
 const AdminJiraDashboard = lazy(() => import("./pages/AdminJiraDashboard"));
 const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
+const AdminPanelPage = lazy(() => import("./pages/AdminPanelPage"));
+const AdminSLADashboardPage = lazy(() => import("./pages/AdminSLADashboardPage"));
+const AdminSatisfactionDashboardPage = lazy(() => import("./pages/AdminSatisfactionDashboardPage"));
+const AdminScorecardDashboardPage = lazy(() => import("./pages/AdminScorecardDashboardPage"));
+const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardingPage"));
+const AdminUptimeRobotDetailPagePage = lazy(() => import("./pages/AdminUptimeRobotDetailPagePage"));
 
 function PageLoader() {
   return (
@@ -82,7 +88,7 @@ export default function AdminApp() {
           <Suspense fallback={<PageLoader />}>
             <Switch>
               <Route path="/admin" component={() => <ApprovalGuard><AdminHome /></ApprovalGuard>} />
-              <Route path="/admin/helpdesk" component={() => <ApprovalGuard><AdminHelpdeskPage /></ApprovalGuard>} />
+              <Route path="/admin/helpdesk" component={() => <ApprovalGuard><AdminPanelPage /></ApprovalGuard>} />
               <Route path="/admin/chat" component={() => <ApprovalGuard><AdminChatPage /></ApprovalGuard>} />
               <Route path="/admin/agents" component={() => <ApprovalGuard><AdminAgentsPage /></ApprovalGuard>} />
               <Route path="/admin/notifications" component={() => <ApprovalGuard><AdminNotificationsPage /></ApprovalGuard>} />
@@ -109,6 +115,9 @@ export default function AdminApp() {
               <Route path="/admin/copilot-m365" component={() => <ApprovalGuard><AdminCopilotM365 /></ApprovalGuard>} />
               <Route path="/admin/dashboard" component={() => <ApprovalGuard><Dashboard /></ApprovalGuard>} />
               <Route path="/admin/surveys" component={() => <ApprovalGuard><AdminSurveysPage /></ApprovalGuard>} />
+              <Route path="/admin/sla" component={() => <ApprovalGuard><AdminSLADashboardPage /></ApprovalGuard>} />
+              <Route path="/admin/satisfaction" component={() => <ApprovalGuard><AdminSatisfactionDashboardPage /></ApprovalGuard>} />
+              <Route path="/admin/scorecard" component={() => <ApprovalGuard><AdminScorecardDashboardPage /></ApprovalGuard>} />
               <Route path="/admin/workload" component={() => <ApprovalGuard><AdminWorkloadPage /></ApprovalGuard>} />
               <Route path="/admin/users" component={() => <ApprovalGuard><AdminUsersPage /></ApprovalGuard>} />
               <Route path="/admin/team-members" component={() => <ApprovalGuard><TeamMembersEnhanced /></ApprovalGuard>} />
@@ -122,13 +131,14 @@ export default function AdminApp() {
               <Route path="/admin/contact-center" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
               <Route path="/admin/contact-center-dashboard" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
               <Route path="/admin/demo-leads" component={() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>} />
-              <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboarding /></ApprovalGuard>} />
+              <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboardingPage /></ApprovalGuard>} />
               <Route path="/admin/kb-analytics" component={() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>} />
               <Route path="/admin/recordings" component={() => <ApprovalGuard><AdminRecordingsPage /></ApprovalGuard>} />
               <Route path="/admin/sms-campaigns" component={() => <ApprovalGuard><AdminSmsCampaignsPage /></ApprovalGuard>} />
               <Route path="/admin/hub" component={() => <ApprovalGuard><AdminHubPage /></ApprovalGuard>} />
               <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
               <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
+              <Route path="/admin/uptime/:monitorId" component={() => <ApprovalGuard><AdminUptimeRobotDetailPagePage /></ApprovalGuard>} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
                   <div className="text-center">

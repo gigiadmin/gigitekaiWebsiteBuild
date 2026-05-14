@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -330,7 +331,8 @@ export default function AdminCallReviewPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white">
+    <AdminLayout title="Call Ticket Review">
+      <div className="text-white">
       {/* Header */}
       <div className="border-b border-white/10 px-6 py-4">
         <div className="flex items-center justify-between">
@@ -588,6 +590,7 @@ export default function AdminCallReviewPage() {
           onRejected={() => setSelectedDraft(null)}
         />
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

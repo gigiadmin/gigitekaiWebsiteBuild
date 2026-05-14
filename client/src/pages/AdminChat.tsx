@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";

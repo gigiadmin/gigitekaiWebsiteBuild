@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminUnlock — Emergency Admin Access via Password
  * Bypasses normal login flow for emergency access

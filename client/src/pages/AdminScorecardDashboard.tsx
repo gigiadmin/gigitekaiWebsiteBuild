@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /*
   Admin Dashboard for Compliance Scorecard Results
   Slug: /admin/scorecard-results

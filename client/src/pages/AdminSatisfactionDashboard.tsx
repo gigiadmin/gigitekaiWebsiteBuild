@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

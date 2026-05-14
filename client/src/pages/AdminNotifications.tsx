@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Bell, Mail, MessageSquare, AlertCircle, CheckCircle, Trash2 } from "lucide-react";

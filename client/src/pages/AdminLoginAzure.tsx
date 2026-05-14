@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminLoginAzure — Azure AD (Microsoft Entra ID) login for the admin portal
  *

@@ -1,3 +1,4 @@
+import AdminLayout from "@/components/AdminLayout";
 /**
  * AdminNewsletter — Newsletter management hub
  * Tabs: Subscribers (list, stats, CSV export, delete) | Broadcast (compose & send campaigns)

@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +95,8 @@ toast.success("Dead-letter queue cleared");
   const dlq = webhookHealth?.deadLetterQueue ?? [];
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white p-6">
+    <AdminLayout title="Teams Channels">
+      <div className="text-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -470,5 +472,6 @@ toast.success("Dead-letter queue cleared");
         </DialogContent>
       </Dialog>
     </div>
+    </AdminLayout>
   );
 }
