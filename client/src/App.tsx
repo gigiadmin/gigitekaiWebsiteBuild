@@ -5,12 +5,12 @@ import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SchemaMarkup } from "./components/SchemaMarkup";
-import { Toaster } from "@/components/ui/sonner";
-  // make sure to consider if you need authentication for certain routes
+// Toaster lazy-loaded to reduce initial bundle and JS execution time before first paint
+const ToasterComponent = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+// make sure to consider if you need authentication for certain routes
 // ── Critical pages — loaded eagerly (part of initial bundle) ────────────
 import Home from "./pages/Home";
 // SiteNavBar2024, Footer lazy-loaded to reduce initial bundle on mobile
-// Toaster now statically imported to fix dynamic import module loading errors
 const SiteNavBar2024 = lazy(() => import("@/components/SiteNavBar2024"));
 const FooterLazy = lazy(() => import("@/components/Footer"));
 
@@ -303,7 +303,7 @@ function App() {
           >
             Skip to main content
           </a>
-          <Suspense fallback={null}><Toaster /></Suspense>
+          <Suspense fallback={null}><ToasterComponent /></Suspense>
           {typeof window !== 'undefined' && window.location.hostname === 'hh.gigitekai.com' && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, background: '#ff6b00', color: '#fff', textAlign: 'center', padding: '6px 16px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em' }}>
               ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com
