@@ -148,6 +148,8 @@
 - [x] Only Navbar + Hero load eagerly (above fold on mobile = 90vh)
 - [x] All other sections (Services, Benefits, FAQ, etc.) only download JS when scrolled near
 - [x] Lazy-loaded Toaster, SiteNavBar2024, Footer in App.tsx to reduce main bundle
+- [x] Removed UserChatWidget from App.tsx layout (was loading at 4,986ms and blocking LCP)
+- [ ] Deploy checkpoint 6172785c and re-run PageSpeed Insights to measure improvement
 
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually

@@ -11,6 +11,7 @@ import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
 import { ShareKBModal } from "@/components/ShareKBModal";
+import { AdminKBBulkInsert } from "@/components/AdminKBBulkInsert";
 import AdminLayout from "@/components/AdminLayout";
 
 export default function AdminKB() {
@@ -103,6 +104,11 @@ export default function AdminKB() {
       )}
 
       <div className="space-y-6">
+      {/* Bulk Insert Section */}
+      {(!articles || articles.length < 30) && (
+        <AdminKBBulkInsert />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
