@@ -319,10 +319,11 @@ async function startServer() {
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)
     startCallPoller();
-    // Initialize Teams email forwarding (one-time setup)
-    initializeTeamsForwarding().catch(err => {
-      console.error("[Teams Forwarding] Failed to initialize:", err);
-    });
+    // Teams forwarding disabled - requires Mail.ReadWrite permission in Azure AD
+    // To enable: Add Mail.ReadWrite permission to MS Graph app registration
+    // initializeTeamsForwarding().catch(err => {
+    //   console.error("[Teams Forwarding] Failed to initialize:", err);
+    // });
     
     // Ensure default admin account exists
     (async () => {
