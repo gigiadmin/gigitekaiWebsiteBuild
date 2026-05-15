@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Immediately convert any blocking CSS to async (platform may inject blocking stylesheets) -->
-    <script>
-      (function(){var o=new MutationObserver(function(m){m.forEach(function(r){r.addedNodes.forEach(function(n){if(n.tagName==='LINK'&&n.rel==='stylesheet'&&n.href&&n.href.indexOf('/assets/')>-1){n.media='print';n.onload=function(){this.media='all';this.onload=null;};}})})}); o.observe(document.head,{childList:true}); window.addEventListener('load',function(){o.disconnect()},{ once:true });})()
-    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
     <title>GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation</title>
     <meta name="description" content="GigitekAI is an AI-first Managed Services Provider specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for SMBs." />
