@@ -9,7 +9,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
-import { useLocation } from "wouter";
 
 const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
 const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
@@ -33,7 +32,7 @@ export default function HeroSection() {
   // On mobile: don't load video until user taps — massive LCP improvement
   const [videoRequested, setVideoRequested] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [, navigate] = useLocation();
+
 
   // Detect mobile
   useEffect(() => {
@@ -385,7 +384,7 @@ export default function HeroSection() {
                   🔊 Tap to Hear the Demo
                 </button>
                 <button
-                  onClick={() => navigate("/contact")}
+                  onClick={() => { window.location.href = "/contact"; }}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
                   style={{
                     background: "rgba(0,212,255,0.08)",

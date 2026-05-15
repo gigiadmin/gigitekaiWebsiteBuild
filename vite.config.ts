@@ -526,6 +526,11 @@ export default defineConfig({
           if (id.includes("node_modules/sonner")) {
             return "toast";
           }
+          // Wouter routing library — only needed on admin/app pages, NOT on public homepage
+          // Splitting saves ~30KB from homepage critical path
+          if (id.includes("node_modules/wouter")) {
+            return "routing";
+          }
           // Radix UI primitives — needed for shadcn/ui components
           // Keep together to avoid excessive chunk count
           if (id.includes("node_modules/@radix-ui")) {

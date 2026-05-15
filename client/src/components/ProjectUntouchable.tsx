@@ -26,7 +26,7 @@ import {
   Users,
   ExternalLink,
 } from "lucide-react";
-import { Link } from "wouter";
+
 
 interface Pillar {
   id: string;
@@ -228,12 +228,12 @@ export default function ProjectUntouchable() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link href="/contact">
+          <a href="/contact" style={{ textDecoration: 'none' }}>
             <Button className="bg-[#00D4FF] hover:bg-[#00B8D4] text-[#0A0E1A] font-semibold px-8 py-3 text-base">
               Learn How We Protect Your Investment
               <ArrowRight size={16} className="ml-2" />
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>
