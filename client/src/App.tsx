@@ -103,19 +103,7 @@ const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365Notifica
 // Payment pages (Stripe checkout results)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
-// Uptime monitoring (public-facing)
-const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
-function UptimePublicPage() {
-  return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
-      <Suspense fallback={null}><SiteNavBar2024 /></Suspense>
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
-        <AdminUptimeRobotDashboard />
-      </main>
-      <Suspense fallback={null}><FooterLazy /></Suspense>
-    </div>
-  );
-}
+
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
@@ -245,8 +233,6 @@ function Router() {
           {/* M365 Health Pages */}
           <Route path={"/m365-status"} component={M365HealthPage} />
           <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
-          {/* Public Uptime Monitoring */}
-          <Route path={"/uptime"} component={UptimePublicPage} />
           {/* Payment Pages */}
           <Route path={"/payment/success"} component={PaymentSuccess} />
           <Route path={"/payment/canceled"} component={PaymentCanceled} />
