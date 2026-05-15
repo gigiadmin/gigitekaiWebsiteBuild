@@ -309,17 +309,17 @@ function App() {
               ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com
             </div>
           )}
-          <Suspense fallback={null}>
-            {!hideWidgets && <AnnouncementBar />}
-          </Suspense>
           <Router />
+          {/* CookieConsent loads immediately (no performance impact) */}
           <Suspense fallback={null}>
             {!hideWidgets && <CookieConsent />}
-            {!hideWidgets && <FloatingContactDial />}
-            {!hideWidgets && <MobileAIDemoCTA />}
           </Suspense>
+          {/* Defer heavy widgets until after LCP to improve performance */}
           {widgetsReady && (
             <Suspense fallback={null}>
+              {!hideWidgets && <AnnouncementBar />}
+              {!hideWidgets && <FloatingContactDial />}
+              {!hideWidgets && <MobileAIDemoCTA />}
               <AIChatWidget />
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
