@@ -254,8 +254,21 @@ export default function AdminContactCenterDashboard() {
   };
 
   // ── Derived status values ─────────────────────────────────────────────────
-  const d365StatusValue = d365Status?.status ?? "unknown";
-  const teamsWebhookStatus = teamsWebhook?.health?.healthy === true ? "healthy" : teamsWebhook?.health?.configured === false ? "error" : "unknown";
+  // Handle D365 status: if not configured or no data, show error; otherwise use the status value
+  const d365StatusValue = !d365Status 
+    ? "unknown" 
+    : d365Status.connected === false 
+    ? "error" 
+    : d365Status.status || "unknown";
+  
+  // Handle Teams Webhook status: check if configured first, then health
+  const teamsWebhookStatus = !teamsWebhook?.health
+    ? "unknown"
+    : teamsWebhook.health.configured === false
+    ? "error"
+    : teamsWebhook.health.healthy === true
+    ? "healthy"
+    : "degraded";
   const copilotConfigured = copilotStatus?.tenantId === "configured" && copilotStatus?.environmentId === "configured";
 
   return (
