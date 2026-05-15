@@ -416,7 +416,29 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       : (typeof body === 'string' ? body : (bodyPreview || ''));
 
     // Extract voicemail details
-    const { transcript, callerNumber, duration } = extractVoicemailTranscript(emailBody);
+    let { transcript, callerNumber, duration } = extractVoicemailTranscript(emailBody);
+
+    // If no transcript found, try to extract audio URL and transcribe it
+    if (!transcript || transcript.length < 10) {
+      console.log('[Email Poller] No transcript in email, attempting to extract audio URL for transcription');
+      const audioUrlMatch = emailBody.match(/https?:\/\/[^\s\"<>]+\.(?:mp3|wav|m4a|webm|ogg)/i);
+      if (audioUrlMatch) {
+        try {
+          const { transcribeAudio } = await import('./voiceTranscription');
+          const audioUrl = audioUrlMatch[0];
+          console.log(`[Email Poller] Transcribing audio from URL: ${audioUrl}`);
+          const transcriptionResult = await transcribeAudio({ audioUrl, language: 'en' });
+          if ('text' in transcriptionResult && transcriptionResult.text) {
+            transcript = transcriptionResult.text;
+            console.log(`[Email Poller] Successfully transcribed voicemail: ${transcript.substring(0, 100)}...`);
+          } else if ('error' in transcriptionResult) {
+            console.warn(`[Email Poller] Transcription failed: ${transcriptionResult.error}`);
+          }
+        } catch (transcribeError) {
+          console.error('[Email Poller] Error during transcription:', transcribeError);
+        }
+      }
+    }
 
     // Parse sender
     let fromStr = typeof from === 'string' ? from : (from?.emailAddress?.address || from?.email || 'voicemail@teams.microsoft.com');

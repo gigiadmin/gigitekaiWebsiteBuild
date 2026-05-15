@@ -175,15 +175,23 @@ export default function AdminContactCenterDashboard() {
   }, []);
 
   // ── Data fetching ─────────────────────────────────────────────────────────
-  const { data: d365Status, isLoading: d365Loading } = trpc.dynamicsIntegration.checkConnection.useQuery(undefined, {
+  const { data: d365Status, isLoading: d365Loading, error: d365Error } = trpc.dynamicsIntegration.checkConnection.useQuery(undefined, {
     refetchInterval: 30000,
   });
   const { data: copilotStatus, isLoading: copilotLoading } = trpc.copilotStudio.getAgentStatus.useQuery(undefined, {
     refetchInterval: 30000,
   });
-  const { data: teamsWebhook, isLoading: teamsLoading } = trpc.teamsChannels.getWebhookHealth.useQuery(undefined, {
+  const { data: teamsWebhook, isLoading: teamsLoading, error: teamsError } = trpc.teamsChannels.getWebhookHealth.useQuery(undefined, {
     refetchInterval: 30000,
   });
+  
+  // Debug logging
+  useEffect(() => {
+    if (d365Status) console.log('[D365 Status]', d365Status);
+    if (d365Error) console.error('[D365 Error]', d365Error);
+    if (teamsWebhook) console.log('[Teams Webhook]', teamsWebhook);
+    if (teamsError) console.error('[Teams Error]', teamsError);
+  }, [d365Status, d365Error, teamsWebhook, teamsError]);
   const { data: queueMetrics, isLoading: queueLoading } = trpc.helpdeskDashboardMetrics.getQueueMetrics.useQuery(undefined, {
     refetchInterval: 15000,
   });
@@ -255,15 +263,19 @@ export default function AdminContactCenterDashboard() {
 
   // ── Derived status values ─────────────────────────────────────────────────
   // Handle D365 status: if not configured or no data, show error; otherwise use the status value
-  const d365StatusValue = !d365Status 
-    ? "unknown" 
-    : d365Status.connected === false 
-    ? "error" 
-    : d365Status.status || "unknown";
+  const d365StatusValue = d365Loading
+    ? "unknown"
+    : !d365Status
+    ? "error"
+    : d365Status.connected === false
+    ? "error"
+    : d365Status.status || "healthy"; // Default to healthy if status field missing
   
   // Handle Teams Webhook status: check if configured first, then health
-  const teamsWebhookStatus = !teamsWebhook?.health
+  const teamsWebhookStatus = teamsLoading
     ? "unknown"
+    : !teamsWebhook?.health
+    ? "error"
     : teamsWebhook.health.configured === false
     ? "error"
     : teamsWebhook.health.healthy === true

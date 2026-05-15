@@ -78,13 +78,23 @@ export async function getUptimeMonitors() {
     });
 
     if (!response.ok) {
-      throw new Error(`UptimeRobot API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`[UptimeRobot] API error ${response.status}: ${errorText.substring(0, 200)}`);
+      throw new Error(`UptimeRobot API error: ${response.status} ${response.statusText}`);
     }
 
-    const data: UptimeRobotResponse = await response.json();
+    let data: UptimeRobotResponse;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      const text = await response.text();
+      console.error(`[UptimeRobot] Failed to parse response: ${text.substring(0, 200)}`);
+      throw new Error("UptimeRobot API returned invalid JSON response");
+    }
 
     if (data.stat !== "ok") {
-      throw new Error("UptimeRobot API returned error status");
+      console.error(`[UptimeRobot] API returned error status: ${data.stat}`);
+      throw new Error(`UptimeRobot API error: ${data.stat}`);
     }
 
     return data.monitors.map((monitor) => {
