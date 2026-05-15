@@ -18,7 +18,9 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
 
   // TEMPORARY: Admin portal is public for testing with test data only
   // Remove this once authentication is working properly
+  
+  // Always render children - no authentication required for admin pages
+  // This allows access to uptime monitoring, contact center, and other admin tools
+  // without needing to log in
   return <>{children}</>;
-
-
 }
