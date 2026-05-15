@@ -105,13 +105,12 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 // Uptime monitoring (public-facing)
 const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
-const UptimePublicPageComponent = lazy(() => import("./pages/UptimePublicPage"));
 function UptimePublicPage() {
   return (
     <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
       <Suspense fallback={null}><SiteNavBar2024 /></Suspense>
-      <main className="flex-1 w-full">
-        <Suspense fallback={null}><UptimePublicPageComponent /></Suspense>
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
+        <AdminUptimeRobotDashboard />
       </main>
       <Suspense fallback={null}><FooterLazy /></Suspense>
     </div>
