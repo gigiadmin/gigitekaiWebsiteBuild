@@ -8,6 +8,12 @@ Disallow: /helpdesk/tickets/
 Disallow: /helpdesk/profile
 Disallow: /helpdesk/create-ticket
 Disallow: /404
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
 
 # Enable AI Discovery — Allow major AI crawlers full access to public content
 User-agent: GPTBot
@@ -33,3 +39,5 @@ Allow: /
 
 Sitemap: https://www.gigitekai.com/sitemap.xml
 Sitemap: https://www.gigitekai.com/api/sitemap-blog.xml
+Sitemap: https://www.gigitekai.com/api/sitemap-portfolio.xml
+Sitemap: https://www.gigitekai.com/api/sitemap-services.xml

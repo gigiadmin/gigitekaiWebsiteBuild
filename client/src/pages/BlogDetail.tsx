@@ -157,6 +157,7 @@ export default function BlogDetail() {
       <Helmet>
         <title>{post.title} | GigitekAI</title>
         <meta name="description" content={ogDescription} />
+        <link rel="canonical" href={articleUrl} />
         {/* Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
@@ -173,6 +174,22 @@ export default function BlogDetail() {
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={ogDescription} />
         <meta name="twitter:image" content={ogImage} />
+        {/* Article schema for rich snippets */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "description": ogDescription,
+            "image": ogImage,
+            "datePublished": post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+            "author": {
+              "@type": "Person",
+              "name": post.authorName
+            },
+            "url": articleUrl
+          })}
+        </script>
       </Helmet>
       <SiteNavBar2024 />
       <main className="flex-1">
