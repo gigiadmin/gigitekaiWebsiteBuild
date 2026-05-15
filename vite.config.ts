@@ -379,8 +379,8 @@ const plugins = [
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
+  vitePluginNonBlockingCSS(),
   vitePluginBootstrapFallback(),
-  vitePluginNonBlockingCSS(), // Must run AFTER vitePluginManusRuntime to convert injected CSS to async
   // DISABLED: vitePluginStripMsalStaticImport() — caused 'n is not defined' crash by removing named imports that were actually used at runtime
   visualizer({
     open: false,
