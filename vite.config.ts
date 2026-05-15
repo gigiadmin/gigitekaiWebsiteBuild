@@ -376,10 +376,9 @@ function vitePluginBootstrapFallback(): Plugin {
 const plugins = [
   react(),
   tailwindcss(),
-  jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
-  vitePluginNonBlockingCSS(),
+  // vitePluginNonBlockingCSS(), // Disabled: preload pattern still blocks rendering
   vitePluginBootstrapFallback(),
   // DISABLED: vitePluginStripMsalStaticImport() — caused 'n is not defined' crash by removing named imports that were actually used at runtime
   visualizer({
