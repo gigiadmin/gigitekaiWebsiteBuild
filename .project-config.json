@@ -7,15 +7,16 @@
   ],
   "dev_command": "pnpm run dev",
   "env_vars": {
-    "DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}"
+    "DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}"
   },
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZCLQGHQLY",
-    "secret_access_key": "34R71usV9bMFe23aAkEQbDIg2d4/sXR7vPgaWE5a",
-    "session_token": "IQoJb3JpZ2luX2VjEKn//////////wEaCXVzLWVhc3QtMSJHMEUCIQDLxwgPugmp6N8J4QC2rAWbx2L7wchtqFXojxSHAic4rQIgLl/kmpi4pRE9KUJdDnP1XqZOCfjUty6rIGX257npaGcq9gMIchAEGgw2NjUzODYwOTg4NjYiDPaeY29kkwoXm1TOASrTAwslzq8lu7IdR+g7tKHrZx50oGx+aobpkjQfbAnm5eIpgBjpiA3oy9lPAOptKj6/87zvfyXK+j+Zj6fgNI/CyrIH4HrrwC9UJNXyunS9SiIT/X9CtKMeoxkOQxXFm0HZFPZmuPJBrk8gMUXx71uGdJdkZnbl1wVBG72/pVcv9GCwciUPmeMOkz1kCp5Fkn5vnEWwjT5doO5VuybDW1MR5bNFtjsTzzN6WkJCtLrNVW8YrTns/mcZPv7FY5brHnjCG6PbFqVa0+3BBFpIxu4JcEgo8rZeQ4SkEIJ4u5fVzsPoDg6/QorbkTcZEYP/0fl+MmlqzDRHBiONvDTS/DzbUP/HLPeTWCAmrX0YUOVU0KhD4kT8G8M8scQvgkz0Km3MIQu/MMaB2jglmiD6ZzgDHU9res8aSbMfzIxpiDL26so2gQz3uKTGsKLB98118TluXj9Q3wsHGHQ4IQdC2QxHBT12oU0Cjvd9Nl+u+abvnUYr6Nd+KOel4JPe50Rw+nOH7/HAw+c0nDErXYuQxLDcV0b4+7rL0rLnGycDwMqYhceqhfHuaNc1BUQqR6jqPLAAR6m10u1w5savlWIStOlZ9Zw3DG5MepO5VpiMu8PPPWOj1tYuMKaym9AGOp0Bzl6J7DRy0ZDwyg8xr65XegClX7ILMnLWw1fJljJ2TZyqfj9PdH+tnp48uw9bLILOf8PGnylxK8s0xzlyXsY65KCdpCyPFP6yVRZdx/dymc6l2RYsw/a0fDsbT3ptD15v541AFbOcbm+nkNd2ctjr70MbuKSTqT3Qr3lLrfzQ9OTD+h3ZzNz750CJ6S0kdEmVtzmuvoZFPiEBOj+ZAQ==",
-    "expiration": "2026-05-15T20:28:22.000Z"
+    "access_key_id": "ASIAZV3A2ECZOE6JPETH",
+    "secret_access_key": "uGyioe0yeit7bVqbkVTT6Bs5nyOxKl/wdZqyGDOE",
+    "session_token": "IQoJb3JpZ2luX2VjEMj//////////wEaCXVzLWVhc3QtMSJHMEUCIC7FWV9cL07z6qxdFEBvl+l/8OUGX2Xlqjio4Ccv5dslAiEAwiEiEWGQ7oHwJWBl7DtfCAhe7FhNoFY4aKcCtO9T2Wgq/wMIkf//////////ARAEGgw2NjUzODYwOTg4NjYiDKulCtd8mE35HVPnKirTA089UWD/b1GRoIPwFrEmYMFCXeWIKHzTG39a2M0oUkcI4XbhvRZ5WNrPyl70AwSI4zFNKXAcrmdYC2FZqy1S8f7YBO1lmWW/e0x4hQ/BXn+tIUcGeM0P8uaRwn+z8zwQ+1mJbWEaxhGHN4qv1JSNBxiYxLzsRrNjH1Tn5b8Aw1p1KS9Dno+sF3gjW+NQKPc/4lTv2thpOxTmqUXWkTEa/IgU0qbhrgNtCaTqgoR3dy5h4uClxgVqzwpfw0vXC1aa3aSYQ3+Me8WFOTQYplP6qItv8vmk+sQnUEdGF4Lv4eIPsDb42xTAc0q92hTVwtiN4jTjFR+O7JxaaHMloHK4qhALqU+36syoCI8vdsiEFaadAObJbZ5AbUKDTYohkw1JdI2V1lMcSjWc93M2eaHxHwQRWm/87CKLhClstnkVuIYtF8KihIWHqAuzxLHdh/x4yx5UtmGULhcYdhJl+u8IOwEljCyW2x4c1Xgb/PqMU6ZKel0X3EcxUhgHICvyaHowpK9B+hdHU60wAJvVHRLKy81/TOukwCy+ORzRAnJcbOWJs7o8L7zUYxj1Ftj/bwYdq92Uo3zTY9wSSZRHgLHpadJ6oNIfvOtq54gD36JBU/XUhcrEMLqjotAGOp0BjubFyyeGM3Xep0vP5MpOa4pseT2P/7H7D0kbFygYw9okNM30aODrAaIQmPGHm/GcLeyxD4hG0P3nM2rI1T2Oq1ZaZGnocYQXuc1LuxwP2i4zgbTWsTV8VCFGcQjycTwZBIfnAHly0GKc0c8tuyhtSk46zDgdxIuKvyHn0rasF+Mdmv1xjE6m9rajHUkhn6iHU/FogimUJQc7xQM1jg==",
+    "expiration": "2026-05-17T03:48:10.000Z"
   },
   "name": "gigitekai",
   "path": "/home/ubuntu/gigitekai",
@@ -41,6 +42,7 @@
     "FACEBOOK_APP_SECRET": "7217af36e55f6358534fd7334de2eb40",
     "HUBSPOT_API_KEY": "pat-na2-bf0a6794-92c4-4675-b7cd-830db63c0d04",
     "JIRA_API_TOKEN": "ATCTT3xFfGN0E2hZ4ePNSFFJ2QoXZ5wygA9if0BuIC6SHXLeZwB7Pk90WOVv2LzJeWMhux-lhKgsuQuiq6d79B8MZdIuplvmWDF-CsuSQwLxdbOHKJlcpFxRKJP-4CdNRQlJYzR8ZQsgaZJmbC40A6PoUoI2UyxakV4m_--3YyqK4JedQsXKyrw=A268FDB8",
+    "JIRA_API_TOKEN_ADMIN": "ATATT3xFfGF0xYphmUYtrkDj8KGxh0Q8JwrFB-8ifO-cTPwzAvEayLUUAm3TyYg96BtgO-I9VI9zR4QJ-TkoDo5GLmw8LDVYKLw2nlpwjQadGx0GLXxIpPYt6ksqb4VjBxZ6yxYpBMk7XtYp5LdDqC-q2milm4yGLxEM3Jp2tKhZCVicL0ZwV2I=DE023404",
     "JIRA_EMAIL": "harry@gigitekai.com",
     "JIRA_URL": "https://gigitekai.atlassian.net",
     "JWT_SECRET": "Wf2PK2R8veHJbSCJAG9k4g",
