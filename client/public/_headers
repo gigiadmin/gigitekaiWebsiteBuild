@@ -1,0 +1,42 @@
+/* Cloudflare Caching Headers for Performance Optimization */
+
+/* HTML: No cache, always revalidate */
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/* Hashed assets (JS, CSS, images) — immutable, cache forever */
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/* Fonts: Cache for 1 year */
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/* Manus storage assets (hero images, videos, etc.) — cache aggressively */
+/manus-storage/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/* Service Worker: No cache, always revalidate */
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/* Manifest: Cache for 1 day */
+/manifest.json
+  Cache-Control: public, max-age=86400
+  Content-Type: application/manifest+json
+
+/* API routes: No cache */
+/api/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/* Admin routes: No cache */
+/admin/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/* Default: Cache for 1 hour */
+/*
+  Cache-Control: public, max-age=3600
+  X-Content-Type-Options: nosniff
