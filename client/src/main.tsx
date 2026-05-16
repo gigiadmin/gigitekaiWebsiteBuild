@@ -40,16 +40,23 @@ function getOrCreateMountPoint(): HTMLElement {
   return el;
 }
 
-// Register service worker for PWA
+// Register service worker for PWA — deferred to requestIdleCallback to avoid TBT
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+  const registerSW = () => {
     navigator.serviceWorker.register('/sw.js').then((registration) => {
       // Force update check on every page load
       registration.update();
     }).catch((error) => {
       console.warn('[PWA] Service worker registration failed:', error);
     });
-  });
+  };
+  
+  // Use requestIdleCallback if available, otherwise defer to load event
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(registerSW, { timeout: 2000 });
+  } else {
+    window.addEventListener('load', registerSW);
+  }
 }
 
 const queryClient = new QueryClient();
