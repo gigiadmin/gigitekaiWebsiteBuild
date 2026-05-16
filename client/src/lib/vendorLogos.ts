@@ -276,7 +276,7 @@ export const vendorLogos: Record<string, { url: string; alt: string }> = {
 
   // Fallback for unknown vendors
   default: {
-    url: "https://via.placeholder.com/64?text=Logo",
+    url: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/devicon/devicon-original.svg",
     alt: "Technology Logo",
   },
 };

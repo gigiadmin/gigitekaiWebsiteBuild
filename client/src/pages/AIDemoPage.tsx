@@ -1166,7 +1166,7 @@ export default function AIDemoPage() {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
-          <Link href="/pricing">
+          <Link href="/helpdesk-pricing">
             <Button variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 text-base">
               View Pricing
               <ChevronRight className="w-4 h-4 ml-2" />

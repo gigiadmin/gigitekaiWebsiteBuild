@@ -9,6 +9,7 @@ const footerLinks = {
   Services: [
     "Cloud Infrastructure",
     "AI & Machine Learning",
+    "Microsoft 365",
     "Managed IT Services",
     "Cybersecurity",
     "Data Analytics",
@@ -103,6 +104,7 @@ export default function Footer() {
                   if (link === "Support Portal") href = "/helpdesk";
                   if (link === "Cloud Infrastructure") href = "/services/cloud";
                   if (link === "AI & Machine Learning") href = "/services/ai";
+                  if (link === "Microsoft 365") href = "/services/microsoft-365";
                   if (link === "Managed IT Services") href = "/services/managed";
                   if (link === "Cybersecurity") href = "/services/security";
                   if (link === "Data Analytics") href = "/services/data";

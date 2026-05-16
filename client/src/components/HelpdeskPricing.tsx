@@ -638,7 +638,7 @@ export default function HelpdeskPricing() {
           </h3>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-cyan-500 mb-2">99.5%</div>
+              <div className="text-4xl font-bold text-cyan-500 mb-2">99.9%</div>
               <p className="text-foreground font-semibold mb-2">Uptime SLA</p>
               <p className="text-sm text-muted-foreground">
                 Enterprise-grade infrastructure with redundancy and failover systems.
