@@ -5,12 +5,13 @@
   Fonts: Space Grotesk (display) + DM Sans (body)
 
   Performance strategy:
-  - Only Navbar + Hero are eagerly loaded (they're above the fold on mobile)
-  - Everything else uses IntersectionObserver-based TRUE deferred loading
+  - Navbar + Hero + Critical sections (Services, Benefits, Stats) are EAGERLY loaded
+    for Server-Side Rendering (SSR) — Google and users see full content immediately
+  - Below-fold sections use IntersectionObserver-based TRUE deferred loading
   - import() is NOT called until the user scrolls near the section
-  - This eliminates the "Reduce unused JavaScript" Lighthouse penalty
 */
 
+import { Suspense } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import LazySection from "@/components/LazySection";
@@ -19,6 +20,15 @@ import LazySection from "@/components/LazySection";
 // Only the navbar and hero are visible on first paint (hero is min-h-[90vh])
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
+
+// ─── Critical for SEO & Server-Side Rendering (eager) ────────────────────────
+// These sections must render server-side so Google and users see content
+// without waiting for JavaScript. They're critical for SEO and UX.
+import TransparencyTicker from "@/components/TransparencyTicker";
+import ServicesSection from "@/components/ServicesSection";
+import BenefitsSection from "@/components/BenefitsSection";
+import StatsSection from "@/components/StatsSection";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   useSEO({ ...SEO_CONFIG["/"], path: "/" });
@@ -30,14 +40,22 @@ export default function Home() {
         {/* Above-fold: eager load — visible on first paint (hero = 90vh) */}
         <HeroSection />
 
-        {/* Just below hero — load early with generous rootMargin */}
-        <LazySection factory={() => import("@/components/TransparencyTicker")} minHeight="60px" rootMargin="600px" />
-        <LazySection factory={() => import("@/components/ServicesSection")} minHeight="400px" rootMargin="600px" />
-        <LazySection factory={() => import("@/components/BenefitsSection")} minHeight="300px" rootMargin="500px" />
+        {/* Critical for SEO: Render server-side (no lazy loading) */}
+        <Suspense fallback={<div style={{ minHeight: "60px" }} />}>
+          <TransparencyTicker />
+        </Suspense>
+        <Suspense fallback={<div style={{ minHeight: "400px" }} />}>
+          <ServicesSection />
+        </Suspense>
+        <Suspense fallback={<div style={{ minHeight: "300px" }} />}>
+          <BenefitsSection />
+        </Suspense>
+        <Suspense fallback={<div style={{ minHeight: "250px" }} />}>
+          <StatsSection />
+        </Suspense>
 
         {/* Below-fold: TRUE deferred loading — import() only fires on scroll */}
         <LazySection factory={() => import("@/components/WhoWeServeSection")} minHeight="300px" />
-        <LazySection factory={() => import("@/components/StatsSection")} minHeight="250px" />
         <LazySection factory={() => import("@/components/IndustriesSection")} minHeight="300px" />
         <LazySection factory={() => import("@/components/AgenticOrchestrationSection")} minHeight="300px" />
         <LazySection factory={() => import("@/components/ROIPromotionSection")} minHeight="250px" />
@@ -49,7 +67,7 @@ export default function Home() {
         <LazySection factory={() => import("@/components/FAQSection")} minHeight="300px" />
         <LazySection factory={() => import("@/components/CTASection")} minHeight="200px" />
       </main>
-      <LazySection factory={() => import("@/components/Footer")} minHeight="200px" rootMargin="600px" />
+      <Footer />
       <LazySection factory={() => import("@/components/ScrollToTop")} minHeight="0px" rootMargin="0px" />
     </div>
   );
