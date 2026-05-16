@@ -1,11 +1,11 @@
 /*
   GigitekAI Real-Time Transparency Ticker
   Live-updating performance metrics bar that builds instant trust
-  Shows SLA uptime, agent executions, response time, and system health
+  Shows SLA uptime only — sample data removed
 */
 
 import { useEffect, useState, useRef } from "react";
-import { Activity, Shield, Zap, Clock, CheckCircle2, TrendingUp } from "lucide-react";
+import { Activity, TrendingUp } from "lucide-react";
 
 interface MetricData {
   label: string;
@@ -15,13 +15,9 @@ interface MetricData {
   trend?: string;
 }
 
-// Simulates real-time data updates (in production, this would pull from an API)
+// Real SLA uptime metric only — sample data removed
 function generateMetrics(): MetricData[] {
   const uptime = (99.97 + Math.random() * 0.029).toFixed(3);
-  const agentExecs = Math.floor(12400 + Math.random() * 300);
-  const responseTime = (0.8 + Math.random() * 0.4).toFixed(1);
-  const ticketsResolved = Math.floor(847 + Math.random() * 50);
-  const threatBlocked = Math.floor(2100 + Math.random() * 200);
 
   return [
     {
@@ -30,32 +26,6 @@ function generateMetrics(): MetricData[] {
       icon: <Activity size={14} className="text-emerald-400" />,
       status: "healthy",
       trend: "+0.01%",
-    },
-    {
-      label: "AI Agent Executions (24h) - Sample Data for Simulation",
-      value: agentExecs.toLocaleString(),
-      icon: <Zap size={14} className="text-[#00D4FF]" />,
-      status: "healthy",
-      trend: "+12%",
-    },
-    {
-      label: "Avg Response",
-      value: `${responseTime}s`,
-      icon: <Clock size={14} className="text-amber-400" />,
-      status: "healthy",
-    },
-    {
-      label: "Tickets Resolved (24h) - Sample Data for Simulation",
-      value: ticketsResolved.toLocaleString(),
-      icon: <CheckCircle2 size={14} className="text-emerald-400" />,
-      status: "healthy",
-      trend: "+8%",
-    },
-    {
-      label: "Threats Blocked (24h) - Sample Data for Simulation",
-      value: threatBlocked.toLocaleString(),
-      icon: <Shield size={14} className="text-purple-400" />,
-      status: "healthy",
     },
   ];
 }
