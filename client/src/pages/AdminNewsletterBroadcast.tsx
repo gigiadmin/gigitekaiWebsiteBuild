@@ -4,7 +4,7 @@ import AdminLayout from "@/components/AdminLayout";
  * Tabs: Compose | Drafts | Scheduled | Sent History
  */
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,15 @@ import {
   Send, Eye, EyeOff, Loader2, CheckCircle2, XCircle, Clock,
   History, FileText, CalendarClock, Save, Trash2, Calendar, Edit,
 } from "lucide-react";
-import RichTextEditor from "@/components/RichTextEditor";
+
+const RichTextEditor = lazy(() => import("@/components/RichTextEditor").then(m => ({ default: m.default })));
+
+// Loading fallback for RichTextEditor
+function RichTextEditorSkeleton() {
+  return (
+    <div className="w-full h-96 bg-gray-900 border border-gray-700 rounded-lg animate-pulse" />
+  );
+}
 
 const EMPTY_FORM = { subject: "", bodyHtml: "", editingId: null as number | null };
 
@@ -233,11 +241,13 @@ export default function AdminNewsletterBroadcast() {
             {/* Body */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1.5">Email Body</label>
-              <RichTextEditor
-                value={form.bodyHtml}
-                onChange={(html) => setForm((f) => ({ ...f, bodyHtml: html }))}
-                placeholder="Write your newsletter content here…"
-              />
+                              <Suspense fallback={<RichTextEditorSkeleton />}>
+                                <RichTextEditor
+                  value={form.bodyHtml}
+                  onChange={(html) => setForm((f) => ({ ...f, bodyHtml: html }))}
+                  placeholder="Write your newsletter content here…"
+                />
+                              </Suspense>
             </div>
 
             {/* Live preview */}
