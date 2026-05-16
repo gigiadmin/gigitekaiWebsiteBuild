@@ -224,28 +224,26 @@ export function startAiNewsScheduler(): void {
   const hours = (ms / 3_600_000).toFixed(1);
   console.log(`[AI News Scheduler] Scheduled — first run in ${hours}h (9:00 AM ET daily)`);
 
-  // Initial timeout to run at 9 AM ET
-  setTimeout(() => {
-    runAiNewsRecap().catch((e) =>
-      console.error("[AI News Scheduler] Scheduled run failed:", e)
-    );
+  // Schedule the next run
+  const scheduleNextRun = () => {
+    const delayMs = msUntilNext9amET();
+    const nextHours = (delayMs / 3_600_000).toFixed(1);
+    console.log(`[AI News Scheduler] Next run scheduled in ${nextHours}h (9:00 AM ET)`);
     
-    // After first run, schedule to run every 24 hours at exactly 9 AM ET
-    _intervalId = setInterval(() => {
-      // Recalculate time to next 9 AM to ensure we are always on schedule
-      const delayMs = msUntilNext9amET();
-      setTimeout(() => {
-        runAiNewsRecap().catch((e) =>
-          console.error("[AI News Scheduler] Scheduled run failed:", e)
-        );
-      }, delayMs);
-    }, 24 * 60 * 60 * 1000); // Check every 24 hours
-  }, ms);
+    _intervalId = setTimeout(() => {
+      runAiNewsRecap()
+        .catch((e) => console.error("[AI News Scheduler] Scheduled run failed:", e))
+        .finally(() => scheduleNextRun()); // Reschedule after run completes
+    }, delayMs);
+  };
+
+  // Start the scheduler
+  scheduleNextRun();
 }
 
 export function stopAiNewsScheduler(): void {
   if (_intervalId) {
-    clearInterval(_intervalId);
+    clearTimeout(_intervalId);
     _intervalId = null;
     console.log("[AI News Scheduler] Stopped.");
   }
