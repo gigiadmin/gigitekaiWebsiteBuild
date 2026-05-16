@@ -32,7 +32,7 @@ function generateMetrics(): MetricData[] {
       trend: "+0.01%",
     },
     {
-      label: "AI Agent Executions (24h)",
+      label: "AI Agent Executions (24h) - Sample Data for Simulation",
       value: agentExecs.toLocaleString(),
       icon: <Zap size={14} className="text-[#00D4FF]" />,
       status: "healthy",
@@ -45,14 +45,14 @@ function generateMetrics(): MetricData[] {
       status: "healthy",
     },
     {
-      label: "Tickets Resolved (24h)",
+      label: "Tickets Resolved (24h) - Sample Data for Simulation",
       value: ticketsResolved.toLocaleString(),
       icon: <CheckCircle2 size={14} className="text-emerald-400" />,
       status: "healthy",
       trend: "+8%",
     },
     {
-      label: "Threats Blocked (24h)",
+      label: "Threats Blocked (24h) - Sample Data for Simulation",
       value: threatBlocked.toLocaleString(),
       icon: <Shield size={14} className="text-purple-400" />,
       status: "healthy",
