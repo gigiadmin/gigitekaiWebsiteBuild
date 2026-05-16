@@ -140,6 +140,28 @@ export function serveStatic(app: Express) {
   // non-blocking CSS transform before sending index.html.
   app.use(express.static(distPath, { index: false }));
 
+  // ── Serve static legal pages in production (pre-rendered HTML for SEO) ──────
+  // These bypass the SPA catch-all so raw HTTP fetches return full HTML content.
+  app.get("/privacy-policy", (_req, res) => {
+    const legalPath = path.resolve(distPath, "privacy-policy.html");
+    if (fs.existsSync(legalPath)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      return res.sendFile(legalPath);
+    }
+    res.redirect("/");
+  });
+
+  app.get("/terms-of-service", (_req, res) => {
+    const legalPath = path.resolve(distPath, "terms-of-service.html");
+    if (fs.existsSync(legalPath)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      return res.sendFile(legalPath);
+    }
+    res.redirect("/");
+  });
+
   // fall through to index.html if the file doesn't exist
   // IMPORTANT: Skip /api/* routes so they reach the tRPC middleware
   app.use("*", (req, res, next) => {
