@@ -476,8 +476,6 @@ export default function HeroSection() {
             }`}
           >
             {[
-              { value: "50+", label: "Clients Served" },
-              { value: "99.9%", label: "Uptime SLA" },
               { value: "24/7", label: "AI Support" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">

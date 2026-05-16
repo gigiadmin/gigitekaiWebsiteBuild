@@ -6,12 +6,9 @@
   - How It Works 6-step process
 */
 import { useEffect, useRef, useState } from "react";
-import { Star, Shield, Award, TrendingUp, Users, Clock } from "lucide-react";
+import { Award, Clock } from "lucide-react";
 
 const stats = [
-  { icon: TrendingUp, value: 10, suffix: "+", label: "Years of Enterprise IT", sublabel: "Founder's hands-on experience" },
-  { icon: Users, value: 50, suffix: "+", label: "Businesses Transformed", sublabel: "Across North America & Canada" },
-  { icon: Shield, value: 99.9, suffix: "%", label: "Managed Uptime SLA", sublabel: "Guaranteed availability" },
   { icon: Clock, value: 48, suffix: "hr", label: "Avg. Client Onboarding", sublabel: "From contract to live" },
 ];
 
