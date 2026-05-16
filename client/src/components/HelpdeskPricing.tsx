@@ -334,9 +334,9 @@ export default function HelpdeskPricing() {
                         ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
                         : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
                     }`}
-                    onClick={() => window.location.href = tier.name === 'Elite' ? '/contact' : '/login'}
+                    onClick={() => window.location.href = '/contact'}
                   >
-                    {tier.name === 'Elite' ? tier.cta : 'Sign in to Purchase'}
+                    {tier.cta}
                   </Button>
                 )}
 
