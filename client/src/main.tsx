@@ -52,10 +52,11 @@ if ('serviceWorker' in navigator) {
   };
   
   // Use requestIdleCallback if available, otherwise defer to load event
-  if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(registerSW, { timeout: 2000 });
+  const win = window as Window & typeof globalThis & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void };
+  if (win.requestIdleCallback) {
+    win.requestIdleCallback(registerSW, { timeout: 2000 });
   } else {
-    window.addEventListener('load', registerSW);
+    (window as Window).addEventListener('load', registerSW);
   }
 }
 

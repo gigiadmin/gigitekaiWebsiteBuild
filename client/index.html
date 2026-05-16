@@ -235,7 +235,58 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- STATIC CRAWLER CONTENT: Visible to Googlebot and crawlers before JS runs.
+           React will replace this content on hydration. -->
+      <noscript>
+        <style>
+          .crawler-content { font-family: sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #0A0E1A; color: #fff; }
+          .crawler-content h1 { font-size: 2.5rem; color: #00D4FF; margin-bottom: 1rem; }
+          .crawler-content h2 { font-size: 1.5rem; color: #00D4FF; margin: 1.5rem 0 0.5rem; }
+          .crawler-content p, .crawler-content li { color: #ccc; line-height: 1.6; }
+          .crawler-content a { color: #00D4FF; }
+          .crawler-content ul { padding-left: 1.5rem; }
+          .crawler-content .contact { margin: 1rem 0; }
+        </style>
+        <div class="crawler-content">
+          <header>
+            <strong>GigitekAI</strong> — AI-First Managed Services Provider
+            <div class="contact">Phone: <a href="tel:+17273825776">(727) 382-5776</a> | Email: <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></div>
+          </header>
+          <main>
+            <h1>Intelligent Cloud &amp; AI Solutions</h1>
+            <p>GigitekAI is an AI-first Managed Services Provider (MSP) specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for small to mid-size businesses across North America and Canada.</p>
+            <p>We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale. Guaranteed 99.9% uptime SLA, 24/7 AI-powered support, and measurable ROI.</p>
+            <h2>Our Services</h2>
+            <ul>
+              <li><strong>AI Workflow Automation</strong> — Intelligent agents that replace manual workflows and act as full employees</li>
+              <li><strong>Microsoft 365 Architecture</strong> — Expert design, deployment, and optimization of M365 environments</li>
+              <li><strong>Managed IT Services</strong> — 24/7 helpdesk, endpoint management, and proactive monitoring</li>
+              <li><strong>Cybersecurity</strong> — Zero Trust, SIEM, endpoint protection, email security, and compliance (HIPAA, SOC 2, PCI-DSS)</li>
+              <li><strong>Cloud Infrastructure</strong> — AWS, Azure, Google Cloud architecture and management</li>
+              <li><strong>LLM Integration</strong> — Custom AI model deployment and enterprise AI orchestration</li>
+            </ul>
+            <h2>Why GigitekAI</h2>
+            <ul>
+              <li>50+ clients across North America and Canada</li>
+              <li>99.9% uptime SLA guarantee</li>
+              <li>Up to 40% reduction in operational costs</li>
+              <li>280+ hours freed monthly for a typical 100-employee company</li>
+              <li>3–4 month payback period</li>
+              <li>Multi-system AI orchestrator provisions clients across 8+ systems in ~3.4 seconds</li>
+            </ul>
+            <h2>Contact Us</h2>
+            <p>Phone: <a href="tel:+17273825776">(727) 382-5776</a></p>
+            <p>Email: <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></p>
+            <p>Website: <a href="https://gigitekai.com">https://gigitekai.com</a></p>
+            <p>Tampa, FL — Serving North America and Canada</p>
+          </main>
+          <footer>
+            <a href="/privacy-policy">Privacy Policy</a> | <a href="/terms-of-service">Terms of Service</a> | <a href="/contact">Contact</a>
+          </footer>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Google Analytics 4: loaded after page interactive to reduce INP -->
