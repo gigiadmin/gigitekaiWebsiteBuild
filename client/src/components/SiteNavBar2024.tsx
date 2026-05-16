@@ -116,12 +116,12 @@ export default function SiteNavBar2024() {
             <img 
               src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp" 
               alt="GigitekAI logo" 
-              className="h-10 sm:h-12 lg:h-12 w-auto object-contain"
+              className="h-7 sm:h-8 lg:h-8 w-auto object-contain"
               width="245"
               height="70"
               fetchPriority="high"
               decoding="async"
-              style={{ maxWidth: '200px', minWidth: '130px' }}
+              style={{ maxWidth: '160px', minWidth: '100px', backgroundColor: '#0A0E1A', borderRadius: '2px' }}
             />
           </a>
 
