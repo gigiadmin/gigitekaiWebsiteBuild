@@ -24,7 +24,6 @@ import HeroSection from "@/components/HeroSection";
 // ─── Critical for SEO & Server-Side Rendering (eager) ────────────────────────
 // These sections must render server-side so Google and users see content
 // without waiting for JavaScript. They're critical for SEO and UX.
-import TransparencyTicker from "@/components/TransparencyTicker";
 import ServicesSection from "@/components/ServicesSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import StatsSection from "@/components/StatsSection";
@@ -41,9 +40,6 @@ export default function Home() {
         <HeroSection />
 
         {/* Critical for SEO: Render server-side (no lazy loading) */}
-        <Suspense fallback={<div style={{ minHeight: "60px" }} />}>
-          <TransparencyTicker />
-        </Suspense>
         <Suspense fallback={<div style={{ minHeight: "400px" }} />}>
           <ServicesSection />
         </Suspense>
