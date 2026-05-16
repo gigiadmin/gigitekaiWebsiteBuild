@@ -4,39 +4,59 @@
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
   X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 /* Hashed assets (JS, CSS, images) — immutable, cache forever */
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 /* Fonts: Cache for 1 year */
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
 
 /* Manus storage assets (hero images, videos, etc.) — cache aggressively */
 /manus-storage/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 /* Service Worker: No cache, always revalidate */
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
 
 /* Manifest: Cache for 1 day */
 /manifest.json
   Cache-Control: public, max-age=86400
   Content-Type: application/manifest+json
+  X-Content-Type-Options: nosniff
 
-/* API routes: No cache */
+/* API routes: No cache, strict security */
 /api/*
   Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
 
-/* Admin routes: No cache */
+/* Admin routes: No cache, strict security */
 /admin/*
   Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+
+/* Robots and sitemap: Cache for 1 week */
+/robots.txt /sitemap.xml /sitemap-*.xml
+  Cache-Control: public, max-age=604800
+  X-Content-Type-Options: nosniff
 
 /* Default: Cache for 1 hour */
 /*
   Cache-Control: public, max-age=3600
   X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin

@@ -53,7 +53,7 @@ if ('serviceWorker' in navigator) {
   
   // Use requestIdleCallback if available, otherwise defer to load event
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(registerSW, { timeout: 2000 });
+    (window as any).requestIdleCallback(registerSW, { timeout: 2000 });
   } else {
     window.addEventListener('load', registerSW);
   }
