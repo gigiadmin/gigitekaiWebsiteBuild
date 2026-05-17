@@ -73,14 +73,17 @@ export async function setupVite(app: Express, server: Server) {
         "public",
         "homepage-static.html"
       );
+      console.log("[Homepage Route] Checking for:", homepageTemplate);
       if (fs.existsSync(homepageTemplate)) {
+        console.log("[Homepage Route] ✓ File found, serving static homepage");
         let template = await fs.promises.readFile(homepageTemplate, "utf-8");
-        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+        res.status(200).set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" }).end(template);
         return;
       }
     } catch (e) {
       console.error("[Homepage] Error:", e);
     }
+    // If homepage-static.html doesn't exist, fall through to SPA
     next();
   });
   
