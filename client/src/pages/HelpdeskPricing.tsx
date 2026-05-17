@@ -47,7 +47,7 @@ const FAQ_SCHEMA = {
       "name": "Do you offer a free IT assessment?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. GigitekAI offers a free IT assessment for Tampa Bay businesses. Call (727) 382-5776 or email support@gigitekai.com to schedule."
+        "text": "Yes. GigitekAI offers a free IT assessment for Tampa Bay businesses. Call (727) 382-6909 or email support@gigitekai.com to schedule."
       }
     }
   ]

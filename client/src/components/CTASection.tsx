@@ -94,7 +94,7 @@ export default function CTASection() {
             {/* Contact info */}
             <div className="space-y-4">
               {[
-                { icon: Phone, label: "(727) 382-5776", href: "tel:+17273825776" },
+                { icon: Phone, label: "(727) 382-6909", href: "tel:+17273826909" },
                 { icon: Mail, label: "Support@gigitekai.com", href: "mailto:Support@gigitekai.com" },
                 { icon: MapPin, label: "Serving clients across North America & Canada", href: "#" },
               ].map(({ icon: Icon, label, href }) => (

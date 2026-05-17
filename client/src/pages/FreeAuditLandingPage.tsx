@@ -162,8 +162,8 @@ export default function FreeAuditLandingPage() {
               <h3 className="font-bold mb-4">Contact</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="tel:+17273825776" className="hover:text-[#00D4FF]">
-                    (727) 382-5776
+                  <a href="tel:+17273826909" className="hover:text-[#00D4FF]">
+                    (727) 382-6909
                   </a>
                 </li>
                 <li>

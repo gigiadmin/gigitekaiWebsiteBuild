@@ -169,7 +169,7 @@ export default function CancelMeeting() {
         </div>
 
         <p className="text-center text-gray-400 text-xs mt-6">
-          Questions? Call <a href="tel:7273825776" className="text-[#00d4ff]">(727) 382-5776</a> or email{" "}
+          Questions? Call <a href="tel:7273826909" className="text-[#00d4ff]">(727) 382-6909</a> or email{" "}
           <a href="mailto:support@gigitekai.com" className="text-[#00d4ff]">support@gigitekai.com</a>
         </p>
       </div>
