@@ -25,6 +25,7 @@ import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
 import { startAiNewsScheduler } from "../schedulers/aiNewsScheduler";
+import { startWebhookHealthMonitor } from "./teamsWebhookUtils";
 import { startEmailPoller } from "./emailPoller";
 import { startCallPoller } from "./callPoller";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
@@ -358,6 +359,8 @@ async function startServer() {
     startMsLearnSyncScheduler();
     // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
     startAiNewsScheduler();
+    // Start Teams webhook health monitor (hourly checks)
+    startWebhookHealthMonitor();
     // Start M365 Graph email poller (every 5 minutes)
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)

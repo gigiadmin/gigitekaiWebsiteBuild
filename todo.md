@@ -5095,3 +5095,25 @@
 - [ ] Enable admin dashboard access - Fix authentication/404 issues on /admin/uptime routes
 - [ ] Add Uptime SLA Tracking - Create dashboard widget showing 30/90-day uptime percentages
 - [ ] Implement Alert Escalation - Add Teams/email notifications when monitors transition UP→DOWN
+
+
+## Cloudflare Security Enhancements (May 2026)
+- [ ] Enable Super Bot Fight Mode in Cloudflare dashboard (prevents AI scraping)
+- [ ] Enable Leaked credentials mitigation in Cloudflare dashboard (rate-limits credential attacks)
+
+## WhatsMyIP API Integration (May 2026)
+- [ ] Add WhatsMyIP API key to environment secrets (wmi_59f7f645...)
+- [ ] Create whatsmyip router with backend procedures (getClientIP, getIPGeolocation, getIPReputation)
+- [ ] Build WhatsMyIP admin dashboard page or widget
+- [ ] Test WhatsMyIP integration end-to-end
+- [ ] Add to admin portal navigation
+
+## Claude & Gemini LLM Integration (May 2026)
+- [ ] Add Claude API key to environment secrets
+- [ ] Add Gemini API key to environment secrets
+- [ ] Create LLM router with model routing logic (Claude for reasoning, Gemini for vision)
+- [ ] Build admin AI Chat interface
+- [ ] Build Ticket AI Analysis feature (auto-categorize, suggest solutions)
+- [ ] Build Content Generator (blog posts, emails, KB articles)
+- [ ] Test all LLM features end-to-end
+- [ ] Add AI Tools section to admin portal

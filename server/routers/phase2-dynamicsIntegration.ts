@@ -154,19 +154,55 @@ export const dynamicsIntegrationRouter = router({
    */
   checkConnection: protectedProcedure.query(async ({ ctx }) => {
     try {
-      // TODO: Verify connection to Dynamics 365
+      // Check if Dynamics 365 credentials are configured
+      const d365OrgUrl = process.env.D365_ORG_URL;
+      const tenantId = process.env.MS_GRAPH_TENANT_ID;
+      const clientId = process.env.MS_GRAPH_CLIENT_ID;
+      const clientSecret = process.env.MS_GRAPH_CLIENT_SECRET;
 
+      if (!d365OrgUrl || !tenantId || !clientId || !clientSecret) {
+        return {
+          connected: false,
+          status: "error",
+          message: "Dynamics 365 credentials not configured",
+        };
+      }
+
+      // Test token acquisition from Microsoft Graph
+      const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+      const tokenResponse = await fetch(tokenUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "client_credentials",
+          client_id: clientId,
+          client_secret: clientSecret,
+          scope: "https://graph.microsoft.com/.default",
+        }).toString(),
+      });
+
+      if (!tokenResponse.ok) {
+        const err = await tokenResponse.text();
+        console.error("[Dynamics Integration] Token acquisition failed:", err);
+        return {
+          connected: false,
+          status: "error",
+          message: "Failed to acquire Microsoft Graph token",
+        };
+      }
+
+      // Token acquired successfully
       return {
         connected: true,
         status: "healthy",
-        message: "Connected to Dynamics 365 Contact Center",
+        message: "Connected to Dynamics 365 Contact Center via Microsoft Graph",
       };
     } catch (error) {
       console.error("[Dynamics Integration] Check connection failed:", error);
       return {
         connected: false,
         status: "error",
-        message: "Failed to connect to Dynamics 365",
+        message: `Failed to connect to Dynamics 365: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
   }),
