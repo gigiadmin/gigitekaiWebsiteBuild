@@ -79,6 +79,13 @@ async function graphRequest(method: string, path: string, body?: object): Promis
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 
+// Export the ping function for use in other routers
+export async function performTeamsWebhookHealthCheck() {
+  const { pingTeamsWebhook, getWebhookHealthStatus } = await import("../_core/teamsWebhookUtils");
+  await pingTeamsWebhook().catch(() => {});
+  return getWebhookHealthStatus();
+}
+
 export const teamsChannelsRouter = router({
 
   // List all companies with their Teams channel status
@@ -273,14 +280,16 @@ export const teamsChannelsRouter = router({
 
   // Get webhook health status
   getWebhookHealth: protectedProcedure.query(async () => {
-    const { getWebhookHealthStatus, getDeadLetterQueue } = await import("../_core/teamsWebhookUtils");
+    const { getWebhookHealthStatus, pingTeamsWebhook, getDeadLetterQueue } = await import("../_core/teamsWebhookUtils");
+    // Perform a live ping to get fresh health status (avoids in-memory state issues)
+    await pingTeamsWebhook().catch(() => {});
     return {
       health: getWebhookHealthStatus(),
       deadLetterQueue: getDeadLetterQueue().slice(-10), // last 10 failures
     };
   }),
 
-  // Manually ping the webhook to check health
+  // Manually ping the webhook to check health (deprecated - use getWebhookHealth which now does live ping)
   pingWebhook: protectedProcedure.mutation(async () => {
     const { pingTeamsWebhook } = await import("../_core/teamsWebhookUtils");
     const healthy = await pingTeamsWebhook();

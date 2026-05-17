@@ -5101,9 +5101,10 @@
 - [x] Enable Super Bot Fight Mode in Cloudflare dashboard (prevents AI scraping)
 - [x] Enable Leaked credentials mitigation in Cloudflare dashboard (rate-limits credential attacks)
 
-## Integration Status Fixes (May 2026) - COMPLETE
-- [x] Fix Teams Webhook health monitor not starting at server startup
+## Integration Status Fixes (May 2026) - COMPLETE ✅
+- [x] Fix Teams Webhook health monitor not starting at server startup (now runs immediately)
 - [x] Fix Dynamics 365 Contact Center connection check to validate credentials
+- [x] Fix admin dashboard UI logic for Teams Webhook status display
 - [x] Both services now properly report health status in admin dashboard
 
 ## WhatsMyIP API Integration (May 2026)
