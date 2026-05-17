@@ -153,6 +153,7 @@ export const dynamicsIntegrationRouter = router({
    * Check Dynamics 365 connection status
    */
   checkConnection: protectedProcedure.query(async ({ ctx }) => {
+    console.log("[Dynamics Integration] checkConnection query called by user:", ctx.user?.id);
     try {
       // Check if Dynamics 365 credentials are configured
       const d365OrgUrl = process.env.D365_ORG_URL;
@@ -161,6 +162,7 @@ export const dynamicsIntegrationRouter = router({
       const clientSecret = process.env.MS_GRAPH_CLIENT_SECRET;
 
       if (!d365OrgUrl || !tenantId || !clientId || !clientSecret) {
+        console.warn("[Dynamics Integration] Missing credentials - D365_ORG_URL:", !!d365OrgUrl, "Tenant:", !!tenantId, "ClientID:", !!clientId, "Secret:", !!clientSecret);
         return {
           connected: false,
           status: "error",
@@ -192,6 +194,7 @@ export const dynamicsIntegrationRouter = router({
       }
 
       // Token acquired successfully
+      console.log("[Dynamics Integration] ✅ Token acquisition successful");
       return {
         connected: true,
         status: "healthy",

@@ -280,13 +280,49 @@ export const teamsChannelsRouter = router({
 
   // Get webhook health status
   getWebhookHealth: protectedProcedure.query(async () => {
-    const { getWebhookHealthStatus, pingTeamsWebhook, getDeadLetterQueue } = await import("../_core/teamsWebhookUtils");
-    // Perform a live ping to get fresh health status (avoids in-memory state issues)
-    await pingTeamsWebhook().catch(() => {});
-    return {
-      health: getWebhookHealthStatus(),
-      deadLetterQueue: getDeadLetterQueue().slice(-10), // last 10 failures
-    };
+    const { getDeadLetterQueue } = await import("../_core/teamsWebhookUtils");
+    const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
+    const configured = !!webhookUrl;
+    
+    if (!configured) {
+      return {
+        health: { healthy: false, lastCheckedAt: new Date(), configured: false },
+        deadLetterQueue: getDeadLetterQueue().slice(-10),
+      };
+    }
+
+    // Direct live ping — no shared state, no timing issues
+    try {
+      const pingPayload = {
+        type: "message",
+        attachments: [{
+          contentType: "application/vnd.microsoft.card.adaptive",
+          content: {
+            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+            type: "AdaptiveCard",
+            version: "1.4",
+            body: [{ type: "TextBlock", text: "🟢 GigitekAI Helpdesk — webhook health OK", isSubtle: true, size: "Small" }],
+          },
+        }],
+      };
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pingPayload),
+      });
+      const healthy = response.ok;
+      console.log(`[Teams Health] getWebhookHealth live ping: HTTP ${response.status} → ${healthy ? 'healthy' : 'failed'}`);
+      return {
+        health: { healthy, lastCheckedAt: new Date(), configured: true },
+        deadLetterQueue: getDeadLetterQueue().slice(-10),
+      };
+    } catch (err: any) {
+      console.warn(`[Teams Health] getWebhookHealth live ping error: ${err?.message}`);
+      return {
+        health: { healthy: false, lastCheckedAt: new Date(), configured: true },
+        deadLetterQueue: getDeadLetterQueue().slice(-10),
+      };
+    }
   }),
 
   // Manually ping the webhook to check health (deprecated - use getWebhookHealth which now does live ping)
