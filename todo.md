@@ -5098,8 +5098,13 @@
 
 
 ## Cloudflare Security Enhancements (May 2026)
-- [ ] Enable Super Bot Fight Mode in Cloudflare dashboard (prevents AI scraping)
-- [ ] Enable Leaked credentials mitigation in Cloudflare dashboard (rate-limits credential attacks)
+- [x] Enable Super Bot Fight Mode in Cloudflare dashboard (prevents AI scraping)
+- [x] Enable Leaked credentials mitigation in Cloudflare dashboard (rate-limits credential attacks)
+
+## Integration Status Fixes (May 2026) - COMPLETE
+- [x] Fix Teams Webhook health monitor not starting at server startup
+- [x] Fix Dynamics 365 Contact Center connection check to validate credentials
+- [x] Both services now properly report health status in admin dashboard
 
 ## WhatsMyIP API Integration (May 2026)
 - [ ] Add WhatsMyIP API key to environment secrets (wmi_59f7f645...)

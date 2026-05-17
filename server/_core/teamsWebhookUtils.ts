@@ -186,7 +186,11 @@ let healthCheckIntervalId: NodeJS.Timeout | null = null;
  */
 export async function pingTeamsWebhook(): Promise<boolean> {
   const url = process.env.TEAMS_WEBHOOK_URL;
-  if (!url) return false;
+  console.log("[Teams Health] Starting webhook ping...");
+  if (!url) {
+    console.warn("[Teams Health] No webhook URL configured");
+    return false;
+  }
 
   // Minimal valid Adaptive Card payload (renders as empty message)
   const pingPayload = {
@@ -214,18 +218,19 @@ export async function pingTeamsWebhook(): Promise<boolean> {
     lastHealthCheckPassed = response.ok;
 
     if (!response.ok) {
-      console.warn(`[Teams Health] Webhook ping failed: HTTP ${response.status}`);
+      console.warn(`[Teams Health] ❌ Webhook ping failed: HTTP ${response.status}`);
       notifyOwner({
         title: "⚠️ Teams Webhook Health Check Failed",
         content: `The Teams webhook health check returned HTTP ${response.status} at ${lastHealthCheckAt.toISOString()}. Teams notifications may not be delivered. Please verify the webhook URL in your Teams channel settings.`,
       }).catch(() => {});
     }
 
+    console.log(`[Teams Health] ✅ Webhook ping successful: HTTP ${response.status}`);
     return response.ok;
   } catch (err: any) {
     lastHealthCheckAt = new Date();
     lastHealthCheckPassed = false;
-    console.warn(`[Teams Health] Webhook ping error: ${err?.message}`);
+    console.warn(`[Teams Health] ❌ Webhook ping error: ${err?.message}`);
     notifyOwner({
       title: "⚠️ Teams Webhook Unreachable",
       content: `The Teams webhook health check threw an error at ${lastHealthCheckAt.toISOString()}: ${err?.message}. Teams notifications are likely not being delivered.`,
@@ -254,15 +259,23 @@ export function startWebhookHealthMonitor(): void {
 
   const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
-  // Run first check after 5 minutes (give server time to start)
-  setTimeout(() => {
-    pingTeamsWebhook().catch(() => {});
-    healthCheckIntervalId = setInterval(() => {
-      pingTeamsWebhook().catch(() => {});
-    }, INTERVAL_MS);
-  }, 5 * 60 * 1000);
+  console.log("[Teams Health] Webhook health monitor initializing...");
+  
+  // Run first check immediately
+  console.log("[Teams Health] Running first health check immediately...");
+  pingTeamsWebhook().catch((err) => {
+    console.error("[Teams Health] First health check error:", err);
+  });
+  
+  // Then run subsequent checks every hour
+  healthCheckIntervalId = setInterval(() => {
+    console.log("[Teams Health] Running hourly health check...");
+    pingTeamsWebhook().catch((err) => {
+      console.error("[Teams Health] Hourly health check error:", err);
+    });
+  }, INTERVAL_MS);
 
-  console.log("[Teams Health] Webhook health monitor started (hourly checks)");
+  console.log("[Teams Health] ✅ Webhook health monitor started (hourly checks, first check immediate)");
 }
 
 /**

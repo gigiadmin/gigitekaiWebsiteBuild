@@ -280,7 +280,9 @@ export default function AdminContactCenterDashboard() {
     ? "error"
     : teamsWebhook.health.healthy === true
     ? "healthy"
-    : "degraded";
+    : teamsWebhook.health.lastCheckedAt
+    ? "degraded"
+    : "unknown";
   const copilotConfigured = copilotStatus?.tenantId === "configured" && copilotStatus?.environmentId === "configured";
 
   return (
