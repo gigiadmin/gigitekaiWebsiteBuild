@@ -10,7 +10,7 @@
  *   getCallMetrics   — today's call volume from ACS call logs (if available)
  *   getStatus        — overall ACS resource health (connectivity check)
  */
-import { router, adminProcedure } from "../_core/trpc";
+import { router, adminProcedure, publicProcedure } from "../_core/trpc";
 import { ENV } from "../_core/env";
 import crypto from "crypto";
 
@@ -86,7 +86,7 @@ export const acsRouter = router({
    * Returns the overall ACS resource connectivity status.
    * Used by the Contact Center Dashboard health indicator.
    */
-  getStatus: adminProcedure.query(async () => {
+  getStatus: publicProcedure.query(async () => {
     const creds = parseConnectionString(ENV.acsConnectionString);
     if (!creds) {
       return {

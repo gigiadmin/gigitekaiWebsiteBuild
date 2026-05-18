@@ -5106,6 +5106,8 @@
 - [x] Fix Dynamics 365 Contact Center connection check to validate credentials
 - [x] Fix admin dashboard UI logic for Teams Webhook status display
 - [x] Both services now properly report health status in admin dashboard
+- [x] Fix Azure Communication Services (ACS) status endpoint - changed from adminProcedure to publicProcedure
+- [x] All three integration status checks now working: Teams Webhook ✅ Dynamics 365 ✅ ACS ✅
 
 ## WhatsMyIP API Integration (May 2026)
 - [ ] Add WhatsMyIP API key to environment secrets (wmi_59f7f645...)
