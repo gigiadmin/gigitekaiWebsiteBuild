@@ -3,7 +3,7 @@
  * Sync call data with Dynamics 365 Contact Center
  */
 
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { callRecordings, callAnalytics } from "../../drizzle/phase2-schema-additions";
@@ -152,7 +152,7 @@ export const dynamicsIntegrationRouter = router({
   /**
    * Check Dynamics 365 connection status
    */
-  checkConnection: protectedProcedure.query(async ({ ctx }) => {
+  checkConnection: publicProcedure.query(async ({ ctx }) => {
     console.log("[Dynamics Integration] checkConnection query called by user:", ctx.user?.id);
     try {
       // Check if Dynamics 365 credentials are configured

@@ -11,7 +11,7 @@
  */
 
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { companies, teamsClientChannels } from "../../drizzle/schema";
@@ -278,8 +278,8 @@ export const teamsChannelsRouter = router({
     return getChannelRoutingSummary();
   }),
 
-  // Get webhook health status
-  getWebhookHealth: protectedProcedure.query(async () => {
+  // Get webhook health status (public - no auth required)
+  getWebhookHealth: publicProcedure.query(async () => {
     const { getDeadLetterQueue } = await import("../_core/teamsWebhookUtils");
     const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
     const configured = !!webhookUrl;

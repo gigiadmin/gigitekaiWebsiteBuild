@@ -263,9 +263,13 @@ class SDKServer {
 
   async authenticateRequest(req: Request): Promise<User> {
     // Regular authentication flow
+    console.log("[Auth] authenticateRequest called for:", req.path);
+    console.log("[Auth] Cookie header:", req.headers.cookie ? "present" : "MISSING");
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
+    console.log("[Auth] Session cookie found:", sessionCookie ? "yes" : "NO");
     const session = await this.verifySession(sessionCookie);
+    console.log("[Auth] Session verified:", session ? "yes" : "NO");
 
     if (!session) {
       throw ForbiddenError("Invalid session cookie");
