@@ -207,9 +207,19 @@ export default function AdminContactCenterDashboard() {
   const { data: acsPhoneNumbers, isLoading: acsPhoneLoading } = trpc.acs.getPhoneNumbers.useQuery(undefined, {
     refetchInterval: 60000,
   });
-  const { data: acsStatus } = trpc.acs.getStatus.useQuery(undefined, {
-    refetchInterval: 60000,
+  const { data: acsStatus, isLoading: acsLoading, error: acsError } = trpc.acs.getStatus.useQuery(undefined, {
+    refetchInterval: 45000,  // Different interval to prevent batching with admin-only getPhoneNumbers
   });
+  
+  // Debug ACS status
+  useEffect(() => {
+    if (acsError) {
+      console.error('[ACS Status Error]', acsError);
+    }
+    if (acsStatus) {
+      console.log('[ACS Status]', acsStatus);
+    }
+  }, [acsStatus, acsError]);
 
   // ── NEW: Real-time monitoring data ────────────────────────────────────────
   const { data: agentRealTime, isLoading: agentRealTimeLoading } = trpc.contactCenter.getAgentRealTimeStatus.useQuery(undefined, {

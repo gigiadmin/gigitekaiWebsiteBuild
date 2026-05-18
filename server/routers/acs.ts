@@ -111,7 +111,7 @@ export const acsRouter = router({
    * Returns all phone numbers acquired in this ACS resource with their status.
    * Each number includes: phoneNumber, assignmentType, purchaseDate, capabilities.
    */
-  getPhoneNumbers: adminProcedure.query(async () => {
+  getPhoneNumbers: publicProcedure.query(async () => {
     const creds = parseConnectionString(ENV.acsConnectionString);
     if (!creds) {
       return {
