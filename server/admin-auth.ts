@@ -65,15 +65,17 @@ export function getAdminSessionCookie(cookies: Record<string, string>): string |
   return cookies[ADMIN_SESSION_COOKIE];
 }
 
-export function buildAdminSessionCookieHeader(token: string, isSecure = true): string {
+export function buildAdminSessionCookieHeader(token: string, isSecure = true, domain?: string): string {
   const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
   const securePart = isSecure ? "; Secure" : "";
-  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${securePart}`;
+  const domainPart = domain ? `; Domain=${domain}` : "";
+  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${domainPart}${securePart}`;
 }
 
-export function clearAdminSessionCookieHeader(isSecure = true): string {
+export function clearAdminSessionCookieHeader(isSecure = true, domain?: string): string {
   const securePart = isSecure ? "; Secure" : "";
-  return `${ADMIN_SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${securePart}`;
+  const domainPart = domain ? `; Domain=${domain}` : "";
+  return `${ADMIN_SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${domainPart}${securePart}`;
 }
 
 // ── Database helpers ──────────────────────────────────────────────────────────

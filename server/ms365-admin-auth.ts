@@ -146,10 +146,11 @@ export async function verifyAdminToken(token: string): Promise<AdminTokenPayload
 /**
  * Build admin session cookie header
  */
-export function buildAdminSessionCookieHeader(token: string, isSecure = true): string {
+export function buildAdminSessionCookieHeader(token: string, isSecure = true, domain?: string): string {
   const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
   const securePart = isSecure ? "; Secure" : "";
-  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${securePart}`;
+  const domainPart = domain ? `; Domain=${domain}` : "";
+  return `${ADMIN_SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${domainPart}${securePart}`;
 }
 
 /**

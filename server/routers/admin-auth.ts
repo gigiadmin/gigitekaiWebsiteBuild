@@ -116,7 +116,20 @@ export const adminAuthRouter = router({
         const forwardedProto = ctx.req.headers["x-forwarded-proto"];
         const isSecure = process.env.NODE_ENV === "production" || ctx.req.protocol === "https" ||
           (typeof forwardedProto === "string" && forwardedProto.split(",")[0].trim() === "https");
-        ctx.res.setHeader("Set-Cookie", buildMs365Cookie(token, isSecure));
+        
+        // Extract domain from request host for cookie domain setting
+        let domain: string | undefined = undefined;
+        const host = ctx.req.headers.host || "";
+        const hostWithoutPort = host.split(":")[0];
+        if (host && !hostWithoutPort.includes("localhost") && !hostWithoutPort.includes("127.0.0.1") && !/^\d+\./.test(hostWithoutPort)) {
+          // For production domains, set domain to root domain
+          const parts = hostWithoutPort.split(".");
+          if (parts.length >= 2) {
+            domain = "." + parts.slice(-2).join("."); // e.g., ".gigitekai.com"
+          }
+        }
+        
+        ctx.res.setHeader("Set-Cookie", buildMs365Cookie(token, isSecure, domain));
 
         return {
           success: true,
@@ -177,7 +190,20 @@ export const adminAuthRouter = router({
       const forwardedProtoLogin = ctx.req.headers["x-forwarded-proto"];
       const isSecureLogin = process.env.NODE_ENV === "production" || ctx.req.protocol === "https" ||
         (typeof forwardedProtoLogin === "string" && forwardedProtoLogin.split(",")[0].trim() === "https");
-      ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecureLogin));
+      
+      // Extract domain from request host for cookie domain setting
+      let domain: string | undefined = undefined;
+      const host = ctx.req.headers.host || "";
+      const hostWithoutPort = host.split(":")[0];
+      if (host && !hostWithoutPort.includes("localhost") && !hostWithoutPort.includes("127.0.0.1") && !/^\d+\./.test(hostWithoutPort)) {
+        // For production domains, set domain to root domain
+        const parts = hostWithoutPort.split(".");
+        if (parts.length >= 2) {
+          domain = "." + parts.slice(-2).join("."); // e.g., ".gigitekai.com"
+        }
+      }
+      
+      ctx.res.setHeader("Set-Cookie", buildAdminSessionCookieHeader(token, isSecureLogin, domain));
 
       // Update last login timestamp (legacy)
       await updateLastLogin(admin.id);

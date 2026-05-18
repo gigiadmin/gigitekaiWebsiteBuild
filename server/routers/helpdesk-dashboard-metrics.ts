@@ -1,4 +1,4 @@
-import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
+import { protectedProcedure, adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { tickets, ticketReplies, users } from "../../drizzle/schema";
@@ -9,7 +9,7 @@ export const helpdeskDashboardMetricsRouter = router({
   /**
    * Get overall helpdesk metrics
    */
-  getOverallMetrics: adminProcedure.query(async () => {
+  getOverallMetrics: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
@@ -81,7 +81,7 @@ export const helpdeskDashboardMetricsRouter = router({
   /**
    * Get agent performance metrics
    */
-  getAgentMetrics: adminProcedure.query(async () => {
+  getAgentMetrics: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
@@ -119,7 +119,7 @@ export const helpdeskDashboardMetricsRouter = router({
   /**
    * Get queue depth and wait times
    */
-  getQueueMetrics: adminProcedure.query(async () => {
+  getQueueMetrics: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 

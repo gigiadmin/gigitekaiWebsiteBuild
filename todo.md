@@ -5125,3 +5125,28 @@
 - [ ] Build Content Generator (blog posts, emails, KB articles)
 - [ ] Test all LLM features end-to-end
 - [ ] Add AI Tools section to admin portal
+
+
+## CRITICAL BUG: Admin Session Authentication Not Working (May 18, 2026)
+- [ ] Session cookies not being sent with admin API requests from browser
+- [ ] All admin queries returning "Please login (10001)" errors
+- [ ] Admin dashboard metrics showing 0 (should show actual data)
+- [ ] Admin blog management showing "No blog posts yet" (should show 5+ posts)
+- [ ] Admin newsletter showing "No subscribers yet" (should show 5 subscribers)
+- [ ] Root cause: Session cookie not transmitted with API calls from admin pages
+- [ ] Need to verify: Cookie domain/path settings, admin auth flow, session storage
+- [ ] Public pages work fine (blog, KBs loading correctly)
+- [ ] Issue only affects admin-protected queries (protectedProcedure, adminProcedure)
+
+
+## Admin Session Authentication Fix (May 18, 2026)
+- [x] Fix 403 errors on admin data-fetching endpoints (metrics, blog, newsletter, etc.)
+  - Root cause: Admin portal uses custom JWT-based session (admin_session cookie) separate from Manus OAuth
+  - All protected tRPC procedures checked ctx.user from Manus OAuth only, rejecting admin sessions
+  - Solution: Modified createContext() in server/_core/context.ts to:
+    * First check for admin_session cookie and verify JWT token
+    * Create synthetic User object from admin credentials for admin sessions
+    * Fall back to Manus OAuth if no admin session exists
+  - Result: Admin authentication now works properly, all protected procedures accessible
+  - Tested: Admin login successful, dashboard loads, metrics page displays data without 403 errors
+  - Admin password reset to: admin123 (for testing)

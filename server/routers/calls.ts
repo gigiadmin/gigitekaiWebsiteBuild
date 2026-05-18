@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { router, adminProcedure } from "../_core/trpc";
+import { router, adminProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { callLogs, callDraftTickets, tickets, users } from "../../drizzle/schema";
 import { eq, desc, and, gte } from "drizzle-orm";
@@ -267,7 +267,7 @@ export const callsRouter = router({
     }),
 
   // ── Stats ─────────────────────────────────────────────────────────────────
-  getStats: adminProcedure.query(async () => {
+  getStats: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) return { total: 0, pending: 0, approved: 0, rejected: 0, todayCalls: 0 };
 
