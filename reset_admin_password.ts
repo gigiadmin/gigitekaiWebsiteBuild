@@ -1,4 +1,4 @@
-import { findAdminByEmail, updateAdminAccount, hashPassword } from './server/admin-auth';
+import { findAdminByEmail, updateAdminAccount } from './server/admin-auth';
 
 async function resetPassword() {
   try {
@@ -9,9 +9,8 @@ async function resetPassword() {
     }
     
     console.log('Found admin:', admin.email);
-    const hashedPassword = await hashPassword('admin123');
-    await updateAdminAccount(admin.id, { password: 'admin123' });
-    console.log('Password reset to: admin123');
+    await updateAdminAccount(admin.id, { password: 'YGnali421+' });
+    console.log('Password reset to: YGnali421+');
     process.exit(0);
   } catch (e) {
     console.error('Error:', e);

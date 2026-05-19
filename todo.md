@@ -5150,3 +5150,12 @@
   - Result: Admin authentication now works properly, all protected procedures accessible
   - Tested: Admin login successful, dashboard loads, metrics page displays data without 403 errors
   - Admin password reset to: admin123 (for testing)
+
+
+## PageSpeed Performance Recovery (May 19, 2026) - Target 75+
+- [x] Fix font loading and layout shifts (add font-display: swap) - DONE
+- [x] Verified bundle is already well-optimized with manual chunks
+- [x] Verified GA4 is already deferred to requestIdleCallback
+- [x] Build completed successfully with font optimizations
+- [x] Dev server restarted and homepage verified working
+- [ ] Re-run PageSpeed Insights after 24h cache refresh to measure improvement

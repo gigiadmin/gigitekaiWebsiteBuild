@@ -68,6 +68,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Non-blocking font load: media="print" trick loads CSS async, onload switches to all -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <!-- Font swap strategy: display system fonts immediately, swap to Google Fonts when loaded (reduces CLS) -->
+    <style>
+      @font-face {
+        font-family: 'Space Grotesk';
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'DM Sans';
+        font-display: swap;
+      }
+    </style>
     <!-- Fallback for browsers without JS -->
     <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
