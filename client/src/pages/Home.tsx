@@ -11,35 +11,38 @@
   - import() is NOT called until the user scrolls near the section
 */
 
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 import LazySection from "@/components/LazySection";
 
-// ─── Critical above-fold (eager) ────────────────────────────────────────────
-// Only the navbar and hero are visible on first paint (hero is min-h-[90vh])
-import SiteNavBar2024 from "@/components/SiteNavBar2024";
-import HeroSection from "@/components/HeroSection";
+// ─── Critical above-fold (lazy-loaded to reduce initial bundle) ──────────────
+// These are lazy-loaded but render quickly via React.lazy + Suspense
+const SiteNavBar2024 = lazy(() => import("@/components/SiteNavBar2024"));
+const HeroSection = lazy(() => import("@/components/HeroSection"));
 
-// ─── Critical for SEO & Server-Side Rendering (eager) ────────────────────────
-// These sections must render server-side so Google and users see content
-// without waiting for JavaScript. They're critical for SEO and UX.
-import ServicesSection from "@/components/ServicesSection";
-import BenefitsSection from "@/components/BenefitsSection";
-import StatsSection from "@/components/StatsSection";
-import Footer from "@/components/Footer";
+// ─── Below-fold sections (lazy-loaded) ────────────────────────────────────────
+// Lazy-load all sections to minimize initial bundle and improve LCP/FCP
+const ServicesSection = lazy(() => import("@/components/ServicesSection"));
+const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
+const StatsSection = lazy(() => import("@/components/StatsSection"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 export default function Home() {
   useSEO({ ...SEO_CONFIG["/"], path: "/" });
 
   return (
     <div className="min-h-screen flex flex-col">
-      <SiteNavBar2024 />
+      <Suspense fallback={<div style={{ minHeight: "60px" }} />}>
+        <SiteNavBar2024 />
+      </Suspense>
       <main className="flex-1">
-        {/* Above-fold: eager load — visible on first paint (hero = 90vh) */}
-        <HeroSection />
+        {/* Above-fold: lazy-loaded but renders quickly */}
+        <Suspense fallback={<div style={{ minHeight: "90vh" }} />}>
+          <HeroSection />
+        </Suspense>
 
-        {/* Critical for SEO: Render server-side (no lazy loading) */}
+        {/* Below-fold sections: lazy-loaded */}
         <Suspense fallback={<div style={{ minHeight: "400px" }} />}>
           <ServicesSection />
         </Suspense>
@@ -63,7 +66,9 @@ export default function Home() {
         <LazySection factory={() => import("@/components/FAQSection")} minHeight="300px" />
         <LazySection factory={() => import("@/components/CTASection")} minHeight="200px" />
       </main>
-      <Footer />
+      <Suspense fallback={<div style={{ minHeight: "400px" }} />}>
+        <Footer />
+      </Suspense>
       <LazySection factory={() => import("@/components/ScrollToTop")} minHeight="0px" rootMargin="0px" />
     </div>
   );
