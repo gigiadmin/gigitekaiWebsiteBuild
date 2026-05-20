@@ -62,6 +62,7 @@ const AdminPanelPage = lazy(() => import("./pages/AdminPanelPage"));
 const AdminSLADashboardPage = lazy(() => import("./pages/AdminSLADashboardPage"));
 const AdminSatisfactionDashboardPage = lazy(() => import("./pages/AdminSatisfactionDashboardPage"));
 const AdminScorecardDashboardPage = lazy(() => import("./pages/AdminScorecardDashboardPage"));
+const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
 const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardingPage"));
 
 function PageLoader() {
@@ -135,6 +136,7 @@ export default function AdminApp() {
               <Route path="/admin/sms-campaigns" component={() => <ApprovalGuard><AdminSmsCampaignsPage /></ApprovalGuard>} />
               <Route path="/admin/hub" component={() => <ApprovalGuard><AdminHubPage /></ApprovalGuard>} />
               <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
+              <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
                   <div className="text-center">
