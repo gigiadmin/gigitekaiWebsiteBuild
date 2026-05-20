@@ -206,6 +206,17 @@ export interface MsGraphMessage {
   body: { content: string; contentType: string };
   isRead: boolean;
   conversationId: string | null;
+  hasAttachments?: boolean;
+}
+
+export interface MsGraphAttachment {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+  isInline: boolean;
+  contentLocation?: string;
+  contentBytes?: string; // Base64 encoded
 }
 
 /**
@@ -227,7 +238,7 @@ export async function fetchInboxFromMsGraph(
   }
 
   const senderEmail = "support@gigitekai.com";
-  const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId";
+  const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId,hasAttachments";
   // Fetch ALL emails (not just unread) - rely on messageId deduplication to prevent reprocessing
   // Some email systems auto-mark emails as read, so we can't depend on isRead flag
   const url =
@@ -436,5 +447,116 @@ export async function deleteMessageFromMailbox(messageId: string): Promise<boole
   } catch (error) {
     console.warn(`[Email] Error deleting message:`, error);
     return false;
+  }
+}
+
+
+/**
+ * Fetch attachments from a specific message
+ */
+export async function fetchAttachmentsFromMessage(
+  messageId: string
+): Promise<MsGraphAttachment[]> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for fetching attachments");
+    return [];
+  }
+
+  const senderEmail = "support@gigitekai.com";
+  const url = `https://graph.microsoft.com/v1.0/users/${senderEmail}/messages/${messageId}/attachments`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        msGraphTokenCache = null;
+        const freshToken = await getMsGraphToken();
+        if (freshToken) {
+          const retryResponse = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${freshToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+          if (retryResponse.ok) {
+            const data = (await retryResponse.json()) as { value: MsGraphAttachment[] };
+            return data.value ?? [];
+          }
+        }
+      }
+      console.warn(`[Email] Failed to fetch attachments for message ${messageId} (${response.status})`);
+      return [];
+    }
+
+    const data = (await response.json()) as { value: MsGraphAttachment[] };
+    return data.value ?? [];
+  } catch (error) {
+    console.error("[Email] Error fetching attachments:", error);
+    return [];
+  }
+}
+
+/**
+ * Download attachment content as buffer
+ */
+export async function downloadAttachmentContent(
+  messageId: string,
+  attachmentId: string
+): Promise<Buffer | null> {
+  const token = await getMsGraphToken();
+  if (!token) {
+    console.error("[Email] Could not obtain MS Graph token for downloading attachment");
+    return null;
+  }
+
+  const senderEmail = "support@gigitekai.com";
+  const url = `https://graph.microsoft.com/v1.0/users/${senderEmail}/messages/${messageId}/attachments/${attachmentId}`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        msGraphTokenCache = null;
+        const freshToken = await getMsGraphToken();
+        if (freshToken) {
+          const retryResponse = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${freshToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+          if (retryResponse.ok) {
+            const data = (await retryResponse.json()) as { contentBytes: string };
+            if (data.contentBytes) {
+              return Buffer.from(data.contentBytes, 'base64');
+            }
+          }
+        }
+      }
+      console.warn(`[Email] Failed to download attachment ${attachmentId} (${response.status})`);
+      return null;
+    }
+
+    const data = (await response.json()) as { contentBytes: string };
+    if (data.contentBytes) {
+      return Buffer.from(data.contentBytes, 'base64');
+    }
+    return null;
+  } catch (error) {
+    console.error("[Email] Error downloading attachment:", error);
+    return null;
   }
 }

@@ -137,7 +137,7 @@ export default function AdminUptimeRobotDashboard() {
           </div>
           <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Down</p>
-            <p className="text-3xl font-bold text-red-300">{monitors.filter((m) => m.status === "down").length}</p>
+            <p className="text-3xl font-bold text-red-300">{monitors.filter((m) => m.status === "down" || m.status === "seems_down").length}</p>
           </div>
         </div>
 
@@ -153,8 +153,9 @@ export default function AdminUptimeRobotDashboard() {
                 <div className="flex items-start gap-3 flex-1">
                   <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
                     monitor.status === "up" ? "bg-green-500" :
-                    monitor.status === "down" ? "bg-red-500" :
-                    "bg-yellow-500"
+                    monitor.status === "down" || monitor.status === "seems_down" ? "bg-red-500" :
+                    monitor.status === "paused" ? "bg-yellow-500" :
+                    "bg-gray-500"
                   }`} />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg font-semibold text-white group-hover:text-cyan-300 transition-colors">{monitor.name}</h3>

@@ -5,7 +5,7 @@
  * Marks emails as read after processing
  */
 
-import { fetchInboxFromMsGraph, markMessageAsRead } from "./email";
+import { fetchInboxFromMsGraph, markMessageAsRead, fetchAttachmentsFromMessage, downloadAttachmentContent } from "./email";
 import { createTicket } from "../db";
 import { getDb } from "../db";
 import { eq } from "drizzle-orm";
@@ -389,6 +389,23 @@ function extractVoicemailTranscript(body: string): { transcript: string; callerN
 }
 
 /**
+ * Helper to get audio file extension from MIME type
+ */
+function getAudioExtension(mimeType: string): string {
+  const mimeToExt: Record<string, string> = {
+    'audio/webm': 'webm',
+    'audio/mp3': 'mp3',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+    'audio/wave': 'wav',
+    'audio/ogg': 'ogg',
+    'audio/m4a': 'm4a',
+    'audio/mp4': 'm4a',
+  };
+  return mimeToExt[mimeType] || 'audio';
+}
+
+/**
  * Analyze voicemail transcript using AI and create a ticket
  */
 async function processVoicemailEmail(msgData: any): Promise<boolean> {
@@ -418,24 +435,67 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     // Extract voicemail details
     let { transcript, callerNumber, duration } = extractVoicemailTranscript(emailBody);
 
-    // If no transcript found, try to extract audio URL and transcribe it
+    // If no transcript found, try to extract audio from attachments or URL and transcribe it
     if (!transcript || transcript.length < 10) {
-      console.log('[Email Poller] No transcript in email, attempting to extract audio URL for transcription');
-      const audioUrlMatch = emailBody.match(/https?:\/\/[^\s\"<>]+\.(?:mp3|wav|m4a|webm|ogg)/i);
-      if (audioUrlMatch) {
+      console.log('[Email Poller] No transcript in email, attempting to extract audio for transcription');
+      
+      // First, try to get audio from attachments
+      if (msgData.hasAttachments) {
         try {
-          const { transcribeAudio } = await import('./voiceTranscription');
-          const audioUrl = audioUrlMatch[0];
-          console.log(`[Email Poller] Transcribing audio from URL: ${audioUrl}`);
-          const transcriptionResult = await transcribeAudio({ audioUrl, language: 'en' });
-          if ('text' in transcriptionResult && transcriptionResult.text) {
-            transcript = transcriptionResult.text;
-            console.log(`[Email Poller] Successfully transcribed voicemail: ${transcript.substring(0, 100)}...`);
-          } else if ('error' in transcriptionResult) {
-            console.warn(`[Email Poller] Transcription failed: ${transcriptionResult.error}`);
+          const attachments = await fetchAttachmentsFromMessage(messageId);
+          const audioAttachments = attachments.filter(att => 
+            att.contentType?.startsWith('audio/') || 
+            /\.(mp3|wav|m4a|webm|ogg)$/i.test(att.name)
+          );
+          
+          if (audioAttachments.length > 0) {
+            console.log(`[Email Poller] Found ${audioAttachments.length} audio attachment(s), attempting transcription`);
+            const audioAtt = audioAttachments[0];
+            const audioBuffer = await downloadAttachmentContent(messageId, audioAtt.id);
+            
+            if (audioBuffer && audioBuffer.length > 0) {
+              try {
+                const { transcribeAudio } = await import('./voiceTranscription');
+                const { storagePut } = await import('../storage');
+                const fileKey = `voicemail-transcriptions/${messageId}-${Date.now()}.${getAudioExtension(audioAtt.contentType)}`;
+                const { url: audioUrl } = await storagePut(fileKey, audioBuffer, audioAtt.contentType);
+                
+                console.log(`[Email Poller] Transcribing voicemail attachment: ${audioAtt.name}`);
+                const transcriptionResult = await transcribeAudio({ audioUrl, language: 'en' });
+                if ('text' in transcriptionResult && transcriptionResult.text) {
+                  transcript = transcriptionResult.text;
+                  console.log(`[Email Poller] Successfully transcribed voicemail: ${transcript.substring(0, 100)}...`);
+                } else if ('error' in transcriptionResult) {
+                  console.warn(`[Email Poller] Transcription failed: ${transcriptionResult.error}`);
+                }
+              } catch (transcribeError) {
+                console.error('[Email Poller] Error during attachment transcription:', transcribeError);
+              }
+            }
           }
-        } catch (transcribeError) {
-          console.error('[Email Poller] Error during transcription:', transcribeError);
+        } catch (attachmentError) {
+          console.error('[Email Poller] Error fetching attachments:', attachmentError);
+        }
+      }
+      
+      // Fallback: try to extract audio URL from email body
+      if (!transcript || transcript.length < 10) {
+        const audioUrlMatch = emailBody.match(/https?:\/\/[^\s\"<>]+\.(?:mp3|wav|m4a|webm|ogg)/i);
+        if (audioUrlMatch) {
+          try {
+            const { transcribeAudio } = await import('./voiceTranscription');
+            const audioUrl = audioUrlMatch[0];
+            console.log(`[Email Poller] Transcribing audio from URL: ${audioUrl}`);
+            const transcriptionResult = await transcribeAudio({ audioUrl, language: 'en' });
+            if ('text' in transcriptionResult && transcriptionResult.text) {
+              transcript = transcriptionResult.text;
+              console.log(`[Email Poller] Successfully transcribed voicemail: ${transcript.substring(0, 100)}...`);
+            } else if ('error' in transcriptionResult) {
+              console.warn(`[Email Poller] Transcription failed: ${transcriptionResult.error}`);
+            }
+          } catch (transcribeError) {
+            console.error('[Email Poller] Error during URL transcription:', transcribeError);
+          }
         }
       }
     }

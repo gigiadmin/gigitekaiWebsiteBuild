@@ -180,13 +180,13 @@ export async function getMonitorDetails(monitorId: number) {
 
 function getStatusLabel(statusCode: number): string {
   const statusMap: Record<number, string> = {
-    0: "Paused",
-    1: "Not Checked Yet",
-    2: "Up",
-    8: "Seems Down",
-    9: "Down",
+    0: "paused",
+    1: "not_checked",
+    2: "up",
+    8: "seems_down",
+    9: "down",
   };
-  return statusMap[statusCode] || "Unknown";
+  return statusMap[statusCode] || "unknown";
 }
 
 export function getStatusColor(statusCode: number): string {
