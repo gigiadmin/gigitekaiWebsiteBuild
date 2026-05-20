@@ -12,7 +12,7 @@ import {
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { classifyTicket, saveClassificationToTicket, sendClassificationEmail, type GigitekAICategory } from "./gigitekai-ticket-classifier";
 import { customerFeedback } from "../../drizzle/schema";
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // ─── Auto-Routing Configuration ───────────────────────────────────────────────
@@ -596,12 +596,14 @@ export const helpdeskRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
-      const { ticketNotes } = await import("../../drizzle/schema");
-      await db.insert(ticketNotes).values({
-        ticketId: input.ticketId,
-        userId: ctx.user.id,
-        content: input.content,
-      } as any);
+      // Use raw SQL template to bypass Drizzle column mapping issues
+      const ticketId = Number(input.ticketId);
+      const authorId = Number(ctx.user.id);
+      const authorName = String(ctx.user.name || "Unknown");
+      const content = String(input.content);
+      await db.execute(
+        sql`INSERT INTO ticketNotes (ticketId, authorId, authorName, content, createdAt) VALUES (${ticketId}, ${authorId}, ${authorName}, ${content}, NOW())`
+      );
       return { success: true };
     }),
 
