@@ -564,7 +564,7 @@ export default function AdminPanel() {
             <p className="text-gray-400">Loading tickets...</p>
           </div>
         ) : filteredTickets.length > 0 ? (
-          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl overflow-hidden w-full">
+          <div className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl w-full overflow-x-auto">
             {/* Pull-to-refresh indicator */}
             {isRefreshing && (
               <div className="flex items-center justify-center gap-2 py-2 text-[#00D4FF] text-xs border-b border-gray-800/40">
@@ -573,7 +573,7 @@ export default function AdminPanel() {
               </div>
             )}
             {/* Table Wrapper with Horizontal Scroll */}
-            <div className="overflow-x-auto w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto" }}>
+            <div className="w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto", overflowX: "auto" }}>
               {/* Table Header */}
               <div className="hidden md:grid grid-cols-[32px_55px_1fr_90px_80px_90px_65px_90px_auto] gap-2 px-4 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10">
                 <span></span>
