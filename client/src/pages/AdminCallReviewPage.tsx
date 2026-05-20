@@ -145,14 +145,16 @@ function ReviewModal({
             <span className="text-white">{d.callerName || "Not identified"}</span>
           </div>
           <div className="flex items-center gap-2">
-            {callLog?.hasTranscript ? (
+            {callLog?.transcriptText ? (
               <Mic className="w-4 h-4 text-green-400" />
+            ) : callLog?.hasTranscript === false ? (
+              <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
             ) : (
               <MicOff className="w-4 h-4 text-gray-500" />
             )}
             <span className="text-gray-400">Transcript:</span>
-            <span className={callLog?.hasTranscript ? "text-green-400" : "text-gray-500"}>
-              {callLog?.hasTranscript ? "Available" : "Not available"}
+            <span className={callLog?.transcriptText ? "text-green-400" : callLog?.hasTranscript === false ? "text-amber-400" : "text-gray-500"}>
+              {callLog?.transcriptText ? "Available" : callLog?.hasTranscript === false ? "Transcribing..." : "Not available"}
             </span>
           </div>
           <div className="flex items-center gap-2 col-span-2">
@@ -162,8 +164,8 @@ function ReviewModal({
           </div>
         </div>
 
-        {/* Transcript (if available) */}
-        {callLog?.transcriptText && (
+        {/* Transcript (if available) or loading state */}
+        {callLog?.transcriptText ? (
           <div className="p-3 bg-white/5 rounded-lg border border-white/10">
             <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
               <Mic className="w-3 h-3" /> Call Transcript
@@ -172,7 +174,17 @@ function ReviewModal({
               {callLog.transcriptText}
             </p>
           </div>
-        )}
+        ) : callLog?.hasTranscript === false ? (
+          <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30 flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-300 mb-1">Transcribing voicemail...</p>
+              <p className="text-xs text-amber-200/70">Processing audio attachment. This may take a few moments.</p>
+            </div>
+          </div>
+        ) : null}
 
         {mode === "review" ? (
           <div className="space-y-4">
