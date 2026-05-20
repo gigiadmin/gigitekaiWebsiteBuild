@@ -575,7 +575,7 @@ export default function AdminPanel() {
             {/* Table Wrapper with Horizontal Scroll */}
             <div className="w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto", overflowX: "auto" }}>
               {/* Table Header */}
-              <div className="hidden md:grid grid-cols-[32px_55px_1fr_90px_80px_90px_65px_90px_auto] gap-2 px-4 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10">
+              <div className="hidden lg:grid gap-2 px-4 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10" style={{ gridTemplateColumns: 'auto 60px 1fr 100px 100px 100px 100px 100px auto' }}>
                 <span></span>
                 <span>ID</span>
                 <span>Title</span>
@@ -594,8 +594,8 @@ export default function AdminPanel() {
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
                     <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors overflow-hidden relative">
-                    {/* ===== MOBILE CARD LAYOUT (hidden on md+) ===== */}
-                    <div className="md:hidden px-4 py-3 space-y-2">
+                    {/* ===== MOBILE CARD LAYOUT (hidden on lg+) ===== */}
+                    <div className="lg:hidden px-4 py-3 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <input
@@ -662,8 +662,8 @@ export default function AdminPanel() {
                         )}
                       </div>
                     </div>
-                    {/* ===== DESKTOP TABLE ROW (hidden on mobile) ===== */}
-                    <div className="group hidden md:grid md:grid-cols-[32px_55px_1fr_90px_80px_90px_65px_90px_auto] gap-2 px-4 py-3 items-center w-full">
+                    {/* ===== DESKTOP TABLE ROW (hidden on mobile/tablet) ===== */}
+                    <div className="group hidden lg:grid gap-2 px-4 py-3 items-center w-full" style={{ gridTemplateColumns: 'auto 60px 1fr 100px 100px 100px 100px 100px auto' }}>
                     {/* Checkbox */}
                     <input
                       type="checkbox"
