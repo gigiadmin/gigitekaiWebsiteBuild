@@ -253,8 +253,20 @@ export async function getAllTickets() {
   }
 
   try {
-    const result = await db.select().from(tickets);
-    return result;
+    const result = await db
+      .select({
+        ...tickets,
+        agentName: users.name,
+        agentEmail: users.email,
+      })
+      .from(tickets)
+      .leftJoin(users, eq(tickets.assignedTo, users.id));
+    
+    return result.map(r => ({
+      ...r,
+      agentName: r.agentName || null,
+      agentEmail: r.agentEmail || null,
+    }));
   } catch (error) {
     console.error("[Database] Failed to get all tickets:", error);
     throw error;

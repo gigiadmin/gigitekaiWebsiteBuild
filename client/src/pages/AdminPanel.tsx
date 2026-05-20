@@ -719,6 +719,17 @@ export default function AdminPanel() {
                       {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
 
+                    {/* Agent */}
+                    <span className="text-xs">
+                      {ticket.agentName ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                          {ticket.agentName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500">Unassigned</span>
+                      )}
+                    </span>
+
                     {/* Actions - compact icon buttons + more dropdown */}
                     <div className="flex items-center gap-1">
                       <button
