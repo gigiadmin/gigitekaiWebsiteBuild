@@ -116,23 +116,35 @@ async function fetchTranscript(userId: string, meetingId: string): Promise<strin
     const transcripts = await graphGet(
       `/users/${userId}/onlineMeetings/${meetingId}/transcripts`
     );
-    if (!transcripts?.value?.length) return null;
+    if (!transcripts?.value?.length) {
+      console.log(`[Call Poller] No transcripts found for meeting ${meetingId}`);
+      return null;
+    }
 
     const transcriptId = transcripts.value[0].id;
     // Fetch the actual transcript content (VTT format)
     const token = await getGraphToken();
-    if (!token) return null;
+    if (!token) {
+      console.warn(`[Call Poller] Could not get Graph token for transcript fetch`);
+      return null;
+    }
 
     const res = await fetch(
       `${GRAPH_BASE}/users/${userId}/onlineMeetings/${meetingId}/transcripts/${transcriptId}/content?$format=text/vtt`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(`[Call Poller] Failed to fetch transcript content: ${res.status} ${res.statusText}`);
+      return null;
+    }
 
     const vttContent = await res.text();
     // Convert VTT to plain text (strip timestamps and metadata)
-    return vttToPlainText(vttContent);
-  } catch {
+    const plainText = vttToPlainText(vttContent);
+    console.log(`[Call Poller] Successfully fetched transcript: ${plainText.substring(0, 100)}...`);
+    return plainText;
+  } catch (error) {
+    console.error(`[Call Poller] Error fetching transcript: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }
