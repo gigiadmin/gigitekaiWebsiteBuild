@@ -575,7 +575,7 @@ export default function AdminPanel() {
             {/* Table Wrapper with Horizontal Scroll */}
             <div className="overflow-x-auto w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto" }}>
               {/* Table Header */}
-              <div className="hidden md:grid grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10">
+              <div className="hidden md:grid grid-cols-[32px_55px_1fr_90px_80px_90px_65px_90px_auto] gap-2 px-4 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10">
                 <span></span>
                 <span>ID</span>
                 <span>Title</span>
@@ -583,6 +583,7 @@ export default function AdminPanel() {
                 <span>Priority</span>
                 <span>Category</span>
                 <span>Created</span>
+                <span>Agent</span>
                 <span>Actions</span>
               </div>
 
@@ -662,7 +663,7 @@ export default function AdminPanel() {
                       </div>
                     </div>
                     {/* ===== DESKTOP TABLE ROW (hidden on mobile) ===== */}
-                    <div className="group hidden md:grid md:grid-cols-[40px_60px_1fr_100px_100px_100px_100px_auto] gap-3 px-5 py-4 items-center w-full">
+                    <div className="group hidden md:grid md:grid-cols-[32px_55px_1fr_90px_80px_90px_65px_90px_auto] gap-2 px-4 py-3 items-center w-full">
                     {/* Checkbox */}
                     <input
                       type="checkbox"
@@ -718,148 +719,87 @@ export default function AdminPanel() {
                       {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-1.5 mt-2 md:mt-0 flex-wrap md:flex-nowrap">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => toggleTicketExpanded(ticket.id)}
-                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
-                      >
-                        <ChevronRight className={`w-3 h-3 mr-1 transition-transform ${expandedTicketIds.has(ticket.id) ? 'rotate-90' : ''}`} />
-                        {expandedTicketIds.has(ticket.id) ? 'Less' : 'SLA'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
+                    {/* Actions - compact icon buttons + more dropdown */}
+                    <div className="flex items-center gap-1">
+                      <button
                         onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors"
+                        title="View ticket"
                       >
-                        <Eye className="w-3 h-3 mr-1" />
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => {
                           setQuickReplyTicketId(ticket.id);
                           setQuickReplyEmail(ticket.customerEmail);
                           setQuickReplyName(ticket.customerName);
                           setShowQuickReply(true);
                         }}
-                        className="border-gray-700 text-gray-400 hover:text-[#00D4FF] hover:border-[#00D4FF]/30 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors"
+                        title="Quick reply"
                       >
-                        <Mail className="w-3 h-3 mr-1" />
-                        Reply
-                      </Button>
-                      {/* Assign button */}
-                      <Button
-                        size="sm"
-                        variant="outline"
+                        <Mail className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => {
                           setAssignmentModalTicketId(ticket.id);
                           setIsAssignmentModalOpen(true);
                         }}
-                        className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                        className="p-1.5 rounded-lg text-cyan-400 hover:bg-cyan-500/10 transition-colors"
                         title="Assign to agent"
                       >
-                        <UserPlus className="w-3 h-3 mr-1" />
-                        Assign
-                      </Button>
-                      {/* Snooze SLA Alert button */}
-                      {(ticket.status === "open" || ticket.status === "in_progress") && (
-                        <div className="relative">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setShowSnoozeMenu(showSnoozeMenu === ticket.id ? null : ticket.id)}
-                            className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
-                            title="Snooze SLA alert"
-                          >
-                            <BellOff className="w-3 h-3 mr-1" />
-                            Snooze
-                          </Button>
-                          {showSnoozeMenu === ticket.id && (
-                            <div className="absolute right-0 top-8 z-20 bg-[#141B2D] border border-gray-700 rounded-xl shadow-xl min-w-[160px] overflow-hidden">
-                              <p className="text-gray-500 text-[10px] px-3 pt-2 pb-1 uppercase tracking-wide">Snooze SLA alert for</p>
-                              {[30, 60, 120, 240].map((mins) => (
-                                <button
-                                  key={mins}
-                                  onClick={() => snoozeSlaBreachMutation.mutate({ ticketId: ticket.id, duration: mins })}
-                                  disabled={snoozeSlaBreachMutation.isPending}
-                                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-amber-500/10 hover:text-amber-300 transition-colors"
-                                >
-                                  {mins < 60 ? `${mins} min` : `${mins / 60} hour${mins / 60 > 1 ? "s" : ""}`}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {/* Context-aware quick action buttons */}
+                        <UserPlus className="w-4 h-4" />
+                      </button>
+                      {/* Context-aware status buttons - icon only */}
                       {(ticket.status === "closed" || ticket.status === "resolved") && (
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        <button
                           onClick={() => handleUpdateStatus(ticket.id, "open")}
-                          className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                          className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-500/10 transition-colors"
                           title="Reopen ticket"
                         >
-                          <RotateCcw className="w-3 h-3 mr-1" />
-                          Reopen
-                        </Button>
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
                       )}
-                      {ticket.status === "open" || ticket.status === "in_progress" ? (
+                      {(ticket.status === "open" || ticket.status === "in_progress") && (
                         <>
-                          <Button
-                            size="sm"
-                            variant="outline"
+                          <button
                             onClick={() => handleUpdateStatus(ticket.id, "on_hold")}
-                            className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            className="p-1.5 rounded-lg text-purple-400 hover:bg-purple-500/10 transition-colors"
                             title="Put on hold"
                           >
-                            <PauseCircle className="w-3 h-3 mr-1" />
-                            Hold
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
+                            <PauseCircle className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => {
                               setCloseDialogTicket({ id: ticket.id, title: ticket.title, status: ticket.status });
                               setCloseDialogOpen(true);
                             }}
-                            className="border-red-600/40 text-red-400 hover:bg-red-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
-                            title="Close ticket (requires closing notes)"
+                            className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                            title="Close ticket"
                           >
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Close
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => {
                               setEscalateTicket({ id: ticket.id, title: ticket.title });
                               setEscalateDialogOpen(true);
                             }}
-                            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                            className="p-1.5 rounded-lg text-cyan-400 hover:bg-cyan-500/10 transition-colors"
                             title="Escalate to Teams meeting"
                           >
-                            <Video className="w-3 h-3 mr-1" />
-                            Meeting
-                          </Button>
+                            <Video className="w-4 h-4" />
+                          </button>
                         </>
-                      ) : ticket.status === "on_hold" ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
+                      )}
+                      {ticket.status === "on_hold" && (
+                        <button
                           onClick={() => handleUpdateStatus(ticket.id, "in_progress")}
-                          className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-7 px-2 rounded-lg whitespace-nowrap"
+                          className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-500/10 transition-colors"
                           title="Resume ticket"
                         >
-                          <PlayCircle className="w-3 h-3 mr-1" />
-                          Resume
-                        </Button>
-                      ) : null}
+                          <PlayCircle className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                     </div>{/* end main row */}
 
