@@ -1,4 +1,4 @@
-import { eq, like, desc, gte, inArray, and, sql, or } from "drizzle-orm";
+import { eq, like, desc, gte, inArray, and, sql, or, getTableColumns } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, contactSubmissions, InsertContactSubmission, tickets, InsertTicket, ticketReplies, InsertTicketReply, knowledgeBase, chatSessions, chatMessages, chatLeads, chatAnalytics, responseRatings, conversationSummaries, teamsIntegration, agentTakeoverRequests, customerInvites, ticketFeedback, emailDigestPreferences, emailDigestHistory, userActivity, InsertUserActivity, customerFeedback, InsertCustomerFeedback, websiteTraffic, InsertWebsiteTraffic, InsertChatAnalytic, InsertResponseRating, InsertConversationSummary, InsertTeamsIntegration, InsertAgentTakeoverRequest, InsertCustomerInvite, CustomerInvite, InsertTicketFeedback, TicketFeedback, InsertEmailDigestPreferences, InsertEmailDigestHistory, kbArticles } from "../drizzle/schema";
 import crypto from "crypto";
@@ -255,7 +255,7 @@ export async function getAllTickets() {
   try {
     const result = await db
       .select({
-        ...tickets,
+        ...getTableColumns(tickets),
         agentName: users.name,
         agentEmail: users.email,
       })

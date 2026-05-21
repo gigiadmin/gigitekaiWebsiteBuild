@@ -5224,3 +5224,13 @@
 - [x] Add "Xero Finance" nav item to AdminLayout.tsx Integrations section
 - [ ] Update Xero app redirect URI in developer portal to https://gigitekai.com/api/xero/callback
 - [ ] Test OAuth flow end-to-end by clicking Connect Xero in admin panel
+
+
+## CRITICAL: Mobile Site Broken on Production (May 21, 2026)
+- [x] Fix missing mobile navigation (hamburger menu not showing) — ROOT CAUSE: homepage-static.html was being served instead of React SPA (already deleted in checkpoint 1621f28a)
+- [x] Fix missing logo on mobile — same root cause as above
+- [x] Fix missing hero background image/video on mobile — same root cause
+- [x] Fix missing utility bar on mobile — same root cause
+- [x] Fix phone number: changed all instances of (727) 382-6909 to (727) 382-5776 across 20+ files
+- [x] Verify all fixes on mobile viewport (dev server confirmed working)
+- [ ] Deploy fix to production (publish required)
