@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZOWX63PZJ",
-    "secret_access_key": "8eoOYkFB3/uU2ncWIfF8VCyozSZoPZtgD3+LX6ek",
-    "session_token": "IQoJb3JpZ2luX2VjEDgaCXVzLWVhc3QtMSJHMEUCIQCuO2WLO7oUqE/RA7FWywB/z0/vZ6DSyNBXfnj7vYEXPQIgfPJSLxmPg5JQ4Kd3/GSBDwpheZ0/CQtANzWJjJ6vtD4q9gMIARAEGgw2NjUzODYwOTg4NjYiDKLN6Ql+2oXoqhL0wCrTA32RC6Yg+bY7bJUES9Nt6fYvjVtr+eDhBmf3A5xdrsGKA8zcBBu3G/GSUxpl4DUt6Vd1goyefNp/o8tHwven1ZLsiefILp1oJZA8kyhqpteLeL1V2p1VG6mMiBPNDjNLrJRLN8y1dzWY2caF6PtnQjqzFAD1lOeGIF310KT0lF7uphWAaARU6JAWJ6/fl9ZnFNlObWVG5gH6TE0/TVNUkoreUlt/xs8ZIWF9tQjtlB+OnFQOduU4FxrKc9NUsgRc5DRjpESaW2bLaEPY91lqY/UYLMn7OgRCvKRfHgJagBU1yc95jXxgoeoFTd9KJvm2TNQaZF2bjgk8ymrTmrRyN1k3aQqOiYRK0V08MnsoyQmyl0dLGdYe5uflPLf+NjGtehA6H/+NJAQ2jwIZ4el2tlJdOvLq6UyuFwncYWuojFPjb4P7YcYkNC/ghdup2CUl9JFgvYnGQEN7MdpWSaGiNyujAG6pGWvet42ylZN6cKKG1SorteUBqGz37D9dWAo72NY08o0QQAWBN8swIMyQnEywwYQEjJlbMY0I/ziG3YesmF2mzn54+XA4V2UCW8s21n9S4VCZhtpA1aggZgTrPYVh5mKF5lE/BwpB24GWOZ/Q+a+2MJzlutAGOp0B9hpaFix/ETN+USkcgpbwao5Duu9+WSXV9yJSIRK7CwBOI9O7vgBqpwFxyZy1pl5TtI3V4ZWUuB1REQImzWLWEtJnayH4J3br7M2j/62i9ohUFKhlWiomuhNRNGhdE4jDssRgld8UoOtDlfrsBFh82e24CIL1PhHAgAngrpRgyxo5mOkfZq1BDhTg/MDLioZY6nX1QiCrBE9R2IVrXg==",
-    "expiration": "2026-05-21T19:22:04.000Z"
+    "access_key_id": "ASIAZV3A2ECZDU4KMLJ5",
+    "secret_access_key": "Ch5t1x6v4E3RkJBO942l/lVxbn2cTPphHJxoLpKx",
+    "session_token": "IQoJb3JpZ2luX2VjEDgaCXVzLWVhc3QtMSJHMEUCIQC8/NgMnXL7etaC/3s4bnX0deX5WQ7w5JfFuFqhGgNpMgIgJ7W4n4JQ6mQnJPyeoFHx2PcBGJ3L/WlhxGFj17MeltMq9gMIARAEGgw2NjUzODYwOTg4NjYiDMotC1biih3jggXMtirTA+tbgsVrnQsNfrHgth60d+Zhtbo4+LKbMdpRBSB7TlsV0YUuY2X/F7cjhEKGiIUOTE/Y05qEbK7JxAOJBOwch2z27ZJFYxYHv3ozhgaA3G360NynJg4m8TYG0I8jVxtYgTEFBkztnzrpzfuRTNrmVEJkbUPWjhyhrpnSeGe/46QeYqX1vSZVMQLj2XJI9jtZET9Bf0zLzLjREH5kvbThYPbM4EVfDw0eVTyH/0lh3dgBElsI7fV/rx+NPNeLfTL9ziQMGGCh7UP/WX32l0jvDztK/Ss1LpgGtMafMN/DHQk5JciouWcY1EVtpCeN0hsnDqE7lTKsmXmiuqhMJpyIS96RBb6BoORjXmqZOWq1a/rxroQsGy5XL9ToGYvhksKY1HflN0SxcJ0O+Pa0rusfMIDD7VeOUm98eigIqjZB+9asZgQy4YTdJrxbPCsvVMLYzJcaqmsjwdJ48C1zOnYHFSHvTcwgiei6SyG/Vo8Ce53dz1M2KxiglW9Asu43Z5/zNBby5b/ZV7ZMMvB76RlOtAYhO33YyBc5oknfINayT+ae048t3CG+nktIlg/UiqOfKTVPXw85sXQhajA+ygjevXwR5sTRTdvH/vOFacM7Pw1+uBI9MK/zutAGOp0BVCARZAIezSlZLNByWo1kU/YW6vHRaRtjNv6piYeXWcsUhr0/maOLFEMKJTxjaPvjGsdoXvW90QfkprWrEjvo5OZWjtZlIAh3I5A6kEVgrfkeBVHEOkE4AC9PgaUSzOgYZDiNT5m/QXOyFCcwo+1jEaRqRB9Oobfize1Sq3irSbAW+oL/AY1KzrfiQzhcbUFnT2ay9ayeg26N/8KUsg==",
+    "expiration": "2026-05-21T19:52:15.000Z"
   },
   "name": "gigitekai",
   "path": "/home/ubuntu/gigitekai",
@@ -63,7 +63,7 @@
     "TEAMS_BOT_CLIENT_SECRET": "ATw8Q~KkSrw1FDyF8p7qCvwiTZpCY-zaXHpnvbdg",
     "TEAMS_BOT_TEAM_ID": "a599eb41-27c2-49ac-80a2-251963befd18",
     "TEAMS_BOT_TENANT_ID": "b7595a11-d451-46a6-aff1-c98ee3bda4f9",
-    "TEAMS_WEBHOOK_URL": "https://gigitek.webhook.office.com/webhookb2/a599eb41-27c2-49ac-80a2-251963befd18@b7595a11-d451-46a6-aff1-c98ee3bda4f9/IncomingWebhook/c17c98912edb450dbb99cd037c658b2c/7cc09b6c-1bd7-45d2-8df9-5a5b768803fd/V2kwt16IiJV9WLQ9dqWlU2Zvvqzg7j32OxDdYIbJvFobM1",
+    "TEAMS_WEBHOOK_URL": "https://gigitek.webhook.office.com/webhookb2/a599eb41-27c2-49ac-80a2-251963befd18@b7595a11-d451-46a6-aff1-c98ee3bda4f9/IncomingWebhook/76db3be21eba473690d56076e6949774/7cc09b6c-1bd7-45d2-8df9-5a5b768803fd/V2vL6s1hRuTaISPLJv2gevsGCkxcpZHI1a2Q9A8zFjEaY1",
     "TWILIO_ACCOUNT_SID": "AC0de7635a181fd9f3c36b120de243f7a2",
     "TWILIO_AUTH_TOKEN": "8e55e07c4f6fd111e316c697f3c49257",
     "TWILIO_PHONE_NUMBER": "+1 641 614 4282",
