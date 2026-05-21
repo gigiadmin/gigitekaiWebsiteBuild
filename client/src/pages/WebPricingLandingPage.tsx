@@ -431,7 +431,6 @@ export default function WebPricingLandingPage() {
               <p className="text-sm text-gray-400 mb-6">Perfect for businesses just getting started</p>
               
               <div className="mb-6">
-                <p className="text-sm text-gray-500 line-through">$1,798/month</p>
                 <p className="text-4xl font-bold text-cyan-400">$899</p>
                 <p className="text-sm text-gray-400">/month</p>
               </div>
@@ -487,7 +486,6 @@ export default function WebPricingLandingPage() {
                 <p className="text-sm text-gray-400 mb-6">For scaling businesses ready to leverage AI</p>
                 
                 <div className="mb-6">
-                  <p className="text-sm text-gray-500 line-through">$3,398/month</p>
                   <p className="text-4xl font-bold text-purple-400">$1,699</p>
                   <p className="text-sm text-gray-400">/month</p>
                 </div>

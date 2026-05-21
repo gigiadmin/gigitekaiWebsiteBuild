@@ -6,7 +6,6 @@ export default function WebsitePricingTiers() {
       name: "Starter",
       subtitle: "New & Local Businesses",
       monthlyPrice: 1250,
-      originalPrice: 2500,
       description: "Perfect for businesses just getting started with a web presence",
       features: [
         "5-10 Page Website",
@@ -27,7 +26,6 @@ export default function WebsitePricingTiers() {
       name: "Growth",
       subtitle: "Scaling Up",
       monthlyPrice: 2250,
-      originalPrice: 4500,
       description: "For businesses ready to leverage advanced web features",
       features: [
         "Unlimited Pages",
@@ -51,7 +49,6 @@ export default function WebsitePricingTiers() {
       name: "Pro",
       subtitle: "Growth Mode",
       monthlyPrice: 3750,
-      originalPrice: 7500,
       description: "Complete web solutions with custom design and integrations",
       features: [
         "Unlimited Pages + Landing Pages",
@@ -75,7 +72,6 @@ export default function WebsitePricingTiers() {
       name: "Enterprise",
       subtitle: "Custom Solutions",
       monthlyPrice: 6000,
-      originalPrice: 12000,
       description: "For companies with many locations and complex needs",
       features: [
         "Custom Website + Landing Pages",
@@ -148,12 +144,6 @@ export default function WebsitePricingTiers() {
                   </span>
                   <span className="text-gray-400">/month</span>
                 </div>
-                <p className="text-sm text-gray-500 line-through">
-                  Regular: ${tier.originalPrice}/month
-                </p>
-                <p className="text-xs text-green-400 mt-2">
-                  ✓ 1 month free on 1-year commitment
-                </p>
               </div>
 
               {/* CTA Button */}

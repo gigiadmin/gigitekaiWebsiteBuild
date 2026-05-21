@@ -438,7 +438,6 @@ export default function PortfolioPage() {
               {
                 name: "Starter",
                 price: "$899",
-                originalPrice: "$1,798",
                 description: "Perfect for businesses just getting started",
                 features: ["5-10 Page Website", "Mobile Responsive Design", "Basic SEO", "Contact Form", "Google Analytics", "SSL Certificate", "Monthly Backups", "Email Support"],
                 color: "#00D4FF"
@@ -446,7 +445,6 @@ export default function PortfolioPage() {
               {
                 name: "Growth",
                 price: "$1,699",
-                originalPrice: "$3,398",
                 description: "For scaling businesses ready to leverage AI",
                 features: ["Unlimited Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "Lead Tracking", "Priority Support"],
                 color: "#9D4EDD",
@@ -455,7 +453,6 @@ export default function PortfolioPage() {
               {
                 name: "Pro",
                 price: "$2,799",
-                originalPrice: "$5,598",
                 description: "Complete web solutions with custom integrations",
                 features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced Integrations"],
                 color: "#00D97E"
@@ -463,7 +460,6 @@ export default function PortfolioPage() {
               {
                 name: "Enterprise",
                 price: "$4,999+",
-                originalPrice: "Custom",
                 description: "For companies with complex needs",
                 features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AI Engine Optimization", "PPC & Google Ads", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
                 color: "#FF6B9D"
@@ -482,8 +478,7 @@ export default function PortfolioPage() {
                     <span className="text-4xl font-bold" style={{ color: pkg.color }}>{pkg.price}</span>
                     <span className="text-sm text-slate-500">/month</span>
                   </div>
-                  <p className="text-xs text-slate-500 line-through mt-1">Regular {pkg.originalPrice}/month</p>
-                  <p className="text-xs text-green-400 font-semibold mt-2">✓ 1 month free on 1-year commitment</p>
+
                 </div>
                 <div className="space-y-2 mb-6">
                   {pkg.features.map((feature, fidx) => (

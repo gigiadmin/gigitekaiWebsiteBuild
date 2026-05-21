@@ -172,14 +172,8 @@ export default function FreeAuditPricingPage() {
                         </span>
                         <span className="text-gray-400">/month</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 line-through">
-                          ${tier.monthlyPrice}/month
-                        </span>
-                        <span className="text-red-400 text-sm font-semibold">50% OFF</span>
-                      </div>
                       <p className="text-xs text-gray-500 mt-3">
-                        After first month: ${tier.monthlyPrice}/month
+                        First month only — then ${tier.monthlyPrice}/month
                       </p>
                     </div>
 
