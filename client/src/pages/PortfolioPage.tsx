@@ -494,25 +494,64 @@ export default function WebsitesPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-20 px-4 border-t border-cyan-500/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Build Your Website?</h2>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Tell us about your industry and goals. We'll design and build a website that converts visitors into clients — powered by AI.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact">
-              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-all hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
-                Start Your Project
-                <ArrowRight className="w-5 h-5" />
-              </a>
-            </Link>
-            <Link href="/">
-              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all">
-                Learn About GigitekAI
-              </a>
-            </Link>
+      {/* ── FREE AUDIT CTA BANNER ── */}
+      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ background: "linear-gradient(135deg, #0A0E1A 0%, #0d1a2e 50%, #0A0E1A 100%)" }}>
+        <div className="max-w-4xl mx-auto">
+          {/* Main CTA card */}
+          <div className="relative rounded-2xl overflow-hidden border border-cyan-500/30 p-10 sm:p-14 text-center" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(157,78,221,0.08) 100%)" }}>
+            {/* Glow accents */}
+            <div className="absolute top-0 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-6 border border-green-500/40 bg-green-500/10 text-green-300">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                🎁 Limited Time Offer — 50% OFF + 1 Month FREE
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+                Get Your <span style={{ color: "#00D4FF" }}>Free Website Audit</span> Today
+              </h2>
+              <p className="text-lg sm:text-xl text-slate-300 mb-4 max-w-2xl mx-auto leading-relaxed">
+                Find out exactly what's holding your website back — SEO gaps, speed issues, conversion leaks — and get a custom roadmap to fix it. <strong className="text-white">No cost, no commitment.</strong>
+              </p>
+              <p className="text-sm text-slate-400 mb-10">
+                Then lock in <span className="text-green-300 font-semibold">50% off</span> our professional web design &amp; SEO packages on a 1-year commitment.
+              </p>
+              {/* Primary CTA */}
+              <Link href="/free-audit">
+                <a className="inline-flex items-center gap-3 px-10 py-5 rounded-xl font-bold text-black text-lg transition-all hover:opacity-90 hover:scale-105 shadow-lg shadow-cyan-500/20" style={{ backgroundColor: "#00D4FF" }}>
+                  <span>🚀 Claim My Free Audit</span>
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              </Link>
+              {/* Secondary links */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                <Link href="/contact">
+                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all">
+                    Talk to Our Team
+                  </a>
+                </Link>
+                <Link href="/web-pricing">
+                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-slate-600/40 text-slate-400 hover:bg-slate-500/10 transition-all">
+                    View Full Pricing
+                  </a>
+                </Link>
+              </div>
+              {/* Trust signals */}
+              <div className="flex flex-wrap gap-6 justify-center mt-10 pt-8 border-t border-cyan-500/10">
+                {[
+                  { icon: "⚡", text: "Audit delivered in 24–48 hrs" },
+                  { icon: "🔒", text: "No credit card required" },
+                  { icon: "🏆", text: "50+ websites delivered" },
+                  { icon: "📞", text: "Free strategy call included" },
+                ].map((t) => (
+                  <div key={t.text} className="flex items-center gap-2 text-sm text-slate-400">
+                    <span>{t.icon}</span>
+                    <span>{t.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
