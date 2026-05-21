@@ -31,6 +31,8 @@ export default function HeroSection() {
   });
   // On mobile: don't load video until user taps — massive LCP improvement
   const [videoRequested, setVideoRequested] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
 
@@ -48,17 +50,25 @@ export default function HeroSection() {
     return () => clearTimeout(t);
   }, []);
 
+  // Debug: Log component state changes
+  useEffect(() => {
+    console.log('[HeroSection] State:', { isMobile, videoRequested, playing, ended, muted });
+  }, [isMobile, videoRequested, playing, ended, muted]);
+
   // Autoplay muted — works on ALL browsers including iOS Safari
   // On mobile: only triggers after user taps (videoRequested=true) to avoid LCP penalty
   useEffect(() => {
     const video = videoRef.current;
     if (!video || (isMobile && !videoRequested)) return;
 
+    setVideoError(false);
+    setVideoLoading(true);
     video.muted = true;
     video.volume = 0.5;
     video.load();
 
     const tryPlay = () => {
+      setVideoLoading(false);
       video.play()
         .then(() => setPlaying(true))
         .catch(() => {
@@ -73,11 +83,24 @@ export default function HeroSection() {
         });
     };
 
+    const onError = () => {
+      console.error('[HeroSection] Video load error:', video.error?.message, video.error?.code);
+      setVideoLoading(false);
+      setVideoError(true);
+      setPlaying(false);
+    };
+
+    video.addEventListener("error", onError, { once: true });
+
     if (video.readyState >= 2) {
       tryPlay();
     } else {
       video.addEventListener("loadeddata", tryPlay, { once: true });
     }
+
+    return () => {
+      video.removeEventListener("error", onError);
+    };
   }, [isMobile, videoRequested]);
 
   // Tap to unmute — this is a direct user gesture, so browser allows it
@@ -394,130 +417,98 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {!videoRequested && !playing && !ended ? (
-              /* Mobile: video not yet loaded — show tap to play button */
+            {/* Mobile video controls — clean state machine */}
+            {videoError ? (
+              /* Error state — retry button */
+              <button
+                onClick={() => { setVideoError(false); setVideoRequested(false); setTimeout(() => setVideoRequested(true), 50); }}
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5)" }}
+              >
+                <RotateCcw size={22} />
+                Retry Demo Video
+              </button>
+            ) : videoLoading ? (
+              /* Loading state — show spinner */
+              <div className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base" style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.3)", color: "#00D4FF" }}>
+                <svg className="animate-spin" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
+                Loading Demo...
+              </div>
+            ) : !videoRequested ? (
+              /* Initial state — tap to load and play */
               <button
                 onClick={() => setVideoRequested(true)}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                }}
+                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
               >
                 <Play size={22} />
-                &#9654; Tap to Watch Demo
+                Tap to Watch Demo
               </button>
-            ) : playing && muted ? (
-              /* Big "Tap to Hear" button — unmutes video on tap (required user gesture for mobile audio) */
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={handleUnmute}
-                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                  style={{
-                    background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                    boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                  }}
-                >
-                  <Volume2 size={22} />
-                  🔊 Tap to Hear the Demo
-                </button>
-                <button
-                  onClick={handlePause}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{
-                    background: "rgba(0,212,255,0.08)",
-                    border: "1.5px solid rgba(0,212,255,0.45)",
-                    color: "#00D4FF",
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                  Pause Video
-                </button>
-              </div>
-            ) : playing && !muted ? (
-              /* Volume slider — shown after unmuting */
-              <div className="flex flex-col gap-2">
-                <div
-                  className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
-                  style={{ background: "rgba(0,212,255,0.06)" }}
-                >
-                  <button
-                    onClick={handleMute}
-                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                    aria-label="Mute video"
-                  >
-                    <Volume2 size={18} />
-                  </button>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">
-                      {ended ? "Video Ended" : "Playing Now"}
-                    </span>
-                    <span className="text-[11px] text-white/50">
-                      Volume {Math.round(volume * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.05}
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="w-full h-1.5 accent-[#00D4FF] cursor-pointer"
-                    aria-label="Video volume"
-                  />
-                </div>
-                {ended && (
-                  <button
-                    onClick={handleRestart}
-                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                    aria-label="Restart video"
-                  >
-                    <RotateCcw size={18} />
-                  </button>
-                )}
-                </div>
-                <button
-                  onClick={handlePause}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{
-                    background: "rgba(0,212,255,0.08)",
-                    border: "1.5px solid rgba(0,212,255,0.45)",
-                    color: "#00D4FF",
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                  Pause Video
-                </button>
-              </div>
             ) : ended ? (
-              /* Replay button */
+              /* Ended state — replay */
               <button
                 onClick={handleRestart}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5)",
-                }}
+                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5)" }}
               >
                 <RotateCcw size={20} />
                 Replay Platform Demo
               </button>
-            ) : !playing && videoRequested ? (
-              /* Resume button — shown when video is paused on mobile */
+            ) : !playing ? (
+              /* Paused state — resume */
               <button
                 onClick={handlePlayClick}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                }}
+                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
               >
                 <Play size={22} />
                 Resume Demo
               </button>
-            ) : null}
+            ) : playing && muted ? (
+              /* Playing muted — tap to hear */
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleUnmute}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                  style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
+                >
+                  <Volume2 size={22} />
+                  Tap to Hear the Demo
+                </button>
+                <button
+                  onClick={handlePause}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
+                  style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.45)", color: "#00D4FF" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  Pause Video
+                </button>
+              </div>
+            ) : (
+              /* Playing with audio — volume controls */
+              <div className="flex flex-col gap-2">
+                <div className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30" style={{ background: "rgba(0,212,255,0.06)" }}>
+                  <button onClick={handleMute} className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]" aria-label="Mute video">
+                    <Volume2 size={18} />
+                  </button>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">Playing Now</span>
+                      <span className="text-[11px] text-white/50">Volume {Math.round(volume * 100)}%</span>
+                    </div>
+                    <input type="range" min={0} max={1} step={0.05} value={volume} onChange={handleVolumeChange} className="w-full h-1.5 accent-[#00D4FF] cursor-pointer" aria-label="Video volume" />
+                  </div>
+                </div>
+                <button
+                  onClick={handlePause}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
+                  style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.45)", color: "#00D4FF" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  Pause Video
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Stats row */}
