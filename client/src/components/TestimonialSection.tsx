@@ -105,7 +105,7 @@ export default function TestimonialSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Trusted by Forward-Thinking Teams
           </h2>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto text-sm">
+          <p className="text-gray-300 mt-3 max-w-xl mx-auto text-sm">
             Real results from organizations that chose GigitekAI to modernize their technology.
           </p>
         </div>
@@ -144,15 +144,15 @@ export default function TestimonialSection() {
                 </div>
                 <div>
                   <p className="text-white font-bold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.name}</p>
-                  <p className="text-gray-400 text-xs">{t.title}, {t.company}</p>
+                  <p className="text-gray-300 text-xs">{t.title}, {t.company}</p>
                 </div>
               </div>
               {/* Nav arrows */}
               <div className="flex items-center gap-2">
-                <button onClick={prev} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Previous testimonial">
+                <button onClick={prev} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Previous testimonial">
                   <ChevronLeft size={16} />
                 </button>
-                <button onClick={next} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Next testimonial">
+                <button onClick={next} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Next testimonial">
                   <ChevronRight size={16} />
                 </button>
               </div>
@@ -180,7 +180,7 @@ export default function TestimonialSection() {
             ].map((stat) => (
               <div key={stat.label} className="bg-white/3 border border-white/5 rounded-xl py-3 px-2">
                 <p className="text-[#00D4FF] font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{stat.value}</p>
-                <p className="text-gray-500 text-xs mt-0.5">{stat.label}</p>
+                <p className="text-gray-300 text-xs mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>

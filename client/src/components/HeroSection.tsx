@@ -254,6 +254,7 @@ export default function HeroSection() {
           {playing && (
             <button
               onClick={handlePause}
+              aria-label="Pause video"
               className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause
@@ -262,6 +263,7 @@ export default function HeroSection() {
           {ended && (
             <button
               onClick={handleRestart}
+              aria-label="Restart video"
               className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
             >
               <RotateCcw size={14} /> Restart
@@ -381,7 +383,7 @@ export default function HeroSection() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               (727) 382-5776
             </a>
-            <span className="text-gray-400 hidden sm:block">|</span>
+            <span className="text-gray-300 hidden sm:block">|</span>
             <a
               href="mailto:support@gigitekai.com"
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
@@ -415,7 +417,7 @@ export default function HeroSection() {
                 >
                   {stat.value}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">{stat.label}</div>
+                <div className="text-xs text-gray-300 mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -424,7 +426,7 @@ export default function HeroSection() {
 
       {/* ── Scroll indicator ── */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
-        <span className="text-[10px] text-gray-400 uppercase tracking-widest">Scroll</span>
+        <span className="text-[10px] text-gray-300 uppercase tracking-widest">Scroll</span>
         <div className="w-px h-8 bg-gradient-to-b from-[#00D4FF]/60 to-transparent" />
       </div>
     </section>

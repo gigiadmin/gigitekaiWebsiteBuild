@@ -63,7 +63,7 @@ export default function AgenticOrchestrationSection() {
               One Orchestrated Workflow.
             </span>
           </h2>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+          <p className="text-slate-300 max-w-2xl mx-auto text-lg">
             Watch a single AI Orchestrator spawn 7 parallel sub-agents that simultaneously provision a new client across your entire tech stack — in under 4 seconds.
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function AgenticOrchestrationSection() {
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left: Systems grid */}
           <div>
-            <p className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-4">Systems Connected Simultaneously</p>
+            <p className="text-xs font-mono text-slate-300 uppercase tracking-widest mb-4">Systems Connected Simultaneously</p>
             <div className="grid grid-cols-2 gap-3 mb-6">
               {SYSTEMS.map((sys, i) => {
                 const Icon = sys.icon;
@@ -96,7 +96,7 @@ export default function AgenticOrchestrationSection() {
               ].map((stat, i) => (
                 <div key={i} className="text-center p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
                   <p className="text-2xl font-bold text-cyan-400">{stat.value}</p>
-                  <p className="text-xs text-slate-500 mt-1">{stat.label}</p>
+                  <p className="text-xs text-slate-300 mt-1">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -109,7 +109,7 @@ export default function AgenticOrchestrationSection() {
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
-              <span className="ml-2 text-xs font-mono text-slate-400">gigitekai-orchestrator — client-provisioning</span>
+              <span className="ml-2 text-xs font-mono text-slate-300">gigitekai-orchestrator — client-provisioning</span>
             </div>
             {/* Steps */}
             <div className="p-4 space-y-2">
@@ -129,7 +129,7 @@ export default function AgenticOrchestrationSection() {
                       <span className="text-xs font-mono text-cyan-400">[{step.time}]</span>
                       <span className="text-xs font-semibold text-slate-300">{step.agent}</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">{step.action}</p>
+                    <p className="text-xs text-slate-300 mt-0.5">{step.action}</p>
                   </div>
                 </div>
               ))}
@@ -140,14 +140,14 @@ export default function AgenticOrchestrationSection() {
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 COMPLETE — 3.4s total
               </span>
-              <span className="text-xs text-slate-600">8 systems provisioned</span>
+              <span className="text-xs text-slate-400">8 systems provisioned</span>
             </div>
           </div>
         </div>
 
         {/* CTA */}
         <div className="text-center mt-12">
-          <p className="text-slate-400 mb-5 text-sm">
+          <p className="text-slate-300 mb-5 text-sm">
             This is one of 6 live scenarios you can run interactively — no login required.
           </p>
           <Link href="/ai-demo">

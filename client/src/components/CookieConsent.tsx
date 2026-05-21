@@ -100,7 +100,7 @@ export default function CookieConsent() {
                   Privacy First
                 </span>
               </div>
-              <p className="text-gray-400 text-xs leading-relaxed">
+              <p className="text-gray-300 text-xs leading-relaxed">
                 We use essential cookies to keep the site running, and optional cookies for analytics and personalization.
                 Read our{" "}
                 <Link href="/privacy-policy" className="text-[#00D4FF] hover:underline">
@@ -118,7 +118,7 @@ export default function CookieConsent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white text-xs font-medium">Strictly Necessary</p>
-                  <p className="text-gray-500 text-xs">Authentication, security, site functionality</p>
+                  <p className="text-gray-300 text-xs">Authentication, security, site functionality</p>
                 </div>
                 <div className="w-10 h-5 rounded-full bg-[#00D4FF]/30 flex items-center justify-end pr-0.5 cursor-not-allowed">
                   <div className="w-4 h-4 rounded-full bg-[#00D4FF]" />
@@ -128,7 +128,7 @@ export default function CookieConsent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white text-xs font-medium">Analytics</p>
-                  <p className="text-gray-500 text-xs">Page views, traffic sources, performance metrics</p>
+                  <p className="text-gray-300 text-xs">Page views, traffic sources, performance metrics</p>
                 </div>
                 <button
                   onClick={() => setPrefs((p) => ({ ...p, analytics: !p.analytics }))}
@@ -142,7 +142,7 @@ export default function CookieConsent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white text-xs font-medium">Marketing</p>
-                  <p className="text-gray-500 text-xs">Personalized ads and retargeting</p>
+                  <p className="text-gray-300 text-xs">Personalized ads and retargeting</p>
                 </div>
                 <button
                   onClick={() => setPrefs((p) => ({ ...p, marketing: !p.marketing }))}
@@ -181,14 +181,14 @@ export default function CookieConsent() {
             )}
             <button
               onClick={() => setExpanded((e) => !e)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg text-gray-400 hover:text-white text-xs transition-all hover:bg-white/5"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg text-gray-300 hover:text-white text-xs transition-all hover:bg-white/5"
             >
               {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               {expanded ? "Hide" : "Manage Preferences"}
             </button>
             <button
               onClick={rejectNonEssential}
-              className="ml-auto p-1.5 rounded-lg text-gray-400 hover:text-gray-400 hover:bg-white/5 transition-all"
+              className="ml-auto p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition-all"
               aria-label="Dismiss"
             >
               <X size={14} />
