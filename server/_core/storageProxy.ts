@@ -1,3 +1,4 @@
+// v2 — streaming proxy with range support
 import type { Express } from "express";
 import { ENV } from "./env";
 
