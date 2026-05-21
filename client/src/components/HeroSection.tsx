@@ -120,6 +120,29 @@ export default function HeroSection() {
     setEnded(false);
   };
 
+  // Handle play button click (works on both desktop and mobile)
+  const handlePlayClick = () => {
+    if (isMobile && !videoRequested) {
+      setVideoRequested(true);
+      return;
+    }
+    const video = videoRef.current;
+    if (!video) return;
+    if (ended) {
+      handleRestart();
+    } else if (video.paused) {
+      video.play().then(() => setPlaying(true)).catch(() => {});
+    }
+  };
+
+  // Handle pause
+  const handlePause = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    setPlaying(false);
+  };
+
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
 
@@ -166,30 +189,37 @@ export default function HeroSection() {
             style={{ zIndex: 2 }}
           />
         )}
-        {/* ── Play icon overlay on poster (shown before video starts) ── */}
-        {!playing && !ended && (
+      </div>
+
+      {/* ── Play/Replay icon overlay (shown when video is not playing) ── */}
+      {!playing && (
+        <div
+          className="absolute top-1/2 right-[8%] -translate-y-1/2 z-[15] cursor-pointer"
+          onClick={handlePlayClick}
+        >
           <div
-            className="absolute inset-0 flex items-center justify-end pr-[8%] z-[3]"
-            style={{ cursor: isMobile && !videoRequested ? 'pointer' : 'default', pointerEvents: isMobile && !videoRequested ? 'auto' : 'none' }}
-            onClick={isMobile && !videoRequested ? () => setVideoRequested(true) : undefined}
+            className="flex items-center justify-center w-20 h-20 rounded-full hover:scale-110 transition-transform"
+            style={{
+              background: "rgba(0,212,255,0.15)",
+              border: "2px solid rgba(0,212,255,0.5)",
+              boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
+            }}
           >
-            <div
-              className="flex items-center justify-center w-20 h-20 rounded-full"
-              style={{
-                background: "rgba(0,212,255,0.15)",
-                border: "2px solid rgba(0,212,255,0.5)",
-                boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
-              }}
-            >
+            {ended ? (
+              <RotateCcw
+                size={32}
+                className="text-[#00D4FF]"
+              />
+            ) : (
               <Play
                 size={32}
                 className="text-[#00D4FF] ml-1"
                 fill="rgba(0,212,255,0.8)"
               />
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── Gradient overlays ── */}
       <div
@@ -216,8 +246,16 @@ export default function HeroSection() {
       />
 
       {/* ── Desktop controls (bottom-right) ── */}
-      {playing && (
+      {(playing || ended) && (
         <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
+          {playing && (
+            <button
+              onClick={handlePause}
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause
+            </button>
+          )}
           {ended && (
             <button
               onClick={handleRestart}
@@ -356,7 +394,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {!videoRequested && !playing ? (
+            {!videoRequested && !playing && !ended ? (
               /* Mobile: video not yet loaded — show tap to play button */
               <button
                 onClick={() => setVideoRequested(true)}
@@ -384,7 +422,7 @@ export default function HeroSection() {
                   🔊 Tap to Hear the Demo
                 </button>
                 <button
-                  onClick={() => { window.location.href = "/contact"; }}
+                  onClick={handlePause}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
                   style={{
                     background: "rgba(0,212,255,0.08)",
@@ -392,8 +430,8 @@ export default function HeroSection() {
                     color: "#00D4FF",
                   }}
                 >
-                  <Calendar size={16} />
-                  Click Contact Us for More Information
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  Pause Video
                 </button>
               </div>
             ) : playing && !muted ? (
@@ -441,7 +479,7 @@ export default function HeroSection() {
                 )}
                 </div>
                 <button
-                  onClick={handleRestart}
+                  onClick={handlePause}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
                   style={{
                     background: "rgba(0,212,255,0.08)",
@@ -449,8 +487,8 @@ export default function HeroSection() {
                     color: "#00D4FF",
                   }}
                 >
-                  <RotateCcw size={16} />
-                  Restart Video
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  Pause Video
                 </button>
               </div>
             ) : ended ? (
@@ -465,6 +503,19 @@ export default function HeroSection() {
               >
                 <RotateCcw size={20} />
                 Replay Platform Demo
+              </button>
+            ) : !playing && videoRequested ? (
+              /* Resume button — shown when video is paused on mobile */
+              <button
+                onClick={handlePlayClick}
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
+                style={{
+                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
+                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
+                }}
+              >
+                <Play size={22} />
+                Resume Demo
               </button>
             ) : null}
           </div>

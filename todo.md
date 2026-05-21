@@ -5266,3 +5266,10 @@
 - [x] Removed static SEO HTML from inside #root div in index.html (React renders into empty root)
 - [x] Removed homepage-static.html route handlers from vite.ts (both dev and production modes)
 - [x] Verified homepage renders all sections correctly: Hero, Services, Benefits, Stats, Industries, FAQ, CTA, Footer
+
+## Video Playback Fix (May 2026)
+- [x] Fix desktop video play/pause/replay controls (z-index issue, missing Pause button)
+- [x] Fix mobile video controls (missing Resume state when paused)
+- [x] Add HTTP Range request support to storageProxy.ts (required for iOS Safari video playback)
+- [x] Add presigned URL caching for video files to reduce S3 presign calls
+- [x] Verify Accept-Ranges: bytes header on all video responses
