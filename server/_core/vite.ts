@@ -64,28 +64,8 @@ export async function setupVite(app: Express, server: Server) {
     next();
   });
 
-  app.get("/", async (req, res, next) => {
-    try {
-      const homepageTemplate = path.resolve(
-        import.meta.dirname,
-        "../..",
-        "client",
-        "public",
-        "homepage-static.html"
-      );
-      console.log("[Homepage Route] Checking for:", homepageTemplate);
-      if (fs.existsSync(homepageTemplate)) {
-        console.log("[Homepage Route] ✓ File found, serving static homepage");
-        let template = await fs.promises.readFile(homepageTemplate, "utf-8");
-        res.status(200).set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" }).end(template);
-        return;
-      }
-    } catch (e) {
-      console.error("[Homepage] Error:", e);
-    }
-    // If homepage-static.html doesn't exist, fall through to SPA
-    next();
-  });
+  // Homepage served by SPA catch-all below
+
   
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -183,18 +163,6 @@ export function serveStatic(app: Express) {
       return res.sendFile(legalPath);
     }
     res.redirect("/");
-  });
-
-  app.get("/", (_req, res) => {
-    const homepagePath = path.resolve(distPath, "homepage-static.html");
-    if (fs.existsSync(homepagePath)) {
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      return res.sendFile(homepagePath);
-    }
-    const indexPath = path.resolve(distPath, "index.html");
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.sendFile(indexPath);
   });
 
   // fall through to index.html if the file doesn't exist

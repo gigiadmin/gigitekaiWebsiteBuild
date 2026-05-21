@@ -5258,3 +5258,11 @@
 - [ ] MEDIUM: Add Organization Schema JSON-LD markup in head
 - [ ] MEDIUM: Fix heading structure - ensure single h1 on homepage
 - [x] Remove hero video and play button from hero section
+
+## Homepage Rendering Fix (May 2026)
+- [x] Diagnosed root cause: Service Worker caching stale static HTML page, preventing React from loading
+- [x] Removed SW registration from main.tsx, replaced with SW cleanup/unregistration code
+- [x] Created self-destructing sw.js that clears caches and unregisters itself
+- [x] Removed static SEO HTML from inside #root div in index.html (React renders into empty root)
+- [x] Removed homepage-static.html route handlers from vite.ts (both dev and production modes)
+- [x] Verified homepage renders all sections correctly: Hero, Services, Benefits, Stats, Industries, FAQ, CTA, Footer
