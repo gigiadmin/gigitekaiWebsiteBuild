@@ -620,9 +620,22 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 
     console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
 
-    // Send Teams notification
-    // Teams notifications disabled temporarily - focus on core email-to-ticket flow
-    // TODO: Re-enable Teams notifications after debugging webhook issues
+    // Send Teams notification for voicemail ticket
+    try {
+      const voicemailTicketObj: Partial<import('../drizzle/schema').Ticket> = {
+        id: ticketId,
+        title: ticketData.title,
+        description: `Voicemail from ${callerNumber || 'Unknown'}\n\nTranscript:\n${transcript.slice(0, 500)}`,
+        priority: (ticketData.priority as 'critical' | 'high' | 'medium' | 'low') || 'medium',
+        status: 'open' as any,
+        category: (ticketData.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
+        createdAt: new Date(),
+      };
+      await sendTicketNotificationToTeams(voicemailTicketObj, 'created');
+      console.log(`[Email Poller] Teams notification sent for voicemail ticket #${ticketId}`);
+    } catch (teamsError) {
+      console.warn(`[Email Poller] Failed to send Teams notification for voicemail ticket #${ticketId}:`, teamsError);
+    }
 
     // Store in emailMessages for deduplication
     try {

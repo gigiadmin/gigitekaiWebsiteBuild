@@ -5249,3 +5249,12 @@
 - [ ] Verify Azure AD redirect URI is registered: https://gigitekai.com/admin/login (or /redirect.html)
 - [ ] Test Azure AD login on production after publishing
 - [ ] Verify admin session cookie is set correctly after Azure AD auth
+
+
+## Pre-Production QA Fixes (May 2026)
+- [ ] HIGH: Fix SSR/SSG - ensure homepage, /privacy-policy, /terms-of-service return full HTML content
+- [ ] HIGH: Verify contact info (727-382-5776, support@gigitekai.com) in header and footer
+- [ ] HIGH: Add footer legal links (Privacy Policy, Terms of Service) clearly visible
+- [ ] MEDIUM: Add Organization Schema JSON-LD markup in head
+- [ ] MEDIUM: Fix heading structure - ensure single h1 on homepage
+- [x] Remove hero video and play button from hero section

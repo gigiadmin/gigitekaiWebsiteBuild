@@ -147,48 +147,7 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}
-        {(!isMobile || videoRequested) && (
-          <video
-            key={isMobile ? 'mobile' : 'desktop'}
-            ref={videoRef}
-            muted
-            playsInline
-            preload={isMobile ? "auto" : "metadata"}
-            width={1920}
-            height={1080}
-            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={HERO_VIDEO_POSTER}
-            onEnded={() => { setPlaying(false); setEnded(true); }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              playing ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ zIndex: 2 }}
-          />
-        )}
-        {/* ── Play icon overlay on poster (shown before video starts) ── */}
-        {!playing && !ended && (
-          <div
-            className="absolute inset-0 flex items-center justify-end pr-[8%] z-[3]"
-            style={{ cursor: isMobile && !videoRequested ? 'pointer' : 'default', pointerEvents: isMobile && !videoRequested ? 'auto' : 'none' }}
-            onClick={isMobile && !videoRequested ? () => setVideoRequested(true) : undefined}
-          >
-            <div
-              className="flex items-center justify-center w-20 h-20 rounded-full"
-              style={{
-                background: "rgba(0,212,255,0.15)",
-                border: "2px solid rgba(0,212,255,0.5)",
-                boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
-              }}
-            >
-              <Play
-                size={32}
-                className="text-[#00D4FF] ml-1"
-                fill="rgba(0,212,255,0.8)"
-              />
-            </div>
-          </div>
-        )}
+        {/* Video removed for production release */}
       </div>
 
       {/* ── Gradient overlays ── */}
@@ -215,41 +174,7 @@ export default function HeroSection() {
         }}
       />
 
-      {/* ── Desktop controls (bottom-right) ── */}
-      {playing && (
-        <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
-          {ended && (
-            <button
-              onClick={handleRestart}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
-            >
-              <RotateCcw size={14} /> Restart
-            </button>
-          )}
-          <button
-            onClick={muted ? handleUnmute : handleMute}
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
-            aria-label={muted ? "Unmute" : "Mute"}
-          >
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={muted ? 0 : volume}
-              onChange={handleVolumeChange}
-              className="w-20 h-1 accent-[#00D4FF] cursor-pointer"
-              aria-label="Volume"
-            />
-            <span className="text-[10px] text-white/80 w-6 text-right">
-              {muted ? "0%" : `${Math.round(volume * 100)}%`}
-            </span>
-          </div>
-        </div>
-      )}
+      {/* Video controls removed */}
 
       {/* ── Main content ── */}
       <div className="container relative z-10 py-20">
@@ -350,124 +275,7 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* ── Mobile: Contact CTA / volume bar ── */}
-          <div
-            className={`md:hidden mb-6 transition-all duration-700 delay-[400ms] ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
-          >
-            {!videoRequested && !playing ? (
-              /* Mobile: video not yet loaded — show tap to play button */
-              <button
-                onClick={() => setVideoRequested(true)}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                }}
-              >
-                <Play size={22} />
-                &#9654; Tap to Watch Demo
-              </button>
-            ) : playing && muted ? (
-              /* Big "Tap to Hear" button — unmutes video on tap (required user gesture for mobile audio) */
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={handleUnmute}
-                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                  style={{
-                    background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                    boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)",
-                  }}
-                >
-                  <Volume2 size={22} />
-                  🔊 Tap to Hear the Demo
-                </button>
-                <button
-                  onClick={() => { window.location.href = "/contact"; }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{
-                    background: "rgba(0,212,255,0.08)",
-                    border: "1.5px solid rgba(0,212,255,0.45)",
-                    color: "#00D4FF",
-                  }}
-                >
-                  <Calendar size={16} />
-                  Click Contact Us for More Information
-                </button>
-              </div>
-            ) : playing && !muted ? (
-              /* Volume slider — shown after unmuting */
-              <div className="flex flex-col gap-2">
-                <div
-                  className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30"
-                  style={{ background: "rgba(0,212,255,0.06)" }}
-                >
-                  <button
-                    onClick={handleMute}
-                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                    aria-label="Mute video"
-                  >
-                    <Volume2 size={18} />
-                  </button>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">
-                      {ended ? "Video Ended" : "Playing Now"}
-                    </span>
-                    <span className="text-[11px] text-white/80">
-                      Volume {Math.round(volume * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.05}
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="w-full h-1.5 accent-[#00D4FF] cursor-pointer"
-                    aria-label="Video volume"
-                  />
-                </div>
-                {ended && (
-                  <button
-                    onClick={handleRestart}
-                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]"
-                    aria-label="Restart video"
-                  >
-                    <RotateCcw size={18} />
-                  </button>
-                )}
-                </div>
-                <button
-                  onClick={handleRestart}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{
-                    background: "rgba(0,212,255,0.08)",
-                    border: "1.5px solid rgba(0,212,255,0.45)",
-                    color: "#00D4FF",
-                  }}
-                >
-                  <RotateCcw size={16} />
-                  Restart Video
-                </button>
-              </div>
-            ) : ended ? (
-              /* Replay button */
-              <button
-                onClick={handleRestart}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{
-                  background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)",
-                  boxShadow: "0 0 24px rgba(0,212,255,0.5)",
-                }}
-              >
-                <RotateCcw size={20} />
-                Replay Platform Demo
-              </button>
-            ) : null}
-          </div>
+          {/* Mobile video controls removed */}
 
           {/* Stats row */}
           <div
