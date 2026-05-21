@@ -1,0 +1,175 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GigitekAI — Continuous Integration Pipeline
+# Runs on every push to main and on every pull request.
+# Jobs:
+#   1. typecheck  — TypeScript strict mode (pnpm check)
+#   2. test       — Vitest unit tests (server/**/*.test.ts)
+#   3. health     — Production route health checks (gigitekai.com)
+# ─────────────────────────────────────────────────────────────────────────────
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10.4.1"
+
+jobs:
+  # ── 1. TypeScript strict check ─────────────────────────────────────────────
+  typecheck:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run TypeScript check
+        run: pnpm check
+
+  # ── 2. Vitest unit tests ───────────────────────────────────────────────────
+  test:
+    name: Vitest Tests
+    runs-on: ubuntu-latest
+    needs: typecheck
+    env:
+      # Stub env vars so server modules load without real credentials
+      DATABASE_URL: "mysql://ci:ci@localhost:3306/ci_test"
+      JWT_SECRET: "ci-test-secret-32-chars-minimum!!"
+      VITE_APP_ID: "ci-app-id"
+      OAUTH_SERVER_URL: "https://oauth.example.com"
+      VITE_OAUTH_PORTAL_URL: "https://portal.example.com"
+      OWNER_OPEN_ID: "ci-owner"
+      OWNER_NAME: "CI Owner"
+      BUILT_IN_FORGE_API_URL: "https://forge.example.com"
+      BUILT_IN_FORGE_API_KEY: "ci-forge-key"
+      VITE_FRONTEND_FORGE_API_KEY: "ci-frontend-key"
+      VITE_FRONTEND_FORGE_API_URL: "https://forge.example.com"
+      SENDGRID_API_KEY: "SG.ci-stub-key"
+      TEAMS_WEBHOOK_URL: ""
+      MS_GRAPH_CLIENT_ID: "ci-graph-id"
+      MS_GRAPH_CLIENT_SECRET: "ci-graph-secret"
+      MS_GRAPH_TENANT_ID: "ci-tenant"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Vitest
+        run: pnpm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-results
+          path: |
+            coverage/
+          retention-days: 7
+
+  # ── 3. Production health checks ────────────────────────────────────────────
+  health:
+    name: Production Health Check
+    runs-on: ubuntu-latest
+    # Only run health checks on pushes to main (not on PRs — site isn't deployed yet)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [typecheck, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check public routes
+        run: |
+          set -e
+          BASE="https://gigitekai.com"
+          ROUTES=(
+            "/"
+            "/ai-demo"
+            "/helpdesk"
+            "/admin"
+            "/blog"
+            "/contact"
+            "/pricing"
+            "/kb"
+            "/about-us"
+            "/services"
+          )
+          FAILED=0
+          for route in "${ROUTES[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${BASE}${route}")
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅  ${route} → ${STATUS}"
+            else
+              echo "❌  ${route} → ${STATUS}"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+          if [ "$FAILED" -gt 0 ]; then
+            echo ""
+            echo "::error::${FAILED} route(s) returned non-200 status. See above for details."
+            exit 1
+          fi
+          echo ""
+          echo "All ${#ROUTES[@]} routes returned HTTP 200 ✅"
+
+      - name: Check tRPC API (blog.listPosts)
+        run: |
+          RESPONSE=$(curl -s --max-time 15 \
+            "https://gigitekai.com/api/trpc/blog.listPosts?input=%7B%22json%22%3A%7B%7D%7D")
+          if echo "$RESPONSE" | grep -q '"result"'; then
+            echo "✅  tRPC blog.listPosts → OK"
+          else
+            echo "❌  tRPC blog.listPosts → Unexpected response:"
+            echo "$RESPONSE" | head -c 400
+            echo "::error::tRPC API health check failed"
+            exit 1
+          fi
+
+      - name: Check tRPC API (demo.submitLead — dry run)
+        run: |
+          RESPONSE=$(curl -s --max-time 15 -X POST \
+            "https://gigitekai.com/api/trpc/demo.submitLead" \
+            -H "Content-Type: application/json" \
+            -d '{"json":{"name":"CI Health Check","email":"ci@gigitekai.com","company":"CI Pipeline","scenario":"Health Check","message":"Automated CI health check — ignore"}}')
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "✅  tRPC demo.submitLead → OK"
+          else
+            echo "❌  tRPC demo.submitLead → Unexpected response:"
+            echo "$RESPONSE" | head -c 400
+            echo "::error::demo.submitLead API health check failed"
+            exit 1
+          fi

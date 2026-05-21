@@ -15,4 +15,6 @@ export const ENV = {
   msGraphClientSecret: process.env.MS_GRAPH_CLIENT_SECRET ?? "",
   acsConnectionString: process.env.ACS_CONNECTION_STRING ?? "",
   acsResourceId: process.env.ACS_RESOURCE_ID ?? "",
+  xeroClientId: process.env.XERO_CLIENT_ID ?? "",
+  xeroClientSecret: process.env.XERO_CLIENT_SECRET ?? "",
 };

@@ -65,6 +65,7 @@ const AdminScorecardDashboardPage = lazy(() => import("./pages/AdminScorecardDas
 const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
 const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardingPage"));
 const WebPricingPage = lazy(() => import("./pages/WebPricingPage"));
+const AdminXero = lazy(() => import("./pages/AdminXero"));
 
 function PageLoader() {
   return (
@@ -138,6 +139,7 @@ export default function AdminApp() {
               <Route path="/admin/hub" component={() => <ApprovalGuard><AdminHubPage /></ApprovalGuard>} />
               <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
               <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
+              <Route path="/admin/xero" component={() => <ApprovalGuard><AdminXero /></ApprovalGuard>} />
               <Route path="/web-pricing" component={() => <WebPricingPage />} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">

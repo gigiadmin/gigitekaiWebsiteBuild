@@ -122,6 +122,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Integrations",
     items: [
       { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
+      { label: "Xero Finance", icon: <TrendingUp size={16} />, href: "/admin/xero" },
     ],
   },
   {

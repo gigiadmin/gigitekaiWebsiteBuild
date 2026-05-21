@@ -41,6 +41,7 @@ import {
 import cronEndpoints from "../cronEndpoints";
 import newsletterAutoPost from "../newsletterAutoPost";
 import stripeWebhookRoute from "../routes/stripe-webhook-route";
+import { registerXeroOAuthRoutes } from "../routers/xero";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -197,6 +198,9 @@ async function startServer() {
 
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+
+  // Xero OAuth connect/callback routes
+  registerXeroOAuthRoutes(app);
   
   // Teams Bot webhook
   app.post("/api/webhooks/teams", handleTeamsWebhook);

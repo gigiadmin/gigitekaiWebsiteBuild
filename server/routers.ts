@@ -109,6 +109,7 @@ import { jiraRouter } from "./routers/jira";
 import { freeAuditRouter } from "./routers/freeAuditRouter";
 import { uptimeRouter } from "./routers/uptime";
 import { kbBulkInsertRouter } from "./routers/kb-bulk-insert";
+import { xeroRouter } from "./routers/xero";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -187,6 +188,7 @@ export const appRouter = router({
   kbSystemFinal: kbSystemFinalRouter,
   kbAiProactive: kbAiProactiveRouter,
   kbBulkInsert: kbBulkInsertRouter,
+  xero: xeroRouter,
   remoteAssistance: remoteAssistanceRouter,
   remoteAssistanceRbac: remoteAssistanceRbacRouter,
   remoteAssistanceAnalytics: remoteAssistanceAnalyticsRouter,

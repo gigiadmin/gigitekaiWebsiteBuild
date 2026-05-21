@@ -2001,3 +2001,26 @@ export const stripeSubscriptions = mysqlTable("stripeSubscriptions", {
 });
 export type StripeSubscription = typeof stripeSubscriptions.$inferSelect;
 export type InsertStripeSubscription = typeof stripeSubscriptions.$inferInsert;
+
+// Xero OAuth Tokens — stores access/refresh tokens for Xero API integration
+export const xeroTokens = mysqlTable("xeroTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Xero tenant ID (organisation ID) returned after OAuth connect */
+  tenantId: varchar("tenantId", { length: 255 }).notNull().unique(),
+  /** Xero tenant name (organisation name) */
+  tenantName: varchar("tenantName", { length: 255 }),
+  /** Xero access token (short-lived, ~30 min) */
+  accessToken: text("accessToken").notNull(),
+  /** Xero refresh token (long-lived) */
+  refreshToken: text("refreshToken").notNull(),
+  /** When the access token expires (UTC ms) */
+  expiresAt: timestamp("expiresAt").notNull(),
+  /** Scopes granted during OAuth consent */
+  scopes: text("scopes"),
+  /** Admin user ID who connected this Xero org */
+  connectedBy: int("connectedBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type XeroToken = typeof xeroTokens.$inferSelect;
+export type InsertXeroToken = typeof xeroTokens.$inferInsert;
