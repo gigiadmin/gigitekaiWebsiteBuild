@@ -93,7 +93,7 @@ export default function FreeAuditPricingPage() {
             + 50% Off Your First Month
           </h1>
 
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Discover exactly where your IT infrastructure stands and what's costing you money. 
             Our comprehensive audit is completely free. Then choose a plan and save 50% on your first month.
           </p>
@@ -113,7 +113,7 @@ export default function FreeAuditPricingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Choose Your Plan</h2>
-            <p className="text-gray-400 text-lg">
+            <p className="text-gray-300 text-lg">
               All prices shown include your 50% first-month discount
             </p>
           </div>
@@ -153,16 +153,16 @@ export default function FreeAuditPricingPage() {
                         <Icon className={`w-6 h-6 ${
                           tier.isPopular 
                             ? "text-[#00D4FF]" 
-                            : "text-gray-400"
+                            : "text-gray-300"
                         }`} />
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold">{tier.name}</h3>
-                        <p className="text-sm text-gray-400">{tier.subtitle}</p>
+                        <p className="text-sm text-gray-300">{tier.subtitle}</p>
                       </div>
                     </div>
 
-                    <p className="text-gray-400 text-sm mb-6">{tier.description}</p>
+                    <p className="text-gray-300 text-sm mb-6">{tier.description}</p>
 
                     {/* Pricing */}
                     <div className="mb-8 pb-8 border-b border-gray-800/40">
@@ -170,9 +170,9 @@ export default function FreeAuditPricingPage() {
                         <span className="text-5xl font-bold text-[#00D4FF]">
                           ${tier.discountedPrice}
                         </span>
-                        <span className="text-gray-400">/month</span>
+                        <span className="text-gray-300">/month</span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-gray-300 mt-3">
                         First month only — then ${tier.monthlyPrice}/month
                       </p>
                     </div>
@@ -207,7 +207,7 @@ export default function FreeAuditPricingPage() {
 
           {/* Note */}
           <div className="mt-12 p-6 bg-gray-900/30 border border-gray-800/40 rounded-lg text-center">
-            <p className="text-gray-400">
+            <p className="text-gray-300">
               <span className="font-semibold text-white">12-month minimum commitment</span> • 
               <span className="ml-2">30-day money-back guarantee</span> • 
               <span className="ml-2">No contracts required</span>
@@ -242,7 +242,7 @@ export default function FreeAuditPricingPage() {
             ].map((item, idx) => (
               <div key={idx} className="p-6 bg-[#0F1419]/40 border border-gray-800/40 rounded-lg">
                 <h3 className="text-lg font-bold text-[#00D4FF] mb-2">{item.title}</h3>
-                <p className="text-gray-400">{item.description}</p>
+                <p className="text-gray-300">{item.description}</p>
               </div>
             ))}
           </div>

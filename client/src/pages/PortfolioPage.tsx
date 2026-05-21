@@ -175,6 +175,7 @@ const CAPABILITIES = [
 export default function WebsitesPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0A0E1A", color: "#F1F5F9" }}>
+      <main>
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden py-24 px-4 border-b border-cyan-500/20">
@@ -555,6 +556,7 @@ export default function WebsitesPage() {
           </div>
         </div>
       </section>
+          </main>
     </div>
   );
 }

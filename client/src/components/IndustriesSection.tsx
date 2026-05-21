@@ -47,7 +47,7 @@ export default function IndustriesSection() {
           >
             Cloud & AI Solutions Designed for Your Industry
           </h2>
-          <p className="text-gray-400 dark:text-gray-300 text-lg leading-relaxed">
+          <p className="text-gray-300 text-lg leading-relaxed">
             With deep sector expertise across regulated and high-growth industries, GigitekAI delivers technology strategies that align with your specific compliance requirements, operational challenges, and growth objectives.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function IndustriesSection() {
                 >
                   {industry.name}
                 </h3>
-                <p className="text-gray-500 dark:text-gray-300 text-xs leading-relaxed">{industry.desc}</p>
+                <p className="text-gray-300 text-xs leading-relaxed">{industry.desc}</p>
               </div>
             );
           })}

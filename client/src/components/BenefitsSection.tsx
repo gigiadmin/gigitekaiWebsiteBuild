@@ -57,7 +57,7 @@ export default function BenefitsSection() {
                   <p className="text-gray-900 dark:text-white text-sm font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     AI-Driven Insights
                   </p>
-                  <p className="text-gray-500 dark:text-gray-300 text-xs">Real-time analytics powering smarter decisions</p>
+                  <p className="text-gray-300 text-xs">Real-time analytics powering smarter decisions</p>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function BenefitsSection() {
             >
               Drive Better Business Outcomes with Intelligent Technology
             </h2>
-            <p className="text-gray-400 dark:text-gray-300 text-lg leading-relaxed mb-8">
+            <p className="text-gray-300 text-lg leading-relaxed mb-8">
               Technology shouldn't be a burden — it should be your competitive advantage. GigitekAI's cloud and AI solutions give you the infrastructure and intelligence to evolve your business for sustained growth.
             </p>
 

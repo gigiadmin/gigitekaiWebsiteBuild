@@ -100,7 +100,7 @@ export default function StatsSection() {
           >
             You Deserve Expert Cloud & AI Strategy
           </h2>
-          <p className="text-gray-500 dark:text-gray-300 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
             Numbers that reflect our commitment to delivering measurable results for every client we serve.
           </p>
         </div>
@@ -128,7 +128,7 @@ export default function StatsSection() {
                 </div>
                 <div className="w-8 h-0.5 bg-[#00D4FF] mx-auto mb-3" />
                 <p className="text-gray-700 dark:text-gray-200 text-sm font-semibold leading-snug mb-1">{stat.label}</p>
-                <p className="text-gray-400 dark:text-gray-300 text-xs">{stat.sublabel}</p>
+                <p className="text-gray-300 text-xs">{stat.sublabel}</p>
               </div>
             );
           })}
@@ -199,7 +199,7 @@ export default function StatsSection() {
                   >
                     {step.title}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed">{step.desc}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}

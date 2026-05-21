@@ -18,7 +18,7 @@ export default function TrustedBySection() {
   return (
     <section className="py-12 bg-gray-50 dark:bg-[#0F1629] border-y border-gray-100 dark:border-[rgba(0,212,255,0.1)]">
       <div className="container">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-300 mb-8">
+        <p className="text-center text-xs font-semibold uppercase tracking-widest text-gray-300 mb-8">
           Trusted Technology Partners
         </p>
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
@@ -28,7 +28,7 @@ export default function TrustedBySection() {
               className="flex items-center justify-center px-6 py-3 bg-white dark:bg-[#141B2D] rounded-lg border border-gray-100 dark:border-[rgba(0,212,255,0.15)] shadow-sm hover:border-[#00D4FF]/30 hover:shadow-md transition-all duration-200 min-w-[120px]"
             >
               <span
-                className="text-gray-500 font-bold text-sm hover:text-[#00D4FF] transition-colors"
+                className="text-gray-300 font-bold text-sm hover:text-[#00D4FF] transition-colors"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {partner.abbr}

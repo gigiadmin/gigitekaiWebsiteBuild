@@ -60,7 +60,7 @@ export default function InsightsSection() {
             >
               Latest from GigitekAI
             </h2>
-            <p className="text-gray-500 dark:text-gray-300 mt-2 text-base max-w-xl">
+            <p className="text-gray-300 mt-2 text-base max-w-xl">
               Stay ahead with our latest insights on AI, cloud infrastructure, and managed IT.
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function InsightsSection() {
         {isLoading && (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="animate-spin text-[#00D4FF] mr-3" size={24} />
-            <span className="text-gray-400">Loading insights…</span>
+            <span className="text-gray-300">Loading insights…</span>
           </div>
         )}
 
@@ -113,11 +113,11 @@ export default function InsightsSection() {
                   >
                     {featured.title}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-300 text-base leading-relaxed mb-8 flex-1">
+                  <p className="text-gray-300 text-base leading-relaxed mb-8 flex-1">
                     {featured.excerpt}
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-white/5">
-                    <div className="flex items-center gap-4 text-gray-400 text-xs">
+                    <div className="flex items-center gap-4 text-gray-300 text-xs">
                       <span className="flex items-center gap-1.5">
                         <Calendar size={13} />
                         {formatDate(featured)}
@@ -163,7 +163,7 @@ export default function InsightsSection() {
                         {post.category}
                       </span>
                       {post.readTime && (
-                        <span className="flex items-center gap-1 text-gray-400 text-xs">
+                        <span className="flex items-center gap-1 text-gray-300 text-xs">
                           <Clock size={11} />
                           {post.readTime}
                         </span>
@@ -175,11 +175,11 @@ export default function InsightsSection() {
                     >
                       {post.title}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                    <p className="text-gray-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-white/5">
-                      <span className="flex items-center gap-1.5 text-gray-400 text-xs">
+                      <span className="flex items-center gap-1.5 text-gray-300 text-xs">
                         <Calendar size={12} />
                         {formatDate(post)}
                       </span>
@@ -206,7 +206,7 @@ export default function InsightsSection() {
               <span className="text-red-500 text-xl">⚠</span>
             </div>
             <p className="text-red-400 font-semibold mb-2">Failed to load articles</p>
-            <p className="text-gray-400 text-sm mb-4">Please try again later or contact support.</p>
+            <p className="text-gray-300 text-sm mb-4">Please try again later or contact support.</p>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border border-[#00D4FF]/30 rounded-lg text-[#00D4FF] text-sm font-semibold transition-colors"
@@ -221,7 +221,7 @@ export default function InsightsSection() {
         {!isLoading && !error && displayPosts.length === 0 && (
           <div className="text-center py-16">
             <Sparkles size={32} className="text-[#00D4FF]/30 mx-auto mb-3" />
-            <p className="text-gray-400">New insights coming soon. Check back shortly.</p>
+            <p className="text-gray-300">New insights coming soon. Check back shortly.</p>
           </div>
         )}
       </div>

@@ -29,6 +29,7 @@ export default function FreeAuditLandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white">
+      <main>
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-[#0A0E1A]/95 backdrop-blur border-b border-gray-800/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -37,7 +38,7 @@ export default function FreeAuditLandingPage() {
           </a>
           <a
             href="https://gigitekai.com"
-            className="text-sm text-gray-400 hover:text-[#00D4FF] transition-colors"
+            className="text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
           >
             Back to GigitekAI
           </a>
@@ -50,7 +51,7 @@ export default function FreeAuditLandingPage() {
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-[#00D4FF] to-[#9D4EDD] bg-clip-text text-transparent">
             Professional Websites Built for Growth
           </h1>
-          <p className="text-xl text-gray-400 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Get a free website audit + save 50% on professional web design, SEO, and integrations
           </p>
           <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-6 py-3 mb-8">
@@ -82,7 +83,7 @@ export default function FreeAuditLandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-900/40 border-t border-gray-800/40">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Also Need Managed IT Services?</h2>
-          <p className="text-xl text-gray-400 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Combine your website with our comprehensive helpdesk support, AI automation, and managed IT services
           </p>
           <a
@@ -100,7 +101,7 @@ export default function FreeAuditLandingPage() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="font-bold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <a href="https://gigitekai.com" className="hover:text-[#00D4FF]">
                     About
@@ -120,7 +121,7 @@ export default function FreeAuditLandingPage() {
             </div>
             <div>
               <h3 className="font-bold mb-4">Services</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <a href="https://gigitekai.com/services" className="hover:text-[#00D4FF]">
                     Services
@@ -140,7 +141,7 @@ export default function FreeAuditLandingPage() {
             </div>
             <div>
               <h3 className="font-bold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <a href="https://gigitekai.com/roi-calculator" className="hover:text-[#00D4FF]">
                     ROI Calculator
@@ -160,7 +161,7 @@ export default function FreeAuditLandingPage() {
             </div>
             <div>
               <h3 className="font-bold mb-4">Contact</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-300">
                 <li>
                   <a href="tel:+17273826909" className="hover:text-[#00D4FF]">
                     (727) 382-6909
@@ -176,7 +177,7 @@ export default function FreeAuditLandingPage() {
           </div>
 
           <div className="border-t border-gray-800/40 pt-8">
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-gray-300">
               © 2026 GigitekAI LLC. All rights reserved. | 
               <a href="https://gigitekai.com/privacy" className="hover:text-[#00D4FF] ml-2">
                 Privacy Policy
@@ -185,6 +186,7 @@ export default function FreeAuditLandingPage() {
           </div>
         </div>
       </footer>
+          </main>
     </div>
   );
 }

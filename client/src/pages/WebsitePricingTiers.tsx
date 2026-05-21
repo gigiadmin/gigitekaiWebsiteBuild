@@ -80,7 +80,7 @@ export default function WebsitePricingTiers() {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Website Solutions Built for Growth
           </h2>
-          <p className="text-xl text-gray-400 mb-6">
+          <p className="text-xl text-gray-300 mb-6">
             Professional websites with SEO, integrations, and ongoing support
           </p>
           <div className="inline-block bg-green-900/30 border border-green-700/50 rounded-lg px-6 py-3">
@@ -112,8 +112,8 @@ export default function WebsitePricingTiers() {
 
               {/* Tier Info */}
               <h3 className="text-2xl font-bold text-white mb-1">{tier.name}</h3>
-              <p className="text-gray-400 text-sm mb-4">{tier.subtitle}</p>
-              <p className="text-gray-500 text-sm mb-6">{tier.description}</p>
+              <p className="text-gray-300 text-sm mb-4">{tier.subtitle}</p>
+              <p className="text-gray-300 text-sm mb-6">{tier.description}</p>
 
               {/* Pricing */}
               <div className="mb-6">
@@ -121,7 +121,7 @@ export default function WebsitePricingTiers() {
                   <span className={`text-4xl font-bold ${tier.isPopular ? "text-[#9D4EDD]" : "text-[#00D4FF]"}`}>
                     ${tier.monthlyPrice}
                   </span>
-                  <span className="text-gray-400">/month</span>
+                  <span className="text-gray-300">/month</span>
                 </div>
               </div>
 
@@ -132,7 +132,7 @@ export default function WebsitePricingTiers() {
 
               {/* Features */}
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
                   WHAT'S INCLUDED:
                 </p>
                 {tier.features.map((feature, fidx) => (
@@ -156,7 +156,7 @@ export default function WebsitePricingTiers() {
         {/* Helpdesk Reference */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">Need Managed IT Services?</h3>
-          <p className="text-gray-400 mb-6">
+          <p className="text-gray-300 mb-6">
             We also offer comprehensive helpdesk support, AI automation, and managed IT services. 
             <a href="https://gigitekai.com/helpdesk-pricing" className="text-[#00D4FF] hover:underline ml-1">
               View our helpdesk pricing →
