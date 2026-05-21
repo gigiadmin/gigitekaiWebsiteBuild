@@ -424,7 +424,7 @@ export default function WebPricingLandingPage() {
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid md:grid-cols-4 gap-6 mb-12">
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Starter */}
             <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
               <h3 className="text-2xl font-bold mb-2">Starter</h3>
@@ -534,10 +534,10 @@ export default function WebPricingLandingPage() {
               </div>
             </div>
 
-            {/* Pro */}
+            {/* Enterprise (merged Pro + Enterprise) */}
             <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
-              <h3 className="text-2xl font-bold mb-2">Pro</h3>
-              <p className="text-sm text-gray-400 mb-6">Complete web solutions with custom integrations</p>
+              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
+              <p className="text-sm text-gray-400 mb-6">Complete web solutions with custom integrations & dedicated support</p>
               
               <div className="mb-6">
                 <p className="text-4xl font-bold text-cyan-400">$2,799</p>
@@ -566,11 +566,11 @@ export default function WebPricingLandingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={16} className="text-cyan-400" />
-                  <span>Google Business Profile</span>
+                  <span>AI Engine Optimization (AEO)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={16} className="text-cyan-400" />
-                  <span>Google Ads Management</span>
+                  <span>PPC & Google Ads Management</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={16} className="text-cyan-400" />
@@ -582,48 +582,7 @@ export default function WebPricingLandingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={16} className="text-cyan-400" />
-                  <span>Advanced Integrations</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Enterprise */}
-            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
-              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
-              <p className="text-sm text-gray-400 mb-6">For companies with complex needs</p>
-              
-              <div className="mb-6">
-                <p className="text-4xl font-bold text-cyan-400">$4,999+</p>
-                <p className="text-sm text-gray-400">/month (custom quoted)</p>
-              </div>
-
-              <button
-                onClick={() => setDiscoveryFormOpen(true)}
-                className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mb-6"
-              >
-                Contact Sales
-              </button>
-
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Custom Website + Landing Pages</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Full Custom Design</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Full SEO Services</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>AI Engine Optimization</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>PPC & Google Ads</span>
+                  <span>Advanced & Custom Integrations</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check size={16} className="text-cyan-400" />

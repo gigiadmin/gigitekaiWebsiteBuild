@@ -433,7 +433,7 @@ export default function PortfolioPage() {
               <p className="text-green-300 font-semibold">🎁 Limited Time: 50% OFF + 1 Month FREE on 1-Year Commitment</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 name: "Starter",
@@ -451,18 +451,11 @@ export default function PortfolioPage() {
                 popular: true
               },
               {
-                name: "Pro",
-                price: "$2,799",
-                description: "Complete web solutions with custom integrations",
-                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced Integrations"],
-                color: "#00D97E"
-              },
-              {
                 name: "Enterprise",
-                price: "$4,999+",
-                description: "For companies with complex needs",
-                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AI Engine Optimization", "PPC & Google Ads", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
-                color: "#FF6B9D"
+                price: "$2,799",
+                description: "Complete web solutions with custom integrations & dedicated support",
+                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AI Engine Optimization (AEO)", "PPC & Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced & Custom Integrations", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
+                color: "#00D97E"
               }
             ].map((pkg, idx) => (
               <div key={idx} className={`relative rounded-2xl border p-8 transition-all duration-300 hover:scale-[1.02] ${

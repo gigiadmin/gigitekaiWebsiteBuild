@@ -46,46 +46,25 @@ export default function WebsitePricingTiers() {
       isPopular: true,
     },
     {
-      name: "Pro",
-      subtitle: "Growth Mode",
+      name: "Enterprise",
+      subtitle: "Complete Solution",
       monthlyPrice: 3750,
-      description: "Complete web solutions with custom design and integrations",
+      description: "Complete web solutions with custom integrations, AEO, and dedicated support",
       features: [
         "Unlimited Pages + Landing Pages",
         "Custom Website Design",
         "Full Local SEO Services",
-        "Google Business Profile Management",
-        "Google Ad Management",
+        "AEO (AI Engine Optimization) Services",
+        "PPC, Google Ads & LSAs",
         "Back-linking & Community Mentions + Technical SEO",
         "Lead Tracking & Monthly Reporting",
         "E-commerce Capability",
-        "Advanced API Integrations",
+        "Advanced & Custom API Integrations",
         "Custom Workflows & Automation",
-        "Video Background/Hero Section",
-        "Weekly Check-ins & Custom Reports",
-      ],
-      buttonText: "Get Started",
-      buttonStyle: "bg-[#00D4FF] text-black hover:bg-[#00D4FF]/90",
-      isPopular: false,
-    },
-    {
-      name: "Enterprise",
-      subtitle: "Custom Solutions",
-      monthlyPrice: 6000,
-      description: "For companies with many locations and complex needs",
-      features: [
-        "Custom Website + Landing Pages",
-        "Full Local SEO Services",
-        "AEO (AI Engine Optimization) Services",
-        "PPC, Google Ads & LSAs",
-        "Larger Amounts of Content + Linking",
-        "Weekly Check-ins & Custom Reports",
-        "For Companies with Many Locations",
+        "Multi-site Management",
         "Dedicated Account Manager",
         "24/7 Premium Support",
-        "Custom API Development",
-        "Multi-site Management",
-        "Quarterly Business Reviews",
+        "Weekly Check-ins & Custom Reports",
       ],
       buttonText: "Get Started",
       buttonStyle: "bg-[#00D4FF] text-black hover:bg-[#00D4FF]/90",
@@ -112,7 +91,7 @@ export default function WebsitePricingTiers() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-20">
+        <div className="grid md:grid-cols-3 gap-6 mb-20">
           {tiers.map((tier, idx) => (
             <div
               key={idx}
