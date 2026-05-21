@@ -29,10 +29,10 @@ export default function HeroSection() {
     if (typeof window === 'undefined') return false;
     return window.innerWidth <= 768;
   });
-  // On mobile: don't load video until user taps — massive LCP improvement
-  const [videoRequested, setVideoRequested] = useState(false);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [videoError, setVideoError] = useState(false);
+  // Mobile: no video — static image only
+  const videoRequested = false;
+  const videoLoading = false;
+  const videoError = false;
   const videoRef = useRef<HTMLVideoElement>(null);
 
 
@@ -56,23 +56,20 @@ export default function HeroSection() {
   }, [isMobile, videoRequested, playing, ended, muted]);
 
   // Autoplay muted — works on ALL browsers including iOS Safari
-  // On mobile: only triggers after user taps (videoRequested=true) to avoid LCP penalty
+  // Desktop only: autoplay muted video
   useEffect(() => {
+    if (isMobile) return; // Mobile: no video
     const video = videoRef.current;
-    if (!video || (isMobile && !videoRequested)) return;
+    if (!video) return;
 
-    setVideoError(false);
-    setVideoLoading(true);
     video.muted = true;
     video.volume = 0.5;
     video.load();
 
     const tryPlay = () => {
-      setVideoLoading(false);
       video.play()
         .then(() => setPlaying(true))
         .catch(() => {
-          // If even muted autoplay fails, try again on first user interaction
           const onInteract = () => {
             video.play().then(() => setPlaying(true)).catch(() => {});
             document.removeEventListener("touchstart", onInteract);
@@ -83,25 +80,12 @@ export default function HeroSection() {
         });
     };
 
-    const onError = () => {
-      console.error('[HeroSection] Video load error:', video.error?.message, video.error?.code);
-      setVideoLoading(false);
-      setVideoError(true);
-      setPlaying(false);
-    };
-
-    video.addEventListener("error", onError, { once: true });
-
     if (video.readyState >= 2) {
       tryPlay();
     } else {
       video.addEventListener("loadeddata", tryPlay, { once: true });
     }
-
-    return () => {
-      video.removeEventListener("error", onError);
-    };
-  }, [isMobile, videoRequested]);
+  }, [isMobile]);
 
   // Tap to unmute — this is a direct user gesture, so browser allows it
   const handleUnmute = () => {
@@ -143,12 +127,8 @@ export default function HeroSection() {
     setEnded(false);
   };
 
-  // Handle play button click (works on both desktop and mobile)
+  // Handle play button click (desktop only)
   const handlePlayClick = () => {
-    if (isMobile && !videoRequested) {
-      setVideoRequested(true);
-      return;
-    }
     const video = videoRef.current;
     if (!video) return;
     if (ended) {
@@ -193,8 +173,8 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* On mobile: only render <video> after user taps — prevents 20s LCP penalty */}
-        {(!isMobile || videoRequested) && (
+        {/* Desktop only: render video — mobile shows static background image */}
+        {!isMobile && (
           <video
             key={isMobile ? 'mobile' : 'desktop'}
             ref={videoRef}
@@ -214,8 +194,8 @@ export default function HeroSection() {
         )}
       </div>
 
-      {/* ── Play/Replay icon overlay (shown when video is not playing) ── */}
-      {!playing && (
+      {/* ── Play/Replay icon overlay (desktop only) ── */}
+      {!isMobile && !playing && (
         <div
           className="absolute top-1/2 right-[8%] -translate-y-1/2 z-[15] cursor-pointer"
           onClick={handlePlayClick}
@@ -269,7 +249,7 @@ export default function HeroSection() {
       />
 
       {/* ── Desktop controls (bottom-right) ── */}
-      {(playing || ended) && (
+      {!isMobile && (playing || ended) && (
         <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
           {playing && (
             <button
@@ -411,105 +391,7 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* ── Mobile: Contact CTA / volume bar ── */}
-          <div
-            className={`md:hidden mb-6 transition-all duration-700 delay-[400ms] ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
-          >
-            {/* Mobile video controls — clean state machine */}
-            {videoError ? (
-              /* Error state — retry button */
-              <button
-                onClick={() => { setVideoError(false); setVideoRequested(false); setTimeout(() => setVideoRequested(true), 50); }}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5)" }}
-              >
-                <RotateCcw size={22} />
-                Retry Demo Video
-              </button>
-            ) : videoLoading ? (
-              /* Loading state — show spinner */
-              <div className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base" style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.3)", color: "#00D4FF" }}>
-                <svg className="animate-spin" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
-                Loading Demo...
-              </div>
-            ) : !videoRequested ? (
-              /* Initial state — tap to load and play */
-              <button
-                onClick={() => setVideoRequested(true)}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
-              >
-                <Play size={22} />
-                Tap to Watch Demo
-              </button>
-            ) : ended ? (
-              /* Ended state — replay */
-              <button
-                onClick={handleRestart}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5)" }}
-              >
-                <RotateCcw size={20} />
-                Replay Platform Demo
-              </button>
-            ) : !playing ? (
-              /* Paused state — resume */
-              <button
-                onClick={handlePlayClick}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
-              >
-                <Play size={22} />
-                Resume Demo
-              </button>
-            ) : playing && muted ? (
-              /* Playing muted — tap to hear */
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={handleUnmute}
-                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base text-black"
-                  style={{ background: "linear-gradient(135deg, #00D4FF 0%, #00EEFF 100%)", boxShadow: "0 0 24px rgba(0,212,255,0.5), 0 0 48px rgba(0,212,255,0.2)" }}
-                >
-                  <Volume2 size={22} />
-                  Tap to Hear the Demo
-                </button>
-                <button
-                  onClick={handlePause}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.45)", color: "#00D4FF" }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                  Pause Video
-                </button>
-              </div>
-            ) : (
-              /* Playing with audio — volume controls */
-              <div className="flex flex-col gap-2">
-                <div className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[#00D4FF]/30" style={{ background: "rgba(0,212,255,0.06)" }}>
-                  <button onClick={handleMute} className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full border border-[#00D4FF]/40 bg-[#00D4FF]/10 text-[#00D4FF]" aria-label="Mute video">
-                    <Volume2 size={18} />
-                  </button>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-[#00D4FF] font-semibold tracking-wide uppercase">Playing Now</span>
-                      <span className="text-[11px] text-white/50">Volume {Math.round(volume * 100)}%</span>
-                    </div>
-                    <input type="range" min={0} max={1} step={0.05} value={volume} onChange={handleVolumeChange} className="w-full h-1.5 accent-[#00D4FF] cursor-pointer" aria-label="Video volume" />
-                  </div>
-                </div>
-                <button
-                  onClick={handlePause}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                  style={{ background: "rgba(0,212,255,0.08)", border: "1.5px solid rgba(0,212,255,0.45)", color: "#00D4FF" }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                  Pause Video
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Mobile: no video controls — static background image only */}
 
           {/* Stats row */}
           <div
