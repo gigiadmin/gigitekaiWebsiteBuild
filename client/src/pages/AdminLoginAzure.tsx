@@ -20,14 +20,22 @@ import AdminLayout from "@/components/AdminLayout";
  *   - Better error messages for each failure scenario
  */
 import { useState, useEffect, useRef } from "react";
-import { useMsal } from "@azure/msal-react";
+import { useMsal, MsalProvider } from "@azure/msal-react";
+import { PublicClientApplication } from "@azure/msal-browser";
 import { useLocation } from "wouter";
-import { LOGIN_REQUEST, ALLOWED_ADMIN_EMAILS } from "@/lib/msalConfig";
+import { MSAL_CONFIG, LOGIN_REQUEST, ALLOWED_ADMIN_EMAILS } from "@/lib/msalConfig";
 import { Shield, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 
-export default function AdminLoginAzure() {
+// Initialize MSAL instance once at module level — scoped to this page only
+// This avoids loading MSAL on every public page and prevents React instance conflicts
+const msalInstance = new PublicClientApplication(MSAL_CONFIG);
+
+/**
+ * Inner component — must be rendered inside MsalProvider
+ */
+function AdminLoginAzureInner() {
   const { instance, accounts, inProgress } = useMsal();
   const [, navigate] = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -258,5 +266,18 @@ export default function AdminLoginAzure() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Outer wrapper — provides MsalProvider scoped to this page only.
+ * Keeping MsalProvider here (not in App.tsx) prevents the MSAL chunk from
+ * loading on public pages and avoids React instance conflicts with the main bundle.
+ */
+export default function AdminLoginAzure() {
+  return (
+    <MsalProvider instance={msalInstance}>
+      <AdminLoginAzureInner />
+    </MsalProvider>
   );
 }

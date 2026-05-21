@@ -5234,3 +5234,18 @@
 - [x] Fix phone number: changed all instances of (727) 382-6909 to (727) 382-5776 across 20+ files
 - [x] Verify all fixes on mobile viewport (dev server confirmed working)
 - [ ] Deploy fix to production (publish required)
+
+## BUG: Admin Portal Login Not Working on Production (May 21, 2026)
+- [ ] Fix admin login - session cookies not being sent/recognized after sign-in
+- [ ] Console errors: "Please login (10001)", "You do not have required permission", "Admin access required"
+- [ ] Verify admin login works on production after fix
+
+## Azure AD Admin Login Migration (May 21, 2026)
+- [x] Switch /admin/login route from AdminLogin (email/password) to AdminLoginAzure (Microsoft SSO)
+- [x] Scope MsalProvider inside AdminLoginAzure.tsx (not global App.tsx) to prevent React instance conflicts
+- [x] Add React dedupe to vite.config.ts to prevent duplicate React instances
+- [x] Add optimizeDeps.include for react/react-dom to ensure consistent bundling
+- [x] Verified only one React instance (react@19.2.1) in entire dependency tree
+- [ ] Verify Azure AD redirect URI is registered: https://gigitekai.com/admin/login (or /redirect.html)
+- [ ] Test Azure AD login on production after publishing
+- [ ] Verify admin session cookie is set correctly after Azure AD auth

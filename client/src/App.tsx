@@ -89,6 +89,7 @@ const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const LogoutConfirmation = lazy(() => import("./pages/LogoutConfirmation"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminLoginAzure = lazy(() => import("./pages/AdminLoginAzure"));
 const AdminUnlock = lazy(() => import("./pages/AdminUnlock"));
 
 // ── Meeting management — lazy loaded ─────────────────────────────────────
@@ -232,7 +233,7 @@ function Router() {
           {/* ── Auth ── */}
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />
-          <Route path={"/admin/login"} component={AdminLogin} />
+          <Route path={"/admin/login"} component={AdminLoginAzure} />
           {/* Redirect bridge page handles /redirect.html for MSAL popup flow */}
           <Route path={"/admin/unlock"} component={AdminUnlock} />
           {/* ── Meeting management ── */}

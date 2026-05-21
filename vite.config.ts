@@ -401,10 +401,20 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+    // Deduplicate React to prevent multiple instances when MSAL chunk loads separately.
+    // Without this, @azure/msal-react uses a different React copy than the app, causing
+    // 'Cannot read properties of null (reading useEffect)' crash in MsalProvider.
+    dedupe: ["react", "react-dom"],
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
+  optimizeDeps: {
+    // Force Vite to always re-bundle deps so React is never duplicated across chunks.
+    // Without this, clearing node_modules/.vite can leave the browser with stale
+    // pre-bundled chunks that use a different React instance than the main bundle.
+    include: ["react", "react-dom", "react-dom/client"],
+  },
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
