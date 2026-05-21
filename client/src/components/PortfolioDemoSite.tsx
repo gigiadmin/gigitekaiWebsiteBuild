@@ -86,7 +86,7 @@ export default function PortfolioDemoSite({ site }: Props) {
           GigitekAI.com
         </a>
         <span className="mx-2 text-gray-600">·</span>
-        <a href="/portfolio" className="text-gray-400 hover:text-gray-200 transition-colors">← Back to Portfolio</a>
+        <a href="/websites" className="text-gray-400 hover:text-gray-200 transition-colors">← Back to Websites</a>
       </div>
 
       {/* Sticky Navbar — dark, premium enterprise style */}
@@ -108,7 +108,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               <a href="#about" className="hover:text-white transition-colors">About</a>
               <a href="#team" className="hover:text-white transition-colors">Team</a>
               <a href="#contact" className="hover:text-white transition-colors">Contact</a>
-              <a href="/portfolio" className="text-xs text-gray-500 hover:text-gray-300">← Portfolio</a>
+              <a href="/websites" className="text-xs text-gray-500 hover:text-gray-300">← Websites</a>
               <a
                 href="#contact"
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 shadow-sm"
@@ -128,7 +128,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               {["services", "about", "team", "contact"].map((s) => (
                 <a key={s} href={`#${s}`} className="block py-2.5 px-2 text-gray-200 hover:text-white capitalize font-medium" onClick={() => setMobileMenuOpen(false)}>{s}</a>
               ))}
-              <a href="/portfolio" className="block py-2.5 px-2 text-gray-500 text-sm" onClick={() => setMobileMenuOpen(false)}>← Back to Portfolio</a>
+              <a href="/websites" className="block py-2.5 px-2 text-gray-500 text-sm" onClick={() => setMobileMenuOpen(false)}>← Back to Websites</a>
               <a href="#contact" className="block w-full py-3 rounded-lg text-sm font-semibold text-white text-center mt-2" style={{ backgroundColor: accent }} onClick={() => setMobileMenuOpen(false)}>
                 Get Started
               </a>
@@ -512,7 +512,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             <a href="#about" className="hover:text-gray-300">About</a>
             <a href="#team" className="hover:text-gray-300">Team</a>
             <a href="#contact" className="hover:text-gray-300">Contact</a>
-            <a href="/portfolio" className="hover:text-gray-300">← Back to Portfolio</a>
+            <a href="/websites" className="hover:text-gray-300">← Back to Websites</a>
             <a href="https://gigitekai.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">GigitekAI.com</a>
           </div>
         </div>

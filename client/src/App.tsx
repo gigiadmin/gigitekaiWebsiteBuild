@@ -56,7 +56,7 @@ const AIStrategicBriefingPage = lazy(() => import("./pages/AIStrategicBriefingPa
 const AIDemoPage = lazy(() => import("./pages/AIDemoPage"));
 const ClientExchangePage = lazy(() => import("./pages/ClientExchangePage"));
 const CaseStudiesPage = lazy(() => import("./pages/CaseStudiesPage"));
-const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
+const WebsitesPage = lazy(() => import("./pages/PortfolioPage"));
 const PortfolioFinanceDemo = lazy(() => import("./pages/PortfolioFinanceDemo"));
 const PortfolioLegalDemo = lazy(() => import("./pages/PortfolioLegalDemo"));
 const PortfolioInsuranceDemo = lazy(() => import("./pages/PortfolioInsuranceDemo"));
@@ -164,16 +164,26 @@ function Router() {
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
           <Route path={"/case-studies"} component={CaseStudiesPage} />
-          {/* Portfolio showcase */}
-          <Route path={"/portfolio"} component={PortfolioPage} />
+          {/* Websites showcase (/websites is canonical, /portfolio redirects for backward compat) */}
+          <Route path={"/websites"} component={WebsitesPage} />
+          <Route path={"/portfolio"}>{() => { window.location.replace("/websites"); return null; }}</Route>
+          <Route path={"/websites/finance"} component={PortfolioFinanceDemo} />
           <Route path={"/portfolio/finance"} component={PortfolioFinanceDemo} />
+          <Route path={"/websites/legal"} component={PortfolioLegalDemo} />
           <Route path={"/portfolio/legal"} component={PortfolioLegalDemo} />
+          <Route path={"/websites/insurance"} component={PortfolioInsuranceDemo} />
           <Route path={"/portfolio/insurance"} component={PortfolioInsuranceDemo} />
+          <Route path={"/websites/vc"} component={PortfolioVCDemo} />
           <Route path={"/portfolio/vc"} component={PortfolioVCDemo} />
+          <Route path={"/websites/health"} component={PortfolioHealthDemo} />
           <Route path={"/portfolio/health"} component={PortfolioHealthDemo} />
+          <Route path={"/websites/consulting"} component={PortfolioConsultingDemo} />
           <Route path={"/portfolio/consulting"} component={PortfolioConsultingDemo} />
+          <Route path={"/websites/tech"} component={PortfolioTechDemo} />
           <Route path={"/portfolio/tech"} component={PortfolioTechDemo} />
+          <Route path={"/websites/gigitekai"} component={PortfolioGigitekDemo} />
           <Route path={"/portfolio/gigitekai"} component={PortfolioGigitekDemo} />
+          <Route path={"/websites/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/portfolio/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
@@ -275,7 +285,7 @@ function App() {
   const isAdminPage = location.startsWith("/admin");
   const isHelpdeskPage = location.startsWith("/helpdesk");
   // Hide global widgets on portfolio demo pages so they look like standalone sites
-  const isPortfolioDemoPage = /^\/portfolio\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
+  const isPortfolioDemoPage = /^\/(portfolio|websites)\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
   // Note: /web-pricing shows AI chat widget but hides other global widgets
   const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
 

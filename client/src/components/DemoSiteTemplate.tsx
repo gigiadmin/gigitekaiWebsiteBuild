@@ -43,9 +43,9 @@ export function DemoSiteTemplate({
       {/* Navigation */}
       <nav className="border-b border-gray-700/50 bg-[#0A0E1A]/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <Link href="/portfolio">
+          <Link href="/websites">
             <a className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-              <span>← Back to Portfolio</span>
+              <span>← Back to Websites</span>
             </a>
           </Link>
           <button

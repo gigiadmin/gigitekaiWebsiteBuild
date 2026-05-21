@@ -132,8 +132,8 @@ export default function FreeAuditLandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="https://gigitekai.com/portfolio" className="hover:text-[#00D4FF]">
-                    Portfolio
+                  <a href="https://gigitekai.com/websites" className="hover:text-[#00D4FF]">
+                    Websites
                   </a>
                 </li>
               </ul>

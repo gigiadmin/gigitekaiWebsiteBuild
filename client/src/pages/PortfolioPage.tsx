@@ -1,5 +1,5 @@
 /**
- * PortfolioPage.tsx — GigitekAI Website Building Capabilities Showcase
+ * WebsitesPage.tsx — GigitekAI Website Building Capabilities Showcase
  * Displays 9 featured sites (2 real + 7 industry demos)
  * Designed to convert visitors into leads for GigitekAI web development services
  */
@@ -172,7 +172,7 @@ const CAPABILITIES = [
   },
 ];
 
-export default function PortfolioPage() {
+export default function WebsitesPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0A0E1A", color: "#F1F5F9" }}>
 
@@ -192,7 +192,7 @@ export default function PortfolioPage() {
             <span style={{ color: "#00D4FF" }}>Drive Real Results</span>
           </h1>
           <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Explore our portfolio of industry-specific websites — each one showcasing GigitekAI's ability to build
+            Explore our collection of industry-specific websites — each one showcasing GigitekAI's ability to build
             professional, AI-powered digital experiences for any business sector. All pricing is custom-quoted based on your project scope.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
