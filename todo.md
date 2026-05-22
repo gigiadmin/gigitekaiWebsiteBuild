@@ -5324,3 +5324,27 @@
 - [x] ACS: Auto-transcribe completed ACS recordings via Whisper and update callLogs
 - [x] ACS: Store ACS recording URL in callLogs for audit trail
 - [x] ACS: Update callPoller to set transcriptionStatus=transcribing when recording starts
+
+## Phone Number Update (May 22, 2026)
+- [x] Update website phone number from (727) 382-5776 to (727) 382-6909 across all pages
+  - Updated 109 instances across all components, pages, and server files
+  - Includes: CTASection, FloatingContactDial, Footer, HeroSection, SiteNavBar2024, Contact pages, Admin pages, Email templates
+  - All tel: links updated to 6909
+  - All display text updated to show 6909
+  - Verified in dev server - homepage shows correct number in header and footer
+
+## Voicemail-to-Ticket Automation (May 22, 2026 - COMPLETE)
+- [x] Voicemail emails detected automatically by email poller
+- [x] Audio attachments extracted from voicemail emails
+- [x] Audio transcribed via Whisper AI (with IT helpdesk context)
+- [x] AI analyzes transcript and creates support ticket automatically
+- [x] Ticket assigned to architect role (harry@gigitekai.com)
+- [x] Email notification sent to support@gigitekai.com with:
+  - Ticket ID and title
+  - Caller number and duration
+  - Full transcript
+  - Caller intent and urgency
+  - Direct link to ticket in admin panel
+- [x] Teams notification sent to helpdesk channel
+- [x] Runs 24/7 automatically — zero manual intervention required
+- [x] Tested with Bruce Lee test voicemail — transcription successful

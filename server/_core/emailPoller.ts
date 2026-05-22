@@ -620,6 +620,36 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 
     console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
 
+    // Send email notification to support@gigitekai.com
+    try {
+      const voicemailEmailBody = `
+<h2>New Voicemail Ticket Created</h2>
+<hr />
+<p><strong>Ticket ID:</strong> #${ticketId}<br />
+<strong>Title:</strong> ${ticketData.title}<br />
+<strong>Priority:</strong> ${ticketData.priority.toUpperCase()}<br />
+<strong>Category:</strong> ${ticketData.category}</p>
+<p><strong>Caller:</strong> ${callerNumber || 'Unknown number'}<br />
+<strong>Duration:</strong> ${duration || 'Unknown'}<br />
+<strong>Urgency:</strong> ${ticketData.urgency}</p>
+<h3>Transcript:</h3>
+<p>${transcript.replace(/\n/g, '<br />')}</p>
+<h3>Caller Intent:</h3>
+<p>${ticketData.callerIntent}</p>
+<hr />
+<p><a href="${BASE_URL}/admin/helpdesk/ticket/${ticketId}">View ticket in GigitekAI</a></p>
+`;
+
+      await sendEmail({
+        to: 'support@gigitekai.com',
+        subject: `[VOICEMAIL] New Ticket #${ticketId}: ${ticketData.title}`,
+        html: voicemailEmailBody.replace(/\n/g, '<br />'),
+      });
+      console.log(`[Email Poller] Email notification sent to support@gigitekai.com for voicemail ticket #${ticketId}`);
+    } catch (emailError) {
+      console.warn(`[Email Poller] Failed to send email notification for voicemail ticket #${ticketId}:`, emailError);
+    }
+
     // Send Teams notification for voicemail ticket
     try {
       const voicemailTicketObj: Partial<import('../../drizzle/schema').Ticket> = {

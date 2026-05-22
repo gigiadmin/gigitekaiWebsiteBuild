@@ -42,10 +42,10 @@ export default function ContactCard() {
         <div className="space-y-4 mt-8">
           {/* Phone */}
           <a 
-            href="tel:+17273825776"
+            href="tel:+1727-382-6909"
             className="block text-lg text-blue-600 hover:text-blue-800 font-medium"
           >
-            📞 (727) 382-5776
+            📞 (727) 382-6909
           </a>
 
           {/* Email */}

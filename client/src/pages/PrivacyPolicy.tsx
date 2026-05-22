@@ -212,7 +212,7 @@ export default function PrivacyPolicy() {
                 7.3 How to Exercise Your Rights
               </h3>
               <p className="text-gray-700 dark:text-gray-300">
-                To exercise any of these rights, please contact us at support@gigitekai.com or call (727) 382-5776. We will respond to your request within 30 days or as required by applicable law.
+                To exercise any of these rights, please contact us at support@gigitekai.com or call (727) 382-6909. We will respond to your request within 30 days or as required by applicable law.
               </p>
             </section>
 
@@ -248,13 +248,13 @@ export default function PrivacyPolicy() {
                 <strong>TCPA Compliance:</strong> We comply with the Telephone Consumer Protection Act (TCPA) and all applicable SMS regulations. You will only receive SMS messages if you have provided explicit written consent. We maintain a record of your opt-in consent and will honor your preferences.
               </p>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                <strong>Opting Out:</strong> You can opt out of SMS communications at any time by replying "STOP" to any text message you receive from us. We will remove your phone number from our SMS list within 24 hours of receiving your opt-out request. You may also contact us at support@gigitekai.com or call (727) 382-5776 to request removal from our SMS list.
+                <strong>Opting Out:</strong> You can opt out of SMS communications at any time by replying "STOP" to any text message you receive from us. We will remove your phone number from our SMS list within 24 hours of receiving your opt-out request. You may also contact us at support@gigitekai.com or call (727) 382-6909 to request removal from our SMS list.
               </p>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 <strong>Message Frequency:</strong> Message frequency varies based on your preferences and the campaigns you are enrolled in. Standard message and data rates apply. We typically send 1–2 messages per week during active campaigns.
               </p>
               <p className="text-gray-700 dark:text-gray-300">
-                <strong>Support:</strong> If you have questions about SMS communications or need assistance, reply "HELP" to any text message, or contact us at support@gigitekai.com or (727) 382-5776.
+                <strong>Support:</strong> If you have questions about SMS communications or need assistance, reply "HELP" to any text message, or contact us at support@gigitekai.com or (727) 382-6909.
               </p>
             </section>
 
@@ -289,7 +289,7 @@ export default function PrivacyPolicy() {
               <div className="bg-gray-100 dark:bg-[#141B2D] p-6 rounded-lg text-gray-700 dark:text-gray-300">
                 <p className="mb-2"><strong>GigitekAI LLC</strong></p>
                 <p className="mb-2">Email: support@gigitekai.com</p>
-                <p className="mb-2">Phone: (727) 382-5776</p>
+                <p className="mb-2">Phone: (727) 382-6909</p>
                 <p>Website: https://gigitekai.com</p>
               </div>
             </section>

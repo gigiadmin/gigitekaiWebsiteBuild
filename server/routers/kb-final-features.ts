@@ -223,7 +223,7 @@ How to confirm the issue is resolved.
 - [Link to related article]
 
 ## Still Need Help?
-Contact support at support@gigitekai.com or call (727) 382-5776`,
+Contact support at support@gigitekai.com or call (727) 382-6909`,
         suggestedTags: ["troubleshooting", "how-to", "issue-resolution"],
       },
       {
@@ -311,7 +311,7 @@ A: [Licensing Answer]
 ## Support & Resources
 
 ### Q: How do I get support?
-A: Contact our support team at support@gigitekai.com or call (727) 382-5776
+A: Contact our support team at support@gigitekai.com or call (727) 382-6909
 
 ### Q: Where can I find more information?
 A: Visit our knowledge base or contact your account manager.

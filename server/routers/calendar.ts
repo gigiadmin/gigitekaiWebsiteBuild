@@ -88,7 +88,7 @@ export const calendarRouter = router({
                 <li>Company: ${input.company || "Not provided"}</li>
               </ul>
               ${input.notes ? `<p><strong>Your Notes:</strong></p><p>${input.notes.replace(/\n/g, "<br/>")}</p>` : ""}
-              <p>A calendar invite has been sent to your email. If you need to reschedule, please reply to this email or call us at (727) 382-5776.</p>
+              <p>A calendar invite has been sent to your email. If you need to reschedule, please reply to this email or call us at (727) 382-6909.</p>
               <p>Best regards,<br/>GigitekAI Team</p>
             `,
           },
@@ -191,11 +191,11 @@ export const calendarRouter = router({
                 </div>
                 ` : ""}
                 <p style="color: #333; font-size: 15px; line-height: 1.6;"><strong>What to expect:</strong> We'll review your current IT environment, discuss your goals, and share tailored recommendations — all in 15 minutes.</p>
-                <p style="color: #555; font-size: 14px; line-height: 1.6;">Need to reschedule? Simply reply to this email or call us at <strong>(727) 382-5776</strong>. We're happy to find a time that works for you.</p>
+                <p style="color: #555; font-size: 14px; line-height: 1.6;">Need to reschedule? Simply reply to this email or call us at <strong>(727) 382-6909</strong>. We're happy to find a time that works for you.</p>
               </div>
               <!-- Footer -->
               <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-5776 &nbsp;|&nbsp; support@gigitekai.com</p>
+                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-6909 &nbsp;|&nbsp; support@gigitekai.com</p>
                 <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
               </div>
             </div>
@@ -306,11 +306,11 @@ export const calendarRouter = router({
                   <a href="${rescheduleUrl}" style="background: #00d4ff; color: #0a0e1a; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 13px; margin-right: 8px; display: inline-block;">Reschedule</a>
                   <a href="${cancelUrl}" style="background: transparent; color: #e53e3e; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 13px; border: 1px solid #e53e3e; display: inline-block;">Cancel Meeting</a>
                 </div>
-                <p style="color: #555; font-size: 14px; line-height: 1.6;">Questions? Reply to this email or call us at <strong>(727) 382-5776</strong>.</p>
+                <p style="color: #555; font-size: 14px; line-height: 1.6;">Questions? Reply to this email or call us at <strong>(727) 382-6909</strong>.</p>
               </div>
               <!-- Footer -->
               <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-5776 &nbsp;|&nbsp; support@gigitekai.com</p>
+                <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-6909 &nbsp;|&nbsp; support@gigitekai.com</p>
                 <p style="margin: 6px 0 0;"><a href="https://gigitekai.com" style="color: #00d4ff; font-size: 12px; text-decoration: none;">gigitekai.com</a></p>
               </div>
             </div>
@@ -384,10 +384,10 @@ export const calendarRouter = router({
               <p style="color: #333; font-size: 16px;">Hi ${b.name},</p>
               <p style="color: #333; font-size: 15px; line-height: 1.6;">Your strategy call scheduled for <strong>${b.meetingDate} at ${b.meetingTime} EST</strong> has been cancelled.</p>
               <p style="color: #555; font-size: 14px; line-height: 1.6;">We hope to connect with you in the future. To book a new call, visit <a href="https://gigitekai.com" style="color: #00d4ff;">gigitekai.com</a>.</p>
-              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>(727) 382-5776</strong> or email support@gigitekai.com.</p>
+              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>(727) 382-6909</strong> or email support@gigitekai.com.</p>
             </div>
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-5776 &nbsp;|&nbsp; support@gigitekai.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-6909 &nbsp;|&nbsp; support@gigitekai.com</p>
             </div>
           </div>
         `,
@@ -548,10 +548,10 @@ export const calendarRouter = router({
                   <tr style="border-top: 1px solid #f0f0f0;"><td style="padding: 7px 0; color: #666; font-size: 14px;">Duration</td><td style="padding: 7px 0; color: #333; font-size: 14px; font-weight: 600;">15 minutes</td></tr>
                 </table>
               </div>
-              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>(727) 382-5776</strong> or email support@gigitekai.com.</p>
+              <p style="color: #555; font-size: 14px;">Questions? Call us at <strong>(727) 382-6909</strong> or email support@gigitekai.com.</p>
             </div>
             <div style="background: #0a0e1a; padding: 20px 30px; border-radius: 0 0 8px 8px; text-align: center;">
-              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-5776 &nbsp;|&nbsp; support@gigitekai.com</p>
+              <p style="color: #8892a4; font-size: 12px; margin: 0;">GigitekAI LLC &nbsp;|&nbsp; (727) 382-6909 &nbsp;|&nbsp; support@gigitekai.com</p>
             </div>
           </div>
         `,
