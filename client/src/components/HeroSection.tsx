@@ -186,7 +186,7 @@ export default function HeroSection() {
       {/* ── Video Controls Overlay ── */}
       {!playing && (
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10] cursor-pointer"
+          className="absolute top-1/3 right-[8%] -translate-y-1/2 z-[20] cursor-pointer hidden md:block"
           onClick={handlePlayClick}
         >
           <div
@@ -213,10 +213,10 @@ export default function HeroSection() {
         </div>
       )}
 
-      {/* ── Video Control Bar (center-bottom) ── */}
+      {/* ── Video Control Bar (desktop only - absolute positioned) ── */}
       {playing && (
         <div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-[10] flex items-center gap-3 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[20] hidden md:flex items-center gap-3 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg"
         >
           {/* Pause Button */}
           <button
@@ -408,6 +408,36 @@ export default function HeroSection() {
               <div className="text-sm text-gray-400">AI Support</div>
             </div>
           </div>
+
+          {/* Mobile-only video controls (inline, below stats) */}
+          {playing && (
+            <div className="flex md:hidden items-center gap-3 mt-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg w-fit">
+              <button
+                onClick={handlePause}
+                className="text-[#00D4FF] hover:text-white transition-colors"
+                title="Pause"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="6" y="4" width="4" height="16" />
+                  <rect x="14" y="4" width="4" height="16" />
+                </svg>
+              </button>
+              <button
+                onClick={muted ? handleUnmute : handleMute}
+                className="text-[#00D4FF] hover:text-white transition-colors"
+                title={muted ? "Unmute" : "Mute"}
+              >
+                {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+              <button
+                onClick={handleRestart}
+                className="text-[#00D4FF] hover:text-white transition-colors"
+                title="Restart"
+              >
+                <RotateCcw size={18} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>
