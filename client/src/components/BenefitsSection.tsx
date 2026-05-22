@@ -36,7 +36,7 @@ export default function BenefitsSection() {
         <div className="grid lg:grid-cols-2 gap-16 items-center" ref={ref}>
           {/* Image side */}
           <div
-            className={`relative rounded-2xl overflow-hidden h-[420px] transition-all duration-700 ${
+            className={`relative rounded-2xl overflow-hidden h-[420px] transition-[opacity,transform] duration-700 ${
               visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
             }`}
           >
@@ -46,6 +46,9 @@ export default function BenefitsSection() {
               alt="GigitekAI team collaborating"
               className="w-full h-full object-cover"
               loading="lazy"
+              width="630"
+              height="420"
+              decoding="async"
             />
             {/* Overlay card */}
             <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-[#0A0E1A]/90 backdrop-blur-sm border border-gray-200 dark:border-[rgba(0,212,255,0.2)] rounded-xl p-4">
@@ -65,7 +68,7 @@ export default function BenefitsSection() {
 
           {/* Text side */}
           <div
-            className={`transition-all duration-700 delay-200 ${
+            className={`transition-[opacity,transform] duration-700 delay-200 ${
               visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
             }`}
           >
@@ -84,7 +87,7 @@ export default function BenefitsSection() {
               {benefits.map((benefit, i) => (
                 <li
                   key={i}
-                  className={`flex items-start gap-3 transition-all duration-500 ${
+                  className={`flex items-start gap-3 transition-[opacity,transform] duration-500 ${
                     visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                   }`}
                   style={{ transitionDelay: `${300 + i * 80}ms` }}

@@ -60,7 +60,7 @@ export default function AdminNotifications() {
               <button
                 key={f}
                 onClick={() => setFilter(f as any)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap ${
+                className={`px-4 py-2 rounded-lg font-medium transition-[opacity,transform] whitespace-nowrap ${
                   filter === f
                     ? "bg-[#00D4FF] text-[#0A0E1A]"
                     : "bg-[#1A1F2E] text-gray-300 hover:bg-[#252B3A]"
@@ -86,7 +86,7 @@ export default function AdminNotifications() {
             {filteredNotifications.map((notif, idx) => (
               <Card
                 key={idx}
-                className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] transition-all p-6"
+                className="bg-[#1A1F2E] border-[rgba(0,212,255,0.1)] hover:border-[rgba(0,212,255,0.3)] transition-[opacity,transform] p-6"
               >
                 <div className="flex items-start gap-4">
                   <div className="mt-1">{getNotificationIcon(notif.title)}</div>

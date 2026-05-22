@@ -240,7 +240,7 @@ export default function ComplianceScorecard() {
                 </div>
                 <div className="w-full bg-[#0D1528] rounded-full h-3 mb-4">
                   <div
-                    className="h-3 rounded-full transition-all"
+                    className="h-3 rounded-full transition-[opacity,transform]"
                     style={{
                       width: `${percentage}%`,
                       backgroundColor: scoreBand?.color || "#00D4FF",

@@ -133,7 +133,7 @@ export function AdminRolesManager() {
                 <button
                   key={permission.id}
                   onClick={() => togglePermission(permission.id, false)}
-                  className={`p-3 rounded-lg border-2 text-left transition-all ${
+                  className={`p-3 rounded-lg border-2 text-left transition-[opacity,transform] ${
                     selectedPermissions.includes(permission.id)
                       ? "border-cyan-500 bg-cyan-500/10"
                       : "border-gray-700 hover:border-gray-600"
@@ -191,7 +191,7 @@ export function AdminRolesManager() {
                           <button
                             key={permission.id}
                             onClick={() => togglePermission(permission.id, true)}
-                            className={`p-2 rounded border-2 text-left text-sm transition-all ${
+                            className={`p-2 rounded border-2 text-left text-sm transition-[opacity,transform] ${
                               editingPermissions.includes(permission.id)
                                 ? "border-cyan-500 bg-cyan-500/10"
                                 : "border-gray-700 hover:border-gray-600"

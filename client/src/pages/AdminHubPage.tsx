@@ -317,7 +317,7 @@ export default function AdminHubPage() {
             {/* All Portals */}
             <button
               onClick={() => setActiveCategory("All Portals")}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-[opacity,transform] ${
                 activeCategory === "All Portals"
                   ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -329,7 +329,7 @@ export default function AdminHubPage() {
             {/* Favorites */}
             <button
               onClick={() => setActiveCategory("Favorites")}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-[opacity,transform] ${
                 activeCategory === "Favorites"
                   ? "bg-yellow-500/15 text-yellow-300 border border-yellow-500/30"
                   : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -348,7 +348,7 @@ export default function AdminHubPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-[opacity,transform] ${
                   activeCategory === cat
                     ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
                     : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -461,7 +461,7 @@ function PortalCard({
   const colorClass = CATEGORY_COLORS[portal.category] || "bg-slate-500/20 text-slate-300 border-slate-500/30";
 
   return (
-    <div className="group relative bg-[#0F1629] border border-cyan-500/10 rounded-xl p-4 hover:border-cyan-500/30 hover:bg-[#111827] transition-all">
+    <div className="group relative bg-[#0F1629] border border-cyan-500/10 rounded-xl p-4 hover:border-cyan-500/30 hover:bg-[#111827] transition-[opacity,transform]">
       {/* Favorite button */}
       <button
         onClick={e => { e.preventDefault(); onToggleFavorite(); }}

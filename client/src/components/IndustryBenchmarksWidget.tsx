@@ -118,7 +118,7 @@ export default function IndustryBenchmarksWidget({
                 selected === b.industry
                   ? 'bg-[#00D4FF] text-[#0A0E1A]'
                   : 'bg-[#141B2D] text-gray-300 border border-slate-700 hover:border-[#00D4FF]/50'
-              } font-semibold transition-all`}
+              } font-semibold transition-[opacity,transform]`}
             >
               {b.industry}
             </Button>
@@ -190,7 +190,7 @@ export default function IndustryBenchmarksWidget({
           {/* Progress bar */}
           <div className="w-full bg-slate-700/30 rounded-full h-2 mb-4">
             <div
-              className="bg-gradient-to-r from-[#00D4FF] to-[#0088AA] h-2 rounded-full transition-all"
+              className="bg-gradient-to-r from-[#00D4FF] to-[#0088AA] h-2 rounded-full transition-[opacity,transform]"
               style={{ width: `${benchmark.automationRate}%` }}
             ></div>
           </div>

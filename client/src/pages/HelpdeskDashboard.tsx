@@ -205,7 +205,7 @@ export default function HelpdeskDashboard() {
           </div>
           <Button
             onClick={() => navigate("/helpdesk/tickets/new")}
-            className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl shadow-lg shadow-[#00D4FF]/15 hover:shadow-[#00D4FF]/30 transition-all"
+            className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl shadow-lg shadow-[#00D4FF]/15 hover:shadow-[#00D4FF]/30 transition-[opacity,transform]"
           >
             <PlusCircle className="w-4 h-4 mr-2" />
             New Ticket
@@ -230,12 +230,12 @@ export default function HelpdeskDashboard() {
               placeholder={searchMode === "semantic" ? "Describe your issue (e.g., 'email not working on my computer')..." : "Search tickets by title or description..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
             />
           </div>
           <button
             onClick={() => setSearchMode(searchMode === "keyword" ? "semantic" : "keyword")}
-            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-[opacity,transform] ${
               searchMode === "semantic"
                 ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
                 : "bg-gray-800/50 text-gray-400 border border-gray-700/50"
@@ -247,7 +247,7 @@ export default function HelpdeskDashboard() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
+            className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-[opacity,transform] min-w-[140px]"
           >
             <option value="all">All Priorities</option>
             <option value="low">Low</option>
@@ -272,7 +272,7 @@ export default function HelpdeskDashboard() {
                 <div
                   key={ticket.id}
                   onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
-                  className={`group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer border-l-4 ${getPriorityConfig(ticket.priority).border} ${
+                  className={`group bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-[opacity,transform] cursor-pointer border-l-4 ${getPriorityConfig(ticket.priority).border} ${
                     getSLAStatus(ticket.priority, ticket.createdAt).status === 'breached' ? 'border-l-red-500' :
                     getSLAStatus(ticket.priority, ticket.createdAt).status === 'critical' ? 'border-l-orange-500' :
                     getSLAStatus(ticket.priority, ticket.createdAt).status === 'warning' ? 'border-l-yellow-500' :
@@ -365,7 +365,7 @@ function StatCard({
   return (
     <button
       onClick={onClick}
-      className={`text-left p-4 rounded-xl border transition-all ${
+      className={`text-left p-4 rounded-xl border transition-[opacity,transform] ${
         active
           ? `${bgColor} ${borderColor} border-2 shadow-lg`
           : "bg-[#141B2D]/60 border-gray-800/40 hover:border-gray-700"

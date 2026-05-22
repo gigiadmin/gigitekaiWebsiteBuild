@@ -343,7 +343,7 @@ export default function ServiceDetail() {
                   </a>
                   <a
                     href="#features"
-                    className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white border border-gray-700 rounded-lg hover:border-[#00D4FF]/50 hover:text-[#00D4FF] transition-all"
+                    className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white border border-gray-700 rounded-lg hover:border-[#00D4FF]/50 hover:text-[#00D4FF] transition-[opacity,transform]"
                   >
                     View Capabilities
                   </a>
@@ -384,7 +384,7 @@ export default function ServiceDetail() {
               {service.features.map((feature, i) => (
                 <div
                   key={i}
-                  className="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg transition-all duration-300"
+                  className="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg transition-[opacity,transform] duration-300"
                 >
                   <div className="w-10 h-10 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center mb-4">
                     <span className="text-[#00D4FF] font-bold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -417,7 +417,7 @@ export default function ServiceDetail() {
               {service.useCases.map((useCase, i) => (
                 <div
                   key={i}
-                  className="bg-[#141B2D] border border-[rgba(0,212,255,0.15)] rounded-xl p-8 hover:border-[#00D4FF]/40 transition-all duration-300"
+                  className="bg-[#141B2D] border border-[rgba(0,212,255,0.15)] rounded-xl p-8 hover:border-[#00D4FF]/40 transition-[opacity,transform] duration-300"
                 >
                   <div className="w-10 h-10 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-5">
                     <span className="text-[#00D4FF] font-bold text-sm">{i + 1}</span>
@@ -472,7 +472,7 @@ export default function ServiceDetail() {
               </a>
               <a
                 href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white border border-gray-700 rounded-lg hover:border-[#00D4FF]/50 hover:text-[#00D4FF] transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white border border-gray-700 rounded-lg hover:border-[#00D4FF]/50 hover:text-[#00D4FF] transition-[opacity,transform]"
               >
                 Explore All Services
               </a>

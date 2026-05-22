@@ -345,7 +345,7 @@ export default function VideoCallModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
       <div
-        className={`relative bg-[#0A0E1A] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,212,255,0.2)] border border-[rgba(0,212,255,0.2)] transition-all duration-300 ${
+        className={`relative bg-[#0A0E1A] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,212,255,0.2)] border border-[rgba(0,212,255,0.2)] transition-[opacity,transform] duration-300 ${
           isFullscreen
             ? "w-full h-full rounded-none"
             : "w-[90vw] max-w-lg h-[70vh] max-h-[600px]"

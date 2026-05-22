@@ -92,7 +92,7 @@ export function AgentAssignmentDashboard() {
             <button
               key={agent.id}
               onClick={() => setSelectedAgentId(agent.id)}
-              className={`p-3 rounded-lg border transition-all text-left ${
+              className={`p-3 rounded-lg border transition-[opacity,transform] text-left ${
                 selectedAgentId === agent.id
                   ? "bg-cyan-500/20 border-cyan-500/50"
                   : "bg-gray-800/20 border-gray-700/30 hover:bg-gray-800/40"
@@ -165,7 +165,7 @@ export function AgentAssignmentDashboard() {
             <p className="text-xs text-gray-400 mb-2">Workload Status</p>
             <div className="w-full bg-gray-900/50 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-[opacity,transform] ${
                   (workload.totalTickets || 0) > 15
                     ? "bg-red-500"
                     : (workload.totalTickets || 0) > 10

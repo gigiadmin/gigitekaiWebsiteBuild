@@ -192,7 +192,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   return (
     <div
       ref={ref}
-      className={`border-b border-gray-100 dark:border-[rgba(0,212,255,0.1)] transition-all duration-500 ${
+      className={`border-b border-gray-100 dark:border-[rgba(0,212,255,0.1)] transition-[opacity,transform] duration-500 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
@@ -265,7 +265,7 @@ export default function FAQSection() {
         <div className="grid lg:grid-cols-5 gap-16">
           {/* Left */}
           <div
-            className={`lg:col-span-2 transition-all duration-700 ${
+            className={`lg:col-span-2 transition-[opacity,transform] duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >

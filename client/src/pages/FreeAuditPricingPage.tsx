@@ -124,7 +124,7 @@ export default function FreeAuditPricingPage() {
               return (
                 <div
                   key={tier.id}
-                  className={`relative group transition-all duration-300 ${
+                  className={`relative group transition-[opacity,transform] duration-300 ${
                     tier.isPopular ? "md:scale-105" : ""
                   }`}
                 >
@@ -138,7 +138,7 @@ export default function FreeAuditPricingPage() {
                   )}
 
                   <Card
-                    className={`h-full p-8 border-2 transition-all duration-300 ${
+                    className={`h-full p-8 border-2 transition-[opacity,transform] duration-300 ${
                       tier.isPopular
                         ? "border-[#00D4FF]/50 bg-[#0F1419]/80 shadow-2xl shadow-[#00D4FF]/20"
                         : "border-gray-800/40 bg-[#0F1419]/40 hover:border-gray-700/60"
@@ -190,7 +190,7 @@ export default function FreeAuditPricingPage() {
                     {/* CTA Button */}
                     <Button
                       size="lg"
-                      className={`w-full font-bold text-base py-6 transition-all ${
+                      className={`w-full font-bold text-base py-6 transition-[opacity,transform] ${
                         tier.isPopular
                           ? "bg-[#00D4FF] text-black hover:bg-[#00D4FF]/90"
                           : "bg-gray-800/40 text-white hover:bg-gray-800/60 border border-gray-700/40"

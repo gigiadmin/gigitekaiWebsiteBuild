@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
           </div>
           <button
             onClick={() => refetch()}
-            className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg text-[#00D4FF] text-sm hover:bg-[#00D4FF]/20 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg text-[#00D4FF] text-sm hover:bg-[#00D4FF]/20 transition-[opacity,transform]"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -161,7 +161,7 @@ export default function AdminUsersPage() {
                             <button
                               onClick={() => approveMutation.mutate({ userId: user.id })}
                               disabled={approveMutation.isPending}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded text-green-400 text-xs hover:bg-green-500/20 transition-all disabled:opacity-50"
+                              className="flex items-center gap-1 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded text-green-400 text-xs hover:bg-green-500/20 transition-[opacity,transform] disabled:opacity-50"
                             >
                               <UserCheck className="w-3 h-3" />
                               Approve
@@ -170,7 +170,7 @@ export default function AdminUsersPage() {
                             <button
                               onClick={() => revokeMutation.mutate({ userId: user.id })}
                               disabled={revokeMutation.isPending}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs hover:bg-red-500/20 transition-all disabled:opacity-50"
+                              className="flex items-center gap-1 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs hover:bg-red-500/20 transition-[opacity,transform] disabled:opacity-50"
                             >
                               <ShieldOff className="w-3 h-3" />
                               Revoke

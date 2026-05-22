@@ -150,7 +150,7 @@ export default function AdminJiraDashboard() {
                   <button
                     key={project.key}
                     onClick={() => setSelectedProject(project.key)}
-                    className={`p-3 rounded-lg text-left transition-all ${
+                    className={`p-3 rounded-lg text-left transition-[opacity,transform] ${
                       selectedProject === project.key
                         ? "bg-[#00D4FF]/10 border border-[#00D4FF]/30 text-[#00D4FF]"
                         : "bg-gray-900/30 border border-gray-800/40 text-gray-300 hover:bg-gray-900/50 hover:border-gray-700/40"
@@ -211,7 +211,7 @@ export default function AdminJiraDashboard() {
                       href={`https://gigitekai.atlassian.net/browse/${issue.key}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block p-3 rounded-lg bg-gray-900/30 border border-gray-800/40 hover:bg-gray-900/50 hover:border-[#00D4FF]/30 transition-all group"
+                      className="block p-3 rounded-lg bg-gray-900/30 border border-gray-800/40 hover:bg-gray-900/50 hover:border-[#00D4FF]/30 transition-[opacity,transform] group"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">

@@ -130,7 +130,7 @@ export default function AdminSettingsPage() {
             {!confirmClear ? (
               <button
                 onClick={() => setConfirmClear(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-300 rounded-lg text-sm hover:bg-orange-500/20 transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-300 rounded-lg text-sm hover:bg-orange-500/20 transition-[opacity,transform]"
               >
                 <Trash2 className="w-4 h-4" />
                 Clear Test Data for Production
@@ -142,13 +142,13 @@ export default function AdminSettingsPage() {
                 <button
                   onClick={() => clearTestData.mutate()}
                   disabled={clearTestData.isPending}
-                  className="px-3 py-1.5 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50 transition-all"
+                  className="px-3 py-1.5 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50 transition-[opacity,transform]"
                 >
                   {clearTestData.isPending ? "Clearing..." : "Yes, Clear Now"}
                 </button>
                 <button
                   onClick={() => setConfirmClear(false)}
-                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-all"
+                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-[opacity,transform]"
                 >
                   Cancel
                 </button>
@@ -178,7 +178,7 @@ export default function AdminSettingsPage() {
                   <button
                     key={item}
                     onClick={() => handleFeatureClick(item)}
-                    className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-white/[0.02] transition-all group"
+                    className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-white/[0.02] transition-[opacity,transform] group"
                   >
                     <span className="text-gray-400 text-sm group-hover:text-gray-200 transition-colors">{item}</span>
                     <ChevronRight className="w-4 h-4 text-gray-700 group-hover:text-gray-500 transition-colors" />

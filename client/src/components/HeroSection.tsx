@@ -296,7 +296,7 @@ export default function HeroSection() {
 
           {/* Label */}
           <div
-            className={`section-label mb-6 transition-all duration-700 ${
+            className={`section-label mb-6 transition-[opacity,transform] duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -305,7 +305,7 @@ export default function HeroSection() {
 
           {/* Headline */}
           <h1
-            className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6 transition-all duration-700 delay-100 ${
+            className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6 transition-[opacity,transform] duration-700 delay-100 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
@@ -326,7 +326,7 @@ export default function HeroSection() {
 
           {/* Subtitle */}
           <p
-            className={`text-lg md:text-xl text-gray-300 max-w-xl mb-10 leading-relaxed transition-all duration-700 delay-200 ${
+            className={`text-lg md:text-xl text-gray-300 max-w-xl mb-10 leading-relaxed transition-[opacity,transform] duration-700 delay-200 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -335,7 +335,7 @@ export default function HeroSection() {
 
           {/* CTA Buttons */}
           <div
-            className={`flex flex-wrap gap-4 mb-6 transition-all duration-700 delay-300 ${
+            className={`flex flex-wrap gap-4 mb-6 transition-[opacity,transform] duration-700 delay-300 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -345,7 +345,7 @@ export default function HeroSection() {
             </a>
             <a
               href="/contact"
-              className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+              className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-[opacity,transform] duration-200"
               style={{
                 background: "rgba(0,212,255,0.08)",
                 border: "1.5px solid rgba(0,212,255,0.45)",
@@ -368,7 +368,7 @@ export default function HeroSection() {
 
           {/* Quick contact info */}
           <div
-            className={`flex flex-wrap items-center gap-4 text-sm mb-6 transition-all duration-700 delay-[350ms] ${
+            className={`flex flex-wrap items-center gap-4 text-sm mb-6 transition-[opacity,transform] duration-700 delay-[350ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
@@ -391,7 +391,7 @@ export default function HeroSection() {
 
           {/* Stats row */}
           <div
-            className={`flex flex-wrap gap-8 transition-all duration-700 delay-[400ms] ${
+            className={`flex flex-wrap gap-8 transition-[opacity,transform] duration-700 delay-[400ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >

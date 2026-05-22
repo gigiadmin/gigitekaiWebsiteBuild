@@ -193,7 +193,7 @@ export default function RecipientGroupsManager() {
             <Card
               key={group.id}
               onClick={() => setSelectedGroupId(group.id)}
-              className={`bg-[#141B2D] border-gray-800/40 p-4 cursor-pointer transition-all ${
+              className={`bg-[#141B2D] border-gray-800/40 p-4 cursor-pointer transition-[opacity,transform] ${
                 selectedGroupId === group.id
                   ? "border-[#00D4FF]/50 shadow-lg shadow-[#00D4FF]/10"
                   : "hover:border-gray-700"

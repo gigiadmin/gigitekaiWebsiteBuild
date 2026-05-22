@@ -23,7 +23,7 @@ export default function ROIPromotionSection() {
         {/* Calculator Preview Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           {/* Card 1: Annual Savings */}
-          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-all">
+          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-[opacity,transform]">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-400 mb-2">Average Annual Savings</p>
@@ -35,7 +35,7 @@ export default function ROIPromotionSection() {
           </Card>
 
           {/* Card 2: Time Savings */}
-          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-all">
+          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-[opacity,transform]">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-400 mb-2">Hours Freed Monthly</p>
@@ -50,7 +50,7 @@ export default function ROIPromotionSection() {
           </Card>
 
           {/* Card 3: Payback Period */}
-          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-all">
+          <Card className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-[opacity,transform]">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-400 mb-2">Payback Period</p>

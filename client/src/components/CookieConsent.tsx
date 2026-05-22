@@ -159,7 +159,7 @@ export default function CookieConsent() {
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <button
               onClick={acceptAll}
-              className="px-4 py-2 rounded-lg bg-[#00D4FF] text-[#0A0E1A] font-bold text-xs hover:bg-[#00EEFF] transition-all"
+              className="px-4 py-2 rounded-lg bg-[#00D4FF] text-[#0A0E1A] font-bold text-xs hover:bg-[#00EEFF] transition-colors"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Accept All
@@ -167,28 +167,28 @@ export default function CookieConsent() {
             {expanded ? (
               <button
                 onClick={savePreferences}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white font-medium text-xs hover:bg-white/15 transition-all border border-white/10"
+                className="px-4 py-2 rounded-lg bg-white/10 text-white font-medium text-xs hover:bg-white/15 transition-[opacity,transform] border border-white/10"
               >
                 Save Preferences
               </button>
             ) : (
               <button
                 onClick={rejectNonEssential}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white font-medium text-xs hover:bg-white/15 transition-all border border-white/10"
+                className="px-4 py-2 rounded-lg bg-white/10 text-white font-medium text-xs hover:bg-white/15 transition-[opacity,transform] border border-white/10"
               >
                 Reject Non-Essential
               </button>
             )}
             <button
               onClick={() => setExpanded((e) => !e)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg text-gray-300 hover:text-white text-xs transition-all hover:bg-white/5"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg text-gray-300 hover:text-white text-xs transition-[opacity,transform] hover:bg-white/5"
             >
               {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               {expanded ? "Hide" : "Manage Preferences"}
             </button>
             <button
               onClick={rejectNonEssential}
-              className="ml-auto p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+              className="ml-auto p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
               aria-label="Dismiss"
             >
               <X size={14} />

@@ -333,7 +333,7 @@ export default function KBPublic() {
                               handleArticleClick(article);
                             }
                           }}
-                          className={`p-4 cursor-pointer transition-all border-l-4 select-none ${
+                          className={`p-4 cursor-pointer transition-[opacity,transform] border-l-4 select-none ${
                             selectedArticle?.id === article.id
                               ? "bg-slate-700 border-l-cyan-500"
                               : "bg-slate-800 border-l-transparent hover:bg-slate-700/50"
@@ -493,7 +493,7 @@ export default function KBPublic() {
                       handleArticleClick(article);
                     }
                   }}
-                  className={`p-4 cursor-pointer transition-all border rounded-md select-none ${
+                  className={`p-4 cursor-pointer transition-[opacity,transform] border rounded-md select-none ${
                     selectedArticle?.id === article.id
                       ? "bg-slate-700 border-cyan-500"
                       : "bg-slate-800 border-slate-700 hover:border-slate-600 active:border-cyan-500"

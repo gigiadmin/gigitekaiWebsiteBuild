@@ -581,7 +581,7 @@ export default function AIChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center text-white z-40"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-[opacity,transform] hover:scale-110 flex items-center justify-center text-white z-40"
           aria-label="Open chat"
         >
           <MessageSquare className="w-6 h-6" />
@@ -630,7 +630,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("Tell me about your AI Assessment service")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">🧠</div>
                     AI Assessment
@@ -638,7 +638,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("How can you help with cloud migration?")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">☁️</div>
                     Cloud Migration
@@ -646,7 +646,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("What automation services do you offer?")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">⚡</div>
                     Automation
@@ -654,7 +654,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("Tell me about your security audit services")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">🛡️</div>
                     Security Audit
@@ -662,7 +662,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("I need to report a bug")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">🐛</div>
                     Report a Bug
@@ -670,7 +670,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("I want to submit a support ticket")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-blue-600/30 to-blue-700/30 hover:from-blue-600/50 hover:to-blue-700/50 rounded-lg border border-blue-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-blue-600/30 to-blue-700/30 hover:from-blue-600/50 hover:to-blue-700/50 rounded-lg border border-blue-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">📧</div>
                     Submit Ticket
@@ -678,7 +678,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("I have a general question")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-teal-600/30 to-teal-700/30 hover:from-teal-600/50 hover:to-teal-700/50 rounded-lg border border-teal-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-teal-600/30 to-teal-700/30 hover:from-teal-600/50 hover:to-teal-700/50 rounded-lg border border-teal-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">❓</div>
                     General Help
@@ -686,7 +686,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowBookingModal(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-xs font-medium transition-all disabled:opacity-50"
+                    className="p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">📞</div>
                     Talk to a specialist
@@ -722,7 +722,7 @@ export default function AIChatWidget() {
           {showScrollDown && (
             <button
               onClick={scrollToBottom}
-              className="absolute bottom-20 right-6 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full p-2 shadow-lg transition-all"
+              className="absolute bottom-20 right-6 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full p-2 shadow-lg transition-[opacity,transform]"
             >
               <ChevronDown className="w-5 h-5" />
             </button>
@@ -760,7 +760,7 @@ export default function AIChatWidget() {
               {isRecording ? (
                 <button
                   onClick={handleStopRecording}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-3 py-2 transition-all flex items-center gap-2 text-sm"
+                  className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-3 py-2 transition-[opacity,transform] flex items-center gap-2 text-sm"
                 >
                   <Square className="w-4 h-4" />
                   {recordingTime}s
@@ -769,7 +769,7 @@ export default function AIChatWidget() {
                 <button
                   onClick={handleStartRecording}
                   disabled={isLoading}
-                  className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-[opacity,transform] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   title="Record voice message"
                 >
                   <Mic className="w-4 h-4" />
@@ -778,7 +778,7 @@ export default function AIChatWidget() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
-                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-slate-700 hover:bg-slate-600 text-cyan-400 hover:text-cyan-300 rounded-lg px-3 py-2 transition-[opacity,transform] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 title="Upload file (PDF, images, documents)"
               >
                 <Upload className="w-4 h-4" />
@@ -793,7 +793,7 @@ export default function AIChatWidget() {
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputValue.trim()}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white rounded-lg px-3 py-2 transition-[opacity,transform] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

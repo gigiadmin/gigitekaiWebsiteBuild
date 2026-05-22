@@ -228,7 +228,7 @@ export default function AdminUptimeRobotDetailPage() {
               {responseTimes.map((rt, idx) => (
                 <div
                   key={idx}
-                  className="flex-1 rounded-t transition-all hover:opacity-80"
+                  className="flex-1 rounded-t transition-[opacity,transform] hover:opacity-80"
                   style={{
                     height: `${(rt.response_time / maxResponseTime) * 100}%`,
                     backgroundColor: getResponseTimeColor(rt.response_time, monitor.averageResponseTime),

@@ -196,7 +196,7 @@ export default function ScheduledPostsCalendar({ scheduled, onCancel, cancelPend
               onDragLeave={() => setDragOverDay(null)}
               onDrop={(e) => { e.preventDefault(); handleDrop(day); }}
               title={!hasPosts ? "Click to draft a post for this day" : undefined}
-              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-all text-sm group
+              className={`relative flex flex-col items-center justify-start pt-1 pb-1.5 rounded-lg min-h-[44px] transition-[opacity,transform] text-sm group
                 ${isDragTarget ? "bg-cyan-500/30 border-2 border-cyan-400 scale-105" :
                   isSelected ? "bg-cyan-500/20 border border-cyan-500/50" :
                   hasPosts ? "bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700/60" :

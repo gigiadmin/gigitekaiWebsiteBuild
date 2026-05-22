@@ -65,7 +65,7 @@ export default function AnnouncementBar({
         {/* Dismiss */}
         <button
           onClick={handleDismiss}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
           aria-label="Dismiss announcement"
         >
           <X size={14} />

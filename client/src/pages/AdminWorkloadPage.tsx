@@ -48,7 +48,7 @@ export default function AdminWorkloadPage() {
             <button
               key={stat.label}
               onClick={handleFeatureClick}
-              className="bg-[#0F1419] border border-gray-800/40 rounded-xl p-5 text-left hover:border-[#00D4FF]/30 transition-all"
+              className="bg-[#0F1419] border border-gray-800/40 rounded-xl p-5 text-left hover:border-[#00D4FF]/30 transition-[opacity,transform]"
             >
               <div className="flex items-center gap-3 mb-3">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -66,7 +66,7 @@ export default function AdminWorkloadPage() {
             <h3 className="text-white font-medium text-sm">Agent Workload Distribution</h3>
           </div>
           <div
-            className="h-48 flex items-center justify-center border border-dashed border-gray-700/50 rounded-lg cursor-pointer hover:border-[#00D4FF]/30 transition-all"
+            className="h-48 flex items-center justify-center border border-dashed border-gray-700/50 rounded-lg cursor-pointer hover:border-[#00D4FF]/30 transition-[opacity,transform]"
             onClick={handleFeatureClick}
           >
             <p className="text-gray-600 text-sm">Workload distribution chart coming soon</p>

@@ -90,7 +90,7 @@ export default function StatsSection() {
       <div className="container">
         {/* Header */}
         <div
-          className={`text-center mb-14 transition-all duration-700 ${
+          className={`text-center mb-14 transition-[opacity,transform] duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -112,7 +112,7 @@ export default function StatsSection() {
             return (
               <div
                 key={stat.label}
-                className={`relative bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-xl hover:shadow-[#00D4FF]/5 transition-all duration-300 group ${
+                className={`relative bg-gray-50 dark:bg-[#141B2D] rounded-2xl p-8 text-center border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-xl hover:shadow-[#00D4FF]/5 transition-[opacity,transform] duration-300 group ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 100}ms` }}
@@ -136,7 +136,7 @@ export default function StatsSection() {
 
         {/* Social proof bar */}
         <div
-          className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-[#00D4FF]/15 bg-gray-50 dark:bg-[#141B2D] px-8 py-5 mb-20 transition-all duration-700 delay-500 ${
+          className={`flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-[#00D4FF]/15 bg-gray-50 dark:bg-[#141B2D] px-8 py-5 mb-20 transition-[opacity,transform] duration-700 delay-500 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -157,7 +157,7 @@ export default function StatsSection() {
         {/* How it works */}
         <div className="mt-20">
           <div
-            className={`text-center mb-12 transition-all duration-700 delay-300 ${
+            className={`text-center mb-12 transition-[opacity,transform] duration-700 delay-300 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -181,7 +181,7 @@ export default function StatsSection() {
             ].map((step, i) => (
               <div
                 key={step.num}
-                className={`flex gap-4 p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 ${
+                className={`flex gap-4 p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-[opacity,transform] duration-300 ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${400 + i * 80}ms` }}

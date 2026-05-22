@@ -108,7 +108,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@gigitekai.com"
-                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-[opacity,transform]"
                 autoComplete="email"
                 disabled={loginMutation.isPending}
               />
@@ -124,7 +124,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[#0A0E1A] border border-[#00D4FF]/20 text-white placeholder-gray-600 focus:outline-none focus:border-[#00D4FF]/60 focus:ring-1 focus:ring-[#00D4FF]/30 transition-[opacity,transform]"
                 autoComplete="current-password"
                 disabled={loginMutation.isPending}
               />
@@ -154,7 +154,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full py-3 px-6 rounded-xl font-semibold text-[#0A0E1A] bg-[#00D4FF] hover:bg-[#00B8D9] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 cursor-pointer mt-2"
+              className="w-full py-3 px-6 rounded-xl font-semibold text-[#0A0E1A] bg-[#00D4FF] hover:bg-[#00B8D9] disabled:opacity-60 disabled:cursor-not-allowed transition-[opacity,transform] duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
               {loginMutation.isPending ? (
                 <>
@@ -192,7 +192,7 @@ export default function Login() {
           {/* Back to site */}
           <a
             href="/"
-            className="w-full py-3 px-6 rounded-xl font-semibold text-[#00D4FF] border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:bg-[#00D4FF]/5 transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 px-6 rounded-xl font-semibold text-[#00D4FF] border border-[#00D4FF]/30 hover:border-[#00D4FF]/60 hover:bg-[#00D4FF]/5 transition-[opacity,transform] duration-200 flex items-center justify-center gap-2"
           >
             <svg
               viewBox="0 0 24 24"

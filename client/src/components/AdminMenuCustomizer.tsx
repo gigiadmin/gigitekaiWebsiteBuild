@@ -135,7 +135,7 @@ export function AdminMenuCustomizer() {
                   onDragStart={() => handleDragStart(item)}
                   onDragOver={handleDragOver}
                   onDrop={() => handleDrop(item)}
-                  className={`flex items-center gap-3 p-3 bg-card border border-border rounded-lg cursor-move transition-all ${
+                  className={`flex items-center gap-3 p-3 bg-card border border-border rounded-lg cursor-move transition-[opacity,transform] ${
                     isDragging && draggedItem?.id === item.id
                       ? "opacity-50 bg-muted"
                       : "hover:bg-muted/50"

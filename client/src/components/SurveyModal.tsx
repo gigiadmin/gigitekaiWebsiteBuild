@@ -79,7 +79,7 @@ export function SurveyModal({ isOpen, onClose, ticketId, ticketTitle }: SurveyMo
                   <button
                     key={r}
                     onClick={() => setRating(r)}
-                    className={`flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-lg transition-all ${
+                    className={`flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-lg transition-[opacity,transform] ${
                       rating === r
                         ? "bg-[#00D4FF]/20 border border-[#00D4FF]/50 scale-105"
                         : "bg-gray-800/30 border border-gray-700/30 hover:bg-gray-800/50"
@@ -105,7 +105,7 @@ export function SurveyModal({ isOpen, onClose, ticketId, ticketTitle }: SurveyMo
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Tell us what we could improve..."
                   rows={3}
-                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
                 />
               </div>
             )}

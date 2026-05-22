@@ -706,7 +706,7 @@ function WorkflowStep({
 
   return (
     <div
-      className={`flex gap-4 transition-all duration-500 ${
+      className={`flex gap-4 transition-[opacity,transform] duration-500 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
       style={{ transitionDelay: visible ? `${index * 80}ms` : "0ms" }}
@@ -720,7 +720,7 @@ function WorkflowStep({
                 ? "bg-emerald-500/20 border-emerald-500"
                 : `${c.bg} ${c.border}`
               : "bg-slate-800 border-slate-700"
-          } transition-all duration-500`}
+          } transition-[opacity,transform] duration-500`}
         >
           {isComplete ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -730,7 +730,7 @@ function WorkflowStep({
         </div>
         {!isLast && (
           <div
-            className={`w-px flex-1 mt-1 min-h-[2rem] transition-all duration-700 ${
+            className={`w-px flex-1 mt-1 min-h-[2rem] transition-[opacity,transform] duration-700 ${
               visible ? `${c.bg} border-l ${c.border}` : "border-l border-slate-800"
             }`}
           />
@@ -888,7 +888,7 @@ export default function AIDemoPage() {
               <button
                 key={s.id}
                 onClick={() => handleScenarioChange(idx)}
-                className={`text-left p-5 rounded-xl border transition-all duration-200 ${
+                className={`text-left p-5 rounded-xl border transition-[opacity,transform] duration-200 ${
                   isActive
                     ? `${sc.border} ${sc.bg} shadow-lg ${sc.glow}`
                     : "border-slate-700 bg-slate-800/50 hover:border-slate-600"

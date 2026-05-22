@@ -5296,3 +5296,24 @@
 - [x] HeroSection now loads video directly from CloudFront (bypasses CSP redirect issue)
 - [x] Re-encoded videos with faststart (moov atom at beginning) for instant playback
 - [x] Desktop: 15MB/1080p, Mobile: 4.2MB/720p optimized versions
+
+## PageSpeed Performance Optimization (May 22, 2026)
+- [ ] Fix non-composited animations (189-199 elements causing TBT)
+- [ ] Code splitting: lazy load MSAL library (only needed for auth)
+- [ ] Code splitting: lazy load markdown renderer (only needed for blog)
+- [ ] Code splitting: lazy load radix-ui heavy components
+- [ ] Add explicit width/height to gigitekai-logo.webp
+- [ ] Preload LCP image for faster largest contentful paint
+- [ ] Optimize image delivery (58 KiB desktop savings, 41 KiB mobile)
+- [ ] Reduce forced reflows in react-core and toast components
+- [ ] Fix Best Practices score (73→90+)
+
+## PageSpeed Optimization Phase 2 (May 22, 2026) — Desktop 75→90+, Mobile 50→75+
+- [x] Replace all transition-all with composited-only transitions (transition-[opacity,transform] or transition-colors) across all components and pages (eliminated 199 non-composited animations)
+- [x] Lazy-load FloatingContactDial in App.tsx to reduce initial bundle/TBT
+- [x] Add explicit width/height/decoding="async" to ServicesSection images (cloud + AI)
+- [x] Add explicit width/height/decoding="async" to BenefitsSection team image
+- [x] Fix emailPoller.ts TypeScript error (wrong relative import path for drizzle/schema)
+- [x] Verify HeroSection hero background already has width/height/decoding attributes
+- [ ] Phase 4: Reduce forced reflows (getBoundingClientRect/offsetWidth in render)
+- [ ] Re-run PageSpeed Insights to measure improvement

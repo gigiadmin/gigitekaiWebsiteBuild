@@ -62,7 +62,7 @@ export default function LogoutConfirmation() {
             onClick={() => {
               window.location.href = getLoginUrl();
             }}
-            className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium h-10 transition-all duration-200"
+            className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium h-10 transition-[opacity,transform] duration-200"
           >
             <LogIn size={16} className="mr-2" />
             Log Back In
@@ -72,7 +72,7 @@ export default function LogoutConfirmation() {
           <Button
             onClick={() => setLocation("/")}
             variant="outline"
-            className="w-full border-slate-700 text-white hover:bg-slate-800/50 h-10 transition-all duration-200"
+            className="w-full border-slate-700 text-white hover:bg-slate-800/50 h-10 transition-[opacity,transform] duration-200"
           >
             <Home size={16} className="mr-2" />
             Return to Homepage

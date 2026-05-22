@@ -60,7 +60,7 @@ export default function HelpDesk() {
             </a>
             <a
               href="/"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-[opacity,transform]"
             >
               <Home className="w-3.5 h-3.5" />
               GigitekAI.com
@@ -90,7 +90,7 @@ export default function HelpDesk() {
               Our dedicated support team is here to ensure your technology infrastructure runs seamlessly. Create tickets, track progress, and get expert resolution.
             </p>
             <a href={getLoginUrl("/helpdesk/dashboard")}>
-              <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-all">
+              <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-[opacity,transform]">
                 Sign In to Support Center
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -131,7 +131,7 @@ export default function HelpDesk() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-6 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
+    <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-6 hover:border-[rgba(0,212,255,0.4)] transition-[opacity,transform] duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
       <div className="w-12 h-12 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-4 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
         {icon}
       </div>

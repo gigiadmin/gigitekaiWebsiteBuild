@@ -94,7 +94,7 @@ export default function PricingFAQ() {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-4 py-2 rounded-lg font-medium transition-[opacity,transform] ${
                 selectedCategory === category
                   ? "bg-cyan-500 text-black"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"

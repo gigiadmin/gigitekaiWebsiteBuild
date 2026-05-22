@@ -24,7 +24,7 @@ export default function AdminNewsletterPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-[opacity,transform] ${
                 tab === t.id
                   ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
                   : "text-slate-400 hover:text-slate-200"

@@ -36,7 +36,7 @@ export default function IndustriesSection() {
       <div className="container">
         {/* Header */}
         <div
-          className={`max-w-2xl mb-14 transition-all duration-700 ${
+          className={`max-w-2xl mb-14 transition-[opacity,transform] duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -59,7 +59,7 @@ export default function IndustriesSection() {
             return (
               <div
                 key={industry.name}
-                className={`group p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-all duration-300 cursor-pointer ${
+                className={`group p-6 rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg hover:bg-gray-50 dark:hover:bg-[#141B2D] transition-[opacity,transform] duration-300 cursor-pointer ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: `${i * 60}ms` }}

@@ -70,7 +70,7 @@ export default function ShareButtons({ url, title, className = "" }: ShareButton
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on LinkedIn"
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 bg-white text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] hover:shadow-[0_0_10px_rgba(10,102,194,0.3)]"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-[opacity,transform] duration-200 bg-white text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] hover:shadow-[0_0_10px_rgba(10,102,194,0.3)]"
       >
         <LinkedInIcon size={15} />
         LinkedIn
@@ -82,7 +82,7 @@ export default function ShareButtons({ url, title, className = "" }: ShareButton
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Share on X"
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:shadow-[0_0_10px_rgba(0,0,0,0.15)]"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-[opacity,transform] duration-200 bg-white text-gray-900 border-gray-300 hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:shadow-[0_0_10px_rgba(0,0,0,0.15)]"
       >
         <XIcon size={15} />
         X
@@ -93,7 +93,7 @@ export default function ShareButtons({ url, title, className = "" }: ShareButton
         type="button"
         onClick={handleCopy}
         aria-label="Copy link to article"
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-[opacity,transform] duration-200 ${
           copied
             ? "bg-green-500 text-white border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.35)]"
             : "bg-white text-gray-400 border-gray-300 hover:bg-[#00D4FF] hover:text-[#0A0E1A] hover:border-[#00D4FF] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)]"

@@ -37,7 +37,7 @@ export default function WebsiteAddOns() {
           {addons.map((addon, idx) => (
             <div
               key={idx}
-              className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-[#00D4FF]/50 transition-all hover:shadow-lg hover:shadow-[#00D4FF]/10"
+              className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 hover:border-[#00D4FF]/50 transition-[opacity,transform] hover:shadow-lg hover:shadow-[#00D4FF]/10"
             >
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-lg font-bold text-white flex-1">{addon.name}</h3>

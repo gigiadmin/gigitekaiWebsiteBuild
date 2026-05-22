@@ -73,7 +73,7 @@ export default function FloatingContactDial() {
         const Icon = action.icon;
         const content = (
           <div
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg shadow-black/30 transition-all duration-200 cursor-pointer ${action.color} ${action.hoverColor}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg shadow-black/30 transition-[opacity,transform] duration-200 cursor-pointer ${action.color} ${action.hoverColor}`}
             style={{
               animation: `slideUpFade 0.2s ease ${i * 0.05}s both`,
             }}
@@ -111,7 +111,7 @@ export default function FloatingContactDial() {
       {/* Main toggle button */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`w-14 h-14 rounded-full shadow-lg shadow-black/40 flex items-center justify-center transition-all duration-300 ${
+        className={`w-14 h-14 rounded-full shadow-lg shadow-black/40 flex items-center justify-center transition-[opacity,transform] duration-300 ${
           open
             ? "bg-white/10 border border-white/20 text-white rotate-90"
             : "bg-[#00D4FF] text-[#0A0E1A] hover:bg-[#00EEFF] hover:scale-105"

@@ -180,7 +180,7 @@ export default function AdminPortal() {
         {isAdmin && !guideDismissed && (
           <div
             onClick={() => setLocation("/admin/guide")}
-            className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-purple-900/30 to-slate-900/60 border border-purple-700/40 rounded-xl px-5 py-4 cursor-pointer hover:border-purple-500/60 hover:from-purple-900/40 transition-all group"
+            className="mb-6 flex items-center justify-between gap-4 bg-gradient-to-r from-purple-900/30 to-slate-900/60 border border-purple-700/40 rounded-xl px-5 py-4 cursor-pointer hover:border-purple-500/60 hover:from-purple-900/40 transition-[opacity,transform] group"
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">

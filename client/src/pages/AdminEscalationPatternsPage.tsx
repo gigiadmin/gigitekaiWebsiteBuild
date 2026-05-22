@@ -186,7 +186,7 @@ export default function AdminEscalationPatternsPage() {
                     </div>
                     <div className="flex-1 bg-slate-800 rounded-full h-5 overflow-hidden">
                       <div
-                        className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500"
+                        className="h-full rounded-full flex items-center justify-end pr-2 transition-[opacity,transform] duration-500"
                         style={{
                           width: `${Math.max(8, (count / maxIntentCount) * 100)}%`,
                           backgroundColor: INTENT_COLORS[intent] || "#00D4FF",

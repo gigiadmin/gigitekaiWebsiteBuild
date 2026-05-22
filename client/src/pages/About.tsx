@@ -20,7 +20,7 @@ export default function About() {
           <div className="container">
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-all mb-6"
+              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-[opacity,transform] mb-6"
             >
               <ArrowLeft size={18} />
               Back to Home
@@ -119,7 +119,7 @@ export default function About() {
                   desc: "We focus on delivering tangible business outcomes: cost savings, performance gains, and competitive advantage.",
                 },
               ].map((item, i) => (
-                <div key={i} className="p-6 rounded-xl border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg transition-all">
+                <div key={i} className="p-6 rounded-xl border border-gray-100 hover:border-[#00D4FF]/30 hover:shadow-lg transition-[opacity,transform]">
                   <h3
                     className="font-bold text-gray-900 mb-2"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}

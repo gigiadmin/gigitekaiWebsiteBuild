@@ -108,7 +108,7 @@ export function ShareKBModal({ isOpen, onClose, articleId, articleTitle, article
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="customer@example.com"
-                  className="w-full bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all"
+                  className="w-full bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-[opacity,transform]"
                   required
                 />
               </div>
@@ -122,7 +122,7 @@ export function ShareKBModal({ isOpen, onClose, articleId, articleTitle, article
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Add a personal message..."
                   rows={3}
-                  className="w-full bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all resize-none"
+                  className="w-full bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-[opacity,transform] resize-none"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export function ShareKBModal({ isOpen, onClose, articleId, articleTitle, article
                     type="text"
                     value={articleUrl || `${window.location.origin}/kb/${articleId}`}
                     readOnly
-                    className="flex-1 bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all"
+                    className="flex-1 bg-[#141B2D] border border-gray-800 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-[opacity,transform]"
                   />
                   <Button
                     onClick={handleCopyLink}

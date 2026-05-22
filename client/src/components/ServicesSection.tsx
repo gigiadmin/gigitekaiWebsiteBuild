@@ -78,7 +78,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
     <div
       id={service.id}
       ref={ref}
-      className={`group bg-white dark:bg-[#141B2D] rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-all duration-300 scroll-mt-24 ${
+      className={`group bg-white dark:bg-[#141B2D] rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-[opacity,transform] duration-300 scroll-mt-24 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
@@ -92,7 +92,7 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
       <p className="text-gray-300 text-sm leading-relaxed mb-4">{service.description}</p>
       <a
         href={service.href}
-        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-colors"
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
         {service.cta} <ArrowRight size={14} />
@@ -120,17 +120,17 @@ export default function ServicesSection() {
         {/* Header */}
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
           <div ref={ref}>
-            <div className={`section-label transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <div className={`section-label transition-[opacity,transform] duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               WHAT WE DO
             </div>
             <h2
-              className={`text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+              className={`text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight transition-[opacity,transform] duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Enterprise Solutions
             </h2>
           </div>
-          <div className={`transition-all duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+          <div className={`transition-[opacity,transform] duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <p className="text-gray-300 text-lg leading-relaxed mb-6">
               GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
             </p>
@@ -170,6 +170,9 @@ export default function ServicesSection() {
               alt="Cloud Infrastructure - AWS, Azure, Google Cloud services for enterprise digital transformation"
               className="w-full h-full object-cover"
               loading="lazy"
+              width="596"
+              height="320"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
               <div>
@@ -187,6 +190,9 @@ export default function ServicesSection() {
               alt="AI Solutions - Machine Learning, Artificial Intelligence, and predictive analytics for business automation"
               className="w-full h-full object-cover"
               loading="lazy"
+              width="596"
+              height="320"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
               <div>

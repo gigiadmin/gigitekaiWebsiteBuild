@@ -268,7 +268,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
                   <NavElement key={item.href} {...navProps}>
                     <div
                       className={`
-                        flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all duration-150 group relative
+                        flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-[opacity,transform] duration-150 group relative
                         ${active
                           ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
                           : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
@@ -312,7 +312,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
+                className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-[opacity,transform] duration-200"
                 onClick={logout}
                 title="Sign out"
                 aria-label="Sign out"
@@ -330,7 +330,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all duration-200"
+              className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-[opacity,transform] duration-200"
               onClick={logout}
               title="Sign out"
               aria-label="Sign out"
@@ -361,7 +361,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       <aside
         className={`
           hidden lg:flex flex-col flex-shrink-0 bg-gradient-to-b from-[#0F1419] via-[#0A0E1A] to-[#050709] border-r border-cyan-500/10
-          transition-all duration-200 ease-in-out
+          transition-[opacity,transform] duration-200 ease-in-out
           ${collapsed ? "w-16" : "w-56"}
         `}
       >

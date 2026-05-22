@@ -123,7 +123,7 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
         <div className="container py-4">
           {/* Input row */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus-within:border-[#00D4FF]/50 transition-all">
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus-within:border-[#00D4FF]/50 transition-[opacity,transform]">
               <Search size={18} className="text-gray-400 shrink-0" />
               <input
                 ref={inputRef}
@@ -229,7 +229,7 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
                 <button
                   key={hint}
                   onClick={() => setQuery(hint)}
-                  className="px-3 py-1.5 rounded-full text-xs bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-400 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-all"
+                  className="px-3 py-1.5 rounded-full text-xs bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-400 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-[opacity,transform]"
                 >
                   {hint}
                 </button>

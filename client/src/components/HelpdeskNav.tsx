@@ -95,7 +95,7 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
             {/* Back to Main Site */}
             <a
               href="/"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-colors"
             >
               <Home className="w-3.5 h-3.5" />
               GigitekAI.com
@@ -138,7 +138,7 @@ export default function HelpdeskNav({ isAdmin = false }: HelpdeskNavProps) {
         <div className="md:hidden border-t border-[rgba(0,212,255,0.1)] px-4 py-2 flex gap-2 overflow-x-auto">
           <a
             href="/"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 rounded-lg transition-all whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 rounded-lg transition-[opacity,transform] whitespace-nowrap"
           >
             <Home className="w-3.5 h-3.5" />
             GigitekAI.com
@@ -165,7 +165,7 @@ function NavLink({ href, active, icon, label }: { href: string; active: boolean;
   return (
     <a
       href={href}
-      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-[opacity,transform] ${
         active
           ? "text-[#00D4FF] bg-[#00D4FF]/10"
           : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -181,7 +181,7 @@ function MobileNavLink({ href, active, label }: { href: string; active: boolean;
   return (
     <a
       href={href}
-      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all whitespace-nowrap ${
+      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-[opacity,transform] whitespace-nowrap ${
         active
           ? "text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/30"
           : "text-gray-400 border border-gray-800 hover:text-white"

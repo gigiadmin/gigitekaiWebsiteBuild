@@ -221,7 +221,7 @@ function AdminLoginAzureInner() {
           <Button
             onClick={handleSignIn}
             disabled={isSigningIn}
-            className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all"
+            className="w-full h-12 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-3 transition-[opacity,transform]"
           >
             {isSigningIn ? (
               <>

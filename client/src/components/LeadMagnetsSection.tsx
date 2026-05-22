@@ -48,7 +48,7 @@ export default function LeadMagnetsSection() {
           {LEAD_MAGNETS.map((magnet) => (
             <Card
               key={magnet.id}
-              className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-all cursor-pointer group"
+              className="bg-[#141B2D] border-slate-700/50 p-6 hover:border-[#00D4FF]/50 transition-[opacity,transform] cursor-pointer group"
               onClick={() => handleDownloadClick(magnet)}
             >
               {/* Icon */}
@@ -68,7 +68,7 @@ export default function LeadMagnetsSection() {
               <p className="text-sm text-gray-400 mb-4">{magnet.description}</p>
 
               {/* Download CTA */}
-              <Button className="w-full bg-[#00D4FF]/20 hover:bg-[#00D4FF] text-[#00D4FF] hover:text-[#0A0E1A] border border-[#00D4FF]/50 hover:border-[#00D4FF] font-semibold transition-all flex items-center justify-center gap-2">
+              <Button className="w-full bg-[#00D4FF]/20 hover:bg-[#00D4FF] text-[#00D4FF] hover:text-[#0A0E1A] border border-[#00D4FF]/50 hover:border-[#00D4FF] font-semibold transition-[opacity,transform] flex items-center justify-center gap-2">
                 <Download size={16} />
                 Download
               </Button>

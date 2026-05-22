@@ -100,7 +100,7 @@ export default function TestimonialSection() {
 
       <div className="container relative z-10">
         {/* Section header */}
-        <div className={`text-center mb-12 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+        <div className={`text-center mb-12 transition-[opacity,transform] duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-3">Client Success Stories</p>
           <h2 className="text-3xl md:text-4xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Trusted by Forward-Thinking Teams
@@ -111,7 +111,7 @@ export default function TestimonialSection() {
         </div>
 
         {/* Carousel */}
-        <div className={`max-w-3xl mx-auto transition-all duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+        <div className={`max-w-3xl mx-auto transition-[opacity,transform] duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="relative bg-gradient-to-br from-[#0F1629] to-[#0A0E1A] border border-[rgba(0,212,255,0.15)] rounded-2xl p-8 md:p-10 shadow-xl shadow-black/30">
             {/* Cyan accent line */}
             <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-[#00D4FF] via-[#0099CC] to-transparent" />
@@ -149,10 +149,10 @@ export default function TestimonialSection() {
               </div>
               {/* Nav arrows */}
               <div className="flex items-center gap-2">
-                <button onClick={prev} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Previous testimonial">
+                <button onClick={prev} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-colors" aria-label="Previous testimonial">
                   <ChevronLeft size={16} />
                 </button>
-                <button onClick={next} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-all" aria-label="Next testimonial">
+                <button onClick={next} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-colors" aria-label="Next testimonial">
                   <ChevronRight size={16} />
                 </button>
               </div>
@@ -165,7 +165,7 @@ export default function TestimonialSection() {
               <button
                 key={i}
                 onClick={() => { setPaused(true); setActive(i); }}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === active ? "bg-[#00D4FF] w-8" : "bg-white/20 w-2 hover:bg-white/40"}`}
+                className={`h-1.5 rounded-full transition-[opacity,transform] duration-300 ${i === active ? "bg-[#00D4FF] w-8" : "bg-white/20 w-2 hover:bg-white/40"}`}
                 aria-label={`Go to testimonial ${i + 1}`}
               />
             ))}

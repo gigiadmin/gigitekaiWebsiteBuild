@@ -111,7 +111,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               <a href="/websites" className="text-xs text-gray-500 hover:text-gray-300">← Websites</a>
               <a
                 href="#contact"
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 shadow-sm"
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-[opacity,transform] hover:opacity-90 shadow-sm"
                 style={{ backgroundColor: accent }}
               >
                 Get Started
@@ -158,7 +158,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               <div className="flex flex-wrap gap-4">
                 <a
                   href="#contact"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90 shadow-md"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-white text-sm transition-[opacity,transform] hover:opacity-90 shadow-md"
                   style={{ backgroundColor: accent }}
                 >
                   Get Started Today
@@ -168,7 +168,7 @@ export default function PortfolioDemoSite({ site }: Props) {
                 </a>
                 <button
                   onClick={() => setChatOpen(true)}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-sm border border-gray-300 text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 bg-white"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-sm border border-gray-300 text-gray-700 transition-[opacity,transform] hover:border-gray-400 hover:bg-gray-50 bg-white"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -270,7 +270,7 @@ export default function PortfolioDemoSite({ site }: Props) {
               </p>
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white text-sm transition-all hover:opacity-90 shadow-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white text-sm transition-[opacity,transform] hover:opacity-90 shadow-sm"
                 style={{ backgroundColor: accent }}
               >
                 Work With Us
@@ -434,7 +434,7 @@ export default function PortfolioDemoSite({ site }: Props) {
                         value={contactForm?.[f.field] || ''}
                         onChange={(e) => setContactForm((p) => ({ ...p, [f.field]: e.target.value }))}
                         placeholder={f.placeholder}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all text-sm bg-white"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-[opacity,transform] text-sm bg-white"
                         style={{ "--tw-ring-color": accent } as React.CSSProperties}
                       />
                     </div>
@@ -446,12 +446,12 @@ export default function PortfolioDemoSite({ site }: Props) {
                       value={contactForm.message}
                       onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
                       placeholder="Tell us about your project..."
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-none text-sm"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-[opacity,transform] resize-none text-sm"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-lg text-white font-semibold text-sm transition-all hover:opacity-90 shadow-sm"
+                    className="w-full py-3.5 rounded-lg text-white font-semibold text-sm transition-[opacity,transform] hover:opacity-90 shadow-sm"
                     style={{ backgroundColor: accent }}
                   >
                     Send Message
@@ -573,7 +573,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             <div className="px-4 py-3 border-t border-gray-100 bg-white">
               <button
                 onClick={() => { setChatOpen(false); window.open("https://gigitekai.com/contact", "_blank"); }}
-                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 mb-3 shadow-sm"
+                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-[opacity,transform] hover:opacity-90 mb-3 shadow-sm"
                 style={{ backgroundColor: accent }}
               >
                 🚀 Request Full AI Demo from GigitekAI
@@ -589,7 +589,7 @@ export default function PortfolioDemoSite({ site }: Props) {
                 />
                 <button
                   onClick={handleChatSend}
-                  className="px-3 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+                  className="px-3 py-2 rounded-lg text-sm font-semibold text-white transition-[opacity,transform] hover:opacity-90"
                   style={{ backgroundColor: accent }}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

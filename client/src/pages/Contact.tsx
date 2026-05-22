@@ -331,7 +331,7 @@ export default function Contact() {
                             key={tier.value}
                             type="button"
                             onClick={() => setFormData((prev) => ({ ...prev, pricingTier: prev.pricingTier === tier.value ? "" : tier.value }))}
-                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                            className={`p-3 rounded-lg border-2 transition-[opacity,transform] text-left ${
                               formData.pricingTier === tier.value
                                 ? "border-[#00d4ff] bg-[#00d4ff]/10"
                                 : "border-white/10 bg-white/5 hover:border-[#00d4ff]/50"
@@ -361,7 +361,7 @@ export default function Contact() {
                             key={size.value}
                             type="button"
                             onClick={() => setFormData((prev) => ({ ...prev, companySize: prev.companySize === size.value ? "" : size.value }))}
-                            className={`p-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                            className={`p-2 rounded-lg border-2 transition-[opacity,transform] text-sm font-medium ${
                               formData.companySize === size.value
                                 ? "border-[#00d4ff] bg-[#00d4ff]/10 text-[#00d4ff]"
                                 : "border-white/10 bg-white/5 text-white hover:border-[#00d4ff]/50"

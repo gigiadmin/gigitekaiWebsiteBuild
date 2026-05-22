@@ -100,7 +100,7 @@ export default function DragDropImageUploader({
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         onClick={() => !uploading && inputRef.current?.click()}
-        className={`relative rounded-xl border-2 border-dashed transition-all cursor-pointer overflow-hidden
+        className={`relative rounded-xl border-2 border-dashed transition-[opacity,transform] cursor-pointer overflow-hidden
           ${dragging
             ? "border-[#00D4FF] bg-[#00D4FF]/10"
             : "border-[rgba(0,212,255,0.3)] hover:border-[#00D4FF]/60 bg-[#0A0E1A]"

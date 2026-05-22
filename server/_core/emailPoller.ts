@@ -622,7 +622,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 
     // Send Teams notification for voicemail ticket
     try {
-      const voicemailTicketObj: Partial<import('../drizzle/schema').Ticket> = {
+      const voicemailTicketObj: Partial<import('../../drizzle/schema').Ticket> = {
         id: ticketId,
         title: ticketData.title,
         description: `Voicemail from ${callerNumber || 'Unknown'}\n\nTranscript:\n${transcript.slice(0, 500)}`,

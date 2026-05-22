@@ -49,7 +49,7 @@ export default function WebsiteROICalculator() {
                 <button
                   key={key}
                   onClick={() => setSelectedPlan(key)}
-                  className={`p-4 rounded-lg font-semibold transition-all ${
+                  className={`p-4 rounded-lg font-semibold transition-[opacity,transform] ${
                     selectedPlan === key
                       ? "bg-[#00D4FF] text-black border-2 border-[#00D4FF]"
                       : "bg-gray-800 text-gray-300 border-2 border-gray-700 hover:border-[#00D4FF]/50"

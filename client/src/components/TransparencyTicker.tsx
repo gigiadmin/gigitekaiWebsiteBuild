@@ -88,7 +88,7 @@ export default function TransparencyTicker() {
   return (
     <section
       ref={tickerRef}
-      className={`relative overflow-hidden bg-[#060A14] border-y border-[#00D4FF]/10 transition-all duration-1000 ${
+      className={`relative overflow-hidden bg-[#060A14] border-y border-[#00D4FF]/10 transition-[opacity,transform] duration-1000 ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       }`}
     >
@@ -123,7 +123,7 @@ export default function TransparencyTicker() {
           {metrics.map((metric, idx) => (
             <div
               key={metric.label}
-              className="group flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00D4FF]/20 hover:bg-white/[0.04] transition-all duration-300"
+              className="group flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00D4FF]/20 hover:bg-white/[0.04] transition-[opacity,transform] duration-300"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
               <div className="flex-shrink-0 w-6 h-6 md:w-7 md:h-7 rounded-md bg-white/[0.05] flex items-center justify-center">

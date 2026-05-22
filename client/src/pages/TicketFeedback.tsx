@@ -94,7 +94,7 @@ export default function TicketFeedback() {
                     key={r}
                     type="button"
                     onClick={() => setRating(r)}
-                    className={`flex flex-col items-center p-3 rounded-lg transition-all ${
+                    className={`flex flex-col items-center p-3 rounded-lg transition-[opacity,transform] ${
                       rating === r
                         ? "bg-cyan-500 text-white"
                         : "bg-slate-700 text-slate-400 hover:bg-slate-600"
@@ -114,7 +114,7 @@ export default function TicketFeedback() {
                 <button
                   type="button"
                   onClick={() => setWouldRecommend(true)}
-                  className={`px-6 py-2 rounded-lg transition-all ${
+                  className={`px-6 py-2 rounded-lg transition-[opacity,transform] ${
                     wouldRecommend === true
                       ? "bg-green-500 text-white"
                       : "bg-slate-700 text-slate-400 hover:bg-slate-600"
@@ -125,7 +125,7 @@ export default function TicketFeedback() {
                 <button
                   type="button"
                   onClick={() => setWouldRecommend(false)}
-                  className={`px-6 py-2 rounded-lg transition-all ${
+                  className={`px-6 py-2 rounded-lg transition-[opacity,transform] ${
                     wouldRecommend === false
                       ? "bg-red-500 text-white"
                       : "bg-slate-700 text-slate-400 hover:bg-slate-600"

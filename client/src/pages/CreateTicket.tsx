@@ -136,7 +136,7 @@ export default function CreateTicket() {
                   key={cat.value}
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, category: cat.value as any }))}
-                  className={`text-left p-4 rounded-xl border transition-all ${
+                  className={`text-left p-4 rounded-xl border transition-[opacity,transform] ${
                     formData.category === cat.value
                       ? "bg-[#00D4FF]/10 border-[#00D4FF]/40 shadow-lg shadow-[#00D4FF]/5"
                       : "bg-[#141B2D]/60 border-gray-800/60 hover:border-gray-700"
@@ -166,7 +166,7 @@ export default function CreateTicket() {
               placeholder="Brief summary of your issue (e.g., 'Unable to access cloud dashboard')"
               required
               minLength={10}
-              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
             />
             <p className="text-gray-400 text-xs mt-1.5">{formData.title.length}/200 characters (minimum 10) {formData.title.length >= 10 ? "✓" : ""}</p>
           </div>
@@ -185,7 +185,7 @@ export default function CreateTicket() {
               required
               minLength={30}
               rows={6}
-              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
             />
             <p className="text-gray-400 text-xs mt-1.5">{formData.description.length} characters (minimum 30) {formData.description.length >= 30 ? "✓" : ""}</p>
           </div>
@@ -213,7 +213,7 @@ export default function CreateTicket() {
               required
               minLength={20}
               rows={4}
-              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+              className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
             />
             <p className="text-gray-400 text-xs mt-1.5">{formData.stepsAttempted.length} characters (minimum 20) {formData.stepsAttempted.length >= 20 ? "✓" : ""}</p>
           </div>
@@ -230,7 +230,7 @@ export default function CreateTicket() {
                   key={p.value}
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, priority: p.value as any }))}
-                  className={`text-left p-3 rounded-xl border transition-all ${
+                  className={`text-left p-3 rounded-xl border transition-[opacity,transform] ${
                     formData.priority === p.value
                       ? `bg-[#141B2D] ${p.border.split(" ")[0]} border-2 shadow-lg`
                       : `bg-[#141B2D]/60 border-gray-800/60 hover:border-gray-700`
@@ -264,7 +264,7 @@ export default function CreateTicket() {
             <Button
               type="submit"
               disabled={createTicketMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl py-6 shadow-lg shadow-[#00D4FF]/15 hover:shadow-[#00D4FF]/30 transition-all"
+              className="flex-1 bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold rounded-xl py-6 shadow-lg shadow-[#00D4FF]/15 hover:shadow-[#00D4FF]/30 transition-[opacity,transform]"
             >
               {createTicketMutation.isPending ? (
                 <>

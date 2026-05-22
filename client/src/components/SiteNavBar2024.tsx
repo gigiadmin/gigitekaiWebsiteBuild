@@ -100,7 +100,7 @@ export default function SiteNavBar2024() {
       {/* Main navigation */}
       <nav
         ref={navRef}
-        className={`w-full z-50 transition-all duration-300 ${
+        className={`w-full z-50 transition-[opacity,transform] duration-300 ${
           mobileOpen
             ? "fixed top-0 left-0 right-0"
             : "sticky top-[env(safe-area-inset-top)]"
@@ -195,7 +195,7 @@ export default function SiteNavBar2024() {
             {/* Support Link */}
             <a
               href="/helpdesk"
-              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg transition-all whitespace-nowrap"
+              className="helpdesk-nav-link flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg transition-colors whitespace-nowrap"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               <div className="relative">
@@ -210,7 +210,7 @@ export default function SiteNavBar2024() {
             {toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-all"
+                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-colors"
                 title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
                 aria-label="Toggle theme"
               >

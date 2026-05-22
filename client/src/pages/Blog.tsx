@@ -44,7 +44,7 @@ export default function Blog() {
           <div className="container">
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-all mb-6"
+              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-[opacity,transform] mb-6"
             >
               <ArrowLeft size={18} />
               Back to Home
@@ -95,7 +95,7 @@ export default function Blog() {
                       <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                        className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-[opacity,transform] duration-200 ${
                           activeCategory === cat
                             ? "bg-[#00D4FF] text-[#0A0E1A] border-[#00D4FF] shadow-[0_0_12px_rgba(0,212,255,0.35)]"
                             : "bg-white/5 text-gray-300 border-white/10 hover:border-[#00D4FF]/50 hover:text-[#00D4FF]"
@@ -126,7 +126,7 @@ export default function Blog() {
                     {filteredPosts.map((post) => (
                       <article
                         key={post.id}
-                        className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden hover:border-[#00D4FF]/30 hover:shadow-lg hover:shadow-[#00D4FF]/5 transition-all duration-300 p-8 cursor-pointer group"
+                        className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden hover:border-[#00D4FF]/30 hover:shadow-lg hover:shadow-[#00D4FF]/5 transition-[opacity,transform] duration-300 p-8 cursor-pointer group"
                         onClick={() => navigate(`/blog/${post.slug}`)}
                       >
                         <div className="flex items-start justify-between gap-6">

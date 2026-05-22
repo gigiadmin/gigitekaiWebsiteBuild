@@ -220,7 +220,7 @@ export default function AdminMetrics() {
                   <span className="text-slate-400 text-sm w-16">{name}</span>
                   <div className="flex-1 bg-slate-700 rounded-full h-2.5">
                     <div
-                      className="h-2.5 rounded-full transition-all duration-500"
+                      className="h-2.5 rounded-full transition-[opacity,transform] duration-500"
                       style={{ width: totalTickets > 0 ? `${(value / totalTickets) * 100}%` : "0%", backgroundColor: fill }}
                     />
                   </div>
@@ -254,7 +254,7 @@ export default function AdminMetrics() {
                       <span className="text-slate-400 text-sm w-32">{label}</span>
                       <div className="flex-1 bg-slate-700 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${color} transition-all duration-500`}
+                          className={`h-2 rounded-full ${color} transition-[opacity,transform] duration-500`}
                           style={{ width: totalRatings > 0 ? `${(count / totalRatings) * 100}%` : "0%" }}
                         />
                       </div>

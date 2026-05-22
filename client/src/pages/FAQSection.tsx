@@ -83,7 +83,7 @@ export default function FAQSection() {
           {faqItems.map((item) => (
             <Card
               key={item.id}
-              className="bg-[#0F1419]/40 border-gray-800/40 overflow-hidden transition-all"
+              className="bg-[#0F1419]/40 border-gray-800/40 overflow-hidden transition-[opacity,transform]"
             >
               <button
                 onClick={() => toggleExpanded(item.id)}

@@ -497,7 +497,7 @@ export default function AdminKB() {
                   <Card
                     key={article.id}
                     onClick={() => setSelectedArticle(article)}
-                    className={`p-4 cursor-pointer transition-all border ${
+                    className={`p-4 cursor-pointer transition-[opacity,transform] border ${
                       selectedArticle?.id === article.id
                         ? "bg-slate-700 border-cyan-500"
                         : "bg-slate-800 border-slate-700 hover:border-slate-600"

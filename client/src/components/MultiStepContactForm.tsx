@@ -188,7 +188,7 @@ export function MultiStepContactForm() {
           </div>
           <div className="w-full bg-slate-700 rounded-full h-2">
             <div
-              className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+              className="bg-cyan-500 h-2 rounded-full transition-[opacity,transform] duration-300"
               style={{ width: `${progress[step]}%` }}
             />
           </div>
@@ -254,7 +254,7 @@ export function MultiStepContactForm() {
                   <button
                     key={count}
                     onClick={() => setState({ ...state, employeeCount: count })}
-                    className={`p-3 rounded-lg font-medium transition-all ${
+                    className={`p-3 rounded-lg font-medium transition-[opacity,transform] ${
                       state.employeeCount === count
                         ? "bg-cyan-500 text-black"
                         : "bg-slate-700 text-white hover:bg-slate-600"

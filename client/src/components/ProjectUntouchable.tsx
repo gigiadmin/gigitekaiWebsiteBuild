@@ -147,7 +147,7 @@ export default function ProjectUntouchable() {
             return (
               <div
                 key={pillar.id}
-                className={`rounded-2xl border ${pillar.borderColor} ${pillar.bgColor} p-6 md:p-7 transition-all duration-300 cursor-pointer hover:shadow-lg ${
+                className={`rounded-2xl border ${pillar.borderColor} ${pillar.bgColor} p-6 md:p-7 transition-[opacity,transform] duration-300 cursor-pointer hover:shadow-lg ${
                   isExpanded ? "ring-1 ring-offset-0" : ""
                 }`}
                 style={{}}

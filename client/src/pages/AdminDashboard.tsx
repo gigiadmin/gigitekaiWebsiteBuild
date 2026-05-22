@@ -66,7 +66,7 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-all ${
+                  className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-[opacity,transform] ${
                     activeTab === tab.id
                       ? "border-[#00D4FF] text-[#00D4FF]"
                       : "border-transparent text-gray-400 hover:text-gray-300"
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* M365 Health Card */}
             <Link href="/admin/m365-health">
-              <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-all cursor-pointer">
+              <div className="bg-[#141B2D]/80 border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/30 hover:bg-[#141B2D] transition-[opacity,transform] cursor-pointer">
                 <div className="flex items-center justify-between mb-3">
                   <Activity className="w-5 h-5 text-[#00D4FF]" />
                   <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded">Operational</span>

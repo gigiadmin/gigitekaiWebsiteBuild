@@ -137,7 +137,7 @@ export function SurveyAnalyticsDashboard() {
                     </div>
                     <div className="h-2 bg-gray-800/40 rounded-full overflow-hidden">
                       <div
-                        className={`h-full transition-all ${
+                        className={`h-full transition-[opacity,transform] ${
                           rating >= 4
                             ? "bg-green-500"
                             : rating === 3

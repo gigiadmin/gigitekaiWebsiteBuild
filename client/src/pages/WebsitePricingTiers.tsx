@@ -95,7 +95,7 @@ export default function WebsitePricingTiers() {
           {tiers.map((tier, idx) => (
             <div
               key={idx}
-              className={`relative rounded-xl p-8 transition-all ${
+              className={`relative rounded-xl p-8 transition-[opacity,transform] ${
                 tier.isPopular
                   ? "bg-gradient-to-br from-[#1a0033] to-gray-900/50 border-2 border-[#9D4EDD] md:scale-105 md:z-10"
                   : "bg-gray-900/50 border border-gray-800 hover:border-[#00D4FF]/50"

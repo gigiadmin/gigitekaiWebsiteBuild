@@ -245,7 +245,7 @@ export default function AdminSmsCampaignsPage() {
           <div className="flex gap-1 mt-5">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-[opacity,transform] ${
                   tab === t.id
                     ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                     : "text-slate-400 hover:text-white hover:bg-white/5"

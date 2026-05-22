@@ -198,14 +198,14 @@ export default function WebsitesPage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/contact">
-              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-all hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
+              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-[opacity,transform] hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
                 Start Your Project
                 <ArrowRight className="w-5 h-5" />
               </a>
             </Link>
             <a
               href="#demos"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-[opacity,transform]"
             >
               View Demo Sites
             </a>
@@ -279,7 +279,7 @@ export default function WebsitesPage() {
                   className="group block"
                 >
                   <div
-                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
                     style={{ borderColor: site.color + "44" }}
                   >
                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
@@ -298,7 +298,7 @@ export default function WebsitesPage() {
                           <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 font-semibold text-sm transition-all group-hover:gap-3" style={{ color: site.color }}>
+                      <div className="flex items-center gap-2 font-semibold text-sm transition-[opacity,transform] group-hover:gap-3" style={{ color: site.color }}>
                         Visit Live Site <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>
@@ -317,7 +317,7 @@ export default function WebsitesPage() {
                   className="group block w-full md:w-1/2"
                 >
                   <div
-                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
                     style={{ borderColor: site.color + "44" }}
                   >
                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
@@ -336,7 +336,7 @@ export default function WebsitesPage() {
                           <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 font-semibold text-sm transition-all group-hover:gap-3" style={{ color: site.color }}>
+                      <div className="flex items-center gap-2 font-semibold text-sm transition-[opacity,transform] group-hover:gap-3" style={{ color: site.color }}>
                         Visit Live Site <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>
@@ -358,7 +358,7 @@ export default function WebsitesPage() {
                 <Link key={site.id} href={site.href}>
                   <a className="group block h-full">
                     <div
-                      className={`relative h-full rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                      className={`relative h-full rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
                       style={{ borderColor: site.color + "33" }}
                     >
                       <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity" style={{ backgroundColor: site.color }} />
@@ -380,7 +380,7 @@ export default function WebsitesPage() {
                             <MessageCircle className="w-3.5 h-3.5" style={{ color: site.color }} />
                             AI Chat Included
                           </div>
-                          <div className="flex items-center gap-1.5 text-sm font-semibold transition-all group-hover:gap-2" style={{ color: site.color }}>
+                          <div className="flex items-center gap-1.5 text-sm font-semibold transition-[opacity,transform] group-hover:gap-2" style={{ color: site.color }}>
                             View Demo <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>
@@ -459,7 +459,7 @@ export default function WebsitesPage() {
                 color: "#00D97E"
               }
             ].map((pkg, idx) => (
-              <div key={idx} className={`relative rounded-2xl border p-8 transition-all duration-300 hover:scale-[1.02] ${
+              <div key={idx} className={`relative rounded-2xl border p-8 transition-[opacity,transform] duration-300 hover:scale-[1.02] ${
                 pkg.popular ? "border-purple-500/60 bg-gradient-to-br from-purple-900/40 to-purple-900/20 ring-2 ring-purple-500/30" : "border-cyan-500/20 bg-gradient-to-br from-cyan-900/20 to-blue-900/20"
               }`}>
                 {pkg.popular && (
@@ -482,7 +482,7 @@ export default function WebsitesPage() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full py-3 rounded-lg font-semibold transition-all" style={{
+                <button className="w-full py-3 rounded-lg font-semibold transition-[opacity,transform]" style={{
                   backgroundColor: pkg.popular ? pkg.color : pkg.color + "22",
                   color: pkg.popular ? "#000" : pkg.color,
                   border: pkg.popular ? "none" : `1px solid ${pkg.color}44`
@@ -520,7 +520,7 @@ export default function WebsitesPage() {
               </p>
               {/* Primary CTA */}
               <Link href="/free-audit">
-                <a className="inline-flex items-center gap-3 px-10 py-5 rounded-xl font-bold text-black text-lg transition-all hover:opacity-90 hover:scale-105 shadow-lg shadow-cyan-500/20" style={{ backgroundColor: "#00D4FF" }}>
+                <a className="inline-flex items-center gap-3 px-10 py-5 rounded-xl font-bold text-black text-lg transition-[opacity,transform] hover:opacity-90 hover:scale-105 shadow-lg shadow-cyan-500/20" style={{ backgroundColor: "#00D4FF" }}>
                   <span>🚀 Claim My Free Audit</span>
                   <ArrowRight className="w-5 h-5" />
                 </a>
@@ -528,12 +528,12 @@ export default function WebsitesPage() {
               {/* Secondary links */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
                 <Link href="/contact">
-                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-all">
+                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-[opacity,transform]">
                     Talk to Our Team
                   </a>
                 </Link>
                 <Link href="/web-pricing">
-                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-slate-600/40 text-slate-400 hover:bg-slate-500/10 transition-all">
+                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-slate-600/40 text-slate-400 hover:bg-slate-500/10 transition-[opacity,transform]">
                     View Full Pricing
                   </a>
                 </Link>

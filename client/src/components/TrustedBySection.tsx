@@ -25,7 +25,7 @@ export default function TrustedBySection() {
           {partners.map((partner) => (
             <div
               key={partner.name}
-              className="flex items-center justify-center px-6 py-3 bg-white dark:bg-[#141B2D] rounded-lg border border-gray-100 dark:border-[rgba(0,212,255,0.15)] shadow-sm hover:border-[#00D4FF]/30 hover:shadow-md transition-all duration-200 min-w-[120px]"
+              className="flex items-center justify-center px-6 py-3 bg-white dark:bg-[#141B2D] rounded-lg border border-gray-100 dark:border-[rgba(0,212,255,0.15)] shadow-sm hover:border-[#00D4FF]/30 hover:shadow-md transition-[opacity,transform] duration-200 min-w-[120px]"
             >
               <span
                 className="text-gray-300 font-bold text-sm hover:text-[#00D4FF] transition-colors"

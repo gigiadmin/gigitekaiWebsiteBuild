@@ -972,7 +972,7 @@ export default function TicketDetail() {
                       handleAddReply(e);
                     }
                   }}
-                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+                  className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-xs text-gray-400">Press Ctrl+Enter to send</p>
@@ -1075,7 +1075,7 @@ export default function TicketDetail() {
             <div className="flex gap-1 bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-1">
               <button
                 onClick={() => setActiveAdminTab("notes")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-[opacity,transform] ${
                   activeAdminTab === "notes"
                     ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                     : "text-gray-400 hover:text-white"
@@ -1091,7 +1091,7 @@ export default function TicketDetail() {
               </button>
               <button
                 onClick={() => setActiveAdminTab("activity")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-[opacity,transform] ${
                   activeAdminTab === "activity"
                     ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                     : "text-gray-400 hover:text-white"
@@ -1151,7 +1151,7 @@ export default function TicketDetail() {
                           </div>
                           <button
                             onClick={() => deleteNoteMutation.mutate({ noteId: note.id })}
-                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-all"
+                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 transition-[opacity,transform]"
                             title="Delete note"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

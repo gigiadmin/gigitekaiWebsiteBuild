@@ -131,7 +131,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
         {/* Close */}
         <button
           onClick={dismiss}
-          className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+          className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-[opacity,transform]"
           aria-label="Close"
         >
           <X size={18} />
@@ -191,7 +191,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     required
-                    className="col-span-2 sm:col-span-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-all"
+                    className="col-span-2 sm:col-span-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-[opacity,transform]"
                   />
                   <input
                     type="email"
@@ -199,7 +199,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     required
-                    className="col-span-2 sm:col-span-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-all"
+                    className="col-span-2 sm:col-span-1 px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-[opacity,transform]"
                   />
                 </div>
                 <input
@@ -207,12 +207,12 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                   placeholder="Company name (optional)"
                   value={form.company}
                   onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-all"
+                  className="w-full px-3 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#00D4FF]/50 focus:bg-white/8 transition-[opacity,transform]"
                 />
                 <select
                   value={form.hearAboutUs}
                   onChange={(e) => setForm((f) => ({ ...f, hearAboutUs: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-lg bg-[#0A0E1A] border border-white/10 text-sm focus:outline-none focus:border-[#00D4FF]/50 transition-all"
+                  className="w-full px-3 py-2.5 rounded-lg bg-[#0A0E1A] border border-white/10 text-sm focus:outline-none focus:border-[#00D4FF]/50 transition-[opacity,transform]"
                   style={{ color: form.hearAboutUs ? '#fff' : '#6b7280' }}
                 >
                   <option value="" disabled>How did you hear about us?</option>
@@ -229,7 +229,7 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
                 <button
                   type="submit"
                   disabled={submitMutation.isPending}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#00D4FF] text-[#0A0E1A] font-bold text-sm hover:bg-[#00EEFF] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#00D4FF] text-[#0A0E1A] font-bold text-sm hover:bg-[#00EEFF] transition-[opacity,transform] disabled:opacity-60 disabled:cursor-not-allowed"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {submitMutation.isPending ? (

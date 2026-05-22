@@ -255,7 +255,7 @@ export default function HelpdeskPricing() {
           {tiers.map((tier, idx) => (
             <div
               key={idx}
-              className={`relative rounded-xl border transition-all overflow-hidden ${
+              className={`relative rounded-xl border transition-[opacity,transform] overflow-hidden ${
                 tier.popular
                   ? "border-2 border-cyan-500 bg-gradient-to-b from-cyan-500/20 via-background to-background shadow-2xl shadow-cyan-500/40 md:scale-105 ring-1 ring-cyan-500/60"
                   : "border border-border bg-card hover:border-cyan-500/50"

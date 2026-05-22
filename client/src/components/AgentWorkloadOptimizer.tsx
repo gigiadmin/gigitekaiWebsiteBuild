@@ -90,7 +90,7 @@ export function AgentWorkloadOptimizer() {
               <Card
                 key={agent.id}
                 onClick={() => setSelectedAgentId(agent.id)}
-                className={`bg-[#141B2D]/60 border-gray-800/30 p-4 cursor-pointer hover:border-cyan-500/30 transition-all ${
+                className={`bg-[#141B2D]/60 border-gray-800/30 p-4 cursor-pointer hover:border-cyan-500/30 transition-[opacity,transform] ${
                   selectedAgentId === agent.id ? "border-cyan-500/50" : ""
                 } ${percentage > 90 ? "border-red-500/30" : ""}`}
               >
@@ -115,7 +115,7 @@ export function AgentWorkloadOptimizer() {
                       </div>
                       <div className="h-2 bg-gray-800/40 rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all ${
+                          className={`h-full transition-[opacity,transform] ${
                             percentage < 50
                               ? "bg-green-500"
                               : percentage < 75

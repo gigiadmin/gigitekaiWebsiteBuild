@@ -441,7 +441,7 @@ export default function AdminSocialPage() {
               return (
                 <div
                   key={p.id}
-                  className={`rounded-xl border p-4 flex flex-col gap-3 transition-all ${
+                  className={`rounded-xl border p-4 flex flex-col gap-3 transition-[opacity,transform] ${
                     isConnected
                       ? "border-emerald-500/30 bg-emerald-500/5"
                       : isExpired
@@ -578,7 +578,7 @@ export default function AdminSocialPage() {
                   key={p.id}
                   onClick={() => isConnected && togglePlatform(p.id)}
                   title={!isConnected ? `Connect ${p.label} first` : undefined}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-[opacity,transform] ${
                     isActive && isConnected ? p.active + " " + p.color : p.bg + " text-gray-500 hover:text-gray-300"
                   } ${!isConnected ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
                 >
@@ -598,7 +598,7 @@ export default function AdminSocialPage() {
               onChange={(e) => setContent(e.target.value)}
               placeholder="What do you want to share? Write your post here..."
               rows={6}
-              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
             />
             <span className={`absolute bottom-3 right-3 text-xs ${overLimit ? "text-red-400 font-bold" : "text-gray-600"}`}>
               {content.length}/{charLimit}
@@ -627,7 +627,7 @@ export default function AdminSocialPage() {
               value={link}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://gigitekai.com/blog/..."
-              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
             />
           </div>
 

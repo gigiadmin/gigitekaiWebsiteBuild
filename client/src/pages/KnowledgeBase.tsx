@@ -169,7 +169,7 @@ export default function KnowledgeBase() {
           placeholder="Search articles..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-[#141B2D] border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:border-[#00D4FF]/40 focus:outline-none transition-all"
+          className="w-full pl-10 pr-4 py-2.5 bg-[#141B2D] border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:border-[#00D4FF]/40 focus:outline-none transition-[opacity,transform]"
         />
       </div>
 
@@ -193,7 +193,7 @@ export default function KnowledgeBase() {
           {displayed.map((a: any) => (
             <div
               key={a.id}
-              className="bg-[#141B2D] border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/20 transition-all group"
+              className="bg-[#141B2D] border border-gray-800/60 rounded-xl p-5 hover:border-[#00D4FF]/20 transition-[opacity,transform] group"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">

@@ -119,7 +119,7 @@ export default function Services() {
         <section className="py-20 bg-gradient-to-b from-[#0A0E1A] to-[#141B2D]">
           <div className="container" ref={heroRef}>
             <div
-              className={`max-w-3xl transition-all duration-700 ${
+              className={`max-w-3xl transition-[opacity,transform] duration-700 ${
                 heroVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6"
@@ -144,7 +144,7 @@ export default function Services() {
               </p>
               <a
                 href="/contact"
-                className="inline-flex items-center gap-2 bg-[#00D4FF] text-[#0A0E1A] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/90 transition-all"
+                className="inline-flex items-center gap-2 bg-[#00D4FF] text-[#0A0E1A] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/90 transition-[opacity,transform]"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Get a Free Assessment <ArrowRight size={18} />
@@ -163,7 +163,7 @@ export default function Services() {
                   <a
                     key={service.title}
                     href={service.href}
-                    className="group bg-white/5 rounded-xl border border-white/10 p-6 hover:border-[#00D4FF]/30 hover:shadow-lg hover:shadow-[#00D4FF]/5 transition-all duration-300"
+                    className="group bg-white/5 rounded-xl border border-white/10 p-6 hover:border-[#00D4FF]/30 hover:shadow-lg hover:shadow-[#00D4FF]/5 transition-[opacity,transform] duration-300"
                   >
                     <div className="w-12 h-12 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-4 group-hover:bg-[#00D4FF]/15 transition-colors">
                       <Icon size={22} className="text-[#00D4FF]" />
@@ -178,7 +178,7 @@ export default function Services() {
                       {service.description}
                     </p>
                     <span
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] group-hover:gap-2 transition-all"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] group-hover:gap-2 transition-[opacity,transform]"
                       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     >
                       {service.cta} <ArrowRight size={14} />
@@ -239,14 +239,14 @@ export default function Services() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <a
                     href="/contact"
-                    className="inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/90 transition-all"
+                    className="inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/90 transition-[opacity,transform]"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
                     Schedule Assessment
                   </a>
                   <a
                     href="tel:+17273825776"
-                    className="inline-flex items-center justify-center gap-2 border border-[#00D4FF]/30 text-[#00D4FF] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/10 transition-all"
+                    className="inline-flex items-center justify-center gap-2 border border-[#00D4FF]/30 text-[#00D4FF] font-bold px-6 py-3 rounded-lg hover:bg-[#00D4FF]/10 transition-[opacity,transform]"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
                     <Phone size={16} /> (727) 382-5776

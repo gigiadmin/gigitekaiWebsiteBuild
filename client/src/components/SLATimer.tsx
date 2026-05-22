@@ -109,7 +109,7 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
         </div>
         <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
           <div
-            className={`h-full transition-all duration-1000 ${getProgressColor(slaStatus.responseBreached, slaStatus.responsePercentage)}`}
+            className={`h-full transition-[opacity,transform] duration-1000 ${getProgressColor(slaStatus.responseBreached, slaStatus.responsePercentage)}`}
             style={{ width: `${Math.min(100, slaStatus.responsePercentage)}%` }}
           />
         </div>
@@ -131,7 +131,7 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
         </div>
         <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
           <div
-            className={`h-full transition-all duration-1000 ${getProgressColor(slaStatus.resolutionBreached, slaStatus.resolutionPercentage)}`}
+            className={`h-full transition-[opacity,transform] duration-1000 ${getProgressColor(slaStatus.resolutionBreached, slaStatus.resolutionPercentage)}`}
             style={{ width: `${Math.min(100, slaStatus.resolutionPercentage)}%` }}
           />
         </div>

@@ -182,7 +182,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
       <div
         className={`${
           sidebarOpen ? "w-64" : "w-0"
-        } bg-[#0F1419] border-r border-gray-800/40 transition-all duration-300 overflow-hidden flex flex-col fixed lg:static h-full z-50 lg:z-auto`}
+        } bg-[#0F1419] border-r border-gray-800/40 transition-[opacity,transform] duration-300 overflow-hidden flex flex-col fixed lg:static h-full z-50 lg:z-auto`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-800/40">
@@ -245,7 +245,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
                         <button
                           key={item.id}
                           onClick={() => navigate(item.path)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-[opacity,transform] ${
                             isActive
                               ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                               : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -273,7 +273,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
             href="https://stats.uptimerobot.com/gigitekai"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-[opacity,transform]"
           >
             <Wifi className="w-4 h-4 text-green-400" />
             <span>Site Status</span>
@@ -283,14 +283,14 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
           <button
             onClick={handleClearCache}
             title="Clears service worker cache and reloads — fixes stale/offline page issues on iOS"
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-amber-400 hover:bg-amber-400/5 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-amber-400 hover:bg-amber-400/5 transition-[opacity,transform]"
           >
             <Trash2 className="w-4 h-4" />
             <span>Clear Cache</span>
           </button>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-[opacity,transform]"
           >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>

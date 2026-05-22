@@ -89,7 +89,7 @@ export function KBAnalyticsDashboard() {
                 <button
                   key={article.id}
                   onClick={() => setSelectedArticleId(article.id)}
-                  className={`w-full text-left p-3 rounded-lg border transition-all ${
+                  className={`w-full text-left p-3 rounded-lg border transition-[opacity,transform] ${
                     selectedArticleId === article.id
                       ? "bg-cyan-500/20 border-cyan-500/50"
                       : "bg-gray-800/20 border-gray-700/30 hover:bg-gray-800/40"
@@ -128,7 +128,7 @@ export function KBAnalyticsDashboard() {
               {effectiveArticles.map((article, idx) => (
                 <div
                   key={article.id}
-                  className="p-3 rounded-lg bg-gray-800/20 border border-gray-700/30 hover:bg-gray-800/40 transition-all"
+                  className="p-3 rounded-lg bg-gray-800/20 border border-gray-700/30 hover:bg-gray-800/40 transition-[opacity,transform]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -310,7 +310,7 @@ export function KBAnalyticsDashboard() {
               {topQueries.map((q, idx) => (
                 <div
                   key={idx}
-                  className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-gray-800/20 border border-gray-700/30 hover:bg-gray-800/40 transition-all"
+                  className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-gray-800/20 border border-gray-700/30 hover:bg-gray-800/40 transition-[opacity,transform]"
                 >
                   <span className="col-span-6 text-sm text-gray-300 truncate font-mono">
                     {q.query}
@@ -353,7 +353,7 @@ export function KBAnalyticsDashboard() {
               {zeroResultQueries.map((q, idx) => (
                 <div
                   key={idx}
-                  className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-red-950/20 border border-red-900/20 hover:bg-red-950/30 transition-all"
+                  className="grid grid-cols-12 gap-2 items-center p-3 rounded-lg bg-red-950/20 border border-red-900/20 hover:bg-red-950/30 transition-[opacity,transform]"
                 >
                   <span className="col-span-8 text-sm text-gray-300 truncate font-mono">
                     {q.query}

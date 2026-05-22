@@ -97,7 +97,7 @@ export default function CannedResponsePicker({ onSelect }: CannedResponsePickerP
                 <button
                   key={r.id}
                   onClick={() => handleSelect(r.body)}
-                  className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[#00D4FF]/5 hover:border-[#00D4FF]/10 border border-transparent transition-all group"
+                  className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-[#00D4FF]/5 hover:border-[#00D4FF]/10 border border-transparent transition-[opacity,transform] group"
                 >
                   <p className="text-white text-xs font-medium group-hover:text-[#00D4FF] transition-colors truncate">
                     {r.title}

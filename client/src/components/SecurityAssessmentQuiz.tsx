@@ -208,7 +208,7 @@ export function SecurityAssessmentQuiz() {
           </div>
           <div className="w-full bg-slate-700 rounded-full h-2">
             <div
-              className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+              className="bg-cyan-500 h-2 rounded-full transition-[opacity,transform] duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -225,7 +225,7 @@ export function SecurityAssessmentQuiz() {
               key={score}
               onClick={() => handleScoreSubmit(score)}
               disabled={submitMutation.isPending}
-              className="w-full p-4 text-left bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-cyan-500 rounded-lg text-white transition-all disabled:opacity-50"
+              className="w-full p-4 text-left bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-cyan-500 rounded-lg text-white transition-[opacity,transform] disabled:opacity-50"
             >
               <span className="font-semibold">{score}/10</span>
               <span className="text-gray-400 ml-4">

@@ -164,7 +164,7 @@ export default function AdminHome() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {kpiCards.map((card) => (
             <Link key={card.label} href={card.href}>
-              <Card className="bg-[#161B22] border-slate-700/50 hover:border-slate-600 transition-all duration-200 cursor-pointer group">
+              <Card className="bg-[#161B22] border-slate-700/50 hover:border-slate-600 transition-[opacity,transform] duration-200 cursor-pointer group">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">

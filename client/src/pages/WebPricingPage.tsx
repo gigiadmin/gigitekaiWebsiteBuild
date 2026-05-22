@@ -148,7 +148,7 @@ export default function WebPricingPage() {
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   onClick={scrollToPlans}
-                  className="bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold px-8 py-6 text-lg rounded-lg transition-all"
+                  className="bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold px-8 py-6 text-lg rounded-lg transition-[opacity,transform]"
                 >
                   See Plans
                 </Button>
@@ -222,7 +222,7 @@ export default function WebPricingPage() {
             {pricingPlans.map((plan, idx) => (
               <div
                 key={idx}
-                className={`relative rounded-2xl p-8 transition-all duration-300 ${
+                className={`relative rounded-2xl p-8 transition-[opacity,transform] duration-300 ${
                   plan.highlighted
                     ? "bg-gradient-to-br from-[#00D4FF]/20 to-[#0066FF]/10 border-2 border-[#00D4FF] shadow-2xl shadow-[#00D4FF]/20 transform scale-105"
                     : "bg-gradient-to-br from-[#1a1f3a] to-[#0f1428] border border-[#00D4FF]/20 hover:border-[#00D4FF]/40"
@@ -250,7 +250,7 @@ export default function WebPricingPage() {
                     <p className="text-xs text-gray-500">+ ${plan.setupFee} one-time setup</p>
                   </div>
 
-                  <Button className="w-full bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold py-6 rounded-lg transition-all">
+                  <Button className="w-full bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold py-6 rounded-lg transition-[opacity,transform]">
                     Get Started
                   </Button>
 
@@ -291,7 +291,7 @@ export default function WebPricingPage() {
             {addOns.map((addon, idx) => (
               <div
                 key={idx}
-                className="bg-gradient-to-br from-[#1a1f3a] to-[#0f1428] border border-[#00D4FF]/20 rounded-xl p-8 hover:border-[#00D4FF]/40 transition-all group"
+                className="bg-gradient-to-br from-[#1a1f3a] to-[#0f1428] border border-[#00D4FF]/20 rounded-xl p-8 hover:border-[#00D4FF]/40 transition-[opacity,transform] group"
               >
                 <h3 className="text-xl font-bold text-white mb-2">{addon.title}</h3>
                 <p className="text-[#00D4FF] font-semibold text-lg mb-4">{addon.price}</p>
@@ -339,7 +339,7 @@ export default function WebPricingPage() {
             {faqs.map((faq, idx) => (
               <div
                 key={idx}
-                className="bg-gradient-to-br from-[#1a1f3a] to-[#0f1428] border border-[#00D4FF]/20 rounded-xl overflow-hidden hover:border-[#00D4FF]/40 transition-all"
+                className="bg-gradient-to-br from-[#1a1f3a] to-[#0f1428] border border-[#00D4FF]/20 rounded-xl overflow-hidden hover:border-[#00D4FF]/40 transition-[opacity,transform]"
               >
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
@@ -389,7 +389,7 @@ export default function WebPricingPage() {
           <p className="text-xl text-gray-300 mb-8">
             Let's build a website that drives real results for your business.
           </p>
-          <Button className="bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold px-10 py-6 text-lg rounded-lg transition-all">
+          <Button className="bg-[#00D4FF] hover:bg-[#00B8D4] text-black font-semibold px-10 py-6 text-lg rounded-lg transition-[opacity,transform]">
             Schedule Your Free Consultation
           </Button>
         </div>

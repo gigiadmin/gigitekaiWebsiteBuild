@@ -19,8 +19,8 @@ const ApprovalGuard = lazy(() => import("./components/ApprovalGuard"));
 const AnnouncementBar = lazy(() => import("./components/AnnouncementBar"));
 const CookieConsent = lazy(() => import("./components/CookieConsent"));
 const AIChatWidget = lazy(() => import("./components/AIChatWidget"));
-// FloatingContactDial imported eagerly to avoid dynamic import errors
-import FloatingContactDial from "./components/FloatingContactDial";
+// FloatingContactDial lazy-loaded to reduce initial bundle and TBT
+const FloatingContactDial = lazy(() => import("./components/FloatingContactDial"));
 // UserChatWidget removed from initial render to improve LCP
 // const UserChatWidget = lazy(() => import("./components/UserChatWidget"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));

@@ -591,7 +591,7 @@ export default function AdminChat() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-[opacity,transform] ${
                 activeTab === tab.id
                   ? "bg-[#00D4FF]/20 text-[#00D4FF] border border-[#00D4FF]/30"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -626,7 +626,7 @@ export default function AdminChat() {
                     <button
                       key={onlineUser.userId}
                       onClick={() => handleSelectUser(onlineUser.userId)}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
+                      className={`w-full text-left p-3 rounded-lg transition-[opacity,transform] ${
                         selectedUserId === onlineUser.userId
                           ? "bg-[#00D4FF]/20 border border-[#00D4FF] text-[#00D4FF]"
                           : "bg-[#0A0E1A] border border-[#00D4FF]/10 hover:border-[#00D4FF]/30"
@@ -823,7 +823,7 @@ export default function AdminChat() {
                 <button
                   key={d}
                   onClick={() => setAnalyticsDays(d)}
-                  className={`px-3 py-1 rounded-md text-sm transition-all ${
+                  className={`px-3 py-1 rounded-md text-sm transition-[opacity,transform] ${
                     analyticsDays === d
                       ? "bg-[#00D4FF]/20 text-[#00D4FF] border border-[#00D4FF]/30"
                       : "text-gray-400 hover:text-white bg-[#0A0E1A] border border-transparent"
@@ -968,7 +968,7 @@ export default function AdminChat() {
                 <button
                   key={status}
                   onClick={() => { setAriaStatusFilter(status); setSelectedAriaSessionId(null); }}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-[opacity,transform] capitalize ${
                     ariaStatusFilter === status
                       ? "bg-[#00D4FF]/20 text-[#00D4FF] border border-[#00D4FF]/30"
                       : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -998,7 +998,7 @@ export default function AdminChat() {
                     <Card
                       key={session.id}
                       onClick={() => setSelectedAriaSessionId(session.sessionId)}
-                      className={`bg-[#141B2D] border p-3 cursor-pointer transition-all hover:border-[#00D4FF]/50 ${
+                      className={`bg-[#141B2D] border p-3 cursor-pointer transition-[opacity,transform] hover:border-[#00D4FF]/50 ${
                         selectedAriaSessionId === session.sessionId
                           ? "border-[#00D4FF]/60 bg-[#00D4FF]/5"
                           : "border-[#00D4FF]/15"

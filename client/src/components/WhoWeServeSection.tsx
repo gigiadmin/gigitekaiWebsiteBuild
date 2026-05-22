@@ -47,7 +47,7 @@ export default function WhoWeServeSection() {
         <div className="grid lg:grid-cols-5 gap-12 items-start">
           {/* Left text */}
           <div
-            className={`lg:col-span-2 transition-all duration-700 ${
+            className={`lg:col-span-2 transition-[opacity,transform] duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -73,7 +73,7 @@ export default function WhoWeServeSection() {
               return (
                 <div
                   key={option.title}
-                  className={`bg-white dark:bg-[#141B2D] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(0,212,255,0.1)] rounded-xl p-6 group cursor-pointer transition-all duration-500 ${
+                  className={`bg-white dark:bg-[#141B2D] border border-gray-200 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(0,212,255,0.1)] rounded-xl p-6 group cursor-pointer transition-[opacity,transform] duration-500 ${
                     visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
                   }`}
                   style={{ transitionDelay: `${200 + i * 100}ms` }}
@@ -94,7 +94,7 @@ export default function WhoWeServeSection() {
                       </p>
                       <a
                         href="/contact"
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-colors"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
                         {option.cta} <ArrowRight size={14} />

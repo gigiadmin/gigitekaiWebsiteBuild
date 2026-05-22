@@ -641,7 +641,7 @@ export default function RemoteSession() {
 
         {/* Local video (small frame, bottom-right — mirrors PeerChat user-1.smallFrame) */}
         <div
-          className={`absolute transition-all duration-300 ${
+          className={`absolute transition-[opacity,transform] duration-300 ${
             peerConnected
               ? "bottom-20 right-4 w-48 h-36 rounded-xl overflow-hidden border-2 border-cyan-500/40 shadow-lg shadow-cyan-500/10"
               : "inset-0 flex items-center justify-center"
@@ -686,7 +686,7 @@ export default function RemoteSession() {
           variant="outline"
           size="icon"
           onClick={toggleCamera}
-          className={`w-12 h-12 rounded-full border-2 transition-all ${
+          className={`w-12 h-12 rounded-full border-2 transition-[opacity,transform] ${
             cameraEnabled
               ? "border-cyan-500/50 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400"
               : "border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-400"
@@ -701,7 +701,7 @@ export default function RemoteSession() {
           variant="outline"
           size="icon"
           onClick={toggleMic}
-          className={`w-12 h-12 rounded-full border-2 transition-all ${
+          className={`w-12 h-12 rounded-full border-2 transition-[opacity,transform] ${
             micEnabled
               ? "border-cyan-500/50 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400"
               : "border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-400"
@@ -716,7 +716,7 @@ export default function RemoteSession() {
           variant="outline"
           size="icon"
           onClick={toggleScreenShare}
-          className={`w-12 h-12 rounded-full border-2 transition-all ${
+          className={`w-12 h-12 rounded-full border-2 transition-[opacity,transform] ${
             screenSharing
               ? "border-cyan-400 bg-cyan-400/20 text-cyan-300"
               : "border-slate-500/50 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400"
@@ -732,7 +732,7 @@ export default function RemoteSession() {
             variant="outline"
             size="icon"
             onClick={isRecording ? stopRecording : startRecording}
-            className={`w-12 h-12 rounded-full border-2 transition-all ${
+            className={`w-12 h-12 rounded-full border-2 transition-[opacity,transform] ${
               isRecording
                 ? "border-red-400 bg-red-400/20 text-red-300 animate-pulse"
                 : recordingSaved
@@ -755,7 +755,7 @@ export default function RemoteSession() {
           variant="outline"
           size="icon"
           onClick={() => setChatOpen((o) => !o)}
-          className={`w-12 h-12 rounded-full border-2 transition-all relative ${
+          className={`w-12 h-12 rounded-full border-2 transition-[opacity,transform] relative ${
             chatOpen
               ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
               : "border-slate-500/50 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400"

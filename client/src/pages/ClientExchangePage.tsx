@@ -329,7 +329,7 @@ export default function ClientExchangePage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+                className={`text-xs px-3 py-1.5 rounded-full border transition-[opacity,transform] ${
                   activeCategory === cat
                     ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
                     : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-slate-600"
@@ -347,7 +347,7 @@ export default function ClientExchangePage() {
                 key={script.id}
                 className={`rounded-xl border ${
                   script.featured ? "border-cyan-500/30 bg-cyan-500/5" : "border-slate-700/50 bg-slate-800/30"
-                } p-5 hover:border-cyan-500/40 transition-all duration-200`}
+                } p-5 hover:border-cyan-500/40 transition-[opacity,transform] duration-200`}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">

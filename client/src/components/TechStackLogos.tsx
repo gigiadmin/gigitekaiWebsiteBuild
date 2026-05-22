@@ -26,7 +26,7 @@ export default function TechStackLogos({
             title={tech}
           >
             {/* Logo Container */}
-            <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-white dark:bg-[#141B2D] rounded-lg border border-gray-100 dark:border-[rgba(0,212,255,0.15)] shadow-sm hover:border-[#00D4FF]/40 hover:shadow-md transition-all duration-200 group-hover:scale-105">
+            <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-white dark:bg-[#141B2D] rounded-lg border border-gray-100 dark:border-[rgba(0,212,255,0.15)] shadow-sm hover:border-[#00D4FF]/40 hover:shadow-md transition-[opacity,transform] duration-200 group-hover:scale-105">
               <img
                 src={url}
                 alt={alt}

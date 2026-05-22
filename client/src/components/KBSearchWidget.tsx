@@ -60,7 +60,7 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
           placeholder="Search knowledge base..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg pl-9 pr-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all"
+          className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg pl-9 pr-3 py-2 text-white text-sm placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-[opacity,transform]"
         />
       </div>
 
@@ -76,7 +76,7 @@ export function KBSearchWidget({ ticketTitle, ticketDescription, onArticleSelect
             <button
               key={article.id}
               onClick={() => handleArticleClick(article.id, article.title)}
-              className={`w-full text-left p-3 rounded-lg border transition-all ${
+              className={`w-full text-left p-3 rounded-lg border transition-[opacity,transform] ${
                 selectedArticle === article.id
                   ? "bg-cyan-500/20 border-cyan-500/50"
                   : "bg-gray-800/20 border-gray-700/30 hover:bg-gray-800/40 hover:border-gray-600/50"

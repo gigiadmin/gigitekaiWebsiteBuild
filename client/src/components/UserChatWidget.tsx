@@ -400,7 +400,7 @@ function UserChatWidgetInner({ user }: { user: any }) {
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#00D4FF] hover:bg-[#00D4FF]/90 text-black rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110"
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#00D4FF] hover:bg-[#00D4FF]/90 text-black rounded-full shadow-lg flex items-center justify-center transition-[opacity,transform] hover:scale-110"
           title="Open admin chat"
         >
           <div className="relative">
@@ -433,7 +433,7 @@ function UserChatWidgetInner({ user }: { user: any }) {
                 <>
                   <button
                     onClick={() => { setCallType("audio"); setCallModalOpen(true); }}
-                    className="flex items-center justify-center w-8 h-8 hover:bg-green-500/20 rounded-lg transition-all"
+                    className="flex items-center justify-center w-8 h-8 hover:bg-green-500/20 rounded-lg transition-[opacity,transform]"
                     aria-label="Audio call"
                     title="Audio call"
                   >
@@ -441,7 +441,7 @@ function UserChatWidgetInner({ user }: { user: any }) {
                   </button>
                   <button
                     onClick={() => { setCallType("video"); setCallModalOpen(true); }}
-                    className="flex items-center justify-center w-8 h-8 hover:bg-blue-500/20 rounded-lg transition-all"
+                    className="flex items-center justify-center w-8 h-8 hover:bg-blue-500/20 rounded-lg transition-[opacity,transform]"
                     aria-label="Video call"
                     title="Video call"
                   >
@@ -451,7 +451,7 @@ function UserChatWidgetInner({ user }: { user: any }) {
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/10 sm:bg-transparent hover:bg-red-500/20 rounded-lg transition-all"
+                className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/10 sm:bg-transparent hover:bg-red-500/20 rounded-lg transition-[opacity,transform]"
                 aria-label="Close chat"
               >
                 <X className="w-6 h-6 sm:w-5 sm:h-5 text-white" />

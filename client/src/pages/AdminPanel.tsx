@@ -407,7 +407,7 @@ export default function AdminPanel() {
             </div>
             <button
               onClick={() => setShowCreateTicket(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] text-black font-semibold text-sm rounded-xl transition-all shadow-lg shadow-[#00D4FF]/20"
+              className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] text-black font-semibold text-sm rounded-xl transition-[opacity,transform] shadow-lg shadow-[#00D4FF]/20"
             >
               <Plus className="w-4 h-4" />
               <span>Create Ticket</span>
@@ -419,7 +419,7 @@ export default function AdminPanel() {
         <div className="flex gap-1 mb-6 bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-1 w-fit">
           <button
             onClick={() => setActiveTab("tickets")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-[opacity,transform] ${
               activeTab === "tickets"
                 ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -430,7 +430,7 @@ export default function AdminPanel() {
           </button>
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-[opacity,transform] ${
               activeTab === "users"
                 ? "bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -470,7 +470,7 @@ export default function AdminPanel() {
                 placeholder="Search by ticket ID or title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                className="w-full bg-[#141B2D] border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
               />
             </div>
             <input
@@ -478,12 +478,12 @@ export default function AdminPanel() {
               placeholder="Filter by customer email..."
               value={customerEmailFilter}
               onChange={(e) => setCustomerEmailFilter(e.target.value)}
-              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[180px]"
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] min-w-[180px]"
             />
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-[opacity,transform] min-w-[140px]"
             >
               <option value="all">All Priorities</option>
               <option value="low">Low</option>
@@ -498,14 +498,14 @@ export default function AdminPanel() {
               placeholder="Start date..."
               value={dateRangeStart}
               onChange={(e) => setDateRangeStart(e.target.value)}
-              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[140px]"
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] min-w-[140px]"
             />
             <input
               type="date"
               placeholder="End date..."
               value={dateRangeEnd}
               onChange={(e) => setDateRangeEnd(e.target.value)}
-              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all min-w-[140px]"
+              className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] min-w-[140px]"
             />
             <TicketTemplateManager />
             <Button
@@ -523,7 +523,7 @@ export default function AdminPanel() {
                   if (preset) loadFilterPreset(preset);
                   e.target.value = "";
                 }}
-                className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-all min-w-[140px]"
+                className="bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-300 focus:border-[#00D4FF]/50 focus:outline-none transition-[opacity,transform] min-w-[140px]"
               >
                 <option value="">Load Preset...</option>
                 {filterPresets.map((p) => (
@@ -1097,7 +1097,7 @@ export default function AdminPanel() {
                     <button
                       key={u.id}
                       onClick={() => setAssignAgentId(String(u.id))}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all text-sm ${
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-[opacity,transform] text-sm ${
                         assignAgentId === String(u.id)
                           ? "border-cyan-500 bg-cyan-500/10 text-white"
                           : "border-gray-700 bg-[#0A0E1A] text-gray-300 hover:border-cyan-500/40 hover:bg-cyan-500/5"
@@ -1256,7 +1256,7 @@ export default function AdminPanel() {
                     placeholder="customer@company.com"
                     value={createTicketForm.customerEmail}
                     onChange={(e) => setCreateTicketForm(f => ({ ...f, customerEmail: e.target.value }))}
-                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
                   />
                 </div>
                 <div>
@@ -1266,7 +1266,7 @@ export default function AdminPanel() {
                     placeholder="John Smith"
                     value={createTicketForm.customerName}
                     onChange={(e) => setCreateTicketForm(f => ({ ...f, customerName: e.target.value }))}
-                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
                   />
                 </div>
               </div>
@@ -1279,7 +1279,7 @@ export default function AdminPanel() {
                   placeholder="Brief description of the issue..."
                   value={createTicketForm.title}
                   onChange={(e) => setCreateTicketForm(f => ({ ...f, title: e.target.value }))}
-                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
                 />
               </div>
 
@@ -1290,7 +1290,7 @@ export default function AdminPanel() {
                   <select
                     value={createTicketForm.priority}
                     onChange={(e) => setCreateTicketForm(f => ({ ...f, priority: e.target.value as any }))}
-                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
                   >
                     <option value="low">🟢 Low</option>
                     <option value="medium">🟡 Medium</option>
@@ -1303,7 +1303,7 @@ export default function AdminPanel() {
                   <select
                     value={createTicketForm.category}
                     onChange={(e) => setCreateTicketForm(f => ({ ...f, category: e.target.value as any }))}
-                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all"
+                    className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform]"
                   >
                     <option value="general_support">General Support</option>
                     <option value="bug_report">Bug Report</option>
@@ -1321,7 +1321,7 @@ export default function AdminPanel() {
                   placeholder="Detailed description of the issue or request..."
                   value={createTicketForm.description}
                   onChange={(e) => setCreateTicketForm(f => ({ ...f, description: e.target.value }))}
-                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-all resize-none"
+                  className="w-full bg-[#141B2D] border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-[opacity,transform] resize-none"
                 />
               </div>
             </div>
@@ -1330,14 +1330,14 @@ export default function AdminPanel() {
             <div className="flex items-center justify-end gap-3 px-6 pb-6 pt-2">
               <button
                 onClick={() => setShowCreateTicket(false)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 rounded-xl transition-all"
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 rounded-xl transition-[opacity,transform]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAdminCreateTicket}
                 disabled={adminCreateTicketMutation.isPending}
-                className="flex items-center gap-2 px-5 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold text-sm rounded-xl transition-all shadow-lg shadow-[#00D4FF]/20"
+                className="flex items-center gap-2 px-5 py-2 bg-[#00D4FF] hover:bg-[#00B8E0] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold text-sm rounded-xl transition-[opacity,transform] shadow-lg shadow-[#00D4FF]/20"
               >
                 {adminCreateTicketMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Creating...</>
@@ -1378,7 +1378,7 @@ function MetricCard({
   return (
     <button
       onClick={onClick}
-      className={`text-left p-4 rounded-xl border transition-all ${
+      className={`text-left p-4 rounded-xl border transition-[opacity,transform] ${
         active
           ? `bg-[#141B2D] border-[#00D4FF]/30 shadow-lg shadow-[#00D4FF]/5`
           : highlight && value > 0

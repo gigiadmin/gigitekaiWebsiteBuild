@@ -141,7 +141,7 @@ export default function CustomerPortal() {
                     {tickets.map((ticket) => (
                       <Card
                         key={ticket.id}
-                        className="bg-[#141B2D]/40 border-gray-800/30 cursor-pointer hover:bg-[#141B2D]/60 transition-all"
+                        className="bg-[#141B2D]/40 border-gray-800/30 cursor-pointer hover:bg-[#141B2D]/60 transition-[opacity,transform]"
                         onClick={() => setSelectedTicket(ticket)}
                       >
                         <div className="p-4">

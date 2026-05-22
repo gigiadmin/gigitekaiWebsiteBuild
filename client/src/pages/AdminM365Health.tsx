@@ -636,7 +636,7 @@ export default function AdminM365Health() {
               return (
                 <Card
                   key={service.id}
-                  className={`cursor-pointer transition-all border-2 ${
+                  className={`cursor-pointer transition-[opacity,transform] border-2 ${
                     isExpanded
                       ? `border-[#00D4FF] ${config.bgColor}`
                       : `border-[#00D4FF]/20 hover:border-[#00D4FF]/50`

@@ -248,7 +248,7 @@ export default function Pricing() {
           <div className="flex justify-center gap-4 mb-12">
             <button
               onClick={() => setBillingCycle("annual")}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              className={`px-6 py-2 rounded-lg font-medium transition-[opacity,transform] ${
                 billingCycle === "annual"
                   ? "bg-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -258,7 +258,7 @@ export default function Pricing() {
             </button>
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`px-6 py-2 rounded-lg font-medium transition-all ${
+              className={`px-6 py-2 rounded-lg font-medium transition-[opacity,transform] ${
                 billingCycle === "monthly"
                   ? "bg-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -275,7 +275,7 @@ export default function Pricing() {
           {!isLoading && tiers.map((tier: any, idx: number) => (
             <Card
               key={idx}
-              className={`relative transition-all ${
+              className={`relative transition-[opacity,transform] ${
                 tier.isPopular
                   ? "border-cyan-500 bg-gradient-to-b from-slate-800 to-slate-900 shadow-2xl shadow-cyan-500/20 scale-105"
                   : "border-slate-700 bg-slate-800/50 hover:border-slate-600"

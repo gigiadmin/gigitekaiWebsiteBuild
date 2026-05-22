@@ -199,7 +199,7 @@ export default function BlogDetail() {
             <Breadcrumb items={breadcrumbs} />
             <button
               onClick={() => navigate("/blog")}
-              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-all mb-6"
+              className="flex items-center gap-2 text-[#00D4FF] hover:gap-3 transition-[opacity,transform] mb-6"
             >
               <ArrowLeft size={18} />
               Back to all articles

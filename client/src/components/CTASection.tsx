@@ -76,7 +76,7 @@ export default function CTASection() {
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left — headline */}
           <div
-            className={`transition-all duration-700 ${
+            className={`transition-[opacity,transform] duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
@@ -114,7 +114,7 @@ export default function CTASection() {
 
           {/* Right — contact form */}
           <div
-            className={`transition-all duration-700 delay-200 ${
+            className={`transition-[opacity,transform] duration-700 delay-200 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >

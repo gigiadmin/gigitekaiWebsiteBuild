@@ -117,7 +117,7 @@ export default function TestimonialsSection() {
                 <button
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`w-2 h-2 rounded-full transition-[opacity,transform] ${
                     idx === currentIndex
                       ? "bg-[#00D4FF] w-8"
                       : "bg-gray-700/40 hover:bg-gray-600/60"

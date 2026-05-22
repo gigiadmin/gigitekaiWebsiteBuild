@@ -38,7 +38,7 @@ export default function InsightsSection() {
 
         {/* Header */}
         <div
-          className={`flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 transition-all duration-700 ${
+          className={`flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 transition-[opacity,transform] duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -87,7 +87,7 @@ export default function InsightsSection() {
             {/* Featured post */}
             {featured && (
               <article
-                className={`lg:col-span-3 bg-white dark:bg-[#141B2D] rounded-2xl overflow-hidden border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-2xl hover:shadow-[#00D4FF]/5 transition-all duration-300 group cursor-pointer flex flex-col ${
+                className={`lg:col-span-3 bg-white dark:bg-[#141B2D] rounded-2xl overflow-hidden border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/40 hover:shadow-2xl hover:shadow-[#00D4FF]/5 transition-[opacity,transform] duration-300 group cursor-pointer flex flex-col ${
                   visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: "150ms" }}
@@ -131,7 +131,7 @@ export default function InsightsSection() {
                     </div>
                     <a
                       href={`/blog/${featured.slug}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#00D4FF] hover:gap-3 transition-all"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#00D4FF] hover:gap-3 transition-colors"
                       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -147,7 +147,7 @@ export default function InsightsSection() {
               {rest.map((post, i) => (
                 <article
                   key={post.id}
-                  className={`flex-1 bg-white dark:bg-[#141B2D] rounded-2xl overflow-hidden border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col ${
+                  className={`flex-1 bg-white dark:bg-[#141B2D] rounded-2xl overflow-hidden border border-gray-100 dark:border-[rgba(0,212,255,0.15)] hover:border-[#00D4FF]/30 hover:shadow-xl transition-[opacity,transform] duration-300 group cursor-pointer flex flex-col ${
                     visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                   }`}
                   style={{ transitionDelay: `${300 + i * 120}ms` }}
@@ -185,7 +185,7 @@ export default function InsightsSection() {
                       </span>
                       <a
                         href={`/blog/${post.slug}`}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-all"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-colors"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                         onClick={(e) => e.stopPropagation()}
                       >

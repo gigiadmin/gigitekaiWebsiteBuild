@@ -315,7 +315,7 @@ export default function ROIRoadmapGenerator() {
                     <button
                       key={ind}
                       onClick={() => setProfile((p) => ({ ...p, industry: ind }))}
-                      className={`text-left text-xs px-3 py-2 rounded-lg border transition-all ${
+                      className={`text-left text-xs px-3 py-2 rounded-lg border transition-[opacity,transform] ${
                         profile.industry === ind
                           ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
                           : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-slate-600"
@@ -334,7 +334,7 @@ export default function ROIRoadmapGenerator() {
                     <button
                       key={tool}
                       onClick={() => toggleTool(tool)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-[opacity,transform] ${
                         profile.currentTools.includes(tool)
                           ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
                           : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-slate-600"
@@ -414,7 +414,7 @@ export default function ROIRoadmapGenerator() {
           {roadmap.map((phase, idx) => (
             <Card
               key={phase.phase}
-              className="bg-[#141B2D] border-slate-700/50 hover:border-[#00D4FF]/30 transition-all duration-300 overflow-hidden"
+              className="bg-[#141B2D] border-slate-700/50 hover:border-[#00D4FF]/30 transition-[opacity,transform] duration-300 overflow-hidden"
             >
               <div className="p-5 md:p-6">
                 <div className="flex items-start gap-4">

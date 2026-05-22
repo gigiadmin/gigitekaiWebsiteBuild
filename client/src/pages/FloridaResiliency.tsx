@@ -437,7 +437,7 @@ export default function FloridaResiliency() {
           </h3>
           <a
             href="/blog/hurricane-it-disaster-recovery-florida-business-guide"
-            className="block p-6 bg-gradient-to-r from-[#0D1528] to-[#0F1629] border border-[#00D4FF]/20 rounded-xl hover:border-[#00D4FF]/40 transition-all group"
+            className="block p-6 bg-gradient-to-r from-[#0D1528] to-[#0F1629] border border-[#00D4FF]/20 rounded-xl hover:border-[#00D4FF]/40 transition-[opacity,transform] group"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">

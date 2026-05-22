@@ -224,7 +224,7 @@ export function ServiceStatusSubscriptionForm() {
         <Button
           type="submit"
           disabled={isSubmitting || subscribeMutation.isPending}
-          className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-black font-semibold py-2 rounded-lg transition-all"
+          className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-black font-semibold py-2 rounded-lg transition-[opacity,transform]"
         >
           {isSubmitting || subscribeMutation.isPending ? "Subscribing..." : "Subscribe to Updates"}
         </Button>
