@@ -59,6 +59,16 @@ export default function HeroSection() {
 
     video.muted = true;
     video.volume = 0.5;
+    
+    // Debug: log video state
+    console.log('[HeroSection] Video state:', {
+      src: video.src,
+      readyState: video.readyState,
+      networkState: video.networkState,
+      paused: video.paused,
+      muted: video.muted,
+    });
+    
     video.load();
 
     const tryPlay = () => {
@@ -173,12 +183,15 @@ export default function HeroSection() {
           ref={videoRef}
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           width={isMobile ? 1280 : 1920}
           height={isMobile ? 720 : 1080}
           src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           poster={HERO_VIDEO_POSTER}
           onEnded={() => { setPlaying(false); setEnded(true); }}
+          onError={(e) => console.error('[HeroSection] Video error:', (e.currentTarget as HTMLVideoElement).error)}
+          onLoadStart={() => console.log('[HeroSection] Video loading started')}
+          onCanPlay={() => console.log('[HeroSection] Video can play')}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
             playing ? "opacity-100" : "opacity-0"
           }`}
