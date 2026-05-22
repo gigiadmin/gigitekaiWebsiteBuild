@@ -5282,3 +5282,11 @@
 - [x] Verified contrast ratio fixes from checkpoint 30c52f93 (gray-400/500 → gray-300/slate-300 across all components)
 - [x] Analyzed PageSpeed report: Performance 100%, Accessibility 87%, Best Practices 92%, SEO 100%
 - [x] Confirmed browser console errors are only Vite HMR WebSocket errors (expected in dev, not in production)
+
+## Video & Media Fixes (May 22, 2026)
+- [x] Fixed hero video not loading on desktop and mobile
+- [x] Uploaded new GigitekAI demo video to storage
+- [x] Implemented muted autoplay (works on iOS Safari and all browsers)
+- [x] Added video control bar: pause, mute/unmute, volume slider, restart
+- [x] Video displays on both desktop and mobile with responsive controls
+- [x] Checkpoint 1b6c3b55 ready for production deployment

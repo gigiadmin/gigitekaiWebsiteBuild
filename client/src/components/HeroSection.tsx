@@ -10,7 +10,8 @@
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
 
-const HERO_VIDEO = "/manus-storage/ElevenLabs_I_need_to_create_a_video_for_my_AI_firm_GigitekAI__b4bbf837.mp4";
+const HERO_VIDEO_DESKTOP = "/manus-storage/gigitekai-hero-desktop_58fbd541.mp4";
+const HERO_VIDEO_MOBILE = "/manus-storage/gigitekai-hero-mobile_0d0df5b5.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
 // Optimized hero background — recompressed at q=50 for faster LCP
 // Desktop: 73KB -> 44KB | Mobile: 34KB
@@ -173,9 +174,9 @@ export default function HeroSection() {
           muted
           playsInline
           preload="metadata"
-          width={1920}
-          height={1080}
-          src={HERO_VIDEO}
+          width={isMobile ? 1280 : 1920}
+          height={isMobile ? 720 : 1080}
+          src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           poster={HERO_VIDEO_POSTER}
           onEnded={() => { setPlaying(false); setEnded(true); }}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
