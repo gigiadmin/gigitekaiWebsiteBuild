@@ -55,6 +55,9 @@ export default function Footer() {
                 src="https://cdn.gigitekai.com/gigitekai-logo.webp" 
                 alt="GigitekAI logo" 
                 className="h-10 w-auto object-contain"
+                width="200"
+                height="57"
+                decoding="async"
               />
             </a>
             <p className="text-gray-300 text-sm leading-relaxed mb-4 max-w-xs">

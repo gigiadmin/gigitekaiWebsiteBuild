@@ -234,12 +234,18 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
             src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
             alt="GigitekAI"
             className="h-8 w-8 object-contain flex-shrink-0"
+            width="32"
+            height="32"
+            decoding="async"
           />
         ) : (
           <img
             src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
             alt="GigitekAI logo"
             className="h-10 w-auto object-contain max-w-[160px]"
+            width="200"
+            height="57"
+            decoding="async"
           />
         )}
       </div>
