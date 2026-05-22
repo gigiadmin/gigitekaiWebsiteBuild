@@ -5362,3 +5362,15 @@
 - [x] Grant Group.Read.All permission to app registration to enable voicemail audio extraction from M365 Group
 - [x] Fixed M365 Group audio fetch to use $expand=attachments (separate /attachments endpoint returns empty)
 - [x] Verified: audio.mp3 (65KB) successfully retrieved from voicemail group with contentBytes
+
+## Direct Voicemail Group Poller (COMPLETE)
+- [x] Created server/_core/voicemailGroupPoller.ts — polls M365 Group directly (bypasses Power Automate)
+- [x] Fetches audio.mp3 via $expand=attachments from voicemail@gigitekai.com group
+- [x] Uploads audio to S3, transcribes via Whisper AI
+- [x] AI analysis generates proper ticket titles, priorities, categories from transcripts
+- [x] Creates callLog + callDraftTicket entries (same schema as PSTN call poller)
+- [x] Sends Teams Adaptive Card notifications to helpdesk channel for each voicemail
+- [x] Registered poller in server/_core/index.ts (starts on server boot, 5-minute interval)
+- [x] Verified: 10 voicemails processed, all with hasTranscript: YES
+- [x] Call-review page (/admin/call-review) now shows voicemails with real transcripts
+- [x] No dependency on Power Automate flow — direct Graph API polling
