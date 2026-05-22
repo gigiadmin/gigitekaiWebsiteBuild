@@ -5273,3 +5273,12 @@
 - [x] Add HTTP Range request support to storageProxy.ts (required for iOS Safari video playback)
 - [x] Add presigned URL caching for video files to reduce S3 presign calls
 - [x] Verify Accept-Ranges: bytes header on all video responses
+
+
+## Recent Fixes (May 21-22, 2026)
+- [x] Fixed Chrome mobile menu CSS bug: replaced Tailwind color classes with explicit inline styles (backgroundColor, color, colorScheme) to prevent Chrome from applying system light-mode colors
+- [x] Added explicit color props to all Lucide icons in mobile menu (X, Menu, LifeBuoy, Calendar, Sun, Moon)
+- [x] Verified <main> landmark exists in Home.tsx (already present from earlier work)
+- [x] Verified contrast ratio fixes from checkpoint 30c52f93 (gray-400/500 → gray-300/slate-300 across all components)
+- [x] Analyzed PageSpeed report: Performance 100%, Accessibility 87%, Best Practices 92%, SEO 100%
+- [x] Confirmed browser console errors are only Vite HMR WebSocket errors (expected in dev, not in production)
