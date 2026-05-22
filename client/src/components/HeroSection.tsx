@@ -186,7 +186,7 @@ export default function HeroSection() {
       {/* ── Video Controls Overlay ── */}
       {!playing && (
         <div
-          className="absolute top-1/2 right-[8%] -translate-y-1/2 z-[15] cursor-pointer"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10] cursor-pointer"
           onClick={handlePlayClick}
         >
           <div
@@ -213,10 +213,10 @@ export default function HeroSection() {
         </div>
       )}
 
-      {/* ── Video Control Bar (bottom-left) ── */}
+      {/* ── Video Control Bar (center-bottom) ── */}
       {playing && (
         <div
-          className="absolute bottom-20 left-8 z-[15] flex items-center gap-3 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 z-[10] flex items-center gap-3 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg"
         >
           {/* Pause Button */}
           <button
