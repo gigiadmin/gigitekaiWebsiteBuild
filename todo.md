@@ -5290,3 +5290,9 @@
 - [x] Added video control bar: pause, mute/unmute, volume slider, restart
 - [x] Video displays on both desktop and mobile with responsive controls
 - [x] Checkpoint 1b6c3b55 ready for production deployment
+
+- [x] Fix video CSP blocking in production: /manus-storage/ returns 307 redirect to CloudFront which gets blocked by duplicate CSP header
+- [x] Created videoPresign tRPC endpoint to fetch presigned CloudFront URL server-side
+- [x] HeroSection now loads video directly from CloudFront (bypasses CSP redirect issue)
+- [x] Re-encoded videos with faststart (moov atom at beginning) for instant playback
+- [x] Desktop: 15MB/1080p, Mobile: 4.2MB/720p optimized versions
