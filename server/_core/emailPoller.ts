@@ -547,6 +547,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemail@gigitekai.com)
       // The voicemail group is a Unified Group with ID b70ef14d-68dc-4faa-b7f6-8324b43c99b5
       // Teams deposits voicemails there with audio attachments
+      // IMPORTANT: Must use $expand=attachments on posts query — the separate /attachments endpoint returns empty
       if (!transcript || transcript.length < 10) {
         console.log('[Email Poller] Attempting to fetch voicemail audio from M365 Group...');
         try {
@@ -554,65 +555,55 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
           const groupToken = await getMsGraphToken();
           if (groupToken) {
             const groupId = 'b70ef14d-68dc-4faa-b7f6-8324b43c99b5';
-            // Fetch the most recent conversation from the voicemail group
+            // Fetch the most recent threads from the voicemail group (most recent first)
             const threadsRes = await fetch(
-              `https://graph.microsoft.com/v1.0/groups/${groupId}/conversations?$top=3&$orderby=lastDeliveredDateTime desc`,
+              `https://graph.microsoft.com/v1.0/groups/${groupId}/threads?$top=3&$orderby=lastDeliveredDateTime desc`,
               { headers: { Authorization: `Bearer ${groupToken}` } }
             );
             if (threadsRes.ok) {
               const threadsData = await threadsRes.json();
-              const convos = threadsData.value || [];
-              console.log(`[Email Poller] Found ${convos.length} voicemail group conversations`);
+              const threads = threadsData.value || [];
+              console.log(`[Email Poller] Found ${threads.length} voicemail group threads`);
               
-              // Look for the most recent conversation with attachments
-              for (const convo of convos) {
-                if (!convo.hasAttachments) continue;
-                // Fetch threads in this conversation
-                const threadRes = await fetch(
-                  `https://graph.microsoft.com/v1.0/groups/${groupId}/conversations/${convo.id}/threads?$top=1`,
+              // Look for the most recent thread with audio attachment
+              for (const thread of threads) {
+                if (!thread.hasAttachments) continue;
+                // Fetch posts with $expand=attachments (this is the key — separate /attachments endpoint returns empty)
+                const postsRes = await fetch(
+                  `https://graph.microsoft.com/v1.0/groups/${groupId}/threads/${thread.id}/posts?$top=1&$expand=attachments`,
                   { headers: { Authorization: `Bearer ${groupToken}` } }
                 );
-                if (!threadRes.ok) continue;
-                const threadData = await threadRes.json();
-                const threads = threadData.value || [];
-                for (const thread of threads) {
-                  const postsRes = await fetch(
-                    `https://graph.microsoft.com/v1.0/groups/${groupId}/threads/${thread.id}/posts?$top=1`,
-                    { headers: { Authorization: `Bearer ${groupToken}` } }
+                if (!postsRes.ok) continue;
+                const postsData = await postsRes.json();
+                const posts = postsData.value || [];
+                for (const post of posts) {
+                  const attachments = post.attachments || [];
+                  const audioAtt = attachments.find((a: any) =>
+                    a.contentType?.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(a.name)
                   );
-                  if (!postsRes.ok) continue;
-                  const postsData = await postsRes.json();
-                  const posts = postsData.value || [];
-                  for (const post of posts) {
-                    if (!post.hasAttachments) continue;
-                    const attRes = await fetch(
-                      `https://graph.microsoft.com/v1.0/groups/${groupId}/threads/${thread.id}/posts/${post.id}/attachments`,
-                      { headers: { Authorization: `Bearer ${groupToken}` } }
-                    );
-                    if (!attRes.ok) continue;
-                    const attData = await attRes.json();
-                    const audioAtt = (attData.value || []).find((a: any) =>
-                      a.contentType?.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(a.name)
-                    );
-                    if (audioAtt && audioAtt.contentBytes) {
-                      console.log(`[Email Poller] Found voicemail audio in group: ${audioAtt.name} (${audioAtt.size} bytes)`);
-                      const audioBuffer = Buffer.from(audioAtt.contentBytes, 'base64');
-                      const { transcribeAudio } = await import('./voiceTranscription');
-                      const { storagePut } = await import('../storage');
-                      const fileKey = `voicemail-transcriptions/group-${Date.now()}.${getAudioExtension(audioAtt.contentType)}`;
-                      const { url: audioUrl } = await storagePut(fileKey, audioBuffer, audioAtt.contentType);
-                      console.log(`[Email Poller] Transcribing group voicemail: ${audioAtt.name}`);
-                      const result = await transcribeAudio({ audioUrl, language: 'en' });
-                      if ('text' in result && result.text) {
-                        transcript = result.text;
-                        console.log(`[Email Poller] Successfully transcribed group voicemail: ${transcript.substring(0, 100)}...`);
-                      }
-                      break;
+                  if (audioAtt && audioAtt.contentBytes) {
+                    console.log(`[Email Poller] Found voicemail audio in group: ${audioAtt.name} (${audioAtt.size} bytes)`);
+                    const audioBuffer = Buffer.from(audioAtt.contentBytes, 'base64');
+                    const { transcribeAudio } = await import('./voiceTranscription');
+                    const { storagePut } = await import('../storage');
+                    const fileKey = `voicemail-transcriptions/group-${Date.now()}.${getAudioExtension(audioAtt.contentType)}`;
+                    const { url: audioUrl } = await storagePut(fileKey, audioBuffer, audioAtt.contentType);
+                    console.log(`[Email Poller] Transcribing group voicemail: ${audioAtt.name}`);
+                    const result = await transcribeAudio({ audioUrl, language: 'en' });
+                    if ('text' in result && result.text) {
+                      transcript = result.text;
+                      console.log(`[Email Poller] Successfully transcribed group voicemail: ${transcript.substring(0, 100)}...`);
+                    } else if ('error' in result) {
+                      console.warn(`[Email Poller] Whisper transcription failed: ${(result as any).error}`);
                     }
+                    break;
                   }
-                  if (transcript && transcript.length >= 10) break;
                 }
                 if (transcript && transcript.length >= 10) break;
+              }
+              
+              if (!transcript || transcript.length < 10) {
+                console.log('[Email Poller] No audio attachment found in recent voicemail group threads');
               }
             } else {
               const errText = await threadsRes.text();

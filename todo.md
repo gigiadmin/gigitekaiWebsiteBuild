@@ -5359,4 +5359,6 @@
 - [x] Fix: Voicemail notification feedback loop — own "[VOICEMAIL] New Ticket #..." emails were being re-detected as voicemails, creating infinite ticket loop
 - [x] Added isOwnVoicemailNotification() guard function to exclude system-generated voicemail notifications
 - [x] Added M365 Group voicemail audio fetch fallback (Group ID: b70ef14d-68dc-4faa-b7f6-8324b43c99b5)
-- [ ] Grant Group.Read.All permission to app registration to enable voicemail audio extraction from M365 Group
+- [x] Grant Group.Read.All permission to app registration to enable voicemail audio extraction from M365 Group
+- [x] Fixed M365 Group audio fetch to use $expand=attachments (separate /attachments endpoint returns empty)
+- [x] Verified: audio.mp3 (65KB) successfully retrieved from voicemail group with contentBytes
