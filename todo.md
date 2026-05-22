@@ -5348,3 +5348,11 @@
 - [x] Teams notification sent to helpdesk channel
 - [x] Runs 24/7 automatically — zero manual intervention required
 - [x] Tested with Bruce Lee test voicemail — transcription successful
+
+## Voicemail Pipeline Fix (May 22, 2026)
+- [x] Fix: Voicemail emails being silently filtered by isOwnSystemEmail() — moved voicemail check BEFORE own-system-email filter in processing loop
+- [x] Fix: Enhanced isVoicemailEmail() detection to handle FW:/Fwd: prefixed subjects from forwarded voicemails
+- [x] Fix: Added body-based voicemail detection patterns (Teams voicemail body content)
+- [x] Cleanup: Deleted 217 "GigitekAI Email Test" spam emails from support@gigitekai.com inbox that were filling the 50-email fetch limit
+- [x] Created scripts/cleanup-test-emails.mjs utility for future inbox cleanup
+- [x] Created scripts/check-inbox.mjs utility for inbox diagnostics

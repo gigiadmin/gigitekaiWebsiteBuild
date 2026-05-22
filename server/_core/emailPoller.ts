@@ -329,18 +329,37 @@ function isOwnSystemEmail(subject: string, senderEmail: string): boolean {
 /**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
+ * When forwarded from voicemail@gigitekai.com, subject may be "FW: Voice Message from..."
+ * Also detects Microsoft Teams voicemail body patterns
  */
 function isVoicemailEmail(subject: string, body: string): boolean {
-  const subjectLower = subject.toLowerCase();
+  // Strip FW:/Fwd: prefix for matching (forwarded voicemails)
+  const subjectLower = subject.toLowerCase().replace(/^(fw:|fwd:|re:)\s*/i, '').trim();
   const bodyLower = body.toLowerCase();
-  return (
+  
+  // Subject-based detection
+  const subjectMatch = (
     subjectLower.includes('voice message') ||
     subjectLower.includes('voicemail') ||
     subjectLower.includes('missed call') ||
     (subjectLower.includes('voice') && subjectLower.includes('message')) ||
-    bodyLower.includes('transcription:') ||
-    bodyLower.includes('voice message from')
+    subjectLower.includes('you have a new voicemail') ||
+    subjectLower.includes('new voicemail from')
   );
+  
+  // Body-based detection (Teams voicemail email body patterns)
+  const bodyMatch = (
+    bodyLower.includes('transcription:') ||
+    bodyLower.includes('voice message from') ||
+    bodyLower.includes('you received a voice message') ||
+    bodyLower.includes('voicemail from') ||
+    bodyLower.includes('listen to voicemail') ||
+    bodyLower.includes('play voicemail') ||
+    (bodyLower.includes('teams') && bodyLower.includes('voicemail')) ||
+    (bodyLower.includes('missed call') && bodyLower.includes('voicemail'))
+  );
+  
+  return subjectMatch || bodyMatch;
 }
 
 /**
@@ -1011,6 +1030,22 @@ export async function runEmailPoller(): Promise<void> {
         ? msg.body.content
         : (typeof msg.body === 'string' ? msg.body : (msg.bodyPreview || ''));
 
+      // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemail@gigitekai.com
+      // appear as sent from support@gigitekai.com, so we MUST check voicemail
+      // BEFORE the own-system-email filter to prevent them from being silently skipped ──
+      if (isVoicemailEmail(subject, emailBody)) {
+        console.log(`[Email Poller] 🎙️ Detected VOICEMAIL email from ${senderAddr}: "${subject}"`);
+        const success = await processVoicemailEmail(msg);
+        if (success) {
+          successCount++;
+          // Mark as read after successful processing
+          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        } else {
+          console.error(`[Email Poller] ❌ Failed to process voicemail email: "${subject}"`);
+        }
+        continue;
+      }
+
       // ── SKIP NDR EMAILS TO PREVENT SPAM LOOPS ──
       if (isNDREmail(subject, senderAddr)) {
         console.log(`[Email Poller] SKIPPING NDR EMAIL: "${subject}"`);
@@ -1029,22 +1064,12 @@ export async function runEmailPoller(): Promise<void> {
         continue;
       }
 
-      // Route voicemails to the voicemail processor
-      if (isVoicemailEmail(subject, emailBody)) {
-        console.log(`[Email Poller] Detected voicemail email: "${subject}"`);
-        const success = await processVoicemailEmail(msg);
-        if (success) {
-          successCount++;
-          // Mark as read after successful processing
-          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
-        }
-      } else {
-        const success = await processEmail(msg);
-        if (success) {
-          successCount++;
-          // Mark as read after successful processing
-          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
-        }
+      // Route regular support emails to the ticket processor
+      const success = await processEmail(msg);
+      if (success) {
+        successCount++;
+        // Mark as read after successful processing
+        if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
       }
     }
 
