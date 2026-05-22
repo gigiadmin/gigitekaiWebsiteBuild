@@ -106,9 +106,10 @@ export default function SiteNavBar2024() {
             : "sticky top-[env(safe-area-inset-top)]"
         } ${
           scrolled || mobileOpen
-            ? "bg-[#0A0E1A]/98 backdrop-blur-md shadow-lg shadow-black/40 border-b border-[rgba(0,212,255,0.15)]"
-            : "bg-[#0A0E1A]"
+            ? "backdrop-blur-md shadow-lg shadow-black/40"
+            : ""
         }`}
+        style={{ backgroundColor: '#0A0E1A', borderBottom: (scrolled || mobileOpen) ? '1px solid rgba(0,212,255,0.15)' : 'none', colorScheme: 'dark' as const }}
       >
         <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[80px] gap-4">
           {/* Logo */}
@@ -229,12 +230,13 @@ export default function SiteNavBar2024() {
 
           {/* Mobile hamburger - min 48x48px touch target */}
           <button
-            className="lg:hidden text-white p-3 min-w-[48px] min-h-[48px] flex items-center justify-center"
+            className="lg:hidden p-3 min-w-[48px] min-h-[48px] flex items-center justify-center"
+            style={{ color: '#ffffff' }}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileOpen ? <X size={24} color="#ffffff" /> : <Menu size={24} color="#ffffff" />}
           </button>
         </div>
 
@@ -243,21 +245,23 @@ export default function SiteNavBar2024() {
           <>
             {/* Overlay backdrop */}
             <div 
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              className="fixed inset-0 z-40 lg:hidden"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
               onClick={() => setMobileOpen(false)}
             />
             {/* Full-screen mobile menu */}
-            <div className="fixed left-0 right-0 bg-[#0F1629] border-t border-[rgba(0,212,255,0.1)] overflow-y-auto z-50 lg:hidden"
-              style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)` }}
+            <div className="fixed left-0 right-0 overflow-y-auto z-50 lg:hidden"
+              style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)`, backgroundColor: '#0F1629', borderTop: '1px solid rgba(0,212,255,0.1)', colorScheme: 'dark' }}
             >
               {/* Home link */}
               <div className="px-4 pt-4 pb-2">
                 <a
                   href="/"
-                  className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg"
+                  className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold rounded-lg"
+                  style={{ color: '#00D4FF', backgroundColor: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                   Home
                 </a>
               </div>
@@ -266,14 +270,15 @@ export default function SiteNavBar2024() {
                 <a
                   key={s.href}
                   href={s.href}
-                  className="block py-3 text-sm text-gray-200 hover:text-[#00D4FF] transition-colors min-h-[48px] flex items-center"
+                  className="block py-3 text-sm transition-colors min-h-[48px] flex items-center"
+                  style={{ color: '#e5e7eb' }}
                   onClick={() => setMobileOpen(false)}
                 >
                   {s.label}
                 </a>
               ))}
               </div>
-              <div className="px-4 pb-2 space-y-2 border-t border-[rgba(0,212,255,0.1)] pt-2">
+              <div className="px-4 pb-2 space-y-2 pt-2" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
               {[
                 { label: "Websites", href: "/websites", id: "nav-websites" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
@@ -290,11 +295,8 @@ export default function SiteNavBar2024() {
                   key={item.href}
                   href={item.href}
                   data-nav-id={item.id}
-                  className={`block py-3 text-sm transition-colors min-h-[48px] flex items-center ${
-                    item.id === "nav-ai-demo"
-                      ? "text-[#00D4FF] font-semibold hover:text-cyan-300"
-                      : "text-white hover:text-[#00D4FF]"
-                  }`}
+                  className="block py-3 text-sm transition-colors min-h-[48px] flex items-center"
+                  style={{ color: item.id === "nav-ai-demo" ? '#00D4FF' : '#ffffff', fontWeight: item.id === "nav-ai-demo" ? '600' : 'normal' }}
                   onClick={() => {
                     setMobileOpen(false);
                     if (item.id === "nav-ai-demo") trackAIDemoClick("mobile_nav");
@@ -308,19 +310,21 @@ export default function SiteNavBar2024() {
                   setMobileOpen(false);
                   window.location.href = "/contact";
                 }}
-                className="flex items-center gap-2 w-full py-3 text-sm text-[#00D4FF] hover:text-[#00D4FF] transition-colors min-h-[48px]"
+                className="flex items-center gap-2 w-full py-3 text-sm transition-colors min-h-[48px]"
+                style={{ color: '#00D4FF' }}
               >
-                <Calendar size={14} />
+                <Calendar size={14} color="#00D4FF" />
                 <span>Book a Consultation</span>
               </button>
 
               {/* Mobile Help Desk - Standout */}
               <a
                 href="/helpdesk"
-                className="flex items-center gap-2 py-2.5 px-3 text-sm font-bold text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-lg mt-2"
+                className="flex items-center gap-2 py-2.5 px-3 text-sm font-bold rounded-lg mt-2"
+                style={{ color: '#00D4FF', backgroundColor: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)' }}
                 onClick={() => setMobileOpen(false)}
               >
-                <LifeBuoy size={18} />
+                <LifeBuoy size={18} color="#00D4FF" />
                 <span>Support</span>
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </a>
@@ -329,9 +333,10 @@ export default function SiteNavBar2024() {
               {toggleTheme && (
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 py-3 px-3 text-sm text-gray-200 hover:text-[#00D4FF] transition-colors w-full mt-1 min-h-[48px]"
+                  className="flex items-center gap-2 py-3 px-3 text-sm transition-colors w-full mt-1 min-h-[48px]"
+                  style={{ color: '#d1d5db' }}
                 >
-                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                  {theme === 'dark' ? <Sun size={16} color="#d1d5db" /> : <Moon size={16} color="#d1d5db" />}
                   <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>
                 </button>
               )}
