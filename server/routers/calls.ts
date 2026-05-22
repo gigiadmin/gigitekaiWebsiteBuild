@@ -266,6 +266,77 @@ export const callsRouter = router({
       return { success: true };
     }),
 
+  // ── Retry Transcription ──────────────────────────────────────────────────
+  // Manually trigger Whisper transcription for a call log that has no transcript.
+  // Requires a recordingUrl to be provided (e.g. from Twilio or ACS).
+  retryTranscription: adminProcedure
+    .input(
+      z.object({
+        callLogId: z.number(),
+        recordingUrl: z.string().url(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      // Mark as transcribing
+      await db
+        .update(callLogs)
+        .set({ transcriptionStatus: "transcribing" })
+        .where(eq(callLogs.id, input.callLogId));
+
+      try {
+        // Transcribe via Whisper using provided recording URL
+        const { transcribeAudio } = await import("../_core/voiceTranscription");
+        const result = await transcribeAudio({ audioUrl: input.recordingUrl, language: "en" });
+
+        let transcript: string | null = null;
+        if ("text" in result && result.text) {
+          transcript = result.text;
+        } else {
+          throw new Error((result as any).error || "Transcription returned no text");
+        }
+
+        if (!transcript) throw new Error("Empty transcript returned");
+
+        // Update call log with transcript
+        await db
+          .update(callLogs)
+          .set({
+            transcriptText: transcript,
+            hasTranscript: true,
+            transcriptionStatus: "done",
+          })
+          .where(eq(callLogs.id, input.callLogId));
+
+        // Append transcript to the linked draft ticket description
+        const draftResults = await db
+          .select()
+          .from(callDraftTickets)
+          .where(eq(callDraftTickets.callLogId, input.callLogId))
+          .limit(1);
+
+        if (draftResults.length > 0) {
+          const draft = draftResults[0];
+          const updatedDesc = (draft.description || "") + `\n\n---\n**Call Transcript (added via retry):**\n${transcript}`;
+          await db
+            .update(callDraftTickets)
+            .set({ description: updatedDesc })
+            .where(eq(callDraftTickets.id, draft.id));
+        }
+
+        return { success: true, transcriptLength: transcript.length };
+      } catch (err) {
+        // Mark as failed
+        await db
+          .update(callLogs)
+          .set({ transcriptionStatus: "failed" })
+          .where(eq(callLogs.id, input.callLogId));
+        throw err;
+      }
+    }),
+
   // ── Stats ─────────────────────────────────────────────────────────────────
   getStats: publicProcedure.query(async () => {
     const db = await getDb();

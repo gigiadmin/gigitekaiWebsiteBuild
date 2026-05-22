@@ -1,0 +1,1 @@
+ALTER TABLE `callLogs` ADD `transcriptionStatus` enum('pending','transcribing','done','failed','unavailable') DEFAULT 'unavailable';

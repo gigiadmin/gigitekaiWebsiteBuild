@@ -1637,6 +1637,8 @@ export const callLogs = mysqlTable("callLogs", {
   durationSeconds: int("durationSeconds"),
   // Whether Teams transcription was available
   hasTranscript: boolean("hasTranscript").default(false),
+  // Transcription status: pending=not yet attempted, transcribing=in progress, done=success, failed=error, unavailable=no audio source
+  transcriptionStatus: mysqlEnum("transcriptionStatus", ["pending", "transcribing", "done", "failed", "unavailable"]).default("unavailable"),
   // Full transcript text (VTT format converted to plain text)
   transcriptText: text("transcriptText"),
   // AI-generated summary of the call

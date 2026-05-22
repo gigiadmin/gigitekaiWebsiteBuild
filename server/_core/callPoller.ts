@@ -304,9 +304,13 @@ async function processCall(pstnRow: any): Promise<void> {
   console.log(`[Call Poller] Processing inbound call from ${callerNumber} (${durationSeconds}s)`);
 
   // Try to fetch transcript (requires recording + transcription enabled in Teams)
+  // PSTN calls (regular phone calls) don't have conferenceId — transcript only available for Teams meetings
   let transcriptText: string | null = null;
+  let transcriptionStatus: "pending" | "done" | "failed" | "unavailable" = "unavailable";
   if (pstnRow.userId && pstnRow.conferenceId) {
+    transcriptionStatus = "pending";
     transcriptText = await fetchTranscript(pstnRow.userId, pstnRow.conferenceId);
+    transcriptionStatus = transcriptText ? "done" : "unavailable";
   }
 
   // AI analysis
@@ -332,6 +336,7 @@ async function processCall(pstnRow: any): Promise<void> {
     endedAt,
     durationSeconds,
     hasTranscript: !!transcriptText,
+    transcriptionStatus,
     transcriptText: transcriptText ?? null,
     aiSummary: analysis.summary,
     aiTitle: analysis.title,

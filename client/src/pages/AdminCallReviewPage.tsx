@@ -79,6 +79,8 @@ function ReviewModal({
   const [category, setCategory] = useState(draft.draft.category || "general_support");
   const [rejectReason, setRejectReason] = useState("");
   const [mode, setMode] = useState<"review" | "reject">("review");
+  const [recordingUrl, setRecordingUrl] = useState("");
+  const [showRetryInput, setShowRetryInput] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -112,10 +114,26 @@ function ReviewModal({
     onError: (err) => toast.error(`Failed to reject: ${err.message}`),
   });
 
+  const retryTranscriptionMutation = trpc.calls.retryTranscription.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Transcription complete! ${data.transcriptLength} characters captured.`);
+      utils.calls.getDraftTickets.invalidate();
+      setShowRetryInput(false);
+      setRecordingUrl("");
+    },
+    onError: (err) => toast.error(`Transcription failed: ${err.message}`),
+  });
+
   const callLog = draft.log;
   const d = draft.draft;
   const confidence = parseFloat(d.aiConfidence || "0.5");
   const conf = confidenceLabel(confidence);
+
+  // Determine transcript status using new transcriptionStatus field (falls back to old hasTranscript logic)
+  const txStatus = (callLog as any)?.transcriptionStatus as string | undefined;
+  const hasTranscriptText = !!callLog?.transcriptText;
+  const isTranscribing = txStatus === "transcribing" || retryTranscriptionMutation.isPending;
+  const transcriptFailed = txStatus === "failed";
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -145,16 +163,18 @@ function ReviewModal({
             <span className="text-white">{d.callerName || "Not identified"}</span>
           </div>
           <div className="flex items-center gap-2">
-            {callLog?.transcriptText ? (
+            {hasTranscriptText ? (
               <Mic className="w-4 h-4 text-green-400" />
-            ) : callLog?.hasTranscript === false ? (
+            ) : isTranscribing ? (
               <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
+            ) : transcriptFailed ? (
+              <AlertTriangle className="w-4 h-4 text-red-400" />
             ) : (
               <MicOff className="w-4 h-4 text-gray-500" />
             )}
             <span className="text-gray-400">Transcript:</span>
-            <span className={callLog?.transcriptText ? "text-green-400" : callLog?.hasTranscript === false ? "text-amber-400" : "text-gray-500"}>
-              {callLog?.transcriptText ? "Available" : callLog?.hasTranscript === false ? "Transcribing..." : "Not available"}
+            <span className={hasTranscriptText ? "text-green-400" : isTranscribing ? "text-amber-400" : transcriptFailed ? "text-red-400" : "text-gray-500"}>
+              {hasTranscriptText ? "Available" : isTranscribing ? "Transcribing..." : transcriptFailed ? "Failed" : "Not available"}
             </span>
           </div>
           <div className="flex items-center gap-2 col-span-2">
@@ -164,8 +184,8 @@ function ReviewModal({
           </div>
         </div>
 
-        {/* Transcript (if available) or loading state */}
-        {callLog?.transcriptText ? (
+        {/* Transcript (if available) or status/retry UI */}
+        {hasTranscriptText ? (
           <div className="p-3 bg-white/5 rounded-lg border border-white/10">
             <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
               <Mic className="w-3 h-3" /> Call Transcript
@@ -174,17 +194,57 @@ function ReviewModal({
               {callLog.transcriptText}
             </p>
           </div>
-        ) : callLog?.hasTranscript === false ? (
+        ) : isTranscribing ? (
           <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30 flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
               <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-amber-300 mb-1">Transcribing voicemail...</p>
-              <p className="text-xs text-amber-200/70">Processing audio attachment. This may take a few moments.</p>
+              <p className="text-sm font-medium text-amber-300 mb-1">Transcribing audio...</p>
+              <p className="text-xs text-amber-200/70">Processing recording via Whisper AI. This may take a few moments.</p>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-gray-400 flex items-center gap-1">
+                <MicOff className="w-3 h-3" />
+                {transcriptFailed ? "Transcription failed — " : "No transcript — "}
+                PSTN calls need a Twilio/ACS recording URL.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs border-[#00D4FF]/30 text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                onClick={() => setShowRetryInput(!showRetryInput)}
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                Add Recording URL
+              </Button>
+            </div>
+            {showRetryInput && (
+              <div className="flex gap-2 pt-2 border-t border-white/10">
+                <Input
+                  placeholder="https://api.twilio.com/... or ACS recording URL"
+                  value={recordingUrl}
+                  onChange={(e) => setRecordingUrl(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white text-xs flex-1"
+                />
+                <Button
+                  size="sm"
+                  className="bg-[#00D4FF] text-black hover:bg-[#00D4FF]/80 text-xs shrink-0"
+                  disabled={!recordingUrl || retryTranscriptionMutation.isPending}
+                  onClick={() => {
+                    if (!callLog?.id) return;
+                    retryTranscriptionMutation.mutate({ callLogId: callLog.id, recordingUrl });
+                  }}
+                >
+                  {retryTranscriptionMutation.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : "Transcribe"}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
         {mode === "review" ? (
           <div className="space-y-4">
