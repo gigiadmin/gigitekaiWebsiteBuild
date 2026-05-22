@@ -327,6 +327,32 @@ function isOwnSystemEmail(subject: string, senderEmail: string): boolean {
 }
 
 /**
+ * Detect if an email is our OWN voicemail notification (sent by the system)
+ * This prevents the feedback loop where:
+ * 1. Voicemail arrives → ticket created → notification email sent to support@gigitekai.com
+ * 2. Notification email contains "voicemail" in subject → detected as voicemail → creates another ticket
+ * 3. Infinite loop
+ */
+function isOwnVoicemailNotification(subject: string, senderEmail: string): boolean {
+  const subjectLower = subject.toLowerCase();
+  const senderLower = senderEmail.toLowerCase();
+  
+  // Our own voicemail ticket notifications have subject like:
+  // "[VOICEMAIL] New Ticket #1260027: ..."
+  if (subjectLower.startsWith('[voicemail] new ticket #')) {
+    return true;
+  }
+  
+  // Any email FROM support@gigitekai.com with ticket number pattern is our own notification
+  if ((senderLower === 'support@gigitekai.com' || senderLower === 'support@gigitek.com') &&
+      /\[(?:voicemail|ticket).*#\d+\]/i.test(subject)) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
  * When forwarded from voicemail@gigitekai.com, subject may be "FW: Voice Message from..."
@@ -515,6 +541,87 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
           } catch (transcribeError) {
             console.error('[Email Poller] Error during URL transcription:', transcribeError);
           }
+        }
+      }
+      
+      // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemail@gigitekai.com)
+      // The voicemail group is a Unified Group with ID b70ef14d-68dc-4faa-b7f6-8324b43c99b5
+      // Teams deposits voicemails there with audio attachments
+      if (!transcript || transcript.length < 10) {
+        console.log('[Email Poller] Attempting to fetch voicemail audio from M365 Group...');
+        try {
+          const { getMsGraphToken } = await import('./email');
+          const groupToken = await getMsGraphToken();
+          if (groupToken) {
+            const groupId = 'b70ef14d-68dc-4faa-b7f6-8324b43c99b5';
+            // Fetch the most recent conversation from the voicemail group
+            const threadsRes = await fetch(
+              `https://graph.microsoft.com/v1.0/groups/${groupId}/conversations?$top=3&$orderby=lastDeliveredDateTime desc`,
+              { headers: { Authorization: `Bearer ${groupToken}` } }
+            );
+            if (threadsRes.ok) {
+              const threadsData = await threadsRes.json();
+              const convos = threadsData.value || [];
+              console.log(`[Email Poller] Found ${convos.length} voicemail group conversations`);
+              
+              // Look for the most recent conversation with attachments
+              for (const convo of convos) {
+                if (!convo.hasAttachments) continue;
+                // Fetch threads in this conversation
+                const threadRes = await fetch(
+                  `https://graph.microsoft.com/v1.0/groups/${groupId}/conversations/${convo.id}/threads?$top=1`,
+                  { headers: { Authorization: `Bearer ${groupToken}` } }
+                );
+                if (!threadRes.ok) continue;
+                const threadData = await threadRes.json();
+                const threads = threadData.value || [];
+                for (const thread of threads) {
+                  const postsRes = await fetch(
+                    `https://graph.microsoft.com/v1.0/groups/${groupId}/threads/${thread.id}/posts?$top=1`,
+                    { headers: { Authorization: `Bearer ${groupToken}` } }
+                  );
+                  if (!postsRes.ok) continue;
+                  const postsData = await postsRes.json();
+                  const posts = postsData.value || [];
+                  for (const post of posts) {
+                    if (!post.hasAttachments) continue;
+                    const attRes = await fetch(
+                      `https://graph.microsoft.com/v1.0/groups/${groupId}/threads/${thread.id}/posts/${post.id}/attachments`,
+                      { headers: { Authorization: `Bearer ${groupToken}` } }
+                    );
+                    if (!attRes.ok) continue;
+                    const attData = await attRes.json();
+                    const audioAtt = (attData.value || []).find((a: any) =>
+                      a.contentType?.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(a.name)
+                    );
+                    if (audioAtt && audioAtt.contentBytes) {
+                      console.log(`[Email Poller] Found voicemail audio in group: ${audioAtt.name} (${audioAtt.size} bytes)`);
+                      const audioBuffer = Buffer.from(audioAtt.contentBytes, 'base64');
+                      const { transcribeAudio } = await import('./voiceTranscription');
+                      const { storagePut } = await import('../storage');
+                      const fileKey = `voicemail-transcriptions/group-${Date.now()}.${getAudioExtension(audioAtt.contentType)}`;
+                      const { url: audioUrl } = await storagePut(fileKey, audioBuffer, audioAtt.contentType);
+                      console.log(`[Email Poller] Transcribing group voicemail: ${audioAtt.name}`);
+                      const result = await transcribeAudio({ audioUrl, language: 'en' });
+                      if ('text' in result && result.text) {
+                        transcript = result.text;
+                        console.log(`[Email Poller] Successfully transcribed group voicemail: ${transcript.substring(0, 100)}...`);
+                      }
+                      break;
+                    }
+                  }
+                  if (transcript && transcript.length >= 10) break;
+                }
+                if (transcript && transcript.length >= 10) break;
+              }
+            } else {
+              const errText = await threadsRes.text();
+              console.warn(`[Email Poller] Cannot access voicemail group (${threadsRes.status}): ${errText.substring(0, 200)}`);
+              console.warn('[Email Poller] To fix: Grant Group.Read.All permission to the app registration');
+            }
+          }
+        } catch (groupError) {
+          console.warn('[Email Poller] Error fetching from voicemail group:', groupError);
         }
       }
     }
@@ -1033,7 +1140,8 @@ export async function runEmailPoller(): Promise<void> {
       // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemail@gigitekai.com
       // appear as sent from support@gigitekai.com, so we MUST check voicemail
       // BEFORE the own-system-email filter to prevent them from being silently skipped ──
-      if (isVoicemailEmail(subject, emailBody)) {
+      // BUT: exclude our own "[VOICEMAIL] New Ticket #..." notification emails to prevent feedback loop
+      if (isVoicemailEmail(subject, emailBody) && !isOwnVoicemailNotification(subject, senderAddr)) {
         console.log(`[Email Poller] 🎙️ Detected VOICEMAIL email from ${senderAddr}: "${subject}"`);
         const success = await processVoicemailEmail(msg);
         if (success) {

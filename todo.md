@@ -5356,3 +5356,7 @@
 - [x] Cleanup: Deleted 217 "GigitekAI Email Test" spam emails from support@gigitekai.com inbox that were filling the 50-email fetch limit
 - [x] Created scripts/cleanup-test-emails.mjs utility for future inbox cleanup
 - [x] Created scripts/check-inbox.mjs utility for inbox diagnostics
+- [x] Fix: Voicemail notification feedback loop — own "[VOICEMAIL] New Ticket #..." emails were being re-detected as voicemails, creating infinite ticket loop
+- [x] Added isOwnVoicemailNotification() guard function to exclude system-generated voicemail notifications
+- [x] Added M365 Group voicemail audio fetch fallback (Group ID: b70ef14d-68dc-4faa-b7f6-8324b43c99b5)
+- [ ] Grant Group.Read.All permission to app registration to enable voicemail audio extraction from M365 Group
