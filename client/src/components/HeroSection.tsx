@@ -9,11 +9,10 @@
 
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 
-// Fallback paths (used while presigned URL loads)
-const HERO_VIDEO_DESKTOP = "/manus-storage/gigitekai-hero-desktop-fast_2e21158c.mp4";
-const HERO_VIDEO_MOBILE = "/manus-storage/gigitekai-hero-mobile-fast_90faa7ac.mp4";
+// Video paths — /api/video/ routes go through Express (not intercepted by Cloudflare)
+const HERO_VIDEO_DESKTOP = "/api/video/gigitekai-hero-desktop-fast_2e21158c.mp4";
+const HERO_VIDEO_MOBILE = "/api/video/gigitekai-hero-mobile-fast_90faa7ac.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
 // Optimized hero background — recompressed at q=50 for faster LCP
 // Desktop: 73KB -> 44KB | Mobile: 34KB
@@ -32,7 +31,6 @@ export default function HeroSection() {
     return window.innerWidth <= 768;
   });
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
 
   // Detect mobile
   useEffect(() => {
@@ -42,20 +40,6 @@ export default function HeroSection() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Fetch presigned video URL from server (bypasses CSP redirect issue)
-  const { data: videoData } = trpc.videoPresign.getHeroVideoUrl.useQuery(
-    { variant: isMobile ? "mobile" : "desktop" },
-    { staleTime: 45 * 60 * 1000, refetchOnWindowFocus: false }
-  );
-
-  // Update video src when presigned URL is available
-  useEffect(() => {
-    if (videoData?.url) {
-      console.log('[HeroSection] Got presigned video URL');
-      setVideoSrc(videoData.url);
-    }
-  }, [videoData]);
-
   // Fade-in
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
@@ -63,15 +47,12 @@ export default function HeroSection() {
   }, []);
 
   // Autoplay muted — works on ALL browsers including iOS Safari
-  // Both desktop and mobile: autoplay muted video
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !videoSrc) return;
+    if (!video) return;
 
     video.muted = true;
     video.volume = 0.5;
-    
-    console.log('[HeroSection] Loading video from presigned URL');
     video.load();
 
     const tryPlay = () => {
@@ -93,7 +74,7 @@ export default function HeroSection() {
     } else {
       video.addEventListener("loadeddata", tryPlay, { once: true });
     }
-  }, [videoSrc]);
+  }, []);
 
   // Tap to unmute — this is a direct user gesture, so browser allows it
   const handleUnmute = () => {
@@ -189,7 +170,7 @@ export default function HeroSection() {
           preload="auto"
           width={isMobile ? 1280 : 1920}
           height={isMobile ? 720 : 1080}
-          src={videoSrc || (isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP)}
+          src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
           poster={HERO_VIDEO_POSTER}
           onEnded={() => { setPlaying(false); setEnded(true); }}
           onError={(e) => console.error('[HeroSection] Video error:', (e.currentTarget as HTMLVideoElement).error)}

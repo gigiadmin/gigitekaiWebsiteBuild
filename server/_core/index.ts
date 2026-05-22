@@ -6,6 +6,7 @@ import compression from "compression";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
+import { registerVideoProxy } from "./videoProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -195,6 +196,9 @@ async function startServer() {
 
   // Storage proxy for private assets
   registerStorageProxy(app);
+
+  // Video streaming proxy — uses /api/video/ path to bypass Cloudflare edge interception
+  registerVideoProxy(app);
 
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
