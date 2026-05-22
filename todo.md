@@ -5317,3 +5317,10 @@
 - [x] Verify HeroSection hero background already has width/height/decoding attributes
 - [ ] Phase 4: Reduce forced reflows (getBoundingClientRect/offsetWidth in render)
 - [ ] Re-run PageSpeed Insights to measure improvement
+
+## ACS Call Recording Integration (May 22, 2026)
+- [x] ACS: Create /api/acs/recording-webhook endpoint to receive recording status events
+- [x] ACS: Wire callPoller to start ACS server-side recording when new PSTN call is detected
+- [x] ACS: Auto-transcribe completed ACS recordings via Whisper and update callLogs
+- [x] ACS: Store ACS recording URL in callLogs for audit trail
+- [x] ACS: Update callPoller to set transcriptionStatus=transcribing when recording starts

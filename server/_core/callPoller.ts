@@ -367,6 +367,32 @@ async function processCall(pstnRow: any): Promise<void> {
 
   callsProcessedToday++;
   console.log(`[Call Poller] Draft ticket created for call from ${callerNumber} — "${analysis.title}"`);
+
+  // ── ACS Recording: Start recording for PSTN calls without a transcript ────
+  // PSTN calls don't have Teams transcription, so we use ACS to record + Whisper to transcribe.
+  // We use the serverCallId from the PSTN call if available.
+  if (!transcriptText && pstnRow.serverCallId && process.env.ACS_CONNECTION_STRING) {
+    try {
+      const { startAcsRecording } = await import("../acsRecordingService");
+      // Determine the public callback base URL from environment
+      const callbackBaseUrl = process.env.VITE_FRONTEND_FORGE_API_URL
+        ? process.env.VITE_FRONTEND_FORGE_API_URL.replace("/api", "")
+        : "https://gigitekai.com";
+      const recordingId = await startAcsRecording(pstnRow.serverCallId, callbackBaseUrl);
+      if (recordingId) {
+        await db
+          .update(callLogs)
+          .set({
+            acsRecordingId: recordingId,
+            transcriptionStatus: "transcribing",
+          })
+          .where(eq(callLogs.id, callLogId));
+        console.log(`[Call Poller] ACS recording started (${recordingId}) for callLog ${callLogId}`);
+      }
+    } catch (err: any) {
+      console.warn(`[Call Poller] ACS recording start failed for callLog ${callLogId}:`, err.message);
+    }
+  }
 }
 
 // ─── Main Poll Cycle ──────────────────────────────────────────────────────────

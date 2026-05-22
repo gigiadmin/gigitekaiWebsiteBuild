@@ -43,6 +43,7 @@ import cronEndpoints from "../cronEndpoints";
 import newsletterAutoPost from "../newsletterAutoPost";
 import stripeWebhookRoute from "../routes/stripe-webhook-route";
 import { registerXeroOAuthRoutes } from "../routers/xero";
+import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -217,6 +218,9 @@ async function startServer() {
   
   // Email-to-Ticket: Using Microsoft Graph (Azure) for email ingestion
   app.post("/api/email-ingest", handleEmailIngest);
+
+  // ACS Call Recording webhooks (Event Grid + recording state callbacks)
+  registerAcsRecordingWebhook(app);
 
   // Cron job endpoints
   app.use("/api/cron", cronEndpoints);

@@ -13,6 +13,8 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
+    "@azure/communication-call-automation": "^1.5.1",
+    "@azure/communication-common": "^2.4.0",
     "@azure/identity": "^4.13.1",
     "@azure/msal-browser": "^5.9.0",
     "@azure/msal-react": "^5.3.2",

@@ -1657,6 +1657,10 @@ export const callLogs = mysqlTable("callLogs", {
   draftTicketId: int("draftTicketId"),
   // Linked final ticket ID (once approved)
   ticketId: int("ticketId"),
+  // ACS recording ID (from startAcsRecording)
+  acsRecordingId: varchar("acsRecordingId", { length: 255 }),
+  // ACS/S3 recording URL for audit trail
+  acsRecordingUrl: varchar("acsRecordingUrl", { length: 2048 }),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });
