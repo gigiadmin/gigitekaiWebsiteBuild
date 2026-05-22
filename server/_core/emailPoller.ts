@@ -650,21 +650,72 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       console.warn(`[Email Poller] Failed to send email notification for voicemail ticket #${ticketId}:`, emailError);
     }
 
-    // Send Teams notification for voicemail ticket
+    // Send Teams webhook notification for voicemail ticket
     try {
-      const voicemailTicketObj: Partial<import('../../drizzle/schema').Ticket> = {
-        id: ticketId,
-        title: ticketData.title,
-        description: `Voicemail from ${callerNumber || 'Unknown'}\n\nTranscript:\n${transcript.slice(0, 500)}`,
-        priority: (ticketData.priority as 'critical' | 'high' | 'medium' | 'low') || 'medium',
-        status: 'open' as any,
-        category: (ticketData.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
-        createdAt: new Date(),
+      const { sendToTeamsWithRetry } = await import('./teamsWebhookUtils');
+      const { resolveWebhookUrl } = await import('./teamsWebhookUtils');
+      
+      const webhookUrl = resolveWebhookUrl('general_support');
+      const voicemailTeamsPayload = {
+        type: 'message',
+        attachments: [
+          {
+            contentType: 'application/vnd.microsoft.card.adaptive',
+            content: {
+              $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+              type: 'AdaptiveCard',
+              version: '1.4',
+              body: [
+                {
+                  type: 'TextBlock',
+                  text: '📞 New Voicemail Ticket',
+                  weight: 'bolder',
+                  size: 'large',
+                  color: 'accent',
+                },
+                {
+                  type: 'TextBlock',
+                  text: `Ticket #${ticketId}: ${ticketData.title}`,
+                  weight: 'bolder',
+                  size: 'medium',
+                  wrap: true,
+                },
+                {
+                  type: 'TextBlock',
+                  text: `Caller: ${callerNumber || 'Unknown number'}\nDuration: ${duration || 'Unknown'}\nPriority: ${ticketData.priority.toUpperCase()}\nUrgency: ${ticketData.urgency}`,
+                  wrap: true,
+                  spacing: 'medium',
+                },
+                {
+                  type: 'TextBlock',
+                  text: 'Transcript:',
+                  weight: 'bolder',
+                  spacing: 'medium',
+                },
+                {
+                  type: 'TextBlock',
+                  text: transcript.slice(0, 300),
+                  wrap: true,
+                  isSubtle: true,
+                  size: 'small',
+                },
+              ],
+              actions: [
+                {
+                  type: 'Action.OpenUrl',
+                  title: 'View Ticket',
+                  url: `${BASE_URL}/admin/helpdesk/ticket/${ticketId}`,
+                },
+              ],
+            },
+          },
+        ],
       };
-      await sendTicketNotificationToTeams(voicemailTicketObj, 'created');
-      console.log(`[Email Poller] Teams notification sent for voicemail ticket #${ticketId}`);
+      
+      await sendToTeamsWithRetry(webhookUrl, voicemailTeamsPayload, `Voicemail ticket #${ticketId} created`);
+      console.log(`[Email Poller] Teams webhook notification sent for voicemail ticket #${ticketId}`);
     } catch (teamsError) {
-      console.warn(`[Email Poller] Failed to send Teams notification for voicemail ticket #${ticketId}:`, teamsError);
+      console.warn(`[Email Poller] Failed to send Teams webhook notification for voicemail ticket #${ticketId}:`, teamsError);
     }
 
     // Store in emailMessages for deduplication
