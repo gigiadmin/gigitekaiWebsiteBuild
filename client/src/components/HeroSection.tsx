@@ -10,8 +10,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
 
-const HERO_VIDEO_MOBILE = "/manus-storage/GigitekAI_v3_mobile_6f547265.mp4";
-const HERO_VIDEO_DESKTOP = "/manus-storage/GigitekAI_v3_desktop_011b12d4.mp4";
+const HERO_VIDEO = "/manus-storage/ElevenLabs_I_need_to_create_a_video_for_my_AI_firm_GigitekAI__b4bbf837.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
 // Optimized hero background — recompressed at q=50 for faster LCP
 // Desktop: 73KB -> 44KB | Mobile: 34KB
@@ -29,10 +28,6 @@ export default function HeroSection() {
     if (typeof window === 'undefined') return false;
     return window.innerWidth <= 768;
   });
-  // Mobile: no video — static image only
-  const videoRequested = false;
-  const videoLoading = false;
-  const videoError = false;
   const videoRef = useRef<HTMLVideoElement>(null);
 
 
@@ -52,13 +47,12 @@ export default function HeroSection() {
 
   // Debug: Log component state changes
   useEffect(() => {
-    console.log('[HeroSection] State:', { isMobile, videoRequested, playing, ended, muted });
-  }, [isMobile, videoRequested, playing, ended, muted]);
+    console.log('[HeroSection] State:', { isMobile, playing, ended, muted });
+  }, [isMobile, playing, ended, muted]);
 
   // Autoplay muted — works on ALL browsers including iOS Safari
-  // Desktop only: autoplay muted video
+  // Both desktop and mobile: autoplay muted video
   useEffect(() => {
-    if (isMobile) return; // Mobile: no video
     const video = videoRef.current;
     if (!video) return;
 
@@ -85,7 +79,7 @@ export default function HeroSection() {
     } else {
       video.addEventListener("loadeddata", tryPlay, { once: true });
     }
-  }, [isMobile]);
+  }, []);
 
   // Tap to unmute — this is a direct user gesture, so browser allows it
   const handleUnmute = () => {
@@ -127,7 +121,7 @@ export default function HeroSection() {
     setEnded(false);
   };
 
-  // Handle play button click (desktop only)
+  // Handle play button click
   const handlePlayClick = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -173,29 +167,26 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* Desktop only: render video — mobile shows static background image */}
-        {!isMobile && (
-          <video
-            key={isMobile ? 'mobile' : 'desktop'}
-            ref={videoRef}
-            muted
-            playsInline
-            preload={isMobile ? "auto" : "metadata"}
-            width={1920}
-            height={1080}
-            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={HERO_VIDEO_POSTER}
-            onEnded={() => { setPlaying(false); setEnded(true); }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              playing ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ zIndex: 2 }}
-          />
-        )}
+        {/* Video element — both desktop and mobile */}
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload="metadata"
+          width={1920}
+          height={1080}
+          src={HERO_VIDEO}
+          poster={HERO_VIDEO_POSTER}
+          onEnded={() => { setPlaying(false); setEnded(true); }}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+            playing ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ zIndex: 2 }}
+        />
       </div>
 
-      {/* ── Play/Replay icon overlay (desktop only) ── */}
-      {!isMobile && !playing && (
+      {/* ── Video Controls Overlay ── */}
+      {!playing && (
         <div
           className="absolute top-1/2 right-[8%] -translate-y-1/2 z-[15] cursor-pointer"
           onClick={handlePlayClick}
@@ -224,6 +215,59 @@ export default function HeroSection() {
         </div>
       )}
 
+      {/* ── Video Control Bar (bottom-left) ── */}
+      {playing && (
+        <div
+          className="absolute bottom-20 left-8 z-[15] flex items-center gap-3 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg"
+        >
+          {/* Pause Button */}
+          <button
+            onClick={handlePause}
+            className="text-[#00D4FF] hover:text-white transition-colors"
+            title="Pause"
+          >
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
+          </button>
+
+          {/* Volume Control */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={muted ? handleUnmute : handleMute}
+              className="text-[#00D4FF] hover:text-white transition-colors"
+              title={muted ? "Unmute" : "Mute"}
+            >
+              {muted ? (
+                <VolumeX size={20} />
+              ) : (
+                <Volume2 size={20} />
+              )}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={volume}
+              onChange={handleVolumeChange}
+              className="w-20 h-1 bg-gray-600 rounded cursor-pointer accent-[#00D4FF]"
+              title="Volume"
+            />
+          </div>
+
+          {/* Restart Button */}
+          <button
+            onClick={handleRestart}
+            className="text-[#00D4FF] hover:text-white transition-colors"
+            title="Restart"
+          >
+            <RotateCcw size={20} />
+          </button>
+        </div>
+      )}
+
       {/* ── Gradient overlays ── */}
       <div
         className="absolute inset-0 z-[1]"
@@ -247,52 +291,6 @@ export default function HeroSection() {
           backgroundSize: "60px 60px",
         }}
       />
-
-      {/* ── Desktop controls (bottom-right) ── */}
-      {!isMobile && (playing || ended) && (
-        <div className="absolute bottom-10 right-6 z-20 hidden md:flex items-center gap-3">
-          {playing && (
-            <button
-              onClick={handlePause}
-              aria-label="Pause video"
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause
-            </button>
-          )}
-          {ended && (
-            <button
-              onClick={handleRestart}
-              aria-label="Restart video"
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white text-xs hover:bg-black/80 transition-colors"
-            >
-              <RotateCcw size={14} /> Restart
-            </button>
-          )}
-          <button
-            onClick={muted ? handleUnmute : handleMute}
-            className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white hover:bg-black/80 transition-colors"
-            aria-label={muted ? "Unmute" : "Mute"}
-          >
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={muted ? 0 : volume}
-              onChange={handleVolumeChange}
-              className="w-20 h-1 accent-[#00D4FF] cursor-pointer"
-              aria-label="Volume"
-            />
-            <span className="text-[10px] text-white/60 w-6 text-right">
-              {muted ? "0%" : `${Math.round(volume * 100)}%`}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* ── Main content ── */}
       <div className="container relative z-10 py-20">
@@ -393,41 +391,26 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Mobile: no video controls — static background image only */}
-
           {/* Stats row */}
           <div
-            className={`flex flex-wrap gap-6 transition-all duration-700 delay-[500ms] ${
+            className={`flex flex-wrap gap-8 transition-all duration-700 delay-[400ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {[
-              { value: "50+", label: "Clients Served" },
-              { value: "99.9%", label: "Uptime SLA" },
-              { value: "24/7", label: "AI Support" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div
-                  className="text-2xl font-bold"
-                  style={{
-                    background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  {stat.value}
-                </div>
-                <div className="text-xs text-gray-300 mt-0.5">{stat.label}</div>
-              </div>
-            ))}
+            <div>
+              <div className="text-3xl font-bold text-[#00D4FF]">50+</div>
+              <div className="text-sm text-gray-400">Clients Served</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-[#00D4FF]">99.9%</div>
+              <div className="text-sm text-gray-400">Uptime SLA</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-[#00D4FF]">24/7</div>
+              <div className="text-sm text-gray-400">AI Support</div>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* ── Scroll indicator ── */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
-        <span className="text-[10px] text-gray-300 uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-[#00D4FF]/60 to-transparent" />
       </div>
     </section>
   );
