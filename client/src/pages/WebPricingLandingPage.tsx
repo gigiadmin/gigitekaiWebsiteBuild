@@ -401,40 +401,21 @@ export default function WebPricingLandingPage() {
       <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Upgrade Your Package</h2>
-            <p className="text-xl text-gray-300">Need more pages or features? Explore our professional tiers.</p>
-          </div>
-
-          {/* Trust Elements */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="text-center">
-              <div className="text-3xl mb-2">🤖</div>
-              <p className="font-semibold text-cyan-400">AI-Powered Solutions</p>
-              <p className="text-sm text-gray-300">Advanced automation & optimization</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">⚡</div>
-              <p className="font-semibold text-cyan-400">99.9% Uptime</p>
-              <p className="text-sm text-gray-300">Enterprise-grade reliability</p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">👥</div>
-              <p className="font-semibold text-cyan-400">Expert Support</p>
-              <p className="text-sm text-gray-300">Dedicated team always available</p>
-            </div>
+            <p className="text-cyan-400 uppercase tracking-widest text-sm font-semibold mb-4">Simple, Transparent Pricing</p>
+            <h2 className="text-4xl font-bold mb-4">Plans That Grow With You</h2>
+            <p className="text-xl text-gray-300">Custom website + AI chatbot + hosting & updates — all included.</p>
           </div>
 
           {/* Pricing Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Starter */}
-            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
-              <h3 className="text-2xl font-bold mb-2">Starter</h3>
-              <p className="text-sm text-gray-300 mb-6">Perfect for businesses just getting started</p>
-              
-              <div className="mb-6">
-                <p className="text-4xl font-bold text-cyan-400">$899</p>
-                <p className="text-sm text-gray-300">/month</p>
+            <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
+              <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Starter</p>
+              <div className="mb-2">
+                <span className="text-5xl font-bold text-cyan-400">$199</span>
+                <span className="text-gray-400 text-lg">/mo</span>
               </div>
+              <p className="text-sm text-gray-400 mb-6">$499 one-time setup</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -445,105 +426,71 @@ export default function WebPricingLandingPage() {
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>5-10 Page Website</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Up to 3 pages</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Mobile Responsive Design</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Mobile responsive</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Basic SEO</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Basic AI chatbot</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Contact Form</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Google Analytics</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>SSL Certificate</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Monthly Backups</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Email Support</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Hosting & SSL included</span>
                 </li>
               </ul>
             </div>
 
             {/* Growth - Most Popular */}
-            <div className="md:col-span-1 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold">MOST POPULAR</div>
-              <div className="bg-gradient-to-br from-purple-900/60 to-[#0f1428]/80 border-2 border-purple-500/60 rounded-xl p-8 hover:border-purple-400/80 transition backdrop-blur-sm shadow-lg shadow-purple-500/20 md:scale-105">
-                <h3 className="text-2xl font-bold mb-2">Growth</h3>
-                <p className="text-sm text-gray-300 mb-6">For scaling businesses ready to leverage AI</p>
-                
-                <div className="mb-6">
-                  <p className="text-4xl font-bold text-purple-400">$1,699</p>
-                  <p className="text-sm text-gray-300">/month</p>
+            <div className="relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Most Popular</div>
+              <div className="bg-[#131B2E] border-2 border-cyan-500/60 rounded-xl p-8 hover:border-cyan-400/80 transition shadow-lg shadow-cyan-500/10">
+                <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Growth</p>
+                <div className="mb-2">
+                  <span className="text-5xl font-bold text-cyan-400">$399</span>
+                  <span className="text-gray-400 text-lg">/mo</span>
                 </div>
+                <p className="text-sm text-gray-400 mb-6">$999 one-time setup</p>
 
                 <button
                   onClick={() => setDiscoveryFormOpen(true)}
-                  className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition mb-6"
+                  className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition mb-6"
                 >
                   Get Started
                 </button>
 
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Unlimited Pages</span>
+                    <span className="text-cyan-400">+</span>
+                    <span className="text-gray-300">Up to 7 pages</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Custom Design</span>
+                    <span className="text-cyan-400">+</span>
+                    <span className="text-gray-300">Advanced AI chatbot</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Full SEO Services</span>
+                    <span className="text-cyan-400">+</span>
+                    <span className="text-gray-300">Blog / content section</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Google Business Profile</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Google Ads Management</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Back-linking & Technical SEO</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Lead Tracking</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={16} className="text-purple-400" />
-                    <span>Priority Support</span>
+                    <span className="text-cyan-400">+</span>
+                    <span className="text-gray-300">Monthly performance report</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Enterprise (merged Pro + Enterprise) */}
-            <div className="bg-gradient-to-br from-[#1a2847]/80 to-[#0f1428]/80 border border-cyan-500/30 rounded-xl p-8 hover:border-cyan-400/60 transition backdrop-blur-sm">
-              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
-              <p className="text-sm text-gray-300 mb-6">Complete web solutions with custom integrations & dedicated support</p>
-              
-              <div className="mb-6">
-                <p className="text-4xl font-bold text-cyan-400">$2,799</p>
-                <p className="text-sm text-gray-300">/month</p>
+            {/* Pro */}
+            <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
+              <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Pro</p>
+              <div className="mb-2">
+                <span className="text-5xl font-bold text-cyan-400">$799</span>
+                <span className="text-gray-400 text-lg">/mo</span>
               </div>
+              <p className="text-sm text-gray-400 mb-6">$1,999 one-time setup</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -554,48 +501,20 @@ export default function WebPricingLandingPage() {
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Custom Website + Landing Pages</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Unlimited pages</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Full Custom Design</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">E-commerce ready</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Full SEO Services</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Custom integrations</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>AI Engine Optimization (AEO)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>PPC & Google Ads Management</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Back-linking & Technical SEO</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>E-commerce Capability</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Advanced & Custom Integrations</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Multi-site Management</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Custom API Development</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} className="text-cyan-400" />
-                  <span>Dedicated Account Manager</span>
+                  <span className="text-cyan-400">+</span>
+                  <span className="text-gray-300">Priority support</span>
                 </li>
               </ul>
             </div>

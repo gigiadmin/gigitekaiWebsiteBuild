@@ -154,6 +154,11 @@
 - [x] Integrate SchemaMarkup component into App.tsx for SEO
 - [x] Create Core Web Vitals optimization guide with implementation checklist
 
+## Web Pricing Page Update (May 2026)
+- [x] Update /web-pricing page pricing tiers to match flyer: Starter $199/mo ($499 setup), Growth $399/mo ($999 setup), Pro $799/mo ($1,999 setup)
+- [x] Keep the $300 special offer section
+- [x] Match flyer styling: dark navy background, cyan accents, clean card layout with features list
+
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
 - [ ] Add frontend form/modal for creating KB articles in admin KB Generation page
