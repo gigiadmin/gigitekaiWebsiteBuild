@@ -16,8 +16,8 @@ const HERO_VIDEO_MOBILE = "/api/video/gigitekai-hero-mobile-fast_90faa7ac.mp4";
 const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
 // Optimized hero background — recompressed at q=50 for faster LCP
 // Desktop: 73KB -> 44KB | Mobile: 34KB
-const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop-opt_74642977.webp"; // Optimized: 73KB -> 44KB (40% smaller)
-const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_d1ad476e.webp";
+const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_cbb9d5e6.webp";
+const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_e0adb787.webp";
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);

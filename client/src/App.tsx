@@ -1,7 +1,13 @@
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
 import { lazy, Suspense, useState, useEffect } from "react";
+// PERF: Lazy-load TooltipProvider — removes @radix-ui/react-tooltip from critical path.
+// TooltipProvider is a context wrapper; lazy-loading it defers Radix UI parsing until after LCP.
+const TooltipProvider = lazy(() =>
+  import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider }))
+);
+// PERF: Lazy-load NotFound — removes Button -> @radix-ui/react-slot from critical path.
+// NotFound is only rendered on 404 errors, never on the homepage.
+const NotFound = lazy(() => import("@/pages/NotFound"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SchemaMarkup } from "./components/SchemaMarkup";
