@@ -82,7 +82,6 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Agent Dashboard", icon: <TrendingUp size={16} />, href: "/admin/agent-dashboard" },
       { label: "Canned Responses", icon: <MessageSquareText size={16} />, href: "/admin/canned-responses" },
       { label: "Live Chat", icon: <MessageSquare size={16} />, href: "/admin/chat" },
-      { label: "Session Recordings", icon: <Video size={16} />, href: "/admin/recordings" },
       { label: "AI Agents", icon: <Bot size={16} />, href: "/admin/agents" },
       { label: "Notifications", icon: <Bell size={16} />, href: "/admin/notifications" },
     ],
@@ -93,9 +92,6 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Blog", icon: <FileText size={16} />, href: "/admin/blog" },
       { label: "Newsletter", icon: <Mail size={16} />, href: "/admin/newsletter" },
       { label: "Knowledge Base", icon: <BookOpen size={16} />, href: "/admin/kb" },
-      { label: "KB Generation", icon: <Sparkles size={16} />, href: "/admin/kb-generation" },
-      { label: "Social Hub", icon: <Send size={16} />, href: "/admin/social" },
-      { label: "SMS Campaigns", icon: <MessageSquare size={16} />, href: "/admin/sms-campaigns" },
     ],
   },
   {
@@ -111,7 +107,6 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Client Onboarding", icon: <Sparkles size={16} />, href: "/admin/client-onboarding" },
       { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
-      { label: "Demo Leads", icon: <Bot size={16} />, href: "/admin/demo-leads" },
       { label: "Contacts", icon: <Inbox size={16} />, href: "/admin/contacts" },
       { label: "Accounts", icon: <Building2 size={16} />, href: "/admin/accounts" },
       { label: "Invites", icon: <Send size={16} />, href: "/admin/invites" },
@@ -122,7 +117,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Integrations",
     items: [
       { label: "Teams Channels", icon: <Video size={16} />, href: "/admin/teams-channels" },
-      { label: "Xero Finance", icon: <TrendingUp size={16} />, href: "/admin/xero" },
     ],
   },
   {
@@ -135,7 +129,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Settings",
     items: [
       { label: "Preferences", icon: <UserCog size={16} />, href: "/admin/preferences" },
-      { label: "Email Digest", icon: <Zap size={16} />, href: "/admin/email-digest" },
       { label: "Admin Guide", icon: <BookOpen size={16} />, href: "/admin/guide" },
     ],
   },
