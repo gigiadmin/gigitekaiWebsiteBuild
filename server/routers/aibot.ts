@@ -511,17 +511,12 @@ export const aibotRouter = router({
           const kbSection = kbArticlesFound.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
           assistantMessage += `\n\n\ud83d\udcda **This is covered in our KB:**\n${kbSection}`;
         } else {
-          // Proactive KB suggestions: check all published articles for relevance
+          // Proactive KB suggestions: use the same relevance-filtered search
+          // This avoids iterating all 1800+ articles with weak 1-word matching
           try {
-            const allArticles = await getAllPublishedKBArticles();
-            const relevantSuggestions: any[] = [];
-            for (const article of allArticles.slice(0, 10)) {
-              if (relevantSuggestions.length >= 2) break;
-              const isRelevant = await isKBArticleRelevant(article.id, message);
-              if (isRelevant) relevantSuggestions.push(article);
-            }
-            if (relevantSuggestions.length > 0) {
-              const suggestSection = relevantSuggestions.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
+            const proactiveSuggestions = await searchKBArticles(message, 2);
+            if (proactiveSuggestions.length > 0) {
+              const suggestSection = proactiveSuggestions.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
               assistantMessage += `\n\n\ud83d\udca1 **Hey, this might help:**\n${suggestSection}`;
             }
           } catch (proactiveErr) {

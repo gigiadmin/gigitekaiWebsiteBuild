@@ -1299,9 +1299,22 @@ export async function searchKBArticles(keywords: string, limit: number = 3) {
   }
 
   try {
-    // Split keywords into individual terms for better matching
-    const terms = keywords.toLowerCase().split(/\s+/).filter(t => t.length > 2);
+    // Split keywords into meaningful terms (skip stop words and short tokens)
+    const stopWords = new Set(['the', 'and', 'for', 'are', 'can', 'you', 'how', 'what', 'with', 'this', 'that', 'have', 'will', 'our', 'your', 'not', 'get', 'set', 'use', 'all', 'any', 'its']);
+    const terms = keywords.toLowerCase().split(/\s+/).filter(t => t.length > 3 && !stopWords.has(t));
     if (terms.length === 0) return [];
+
+    // GigitekAI core service area tags — only surface articles in these domains
+    const RELEVANT_TAGS = [
+      'm365', 'microsoft-365', 'ms-copilot', 'microsoft-365-copilot', 'copilot',
+      'office-teams', 'office-outlook', 'office-word', 'office-excel', 'office-powerpoint',
+      'sharepoint', 'onedrive', 'azure', 'azure-active-directory', 'entra-id',
+      'intune', 'microsoft-sentinel', 'defender', 'microsoft-purview',
+      'power-platform', 'power-automate', 'power-bi', 'copilot-studio',
+      'microsoft-copilot-studio', 'security', 'zero-trust', 'compliance',
+      'administrator', 'business-user', 'business-owner', 'business-leader',
+      'it-professional', 'security-engineer', 'functional-consultant', 'developer',
+    ];
 
     // Fetch all published KB articles
     const articles = await db
@@ -1309,32 +1322,43 @@ export async function searchKBArticles(keywords: string, limit: number = 3) {
       .from(kbArticles)
       .where(eq(kbArticles.isPublished, true));
 
-    // Score each article based on keyword matches
+    // Score each article based on keyword matches with topic filtering
     const scored = articles.map(article => {
       let score = 0;
       const titleLower = article.title.toLowerCase();
       const contentLower = article.content.toLowerCase();
       const tagsLower = (article.tags || "").toLowerCase();
 
+      // Topic filter: article must be in a relevant domain
+      // Skip articles that are clearly off-topic (Java, HoloLens, Unity, PostgreSQL, gaming, k-12)
+      const offTopicTags = ['java', 'holographic', 'hololens', 'unity', 'postgresql', 'minecraft', 'k-12', 'gaming', 'mixed-reality', 'tomcat'];
+      const isOffTopic = offTopicTags.some(tag => tagsLower.includes(tag) || titleLower.includes(tag));
+      if (isOffTopic) return { ...article, relevanceScore: 0 };
+
+      // Topic relevance bonus: article must be in a GigitekAI service area
+      const isInRelevantDomain = RELEVANT_TAGS.some(tag => tagsLower.includes(tag));
+      if (!isInRelevantDomain) return { ...article, relevanceScore: 0 };
+
       // Exact phrase match in title (100 points)
       if (titleLower.includes(keywords.toLowerCase())) score += 100;
 
-      // Individual term matches
+      // Individual term matches with weighted scoring
       terms.forEach(term => {
-        // Title matches (30 points each)
-        if (titleLower.includes(term)) score += 30;
-        // Tag matches (25 points each)
-        if (tagsLower.includes(term)) score += 25;
-        // Content matches (10 points each)
-        if (contentLower.includes(term)) score += 10;
+        // Title matches (40 points each — must be meaningful)
+        if (titleLower.includes(term)) score += 40;
+        // Tag matches (30 points each)
+        if (tagsLower.includes(term)) score += 30;
+        // Content matches (5 points each — reduced weight to avoid false positives)
+        if (contentLower.includes(term)) score += 5;
       });
 
       return { ...article, relevanceScore: score };
     });
 
-    // Sort by relevance score and return top results
+    // HIGH threshold: require score > 60 to avoid weak/irrelevant matches
+    // This means at least 1 strong title match + 1 tag match, or 2 title matches
     return scored
-      .filter(a => a.relevanceScore > 0)
+      .filter(a => a.relevanceScore >= 60)
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, limit);
   } catch (error) {
@@ -1388,11 +1412,23 @@ export async function isKBArticleRelevant(articleId: number, userMessage: string
     const titleLower = article.title.toLowerCase();
     const contentLower = article.content.toLowerCase();
 
-    // Check if message contains article keywords
-    const titleWords = titleLower.split(/\s+/).filter(w => w.length > 3);
+    // Topic filter: skip off-topic articles
+    const tagsLower = (article.tags || "").toLowerCase();
+    const offTopicTags = ['java', 'holographic', 'hololens', 'unity', 'postgresql', 'minecraft', 'k-12', 'gaming', 'mixed-reality', 'tomcat'];
+    const isOffTopic = offTopicTags.some(tag => tagsLower.includes(tag) || titleLower.includes(tag));
+    if (isOffTopic) return false;
+
+    // GigitekAI core service area tags — only suggest articles in these domains
+    const RELEVANT_TAGS = ['m365', 'microsoft-365', 'ms-copilot', 'copilot', 'office-teams', 'office-outlook', 'sharepoint', 'onedrive', 'azure', 'intune', 'microsoft-sentinel', 'defender', 'power-platform', 'power-automate', 'power-bi', 'copilot-studio', 'security', 'zero-trust', 'compliance', 'administrator', 'business-user', 'business-owner', 'security-engineer'];
+    const isInRelevantDomain = RELEVANT_TAGS.some(tag => tagsLower.includes(tag));
+    if (!isInRelevantDomain) return false;
+
+    // Check if message contains article keywords — require at least 2 significant word matches
+    const stopWords = new Set(['the', 'and', 'for', 'are', 'can', 'you', 'how', 'what', 'with', 'this', 'that', 'have', 'will', 'your', 'not', 'get', 'set', 'use', 'all', 'any']);
+    const titleWords = titleLower.split(/\s+/).filter(w => w.length > 3 && !stopWords.has(w));
     const matches = titleWords.filter(word => messageLower.includes(word)).length;
 
-    return matches >= 1; // At least one significant word match
+    return matches >= 2; // Require at least 2 significant word matches to avoid false positives
   } catch (error) {
     console.error("[Database] Failed to check KB article relevance:", error);
     return false;
