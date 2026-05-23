@@ -224,7 +224,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
       <div className={`flex items-center gap-3 px-4 py-4 border-b border-cyan-500/10 ${collapsed ? "justify-center" : ""}`}>
         {collapsed ? (
           <img
-            src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
+            src="/manus-storage/gigitekai-logo_70150bdc.png"
             alt="GigitekAI"
             className="h-8 w-8 object-contain flex-shrink-0"
             width="32"
@@ -233,7 +233,7 @@ export default function AdminLayout({ children, title, noPadding }: AdminLayoutP
           />
         ) : (
           <img
-            src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
+            src="/manus-storage/gigitekai-logo_70150bdc.png"
             alt="GigitekAI logo"
             className="h-10 w-auto object-contain max-w-[160px]"
             width="200"

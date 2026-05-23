@@ -171,7 +171,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0 bg-white rounded-lg px-2 py-1">
                   <img
-                    src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp"
+                    src="/manus-storage/gigitekai-logo_70150bdc.png"
                     alt="GigitekAI logo"
                     className="h-6 w-auto object-contain max-w-[120px]"
                   />
