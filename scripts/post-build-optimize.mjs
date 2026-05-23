@@ -48,9 +48,17 @@ html = html.replace(
 );
 
 // ─── Fix 2: Add preload hints for critical JS chunks ─────────────────────────
-// Find main chunk hash
-const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_]+)\.js"/);
-const reactMatch = html.match(/\/assets\/react-core-([a-zA-Z0-9_]+)\.js/);
+// Find main chunk hash from HTML
+const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_-]+)\.js"/);
+// react-core is a dynamic import — find it from the assets directory
+const assetsDir = path.join(__dirname, '../dist/public/assets');
+let reactHash = null;
+if (fs.existsSync(assetsDir)) {
+  const files = fs.readdirSync(assetsDir);
+  const reactFile = files.find(f => f.startsWith('react-core-') && f.endsWith('.js'));
+  if (reactFile) reactHash = reactFile.replace('react-core-', '').replace('.js', '');
+}
+const reactMatch = reactHash ? [null, reactHash] : null;
 
 if (mainMatch && reactMatch) {
   const mainChunk = `/assets/main-${mainMatch[1]}.js`;

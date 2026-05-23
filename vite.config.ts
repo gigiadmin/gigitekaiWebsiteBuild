@@ -159,7 +159,7 @@ function vitePluginManusDebugCollector(): Plugin {
  */
 function vitePluginNonBlockingCSS(): Plugin {
   // Chunks that should NOT be preloaded on public pages (admin-only)
-  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'charts-'];
+  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'charts-', 'tiptap-editor-'];
 
   return {
     name: 'vite-plugin-non-blocking-css',
@@ -473,6 +473,14 @@ export default defineConfig({
             id.includes("node_modules/fault")
           ) {
             return "syntax-highlight";
+          }
+          // TipTap rich text editor + ProseMirror — only needed in admin blog/newsletter pages
+          // Static import in AdminBlog.tsx was pulling ~400KB into vendor chunk
+          if (
+            id.includes("node_modules/@tiptap") ||
+            id.includes("node_modules/prosemirror")
+          ) {
+            return "tiptap-editor";
           }
           // Markdown rendering — only needed in blog/KB/AI chat pages, NOT on homepage
           // Splitting saves ~400KB from vendor chunk (react-markdown + remark + rehype + unified)

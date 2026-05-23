@@ -31,7 +31,8 @@ import {
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Loader2, BookOpen, ImageIcon, X, Mail, ExternalLink } from "lucide-react";
 import { lazy, Suspense } from "react";
-import { useEditor } from "@tiptap/react";
+// @tiptap/react import removed — was pulling ~400KB TipTap+ProseMirror into vendor chunk
+// useEditor type replaced with generic to keep tiptap in lazy-loaded RichTextEditor chunk
 const RichTextEditor = lazy(() => import("@/components/RichTextEditor").then(m => ({ default: m.default })));
 import DragDropImageUploader from "@/components/DragDropImageUploader";
 import AdminLayout from "@/components/AdminLayout";
@@ -158,7 +159,8 @@ export default function AdminBlog() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [showImageUploader, setShowImageUploader] = useState(false);
   // Ref to the TipTap editor instance so we can insert images programmatically
-  const editorRef = useRef<ReturnType<typeof useEditor> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null);
 
   function openCreate() {
     setEditingPost(null);

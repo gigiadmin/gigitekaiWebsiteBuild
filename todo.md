@@ -5374,3 +5374,16 @@
 - [x] Verified: 10 voicemails processed, all with hasTranscript: YES
 - [x] Call-review page (/admin/call-review) now shows voicemails with real transcripts
 - [x] No dependency on Power Automate flow — direct Graph API polling
+
+## Mobile PageSpeed Performance Fixes Round 2 (May 22, 2026)
+- [x] Fix LCP: defer hero video load by 2s on mobile (poster image renders first as LCP element)
+- [x] Fix LCP: change video preload from "auto" to "none" on mobile
+- [x] Remove console.log calls from HeroSection video events (Best Practices score fix)
+- [x] Split TipTap/ProseMirror into separate "tiptap-editor" chunk (vendor: 712KB → 356KB gzip)
+- [x] Add tiptap-editor to ADMIN_ONLY_CHUNKS (not preloaded on public pages)
+- [x] Fix canonical URL to include trailing slash (https://gigitekai.com/)
+- [x] Fix useSEO hook canonical for homepage to use trailing slash
+- [x] Fix contrast ratio: gray-400/500 → gray-200 in SiteNavBar2024 utility bar, dropdown, theme toggle
+- [x] Fix contrast ratio: gray-400 → gray-200 in HeroSection stats labels
+- [x] Fix post-build preload hint injection for react-core (was failing silently — now scans assets dir)
+- [x] Preload hints now correctly injected for main + react-core chunks

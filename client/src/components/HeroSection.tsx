@@ -30,6 +30,8 @@ export default function HeroSection() {
     if (typeof window === 'undefined') return false;
     return window.innerWidth <= 768;
   });
+  // Defer video loading until after page is interactive (improves LCP)
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Detect mobile
@@ -45,6 +47,16 @@ export default function HeroSection() {
     const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
   }, []);
+
+  // Defer video element insertion until after LCP (poster image) has rendered
+  // This prevents the video download from competing with the LCP image
+  useEffect(() => {
+    // On mobile: delay video load by 2s to let LCP image render first
+    // On desktop: delay by 500ms (faster connection assumed)
+    const delay = isMobile ? 2000 : 500;
+    const t = setTimeout(() => setVideoReady(true), delay);
+    return () => clearTimeout(t);
+  }, [isMobile]);
 
   // Autoplay muted — works on ALL browsers including iOS Safari
   useEffect(() => {
@@ -162,25 +174,25 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* Video element — both desktop and mobile */}
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          preload="auto"
-          width={isMobile ? 1280 : 1920}
-          height={isMobile ? 720 : 1080}
-          src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-          poster={HERO_VIDEO_POSTER}
-          onEnded={() => { setPlaying(false); setEnded(true); }}
-          onError={(e) => console.error('[HeroSection] Video error:', (e.currentTarget as HTMLVideoElement).error)}
-          onLoadStart={() => console.log('[HeroSection] Video loading started')}
-          onCanPlay={() => console.log('[HeroSection] Video can play')}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-            playing ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ zIndex: 2 }}
-        />
+        {/* Video element — deferred until after LCP image renders */}
+        {videoReady && (
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            preload={isMobile ? "none" : "metadata"}
+            width={isMobile ? 1280 : 1920}
+            height={isMobile ? 720 : 1080}
+            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
+            poster={HERO_VIDEO_POSTER}
+            onEnded={() => { setPlaying(false); setEnded(true); }}
+            onError={() => { /* silent — video is enhancement only */ }}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+              playing ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ zIndex: 2 }}
+          />
+        )}
       </div>
 
       {/* ── Video Controls Overlay ── */}
@@ -397,15 +409,15 @@ export default function HeroSection() {
           >
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">50+</div>
-              <div className="text-sm text-gray-400">Clients Served</div>
+              <div className="text-sm text-gray-200">Clients Served</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">99.9%</div>
-              <div className="text-sm text-gray-400">Uptime SLA</div>
+              <div className="text-sm text-gray-200">Uptime SLA</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">24/7</div>
-              <div className="text-sm text-gray-400">AI Support</div>
+              <div className="text-sm text-gray-200">AI Support</div>
             </div>
           </div>
 

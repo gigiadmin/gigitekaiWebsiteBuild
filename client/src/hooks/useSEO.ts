@@ -56,7 +56,7 @@ export function useSEO({
     // Determine canonical URL
     const pagePath = path ?? window.location.pathname;
     const canonicalUrl =
-      pagePath === "/" ? BASE_URL : `${BASE_URL}${pagePath}`;
+      pagePath === "/" ? `${BASE_URL}/` : `${BASE_URL}${pagePath}`;
 
     // 1. Document title
     document.title = title;

@@ -78,7 +78,7 @@ export default function SiteNavBar2024() {
   return (
     <>
       {/* Top utility bar */}
-      <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-500 dark:text-gray-400 py-2 hidden md:block">
+      <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-200 dark:text-gray-200 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
@@ -159,7 +159,7 @@ export default function SiteNavBar2024() {
                     <a
                       key={s.href}
                       href={s.href}
-                      className="block px-4 py-2.5 text-sm text-gray-400 dark:text-gray-300 hover:text-[#00D4FF] hover:bg-gray-50 dark:hover:bg-[rgba(0,212,255,0.05)] transition-colors"
+                      className="block px-4 py-2.5 text-sm text-gray-100 dark:text-gray-100 hover:text-[#00D4FF] hover:bg-gray-50 dark:hover:bg-[rgba(0,212,255,0.05)] transition-colors"
                     >
                       {s.label}
                     </a>
@@ -210,7 +210,7 @@ export default function SiteNavBar2024() {
             {toggleTheme && (
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-white/5 transition-colors"
+                className="p-2 rounded-lg text-gray-200 hover:text-[#00D4FF] hover:bg-white/5 transition-colors"
                 title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
                 aria-label="Toggle theme"
               >
