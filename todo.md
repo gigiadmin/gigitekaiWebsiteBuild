@@ -5387,3 +5387,13 @@
 - [x] Fix contrast ratio: gray-400 → gray-200 in HeroSection stats labels
 - [x] Fix post-build preload hint injection for react-core (was failing silently — now scans assets dir)
 - [x] Preload hints now correctly injected for main + react-core chunks
+
+## Mobile PageSpeed High 80s Target (May 23)
+- [ ] Upload hero images to direct CDN (bypass /manus-storage proxy)
+- [ ] Add preconnect hints to CDN origin in index.html
+- [x] Pre-render hero section as static HTML in index.html (FCP without JS)
+- [x] Inline critical CSS for hero section (already done in earlier phase)
+- [x] Added data-hero-mounted attribute + MutationObserver cleanup for seamless React hydration
+- [x] Removed video poster preload (video skipped on mobile, hero bg is LCP)
+- [ ] Lazy-load MSAL/auth module (remove from initial bundle)
+- [ ] Lazy-render below-fold homepage sections with IntersectionObserver

@@ -58,11 +58,7 @@
       imagesrcset="/manus-storage/hero-bg-mobile_d1ad476e.webp 768w, /manus-storage/hero-bg-desktop-opt_74642977.webp 1920w"
       imagesizes="(max-width: 768px) 768px, 1920px"
       fetchpriority="high" />
-    <!-- Also preload hero video poster for faster LCP on mobile -->
-    <link rel="preload" as="image"
-      href="/manus-storage/hero-video-poster-opt_e727c5ba.webp"
-      type="image/webp"
-      fetchpriority="high" />
+    <!-- Video poster preload removed: video is skipped on mobile, hero bg image is the LCP element -->
     <!-- Font preloads removed: using Google Fonts CSS for reliable font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -247,7 +243,60 @@
   </head>
   <body>
     <div id="root">
+      <!-- Pre-rendered hero: shows instantly without waiting for JS parse/execute -->
+      <!-- React will hydrate over this seamlessly -->
+      <div id="prerender-hero" class="hero-prerender">
+        <section style="position:relative;min-height:90vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background-color:#0A0E1A">
+          <!-- Hero background image (LCP element) -->
+          <div style="position:absolute;inset:0;z-index:0">
+            <img
+              src="/manus-storage/hero-bg-desktop-opt_74642977.webp"
+              srcset="/manus-storage/hero-bg-mobile_d1ad476e.webp 768w, /manus-storage/hero-bg-desktop-opt_74642977.webp 1920w"
+              sizes="(max-width: 768px) 768px, 1920px"
+              alt=""
+              fetchpriority="high"
+              loading="eager"
+              decoding="async"
+              width="1920"
+              height="1080"
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+            />
+            <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(10,14,26,0.97) 0%,rgba(10,14,26,0.75) 60%,rgba(10,14,26,0.4) 100%);z-index:1"></div>
+          </div>
+          <!-- Gradient overlays -->
+          <div style="position:absolute;inset:0;z-index:1;background:linear-gradient(to right,rgba(10,14,26,0.88) 0%,rgba(10,14,26,0.60) 40%,rgba(10,14,26,0.30) 100%)"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:8rem;z-index:1;background:linear-gradient(to top,rgba(10,14,26,1) 0%,transparent 100%)"></div>
+          <!-- Main content -->
+          <div style="width:100%;margin:0 auto;padding:5rem 1rem;position:relative;z-index:10;max-width:1280px">
+            <div style="max-width:48rem">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#00D4FF;margin-bottom:1.5rem">NEXT-GEN CLOUD & AI SOLUTIONS</div>
+              <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;color:white;line-height:1.05;margin-bottom:1.5rem">Intelligent<br/>Cloud & AI <span style="background:linear-gradient(90deg,#00D4FF,#00EEFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Solutions</span></h1>
+              <p style="font-size:1.125rem;color:#d1d5db;max-width:36rem;margin-bottom:2.5rem;line-height:1.7">We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale.</p>
+              <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+                <a href="/contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:#00D4FF;color:#0A0E1A;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.375rem;text-decoration:none;font-size:1rem">Start Your Transformation</a>
+                <a href="/contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,212,255,0.08);border:1.5px solid rgba(0,212,255,0.45);color:#00D4FF;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.5rem;text-decoration:none;font-size:1rem">Book a Free Demo</a>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:2rem;margin-top:1.5rem">
+                <div><div style="font-size:1.875rem;font-weight:700;color:#00D4FF">50+</div><div style="font-size:0.875rem;color:#e5e7eb">Clients Served</div></div>
+                <div><div style="font-size:1.875rem;font-weight:700;color:#00D4FF">99.9%</div><div style="font-size:0.875rem;color:#e5e7eb">Uptime SLA</div></div>
+                <div><div style="font-size:1.875rem;font-weight:700;color:#00D4FF">24/7</div><div style="font-size:0.875rem;color:#e5e7eb">AI Support</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
+    <!-- Remove pre-rendered hero once React mounts (prevents flash of duplicate content) -->
+    <script>
+      var observer = new MutationObserver(function(mutations) {
+        var hero = document.getElementById('prerender-hero');
+        if (hero && document.querySelector('[data-hero-mounted]')) {
+          hero.remove();
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Google Analytics 4: loaded after page interactive to reduce INP -->

@@ -147,7 +147,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
+    <section data-hero-mounted="" className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
 
       {/* ── Video layer ── */}
       <div className="absolute inset-0 z-0">
