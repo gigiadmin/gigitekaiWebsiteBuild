@@ -85,7 +85,7 @@ export default function ManagedITTampa() {
   useSEO({
     title: "Managed IT Services Tampa Bay | Local IT Support | GigitekAI",
     description:
-      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-5776.",
+      "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-6909.",
     path: "/managed-it-services-tampa",
   });
 
@@ -118,11 +118,11 @@ export default function ManagedITTampa() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <a
-                href="tel:+1727-382-5776"
+                href="tel:+1727-382-6909"
                 className="inline-flex items-center justify-center gap-2 border border-[#00D4FF]/30 text-[#00D4FF] px-8 py-3.5 rounded-lg font-semibold font-['Space_Grotesk'] hover:bg-[#00D4FF]/10 transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                (727) 382-5776
+                (727) 382-6909
               </a>
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function ManagedITTampa() {
               </a>
             </div>
             <p className="text-gray-500 font-['DM_Sans'] text-sm mt-6">
-              GigitekAI — Tampa, FL | (727) 382-5776 | Serving Tampa Bay since 2024
+              GigitekAI — Tampa, FL | (727) 382-6909 | Serving Tampa Bay since 2024
             </p>
           </div>
         </section>

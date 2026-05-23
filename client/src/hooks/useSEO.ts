@@ -28,7 +28,7 @@ const ORG_SCHEMA = {
   name: "GigitekAI",
   url: "https://gigitekai.com",
   logo: DEFAULT_OG_IMAGE,
-  telephone: "+1727-382-5776",
+  telephone: "+1727-382-6909",
   email: "support@gigitekai.com",
 };
 

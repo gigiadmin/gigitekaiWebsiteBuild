@@ -243,7 +243,7 @@ export function buildTicketConfirmationEmail(data: TicketConfirmationData): stri
                   </td>
                   <td style="vertical-align:middle;">
                     <p style="margin:0;font-size:14px;font-weight:700;color:#e2e8f0;">GigitekAI Support Team</p>
-                    <p style="margin:2px 0 0 0;font-size:12px;color:#64748b;">support@gigitekai.com · (727) 382-5776</p>
+                    <p style="margin:2px 0 0 0;font-size:12px;color:#64748b;">support@gigitekai.com · (727) 382-6909</p>
                   </td>
                 </tr>
               </table>

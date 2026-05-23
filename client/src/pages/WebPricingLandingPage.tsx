@@ -700,7 +700,7 @@ export default function WebPricingLandingPage() {
                     <Phone size={24} className="text-cyan-400" />
                     <div>
                       <p className="text-gray-300 text-sm">Phone</p>
-                      <p className="text-white">(727) 382-5776</p>
+                      <p className="text-white">(727) 382-6909</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">

@@ -56,7 +56,7 @@ const SITE_FOOTER = `
     </p>
     <p style="margin-top:0.75rem;">
       &copy; ${new Date().getFullYear()} GigitekAI LLC &mdash; Tampa, FL &mdash;
-      <a href="tel:+1727-382-5776">(727) 382-5776</a> &mdash;
+      <a href="tel:+1727-382-6909">(727) 382-6909</a> &mdash;
       <a href="mailto:support@gigitekai.com">support@gigitekai.com</a>
     </p>
   </footer>
@@ -164,7 +164,7 @@ router.get("/privacy-policy", (_req, res) => {
     <p>If you are located in the European Union or United Kingdom, you have rights under GDPR including: right to access, rectification, erasure, restrict processing, data portability, and to object to processing.</p>
 
     <h3>7.3 How to Exercise Your Rights</h3>
-    <p>To exercise any of these rights, please contact us at <a href="mailto:support@gigitekai.com">support@gigitekai.com</a> or call <a href="tel:+1727-382-5776">(727) 382-5776</a>. We will respond within 30 days.</p>
+    <p>To exercise any of these rights, please contact us at <a href="mailto:support@gigitekai.com">support@gigitekai.com</a> or call <a href="tel:+1727-382-6909">(727) 382-6909</a>. We will respond within 30 days.</p>
 
     <h2>8. Data Retention</h2>
     <p>We retain your personal information for as long as necessary to provide our Services, comply with legal obligations, resolve disputes, and enforce our agreements. When information is no longer needed, we securely delete or anonymize it.</p>
@@ -185,7 +185,7 @@ router.get("/privacy-policy", (_req, res) => {
     <div class="contact-box">
       <p><strong>GigitekAI LLC</strong></p>
       <p>Email: <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></p>
-      <p>Phone: <a href="tel:+1727-382-5776">(727) 382-5776</a></p>
+      <p>Phone: <a href="tel:+1727-382-6909">(727) 382-6909</a></p>
       <p>Website: <a href="https://gigitekai.com">https://gigitekai.com</a></p>
       <p>Tampa, FL — United States</p>
     </div>
@@ -269,7 +269,7 @@ router.get("/terms-of-service", (_req, res) => {
     <div class="contact-box">
       <p><strong>GigitekAI LLC</strong></p>
       <p>Email: <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></p>
-      <p>Phone: <a href="tel:+1727-382-5776">(727) 382-5776</a></p>
+      <p>Phone: <a href="tel:+1727-382-6909">(727) 382-6909</a></p>
       <p>Website: <a href="https://gigitekai.com">https://gigitekai.com</a></p>
       <p>Tampa, FL — United States</p>
     </div>

@@ -367,7 +367,7 @@ async function createTicketFromEmail(
       try {
         const { sendSMS } = await import("./_core/sms");
         await sendSMS({
-          to: "+1727-382-5776",
+          to: "+1727-382-6909",
           message: `CRITICAL TICKET #${ticketId}\n${subject}\nFrom: ${senderName}\nCategory: ${classification.category}`,
         });
       } catch (smsError) {

@@ -153,7 +153,7 @@ export function buildContactFormResponseEmail(data: ContactFormEmailData): { sub
                   <strong style="color:#FFFFFF;">Questions?</strong> Reach out anytime:
                 </p>
                 <p style="margin:0;font-size:14px;">
-                  <a href="tel:727-382-5776" style="color:#00D4FF;text-decoration:none;">📞 (727) 382-5776</a> •
+                  <a href="tel:727-382-6909" style="color:#00D4FF;text-decoration:none;">📞 (727) 382-6909</a> •
                   <a href="mailto:support@gigitekai.com" style="color:#00D4FF;text-decoration:none;">📧 support@gigitekai.com</a>
                 </p>
               </div>
