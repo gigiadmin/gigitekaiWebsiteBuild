@@ -166,10 +166,15 @@ export function serveStatic(app: Express) {
   });
 
   // fall through to index.html if the file doesn't exist
-  // IMPORTANT: Skip /api/* routes so they reach the tRPC middleware
+  // IMPORTANT: Skip /api/* and /manus-storage/* routes so they reach their own handlers
   app.use("*", (req, res, next) => {
     // Don't serve index.html for API routes - let them 404 or be handled by tRPC
     if (req.path.startsWith("/api/")) {
+      return next();
+    }
+    // Don't override cache headers for storage proxy assets (images, etc.)
+    // The storageProxy sets its own cache headers (public, max-age=604800, immutable)
+    if (req.path.startsWith("/manus-storage/") || req.path.startsWith("/api/video/")) {
       return next();
     }
     // Prevent caching of HTML pages to ensure users always get the latest version

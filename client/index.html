@@ -64,15 +64,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Non-blocking font load: media="print" trick loads CSS async, onload switches to all -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <!-- Font swap strategy: display system fonts immediately, swap to Google Fonts when loaded (reduces CLS) -->
+    <!-- Font metric overrides: fallback fonts sized to match Google Fonts, preventing CLS on swap -->
     <style>
       @font-face {
-        font-family: 'Space Grotesk';
-        font-display: swap;
+        font-family: 'Space Grotesk Fallback';
+        src: local('Arial');
+        size-adjust: 97.7%;
+        ascent-override: 102.3%;
+        descent-override: 25.6%;
+        line-gap-override: 0%;
       }
       @font-face {
-        font-family: 'DM Sans';
-        font-display: swap;
+        font-family: 'DM Sans Fallback';
+        src: local('Arial');
+        size-adjust: 100%;
+        ascent-override: 98%;
+        descent-override: 24%;
+        line-gap-override: 0%;
       }
     </style>
     <!-- Fallback for browsers without JS -->
@@ -242,7 +250,9 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Hero loading skeleton: shows immediately before React mounts, prevents blank white flash -->
+    <!-- Background color matches hero section, so there's no visual jump when React renders -->
+    <div id="root" style="background:#0A0E1A;min-height:100vh;"></div>
     <script type="module" src="/src/main.tsx"></script>
 
     <!-- Google Analytics 4: loaded after page interactive to reduce INP -->
