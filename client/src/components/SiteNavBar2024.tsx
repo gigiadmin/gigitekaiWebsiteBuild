@@ -172,14 +172,13 @@ export default function SiteNavBar2024() {
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
               { label: "Insights", href: "/blog", show: 'always' },
-              { label: "🤖 Watch AI Work Live", href: "/ai-demo", show: 'always' },
             ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 className={`px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap${ (item as any).show === '2xl' ? ' hidden 2xl:inline-flex' : ''}`}
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                onClick={() => item.label.includes("Watch AI Work Live") && trackAIDemoClick("desktop_nav")}
+                
               >
                 {item.label}
               </a>
@@ -281,7 +280,6 @@ export default function SiteNavBar2024() {
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
-                { label: "🤖 Watch AI Work Live", href: "/ai-demo", id: "nav-ai-demo" },
               ].map((item) => (
                 <a
                   key={item.href}
