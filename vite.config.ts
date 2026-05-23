@@ -229,31 +229,39 @@ function vitePluginStripMsalStaticImport(): Plugin {
     name: 'vite-plugin-strip-msal-static-import',
     enforce: 'post',
     writeBundle(options, bundle) {
-      if (process.env.NODE_ENV !== 'production') return;
+      // Note: Don't check NODE_ENV here - Vite build always produces production output
+      // but the shell environment may still say 'development'
       const outDir = options.dir || 'dist/public';
       // Find the msal chunk name
       const msalChunkName = Object.keys(bundle).find(name => name.startsWith('assets/msal-') && name.endsWith('.js'));
       if (!msalChunkName) return;
       const msalFile = msalChunkName.split('/').pop()!; // e.g. msal-CZsMGMEI.js
       const msalBase = msalFile.replace('.js', ''); // e.g. msal-CZsMGMEI
-      // Strip static msal imports from main.js and all public-page chunks
-      // Admin chunks legitimately need msal, so we keep their imports
-      const ADMIN_CHUNKS = ['AdminApp-', 'AdminLogin', 'AdminHome-', 'AdminUnlock-', 'redirect-'];
+      // SAFE APPROACH: Replace msal import with a no-op __vitePreload shim.
+      // Vite bundles __vitePreload into the msal chunk, creating a static dependency.
+      // Since modulePreload is disabled, all calls pass empty deps arrays [],
+      // so __vitePreload simplifies to just calling the first argument.
+      // We replace the import with a local shim: const X = (fn) => fn();
+      // This preserves the variable binding while eliminating the 230KB download.
+      const ADMIN_CHUNKS = ['AdminApp-', 'AdminLogin', 'AdminHome-', 'AdminUnlock-', 'redirect-', 'AdminLoginAzure-'];
       let stripped = 0;
       for (const [chunkName, chunk] of Object.entries(bundle)) {
         if (chunk.type !== 'chunk') continue;
         if (!chunkName.endsWith('.js')) continue;
-        // Skip admin chunks - they need msal
+        // Skip admin chunks - they legitimately need msal
         const baseName = chunkName.split('/').pop() || '';
         if (ADMIN_CHUNKS.some(prefix => baseName.startsWith(prefix))) continue;
         const chunkInfo = chunk as { code: string };
         if (!chunkInfo.code) continue;
-        // Remove side-effect import: import"./msal-XXX.js";
-        const sideEffectPattern = new RegExp(`import"\.\/${msalBase}\.js";`, 'g');
-        // Remove named import: import{_ as s}from"./msal-XXX.js";
-        const namedPattern = new RegExp(`import\\{[^}]+\\}from"\.\/${msalBase}\.js";`, 'g');
         const original = chunkInfo.code;
-        chunkInfo.code = chunkInfo.code.replace(sideEffectPattern, '').replace(namedPattern, '');
+        // Replace named import: import{_ as X}from"./msal-XXX.js"; -> const X=(fn)=>fn();
+        const namedPattern = new RegExp(`import\\{_\\s+as\\s+(\\w+)\\}from"\\.\\/${msalBase}\\.js";`, 'g');
+        chunkInfo.code = chunkInfo.code.replace(namedPattern, (_, varName) => {
+          return `const ${varName}=(fn)=>fn();`;
+        });
+        // Remove side-effect imports: import"./msal-XXX.js";
+        const sideEffectPattern = new RegExp(`import"\\.\\/${msalBase}\\.js";`, 'g');
+        chunkInfo.code = chunkInfo.code.replace(sideEffectPattern, '');
         if (chunkInfo.code !== original) {
           const filePath = path.join(outDir, chunkName);
           fs.writeFileSync(filePath, chunkInfo.code);
@@ -261,7 +269,7 @@ function vitePluginStripMsalStaticImport(): Plugin {
         }
       }
       if (stripped > 0) {
-        console.log(`[strip-msal] Removed static msal imports from ${stripped} public chunks (saves ~70KB gzip per page load)`);
+        console.log(`[strip-msal] Replaced msal imports with no-op shim in ${stripped} public chunks (saves ~230KB / ~60KB gzip)`);
       }
     },
   };
@@ -381,7 +389,8 @@ const plugins = [
   vitePluginManusDebugCollector(),
   vitePluginNonBlockingCSS(),
   vitePluginBootstrapFallback(),
-  // DISABLED: vitePluginStripMsalStaticImport() — caused 'n is not defined' crash by removing named imports that were actually used at runtime
+  // RE-ENABLED: Now uses safe replacement (const X=(fn)=>fn()) instead of removal
+  vitePluginStripMsalStaticImport(),
   visualizer({
     open: false,
     gzipSize: true,
