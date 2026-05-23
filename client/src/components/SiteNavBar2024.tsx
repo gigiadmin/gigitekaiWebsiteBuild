@@ -36,9 +36,6 @@ export default function SiteNavBar2024() {
     { label: "Cybersecurity", href: "/services/security" },
     { label: "Data Analytics", href: "/services/data" },
     { label: "IT Strategy", href: "/services/strategy" },
-    { label: "🌴 Florida IT Resiliency", href: "/florida-it-resiliency" },
-    { label: "🔄 The Switch Program", href: "/switch-program" },
-    { label: "📊 Compliance Scorecard", href: "/compliance-scorecard" },
   ];
 
   useEffect(() => {
@@ -174,10 +171,8 @@ export default function SiteNavBar2024() {
               { label: "Industries", href: "/industries/healthcare", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
-              { label: "Insights", href: "/blog", show: '2xl' },
-              { label: "⚡ AI Briefing", href: "/AIStrategicBriefing", show: '2xl' },
-              { label: "🤖 Watch AI Work Live", href: "/ai-demo", show: '2xl' },
-              { label: "🔗 Client Exchange", href: "/exchange", show: '2xl' },
+              { label: "Insights", href: "/blog", show: 'always' },
+              { label: "🤖 Watch AI Work Live", href: "/ai-demo", show: 'always' },
             ].map((item) => (
               <a
                 key={item.href}

@@ -159,6 +159,12 @@
 - [x] Keep the $300 special offer section
 - [x] Match flyer styling: dark navy background, cyan accents, clean card layout with features list
 
+## Navigation Simplification (May 2026)
+- [x] Remove 5 items from main nav: Florida IT Resiliency, The Switch Program, Compliance Scorecard, AI Briefing, Client Exchange
+- [x] Consolidate services dropdown to 6 core items (Cloud, AI, Managed IT, Security, Data, Strategy)
+- [x] Add removed items to footer under new "Tools" section
+- [x] Build and verify no errors
+
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
 - [ ] Add frontend form/modal for creating KB articles in admin KB Generation page

@@ -24,6 +24,12 @@ const footerLinks = {
     "Insights Blog",
     "Support Portal",
   ],
+  Tools: [
+    "Compliance Scorecard",
+    "Florida IT Resiliency",
+    "The Switch Program",
+    "Client Exchange",
+  ],
   Industries: [
     "Healthcare",
     "Financial Services",
