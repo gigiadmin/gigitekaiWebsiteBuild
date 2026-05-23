@@ -22,7 +22,7 @@ export function SchemaMarkup() {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Customer Support",
-      telephone: "(727) 382-6909",
+      telephone: "(727) 382-5776",
       email: "support@gigitekai.com"
     },
     address: {
@@ -41,7 +41,7 @@ export function SchemaMarkup() {
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png",
     description: "AI-first Managed Services Provider for Microsoft 365, Cloud Infrastructure, and Cybersecurity",
     url: "https://gigitekai.com",
-    telephone: "(727) 382-6909",
+    telephone: "(727) 382-5776",
     email: "support@gigitekai.com",
     address: {
       "@type": "PostalAddress",

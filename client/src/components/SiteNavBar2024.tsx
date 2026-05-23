@@ -89,9 +89,9 @@ export default function SiteNavBar2024() {
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 support@gigitekai.com
               </a>
-              <a href="tel:+1727-382-6909" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-6909">
+              <a href="tel:+1727-382-5776" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at (727) 382-5776">
                 <Phone size={12} aria-hidden="true" />
-                (727) 382-6909
+                (727) 382-5776
               </a>
             </div>
           </div>

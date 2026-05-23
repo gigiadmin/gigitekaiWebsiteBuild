@@ -275,7 +275,7 @@ async function processVoicemail(
     const [callLogResult] = await db.insert(callLogs).values({
       graphCallId,
       callerNumber,
-      calleeNumber: "+17273826909", // GigitekAI main line
+      calleeNumber: "+17273825776", // GigitekAI main line
       calleeDisplayName: "GigitekAI Main Line Auto Attendant",
       calleeUpn: "voicemail@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,

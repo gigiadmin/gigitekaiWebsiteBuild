@@ -94,10 +94,10 @@ export default function SwitchProgram() {
               Start My Free IT Audit <ArrowRight size={18} />
             </Link>
             <a
-              href="tel:+1727-382-6909"
+              href="tel:+1727-382-5776"
               className="flex items-center gap-2 btn-outline-cyan text-base px-8 py-3"
             >
-              <Phone size={18} /> Call (727) 382-6909
+              <Phone size={18} /> Call (727) 382-5776
             </a>
           </div>
         </div>
@@ -351,8 +351,8 @@ export default function SwitchProgram() {
           )}
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400 mt-8">
-            <a href="tel:+1727-382-6909" className="flex items-center gap-2 hover:text-[#00D4FF] transition-colors">
-              <Phone size={15} /> (727) 382-6909
+            <a href="tel:+1727-382-5776" className="flex items-center gap-2 hover:text-[#00D4FF] transition-colors">
+              <Phone size={15} /> (727) 382-5776
             </a>
             <a href="mailto:support@gigitekai.com" className="flex items-center gap-2 hover:text-[#00D4FF] transition-colors">
               <Mail size={15} /> support@gigitekai.com

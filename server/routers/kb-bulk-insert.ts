@@ -36,7 +36,7 @@ Escalate if:
 - Password reset portal shows an error that persists
 - User reports suspicious sign-in activity
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Microsoft 365 Account Locked (Too Many Sign-In Attempts)",
@@ -61,7 +61,7 @@ Escalate if:
 - User receives a 'blocked' or 'risk' message
 - User cannot access MFA methods
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Set Up Multi-Factor Authentication (MFA) for Microsoft 365",
@@ -88,7 +88,7 @@ Escalate if:
 - QR code fails repeatedly
 - User has no valid verification method
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix MFA Push Notification Not Received",
@@ -115,7 +115,7 @@ Escalate if:
 - Phone changed and old device is the only method
 - MFA requests never arrive after retries
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Update MFA After Getting a New Phone",
@@ -142,7 +142,7 @@ Escalate if:
 - No alternate verification method exists
 - Account is blocked by policy/risk
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Mailbox Full or Quota Exceeded",
@@ -167,7 +167,7 @@ Escalate if:
 - User needs a quota increase
 - Archive mailbox is not enabled
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Troubleshoot Email Delivery Issues",
@@ -192,7 +192,7 @@ Escalate if:
 - OWA is also delayed
 - Multiple users report the same issue
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Outlook Search Not Working",
@@ -217,7 +217,7 @@ Escalate if:
 - Rebuild does not fix the issue
 - Search is broken in OWA as well
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Microsoft Teams Will Not Open or Load",
@@ -242,7 +242,7 @@ Escalate if:
 - Teams still fails to open
 - User gets an error code on launch
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Microsoft Teams Audio or Video Issues",
@@ -267,7 +267,7 @@ Escalate if:
 - Hardware is not detected by Windows
 - Driver updates are needed
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Resolve Device Not Compliant in Intune",
@@ -292,7 +292,7 @@ Escalate if:
 - Device remains non-compliant after fixes
 - Policy evaluation fails
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "How to Enroll Device in Intune Company Portal",
@@ -317,7 +317,7 @@ Escalate if:
 - Enrollment fails with an error code
 - User cannot sign in to Company Portal
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix General OneDrive Sync Issues",
@@ -342,7 +342,7 @@ Escalate if:
 - Sync remains stuck after restart
 - OneDrive app crashes continuously
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Troubleshoot Slow Windows Performance",
@@ -367,7 +367,7 @@ Escalate if:
 - Performance remains poor after restart
 - Hardware failure suspected
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix VPN Connectivity Issues",
@@ -392,7 +392,7 @@ Escalate if:
 - VPN fails with specific error code
 - Multiple users report VPN down
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Recover Deleted Emails in Outlook",
@@ -417,7 +417,7 @@ Escalate if:
 - Email is not in the recoverable items list
 - Email was deleted over 30 days ago
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix 'Your Account Has Been Blocked' (Risk Event)",
@@ -442,7 +442,7 @@ Escalate if:
 - User cannot reset password
 - Account remains blocked after reset
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket immediately.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket immediately.**`
   },
   {
     title: "Add Shared Mailbox in Outlook",
@@ -467,7 +467,7 @@ Escalate if:
 - User receives an 'Access Denied' error
 - Shared mailbox does not populate
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Microsoft Word/Excel Crashing on Launch",
@@ -492,7 +492,7 @@ Escalate if:
 - Online Repair does not fix the issue
 - App crashes in Safe Mode
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Clear Microsoft Teams Cache",
@@ -517,7 +517,7 @@ Escalate if:
 - Issue persists after clearing cache
 - User cannot locate the folder
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Missing Teams Meetings in Outlook Calendar",
@@ -542,7 +542,7 @@ Escalate if:
 - Add-in is not listed
 - Add-in disables itself after restart
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "How to Share a File Securely via OneDrive",
@@ -567,7 +567,7 @@ Escalate if:
 - External sharing is blocked by policy
 - Link generates an error
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix 'Sign-in required' Error in Office Apps",
@@ -592,7 +592,7 @@ Escalate if:
 - Sign-in loop continues
 - User receives an activation error code
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Request Software Installation via Helpdesk",
@@ -617,7 +617,7 @@ Escalate if:
 - Software fails to deploy
 - User needs urgent access
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix BitLocker Recovery Key Prompt on Boot",
@@ -642,7 +642,7 @@ Escalate if:
 - Key is not found in the portal
 - Computer rejects the correct key
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket immediately.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket immediately.**`
   },
   {
     title: "Connect to Office Wi-Fi Network",
@@ -667,7 +667,7 @@ Escalate if:
 - Authentication fails
 - Network is not visible
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Set Up Out of Office (Automatic Replies)",
@@ -692,7 +692,7 @@ Escalate if:
 - Automatic Replies button is missing
 - Replies are not sending externally
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix 'Cannot Print' / Printer Offline",
@@ -717,7 +717,7 @@ Escalate if:
 - Printer remains offline
 - Driver issues suspected
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "How to Report Phishing or Spam Emails",
@@ -742,7 +742,7 @@ Escalate if:
 - User clicked a link or provided credentials
 - Report button is missing
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket immediately.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket immediately.**`
   },
   {
     title: "Fix OneDrive Duplicate or Conflicting Files",
@@ -766,7 +766,7 @@ Escalate if:
 - Large data mismatch
 - Sync fails repeatedly
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   },
   {
     title: "Fix Outlook Stuck on Loading Profile",
@@ -792,7 +792,7 @@ Escalate if:
 - Outlook fails after new profile
 - Mailbox mapping errors occur
 
-**Contact helpdesk at (727) 382-6909 or create an internal support ticket.**`
+**Contact helpdesk at (727) 382-5776 or create an internal support ticket.**`
   }
 ];
 

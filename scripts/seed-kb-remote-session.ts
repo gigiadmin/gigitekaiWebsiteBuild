@@ -105,7 +105,7 @@ A: Use the chat feature to send encrypted messages instead of screen sharing sen
 If you encounter issues with Remote Session:
 - **Customers**: Create a ticket in your helpdesk portal
 - **Agents**: Contact the admin team via Slack or email
-- **Emergency**: Call (727) 382-6909
+- **Emergency**: Call (727) 382-5776
 
 ---
 

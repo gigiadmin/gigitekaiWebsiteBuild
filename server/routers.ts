@@ -523,7 +523,7 @@ Submitted from GigitekAI website contact form.
                       <li>We kick off your zero-downtime migration</li>
                     </ol>
                   </div>
-                  <p style="color: #94a3b8; font-size: 13px;">Questions? Call us at <a href="tel:+1727-382-6909" style="color: #00D4FF;">(727) 382-6909</a> or email <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a></p>
+                  <p style="color: #94a3b8; font-size: 13px;">Questions? Call us at <a href="tel:+1727-382-5776" style="color: #00D4FF;">(727) 382-5776</a> or email <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a></p>
                   <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 24px 0;">
                   <p style="color: #64748b; font-size: 12px;">GigitekAI • Cloud & AI Solutions • gigitekai.com</p>
                 </div>

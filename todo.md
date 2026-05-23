@@ -5397,3 +5397,12 @@
 - [x] Removed video poster preload (video skipped on mobile, hero bg is LCP)
 - [ ] Lazy-load MSAL/auth module (remove from initial bundle)
 - [ ] Lazy-render below-fold homepage sections with IntersectionObserver
+
+## Critical Launch-Readiness Fixes (May 23, 2026)
+- [ ] SSR/SSG: Full homepage content in initial HTML response (hero, stats, services, CTA)
+- [ ] SSR/SSG: /privacy-policy full text in initial HTML response
+- [ ] SSR/SSG: /terms-of-service full text in initial HTML response
+- [ ] Contact info: Phone (727) 382-5776 and email support@gigitekai.com visible in header and footer
+- [ ] Footer: Add Privacy Policy and Terms of Service links
+- [ ] Schema markup: Organization JSON-LD in head section
+- [ ] Heading structure: Only one H1 on homepage, all others H2
