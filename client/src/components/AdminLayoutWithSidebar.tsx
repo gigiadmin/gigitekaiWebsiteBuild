@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import {
@@ -188,7 +189,7 @@ export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutPro
         <div className="p-4 border-b border-gray-800/40">
           <div className="flex items-center gap-2 mb-4">
             <img
-              src="/manus-storage/gigitekai-logo_70150bdc.png"
+              src={LOGO_DATA_URL}
               alt="GigitekAI logo"
               className="h-10 w-auto object-contain max-w-[160px]"
               width="200"

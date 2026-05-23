@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -171,7 +172,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0 bg-white rounded-lg px-2 py-1">
                   <img
-                    src="/manus-storage/gigitekai-logo_70150bdc.png"
+                    src={LOGO_DATA_URL}
                     alt="GigitekAI logo"
                     className="h-6 w-auto object-contain max-w-[120px]"
                   />

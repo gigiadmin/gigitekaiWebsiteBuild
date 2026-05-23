@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 export default function ContactCard() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
@@ -5,7 +6,7 @@ export default function ContactCard() {
         {/* Logo */}
         <div className="mb-8">
           <img 
-            src="/manus-storage/gigitekai-logo_70150bdc.png" 
+            src={LOGO_DATA_URL} 
             alt="GigitekAI" 
             className="w-40 h-auto mx-auto"
             loading="lazy"

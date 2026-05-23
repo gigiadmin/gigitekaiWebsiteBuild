@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 /*
   GigitekAI Footer — Dark background, links, social, copyright
   Mirrors appliedtech.us footer structure
@@ -52,7 +53,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             <a href="/" className="flex items-center gap-2 mb-4">
               <img 
-                src="/manus-storage/gigitekai-logo_70150bdc.png" 
+                src={LOGO_DATA_URL} 
                 alt="GigitekAI logo" 
                 className="h-10 w-auto object-contain"
                 width="200"

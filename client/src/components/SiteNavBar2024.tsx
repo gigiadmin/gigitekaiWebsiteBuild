@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 /*
   GigitekAI Navbar — Theme-aware navigation
   Two-tier navigation: top utility bar + main nav
@@ -115,7 +116,7 @@ export default function SiteNavBar2024() {
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group flex-shrink-0">
             <img 
-              src="/manus-storage/gigitekai-logo_70150bdc.png" 
+              src={LOGO_DATA_URL} 
               alt="GigitekAI logo" 
               className="h-7 sm:h-8 lg:h-8 w-auto object-contain"
               width="245"

@@ -1,3 +1,4 @@
+import { LOGO_DATA_URL } from "@/lib/logoData";
 import { useState } from "react";
 import { Menu, X, Home, BarChart3, Settings, LogOut, Users, FileText, MessageSquare, Zap, Bell, Globe, TrendingUp, ExternalLink } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -86,7 +87,7 @@ export default function MobileAdminMenu() {
         {/* Header */}
         <div className="p-4 border-b border-gray-800 flex items-center justify-between">
           <img
-            src="/manus-storage/gigitekai-logo_70150bdc.png"
+            src={LOGO_DATA_URL}
             alt="GigitekAI logo"
             className="h-10 w-auto object-contain max-w-[150px]"
           />
