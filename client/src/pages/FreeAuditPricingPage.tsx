@@ -3,7 +3,6 @@ import { Check, Zap, TrendingUp, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import { Card } from "@/components/ui/card";
-import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 interface PricingTier {
   id: string;
