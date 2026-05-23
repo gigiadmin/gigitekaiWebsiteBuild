@@ -30,7 +30,9 @@ function getOrCreateMountPoint(): HTMLElement {
   const root = document.getElementById('root');
   if (root) {
     // Clear anything manus-runtime may have put in #root
-    root.innerHTML = '';
+    while (root.firstChild) {
+      root.removeChild(root.firstChild);
+    }
     root.appendChild(el);
   } else {
     // Fallback: append directly to body
@@ -185,15 +187,30 @@ function mountApp() {
         console.log('[GigitekAI] React mounted on retry');
       } catch (retryErr) {
         console.error('[GigitekAI] React mount retry also failed:', retryErr);
-        document.body.innerHTML = `
-          <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0E1A;color:white;font-family:sans-serif;text-align:center;padding:2rem;">
-            <div>
-              <h1 style="color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;">GigitekAI</h1>
-              <p style="font-size:1.2rem;margin-bottom:2rem;">We're experiencing a temporary issue. Please try refreshing the page.</p>
-              <button onclick="location.reload()" style="background:#00D4FF;color:#0A0E1A;border:none;padding:12px 32px;font-size:1rem;border-radius:8px;cursor:pointer;font-weight:600;">Refresh Page</button>
-            </div>
-          </div>
-        `;
+        // Build error UI without innerHTML to avoid deprecated API warning
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0E1A;color:white;font-family:sans-serif;text-align:center;padding:2rem;';
+        
+        const errorContent = document.createElement('div');
+        
+        const heading = document.createElement('h1');
+        heading.style.cssText = 'color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;';
+        heading.textContent = 'GigitekAI';
+        errorContent.appendChild(heading);
+        
+        const message = document.createElement('p');
+        message.style.cssText = 'font-size:1.2rem;margin-bottom:2rem;';
+        message.textContent = "We're experiencing a temporary issue. Please try refreshing the page.";
+        errorContent.appendChild(message);
+        
+        const button = document.createElement('button');
+        button.style.cssText = 'background:#00D4FF;color:#0A0E1A;border:none;padding:12px 32px;font-size:1rem;border-radius:8px;cursor:pointer;font-weight:600;';
+        button.textContent = 'Refresh Page';
+        button.addEventListener('click', () => location.reload());
+        errorContent.appendChild(button);
+        
+        errorContainer.appendChild(errorContent);
+        document.body.appendChild(errorContainer);
       }
     }, 100);
   }

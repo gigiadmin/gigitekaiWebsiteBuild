@@ -57,11 +57,20 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
     "camera=(), microphone=(), geolocation=(), payment=()"
   );
 
-  // Strict Transport Security (HTTPS only, 1 year)
+  // Cross-Origin-Opener-Policy — prevent cross-origin opener access (COOP)
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+
+  // Cross-Origin-Resource-Policy — restrict cross-origin resource sharing (CORP)
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
+  // Cross-Origin-Embedder-Policy — require cross-origin resources to be CORS-enabled (COEP)
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+
+  // Strict Transport Security (HTTPS only, 1 year + preload)
   if (process.env.NODE_ENV === "production") {
     res.setHeader(
       "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
+      "max-age=31536000; includeSubDomains; preload"
     );
   }
 
