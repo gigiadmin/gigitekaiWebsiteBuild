@@ -349,3 +349,4 @@ export default function SiteNavBar2024() {
     </>
   );
 }
+// Nav simplified - force deploy 1779575928
