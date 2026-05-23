@@ -5,7 +5,7 @@ export default function ContactCard() {
         {/* Logo */}
         <div className="mb-8">
           <img 
-            src="https://cdn.gigitekai.com/gigitekai-logo.webp" 
+            src="/manus-storage/gigitekai-logo-optimized_0b6c5e05.webp" 
             alt="GigitekAI" 
             className="w-40 h-auto mx-auto"
             loading="lazy"
@@ -15,7 +15,7 @@ export default function ContactCard() {
         {/* QR Code */}
         <div className="my-8">
           <img 
-            src="https://cdn.gigitekai.com/qr-contact-with-text.png" 
+            src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://gigitekai.com&margin=10" 
             alt="QR Code" 
             className="w-64 h-auto mx-auto border border-gray-200 rounded-lg"
               loading="lazy"
