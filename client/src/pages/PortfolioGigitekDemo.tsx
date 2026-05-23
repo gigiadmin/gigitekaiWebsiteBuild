@@ -4,6 +4,7 @@
  */
 
 import { DemoSiteTemplate } from '@/components/DemoSiteTemplate';
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 const GIGITEK_SERVICES = [
   {

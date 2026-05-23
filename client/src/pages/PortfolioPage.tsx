@@ -438,24 +438,27 @@ export default function WebsitesPage() {
             {[
               {
                 name: "Starter",
-                price: "$899",
+                price: "$199",
+                setup: "$499 one-time",
                 description: "Perfect for businesses just getting started",
-                features: ["5-10 Page Website", "Mobile Responsive Design", "Basic SEO", "Contact Form", "Google Analytics", "SSL Certificate", "Monthly Backups", "Email Support"],
+                features: ["Up to 3 pages", "Mobile responsive", "Basic AI chatbot", "Contact form", "SSL & hosting included", "Email support"],
                 color: "#00D4FF"
               },
               {
                 name: "Growth",
-                price: "$1,699",
+                price: "$399",
+                setup: "$999 one-time",
                 description: "For scaling businesses ready to leverage AI",
-                features: ["Unlimited Pages", "Custom Design", "Full SEO Services", "Google Business Profile", "Google Ads Management", "Back-linking & Technical SEO", "Lead Tracking", "Priority Support"],
+                features: ["Up to 7 pages", "Advanced AI chatbot", "Blog/content section", "Monthly performance report", "SEO optimization", "Priority support"],
                 color: "#9D4EDD",
                 popular: true
               },
               {
-                name: "Enterprise",
-                price: "$2,799",
+                name: "Pro",
+                price: "$799",
+                setup: "$1,999 one-time",
                 description: "Complete web solutions with custom integrations & dedicated support",
-                features: ["Custom Website + Landing Pages", "Full Custom Design", "Full SEO Services", "AI Engine Optimization (AEO)", "PPC & Google Ads Management", "Back-linking & Technical SEO", "E-commerce Capability", "Advanced & Custom Integrations", "Multi-site Management", "Custom API Development", "Dedicated Account Manager"],
+                features: ["Unlimited pages", "E-commerce ready", "Custom integrations", "Advanced AI features", "Custom migrations", "Priority support"],
                 color: "#00D97E"
               }
             ].map((pkg, idx) => (
@@ -472,7 +475,7 @@ export default function WebsitesPage() {
                     <span className="text-4xl font-bold" style={{ color: pkg.color }}>{pkg.price}</span>
                     <span className="text-sm text-slate-500">/month</span>
                   </div>
-
+                  {pkg.setup && <p className="text-xs text-slate-400 mt-1">{pkg.setup}</p>}
                 </div>
                 <div className="space-y-2 mb-6">
                   {pkg.features.map((feature, fidx) => (

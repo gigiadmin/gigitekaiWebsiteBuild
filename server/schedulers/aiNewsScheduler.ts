@@ -133,15 +133,74 @@ function generateNewsletterHtml(newsItems: NewsItem[]): string {
 /** Track last successful run date to prevent duplicates */
 let lastRunDate: string | null = null;
 
+/** Get last run date from database (persisted across server restarts) */
+async function getLastRunDateFromDb(): Promise<string | null> {
+  try {
+    const { getDb } = await import("../db");
+    const db = await getDb();
+    if (!db) return null;
+    const { settings } = await import("../../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+    const [record] = await db
+      .select({ value: settings.value })
+      .from(settings)
+      .where(eq(settings.key, "ai_news_last_run_date"))
+      .limit(1);
+    return record?.value ?? null;
+  } catch (err) {
+    console.warn("[AI News Scheduler] Failed to get last run date from DB:", err);
+    return null;
+  }
+}
+
+/** Save last run date to database (persisted across server restarts) */
+async function saveLastRunDateToDb(date: string): Promise<void> {
+  try {
+    const { getDb } = await import("../db");
+    const db = await getDb();
+    if (!db) return;
+    const { settings } = await import("../../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+    const [existing] = await db
+      .select({ id: settings.id })
+      .from(settings)
+      .where(eq(settings.key, "ai_news_last_run_date"))
+      .limit(1);
+    if (existing) {
+      await db
+        .update(settings)
+        .set({ value: date, updatedAt: new Date() })
+        .where(eq(settings.key, "ai_news_last_run_date"));
+    } else {
+      await db.insert(settings).values({
+        key: "ai_news_last_run_date",
+        value: date,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+  } catch (err) {
+    console.warn("[AI News Scheduler] Failed to save last run date to DB:", err);
+  }
+}
+
 export async function runAiNewsRecap(): Promise<void> {
   // Get today's date in ET
   const now = new Date();
   const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
   const todayET = etNow.toISOString().split("T")[0]; // YYYY-MM-DD
 
-  // Prevent duplicate runs on the same day
+  // Check if already ran today (from memory or database)
   if (lastRunDate === todayET) {
-    console.log(`[AI News Scheduler] Already ran today (${todayET}) — skipping duplicate`);
+    console.log(`[AI News Scheduler] Already ran today (${todayET}) in memory — skipping duplicate`);
+    return;
+  }
+
+  // Also check database in case server restarted
+  const dbLastRunDate = await getLastRunDateFromDb();
+  if (dbLastRunDate === todayET) {
+    lastRunDate = todayET; // Update memory
+    console.log(`[AI News Scheduler] Already ran today (${todayET}) per database — skipping duplicate`);
     return;
   }
 
@@ -193,8 +252,9 @@ export async function runAiNewsRecap(): Promise<void> {
       return;
     }
 
-    // Mark run as successful for today
+    // Mark run as successful for today (in memory and database)
     lastRunDate = todayET;
+    await saveLastRunDateToDb(todayET);
     console.log(
       `[AI News Scheduler] ✅ Done — Blog: ${result.blog?.url ?? "skipped"} | Newsletter: ${result.newsletter?.sentCount ?? 0}/${result.newsletter?.recipientCount ?? 0} delivered`
     );

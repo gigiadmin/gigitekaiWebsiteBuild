@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Check, Zap, TrendingUp, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import { Card } from "@/components/ui/card";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 interface PricingTier {
   id: string;
@@ -79,7 +81,8 @@ export default function FreeAuditPricingPage() {
   const [selectedTier, setSelectedTier] = useState("growth");
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white">
+    <div className="min-h-screen">
+      <SiteNavBar2024 />
       {/* Hero Section */}
       <div className="relative overflow-hidden pt-20 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">

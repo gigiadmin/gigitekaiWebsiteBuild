@@ -29,21 +29,8 @@ export default function FreeAuditLandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white">
+      <SiteNavBar2024 />
       <main>
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#0A0E1A]/95 backdrop-blur border-b border-gray-800/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-white">Gigitek<span className="text-[#00D4FF]">AI</span></span>
-          </a>
-          <a
-            href="https://gigitekai.com"
-            className="text-sm text-gray-300 hover:text-[#00D4FF] transition-colors"
-          >
-            Back to GigitekAI
-          </a>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/50 to-transparent border-b border-gray-800/40">

@@ -165,6 +165,11 @@
 - [x] Add removed items to footer under new "Tools" section
 - [x] Build and verify no errors
 
+## Navigation & UX Fixes (May 2026 - COMPLETE)
+- [x] Navigation: Added SiteNavBar2024 to all public-facing pages (PortfolioPage, FreeAuditLandingPage, etc.) so users can navigate back home
+- [x] Pricing: Updated PortfolioPage pricing to match /web-pricing (Starter $199/mo, Growth $399/mo, Pro $799/mo)
+- [x] AI News: Fixed scheduler to persist last run date to database instead of memory to prevent duplicate emails on server restart
+
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually
 - [ ] Add frontend form/modal for creating KB articles in admin KB Generation page
@@ -5417,3 +5422,10 @@
 - [ ] Footer: Add Privacy Policy and Terms of Service links
 - [ ] Schema markup: Organization JSON-LD in head section
 - [ ] Heading structure: Only one H1 on homepage, all others H2
+
+
+## Navigation & UX Fixes (May 2026)
+- [ ] Add persistent navigation/header to all pages (home, websites, industries, blog, etc.) so users can navigate back
+- [ ] Update /websites page pricing to match /web-pricing (Starter $199/mo, Growth $399/mo, Pro $799/mo)
+- [ ] Ensure all portfolio demo pages have back links to /websites
+- [ ] Fix AI News Daily Recap duplicate emails (persist last run date to database instead of memory)
