@@ -49,20 +49,19 @@ export default function HeroSection() {
   }, []);
 
   // Defer video element insertion until after LCP (poster image) has rendered
-  // This prevents the video download from competing with the LCP image
+  // On mobile: NEVER load the video — show static poster image only (saves 15MB download)
+  // On desktop: delay by 500ms to let LCP image render first
   useEffect(() => {
-    // On mobile: delay video load by 2s to let LCP image render first
-    // On desktop: delay by 500ms (faster connection assumed)
-    const delay = isMobile ? 2000 : 500;
-    const t = setTimeout(() => setVideoReady(true), delay);
+    if (isMobile) return; // Mobile: no video, static image only
+    const t = setTimeout(() => setVideoReady(true), 500);
     return () => clearTimeout(t);
   }, [isMobile]);
 
-  // Autoplay muted — works on ALL browsers including iOS Safari
+    // Autoplay muted — works on ALL browsers including iOS Safari (desktop only)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
+    if (isMobile) return; // Mobile: no video
     video.muted = true;
     video.volume = 0.5;
     video.load();
