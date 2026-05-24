@@ -4863,9 +4863,10 @@
 - [x] Create and post AI Daily Recap newsletter (May 11, 2026) to newsletter section
 
 ## Newsletter Auto-Post API + Blog Integration (May 12, 2026)
-- [ ] Build /api/newsletter/auto-post endpoint (accepts content, sends to subscribers + creates blog post)
-- [ ] Secure endpoint with API key authentication
-- [ ] Write vitest tests for the auto-post endpoint
+## Newsletter Auto-Post Endpoint (COMPLETE)
+- [x] Build /api/newsletter/auto-post endpoint (accepts content, sends to subscribers + creates blog post) - implemented in server/newsletterAutoPost.ts
+- [x] Secure endpoint with API key authentication (Bearer token via NEWSLETTER_AUTO_POST_KEY env var)
+- [x] Write vitest tests for the auto-post endpoint (7 tests passing: blog creation, campaign creation, field validation, markdown conversion, slug generation, read time estimation, API key auth)
 - [ ] Update generate_newsletter.py to POST to the endpoint
 - [ ] Provide integration instructions for the scheduled task
 
