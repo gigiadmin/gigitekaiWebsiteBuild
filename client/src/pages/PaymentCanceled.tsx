@@ -6,12 +6,15 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ArrowLeft } from "lucide-react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 export default function PaymentCanceled() {
   const [, navigate] = useLocation();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background">
+      <SiteNavBar2024 />
+      <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full text-center">
         {/* Alert Icon */}
         <div className="mb-6 flex justify-center">
@@ -64,6 +67,7 @@ export default function PaymentCanceled() {
             Contact our support team
           </a>
         </p>
+      </div>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Download, Mail } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -23,7 +24,9 @@ export default function PaymentSuccess() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background">
+      <SiteNavBar2024 />
+      <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full text-center">
         {/* Success Icon */}
         <div className="mb-6 flex justify-center">
@@ -94,6 +97,7 @@ export default function PaymentSuccess() {
             Contact our support team
           </a>
         </p>
+      </div>
       </div>
     </div>
   );

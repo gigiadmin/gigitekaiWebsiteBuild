@@ -4,6 +4,7 @@ import { Loader2, Ticket, Settings, LogOut, Bell, Eye, Clock, CheckCircle2 } fro
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 export default function CustomerPortal() {
   const [activeTab, setActiveTab] = useState<"tickets" | "kb" | "settings">("tickets");
@@ -52,6 +53,7 @@ export default function CustomerPortal() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] to-[#141B2D]">
+      <SiteNavBar2024 />
       {/* Header */}
       <div className="bg-[#141B2D]/60 border-b border-gray-800/30 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">

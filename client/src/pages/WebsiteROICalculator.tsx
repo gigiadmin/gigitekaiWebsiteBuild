@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TrendingUp } from "lucide-react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 export default function WebsiteROICalculator() {
   const [monthlyRevenue, setMonthlyRevenue] = useState(50000);
@@ -26,7 +27,9 @@ export default function WebsiteROICalculator() {
   const paybackMonths = plan.monthlyPrice > monthlyProfit ? "N/A" : (plan.monthlyPrice / monthlyProfit).toFixed(1);
 
   return (
-    <div className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0A0E1A]">
+    <div className="min-h-screen bg-[#0A0E1A]">
+      <SiteNavBar2024 />
+      <div className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -176,6 +179,7 @@ export default function WebsiteROICalculator() {
             Get Your Free Website Audit
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

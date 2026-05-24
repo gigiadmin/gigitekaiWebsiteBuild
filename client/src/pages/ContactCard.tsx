@@ -1,7 +1,11 @@
 import { LOGO_DATA_URL } from "@/lib/logoData";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+
 export default function ContactCard() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white">
+      <SiteNavBar2024 />
+      <div className="flex items-center justify-center p-4 py-20">
       <div className="max-w-md w-full text-center">
         {/* Logo */}
         <div className="mb-8">
@@ -57,6 +61,7 @@ export default function ContactCard() {
             ✉️ support@gigitekai.com
           </a>
         </div>
+      </div>
       </div>
     </div>
   );

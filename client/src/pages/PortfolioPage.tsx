@@ -5,6 +5,7 @@
  */
 import { Link } from "wouter";
 import { ArrowRight, MessageCircle, Zap, Globe, Shield, Cpu, BarChart3, Smartphone, CheckCircle } from "lucide-react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 interface FeaturedSite {
   id: string;
@@ -175,6 +176,7 @@ const CAPABILITIES = [
 export default function WebsitesPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0A0E1A", color: "#F1F5F9" }}>
+      <SiteNavBar2024 />
       <main>
 
       {/* ── HERO ── */}
