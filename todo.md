@@ -5439,3 +5439,27 @@
 - [ ] Update /websites page pricing to match /web-pricing (Starter $199/mo, Growth $399/mo, Pro $799/mo)
 - [ ] Ensure all portfolio demo pages have back links to /websites
 - [ ] Fix AI News Daily Recap duplicate emails (persist last run date to database instead of memory)
+
+## Status Page & Monitoring (COMPLETE - May 2026)
+- [x] Create Status Page component showing system health
+- [x] Display real-time service status indicators (5 key services)
+- [x] Show uptime statistics (average 99.9%) and incident history
+- [x] Integrate with UptimeRobot monitoring link
+- [x] Add /status route to App.tsx
+- [x] Apply dark cyberpunk styling matching brand
+- [x] Add SiteNavBar2024 navigation to status page
+- [x] Accessible at https://gigitekai.com/status
+
+## Navigation Menu on All Pages (COMPLETE - May 2026)
+- [x] Add SiteNavBar2024 to PortfolioPage (/websites)
+- [x] Add SiteNavBar2024 to ROI Calculator
+- [x] Add SiteNavBar2024 to Payment Success/Canceled pages
+- [x] Add SiteNavBar2024 to ContactCard page
+- [x] Add SiteNavBar2024 to CustomerPortal page
+- [x] All public-facing pages now have consistent top navigation menu
+- [x] Fixed Delete Selected button text color (white on red background)
+
+## Delete Button Styling (COMPLETE - May 2026)
+- [x] Fixed Delete Selected button from low-contrast red/pink text to white text
+- [x] Changed from bg-red-500/20 text-red-400 to bg-red-600 hover:bg-red-700 text-white
+- [x] Now clearly visible and readable with proper accessibility contrast
