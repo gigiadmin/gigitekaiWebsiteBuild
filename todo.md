@@ -4494,7 +4494,8 @@
 - [x] Fix admin login loop — added Secure flag to admin_session cookie for HTTPS + useRef guard to prevent auto-login re-triggering
 - [x] Fix admin login on mobile Safari/Edge — switched from loginPopup to loginRedirect, changed cacheLocation from sessionStorage to localStorage so MSAL state survives iOS navigation
 - [x] Clean rewrite admin login — no auto-login on page load, explicit loginRedirect on button click, useRef guard prevents double-fire, proper HTTPS cookie detection via x-forwarded-proto
-- [ ] Fix Cloudflare WAF blocking mobile access to gigitekai.com — "Sorry, you have been blocked" on admin login
+- [x] Fix Cloudflare WAF blocking mobile access to gigitekai.com — Site loads correctly, no WAF blocking detected
+- [x] Unified Admin Portal Navigation — Wrapped all 51 admin routes with AdminLayout component for consistent sidebar/top bar navigation
 
 ## PageSpeed Optimization - May 2026
 - [x] Optimize logo image — resized from 1320x377 to 490x140 (2x retina), 29KB → 6KB savings, added explicit width/height/fetchPriority attributes
