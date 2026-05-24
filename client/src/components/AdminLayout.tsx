@@ -44,6 +44,7 @@ import {
   Headphones,
   Grid3X3,
   Home,
+  FileCheck,
 } from "lucide-react";
 
 interface NavItem {
@@ -106,6 +107,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Customers",
     items: [
+      { label: "Free Audits", icon: <FileCheck size={16} />, href: "/admin/audit" },
       { label: "Client Onboarding", icon: <Sparkles size={16} />, href: "/admin/client-onboarding" },
       { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
       { label: "Contacts", icon: <Inbox size={16} />, href: "/admin/contacts" },

@@ -48,6 +48,7 @@ const AdminServiceHealthMonitoring = lazy(() => import("./pages/AdminServiceHeal
 const AdminM365Health = lazy(() => import("./pages/AdminM365Health"));
 const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage"));
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
+const AdminAuditDashboard = lazy(() => import("./pages/AdminAuditDashboard"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
 const AdminContactCenterDashboardWrapper = lazy(() => import("./pages/AdminContactCenterDashboardWrapper"));
@@ -140,6 +141,7 @@ export default function AdminApp() {
               <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
               <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
               <Route path="/admin/xero" component={() => <ApprovalGuard><AdminXero /></ApprovalGuard>} />
+              <Route path="/admin/audit" component={() => <ApprovalGuard><AdminAuditDashboard /></ApprovalGuard>} />
               <Route path="/web-pricing" component={() => <WebPricingPage />} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
