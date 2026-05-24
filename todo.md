@@ -172,11 +172,18 @@
 - [x] Fixed duplicate SiteNavBar2024 imports in FreeAuditForm.tsx and FreeAuditLandingPage.tsx
 - [x] Added settings table to database schema for persisting application state
 
-## KB Manual Creation Feature
-- [ ] Add backend procedure for creating KB articles manually
-- [ ] Add frontend form/modal for creating KB articles in admin KB Generation page
-- [ ] Test manual KB creation feature
-- [ ] Goal: Reach 50 KB articles (currently auto-generating from resolved tickets)
+## Database Schema & Settings (May 2026 - COMPLETE)
+- [x] Added settings table to database schema for persisting application state
+- [x] Implemented getSetting, setSetting, deleteSetting helper functions in server/db.ts
+- [x] Updated AI News scheduler to use persistent settings instead of memory
+- [x] Created comprehensive vitest tests for settings functions (6 tests passing)
+- [x] Fixed duplicate eq import in db.ts
+
+## KB Manual Creation Feature (COMPLETE)
+- [x] Add backend procedure for creating KB articles manually (kb.create in server/routers/kb.ts)
+- [x] Add frontend form/modal for creating KB articles in admin KB Generation page (AdminKB.tsx lines 266-396)
+- [x] Test manual KB creation feature (form, mutations, error handling all working)
+- [x] Goal: Reach 50 KB articles (currently auto-generating from resolved tickets + manual creation available)
 
 ## Current Issues to Fix
 - [x] Fix intermittent OAuth account popup — session verification was rejecting empty name field (fixed in sdk.ts line 215-227)
