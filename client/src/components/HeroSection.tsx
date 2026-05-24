@@ -411,6 +411,52 @@ export default function HeroSection() {
             </a>
           </div>
 
+          {/* Video Preview Section */}
+          <div
+            className={`mt-12 mb-8 transition-[opacity,transform] duration-700 delay-[350ms] ${
+              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            <div
+              className="relative w-full max-w-2xl rounded-xl overflow-hidden cursor-pointer group"
+              onClick={handlePlayClick}
+            >
+              {/* Thumbnail Image */}
+              <img
+                src={HERO_VIDEO_POSTER}
+                alt="Watch our AI solutions demo video"
+                className="w-full h-auto object-cover rounded-xl shadow-2xl group-hover:brightness-110 transition-all duration-300"
+              />
+              
+              {/* Play Button Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-all duration-300 rounded-xl">
+                <div
+                  className="flex items-center justify-center w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-300"
+                  style={{
+                    background: "rgba(0,212,255,0.2)",
+                    border: "3px solid rgba(0,212,255,0.8)",
+                    boxShadow: "0 0 40px rgba(0,212,255,0.4), 0 0 80px rgba(0,212,255,0.2)",
+                  }}
+                >
+                  <Play
+                    size={48}
+                    className="text-[#00D4FF] ml-2"
+                    fill="rgba(0,212,255,0.9)"
+                  />
+                </div>
+              </div>
+              
+              {/* Video Label */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-4 px-6 rounded-b-xl">
+                <p className="text-white font-semibold text-lg flex items-center gap-2">
+                  <Play size={18} className="text-[#00D4FF]" />
+                  Watch Our AI Solutions in Action
+                </p>
+                <p className="text-gray-300 text-sm mt-1">See how we transform enterprise cloud infrastructure</p>
+              </div>
+            </div>
+          </div>
+
           {/* Stats row */}
           <div
             className={`flex flex-wrap gap-8 transition-[opacity,transform] duration-700 delay-[400ms] ${
