@@ -5485,3 +5485,11 @@
 - [x] C4: Add route /admin/call-quality to AdminApp.tsx and sidebar nav
 - [x] C5: Wire auto-scoring into callPoller so new calls with transcripts get scored automatically
 - [ ] C6: Add manual re-score button on Call Review page (deferred to Phase D)
+
+## Phase D: Client ROI Reporting Dashboard (May 24, 2026)
+- [x] D1: Build roiMetrics tRPC router — aggregate real data from tickets/calls/uptime/callQuality/kb tables with Forrester TEI benchmarks
+- [x] D2: Build AdminROIDashboard page (/admin/roi) with 10 metric cards, recharts trend charts, Forrester benchmark comparison, 5 TEI value drivers, ticket source breakdown, period selector
+- [x] D3: Build client-facing HelpdeskROIReport page (/helpdesk/roi) with value cards, SLA badges, hero summary, CTA footer
+- [x] D4: Add /admin/roi route to AdminApp.tsx
+- [x] D5: Add /helpdesk/roi route to App.tsx
+- [x] D6: Add ROI Dashboard nav item to AdminLayout.tsx Analytics section

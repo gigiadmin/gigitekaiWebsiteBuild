@@ -69,6 +69,7 @@ const AdminUptimeRobotDetailPagePage = lazy(() => import("./pages/AdminUptimeRob
 const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardingPage"));
 const WebPricingPage = lazy(() => import("./pages/WebPricingPage"));
 const AdminXero = lazy(() => import("./pages/AdminXero"));
+const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
 
 function PageLoader() {
   return (
@@ -145,6 +146,7 @@ export default function AdminApp() {
               <Route path="/admin/uptime/:monitorId" component={() => <ApprovalGuard><AdminUptimeRobotDetailPagePage /></ApprovalGuard>} />
               <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
               <Route path="/admin/xero" component={() => <ApprovalGuard><AdminXero /></ApprovalGuard>} />
+              <Route path="/admin/roi" component={() => <ApprovalGuard><AdminROIDashboard /></ApprovalGuard>} />
               <Route path="/admin/audit" component={() => <ApprovalGuard><AdminAuditDashboard /></ApprovalGuard>} />
               <Route path="/web-pricing" component={() => <WebPricingPage />} />
               <Route path="/:rest*" component={() => (

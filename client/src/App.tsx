@@ -91,6 +91,7 @@ const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
+const HelpdeskROIReport = lazy(() => import("./pages/HelpdeskROIReport"));
 
 // ── Auth pages — lazy loaded ──────────────────────────────────────────────
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
@@ -239,6 +240,7 @@ function Router() {
           <Route path={"/helpdesk/tickets/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/profile"} component={UserProfile} />
           <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
+          <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} />
           {/* ── Auth ── */}
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />
