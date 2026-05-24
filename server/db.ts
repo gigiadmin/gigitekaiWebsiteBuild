@@ -1572,7 +1572,7 @@ export async function getEscalationPatternStats(startDate?: Date, endDate?: Date
 
 // ─── Application Settings ───────────────────────────────────────────────────────
 import { settings, InsertSetting } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+// eq is already imported at the top of this file
 
 /**
  * Get a setting value by key
