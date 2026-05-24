@@ -47,7 +47,7 @@ export default function AdminUptimeRobotDetailPage() {
   const getMonitorDetailsQuery = trpc.uptime.getMonitorDetails.useQuery(
     { monitorId: monitorId! },
     {
-      enabled: !!user && !!monitorId,
+      enabled: !!monitorId,
       refetchInterval: 30000, // Refresh every 30 seconds
     }
   );
@@ -152,11 +152,9 @@ export default function AdminUptimeRobotDetailPage() {
       {/* Breadcrumb & Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin/uptime">
-            <a className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
+          <Link href="/admin/uptime" className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors">
               <ArrowLeft className="w-5 h-5" />
               Back to Dashboard
-            </a>
           </Link>
         </div>
         <div className="flex items-center gap-4">
@@ -183,8 +181,8 @@ export default function AdminUptimeRobotDetailPage() {
             <p className="text-slate-400 break-all">{monitor.url}</p>
           </div>
           <div className={`px-4 py-2 rounded-lg font-semibold ${getStatusColor(monitor.statusCode)}`}>
-            {monitor.status === "Up" && <CheckCircle className="w-6 h-6 inline mr-2" />}
-            {monitor.status !== "Up" && <AlertCircle className="w-6 h-6 inline mr-2" />}
+            {monitor.status === "up" && <CheckCircle className="w-6 h-6 inline mr-2" />}
+            {monitor.status !== "up" && <AlertCircle className="w-6 h-6 inline mr-2" />}
             {monitor.status}
           </div>
         </div>

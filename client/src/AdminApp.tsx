@@ -64,6 +64,7 @@ const AdminSLADashboardPage = lazy(() => import("./pages/AdminSLADashboardPage")
 const AdminSatisfactionDashboardPage = lazy(() => import("./pages/AdminSatisfactionDashboardPage"));
 const AdminScorecardDashboardPage = lazy(() => import("./pages/AdminScorecardDashboardPage"));
 const AdminUptimeRobotDashboard = lazy(() => import("./pages/AdminUptimeRobotDashboard"));
+const AdminUptimeRobotDetailPagePage = lazy(() => import("./pages/AdminUptimeRobotDetailPagePage"));
 const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardingPage"));
 const WebPricingPage = lazy(() => import("./pages/WebPricingPage"));
 const AdminXero = lazy(() => import("./pages/AdminXero"));
@@ -139,6 +140,7 @@ export default function AdminApp() {
               <Route path="/admin/sms-campaigns" component={() => <ApprovalGuard><AdminSmsCampaignsPage /></ApprovalGuard>} />
               <Route path="/admin/hub" component={() => <ApprovalGuard><AdminHubPage /></ApprovalGuard>} />
               <Route path="/admin/jira" component={() => <ApprovalGuard><AdminJiraDashboard /></ApprovalGuard>} />
+              <Route path="/admin/uptime/:monitorId" component={() => <ApprovalGuard><AdminUptimeRobotDetailPagePage /></ApprovalGuard>} />
               <Route path="/admin/uptime" component={() => <ApprovalGuard><AdminUptimeRobotDashboard /></ApprovalGuard>} />
               <Route path="/admin/xero" component={() => <ApprovalGuard><AdminXero /></ApprovalGuard>} />
               <Route path="/admin/audit" component={() => <ApprovalGuard><AdminAuditDashboard /></ApprovalGuard>} />

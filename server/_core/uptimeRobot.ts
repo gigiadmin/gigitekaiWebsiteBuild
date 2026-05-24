@@ -23,7 +23,7 @@ interface Monitor {
   is_primary: number;
   response_times: Array<{
     datetime: number;
-    response_time: number;
+    value: number;
   }>;
   average_response_time: number;
   custom_uptime_ratio: string;
@@ -127,7 +127,7 @@ export async function getUptimeMonitors() {
         totalUptime: ratios[2] || "N/A", // Use 30d as total uptime approximation
         averageResponseTime: monitor.average_response_time || 0,
         lastCheck: monitor.response_times?.[0]?.datetime || null,
-        lastResponseTime: monitor.response_times?.[0]?.response_time || null,
+        lastResponseTime: monitor.response_times?.[0]?.value || null,
       };
     });
   } catch (error) {
@@ -255,7 +255,7 @@ export async function getMonitorDetails(monitorId: number) {
       uptime365d: ratios[3] || "N/A",
       totalUptime: ratios[2] || "N/A",
       averageResponseTime: monitor.average_response_time || 0,
-      responseTimes: monitor.response_times || [],
+      responseTimes: (monitor.response_times || []).map(rt => ({ datetime: rt.datetime, response_time: rt.value })),
       createdAt: new Date(monitor.create_datetime * 1000),
     };
   } catch (error) {

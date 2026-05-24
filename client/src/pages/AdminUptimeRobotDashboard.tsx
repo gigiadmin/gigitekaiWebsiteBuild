@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 import AdminLayout from "@/components/AdminLayout";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -146,10 +147,10 @@ export default function AdminUptimeRobotDashboard() {
         {/* Monitors Grid */}
         <div className="grid gap-4">
           {monitors.map((monitor) => (
-            <a
+            <Link
               key={monitor.id}
               href={`/admin/uptime/${monitor.id}`}
-              className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-6 hover:border-cyan-500/50 transition-colors cursor-pointer group"
+              className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-6 hover:border-cyan-500/50 transition-colors cursor-pointer group block"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-3 flex-1">
@@ -189,7 +190,7 @@ export default function AdminUptimeRobotDashboard() {
                   <p className="text-lg font-semibold text-white">{monitor.averageResponseTime}ms</p>
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
         {monitors.length === 0 && (

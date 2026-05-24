@@ -249,7 +249,7 @@ function Router() {
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
           {/* ── Admin Portal ── */}
-          <Route path="/admin/:rest*" component={AdminApp} />
+          <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
           {/* M365 Health Pages */}
           <Route path={"/m365-status"} component={M365HealthPage} />

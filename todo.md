@@ -5463,3 +5463,11 @@
 - [x] Fixed Delete Selected button from low-contrast red/pink text to white text
 - [x] Changed from bg-red-500/20 text-red-400 to bg-red-600 hover:bg-red-700 text-white
 - [x] Now clearly visible and readable with proper accessibility contrast
+
+## UptimeRobot Monitoring Fix (COMPLETE - May 2026)
+- [x] Fix UptimeRobot API key (old key was invalid/expired, updated to correct key)
+- [x] Fix uptime detail page 404 - change /admin/:rest* to /admin/* in App.tsx (regexparam v3 wildcard syntax)
+- [x] Add /admin/uptime/:monitorId route in AdminApp.tsx with AdminLayout wrapper
+- [x] Fix response_times mapping (use 'value' field from API, map to 'response_time' for frontend)
+- [x] Convert monitor links from <a> to <Link> for SPA navigation
+- [x] Bulletproof error handling - page never crashes, falls back to mock data gracefully
