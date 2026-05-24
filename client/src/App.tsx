@@ -80,6 +80,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 // const ContactHarry = lazy(() => import("./pages/ContactHarry")); // hidden - NDA
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
+const StatusPage = lazy(() => import("./pages/StatusPage"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
@@ -224,6 +225,8 @@ function Router() {
           {/* KB Public */}
           <Route path={"/kb"} component={KBPublic} />
           <Route path={"/kb/:slug"} component={KBPublic} />
+          {/* Status Page */}
+          <Route path={"/status"} component={StatusPage} />
           {/* ── Helpdesk (customer-facing) ── */}
           <Route path={"/remote-session/:roomId"} component={RemoteSession} />
           <Route path={"/helpdesk"} component={HelpDesk} />
