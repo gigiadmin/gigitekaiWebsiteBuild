@@ -5513,3 +5513,12 @@
 - [x] F4: Add M365IncidentDetailDrawer component — incident ID, classification, severity, status, timeline, all posted messages with timestamps, workarounds, Est. Resolution
 - [x] F5: Add auto-refresh for active incidents (refetchInterval: 5 minutes in M365IncidentDetailDrawer)
 - [x] F6: TypeScript: 0 errors, checkpoint saved
+
+## Phase F: KB Article Upload + M365 Service Health (May 24, 2026)
+
+- [x] F1: Insert 100 user-focused KB articles (USR-101 to USR-200) — users/helpdesk audience
+- [x] F2: Insert 64 tech/admin KB articles (WIN-001 to WIN-014, MAC-015 to MAC-028, EML-029 to EML-042, TMS-043 to TMS-056, ODV-057 to ODV-064)
+- [x] F3: Update ARIA suggestion engine RELEVANT_TAGS to include new user-focused article tags (wifi, monitor, audio, browser, MFA, Copilot, etc.)
+- [x] F4: Enhance M365 Service Health with Graph Service Communications API — full incident detail drawer with timeline, messages, workarounds, auto-refresh every 5 min
+- [x] F5: Total DB: 2,005 published KB articles (164 new articles added this session)
+- [x] F6: Remaining 36 tech articles (ODV-065 to ODV-100) deferred — Harry confirmed 164 is fine for now
