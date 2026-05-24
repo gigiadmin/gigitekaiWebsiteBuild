@@ -2042,3 +2042,35 @@ export const settings = mysqlTable("settings", {
 });
 export type Setting = typeof settings.$inferSelect;
 export type InsertSetting = typeof settings.$inferInsert;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FREE AUDIT SUBMISSIONS
+// ─────────────────────────────────────────────────────────────────────────────
+/** Free Audit Submissions — captures leads from the free audit landing page */
+export const freeAuditSubmissions = mysqlTable("freeAuditSubmissions", {
+  id: int("id").autoincrement().primaryKey(),
+  // Company Info
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  industry: varchar("industry", { length: 100 }).notNull(),
+  description: text("description"), // Company description/background
+  // Contact Info
+  contactName: varchar("contactName", { length: 255 }).notNull(),
+  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+  contactPhone: varchar("contactPhone", { length: 20 }),
+  // Audit Details
+  auditType: varchar("auditType", { length: 100 }), // e.g., "Security", "Cloud", "M365", "AI Readiness"
+  currentChallenges: text("currentChallenges"), // What challenges are they facing?
+  goals: text("goals"), // What are their goals?
+  // Status & Tracking
+  status: mysqlEnum("status", ["submitted", "contacted", "in_progress", "completed", "archived"]).default("submitted").notNull(),
+  notes: text("notes"), // Admin notes
+  assignedTo: int("assignedTo"), // Admin user ID
+  // Timestamps
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+  contactedAt: timestamp("contactedAt"),
+  completedAt: timestamp("completedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type FreeAuditSubmission = typeof freeAuditSubmissions.$inferSelect;
+export type InsertFreeAuditSubmission = typeof freeAuditSubmissions.$inferInsert;

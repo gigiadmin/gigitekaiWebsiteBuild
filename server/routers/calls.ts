@@ -7,7 +7,7 @@ import { z } from "zod";
 import { router, adminProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { callLogs, callDraftTickets, tickets, users } from "../../drizzle/schema";
-import { eq, desc, and, gte } from "drizzle-orm";
+import { eq, desc, and, gte, inArray } from "drizzle-orm";
 import { getCallPollerStatus, triggerCallPollerRun } from "../_core/callPoller";
 import { createTicket } from "../db";
 
@@ -358,4 +358,43 @@ export const callsRouter = router({
       todayCalls: logs.filter((l) => l.startedAt && new Date(l.startedAt) >= today).length,
     };
   }),
+
+  // Bulk delete drafts
+  deleteDrafts: adminProcedure
+    .input(
+      z.object({
+        ids: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      if (!input.ids.length) throw new Error("No IDs provided");
+
+      await db
+        .delete(callDraftTickets)
+        .where(inArray(callDraftTickets.id, input.ids));
+
+      return { success: true, deleted: input.ids.length };
+    }),
+
+  // Bulk delete call logs
+  deleteCallLogs: adminProcedure
+    .input(
+      z.object({
+        ids: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      if (!input.ids.length) throw new Error("No IDs provided");
+
+      await db
+        .delete(callLogs)
+        .where(inArray(callLogs.id, input.ids));
+
+      return { success: true, deleted: input.ids.length };
+    }),
+
 });

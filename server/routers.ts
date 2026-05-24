@@ -107,6 +107,7 @@ import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
 import { contactCenterRouter } from "./routers/contact-center";
 import { jiraRouter } from "./routers/jira";
 import { freeAuditRouter } from "./routers/freeAuditRouter";
+import { auditRouter } from "./routers/audit";
 import { uptimeRouter } from "./routers/uptime";
 import { kbBulkInsertRouter } from "./routers/kb-bulk-insert";
 import { xeroRouter } from "./routers/xero";
@@ -204,6 +205,7 @@ export const appRouter = router({
   contactCenter: contactCenterRouter,
   jira: jiraRouter,
   freeAudit: freeAuditRouter,
+  audit: auditRouter,
   ticketAICategorization: ticketAICategorizationRouter,
   sessionInviteEmail: sessionInviteEmailRouter,
   turnCredentials: turnCredentialsRouter,

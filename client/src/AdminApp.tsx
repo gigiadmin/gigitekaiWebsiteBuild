@@ -50,7 +50,7 @@ const AdminTeamsChannelsPage = lazy(() => import("./pages/AdminTeamsChannelsPage
 const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPatternsPage"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
-const AdminContactCenterDashboard = lazy(() => import("./pages/AdminContactCenterDashboard"));
+const AdminContactCenterDashboardWrapper = lazy(() => import("./pages/AdminContactCenterDashboardWrapper"));
 const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
@@ -129,8 +129,8 @@ export default function AdminApp() {
               <Route path="/admin/escalation-patterns" component={() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>} />
               <Route path="/admin/ms-learn-sync" component={() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>} />
               <Route path="/admin/call-review" component={() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>} />
-              <Route path="/admin/contact-center" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
-              <Route path="/admin/contact-center-dashboard" component={() => <ApprovalGuard><AdminContactCenterDashboard /></ApprovalGuard>} />
+              <Route path="/admin/contact-center" component={() => <ApprovalGuard><AdminContactCenterDashboardWrapper /></ApprovalGuard>} />
+              <Route path="/admin/contact-center-dashboard" component={() => <ApprovalGuard><AdminContactCenterDashboardWrapper /></ApprovalGuard>} />
               <Route path="/admin/demo-leads" component={() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>} />
               <Route path="/admin/client-onboarding" component={() => <ApprovalGuard><AdminClientOnboardingPage /></ApprovalGuard>} />
               <Route path="/admin/kb-analytics" component={() => <ApprovalGuard><AdminKBAnalytics /></ApprovalGuard>} />

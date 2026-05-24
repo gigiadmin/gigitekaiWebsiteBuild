@@ -363,6 +363,8 @@ export default function AdminCallReviewPage() {
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<"pending" | "all" | "logs">("pending");
   const [selectedDraft, setSelectedDraft] = useState<any | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -395,6 +397,59 @@ export default function AdminCallReviewPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+
+  // Multi-select delete mutations
+  const deleteDraftsMutation = trpc.calls.deleteDrafts.useMutation({
+    onSuccess: () => {
+      toast.success(`Deleted ${selectedIds.size} draft(s)`);
+      setSelectedIds(new Set());
+      setShowDeleteConfirm(false);
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => toast.error(`Failed to delete: ${err.message}`),
+  });
+
+  const deleteCallLogsMutation = trpc.calls.deleteCallLogs.useMutation({
+    onSuccess: () => {
+      toast.success(`Deleted ${selectedIds.size} call log(s)`);
+      setSelectedIds(new Set());
+      setShowDeleteConfirm(false);
+      utils.calls.getCallLogs.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => toast.error(`Failed to delete: ${err.message}`),
+  });
+
+  const handleSelectAll = (items: any[] | undefined) => {
+    if (!items) return;
+    if (selectedIds.size === items.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(items.map((item) => item.id || item.draft?.id)));
+    }
+  };
+
+  const handleSelectItem = (id: number) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (activeTab === "logs") {
+      deleteCallLogsMutation.mutate({ ids: Array.from(selectedIds) });
+    } else {
+      deleteDraftsMutation.mutate({ ids: Array.from(selectedIds) });
+    }
+  };
+
+  // Get current items for select all
+  const currentItems = activeTab === "logs" ? callLogs : draftTickets;
 
   const tabs = [
     { id: "pending", label: "Pending Review", count: stats?.pending },
@@ -477,25 +532,57 @@ export default function AdminCallReviewPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-white/10">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                activeTab === tab.id
-                  ? "border-[#00D4FF] text-[#00D4FF]"
-                  : "border-transparent text-gray-400 hover:text-white"
-              }`}
-            >
-              {tab.label}
-              {tab.count !== undefined && tab.count > 0 && (
-                <span className="ml-2 bg-[#00D4FF]/20 text-[#00D4FF] text-xs px-1.5 py-0.5 rounded-full">
-                  {tab.count}
-                </span>
+        <div className="flex gap-1 border-b border-white/10 items-center justify-between">
+          <div className="flex gap-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  setSelectedIds(new Set());
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  activeTab === tab.id
+                    ? "border-[#00D4FF] text-[#00D4FF]"
+                    : "border-transparent text-gray-400 hover:text-white"
+                }`}
+              >
+                {tab.label}
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className="ml-2 bg-[#00D4FF]/20 text-[#00D4FF] text-xs px-1.5 py-0.5 rounded-full">
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          {currentItems && currentItems.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-sm text-gray-400 hover:text-white cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size > 0 && selectedIds.size === currentItems.length}
+                  onChange={() => handleSelectAll(currentItems)}
+                  className="w-4 h-4 rounded border-white/30 bg-white/5 cursor-pointer"
+                />
+                Select All
+              </label>
+              {selectedIds.size > 0 && (
+                <>
+                  <span className="text-xs text-gray-500">({selectedIds.size} selected)</span>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={deleteDraftsMutation.isPending || deleteCallLogsMutation.isPending}
+                    className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
+                  >
+                    Delete Selected
+                  </Button>
+                </>
               )}
-            </button>
-          ))}
+            </div>
+          )}
         </div>
 
         {/* Draft Tickets List */}
@@ -519,13 +606,27 @@ export default function AdminCallReviewPage() {
                 const log = item.log;
                 const confidence = 0.5; // aiConfidence not available in call log schema
                 const conf = confidenceLabel(confidence);
+                const isSelected = selectedIds.has(d.id);
                 return (
                   <div
                     key={d.id}
-                    className="bg-white/5 border border-white/10 rounded-lg p-4 hover:border-[#00D4FF]/30 transition-colors"
+                    className={`bg-white/5 border rounded-lg p-4 transition-colors cursor-pointer ${
+                      isSelected
+                        ? "border-[#00D4FF] bg-[#00D4FF]/5"
+                        : "border-white/10 hover:border-[#00D4FF]/30"
+                    }`}
+                    onClick={() => handleSelectItem(d.id)}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectItem(d.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-4 h-4 rounded border-white/30 bg-white/5 cursor-pointer mt-1 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className={`text-xs px-2 py-0.5 rounded-full border ${priorityColor(d.priority || 'medium')}`}>
                             {d.priority}
@@ -568,6 +669,7 @@ export default function AdminCallReviewPage() {
                             AI: {conf.label}
                           </span>
                           <span>{formatTime(d.createdAt)}</span>
+                        </div>
                         </div>
                       </div>
                       {d.reviewStatus === "pending" && (
@@ -612,6 +714,14 @@ export default function AdminCallReviewPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/10 text-gray-400 text-xs">
+                      <th className="text-left py-2 px-3 w-8">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size > 0 && selectedIds.size === callLogs.length}
+                          onChange={() => handleSelectAll(callLogs)}
+                          className="w-4 h-4 rounded border-white/30 bg-white/5 cursor-pointer"
+                        />
+                      </th>
                       <th className="text-left py-2 px-3">Caller</th>
                       <th className="text-left py-2 px-3">Duration</th>
                       <th className="text-left py-2 px-3">Time</th>
@@ -621,8 +731,21 @@ export default function AdminCallReviewPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {callLogs.map((log) => (
-                      <tr key={log.id} className="border-b border-white/5 hover:bg-white/5">
+                    {callLogs.map((log) => {
+                      const isSelected = selectedIds.has(log.id);
+                      return (
+                      <tr key={log.id} className={`border-b border-white/5 hover:bg-white/5 cursor-pointer ${
+                        isSelected ? "bg-[#00D4FF]/5" : ""
+                      }`} onClick={() => handleSelectItem(log.id)}>
+                        <td className="py-2 px-3 w-8">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectItem(log.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 rounded border-white/30 bg-white/5 cursor-pointer"
+                          />
+                        </td>
                         <td className="py-2 px-3 font-mono text-[#00D4FF]">{log.callerNumber}</td>
                         <td className="py-2 px-3 text-gray-300">{formatDuration(log.durationSeconds || 0)}</td>
                         <td className="py-2 px-3 text-gray-400">{formatTime(log.startedAt)}</td>
@@ -644,7 +767,8 @@ export default function AdminCallReviewPage() {
                           </span>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -652,6 +776,44 @@ export default function AdminCallReviewPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="bg-[#0D1117] border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-white">Confirm Bulk Delete</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-300">
+              Are you sure you want to delete {selectedIds.size} {activeTab === "logs" ? "call log(s)" : "draft(s)"}? This action cannot be undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              className="border-white/10 text-gray-400 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={deleteDraftsMutation.isPending || deleteCallLogsMutation.isPending}
+              className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
+            >
+              {deleteDraftsMutation.isPending || deleteCallLogsMutation.isPending ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Review Modal */}
       {selectedDraft && (
