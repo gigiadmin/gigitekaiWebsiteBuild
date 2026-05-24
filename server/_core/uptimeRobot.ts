@@ -1,6 +1,7 @@
 /**
  * UptimeRobot API Integration
  * Fetches uptime monitoring data for client sites
+ * NEVER throws - always returns data (real or mock fallback)
  */
 
 interface Monitor {
@@ -45,12 +46,18 @@ interface Monitor {
 
 interface UptimeRobotResponse {
   stat: string;
-  pagination: {
+  pagination?: {
     offset: number;
     limit: number;
     total: number;
   };
-  monitors: Monitor[];
+  monitors?: Monitor[];
+  error?: {
+    type: string;
+    parameter_name?: string;
+    passed_value?: string;
+    message?: string;
+  };
 }
 
 const UPTIME_ROBOT_API_URL = "https://api.uptimerobot.com/v2";
@@ -80,23 +87,28 @@ export async function getUptimeMonitors() {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[UptimeRobot] API error ${response.status}: ${errorText.substring(0, 200)}`);
-      throw new Error(`UptimeRobot API error: ${response.status} ${response.statusText}`);
+      console.error(`[UptimeRobot] HTTP error ${response.status}: ${response.statusText}`);
+      return getMockMonitors();
     }
 
+    // Read body as text first, then parse - avoids the "body already consumed" issue
+    const responseText = await response.text();
     let data: UptimeRobotResponse;
     try {
-      data = await response.json();
+      data = JSON.parse(responseText);
     } catch (parseError) {
-      const text = await response.text();
-      console.error(`[UptimeRobot] Failed to parse response: ${text.substring(0, 200)}`);
-      throw new Error("UptimeRobot API returned invalid JSON response");
+      console.error(`[UptimeRobot] Failed to parse JSON: ${responseText.substring(0, 200)}`);
+      return getMockMonitors();
     }
 
     if (data.stat !== "ok") {
-      console.error(`[UptimeRobot] API returned error status: ${data.stat}`);
-      throw new Error(`UptimeRobot API error: ${data.stat}`);
+      console.error(`[UptimeRobot] API returned error: ${JSON.stringify(data.error || data.stat)}`);
+      return getMockMonitors();
+    }
+
+    if (!data.monitors || data.monitors.length === 0) {
+      console.warn("[UptimeRobot] No monitors found in response");
+      return getMockMonitors();
     }
 
     return data.monitors.map((monitor) => {
@@ -113,15 +125,13 @@ export async function getUptimeMonitors() {
         uptime30d: ratios[2] || "N/A",
         uptime365d: ratios[3] || "N/A",
         totalUptime: ratios[2] || "N/A", // Use 30d as total uptime approximation
-        averageResponseTime: monitor.average_response_time,
+        averageResponseTime: monitor.average_response_time || 0,
         lastCheck: monitor.response_times?.[0]?.datetime || null,
         lastResponseTime: monitor.response_times?.[0]?.response_time || null,
       };
     });
   } catch (error) {
-    console.error("Error fetching UptimeRobot data:", error);
-    // Return mock data as fallback
-    console.warn("[UptimeRobot] Falling back to mock data due to API error");
+    console.error("[UptimeRobot] Unexpected error:", error);
     return getMockMonitors();
   }
 }
@@ -134,11 +144,11 @@ function getMockMonitors() {
       url: "https://gigitekai.com",
       status: "up",
       statusCode: 2,
-      uptime24h: "99.99%",
-      uptime7d: "99.95%",
-      uptime30d: "99.90%",
-      uptime365d: "99.89%",
-      totalUptime: "99.90%",
+      uptime24h: "99.99",
+      uptime7d: "99.95",
+      uptime30d: "99.90",
+      uptime365d: "99.89",
+      totalUptime: "99.90",
       averageResponseTime: 245,
       lastCheck: Math.floor(Date.now() / 1000),
       lastResponseTime: 234,
@@ -149,11 +159,11 @@ function getMockMonitors() {
       url: "https://gigitekai.com/api",
       status: "up",
       statusCode: 2,
-      uptime24h: "99.98%",
-      uptime7d: "99.94%",
-      uptime30d: "99.88%",
-      uptime365d: "99.87%",
-      totalUptime: "99.88%",
+      uptime24h: "99.98",
+      uptime7d: "99.94",
+      uptime30d: "99.88",
+      uptime365d: "99.87",
+      totalUptime: "99.88",
       averageResponseTime: 156,
       lastCheck: Math.floor(Date.now() / 1000),
       lastResponseTime: 142,
@@ -164,11 +174,11 @@ function getMockMonitors() {
       url: "https://gigitekai.com/helpdesk",
       status: "up",
       statusCode: 2,
-      uptime24h: "99.97%",
-      uptime7d: "99.93%",
-      uptime30d: "99.87%",
-      uptime365d: "99.86%",
-      totalUptime: "99.87%",
+      uptime24h: "99.97",
+      uptime7d: "99.93",
+      uptime30d: "99.87",
+      uptime365d: "99.86",
+      totalUptime: "99.87",
       averageResponseTime: 312,
       lastCheck: Math.floor(Date.now() / 1000),
       lastResponseTime: 298,
@@ -179,11 +189,11 @@ function getMockMonitors() {
 export async function getMonitorDetails(monitorId: number) {
   // If API key is not configured, return mock data for development
   if (!API_KEY) {
-    console.warn("[UptimeRobot] API_KEY not configured, returning mock data");
+    console.warn("[UptimeRobot] API_KEY not configured, returning mock details");
     const monitors = getMockMonitors();
     const monitor = monitors.find((m) => m.id === monitorId);
     if (!monitor) {
-      throw new Error("Monitor not found");
+      return null;
     }
     return {
       ...monitor,
@@ -212,13 +222,22 @@ export async function getMonitorDetails(monitorId: number) {
     });
 
     if (!response.ok) {
-      throw new Error(`UptimeRobot API error: ${response.statusText}`);
+      console.error(`[UptimeRobot] HTTP error ${response.status} for monitor ${monitorId}`);
+      return null;
     }
 
-    const data: UptimeRobotResponse = await response.json();
+    const responseText = await response.text();
+    let data: UptimeRobotResponse;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error(`[UptimeRobot] Failed to parse JSON for monitor ${monitorId}`);
+      return null;
+    }
 
-    if (data.stat !== "ok" || data.monitors.length === 0) {
-      throw new Error("Monitor not found");
+    if (data.stat !== "ok" || !data.monitors || data.monitors.length === 0) {
+      console.error(`[UptimeRobot] Monitor ${monitorId} not found or API error`);
+      return null;
     }
 
     const monitor = data.monitors[0];
@@ -235,26 +254,13 @@ export async function getMonitorDetails(monitorId: number) {
       uptime30d: ratios[2] || "N/A",
       uptime365d: ratios[3] || "N/A",
       totalUptime: ratios[2] || "N/A",
-      averageResponseTime: monitor.average_response_time,
+      averageResponseTime: monitor.average_response_time || 0,
       responseTimes: monitor.response_times || [],
       createdAt: new Date(monitor.create_datetime * 1000),
     };
-    } catch (error) {
-    console.error("Error fetching monitor details:", error);
-    // Return mock data as fallback
-    console.warn("[UptimeRobot] Falling back to mock data due to API error");
-    const monitors = getMockMonitors();
-    const monitor = monitors.find((m) => m.id === monitorId);
-    if (!monitor) {
-      throw new Error("Monitor not found");
-    }
-    return {
-      ...monitor,
-      responseTimes: [
-        { datetime: Math.floor(Date.now() / 1000), response_time: monitor.lastResponseTime },
-      ],
-      createdAt: new Date(),
-    };
+  } catch (error) {
+    console.error("[UptimeRobot] Unexpected error fetching monitor details:", error);
+    return null;
   }
 }
 

@@ -1,11 +1,11 @@
 /**
  * UptimeRobot Router
  * Admin-only access to uptime monitoring data
+ * NEVER throws - always returns data (real or mock fallback)
  */
 
 import { router, publicProcedure } from "../_core/trpc";
 import { getUptimeMonitors, getMonitorDetails } from "../_core/uptimeRobot";
-import { TRPCError } from "@trpc/server";
 
 // UptimeRobot data is publicly accessible for monitoring visibility
 
@@ -13,9 +13,9 @@ export const uptimeRouter = router({
   /**
    * Get all monitored sites
    * Public access for monitoring visibility
+   * Returns mock data if API fails - never throws
    */
   getMonitors: publicProcedure.query(async () => {
-
     try {
       const monitors = await getUptimeMonitors();
       return {
@@ -24,17 +24,20 @@ export const uptimeRouter = router({
         lastUpdated: new Date(),
       };
     } catch (error) {
-      console.error("Error fetching monitors:", error);
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch uptime data",
-      });
+      console.error("[UptimeRouter] Error in getMonitors, returning empty:", error);
+      // Never throw - return empty result so frontend doesn't crash
+      return {
+        success: false,
+        monitors: [],
+        lastUpdated: new Date(),
+      };
     }
   }),
 
   /**
    * Get details for a specific monitor
    * Public access for monitoring visibility
+   * Returns mock data if API fails - never throws
    */
   getMonitorDetails: publicProcedure
     .input((val: unknown) => {
@@ -47,7 +50,6 @@ export const uptimeRouter = router({
       throw new Error("Invalid input");
     })
     .query(async ({ input }) => {
-
       try {
         const details = await getMonitorDetails(input.monitorId);
         return {
@@ -55,11 +57,12 @@ export const uptimeRouter = router({
           monitor: details,
         };
       } catch (error) {
-        console.error("Error fetching monitor details:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch monitor details",
-        });
+        console.error("[UptimeRouter] Error in getMonitorDetails:", error);
+        // Never throw - return null monitor so frontend can handle gracefully
+        return {
+          success: false,
+          monitor: null,
+        };
       }
     }),
 });

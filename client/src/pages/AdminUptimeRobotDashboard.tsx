@@ -41,9 +41,11 @@ export default function AdminUptimeRobotDashboard() {
   });
 
   useEffect(() => {
-    if (getMonitorsQuery.data && getMonitorsQuery.data.monitors) {
-      setMonitors(getMonitorsQuery.data.monitors);
+    if (getMonitorsQuery.data) {
+      // Always set monitors from data - even if empty array
+      setMonitors(getMonitorsQuery.data.monitors || []);
       setLoading(false);
+      setError(null);
     }
   }, [getMonitorsQuery.data]);
 
