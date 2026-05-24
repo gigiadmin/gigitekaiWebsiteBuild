@@ -1568,3 +1568,87 @@ export async function getEscalationPatternStats(startDate?: Date, endDate?: Date
     return { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 };
   }
 }
+
+
+// ─── Application Settings ───────────────────────────────────────────────────────
+import { settings, InsertSetting } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
+
+/**
+ * Get a setting value by key
+ * @param key The setting key (e.g., "aiNewsLastRunDate")
+ * @returns The parsed value or null if not found
+ */
+export async function getSetting(key: string): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const [record] = await db
+      .select({ value: settings.value })
+      .from(settings)
+      .where(eq(settings.key, key))
+      .limit(1);
+    if (!record) return null;
+    try {
+      return JSON.parse(record.value);
+    } catch {
+      return record.value; // Return raw value if not JSON
+    }
+  } catch (error) {
+    console.error(`[Database] Failed to get setting '${key}':`, error);
+    return null;
+  }
+}
+
+/**
+ * Set a setting value by key (upsert)
+ * @param key The setting key
+ * @param value The value to store (will be JSON-serialized)
+ * @param description Optional description of the setting
+ */
+export async function setSetting(key: string, value: any, description?: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+    const [existing] = await db
+      .select({ id: settings.id })
+      .from(settings)
+      .where(eq(settings.key, key))
+      .limit(1);
+    
+    if (existing) {
+      await db
+        .update(settings)
+        .set({ value: serialized, description, updatedAt: new Date() })
+        .where(eq(settings.key, key));
+    } else {
+      await db.insert(settings).values({
+        key,
+        value: serialized,
+        description,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error(`[Database] Failed to set setting '${key}':`, error);
+    return false;
+  }
+}
+
+/**
+ * Delete a setting by key
+ */
+export async function deleteSetting(key: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  try {
+    await db.delete(settings).where(eq(settings.key, key));
+    return true;
+  } catch (error) {
+    console.error(`[Database] Failed to delete setting '${key}':`, error);
+    return false;
+  }
+}

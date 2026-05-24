@@ -169,6 +169,8 @@
 - [x] Navigation: Added SiteNavBar2024 to all public-facing pages (PortfolioPage, FreeAuditLandingPage, etc.) so users can navigate back home
 - [x] Pricing: Updated PortfolioPage pricing to match /web-pricing (Starter $199/mo, Growth $399/mo, Pro $799/mo)
 - [x] AI News: Fixed scheduler to persist last run date to database instead of memory to prevent duplicate emails on server restart
+- [x] Fixed duplicate SiteNavBar2024 imports in FreeAuditForm.tsx and FreeAuditLandingPage.tsx
+- [x] Added settings table to database schema for persisting application state
 
 ## KB Manual Creation Feature
 - [ ] Add backend procedure for creating KB articles manually

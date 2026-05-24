@@ -136,17 +136,9 @@ let lastRunDate: string | null = null;
 /** Get last run date from database (persisted across server restarts) */
 async function getLastRunDateFromDb(): Promise<string | null> {
   try {
-    const { getDb } = await import("../db");
-    const db = await getDb();
-    if (!db) return null;
-    const { settings } = await import("../../drizzle/schema");
-    const { eq } = await import("drizzle-orm");
-    const [record] = await db
-      .select({ value: settings.value })
-      .from(settings)
-      .where(eq(settings.key, "ai_news_last_run_date"))
-      .limit(1);
-    return record?.value ?? null;
+    const { getSetting } = await import("../db");
+    const value = await getSetting("ai_news_last_run_date");
+    return value ?? null;
   } catch (err) {
     console.warn("[AI News Scheduler] Failed to get last run date from DB:", err);
     return null;
@@ -156,29 +148,8 @@ async function getLastRunDateFromDb(): Promise<string | null> {
 /** Save last run date to database (persisted across server restarts) */
 async function saveLastRunDateToDb(date: string): Promise<void> {
   try {
-    const { getDb } = await import("../db");
-    const db = await getDb();
-    if (!db) return;
-    const { settings } = await import("../../drizzle/schema");
-    const { eq } = await import("drizzle-orm");
-    const [existing] = await db
-      .select({ id: settings.id })
-      .from(settings)
-      .where(eq(settings.key, "ai_news_last_run_date"))
-      .limit(1);
-    if (existing) {
-      await db
-        .update(settings)
-        .set({ value: date, updatedAt: new Date() })
-        .where(eq(settings.key, "ai_news_last_run_date"));
-    } else {
-      await db.insert(settings).values({
-        key: "ai_news_last_run_date",
-        value: date,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-    }
+    const { setSetting } = await import("../db");
+    await setSetting("ai_news_last_run_date", date, "Last date when AI News recap was generated");
   } catch (err) {
     console.warn("[AI News Scheduler] Failed to save last run date to DB:", err);
   }
