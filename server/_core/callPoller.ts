@@ -368,30 +368,20 @@ async function processCall(pstnRow: any): Promise<void> {
   callsProcessedToday++;
   console.log(`[Call Poller] Draft ticket created for call from ${callerNumber} — "${analysis.title}"`);
 
-  // ── ACS Recording: Start recording for PSTN calls without a transcript ────
-  // PSTN calls don't have Teams transcription, so we use ACS to record + Whisper to transcribe.
-  // We use the serverCallId from the PSTN call if available.
-  if (!transcriptText && pstnRow.serverCallId && process.env.ACS_CONNECTION_STRING) {
-    try {
-      const { startAcsRecording } = await import("../acsRecordingService");
-      // Determine the public callback base URL from environment
-      const callbackBaseUrl = process.env.VITE_FRONTEND_FORGE_API_URL
-        ? process.env.VITE_FRONTEND_FORGE_API_URL.replace("/api", "")
-        : "https://gigitekai.com";
-      const recordingId = await startAcsRecording(pstnRow.serverCallId, callbackBaseUrl);
-      if (recordingId) {
-        await db
-          .update(callLogs)
-          .set({
-            acsRecordingId: recordingId,
-            transcriptionStatus: "transcribing",
-          })
-          .where(eq(callLogs.id, callLogId));
-        console.log(`[Call Poller] ACS recording started (${recordingId}) for callLog ${callLogId}`);
-      }
-    } catch (err: any) {
-      console.warn(`[Call Poller] ACS recording start failed for callLog ${callLogId}:`, err.message);
-    }
+  // ── ACS Recording: Note on PSTN transcription ────────────────────────────
+  // The MS Graph PSTN call records API does NOT return a serverCallId.
+  // serverCallId is only available in real-time via ACS Call Automation events,
+  // not from historical call records.
+  //
+  // To enable PSTN call transcription, one of these approaches is required:
+  //   1. Teams Compliance Recording policy (requires certified recording partner)
+  //   2. ACS Call Automation real-time interception (requires ACS resource linked to Teams Phone)
+  //   3. Voicemail transcription (already working via Whisper on email attachments)
+  //
+  // For now, PSTN calls without a conferenceId will have transcriptionStatus = 'unavailable'.
+  // This is expected behavior — voicemail transcription covers the most important use case.
+  if (!transcriptText) {
+    console.log(`[Call Poller] ℹ️ No transcript for call from ${callerNumber} (PSTN calls require Teams Compliance Recording or ACS Call Automation for real-time transcription)`);
   }
 }
 

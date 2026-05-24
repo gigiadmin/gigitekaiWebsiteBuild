@@ -5471,3 +5471,9 @@
 - [x] Fix response_times mapping (use 'value' field from API, map to 'response_time' for frontend)
 - [x] Convert monitor links from <a> to <Link> for SPA navigation
 - [x] Bulletproof error handling - page never crashes, falls back to mock data gracefully
+
+## Phase B Fixes (May 24, 2026)
+- [x] B2: Add email sender filter to block automated/transactional emails from creating tickets
+- [x] B3: Update Teams notification count and lastNotificationAt in DB after successful sends
+- [x] B4: Investigate ACS call recording — serverCallId not in PSTN API (architectural limitation documented, clear log message added)
+- [x] B1: Fix D365 Contact Center 403 — added getDynamics365Token() with correct D365 OAuth scope (separate from Graph token)

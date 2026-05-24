@@ -353,6 +353,142 @@ function isOwnVoicemailNotification(subject: string, senderEmail: string): boole
 }
 
 /**
+ * Detect if an email is a transactional/automated email that should NOT create a support ticket.
+ * This covers billing notifications, monitoring alerts, payment confirmations, SaaS notifications, etc.
+ */
+function isTransactionalEmail(subject: string, senderEmail: string, body: string): boolean {
+  const senderLower = senderEmail.toLowerCase();
+  const subjectLower = subject.toLowerCase();
+  const bodyLower = body.toLowerCase();
+
+  // ── Blocked sender domains (automated/transactional senders) ──
+  const blockedDomains = [
+    'uptimerobot.com',
+    'stripe.com',
+    'paypal.com',
+    'quickbooks.com',
+    'intuit.com',
+    'freshbooks.com',
+    'xero.com',
+    'chargebee.com',
+    'recurly.com',
+    'braintreepayments.com',
+    'paddle.com',
+    'gumroad.com',
+    'sendgrid.net',
+    'mailchimp.com',
+    'constantcontact.com',
+    'hubspot.com',
+    'salesforce.com',
+    'zendesk.com',
+    'freshdesk.com',
+    'intercom.io',
+    'intercom.com',
+    'pagerduty.com',
+    'opsgenie.com',
+    'statuspage.io',
+    'pingdom.com',
+    'datadog.com',
+    'newrelic.com',
+    'sentry.io',
+    'rollbar.com',
+    'bugsnag.com',
+    'logrocket.com',
+    'github.com',
+    'gitlab.com',
+    'atlassian.com',
+    'jira.com',
+    'trello.com',
+    'asana.com',
+    'monday.com',
+    'notion.so',
+    'slack.com',
+    'zoom.us',
+    'docusign.com',
+    'hellosign.com',
+    'dropbox.com',
+    'box.com',
+    'twilio.com',
+    'sendbird.com',
+    'mailgun.com',
+    'postmarkapp.com',
+    'sparkpost.com',
+    'amazonses.com',
+    'amazonaws.com',
+    'azure.com',
+    'sherweb.com',
+    'godaddy.com',
+    'namecheap.com',
+    'cloudflare.com',
+    'letsencrypt.org',
+    'digicert.com',
+    'sectigo.com',
+    'linkedin.com',
+    'twitter.com',
+    'facebook.com',
+    'google.com',
+    'googlealerts-noreply.google.com',
+    'accounts.google.com',
+    'manus.im',
+    'manus.space',
+  ];
+
+  for (const domain of blockedDomains) {
+    if (senderLower.endsWith('@' + domain) || senderLower.includes('.' + domain)) {
+      console.log(`[Email Poller] TRANSACTIONAL FILTER: Blocked sender domain ${domain} from ${senderEmail}`);
+      return true;
+    }
+  }
+
+  // ── Blocked subject patterns (billing, monitoring, alerts) ──
+  const blockedSubjectPatterns = [
+    /your (payment|invoice|receipt|subscription|plan|order)/i,
+    /payment (received|confirmed|failed|declined|processed)/i,
+    /invoice #?\d+/i,
+    /subscription (renewed|cancelled|updated|activated|expired)/i,
+    /trial (expired|ending|started)/i,
+    /billing (statement|notification|alert)/i,
+    /monitor (is (up|down|paused|resumed))/i,
+    /alert: .*(down|up|offline|online|unreachable)/i,
+    /uptime (alert|notification|report)/i,
+    /\[uptimerobot\]/i,
+    /server (down|up|unreachable|error)/i,
+    /ssl certificate/i,
+    /domain (expir|renew)/i,
+    /password (reset|changed|updated)/i,
+    /verify your email/i,
+    /confirm your (email|account|subscription)/i,
+    /welcome to .*(plan|tier|subscription)/i,
+    /your account has been (created|activated|suspended|deleted)/i,
+    /security alert/i,
+    /sign-in from new/i,
+    /two-factor authentication/i,
+    /2fa (code|token|enabled|disabled)/i,
+    /newsletter|unsubscribe|marketing/i,
+    /\[github\]|\[gitlab\]/i,
+    /pull request|merge request|code review/i,
+    /build (failed|passed|succeeded)/i,
+    /deployment (failed|succeeded|started)/i,
+    /cron job|scheduled task/i,
+  ];
+
+  for (const pattern of blockedSubjectPatterns) {
+    if (pattern.test(subjectLower)) {
+      console.log(`[Email Poller] TRANSACTIONAL FILTER: Blocked subject pattern "${subject}" from ${senderEmail}`);
+      return true;
+    }
+  }
+
+  // ── Blocked body patterns (unsubscribe links = marketing email) ──
+  if (bodyLower.includes('unsubscribe') && bodyLower.includes('click here')) {
+    console.log(`[Email Poller] TRANSACTIONAL FILTER: Detected marketing email (unsubscribe link) from ${senderEmail}`);
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
  * When forwarded from voicemail@gigitekai.com, subject may be "FW: Voice Message from..."
@@ -1158,6 +1294,14 @@ export async function runEmailPoller(): Promise<void> {
       if (isOwnSystemEmail(subject, senderAddr)) {
         console.log(`[Email Poller] SKIPPING OWN SYSTEM EMAIL from ${senderAddr}: "${subject}"`);
         // Mark as read so we don't fetch it again
+        if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+        skippedCount++;
+        continue;
+      }
+
+      // ── SKIP TRANSACTIONAL/AUTOMATED EMAILS (billing, monitoring, SaaS alerts) ──
+      if (isTransactionalEmail(subject, senderAddr, emailBody)) {
+        console.log(`[Email Poller] SKIPPING TRANSACTIONAL EMAIL from ${senderAddr}: "${subject}"`);
         if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
         skippedCount++;
         continue;

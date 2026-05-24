@@ -38,6 +38,54 @@ interface ContactCenterHealth {
 /**
  * Helper: Get Microsoft Graph access token using client credentials
  */
+/**
+ * Get an OAuth token scoped for Dynamics 365 (separate from Graph token)
+ * D365 requires its own resource scope: https://[org].crm.dynamics.com/.default
+ */
+async function getDynamics365Token(): Promise<string | null> {
+  const tenantId = process.env.MS_GRAPH_TENANT_ID;
+  const clientId = process.env.MS_GRAPH_CLIENT_ID;
+  const clientSecret = process.env.MS_GRAPH_CLIENT_SECRET;
+  const d365OrgUrl = process.env.D365_ORG_URL;
+
+  if (!tenantId || !clientId || !clientSecret || !d365OrgUrl) {
+    console.warn('[D365] Missing credentials or D365_ORG_URL for Dynamics 365 token');
+    return null;
+  }
+
+  // Build the D365 resource scope from the org URL
+  // e.g. https://gigitekai.crm.dynamics.com/ → https://gigitekai.crm.dynamics.com/.default
+  const orgBase = d365OrgUrl.endsWith('/') ? d365OrgUrl : `${d365OrgUrl}/`;
+  const d365Scope = `${orgBase}.default`;
+
+  try {
+    const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: d365Scope,
+      }).toString(),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error(`[D365] Failed to get D365 token (${response.status}): ${err.slice(0, 200)}`);
+      console.error('[D365] FIX: Go to Azure Portal → App Registrations → your app → API Permissions → Add a permission → Dynamics CRM → user_impersonation');
+      return null;
+    }
+
+    const data = await response.json() as { access_token: string };
+    return data.access_token;
+  } catch (err: any) {
+    console.error('[D365] Error getting D365 token:', err.message);
+    return null;
+  }
+}
+
 async function getGraphAccessToken(): Promise<string> {
   const tenantId = process.env.MS_GRAPH_TENANT_ID;
   const clientId = process.env.MS_GRAPH_CLIENT_ID;
@@ -218,27 +266,42 @@ async function getTeamsCallQueues(accessToken: string): Promise<any[]> {
 
 /**
  * Check Dynamics 365 Contact Center connectivity
+ * Uses a D365-scoped token (not Graph token) — D365 requires its own OAuth resource
  */
-async function checkDynamics365Status(accessToken: string): Promise<boolean> {
+async function checkDynamics365Status(): Promise<{ healthy: boolean; details: string }> {
   const d365OrgUrl = process.env.D365_ORG_URL;
-  if (!d365OrgUrl) return false;
+  if (!d365OrgUrl) return { healthy: false, details: 'D365_ORG_URL not configured' };
+
+  const d365Token = await getDynamics365Token();
+  if (!d365Token) {
+    return {
+      healthy: false,
+      details: 'Cannot get D365 token — add Dynamics CRM → user_impersonation permission in Azure Portal App Registrations',
+    };
+  }
 
   try {
-    const url = d365OrgUrl.endsWith("/")
+    const url = d365OrgUrl.endsWith('/')
       ? `${d365OrgUrl}api/data/v9.2/WhoAmI`
       : `${d365OrgUrl}/api/data/v9.2/WhoAmI`;
-
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${d365Token}`,
+        'Content-Type': 'application/json',
+        'OData-MaxVersion': '4.0',
+        'OData-Version': '4.0',
       },
     });
-    return response.ok;
-  } catch (error) {
-    console.error("Error checking Dynamics 365:", error);
-    return false;
+    if (response.ok) {
+      return { healthy: true, details: 'Connected to Dynamics 365 Contact Center' };
+    }
+    const errText = await response.text();
+    console.error(`[D365] WhoAmI failed (${response.status}): ${errText.slice(0, 200)}`);
+    return { healthy: false, details: `D365 WhoAmI returned ${response.status} — check app permissions` };
+  } catch (error: any) {
+    console.error('[D365] WhoAmI error:', error.message);
+    return { healthy: false, details: `D365 connectivity error: ${error.message}` };
   }
 }
 
@@ -257,14 +320,12 @@ export const contactCenterRouter = router({
       const teamsWebhookUrl = process.env.TEAMS_WEBHOOK_URL;
       const acsConnectionString = process.env.ACS_CONNECTION_STRING;
 
-      // 1. Dynamics 365 Contact Center
-      const d365Healthy = await checkDynamics365Status(accessToken);
+      // 1. Dynamics 365 Contact Center (uses D365-scoped token, not Graph token)
+      const d365Result = await checkDynamics365Status();
       services.push({
         service: "Dynamics 365 Contact Center",
-        status: d365Healthy ? "healthy" : "degraded",
-        details: d365Healthy
-          ? "Connected to Dynamics 365 Contact Center"
-          : "D365 WhoAmI check failed — verify D365_ORG_URL and Graph API permissions",
+        status: d365Result.healthy ? "healthy" : "degraded",
+        details: d365Result.details,
         lastChecked: new Date(),
       });
 
@@ -311,7 +372,7 @@ export const contactCenterRouter = router({
       const callQueues = await getTeamsCallQueues(accessToken);
 
       // Build issues list — only flag real problems
-      if (!d365Healthy) issues.push("Dynamics 365 Contact Center connectivity issue — check D365_ORG_URL");
+      if (!d365Result.healthy) issues.push("Dynamics 365 Contact Center connectivity issue — check D365_ORG_URL and ensure app has Dynamics CRM user_impersonation permission");
       if (!teamsWebhookUrl) issues.push("Teams Webhook URL not configured — set TEAMS_WEBHOOK_URL");
       if (!environmentId) issues.push("Copilot Studio Environment ID not set — set COPILOT_STUDIO_ENVIRONMENT_ID");
       if (!agents.ticketClassifier) issues.push("Ticket Classifier Agent not found — set COPILOT_TICKET_CLASSIFIER_AGENT_ID or check agent name in Copilot Studio");
@@ -481,8 +542,8 @@ export const contactCenterRouter = router({
         const accessToken = await getGraphAccessToken();
         switch (input.service) {
           case "d365": {
-            const healthy = await checkDynamics365Status(accessToken);
-            return { service: "Dynamics 365 Contact Center", status: healthy ? "healthy" : "degraded", detail: healthy ? "Connected" : "Connection failed", lastChecked: new Date() };
+            const d365R = await checkDynamics365Status();
+            return { service: "Dynamics 365 Contact Center", status: d365R.healthy ? "healthy" : "degraded", detail: d365R.details, lastChecked: new Date() };
           }
           case "teams": {
             const url = process.env.TEAMS_WEBHOOK_URL;

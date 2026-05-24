@@ -6,6 +6,9 @@
 
 import type { Ticket } from "../drizzle/schema";
 import { sendToTeamsWithRetry, resolveWebhookUrl } from "./_core/teamsWebhookUtils";
+import { getDb } from "./db";
+import { sql } from "drizzle-orm";
+import { teamsClientChannels } from "../drizzle/schema";
 
 interface AdaptiveCard {
   type: string;
@@ -51,6 +54,27 @@ export async function sendTicketNotificationToTeams(
       `ticket #${ticket.id} ${eventType}`
     );
     console.log(`[Teams Notification] Result for ticket #${ticket.id}: ${result.success ? "SUCCESS" : "FAILED"} (attempts: ${result.attempts})`);
+
+    // ── B3 FIX: Update notificationCount + lastNotificationAt in teamsClientChannels ──
+    if (result.success) {
+      try {
+        const db = await getDb();
+        if (db) {
+          // Update all active channel rows that match this webhook URL
+          await db
+            .update(teamsClientChannels)
+            .set({
+              notificationCount: sql`notificationCount + 1`,
+              lastNotificationAt: new Date(),
+            })
+            .where(sql`webhookUrl = ${webhookUrl} AND isActive = 1`);
+          console.log(`[Teams Notification] ✅ DB counter updated for webhook: ${webhookUrl.slice(0, 60)}...`);
+        }
+      } catch (dbErr) {
+        // Non-blocking: log but don't throw
+        console.warn('[Teams Notification] Failed to update DB notification counter:', dbErr);
+      }
+    }
   } catch (error) {
     // Non-blocking: log but don't throw
     console.error("[Teams Notification] Unexpected error:", error);
