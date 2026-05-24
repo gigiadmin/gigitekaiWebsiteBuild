@@ -5522,3 +5522,14 @@
 - [x] F4: Enhance M365 Service Health with Graph Service Communications API — full incident detail drawer with timeline, messages, workarounds, auto-refresh every 5 min
 - [x] F5: Total DB: 2,005 published KB articles (164 new articles added this session)
 - [x] F6: Remaining 36 tech articles (ODV-065 to ODV-100) deferred — Harry confirmed 164 is fine for now
+
+## Phase G: Demo Website Expansion (May 24, 2026)
+
+- [ ] G1: Add Process/How It Works section to PortfolioDemoSite component
+- [ ] G2: Add Case Study / Results section with concrete metrics
+- [ ] G3: Add Trust Badges / Certifications section
+- [ ] G4: Add FAQ section with industry-specific Q&A
+- [ ] G5: Add Pricing Tiers section (3-tier layout)
+- [ ] G6: Add Newsletter/CTA section with email capture
+- [ ] G7: Expand portfolio-sites-config.ts with new data for all 7 demos (process steps, case studies, FAQs, pricing tiers, trust badges)
+- [ ] G8: Update PortfolioPage hub with richer preview cards

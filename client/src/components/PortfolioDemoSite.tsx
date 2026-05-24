@@ -2,6 +2,7 @@
  * PortfolioDemoSite — Fortune 500-level one-page industry demo site
  * Design: Clean white/light backgrounds, premium typography, generous white space
  * Inspired by: McKinsey, Goldman Sachs, Deloitte — enterprise-grade aesthetics
+ * Enhanced: Process steps, case studies, FAQs, pricing tiers, trust badges, newsletter CTA
  */
 import { useState } from "react";
 import { PortfolioSiteConfig } from "@shared/portfolio-sites-config";
@@ -50,6 +51,9 @@ export default function PortfolioDemoSite({ site }: Props) {
   const [responseIndex, setResponseIndex] = useState(0);
   const [contactForm, setContactForm] = useState({ name: "", email: "", company: "", message: "" });
   const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
 
   const accent = site.accentColor;
 
@@ -68,6 +72,11 @@ export default function PortfolioDemoSite({ site }: Props) {
     setTimeout(() => {
       window.open("https://gigitekai.com/contact", "_blank");
     }, 2500);
+  }
+
+  function handleNewsletterSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setNewsletterSubmitted(true);
   }
 
   return (
@@ -105,8 +114,10 @@ export default function PortfolioDemoSite({ site }: Props) {
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
               <a href="#services" className="hover:text-white transition-colors">Services</a>
-              <a href="#about" className="hover:text-white transition-colors">About</a>
-              <a href="#team" className="hover:text-white transition-colors">Team</a>
+              <a href="#process" className="hover:text-white transition-colors">Process</a>
+              <a href="#results" className="hover:text-white transition-colors">Results</a>
+              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+              <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
               <a href="#contact" className="hover:text-white transition-colors">Contact</a>
               <a href="/websites" className="text-xs text-gray-500 hover:text-gray-300">← Websites</a>
               <a
@@ -125,7 +136,7 @@ export default function PortfolioDemoSite({ site }: Props) {
           </div>
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-700 space-y-1">
-              {["services", "about", "team", "contact"].map((s) => (
+              {["services", "process", "results", "pricing", "faq", "contact"].map((s) => (
                 <a key={s} href={`#${s}`} className="block py-2.5 px-2 text-gray-200 hover:text-white capitalize font-medium" onClick={() => setMobileMenuOpen(false)}>{s}</a>
               ))}
               <a href="/websites" className="block py-2.5 px-2 text-gray-500 text-sm" onClick={() => setMobileMenuOpen(false)}>← Back to Websites</a>
@@ -191,6 +202,25 @@ export default function PortfolioDemoSite({ site }: Props) {
         </div>
       </section>
 
+      {/* ── TRUST BADGES ── Social proof bar */}
+      {site.trustBadges && site.trustBadges.length > 0 && (
+        <section className="py-8 px-6 bg-white border-b border-gray-100">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+              <span className="text-xs text-gray-400 uppercase tracking-widest font-semibold">Trusted & Certified</span>
+              {site.trustBadges.map((badge) => (
+                <div key={badge} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-200">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke={accent} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span className="text-xs font-semibold text-gray-700">{badge}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── SERVICES ── White background, clean cards */}
       <section id="services" className="py-24 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -202,7 +232,7 @@ export default function PortfolioDemoSite({ site }: Props) {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {site.services?.map((service, idx) => (
+            {site.services?.map((service) => (
               <div
                 key={service.title}
                 className="rounded-2xl p-8 border border-gray-100 hover:shadow-lg transition-shadow bg-white group"
@@ -236,14 +266,90 @@ export default function PortfolioDemoSite({ site }: Props) {
               </div>
             ))}
           </div>
-          <div className="mt-12 p-6 rounded-xl bg-gray-50 border border-gray-200 text-center">
-            <p className="text-gray-600 text-sm">
-              All services are custom-quoted based on your specific project scope and requirements.{" "}
-              <a href="#contact" className="font-semibold hover:underline" style={{ color: accent }}>Contact us for a free consultation.</a>
-            </p>
-          </div>
         </div>
       </section>
+
+      {/* ── PROCESS / HOW IT WORKS ── */}
+      {site.processSteps && site.processSteps.length > 0 && (
+        <section id="process" className="py-24 px-6 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Our Process</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">How We Work</h2>
+              <p className="text-gray-500 text-lg leading-relaxed">
+                A proven methodology that delivers consistent, measurable results for every engagement.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {site.processSteps.map((step, idx) => (
+                <div key={step.step} className="relative">
+                  {/* Connector line */}
+                  {idx < (site.processSteps?.length || 0) - 1 && (
+                    <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 -translate-x-4" style={{ backgroundColor: accent + "30" }} />
+                  )}
+                  <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm h-full">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white mb-5"
+                      style={{ backgroundColor: accent }}
+                    >
+                      {step.step}
+                    </div>
+                    <div className="text-2xl mb-3">{step.icon}</div>
+                    <h3 className="text-base font-bold text-gray-900 mb-2">{step.title}</h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── CASE STUDY / RESULTS ── */}
+      {site.caseStudy && (
+        <section id="results" className="py-24 px-6 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Case Study</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">Proven Results</h2>
+              <p className="text-gray-500 text-lg leading-relaxed">
+                Real outcomes from real clients. See how we deliver measurable impact.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
+              {/* Case study header */}
+              <div className="p-8 md:p-12" style={{ backgroundColor: accent + "08" }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6 border" style={{ color: accent, borderColor: accent + "33", backgroundColor: "white" }}>
+                      {site.caseStudy.industry}
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">{site.caseStudy.client}</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Challenge</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{site.caseStudy.challenge}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">Solution</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{site.caseStudy.solution}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {site.caseStudy.results.map((result) => (
+                      <div key={result.metric} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm text-center">
+                        <div className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: accent }}>{result.value}</div>
+                        <div className="text-xs text-gray-500 uppercase tracking-wider font-medium">{result.metric}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── ABOUT ── Light gray background */}
       <section id="about" className="py-24 px-6 bg-gray-50">
@@ -294,8 +400,70 @@ export default function PortfolioDemoSite({ site }: Props) {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── White background */}
-      <section className="py-24 px-6 bg-white">
+      {/* ── PRICING TIERS ── */}
+      {site.pricingTiers && site.pricingTiers.length > 0 && (
+        <section id="pricing" className="py-24 px-6 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Pricing</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">Plans That Scale With You</h2>
+              <p className="text-gray-500 text-lg leading-relaxed">
+                Transparent pricing with no hidden fees. Choose the plan that fits your needs.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {site.pricingTiers.map((tier) => (
+                <div
+                  key={tier.name}
+                  className={`rounded-2xl p-8 border-2 flex flex-col ${
+                    tier.highlighted
+                      ? "shadow-xl scale-[1.02]"
+                      : "border-gray-200 shadow-sm"
+                  }`}
+                  style={tier.highlighted ? { borderColor: accent } : {}}
+                >
+                  {tier.highlighted && (
+                    <div className="text-xs font-bold uppercase tracking-widest text-center py-1 -mt-8 mb-6 mx-auto px-4 rounded-full text-white" style={{ backgroundColor: accent }}>
+                      Most Popular
+                    </div>
+                  )}
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{tier.name}</h3>
+                  <p className="text-sm text-gray-500 mb-6">{tier.description}</p>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-gray-900">{tier.price}</span>
+                    <span className="text-sm text-gray-500 ml-1">/{tier.period}</span>
+                  </div>
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2.5 text-sm text-gray-600">
+                        <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke={accent} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="#contact"
+                    className={`block w-full py-3.5 rounded-lg text-sm font-semibold text-center transition-[opacity,transform] hover:opacity-90 ${
+                      tier.highlighted ? "text-white shadow-md" : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                    style={tier.highlighted ? { backgroundColor: accent } : {}}
+                  >
+                    {tier.cta}
+                  </a>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-xs text-gray-400 mt-8">
+              All plans include dedicated account management. Custom enterprise pricing available.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>Client Stories</p>
@@ -325,7 +493,45 @@ export default function PortfolioDemoSite({ site }: Props) {
         </div>
       </section>
 
-      {/* ── TEAM ── Light gray background */}
+      {/* ── FAQ ── */}
+      {site.faqs && site.faqs.length > 0 && (
+        <section id="faq" className="py-24 px-6 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: accent }}>FAQ</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight">Frequently Asked Questions</h2>
+              <p className="text-gray-500">Everything you need to know about our services.</p>
+            </div>
+            <div className="space-y-3">
+              {site.faqs.map((faq, idx) => (
+                <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                    className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-sm font-semibold text-gray-900 pr-4">{faq.question}</span>
+                    <svg
+                      className={`w-5 h-5 flex-shrink-0 text-gray-400 transition-transform ${openFaq === idx ? "rotate-180" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {openFaq === idx && (
+                    <div className="px-6 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── TEAM ── */}
       <section id="team" className="py-24 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -347,6 +553,46 @@ export default function PortfolioDemoSite({ site }: Props) {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── NEWSLETTER / CTA ── */}
+      <section className="py-20 px-6" style={{ backgroundColor: accent + "08" }}>
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 tracking-tight">
+            {site.newsletterHeadline || `Stay Ahead in ${site.industry}`}
+          </h2>
+          <p className="text-gray-500 text-base mb-8 max-w-xl mx-auto">
+            {site.newsletterSubtext || `Get industry insights, expert analysis, and exclusive updates delivered to your inbox weekly.`}
+          </p>
+          {newsletterSubmitted ? (
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-gray-200 shadow-sm">
+              <svg className="w-5 h-5" fill="none" stroke={accent} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-sm font-semibold text-gray-700">You're subscribed! (Demo — contact GigitekAI for real setup)</span>
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 rounded-lg border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 text-sm bg-white"
+                style={{ "--tw-ring-color": accent } as React.CSSProperties}
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 rounded-lg text-white font-semibold text-sm transition-[opacity,transform] hover:opacity-90 shadow-sm whitespace-nowrap"
+                style={{ backgroundColor: accent }}
+              >
+                Subscribe Free
+              </button>
+            </form>
+          )}
+          <p className="text-xs text-gray-400 mt-4">No spam. Unsubscribe anytime. Demo site by GigitekAI.</p>
         </div>
       </section>
 

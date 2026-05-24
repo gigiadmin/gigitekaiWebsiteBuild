@@ -25,6 +25,36 @@ export interface TeamMember {
   initials: string;
 }
 
+export interface ProcessStep {
+  step: number;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface CaseStudy {
+  client: string;
+  industry: string;
+  challenge: string;
+  solution: string;
+  results: Array<{ metric: string; value: string }>;
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface PricingTier {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+  cta: string;
+}
+
 export interface PortfolioSiteConfig {
   id: string;
   name: string;
@@ -47,6 +77,14 @@ export interface PortfolioSiteConfig {
     email: string;
     address: string;
   };
+  // New rich content fields
+  processSteps?: ProcessStep[];
+  caseStudy?: CaseStudy;
+  faqs?: FAQItem[];
+  pricingTiers?: PricingTier[];
+  trustBadges?: string[];
+  newsletterHeadline?: string;
+  newsletterSubtext?: string;
 }
 
 export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
@@ -130,6 +168,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@fintechsolutions.demo",
       address: "100 Wall Street, New York, NY 10005",
     },
+    processSteps: [
+      { step: 1, title: "Discovery & Assessment", description: "We analyze your current financial infrastructure, compliance requirements, and growth objectives to design a tailored roadmap.", icon: "🔍" },
+      { step: 2, title: "Architecture Design", description: "Our engineers design a secure, scalable platform architecture with PCI-DSS compliance baked in from day one.", icon: "📐" },
+      { step: 3, title: "Build & Integrate", description: "We build your platform with real-time transaction processing, connect to banking APIs, and integrate with existing systems.", icon: "⚙️" },
+      { step: 4, title: "Launch & Optimize", description: "Go live with 24/7 monitoring, continuous optimization, and dedicated support to ensure peak performance.", icon: "🚀" },
+    ],
+    caseStudy: {
+      client: "Pacific Coast Credit Union",
+      industry: "Banking & Financial Services",
+      challenge: "Legacy core banking system causing 4-hour processing delays, frequent outages, and inability to offer mobile banking to 200,000+ members.",
+      solution: "Migrated to cloud-native microservices architecture with real-time transaction processing, mobile-first design, and AI-powered fraud detection.",
+      results: [
+        { metric: "Processing Speed", value: "300x Faster" },
+        { metric: "Fraud Detection", value: "99.7%" },
+        { metric: "Member Satisfaction", value: "+47 NPS" },
+        { metric: "Cost Reduction", value: "38%" },
+      ],
+    },
+    faqs: [
+      { question: "How long does a typical digital banking platform implementation take?", answer: "Most implementations take 12-16 weeks from discovery to launch. Complex multi-entity deployments may take 20-24 weeks. We use agile sprints with bi-weekly demos so you see progress immediately." },
+      { question: "Is your platform compliant with financial regulations?", answer: "Yes. We maintain SOC 2 Type II, PCI-DSS Level 1, and FFIEC compliance certifications. Our platform is designed for GDPR, CCPA, and Dodd-Frank requirements out of the box." },
+      { question: "Can you integrate with our existing core banking system?", answer: "Absolutely. We support integration with all major core banking platforms including FIS, Fiserv, Jack Henry, Temenos, and Mambu through our open API layer." },
+      { question: "What is your uptime guarantee?", answer: "We guarantee 99.99% uptime backed by an SLA with financial credits. Our platform uses multi-region active-active deployment with automatic failover." },
+      { question: "Do you support cryptocurrency and digital asset management?", answer: "Yes. Our platform includes modules for digital asset custody, crypto trading integration, and blockchain-based settlement — all within regulatory frameworks." },
+    ],
+    pricingTiers: [
+      { name: "Starter", price: "$2,500", period: "month", description: "For community banks and credit unions getting started with digital transformation.", features: ["Up to 50,000 accounts", "Core banking APIs", "Mobile app (iOS & Android)", "Basic fraud detection", "Email support", "99.9% uptime SLA"], cta: "Get Started" },
+      { name: "Professional", price: "$7,500", period: "month", description: "For growing institutions that need advanced capabilities and compliance tools.", features: ["Up to 500,000 accounts", "AI-powered fraud detection", "Robo-advisory module", "Real-time payments", "Dedicated account manager", "99.99% uptime SLA", "SOC 2 compliance tools"], highlighted: true, cta: "Contact Sales" },
+      { name: "Enterprise", price: "Custom", period: "year", description: "For large institutions requiring full customization and white-label solutions.", features: ["Unlimited accounts", "White-label platform", "Custom AI models", "Multi-entity support", "On-premise option", "24/7 dedicated support", "Custom SLA", "Regulatory reporting suite"], cta: "Talk to Us" },
+    ],
+    trustBadges: ["SOC 2 Type II", "PCI-DSS Level 1", "ISO 27001", "FFIEC Compliant", "AWS Advanced Partner"],
+    newsletterHeadline: "Stay Ahead in FinTech",
+    newsletterSubtext: "Weekly insights on digital banking trends, regulatory updates, and AI innovations in financial services.",
   },
 
   legal: {
@@ -212,6 +283,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@legalpro.demo",
       address: "350 Fifth Avenue, New York, NY 10118",
     },
+    processSteps: [
+      { step: 1, title: "Initial Consultation", description: "Free 30-minute consultation to understand your legal needs, assess complexity, and determine the best strategy.", icon: "📋" },
+      { step: 2, title: "Strategy Development", description: "Our attorneys develop a comprehensive legal strategy with clear milestones, timelines, and cost estimates.", icon: "🎯" },
+      { step: 3, title: "Execution & Advocacy", description: "We execute with precision — drafting documents, negotiating terms, and representing your interests aggressively.", icon: "⚖️" },
+      { step: 4, title: "Resolution & Review", description: "We close the matter, ensure all obligations are met, and provide ongoing counsel to prevent future issues.", icon: "✅" },
+    ],
+    caseStudy: {
+      client: "TechCorp International",
+      industry: "Technology / M&A",
+      challenge: "$450M cross-border acquisition with regulatory hurdles in 6 jurisdictions, complex IP transfer requirements, and a 90-day closing deadline.",
+      solution: "Assembled a 12-attorney team across 4 offices, leveraged AI document review for 50,000+ contracts, and coordinated parallel regulatory filings.",
+      results: [
+        { metric: "Deal Closed In", value: "78 Days" },
+        { metric: "Documents Reviewed", value: "50,000+" },
+        { metric: "Cost vs. Estimate", value: "12% Under" },
+        { metric: "Post-Close Issues", value: "Zero" },
+      ],
+    },
+    faqs: [
+      { question: "How do you bill for legal services?", answer: "We offer flexible billing including hourly rates, flat fees for defined scope work, contingency arrangements for litigation, and monthly retainers for ongoing counsel. We provide detailed estimates upfront." },
+      { question: "What industries do you specialize in?", answer: "Our primary verticals are technology, financial services, healthcare, and real estate. We have dedicated practice groups with deep domain expertise in each sector." },
+      { question: "How does your AI-powered document review work?", answer: "Our proprietary AI platform can review contracts 10x faster than manual review with 99.2% accuracy. It identifies key clauses, risks, and non-standard terms, allowing our attorneys to focus on strategy." },
+      { question: "Can you handle matters outside the United States?", answer: "Yes. We have offices in New York, Chicago, LA, and Miami, plus a network of vetted partner firms in 30+ countries for cross-border matters." },
+      { question: "What is your success rate in litigation?", answer: "Over the past 5 years, we have achieved favorable outcomes in 94% of litigated matters, including settlements, verdicts, and dismissals of claims against our clients." },
+    ],
+    pricingTiers: [
+      { name: "Counsel", price: "$3,500", period: "month", description: "Ongoing legal counsel for startups and small businesses.", features: ["10 hours/month of attorney time", "Contract review & drafting", "Employment law guidance", "Regulatory compliance advice", "Email & phone support", "48-hour response time"], cta: "Get Started" },
+      { name: "Business", price: "$8,500", period: "month", description: "Comprehensive legal support for growing companies.", features: ["25 hours/month of attorney time", "M&A and fundraising support", "IP protection & filing", "Litigation defense", "Dedicated partner", "24-hour response time", "Board meeting attendance"], highlighted: true, cta: "Contact Us" },
+      { name: "Enterprise", price: "Custom", period: "year", description: "Full-service legal department for large organizations.", features: ["Unlimited attorney access", "Dedicated legal team (3-5 attorneys)", "Cross-border capabilities", "AI document review platform", "Regulatory lobbying", "Crisis management", "Same-day response", "Quarterly strategy reviews"], cta: "Schedule Consultation" },
+    ],
+    trustBadges: ["Am Law 200", "Legal 500 Ranked", "Chambers & Partners", "Super Lawyers", "Best Lawyers 2025"],
+    newsletterHeadline: "Legal Insights That Matter",
+    newsletterSubtext: "Monthly briefings on regulatory changes, landmark cases, and legal technology innovations for business leaders.",
   },
 
   insurance: {
@@ -294,6 +398,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@insureflow.demo",
       address: "500 Insurance Plaza, Hartford, CT 06103",
     },
+    processSteps: [
+      { step: 1, title: "Risk Assessment", description: "Our AI analyzes your risk profile using 200+ data points to determine optimal coverage and pricing.", icon: "📊" },
+      { step: 2, title: "Custom Quote", description: "Receive a tailored insurance package within minutes — transparent pricing with no hidden fees or exclusions.", icon: "💰" },
+      { step: 3, title: "Instant Coverage", description: "Bind your policy digitally in minutes. Coverage begins immediately with full documentation delivered to your inbox.", icon: "⚡" },
+      { step: 4, title: "Claims & Support", description: "File claims through our app or phone. AI-assisted processing means most claims are resolved within 24 hours.", icon: "🤝" },
+    ],
+    caseStudy: {
+      client: "Sunrise Manufacturing Group",
+      industry: "Manufacturing & Industrial",
+      challenge: "Complex multi-site insurance program with $50M in property coverage, workers comp across 12 states, and a history of slow claims taking 45+ days to resolve.",
+      solution: "Consolidated all policies under a single platform with AI-powered claims triage, predictive risk modeling, and a dedicated claims advocate team.",
+      results: [
+        { metric: "Claims Resolution", value: "< 24 Hours" },
+        { metric: "Premium Savings", value: "22%" },
+        { metric: "Employee Satisfaction", value: "+38 NPS" },
+        { metric: "Claim Denials", value: "Down 67%" },
+      ],
+    },
+    faqs: [
+      { question: "How quickly can I get a quote?", answer: "Our AI-powered quoting engine delivers personalized quotes in under 3 minutes for most coverage types. Complex commercial policies may take up to 24 hours for a comprehensive proposal." },
+      { question: "What happens when I need to file a claim?", answer: "File through our mobile app, website, or by calling our 24/7 claims line. Our AI triage system categorizes and routes your claim immediately. Most standard claims are resolved within 24 hours." },
+      { question: "Can I bundle multiple types of coverage?", answer: "Absolutely. We offer multi-policy discounts of 15-25% when you bundle health, property, auto, and liability coverage. Our platform manages all policies in one dashboard." },
+      { question: "Are you licensed in my state?", answer: "We are licensed and regulated in all 50 US states plus DC, Puerto Rico, and all Canadian provinces. Our compliance team ensures full regulatory adherence in every jurisdiction." },
+      { question: "How do you keep premiums affordable?", answer: "Our AI underwriting model assesses risk more accurately than traditional methods, allowing us to offer competitive rates. We also reward healthy behaviors and loss prevention with premium discounts." },
+    ],
+    pricingTiers: [
+      { name: "Personal", price: "$89", period: "month", description: "Comprehensive personal coverage for individuals and families.", features: ["Health insurance (individual/family)", "Auto insurance", "Renters/homeowners coverage", "Personal liability ($1M)", "Mobile app & digital ID cards", "24/7 claims support"], cta: "Get a Quote" },
+      { name: "Business", price: "$349", period: "month", description: "Complete coverage for small and mid-size businesses.", features: ["General liability ($2M)", "Professional liability (E&O)", "Workers compensation", "Commercial property", "Cyber liability", "Dedicated agent", "Risk management tools"], highlighted: true, cta: "Get a Quote" },
+      { name: "Enterprise", price: "Custom", period: "year", description: "Tailored programs for large organizations with complex needs.", features: ["Custom coverage limits", "Multi-state/multi-site", "Captive & self-insured options", "Executive liability (D&O)", "Global coverage", "Dedicated claims team", "Quarterly risk reviews", "Loss control engineering"], cta: "Contact Us" },
+    ],
+    trustBadges: ["A+ AM Best Rating", "NAIC Compliant", "BBB A+ Rated", "Licensed All 50 States", "SOC 2 Certified"],
+    newsletterHeadline: "Protect What Matters Most",
+    newsletterSubtext: "Monthly tips on risk management, coverage optimization, and industry regulatory updates for business owners.",
   },
 
   vc: {
@@ -376,6 +513,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@venturepeak.demo",
       address: "3000 Sand Hill Road, Menlo Park, CA 94025",
     },
+    processSteps: [
+      { step: 1, title: "Application & Screening", description: "Submit your pitch deck and financials. Our team reviews 1,000+ applications quarterly and responds within 5 business days.", icon: "📩" },
+      { step: 2, title: "Deep Dive & Diligence", description: "Selected founders meet our partners for a deep dive into product, market, team, and financials over 2-3 weeks.", icon: "🔬" },
+      { step: 3, title: "Term Sheet & Close", description: "We move fast. Term sheets issued within 48 hours of partner approval. Typical close in 2-3 weeks with founder-friendly terms.", icon: "📝" },
+      { step: 4, title: "Growth Partnership", description: "Post-investment, you get a board seat, operating support, customer introductions, and follow-on funding priority.", icon: "📈" },
+    ],
+    caseStudy: {
+      client: "DataSync AI (Series A)",
+      industry: "Enterprise SaaS / AI",
+      challenge: "Pre-revenue AI startup with strong technology but no enterprise sales motion, struggling to convert pilot customers into contracts.",
+      solution: "Led $8M Series A, placed a sales advisor from our network, introduced to 15 enterprise prospects, and provided go-to-market playbook.",
+      results: [
+        { metric: "ARR Growth", value: "$0 → $4.2M" },
+        { metric: "Time to Revenue", value: "6 Months" },
+        { metric: "Enterprise Clients", value: "12 Signed" },
+        { metric: "Follow-on Raised", value: "$25M Series B" },
+      ],
+    },
+    faqs: [
+      { question: "What stage companies do you invest in?", answer: "We focus on Seed ($500K–$2M) and Series A ($2M–$10M) rounds. We occasionally participate in pre-seed for exceptional founders with prior exits, and we always reserve capital for follow-on." },
+      { question: "What sectors are you focused on?", answer: "Our core thesis areas are AI/ML, Enterprise SaaS, FinTech, HealthTech, and Climate Tech. We look for companies with strong technical moats and large addressable markets." },
+      { question: "How long does your investment process take?", answer: "From first meeting to term sheet, our average is 3 weeks. We can move faster for competitive rounds. We never ghost founders — you'll get a clear yes or no with feedback." },
+      { question: "What do you offer beyond capital?", answer: "Board participation, hiring support (we've placed 200+ executives), customer introductions, follow-on funding coordination, and access to our 50+ portfolio company network for partnerships." },
+      { question: "What are your return expectations?", answer: "We target 3-5x fund returns with a 7-10 year horizon. Our historical average is 3.2x MOIC across 3 funds. We optimize for outlier outcomes, not average returns." },
+    ],
+    pricingTiers: [
+      { name: "Seed", price: "$500K–$2M", period: "round", description: "For pre-product or early-traction startups with exceptional founders.", features: ["Board observer seat", "Monthly office hours", "Hiring support (first 5 hires)", "Pitch deck coaching", "Investor intro network", "Co-working space access"], cta: "Apply Now" },
+      { name: "Series A", price: "$2M–$10M", period: "round", description: "For companies with product-market fit ready to scale.", features: ["Board seat", "Weekly partner check-ins", "Executive recruiting", "Go-to-market playbook", "Customer introductions", "Follow-on reserve", "CFO/finance support"], highlighted: true, cta: "Apply Now" },
+      { name: "Growth", price: "$10M+", period: "round", description: "For portfolio companies ready to dominate their market.", features: ["Lead or co-lead round", "IPO/M&A advisory", "International expansion support", "Strategic acquirer introductions", "Public company board prep", "IR & communications", "Secondary liquidity options", "Full operating team access"], cta: "Talk to Partners" },
+    ],
+    trustBadges: ["Top 50 VC (PitchBook)", "15 Exits", "$2B+ Portfolio Value", "200+ Mentor Network", "3.2x Avg MOIC"],
+    newsletterHeadline: "The Founder's Edge",
+    newsletterSubtext: "Weekly insights on fundraising, scaling, and the venture landscape from partners who've been in your shoes.",
   },
 
   health: {
@@ -458,6 +628,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@healthfirst.demo",
       address: "200 Medical Center Drive, Boston, MA 02115",
     },
+    processSteps: [
+      { step: 1, title: "Create Your Profile", description: "Sign up in 2 minutes. Share your medical history, insurance info, and health goals securely through our HIPAA-compliant platform.", icon: "📱" },
+      { step: 2, title: "Match With a Provider", description: "Our AI matches you with the right specialist based on your symptoms, preferences, and availability — often within minutes.", icon: "🩺" },
+      { step: 3, title: "Virtual or In-Person Visit", description: "See your provider via HD video, phone, or in-person at one of our 50+ clinic locations. Same-day appointments available.", icon: "📹" },
+      { step: 4, title: "Ongoing Care & Follow-Up", description: "Receive prescriptions, lab orders, referrals, and personalized care plans. Our team follows up to ensure you're improving.", icon: "❤️" },
+    ],
+    caseStudy: {
+      client: "Coastal Enterprises (500 employees)",
+      industry: "Corporate Wellness",
+      challenge: "High employee absenteeism (avg 8.5 sick days/year), rising healthcare costs ($2.1M annually), and low engagement with existing wellness programs.",
+      solution: "Deployed comprehensive telemedicine platform with 24/7 access, mental health support, preventive care programs, and AI-powered health risk assessments for all employees.",
+      results: [
+        { metric: "Sick Days Reduced", value: "30%" },
+        { metric: "Healthcare Costs", value: "-$420K/yr" },
+        { metric: "Employee Satisfaction", value: "94%" },
+        { metric: "Avg Wait Time", value: "< 5 min" },
+      ],
+    },
+    faqs: [
+      { question: "Is my health information secure?", answer: "Absolutely. We are HIPAA-compliant with SOC 2 Type II certification. All data is encrypted at rest and in transit. We never sell patient data and undergo annual third-party security audits." },
+      { question: "What insurance do you accept?", answer: "We accept all major insurance plans including Aetna, Blue Cross Blue Shield, Cigna, Humana, Kaiser, UnitedHealthcare, and Medicare/Medicaid. We also offer affordable self-pay options starting at $49/visit." },
+      { question: "Can I get prescriptions through telemedicine?", answer: "Yes. Our licensed providers can prescribe most medications during your virtual visit. Prescriptions are sent electronically to your preferred pharmacy for same-day pickup." },
+      { question: "What conditions can you treat virtually?", answer: "We treat 80%+ of common conditions virtually including infections, allergies, skin conditions, mental health, chronic disease management, and preventive care. Complex cases are referred to in-person specialists." },
+      { question: "How quickly can I see a doctor?", answer: "Our average wait time is under 5 minutes for urgent care. Scheduled appointments are available same-day for most specialties. Our 24/7 service means you can see a provider at any hour." },
+    ],
+    pricingTiers: [
+      { name: "Individual", price: "$29", period: "month", description: "Comprehensive virtual healthcare for individuals.", features: ["Unlimited urgent care visits", "24/7 provider access", "Prescription management", "Mental health support", "Health records portal", "Lab ordering"], cta: "Start Free Trial" },
+      { name: "Family", price: "$79", period: "month", description: "Coverage for your entire household (up to 6 members).", features: ["Everything in Individual", "Up to 6 family members", "Pediatric care", "Family wellness programs", "Specialist referrals", "Chronic care management", "Priority scheduling"], highlighted: true, cta: "Start Free Trial" },
+      { name: "Enterprise", price: "Custom", period: "employee/mo", description: "Employee health benefits for organizations of any size.", features: ["All family plan features", "Custom wellness programs", "Onsite clinic integration", "Analytics dashboard", "Benefits admin portal", "Dedicated account team", "EAP integration", "ROI reporting"], cta: "Get a Demo" },
+    ],
+    trustBadges: ["HIPAA Compliant", "SOC 2 Type II", "NCQA Accredited", "URAC Certified", "Joint Commission"],
+    newsletterHeadline: "Your Health, Simplified",
+    newsletterSubtext: "Weekly wellness tips, preventive care reminders, and the latest in telemedicine innovation delivered to your inbox.",
   },
 
   consulting: {
@@ -540,6 +743,39 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@consultingplus.demo",
       address: "233 S Wacker Drive, Chicago, IL 60606",
     },
+    processSteps: [
+      { step: 1, title: "Diagnostic Assessment", description: "2-week deep dive into your organization — stakeholder interviews, data analysis, and competitive benchmarking to identify the highest-impact opportunities.", icon: "📊" },
+      { step: 2, title: "Strategy & Roadmap", description: "We develop a prioritized transformation roadmap with clear KPIs, quick wins, and long-term initiatives aligned to your business objectives.", icon: "📍" },
+      { step: 3, title: "Execution & Change Management", description: "Our consultants work alongside your team to implement changes, manage stakeholder alignment, and drive adoption across the organization.", icon: "⚙️" },
+      { step: 4, title: "Measure & Sustain", description: "We track results against KPIs, optimize based on data, and transfer knowledge to ensure lasting impact after our engagement ends.", icon: "🏆" },
+    ],
+    caseStudy: {
+      client: "Heritage Financial Group",
+      industry: "Financial Services / Digital Transformation",
+      challenge: "150-year-old financial institution with $8B AUM losing market share to digital-first competitors. Legacy systems, siloed departments, and 18-month product launch cycles.",
+      solution: "Led 12-month digital transformation: modernized core systems, implemented agile methodology, redesigned customer journey, and launched mobile-first platform.",
+      results: [
+        { metric: "Product Launch Time", value: "18mo → 6wk" },
+        { metric: "Customer Acquisition", value: "+340%" },
+        { metric: "Operating Costs", value: "-28%" },
+        { metric: "NPS Score", value: "+52 pts" },
+      ],
+    },
+    faqs: [
+      { question: "How is your approach different from other consulting firms?", answer: "We don't just deliver PowerPoint decks. Our consultants embed with your team, implement alongside you, and stay accountable to measurable outcomes. We tie our fees to results wherever possible." },
+      { question: "What size companies do you work with?", answer: "Our sweet spot is mid-market to large enterprises ($50M–$5B revenue). We have dedicated practice groups for each segment with consultants who understand your specific challenges." },
+      { question: "How long is a typical engagement?", answer: "Diagnostic assessments take 2-4 weeks. Strategy projects run 6-12 weeks. Full transformation programs are 6-18 months. We always start with a defined scope and expand based on demonstrated value." },
+      { question: "Do you have industry-specific expertise?", answer: "Yes. Our partners average 20+ years in their respective industries. We have dedicated practices in Financial Services, Healthcare, Manufacturing, Technology, and Consumer/Retail." },
+      { question: "What is your pricing model?", answer: "We offer three models: fixed-fee for defined scope projects, retainer for ongoing advisory, and performance-based where a portion of our fee is tied to achieving agreed-upon KPIs." },
+    ],
+    pricingTiers: [
+      { name: "Advisory", price: "$15,000", period: "month", description: "Ongoing strategic advisory for leadership teams.", features: ["Monthly strategy sessions", "Board-ready presentations", "Market intelligence reports", "Executive coaching (2 leaders)", "Priority email/phone access", "Quarterly business reviews"], cta: "Schedule Call" },
+      { name: "Transformation", price: "$75,000", period: "quarter", description: "Hands-on consulting for major business initiatives.", features: ["Dedicated 2-person team", "Weekly on-site presence", "Change management support", "Stakeholder alignment", "KPI dashboard & tracking", "Implementation support", "Monthly executive briefings"], highlighted: true, cta: "Request Proposal" },
+      { name: "Enterprise", price: "Custom", period: "engagement", description: "Full-scale transformation programs for large organizations.", features: ["Dedicated 5+ person team", "Full-time on-site presence", "C-suite advisory", "Multi-workstream management", "Performance-based pricing", "Global delivery capability", "Knowledge transfer program", "12-month post-engagement support"], cta: "Talk to Partners" },
+    ],
+    trustBadges: ["McKinsey Alumni Network", "ISO 20700 Certified", "Forbes Top Consultants", "CMC Certified", "100+ Transformations"],
+    newsletterHeadline: "The Transformation Brief",
+    newsletterSubtext: "Bi-weekly insights on digital transformation, operational excellence, and strategic leadership from our senior partners.",
   },
 
   tech: {
@@ -622,5 +858,38 @@ export const PORTFOLIO_DEMO_SITES: Record<string, PortfolioSiteConfig> = {
       email: "contact@techvision.demo",
       address: "1 Infinite Loop, Cupertino, CA 95014",
     },
+    processSteps: [
+      { step: 1, title: "Discovery & Scoping", description: "We map your requirements, define the technical architecture, and create a detailed project plan with milestones and deliverables.", icon: "📝" },
+      { step: 2, title: "Design & Prototype", description: "UX/UI design, interactive prototypes, and user testing to validate the experience before writing a single line of production code.", icon: "🎨" },
+      { step: 3, title: "Agile Development", description: "2-week sprints with continuous delivery. You see working software every iteration with full transparency into progress and blockers.", icon: "💻" },
+      { step: 4, title: "Launch & Scale", description: "Production deployment with CI/CD, monitoring, auto-scaling, and 24/7 SRE support. We stay on as your technical partner post-launch.", icon: "🚀" },
+    ],
+    caseStudy: {
+      client: "EduLearn Platform",
+      industry: "EdTech / SaaS",
+      challenge: "Needed to build a real-time collaborative learning platform supporting 100,000+ concurrent users with video, chat, and interactive whiteboards — in 6 months.",
+      solution: "Assembled a 12-person cross-functional team. Built on Kubernetes with WebSocket infrastructure, CDN-optimized video delivery, and a React Native mobile app.",
+      results: [
+        { metric: "Delivered In", value: "5.5 Months" },
+        { metric: "Concurrent Users", value: "150K+" },
+        { metric: "Uptime", value: "99.99%" },
+        { metric: "App Store Rating", value: "4.8 ★" },
+      ],
+    },
+    faqs: [
+      { question: "What technologies do you specialize in?", answer: "Our core stack includes React/Next.js, React Native, Node.js, Python, Go, AWS/GCP/Azure, Kubernetes, and PostgreSQL. We choose the right tool for each project based on requirements, not preference." },
+      { question: "How do you handle project management?", answer: "We use agile methodology with 2-week sprints. You get a dedicated project manager, access to our project board, daily standups (optional), and bi-weekly demos of working software." },
+      { question: "Can you work with our existing development team?", answer: "Absolutely. We offer team augmentation, technical leadership, and full project delivery models. Many clients start with augmentation and transition to a hybrid model." },
+      { question: "What about security and compliance?", answer: "Security is built into our SDLC. We follow OWASP guidelines, conduct regular penetration testing, and can build to SOC 2, HIPAA, PCI-DSS, and FedRAMP requirements." },
+      { question: "Do you provide ongoing support after launch?", answer: "Yes. We offer SLA-backed support tiers from business-hours to 24/7 with guaranteed response times. Our SRE team monitors your infrastructure and handles incidents proactively." },
+    ],
+    pricingTiers: [
+      { name: "Startup", price: "$15,000", period: "month", description: "For startups building their first product with a dedicated team.", features: ["3-person dev team", "Full-stack development", "UI/UX design included", "Weekly demos", "Cloud hosting setup", "CI/CD pipeline", "3 months post-launch support"], cta: "Start Building" },
+      { name: "Scale", price: "$45,000", period: "month", description: "For growing companies that need to ship faster and scale reliably.", features: ["6-8 person team", "Architecture & tech leadership", "Mobile + web development", "DevOps & SRE included", "Performance optimization", "Security audits", "Dedicated PM", "24/7 on-call support"], highlighted: true, cta: "Talk to Us" },
+      { name: "Enterprise", price: "Custom", period: "engagement", description: "For large organizations with complex, mission-critical systems.", features: ["10+ person dedicated team", "Solution architecture", "Legacy modernization", "Multi-cloud strategy", "Compliance engineering", "Staff augmentation", "CTO advisory", "Custom SLA & SRE", "IP transfer & documentation"], cta: "Request Proposal" },
+    ],
+    trustBadges: ["AWS Advanced Partner", "Google Cloud Partner", "ISO 27001", "SOC 2 Type II", "Clutch Top Developer"],
+    newsletterHeadline: "The Tech Pulse",
+    newsletterSubtext: "Weekly deep dives on cloud architecture, AI/ML trends, and engineering best practices from our CTO and senior engineers.",
   },
 };
