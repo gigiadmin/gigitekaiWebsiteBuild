@@ -103,11 +103,12 @@ export default function PortfolioDemoSite({ site }: Props) {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
-              <img
-                src={site.logoUrl}
-                alt={`${site.companyName} logo`}
-                className="h-10 w-10 object-contain flex-shrink-0"
-              />
+              <div
+                className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg"
+                style={{ backgroundColor: accent + '22', border: `1px solid ${accent}44` }}
+              >
+                <span>{site.icon}</span>
+              </div>
               <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                 {site.companyName}
               </span>
@@ -732,13 +733,14 @@ export default function PortfolioDemoSite({ site }: Props) {
       <footer className="py-10 px-6 bg-gray-900 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <img
-                src={site.logoUrl}
-                alt={`${site.companyName} logo`}
-                className="h-12 w-auto object-contain"
-                style={{ maxWidth: '180px' }}
-              />
+            <div className="flex items-center gap-3">
+              <div
+                className="h-8 w-8 rounded-md flex items-center justify-center text-sm"
+                style={{ backgroundColor: accent + '22', border: `1px solid ${accent}44` }}
+              >
+                <span>{site.icon}</span>
+              </div>
+              <span className="text-gray-300 font-semibold text-sm">{site.companyName}</span>
             </div>
             <p className="text-xs text-gray-500 text-center">
               © 2025 {site.name}. All rights reserved. · Demo site for portfolio purposes only.
