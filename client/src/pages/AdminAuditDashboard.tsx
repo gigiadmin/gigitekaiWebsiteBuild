@@ -63,7 +63,7 @@ export default function AdminAuditDashboard() {
   const { data: audits, isLoading } = trpc.audit.list.useQuery();
 
   // Update audit status and notes
-  const updateMutation = trpc.audit.update.useMutation({
+  const updateMutation = trpc.audit.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Audit submission updated");
       utils.audit.list.invalidate();
@@ -106,9 +106,9 @@ export default function AdminAuditDashboard() {
 
     updateMutation.mutate({
       id: selectedAudit.id,
-      notes: editNotes,
+      notes: editNotes || undefined,
       status: editStatus,
-    });
+    } as any);
   };
 
   const statusColors: Record<AuditStatus, string> = {
