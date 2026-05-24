@@ -51,13 +51,10 @@
     <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-384_7b9bb6fe.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
     <link rel="apple-touch-startup-image" media="screen and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-512_2617ba96.png" />
-    <!-- LCP: Preload hero background image for fastest Largest Contentful Paint -->
-    <!-- Desktop: 44KB (optimized) | Mobile: 34KB via storage proxy (adds Cache-Control headers) -->
-    <link rel="preload" as="image"
-      href="/manus-storage/hero-bg-desktop_cbb9d5e6.webp"
-      imagesrcset="/manus-storage/hero-bg-mobile_e0adb787.webp 768w, /manus-storage/hero-bg-desktop_cbb9d5e6.webp 1920w"
-      imagesizes="(max-width: 768px) 768px, 1920px"
-      fetchpriority="high" />
+    <!-- LCP: Hero image preload is injected by vitePluginHeroPreload at build time -->
+    <!-- In dev mode, use /manus-storage/ proxy paths (replaced at build time with hashed /assets/ paths) -->
+    <!-- Placeholder: vitePluginHeroPreload will inject here -->
+    <!-- Placeholder: vitePluginCriticalPreload will inject here -->
     <!-- Video poster preload removed: video is skipped on mobile, hero bg image is the LCP element -->
     <!-- Font preloads removed: using Google Fonts CSS for reliable font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

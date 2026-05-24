@@ -5540,3 +5540,19 @@
 - [x] Fix duplicate navigation menu on ALL admin pages — remove internal AdminLayout from every page component that has it
 - [x] Fix email template variable substitution — {{customerName}} and {{ticketSubject}} not being replaced with actual values when sending
 - [x] Fix Call Transcript modal overflow on /admin/call-review — modal content extends beyond screen width, needs max-width constraint and word-wrapping
+
+## Performance Optimization (Target: 90+ Mobile PageSpeed Score)
+- [x] Preload LCP image with link rel=preload, fetchpriority=high, and responsive imagesrcset
+- [x] Hero images served as static Vite assets (bypasses /manus-storage/ 307 redirect, saves 1-3s LCP)
+- [x] Inline critical CSS for hero section (prevents FOUC while main CSS loads async)
+- [x] Non-blocking CSS via preload+onload pattern (vitePluginNonBlockingCSS)
+- [x] Non-blocking Google Fonts via media="print" onload trick
+- [x] Font metric overrides (size-adjust, ascent-override) to prevent CLS during font swap
+- [x] Code split critical-utils chunk (clsx, tailwind-merge, react-helmet-async, superjson) from vendor
+- [x] Moved @tanstack/query-core into trpc-query chunk (eliminates main->vendor named import)
+- [x] modulepreload hints for critical path chunks (main, react-core, critical-utils, trpc-query)
+- [x] modulePreload: false to prevent eager download of ALL chunks
+- [x] Resource hints (preconnect, dns-prefetch) for Google Fonts, CloudFront, GTM
+- [x] Lazy-load hero video on mobile to reduce initial network payload
+- [x] Vendor chunk reduced from 334KB/116KB gzip to 244KB/89KB gzip
+- [ ] Verify 90+ PageSpeed mobile score after deployment

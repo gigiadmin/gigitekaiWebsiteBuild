@@ -9,15 +9,20 @@
 
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
+// PERF: Import hero images as Vite assets — served from /assets/ with content hash.
+// This bypasses the /manus-storage/ proxy which adds a 307 redirect through Cloudflare edge,
+// adding ~1-3s latency to LCP. Static /assets/ files are served directly with immutable cache.
+import heroBgDesktop from "@/assets/hero-bg-desktop.webp";
+import heroBgMobile from "@/assets/hero-bg-mobile.webp";
 
 // Video paths — /api/video/ routes go through Express (not intercepted by Cloudflare)
 const HERO_VIDEO_DESKTOP = "/api/video/gigitekai-hero-desktop-fast_2e21158c.mp4";
 const HERO_VIDEO_MOBILE = "/api/video/gigitekai-hero-mobile-fast_90faa7ac.mp4";
 const HERO_VIDEO_POSTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-video-thumbnail-g7GvfvBm8jmHCNrHAjAoET.webp"; // Cyberpunk AI data center thumbnail
-// Optimized hero background — recompressed at q=50 for faster LCP
-// Desktop: 73KB -> 44KB | Mobile: 34KB
-const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_cbb9d5e6.webp";
-const HERO_BG_MOBILE = "/manus-storage/hero-bg-mobile_e0adb787.webp";
+// Optimized hero background — Vite asset imports (bypasses /manus-storage/ proxy)
+// Desktop: 46KB | Mobile: 34KB — served directly from /assets/ with immutable cache
+const HERO_BG_DESKTOP = heroBgDesktop;
+const HERO_BG_MOBILE = heroBgMobile;
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);

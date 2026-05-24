@@ -276,6 +276,80 @@ function vitePluginStripMsalStaticImport(): Plugin {
 }
 
 /**
+ * PERFORMANCE: Vite plugin that injects preload hints for the hero background image.
+ * After build, the hero images are hashed assets under /assets/. This plugin finds
+ * them in the bundle and injects a <link rel="preload"> with responsive imagesrcset
+ * so the browser starts fetching the LCP image immediately without waiting for JS.
+ */
+function vitePluginHeroPreload(): Plugin {
+  return {
+    name: 'vite-plugin-hero-preload',
+    enforce: 'post',
+    transformIndexHtml(html, ctx) {
+      if (process.env.NODE_ENV !== 'production') {
+        // In dev mode, inject preload with the source paths
+        const devPreload = `<link rel="preload" as="image"
+      href="/src/assets/hero-bg-desktop.webp"
+      imagesrcset="/src/assets/hero-bg-mobile.webp 768w, /src/assets/hero-bg-desktop.webp 1920w"
+      imagesizes="(max-width: 768px) 768px, 1920px"
+      fetchpriority="high" />`;
+        return html.replace(
+          '<!-- Placeholder: vitePluginHeroPreload will inject here -->',
+          devPreload
+        );
+      }
+
+      // In production, find the hashed asset filenames from the bundle
+      const bundle = ctx.bundle;
+      let desktopPath = '';
+      let mobilePath = '';
+      if (bundle) {
+        for (const [fileName] of Object.entries(bundle)) {
+          if (fileName.includes('hero-bg-desktop') && fileName.endsWith('.webp')) {
+            desktopPath = '/' + fileName;
+          } else if (fileName.includes('hero-bg-mobile') && fileName.endsWith('.webp')) {
+            mobilePath = '/' + fileName;
+          }
+        }
+      }
+      // Fallback: scan the HTML for the asset references
+      if (!desktopPath) {
+        const desktopMatch = html.match(/\/assets\/hero-bg-desktop[^"'\s]+\.webp/);
+        if (desktopMatch) desktopPath = desktopMatch[0];
+      }
+      if (!mobilePath) {
+        const mobileMatch = html.match(/\/assets\/hero-bg-mobile[^"'\s]+\.webp/);
+        if (mobileMatch) mobilePath = mobileMatch[0];
+      }
+
+      if (!desktopPath || !mobilePath) {
+        console.warn('[hero-preload] Could not find hero image asset paths in bundle');
+        // Fallback to old proxy paths
+        desktopPath = '/manus-storage/hero-bg-desktop_cbb9d5e6.webp';
+        mobilePath = '/manus-storage/hero-bg-mobile_e0adb787.webp';
+      }
+
+      const preloadTag = `<link rel="preload" as="image"
+      href="${desktopPath}"
+      imagesrcset="${mobilePath} 768w, ${desktopPath} 1920w"
+      imagesizes="(max-width: 768px) 768px, 1920px"
+      fetchpriority="high" />`;
+
+      const result = html.replace(
+        '<!-- Placeholder: vitePluginHeroPreload will inject here -->',
+        preloadTag
+      );
+
+      if (result === html) {
+        console.warn('[hero-preload] Placeholder comment not found in HTML');
+      }
+
+      return result;
+    },
+  };
+}
+
+/**
  * PERFORMANCE: Vite plugin that injects preload hints for critical JS chunks.
  * This reduces the network dependency chain by telling the browser to fetch
  * critical chunks (main, react-core) earlier, improving LCP by ~1-2 seconds.
@@ -287,28 +361,47 @@ function vitePluginCriticalPreload(): Plugin {
   return {
     name: 'vite-plugin-critical-preload',
     enforce: 'post',
-    transformIndexHtml(html) {
+    transformIndexHtml(html, ctx) {
       if (process.env.NODE_ENV !== 'production') return html;
 
-      // Find the main chunk (entry point) — it's injected as <script type="module" crossorigin src="/assets/main-HASH.js">
-      const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_]+)\.js"/);
+      // Find the main chunk from the script tag in HTML
+      const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_-]+)\.js"/);
       const mainHash = mainMatch ? mainMatch[1] : null;
 
-      // Find the react-core chunk
-      const reactMatch = html.match(/\/assets\/react-core-([a-zA-Z0-9_]+)\.js/);
-      const reactHash = reactMatch ? reactMatch[1] : null;
+      // Find react-core and vendor from the bundle output (since modulePreload is disabled,
+      // these chunks aren't referenced in HTML but ARE in the critical path via static imports)
+      let reactCoreFile = '';
+      let criticalUtilsFile = '';
+      let trpcQueryFile = '';
+      const bundle = ctx.bundle;
+      if (bundle) {
+        for (const [fileName] of Object.entries(bundle)) {
+          if (fileName.match(/react-core-[a-zA-Z0-9_-]+\.js$/)) {
+            reactCoreFile = '/' + fileName;
+          } else if (fileName.match(/critical-utils-[a-zA-Z0-9_-]+\.js$/)) {
+            criticalUtilsFile = '/' + fileName;
+          } else if (fileName.match(/trpc-query-[a-zA-Z0-9_-]+\.js$/)) {
+            trpcQueryFile = '/' + fileName;
+          }
+        }
+      }
 
-      if (!mainHash || !reactHash) {
-        console.warn('[critical-preload] Could not find critical chunk hashes (main or react-core)');
+      if (!mainHash) {
+        console.warn('[critical-preload] Could not find main chunk hash');
         return html;
       }
 
-      // Build preload hints for critical chunks
-      // These chunks are in the critical path and should be fetched early
+      // Build modulepreload hints for critical chunks that are statically imported by main.
+      // These tell the browser to start fetching these modules in parallel with main.js
+      // instead of waiting for main.js to parse and discover the imports sequentially.
+      // We intentionally do NOT preload vendor (280KB) or radix-ui (87KB) because
+      // they are side-effect-only imports that can load after main renders.
       const preloadHints = [
-        `<link rel="preload" as="script" href="/assets/main-${mainHash}.js">`,
-        `<link rel="preload" as="script" href="/assets/react-core-${reactHash}.js">`,
-      ].join('\n    ');
+        `<link rel="modulepreload" href="/assets/main-${mainHash}.js">`,
+        reactCoreFile ? `<link rel="modulepreload" href="${reactCoreFile}">` : '',
+        criticalUtilsFile ? `<link rel="modulepreload" href="${criticalUtilsFile}">` : '',
+        trpcQueryFile ? `<link rel="modulepreload" href="${trpcQueryFile}">` : '',
+      ].filter(Boolean).join('\n    ');
 
       // Inject preload hints into the placeholder comment
       const result = html.replace(
@@ -388,6 +481,8 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   vitePluginNonBlockingCSS(),
+  vitePluginHeroPreload(),
+  vitePluginCriticalPreload(),
   vitePluginBootstrapFallback(),
   // RE-ENABLED: Now uses safe replacement (const X=(fn)=>fn()) instead of removal
   vitePluginStripMsalStaticImport(),
@@ -422,7 +517,7 @@ export default defineConfig({
     // Force Vite to always re-bundle deps so React is never duplicated across chunks.
     // Without this, clearing node_modules/.vite can leave the browser with stale
     // pre-bundled chunks that use a different React instance than the main bundle.
-    include: ["react", "react-dom", "react-dom/client"],
+    include: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
   },
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
@@ -453,8 +548,19 @@ export default defineConfig({
           if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
             return "react-core";
           }
+          // Critical-path utilities — tiny libs needed by main chunk on every page load.
+          // Splitting these from the 334KB vendor chunk means main only downloads ~15KB
+          // instead of the entire vendor bundle on first paint.
+          if (
+            id.includes("node_modules/clsx") ||
+            id.includes("node_modules/tailwind-merge") ||
+            id.includes("node_modules/react-helmet-async") ||
+            id.includes("node_modules/superjson")
+          ) {
+            return "critical-utils";
+          }
           // tRPC + React Query — needed on first paint for auth
-          if (id.includes("@trpc") || id.includes("@tanstack/react-query")) {
+          if (id.includes("@trpc") || id.includes("@tanstack/react-query") || id.includes("@tanstack/query-core")) {
             return "trpc-query";
           }
           // MSAL (Azure AD auth) — only needed on /admin routes
