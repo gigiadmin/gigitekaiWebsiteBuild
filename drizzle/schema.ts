@@ -2030,3 +2030,15 @@ export const xeroTokens = mysqlTable("xeroTokens", {
 });
 export type XeroToken = typeof xeroTokens.$inferSelect;
 export type InsertXeroToken = typeof xeroTokens.$inferInsert;
+
+// Application Settings — key-value store for system configuration and scheduler state
+export const settings = mysqlTable("settings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 255 }).notNull().unique(), // e.g., "aiNewsLastRunDate", "emailDigestLastRunDate"
+  value: text("value").notNull(), // JSON-serialized value
+  description: text("description"), // Optional description of what this setting does
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;

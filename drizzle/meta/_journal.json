@@ -1,1 +1,20 @@
-already exists
+{
+  "version": "6",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1779513051561,
+      "tag": "0000_snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1779584119524,
+      "tag": "0001_hard_maggott",
+      "breakpoints": true
+    }
+  ]
+}

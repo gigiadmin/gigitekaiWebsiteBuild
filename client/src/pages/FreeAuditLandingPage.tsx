@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import WebsitePricingTiers from "./WebsitePricingTiers";
 import WebsiteFeatureComparison from "./WebsiteFeatureComparison";
 import WebsiteAddOns from "./WebsiteAddOns";
