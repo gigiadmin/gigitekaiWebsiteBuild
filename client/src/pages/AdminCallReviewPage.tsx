@@ -575,7 +575,7 @@ export default function AdminCallReviewPage() {
                     variant="destructive"
                     onClick={() => setShowDeleteConfirm(true)}
                     disabled={deleteDraftsMutation.isPending || deleteCallLogsMutation.isPending}
-                    className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
+                    className="bg-red-600 hover:bg-red-700 text-white border border-red-600"
                   >
                     Delete Selected
                   </Button>
