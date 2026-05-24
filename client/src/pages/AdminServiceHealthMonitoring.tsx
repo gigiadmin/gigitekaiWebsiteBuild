@@ -60,24 +60,7 @@ export default function AdminServiceHealthMonitoring() {
     }
   );
 
-  // Debug logging
-  useEffect(() => {
-    if (m365Degradations) {
-      console.log('[M365 Degradations Data]', JSON.stringify(m365Degradations, null, 2));
-    }
-  }, [m365Degradations]);
-
-  // Debug logging
-  useEffect(() => {
-    console.log("[AdminServiceHealthMonitoring] M365 Degradations:", m365Degradations);
-    if (m365Error) console.error("[AdminServiceHealthMonitoring] M365 Error:", m365Error);
-  }, [m365Degradations, m365Error]);
-
   // Get status color
-  // Debug logging for dashboard
-  useEffect(() => {
-    console.log("[AdminServiceHealthMonitoring] Dashboard:", dashboard);
-  }, [dashboard]);
 
   const getStatusColor = (status: ServiceHealthStatus) => {
     switch (status) {

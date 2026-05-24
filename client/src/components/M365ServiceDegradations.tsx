@@ -2,11 +2,15 @@
  * M365 Service Degradations Component
  * 
  * Displays detailed information about all M365 service degradations
- * including affected features, users, and estimated resolution times
+ * including affected features, users, and estimated resolution times.
+ * Click any degraded service card to open the full incident detail drawer.
  */
 
-import { AlertCircle, AlertTriangle, Clock, Users, Zap } from "lucide-react";
+import { useState } from "react";
+import { AlertCircle, AlertTriangle, Clock, Users, Zap, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { M365IncidentDetailDrawer } from "@/components/M365IncidentDetailDrawer";
 
 interface M365ServiceDegradationProps {
   degradations: Array<{
@@ -26,6 +30,8 @@ export function M365ServiceDegradations({
   degradations,
   isLoading = false,
 }: M365ServiceDegradationProps) {
+  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
+  const [selectedServiceName, setSelectedServiceName] = useState<string>("");
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -44,6 +50,7 @@ export function M365ServiceDegradations({
   }
 
   return (
+    <>
     <div className="space-y-4">
       {degradations.map((degradation) => {
         // Ensure we have valid data
@@ -58,7 +65,11 @@ export function M365ServiceDegradations({
         return (
           <Card
             key={degradation.serviceId}
-            className="border-l-4 border-l-amber-500 bg-card/50"
+            className="border-l-4 border-l-amber-500 bg-card/50 cursor-pointer hover:bg-card/80 transition-colors"
+            onClick={() => {
+              setSelectedIssueId(degradation.serviceId);
+              setSelectedServiceName(serviceName);
+            }}
           >
             <div className="p-4">
               {/* Header */}
@@ -72,6 +83,10 @@ export function M365ServiceDegradations({
                   <span className="px-2 py-1 bg-amber-500/20 text-amber-600 text-xs font-medium rounded">
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
+                  <Button variant="ghost" size="sm" className="h-7 px-2 text-cyan-500 hover:text-cyan-400">
+                    <ChevronRight className="w-4 h-4" />
+                    <span className="text-xs ml-1">Details</span>
+                  </Button>
                 </div>
               </div>
 
@@ -138,5 +153,12 @@ export function M365ServiceDegradations({
         );
       })}
     </div>
+    {/* Incident detail drawer */}
+    <M365IncidentDetailDrawer
+      issueId={selectedIssueId}
+      serviceName={selectedServiceName}
+      onClose={() => setSelectedIssueId(null)}
+    />
+    </>
   );
 }

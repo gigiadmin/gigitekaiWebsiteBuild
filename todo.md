@@ -5504,3 +5504,12 @@
 - [x] E5: Build call routing analytics — destination breakdown, abandon rates (getCallRoutingAnalytics procedure)
 - [x] E6: Build customer wait time heatmap — peak hours visualization, wait time by hour/day of week (getWaitTimeHeatmap procedure)
 - [x] E7: Test all updates, verify no regressions, checkpoint (TypeScript: 0 errors, 977 tests passing)
+
+## Phase F: KB Upload + M365 Service Health Enhancement (May 24, 2026)
+
+- [x] F1: Insert 100 user-focused KB articles (USR-101 to USR-200) into database with correct table name (DB now has 1,941 published articles)
+- [x] F2: Update ARIA suggestion engine RELEVANT_TAGS to include new user-focused article tags (wifi, monitor, audio, browser, MFA, etc.)
+- [x] F3: Enhance M365 Service Health page with Graph Service Communications API — getM365IncidentDetail and getM365ActiveIssues procedures added
+- [x] F4: Add M365IncidentDetailDrawer component — incident ID, classification, severity, status, timeline, all posted messages with timestamps, workarounds, Est. Resolution
+- [x] F5: Add auto-refresh for active incidents (refetchInterval: 5 minutes in M365IncidentDetailDrawer)
+- [x] F6: TypeScript: 0 errors, checkpoint saved

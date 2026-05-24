@@ -672,6 +672,174 @@ export const serviceHealthMonitoringRouter = router({
   }),
 
   /**
+   * Get full incident detail from Microsoft Graph Service Communications API
+   * Fetches all posted messages, timeline, classification, affected features, and workarounds
+   */
+  getM365IncidentDetail: adminProcedure
+    .input(z.object({ issueId: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const token = await getMsGraphToken();
+      if (!token) {
+        // Return mock incident detail when credentials not configured
+        return {
+          id: input.issueId,
+          title: "Exchange Online Mail Delivery Delays",
+          service: "Exchange Online",
+          status: "investigating" as const,
+          classification: "advisory" as const,
+          severity: "major" as const,
+          startDateTime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          endDateTime: null,
+          lastModifiedDateTime: new Date().toISOString(),
+          impactDescription: "Users may experience delays when sending or receiving email messages.",
+          affectedFeatures: ["Mail delivery", "Calendar sync", "Mailbox access"],
+          affectedUsers: "~5% of users in affected regions",
+          estimatedResolution: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          posts: [
+            {
+              createdDateTime: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+              postType: "Regular" as const,
+              description: { contentType: "html", content: "<p>We are investigating reports of mail delivery delays affecting a subset of Exchange Online users. Engineers are actively working to identify the root cause.</p>" },
+            },
+            {
+              createdDateTime: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+              postType: "Regular" as const,
+              description: { contentType: "html", content: "<p>We have identified the root cause as a configuration change deployed in the last maintenance window. We are rolling back the change and expect service to be restored within 2 hours.</p>" },
+            },
+            {
+              createdDateTime: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+              postType: "Regular" as const,
+              description: { contentType: "html", content: "<p><strong>Workaround:</strong> Users can access their email via Outlook on the Web (OWA) at outlook.office.com while we restore full service. Mobile Outlook apps are unaffected.</p>" },
+            },
+          ],
+          _demo: true,
+        };
+      }
+
+      try {
+        // Fetch the specific issue from Graph API
+        const response = await fetch(
+          `https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/issues/${input.issueId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Graph API error ${response.status}: ${errorText}`,
+          });
+        }
+
+        const issue = await response.json() as {
+          id: string;
+          title: string;
+          service: string;
+          status: string;
+          classification: string;
+          severity: string;
+          startDateTime: string;
+          endDateTime?: string;
+          lastModifiedDateTime: string;
+          impactDescription: string;
+          affectedFeatures?: Array<{ displayName: string }>;
+          affectedUsers?: string;
+          estimatedResolution?: string;
+          posts?: Array<{
+            createdDateTime: string;
+            postType: string;
+            description: { contentType: string; content: string };
+          }>;
+        };
+
+        return {
+          id: issue.id,
+          title: issue.title,
+          service: issue.service,
+          status: issue.status,
+          classification: issue.classification,
+          severity: issue.severity,
+          startDateTime: issue.startDateTime,
+          endDateTime: issue.endDateTime ?? null,
+          lastModifiedDateTime: issue.lastModifiedDateTime,
+          impactDescription: issue.impactDescription,
+          affectedFeatures: (issue.affectedFeatures || []).map((f) => f.displayName),
+          affectedUsers: issue.affectedUsers ?? null,
+          estimatedResolution: issue.estimatedResolution ?? null,
+          posts: (issue.posts || []).map((p) => ({
+            createdDateTime: p.createdDateTime,
+            postType: p.postType,
+            description: p.description,
+          })),
+          _demo: false,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch incident details from Microsoft Graph",
+        });
+      }
+    }),
+
+  /**
+   * Get all active M365 issues with full detail (not just degraded services)
+   */
+  getM365ActiveIssues: adminProcedure.query(async () => {
+    const token = await getMsGraphToken();
+    if (!token) return { issues: [], _demo: true };
+
+    try {
+      const response = await fetch(
+        "https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/issues?$filter=status ne 'resolved' and status ne 'serviceRestored' and status ne 'postIncidentReviewPublished'&$orderby=lastModifiedDateTime desc&$top=50",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) return { issues: [], _demo: false };
+
+      const data = await response.json() as {
+        value: Array<{
+          id: string;
+          title: string;
+          service: string;
+          status: string;
+          classification: string;
+          severity: string;
+          startDateTime: string;
+          lastModifiedDateTime: string;
+          impactDescription: string;
+          affectedFeatures?: Array<{ displayName: string }>;
+        }>;
+      };
+
+      return {
+        issues: (data.value || []).map((issue) => ({
+          id: issue.id,
+          title: issue.title,
+          service: issue.service,
+          status: issue.status,
+          classification: issue.classification,
+          severity: issue.severity,
+          startDateTime: issue.startDateTime,
+          lastModifiedDateTime: issue.lastModifiedDateTime,
+          impactDescription: issue.impactDescription,
+          affectedFeatures: (issue.affectedFeatures || []).map((f) => f.displayName),
+        })),
+        _demo: false,
+      };
+    } catch {
+      return { issues: [], _demo: false };
+    }
+  }),
+
+  /**
    * Get service health history (for trending)
    */
   getHealthHistory: adminProcedure

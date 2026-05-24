@@ -879,6 +879,13 @@ export const kbArticles = mysqlTable("kbArticles", {
   externalUid: varchar("externalUid", { length: 500 }), // External unique ID for dedup (e.g. MS Learn UID)
   syncSource: varchar("syncSource", { length: 100 }), // 'ms-learn' | 'manual'
   lastSyncedAt: timestamp("lastSyncedAt"), // When this article was last synced from external source
+  // User-focused metadata fields
+  subcategory: varchar("subcategory", { length: 150 }), // More specific classification
+  audience: mysqlEnum("audience", ["end-user", "technician", "admin"]).default("technician"), // Who this article targets
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).default("intermediate"), // Complexity level
+  estimatedResolutionTime: varchar("estimatedResolutionTime", { length: 50 }), // e.g. '5-10 minutes'
+  ariaEnabled: boolean("ariaEnabled").default(true).notNull(), // Whether ARIA can suggest this article
+  articleCode: varchar("articleCode", { length: 20 }), // e.g. USR-101, WIN-001, SPO-076
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

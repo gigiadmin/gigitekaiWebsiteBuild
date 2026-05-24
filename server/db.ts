@@ -1306,14 +1306,30 @@ export async function searchKBArticles(keywords: string, limit: number = 3) {
 
     // GigitekAI core service area tags — only surface articles in these domains
     const RELEVANT_TAGS = [
+      // M365 & Cloud
       'm365', 'microsoft-365', 'ms-copilot', 'microsoft-365-copilot', 'copilot',
       'office-teams', 'office-outlook', 'office-word', 'office-excel', 'office-powerpoint',
       'sharepoint', 'onedrive', 'azure', 'azure-active-directory', 'entra-id',
       'intune', 'microsoft-sentinel', 'defender', 'microsoft-purview',
       'power-platform', 'power-automate', 'power-bi', 'copilot-studio',
       'microsoft-copilot-studio', 'security', 'zero-trust', 'compliance',
+      // Roles
       'administrator', 'business-user', 'business-owner', 'business-leader',
       'it-professional', 'security-engineer', 'functional-consultant', 'developer',
+      // User-focused hardware & peripherals
+      'wifi', 'wireless', 'network', 'connectivity', 'vpn', 'remote-work',
+      'monitor', 'display', 'hdmi', 'hardware', 'peripherals', 'docking-station',
+      'audio', 'microphone', 'camera', 'video-call', 'webcam', 'headset',
+      'keyboard', 'mouse', 'trackpad', 'bluetooth', 'printer', 'printing',
+      // User-focused software & OS
+      'windows', 'macos', 'browser', 'chrome', 'edge', 'pdf', 'adobe',
+      'drag-drop', 'clipboard', 'screenshot', 'notifications', 'taskbar',
+      // User-focused identity & auth
+      'mfa', 'authenticator', 'identity', 'access', 'password-reset', 'account-lockout',
+      'conditional-access', 'login-loop', 'cookies', 'session',
+      // User-focused cloud & files
+      'onedrive', 'sharepoint', 'recycle-bin', 'restore', 'sync-error', 'red-x',
+      'network-drive', 'mapped-drive', 'file-sharing',
     ];
 
     // Fetch all published KB articles
