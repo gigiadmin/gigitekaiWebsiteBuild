@@ -4,8 +4,12 @@ import { LOGO_DATA_URL } from "@/lib/logoData";
  * Inspired by Atera RMM: persistent dark sidebar, grouped nav sections,
  * top bar with notifications/user, breadcrumbs, collapsible sidebar
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { Link, useLocation } from "wouter";
+
+// Context to detect nested AdminLayout — prevents duplicate sidebars
+// Exported so AdminLayoutWithSidebar can also check/set it
+export const AdminLayoutContext = createContext(false);
 import { useRecentlyViewed } from "@/_core/hooks/useRecentlyViewed";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -148,6 +152,20 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, title, noPadding }: AdminLayoutProps) {
+  // If we're already inside an AdminLayout, just render children (prevents duplicate sidebar)
+  const isNested = useContext(AdminLayoutContext);
+  if (isNested) {
+    return <>{children}</>;
+  }
+
+  return (
+    <AdminLayoutContext.Provider value={true}>
+      <AdminLayoutInner title={title} noPadding={noPadding}>{children}</AdminLayoutInner>
+    </AdminLayoutContext.Provider>
+  );
+}
+
+function AdminLayoutInner({ children, title, noPadding }: AdminLayoutProps) {
   const [location, navigate] = useLocation();
   // Use custom admin JWT auth (not Manus OAuth) — admin portal has its own email/password login
   // retry: 2 handles the mobile race condition where the cookie hasn't committed yet on first load

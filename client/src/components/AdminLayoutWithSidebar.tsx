@@ -1,5 +1,6 @@
 import { LOGO_DATA_URL } from "@/lib/logoData";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useContext } from "react";
+import { AdminLayoutContext } from "@/components/AdminLayout";
 import { useLocation } from "wouter";
 import {
   LayoutDashboard,
@@ -54,6 +55,20 @@ interface MenuSection {
 }
 
 export function AdminLayoutWithSidebar({ children, currentPage }: AdminLayoutProps) {
+  // If we're already inside an AdminLayout, just render children (prevents duplicate sidebar)
+  const isNested = useContext(AdminLayoutContext);
+  if (isNested) {
+    return <>{children}</>;
+  }
+
+  return (
+    <AdminLayoutContext.Provider value={true}>
+      <AdminLayoutWithSidebarInner currentPage={currentPage}>{children}</AdminLayoutWithSidebarInner>
+    </AdminLayoutContext.Provider>
+  );
+}
+
+function AdminLayoutWithSidebarInner({ children, currentPage }: AdminLayoutProps) {
   const [, navigate] = useLocation();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile

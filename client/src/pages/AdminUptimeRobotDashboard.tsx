@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import AdminLayout from "@/components/AdminLayout";
+// AdminLayout is provided by the outer wrapper in AdminApp.tsx
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { AlertCircle, CheckCircle, Clock, TrendingUp, RefreshCw, ArrowRight } from "lucide-react";
@@ -66,20 +66,20 @@ export default function AdminUptimeRobotDashboard() {
   // Show loading only while the query is actually fetching (not stuck due to auth guard)
   if (getMonitorsQuery.isLoading && monitors.length === 0) {
     return (
-      <AdminLayout title="Uptime Monitoring">
+      <>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <RefreshCw className="w-8 h-8 animate-spin text-cyan-400 mx-auto mb-4" />
             <p className="text-slate-300">Loading uptime data...</p>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   if (error) {
     return (
-      <AdminLayout title="Uptime Monitoring">
+      <>
         <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
           <div className="flex items-start gap-4">
             <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
@@ -95,12 +95,12 @@ export default function AdminUptimeRobotDashboard() {
             </div>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   return (
-    <AdminLayout title="Uptime Monitoring">
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -200,6 +200,6 @@ export default function AdminUptimeRobotDashboard() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

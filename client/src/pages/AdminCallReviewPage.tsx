@@ -137,7 +137,7 @@ function ReviewModal({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-[#0D1117] border border-white/10 text-white">
+      <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-[#0D1117] border border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-[#00D4FF]">
             <PhoneIncoming className="w-5 h-5" />
@@ -190,7 +190,7 @@ function ReviewModal({
             <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
               <Mic className="w-3 h-3" /> Call Transcript
             </p>
-            <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">
+            <p className="text-sm text-gray-300 whitespace-pre-wrap break-words leading-relaxed max-h-32 overflow-y-auto overflow-x-hidden">
               {callLog.transcriptText}
             </p>
           </div>
@@ -262,7 +262,7 @@ function ReviewModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
-                className="bg-white/5 border-white/10 text-white resize-none"
+                className="bg-white/5 border-white/10 text-white resize-none break-words [overflow-wrap:anywhere]"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

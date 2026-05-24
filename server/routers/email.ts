@@ -67,12 +67,30 @@ export const emailRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
 
-        // ── Fix {{ticketId}} and other template variable substitution ──────────
-        // Replace template variables BEFORE sending so subjects/bodies show real values
+        // ── Resolve template variables ──────────────────────────────────────────
+        // Look up ticket data if linked, for {{ticketSubject}} substitution
+        let ticketTitle = "";
+        if (input.linkedTicketId) {
+          const [ticket] = await db
+            .select({ title: tickets.title })
+            .from(tickets)
+            .where(eq(tickets.id, input.linkedTicketId))
+            .limit(1);
+          ticketTitle = ticket?.title || "";
+        }
+
+        // Derive customer name from recipient email (before @) as fallback
+        const customerName = input.to.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+        // Replace ALL template variables before sending
         const resolveVars = (text: string): string =>
           text
             .replace(/\{\{ticketId\}\}/gi, input.linkedTicketId ? String(input.linkedTicketId) : "")
             .replace(/\{\{ticket_id\}\}/gi, input.linkedTicketId ? String(input.linkedTicketId) : "")
+            .replace(/\{\{ticketSubject\}\}/gi, ticketTitle)
+            .replace(/\{\{ticket_subject\}\}/gi, ticketTitle)
+            .replace(/\{\{customerName\}\}/gi, customerName)
+            .replace(/\{\{customer_name\}\}/gi, customerName)
             .replace(/\{\{date\}\}/gi, new Date().toLocaleDateString())
             .replace(/\{\{recipient\}\}/gi, input.to);
 

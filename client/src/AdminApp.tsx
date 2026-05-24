@@ -87,8 +87,22 @@ function PageLoader() {
 }
 
 /**
- * Helper to wrap pages with both ApprovalGuard and AdminLayout
- * This ensures every admin page has the unified navigation menu
+ * For pages that ALREADY have AdminLayout internally — wrap with ApprovalGuard only
+ * This prevents the duplicate navigation menu issue
+ */
+function withApprovalOnly(Component: React.ComponentType<any>) {
+  return () => (
+    <ApprovalGuard>
+      <AdminLayout>
+        <Component />
+      </AdminLayout>
+    </ApprovalGuard>
+  );
+}
+
+/**
+ * For pages that do NOT have AdminLayout internally — wrap with both ApprovalGuard and AdminLayout
+ * This ensures they still get the unified navigation menu
  */
 function withAdminLayout(Component: React.ComponentType<any>, title?: string) {
   return () => (
@@ -107,62 +121,68 @@ export default function AdminApp() {
         <TooltipProvider>
           <Suspense fallback={<PageLoader />}>
             <Switch>
-              <Route path="/admin" component={withAdminLayout(AdminHome, "Dashboard")} />
-              <Route path="/admin/helpdesk" component={withAdminLayout(AdminPanelPage, "Helpdesk")} />
-              <Route path="/admin/chat" component={withAdminLayout(AdminChatPage, "Chat")} />
-              <Route path="/admin/agents" component={withAdminLayout(AdminAgentsPage, "Agents")} />
-              <Route path="/admin/notifications" component={withAdminLayout(AdminNotificationsPage, "Notifications")} />
-              <Route path="/admin/blog" component={withAdminLayout(AdminBlogPage, "Blog")} />
-              <Route path="/admin/newsletter" component={withAdminLayout(AdminNewsletterPage, "Newsletter")} />
-              <Route path="/admin/metrics" component={withAdminLayout(AdminMetricsPage, "Metrics")} />
-              <Route path="/admin/accounts" component={withAdminLayout(AdminAccountsPage, "Accounts")} />
-              <Route path="/admin/invites" component={withAdminLayout(AdminInvitesPage, "Invites")} />
-              <Route path="/admin/email" component={withAdminLayout(AdminEmailPage, "Email")} />
-              <Route path="/admin/preferences" component={withAdminLayout(AdminPreferencesPage, "Preferences")} />
-              <Route path="/admin/email-digest" component={withAdminLayout(AdminEmailDigestPage, "Email Digest")} />
-              <Route path="/admin/guide" component={withAdminLayout(AdminGuidePage, "Guide")} />
-              <Route path="/admin/kb" component={withAdminLayout(KnowledgeBase, "Knowledge Base")} />
-              <Route path="/admin/kb-generation" component={withAdminLayout(AdminKbGenerationPage, "KB Generation")} />
-              <Route path="/admin/social" component={withAdminLayout(AdminSocialPage, "Social")} />
-              <Route path="/admin/leads" component={withAdminLayout(AdminLeadsPage, "Leads")} />
-              <Route path="/admin/contacts" component={withAdminLayout(AdminContactsPage, "Contacts")} />
-              <Route path="/admin/canned-responses" component={withAdminLayout(AdminCannedResponsesPage, "Canned Responses")} />
-              <Route path="/admin/closed-tickets" component={withAdminLayout(AdminClosedTicketsReportPage, "Closed Tickets")} />
-              <Route path="/admin/helpdesk-metrics" component={withAdminLayout(AdminHelpdeskMetricsPage, "Helpdesk Metrics")} />
-              <Route path="/admin/agent-dashboard" component={withAdminLayout(AdminAgentDashboardPage, "Agent Dashboard")} />
-              <Route path="/admin/agent-leaderboard" component={withAdminLayout(AdminAgentLeaderboard, "Agent Leaderboard")} />
-              <Route path="/admin/copilot" component={withAdminLayout(AdminCopilot, "Copilot")} />
-              <Route path="/admin/copilot-m365" component={withAdminLayout(AdminCopilotM365, "Copilot M365")} />
+              {/* Pages that ALREADY have AdminLayout internally — use withApprovalOnly */}
+              <Route path="/admin" component={withApprovalOnly(AdminHome)} />
+              <Route path="/admin/helpdesk" component={withApprovalOnly(AdminPanelPage)} />
+              <Route path="/admin/chat" component={withApprovalOnly(AdminChatPage)} />
+              <Route path="/admin/agents" component={withApprovalOnly(AdminAgentsPage)} />
+              <Route path="/admin/notifications" component={withApprovalOnly(AdminNotificationsPage)} />
+              <Route path="/admin/blog" component={withApprovalOnly(AdminBlogPage)} />
+              <Route path="/admin/newsletter" component={withApprovalOnly(AdminNewsletterPage)} />
+              <Route path="/admin/metrics" component={withApprovalOnly(AdminMetricsPage)} />
+              <Route path="/admin/accounts" component={withApprovalOnly(AdminAccountsPage)} />
+              <Route path="/admin/invites" component={withApprovalOnly(AdminInvitesPage)} />
+              <Route path="/admin/email" component={withApprovalOnly(AdminEmailPage)} />
+              <Route path="/admin/preferences" component={withApprovalOnly(AdminPreferencesPage)} />
+              <Route path="/admin/email-digest" component={withApprovalOnly(AdminEmailDigestPage)} />
+              <Route path="/admin/guide" component={withApprovalOnly(AdminGuidePage)} />
+              <Route path="/admin/kb" component={withApprovalOnly(KnowledgeBase)} />
+              <Route path="/admin/kb-generation" component={withApprovalOnly(AdminKbGenerationPage)} />
+              <Route path="/admin/social" component={withApprovalOnly(AdminSocialPage)} />
+              <Route path="/admin/leads" component={withApprovalOnly(AdminLeadsPage)} />
+              <Route path="/admin/contacts" component={withApprovalOnly(AdminContactsPage)} />
+              <Route path="/admin/canned-responses" component={withApprovalOnly(AdminCannedResponsesPage)} />
+              <Route path="/admin/closed-tickets" component={withApprovalOnly(AdminClosedTicketsReportPage)} />
+              <Route path="/admin/helpdesk-metrics" component={withApprovalOnly(AdminHelpdeskMetricsPage)} />
+              <Route path="/admin/agent-dashboard" component={withApprovalOnly(AdminAgentDashboardPage)} />
+              <Route path="/admin/agent-leaderboard" component={withApprovalOnly(AdminAgentLeaderboard)} />
+              <Route path="/admin/copilot" component={withApprovalOnly(AdminCopilot)} />
+              <Route path="/admin/copilot-m365" component={withApprovalOnly(AdminCopilotM365)} />
+              <Route path="/admin/surveys" component={withApprovalOnly(AdminSurveysPage)} />
+              <Route path="/admin/workload" component={withApprovalOnly(AdminWorkloadPage)} />
+              <Route path="/admin/users" component={withApprovalOnly(AdminUsersPage)} />
+              <Route path="/admin/settings" component={withApprovalOnly(AdminSettingsPage)} />
+              <Route path="/admin/service-health" component={withApprovalOnly(AdminServiceHealthMonitoring)} />
+              <Route path="/admin/m365-health" component={withApprovalOnly(AdminM365Health)} />
+              <Route path="/admin/teams-channels" component={withApprovalOnly(AdminTeamsChannelsPage)} />
+              <Route path="/admin/escalation-patterns" component={withApprovalOnly(AdminEscalationPatternsPage)} />
+              <Route path="/admin/ms-learn-sync" component={withApprovalOnly(AdminMsLearnSyncPage)} />
+              <Route path="/admin/call-review" component={withApprovalOnly(AdminCallReviewPage)} />
+              <Route path="/admin/demo-leads" component={withApprovalOnly(AdminDemoLeadsPage)} />
+              <Route path="/admin/kb-analytics" component={withApprovalOnly(AdminKBAnalytics)} />
+              <Route path="/admin/recordings" component={withApprovalOnly(AdminRecordingsPage)} />
+              <Route path="/admin/sms-campaigns" component={withApprovalOnly(AdminSmsCampaignsPage)} />
+              <Route path="/admin/hub" component={withApprovalOnly(AdminHubPage)} />
+              <Route path="/admin/jira" component={withApprovalOnly(AdminJiraDashboard)} />
+              <Route path="/admin/sla" component={withApprovalOnly(AdminSLADashboardPage)} />
+              <Route path="/admin/satisfaction" component={withApprovalOnly(AdminSatisfactionDashboardPage)} />
+              <Route path="/admin/scorecard" component={withApprovalOnly(AdminScorecardDashboardPage)} />
+              <Route path="/admin/uptime/:monitorId" component={withApprovalOnly(AdminUptimeRobotDetailPagePage)} />
+              <Route path="/admin/uptime" component={withApprovalOnly(AdminUptimeRobotDashboard)} />
+              <Route path="/admin/xero" component={withApprovalOnly(AdminXero)} />
+              <Route path="/admin/client-onboarding" component={withApprovalOnly(AdminClientOnboardingPage)} />
+
+              {/* Pages that do NOT have AdminLayout internally — use withAdminLayout */}
               <Route path="/admin/dashboard" component={withAdminLayout(Dashboard, "Dashboard")} />
-              <Route path="/admin/surveys" component={withAdminLayout(AdminSurveysPage, "Surveys")} />
-              <Route path="/admin/sla" component={withAdminLayout(AdminSLADashboardPage, "SLA Dashboard")} />
-              <Route path="/admin/satisfaction" component={withAdminLayout(AdminSatisfactionDashboardPage, "Satisfaction")} />
-              <Route path="/admin/scorecard" component={withAdminLayout(AdminScorecardDashboardPage, "Scorecard")} />
-              <Route path="/admin/workload" component={withAdminLayout(AdminWorkloadPage, "Workload")} />
-              <Route path="/admin/users" component={withAdminLayout(AdminUsersPage, "Users")} />
               <Route path="/admin/team-members" component={withAdminLayout(TeamMembersEnhanced, "Team Members")} />
-              <Route path="/admin/settings" component={withAdminLayout(AdminSettingsPage, "Settings")} />
-              <Route path="/admin/service-health" component={withAdminLayout(AdminServiceHealthMonitoring, "Service Health")} />
-              <Route path="/admin/m365-health" component={withAdminLayout(AdminM365Health, "M365 Health")} />
-              <Route path="/admin/teams-channels" component={withAdminLayout(AdminTeamsChannelsPage, "Teams Channels")} />
-              <Route path="/admin/escalation-patterns" component={withAdminLayout(AdminEscalationPatternsPage, "Escalation Patterns")} />
-              <Route path="/admin/ms-learn-sync" component={withAdminLayout(AdminMsLearnSyncPage, "MS Learn Sync")} />
-              <Route path="/admin/call-review" component={withAdminLayout(AdminCallReviewPage, "Call Review")} />
+              <Route path="/admin/audit" component={withAdminLayout(AdminAuditDashboard, "Audit")} />
               <Route path="/admin/call-quality" component={withAdminLayout(AdminCallQualityPage, "Call Quality")} />
               <Route path="/admin/contact-center" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/contact-center-dashboard" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
-              <Route path="/admin/demo-leads" component={withAdminLayout(AdminDemoLeadsPage, "Demo Leads")} />
-              <Route path="/admin/client-onboarding" component={withAdminLayout(AdminClientOnboardingPage, "Client Onboarding")} />
-              <Route path="/admin/kb-analytics" component={withAdminLayout(AdminKBAnalytics, "KB Analytics")} />
-              <Route path="/admin/recordings" component={withAdminLayout(AdminRecordingsPage, "Recordings")} />
-              <Route path="/admin/sms-campaigns" component={withAdminLayout(AdminSmsCampaignsPage, "SMS Campaigns")} />
-              <Route path="/admin/hub" component={withAdminLayout(AdminHubPage, "Hub")} />
-              <Route path="/admin/jira" component={withAdminLayout(AdminJiraDashboard, "Jira")} />
-              <Route path="/admin/uptime/:monitorId" component={withAdminLayout(AdminUptimeRobotDetailPagePage, "Uptime Detail")} />
-              <Route path="/admin/uptime" component={withAdminLayout(AdminUptimeRobotDashboard, "Uptime")} />
-              <Route path="/admin/xero" component={withAdminLayout(AdminXero, "Xero")} />
+              <Route path="/admin/free-audits" component={withAdminLayout(AdminClientOnboarding, "Free Audits")} />
               <Route path="/admin/roi" component={withAdminLayout(AdminROIDashboard, "ROI Dashboard")} />
-              <Route path="/admin/audit" component={withAdminLayout(AdminAuditDashboard, "Audit")} />
+
+              {/* Non-admin routes */}
               <Route path="/web-pricing" component={() => <WebPricingPage />} />
               <Route path="/:rest*" component={() => (
                 <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">

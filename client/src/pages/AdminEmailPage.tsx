@@ -162,16 +162,24 @@ export default function AdminEmailPage() {
     return () => clearInterval(interval);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle template selection — replace {{ticketId}} and other variables with real values
+  // Handle template selection — replace ALL template variables with real values
   function handleSelectTemplate(templateId: string) {
     const template = templates.find((t) => t.id === parseInt(templateId));
     if (template) {
       setSelectedTemplate(templateId);
       const ticketLabel = linkedTicketId ? String(linkedTicketId) : "";
+      // Derive customer name from recipient email as fallback
+      const customerName = recipient
+        ? recipient.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+        : "Customer";
       const resolveVars = (text: string) =>
         text
           .replace(/\{\{ticketId\}\}/gi, ticketLabel)
           .replace(/\{\{ticket_id\}\}/gi, ticketLabel)
+          .replace(/\{\{ticketSubject\}\}/gi, ticketLabel ? `Ticket #${ticketLabel}` : "your support request")
+          .replace(/\{\{ticket_subject\}\}/gi, ticketLabel ? `Ticket #${ticketLabel}` : "your support request")
+          .replace(/\{\{customerName\}\}/gi, customerName)
+          .replace(/\{\{customer_name\}\}/gi, customerName)
           .replace(/\{\{recipient\}\}/gi, recipient || "Customer")
           .replace(/\{\{date\}\}/gi, new Date().toLocaleDateString());
       setSubject(resolveVars(template.subject));

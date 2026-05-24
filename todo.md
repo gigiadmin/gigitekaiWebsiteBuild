@@ -4496,6 +4496,7 @@
 - [x] Clean rewrite admin login — no auto-login on page load, explicit loginRedirect on button click, useRef guard prevents double-fire, proper HTTPS cookie detection via x-forwarded-proto
 - [x] Fix Cloudflare WAF blocking mobile access to gigitekai.com — Site loads correctly, no WAF blocking detected
 - [x] Unified Admin Portal Navigation — Wrapped all 51 admin routes with AdminLayout component for consistent sidebar/top bar navigation
+- [x] Fix duplicate navigation menu on admin pages — Removed AdminLayout from AdminContactCenterDashboardWrapper loader/error states to prevent double-wrapping
 
 ## PageSpeed Optimization - May 2026
 - [x] Optimize logo image — resized from 1320x377 to 490x140 (2x retina), 29KB → 6KB savings, added explicit width/height/fetchPriority attributes
@@ -5534,3 +5535,8 @@
 - [ ] G6: Add Newsletter/CTA section with email capture
 - [ ] G7: Expand portfolio-sites-config.ts with new data for all 7 demos (process steps, case studies, FAQs, pricing tiers, trust badges)
 - [ ] G8: Update PortfolioPage hub with richer preview cards
+
+## Duplicate Menu & Email Template Fix (May 2026)
+- [x] Fix duplicate navigation menu on ALL admin pages — remove internal AdminLayout from every page component that has it
+- [x] Fix email template variable substitution — {{customerName}} and {{ticketSubject}} not being replaced with actual values when sending
+- [x] Fix Call Transcript modal overflow on /admin/call-review — modal content extends beyond screen width, needs max-width constraint and word-wrapping

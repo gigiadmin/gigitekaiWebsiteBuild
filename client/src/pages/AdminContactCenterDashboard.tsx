@@ -6,7 +6,7 @@
  */
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
-import AdminLayout from "@/components/AdminLayout";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -282,7 +282,7 @@ export default function AdminContactCenterDashboard() {
   const copilotConfigured = copilotStatus?.tenantId === "configured" && copilotStatus?.environmentId === "configured";
 
   return (
-    <AdminLayout title="Contact Center Dashboard">
+    <>
       <div className="space-y-6">
         {/* ── Header with refresh ── */}
         <div className="flex items-center justify-between">
@@ -892,6 +892,6 @@ export default function AdminContactCenterDashboard() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }
