@@ -105,6 +105,8 @@ import { callAnalyticsRouter } from "./routers/phase2-callAnalytics";
 import { acsRouter } from "./routers/acs";
 import { userAccountMgmtRouter } from "./routers/user-account-mgmt";
 import { contactCenterRouter } from "./routers/contact-center";
+import { contactCenterTrends } from "./routers/contact-center-trends";
+import { contactCenterAlertsRouter } from "./routers/contact-center-alerts";
 import { jiraRouter } from "./routers/jira";
 import { freeAuditRouter } from "./routers/freeAuditRouter";
 import { auditRouter } from "./routers/audit";
@@ -207,6 +209,8 @@ export const appRouter = router({
   slaComplianceReports: slaComplianceReportsRouter,
   userAccountMgmt: userAccountMgmtRouter,
   contactCenter: contactCenterRouter,
+  contactCenterTrends: router(contactCenterTrends),
+  contactCenterAlerts: contactCenterAlertsRouter,
   jira: jiraRouter,
   freeAudit: freeAuditRouter,
   audit: auditRouter,

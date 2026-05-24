@@ -185,13 +185,7 @@ export default function AdminContactCenterDashboard() {
     refetchInterval: 30000,
   });
   
-  // Debug logging
-  useEffect(() => {
-    if (d365Status) console.log('[D365 Status]', d365Status);
-    if (d365Error) console.error('[D365 Error]', d365Error);
-    if (teamsWebhook) console.log('[Teams Webhook]', teamsWebhook);
-    if (teamsError) console.error('[Teams Error]', teamsError);
-  }, [d365Status, d365Error, teamsWebhook, teamsError]);
+  // Status data loaded (debug logging removed for production)
   const { data: queueMetrics, isLoading: queueLoading } = trpc.helpdeskDashboardMetrics.getQueueMetrics.useQuery(undefined, {
     refetchInterval: 15000,
   });
@@ -211,15 +205,7 @@ export default function AdminContactCenterDashboard() {
     refetchInterval: 45000,  // Different interval to prevent batching with admin-only getPhoneNumbers
   });
   
-  // Debug ACS status
-  useEffect(() => {
-    if (acsError) {
-      console.error('[ACS Status Error]', acsError);
-    }
-    if (acsStatus) {
-      console.log('[ACS Status]', acsStatus);
-    }
-  }, [acsStatus, acsError]);
+  // ACS status data loaded (debug logging removed for production)
 
   // ── NEW: Real-time monitoring data ────────────────────────────────────────
   const { data: agentRealTime, isLoading: agentRealTimeLoading } = trpc.contactCenter.getAgentRealTimeStatus.useQuery(undefined, {

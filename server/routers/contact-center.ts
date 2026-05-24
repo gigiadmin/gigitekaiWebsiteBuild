@@ -49,7 +49,7 @@ async function getDynamics365Token(): Promise<string | null> {
   const d365OrgUrl = process.env.D365_ORG_URL;
 
   if (!tenantId || !clientId || !clientSecret || !d365OrgUrl) {
-    console.warn('[D365] Missing credentials or D365_ORG_URL for Dynamics 365 token');
+    // Missing D365 credentials
     return null;
   }
 
@@ -73,15 +73,14 @@ async function getDynamics365Token(): Promise<string | null> {
 
     if (!response.ok) {
       const err = await response.text();
-      console.error(`[D365] Failed to get D365 token (${response.status}): ${err.slice(0, 200)}`);
-      console.error('[D365] FIX: Go to Azure Portal → App Registrations → your app → API Permissions → Add a permission → Dynamics CRM → user_impersonation');
+      // Failed to get D365 token
       return null;
     }
 
     const data = await response.json() as { access_token: string };
     return data.access_token;
   } catch (err: any) {
-    console.error('[D365] Error getting D365 token:', err.message);
+    // Error getting D365 token
     return null;
   }
 }
@@ -205,7 +204,7 @@ async function getCopilotAgents(
 
     return { ticketClassifier, kbQa, voiceAgent };
   } catch (error) {
-    console.error("Error fetching Copilot agents:", error);
+      // Error fetching Copilot agents
 
     // Fall back to env var overrides even if partial
     return {
@@ -259,7 +258,7 @@ async function getTeamsCallQueues(accessToken: string): Promise<any[]> {
     const data = (await response.json()) as { value: any[] };
     return data.value || [];
   } catch (error) {
-    console.error("Error fetching Teams call queues:", error);
+      // Error fetching Teams call queues
     return [];
   }
 }
@@ -297,10 +296,8 @@ async function checkDynamics365Status(): Promise<{ healthy: boolean; details: st
       return { healthy: true, details: 'Connected to Dynamics 365 Contact Center' };
     }
     const errText = await response.text();
-    console.error(`[D365] WhoAmI failed (${response.status}): ${errText.slice(0, 200)}`);
     return { healthy: false, details: `D365 WhoAmI returned ${response.status} — check app permissions` };
   } catch (error: any) {
-    console.error('[D365] WhoAmI error:', error.message);
     return { healthy: false, details: `D365 connectivity error: ${error.message}` };
   }
 }
@@ -403,7 +400,7 @@ export const contactCenterRouter = router({
         issues,
       };
     } catch (error) {
-      console.error("Contact Center health check failed:", error);
+      // Contact Center health check failed
       return {
         timestamp: new Date(),
         overallStatus: "error",
@@ -529,7 +526,7 @@ export const contactCenterRouter = router({
         stats,
       };
     } catch (error) {
-      console.error("[ContactCenter] getAgentRealTimeStatus error:", error);
+      // Error getting agent real-time status
       return { agents: [], stats: { total: 0, available: 0, busy: 0, offline: 0, onBreak: 0 } };
     }
   }),
@@ -622,7 +619,7 @@ export const contactCenterRouter = router({
         summary: { totalWaiting: openTickets.length, totalInProgress: inProgressTickets.length, avgWaitMin, serviceLevel, todayTotal: allTodayTickets.length },
       };
     } catch (error) {
-      console.error("[ContactCenter] getLiveQueueMetrics error:", error);
+      // Error getting live queue metrics
       return { queues: [], summary: { totalWaiting: 0, totalInProgress: 0, avgWaitMin: 0, serviceLevel: 100, todayTotal: 0 } };
     }
   }),
@@ -662,7 +659,7 @@ export const contactCenterRouter = router({
         count: activeSessions.length,
       };
     } catch (error) {
-      console.error("[ContactCenter] getActiveSessions error:", error);
+      // Error getting active sessions
       return { sessions: [], count: 0 };
     }
   }),
@@ -714,7 +711,7 @@ export const contactCenterRouter = router({
         },
       };
     } catch (error) {
-      console.error("[ContactCenter] getSlaMonitor error:", error);
+      // Error getting SLA monitor data
       return { sla: { responseTarget: 15, resolutionTarget: 240, currentResponseAvg: 0, currentResolutionAvg: 0, breaches: 0, compliance: 100, totalTickets24h: 0 } };
     }
   }),
