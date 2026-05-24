@@ -45,6 +45,7 @@ import {
   Grid3X3,
   Home,
   FileCheck,
+  Star,
 } from "lucide-react";
 
 interface NavItem {
@@ -78,6 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
       { label: "Call Review", icon: <Phone size={16} />, href: "/admin/call-review" },
+      { label: "Call Quality", icon: <Star size={16} />, href: "/admin/call-quality" },
       { label: "Contact Center", icon: <Headphones size={16} />, href: "/admin/contact-center" },
       { label: "Closed Tickets", icon: <CheckCircle2 size={16} />, href: "/admin/closed-tickets" },
       { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/helpdesk-metrics" },

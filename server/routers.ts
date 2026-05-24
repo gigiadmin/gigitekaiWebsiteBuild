@@ -109,6 +109,7 @@ import { jiraRouter } from "./routers/jira";
 import { freeAuditRouter } from "./routers/freeAuditRouter";
 import { auditRouter } from "./routers/audit";
 import { uptimeRouter } from "./routers/uptime";
+import { callQualityRouter } from "./routers/callQuality";
 import { kbBulkInsertRouter } from "./routers/kb-bulk-insert";
 import { xeroRouter } from "./routers/xero";
 import { videoPresignRouter } from "./routers/videoPresign";
@@ -132,6 +133,7 @@ export const appRouter = router({
   teamsMeetingEscalation: teamsMeetingEscalationRouter,
   msLearnSync: msLearnSyncRouter,
   calls: callsRouter,
+  callQuality: callQualityRouter,
   clientOnboarding: clientOnboardingRouter,
   aiTicketCategorization: aiTicketCategorization,
   kbSeeding: kbSeedingRouter,

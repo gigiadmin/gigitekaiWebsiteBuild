@@ -51,6 +51,7 @@ const AdminEscalationPatternsPage = lazy(() => import("./pages/AdminEscalationPa
 const AdminAuditDashboard = lazy(() => import("./pages/AdminAuditDashboard"));
 const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
+const AdminCallQualityPage = lazy(() => import("./pages/AdminCallQualityPage"));
 const AdminContactCenterDashboardWrapper = lazy(() => import("./pages/AdminContactCenterDashboardWrapper"));
 const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
@@ -131,6 +132,7 @@ export default function AdminApp() {
               <Route path="/admin/escalation-patterns" component={() => <ApprovalGuard><AdminEscalationPatternsPage /></ApprovalGuard>} />
               <Route path="/admin/ms-learn-sync" component={() => <ApprovalGuard><AdminMsLearnSyncPage /></ApprovalGuard>} />
               <Route path="/admin/call-review" component={() => <ApprovalGuard><AdminCallReviewPage /></ApprovalGuard>} />
+              <Route path="/admin/call-quality" component={() => <ApprovalGuard><AdminCallQualityPage /></ApprovalGuard>} />
               <Route path="/admin/contact-center" component={() => <ApprovalGuard><AdminContactCenterDashboardWrapper /></ApprovalGuard>} />
               <Route path="/admin/contact-center-dashboard" component={() => <ApprovalGuard><AdminContactCenterDashboardWrapper /></ApprovalGuard>} />
               <Route path="/admin/demo-leads" component={() => <ApprovalGuard><AdminDemoLeadsPage /></ApprovalGuard>} />

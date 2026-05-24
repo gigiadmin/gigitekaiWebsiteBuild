@@ -368,6 +368,17 @@ async function processCall(pstnRow: any): Promise<void> {
   callsProcessedToday++;
   console.log(`[Call Poller] Draft ticket created for call from ${callerNumber} — "${analysis.title}"`);
 
+  // ── Auto-score calls that have a transcript ───────────────────────────────
+  if (transcriptText && callLogId) {
+    try {
+      const { autoScoreCall } = await import("../routers/callQuality");
+      await autoScoreCall(callLogId, transcriptText, pstnRow);
+      console.log(`[Call Poller] Auto-scored call ${callLogId}`);
+    } catch (scoreErr) {
+      console.warn(`[Call Poller] Auto-scoring failed for call ${callLogId}:`, scoreErr instanceof Error ? scoreErr.message : String(scoreErr));
+    }
+  }
+
   // ── ACS Recording: Note on PSTN transcription ────────────────────────────
   // The MS Graph PSTN call records API does NOT return a serverCallId.
   // serverCallId is only available in real-time via ACS Call Automation events,

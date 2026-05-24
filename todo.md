@@ -5477,3 +5477,11 @@
 - [x] B3: Update Teams notification count and lastNotificationAt in DB after successful sends
 - [x] B4: Investigate ACS call recording — serverCallId not in PSTN API (architectural limitation documented, clear log message added)
 - [x] B1: Fix D365 Contact Center 403 — added getDynamics365Token() with correct D365 OAuth scope (separate from Graph token)
+
+## Phase C: AI Call Quality Scoring (May 24, 2026)
+- [x] C1: Add callQualityScores table to DB schema (callId, agentName, scores per rubric category, totalScore, aiSummary, scoredAt)
+- [x] C2: Build scoreCallTranscript tRPC procedure using LLM to evaluate transcript against rubric
+- [x] C3: Build AdminCallQuality.tsx dashboard page with score cards, trend chart, agent leaderboard
+- [x] C4: Add route /admin/call-quality to AdminApp.tsx and sidebar nav
+- [x] C5: Wire auto-scoring into callPoller so new calls with transcripts get scored automatically
+- [ ] C6: Add manual re-score button on Call Review page (deferred to Phase D)

@@ -2074,3 +2074,45 @@ export const freeAuditSubmissions = mysqlTable("freeAuditSubmissions", {
 });
 export type FreeAuditSubmission = typeof freeAuditSubmissions.$inferSelect;
 export type InsertFreeAuditSubmission = typeof freeAuditSubmissions.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CALL QUALITY SCORES
+// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * AI-generated quality scores for call transcripts.
+ * Each scored call gets one row with rubric-based category scores and an overall total.
+ * Linked to callLogs via callLogId.
+ */
+export const callQualityScores = mysqlTable("callQualityScores", {
+  id: int("id").autoincrement().primaryKey(),
+  // Source call log
+  callLogId: int("callLogId").notNull().unique(),
+  // Agent who handled the call
+  agentName: varchar("agentName", { length: 255 }),
+  agentUpn: varchar("agentUpn", { length: 320 }),
+  // Rubric category scores (0–10 each)
+  scoreGreeting: int("scoreGreeting"),         // Professional greeting & intro
+  scoreEmpathy: int("scoreEmpathy"),           // Empathy & active listening
+  scoreTechnical: int("scoreTechnical"),       // Technical accuracy & knowledge
+  scoreResolution: int("scoreResolution"),     // Problem resolution effectiveness
+  scoreCommunication: int("scoreCommunication"), // Clarity & communication style
+  scoreCompliance: int("scoreCompliance"),     // Compliance & procedure adherence
+  // Weighted total (0–100)
+  totalScore: int("totalScore"),
+  // Letter grade: A, B, C, D, F
+  grade: varchar("grade", { length: 2 }),
+  // AI narrative summary of the call quality
+  aiSummary: text("aiSummary"),
+  // Key strengths identified
+  strengths: text("strengths"),
+  // Areas for improvement
+  improvements: text("improvements"),
+  // Scoring model version (for future rubric changes)
+  modelVersion: varchar("modelVersion", { length: 20 }).default("v1").notNull(),
+  // Whether this was manually triggered or auto-scored
+  scoredBy: mysqlEnum("scoredBy", ["auto", "manual"]).default("auto").notNull(),
+  scoredAt: timestamp("scoredAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CallQualityScore = typeof callQualityScores.$inferSelect;
+export type InsertCallQualityScore = typeof callQualityScores.$inferInsert;
