@@ -13,7 +13,7 @@ import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-
 // Video paths — /api/video/ routes go through Express (not intercepted by Cloudflare)
 const HERO_VIDEO_DESKTOP = "/api/video/gigitekai-hero-desktop-fast_2e21158c.mp4";
 const HERO_VIDEO_MOBILE = "/api/video/gigitekai-hero-mobile-fast_90faa7ac.mp4";
-const HERO_VIDEO_POSTER = "/manus-storage/hero-video-poster-opt_e727c5ba.webp"; // Optimized: 60KB -> 35KB (42% smaller)
+const HERO_VIDEO_POSTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-video-thumbnail-g7GvfvBm8jmHCNrHAjAoET.webp"; // Cyberpunk AI data center thumbnail
 // Optimized hero background — recompressed at q=50 for faster LCP
 // Desktop: 73KB -> 44KB | Mobile: 34KB
 const HERO_BG_DESKTOP = "/manus-storage/hero-bg-desktop_cbb9d5e6.webp";
@@ -194,14 +194,25 @@ export default function HeroSection() {
         )}
       </div>
 
-      {/* ── Video Controls Overlay ── */}
+      {/* ── Play Button with Thumbnail Backdrop ── */}
       {!playing && (
         <div
           className="absolute top-1/3 right-[8%] -translate-y-1/2 z-[20] cursor-pointer hidden md:block"
           onClick={handlePlayClick}
         >
+          {/* Thumbnail backdrop */}
           <div
-            className="flex items-center justify-center w-20 h-20 rounded-full hover:scale-110 transition-transform"
+            className="absolute inset-0 w-20 h-20 rounded-full overflow-hidden opacity-80 hover:opacity-100 transition-opacity"
+            style={{
+              backgroundImage: `url('${HERO_VIDEO_POSTER}')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'brightness(0.6)',
+            }}
+          />
+          {/* Play button circle */}
+          <div
+            className="relative flex items-center justify-center w-20 h-20 rounded-full hover:scale-110 transition-transform"
             style={{
               background: "rgba(0,212,255,0.15)",
               border: "2px solid rgba(0,212,255,0.5)",
@@ -224,10 +235,10 @@ export default function HeroSection() {
         </div>
       )}
 
-      {/* ── Video Control Bar (desktop only - absolute positioned) ── */}
+      {/* ── Video Control Bar (always visible when playing) ── */}
       {playing && (
         <div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[20] hidden md:flex items-center gap-3 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[20] flex items-center gap-3 bg-black/70 backdrop-blur-md px-6 py-3 rounded-lg shadow-2xl"
         >
           {/* Pause Button */}
           <button
