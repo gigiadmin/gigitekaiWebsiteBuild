@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { kbArticles } from "../../drizzle/schema";
 import { eq, like, or, desc, and } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
+import { seedKBArticles } from "../kb-seeder";
 
 export const kbRouter = router({
   /** List all KB articles (admin: all; public: published only) */
@@ -127,6 +128,12 @@ export const kbRouter = router({
       if (!db) throw new Error("Database not available");
       await db.delete(kbArticles).where(eq(kbArticles.id, input.id));
       return { success: true };
+    }),
+
+  /** Seed all 50 KB articles (admin only, one-time) */
+  seed: adminProcedure
+    .mutation(async () => {
+      return await seedKBArticles();
     }),
 
   /** Bulk insert KB articles (admin only) */

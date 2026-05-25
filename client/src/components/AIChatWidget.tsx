@@ -56,6 +56,27 @@ export default function AIChatWidget() {
   // Debounced query for proactive KB suggestions
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Context form states
+  const [showAssessmentForm, setShowAssessmentForm] = useState(false);
+  const [assessmentForm, setAssessmentForm] = useState({ challenge: "", companySize: "" });
+  
+  const [showMigrationForm, setShowMigrationForm] = useState(false);
+  const [migrationForm, setMigrationForm] = useState({ currentPlatform: "", targetPlatform: "", timeline: "" });
+  
+  const [showAutomationForm, setShowAutomationForm] = useState(false);
+  const [automationForm, setAutomationForm] = useState({ processToAutomate: "", currentTool: "" });
+  
+  const [showSecurityForm, setShowSecurityForm] = useState(false);
+  const [securityForm, setSecurityForm] = useState({ focus: "" });
+  
+  const [showBugForm, setShowBugForm] = useState(false);
+  const [bugForm, setBugForm] = useState({ description: "", affectedService: "" });
+  
+  const [showSpecialistForm, setShowSpecialistForm] = useState(false);
+  const [specialistForm, setSpecialistForm] = useState({ name: "", company: "", email: "", reason: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [specialistSubmitting, setSpecialistSubmitting] = useState(false);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -700,7 +721,7 @@ export default function AIChatWidget() {
                 {/* Quick Action Buttons */}
                 <div ref={actionsMenuRef} className="grid grid-cols-2 gap-2 w-full">
                   <button
-                    onClick={() => sendQuickMessage("Tell me about your AI Assessment service")}
+                    onClick={() => setShowAssessmentForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -708,7 +729,7 @@ export default function AIChatWidget() {
                     AI Assessment
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("How can you help with cloud migration?")}
+                    onClick={() => setShowMigrationForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -716,7 +737,7 @@ export default function AIChatWidget() {
                     Cloud Migration
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("What automation services do you offer?")}
+                    onClick={() => setShowAutomationForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -724,7 +745,7 @@ export default function AIChatWidget() {
                     Automation
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("Tell me about your security audit services")}
+                    onClick={() => setShowSecurityForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -732,7 +753,7 @@ export default function AIChatWidget() {
                     Security Audit
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("I need to report a bug")}
+                    onClick={() => setShowBugForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -756,7 +777,7 @@ export default function AIChatWidget() {
                     General Help
                   </button>
                   <button
-                    onClick={() => setShowBookingModal(true)}
+                    onClick={() => setShowSpecialistForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -1167,6 +1188,349 @@ export default function AIChatWidget() {
                 className="flex-1 bg-cyan-600 hover:bg-cyan-700"
               >
                 {ticketSubmitting ? "Creating..." : "Create Ticket"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Assessment Form */}
+      <Dialog open={showAssessmentForm} onOpenChange={setShowAssessmentForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">🧠 AI Assessment</DialogTitle>
+            <DialogDescription>Tell us about your IT environment</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">What's your main IT challenge?</label>
+              <Textarea
+                placeholder="e.g., Legacy systems, cloud migration, security concerns..."
+                value={assessmentForm.challenge}
+                onChange={(e) => setAssessmentForm({ ...assessmentForm, challenge: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+              {formErrors.challenge && <p className="text-red-400 text-sm mt-1">{formErrors.challenge}</p>}
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Company size</label>
+              <Select value={assessmentForm.companySize} onValueChange={(value) => setAssessmentForm({ ...assessmentForm, companySize: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="1-10">1-10 employees</SelectItem>
+                  <SelectItem value="11-50">11-50 employees</SelectItem>
+                  <SelectItem value="51-200">51-200 employees</SelectItem>
+                  <SelectItem value="200+">200+ employees</SelectItem>
+                </SelectContent>
+              </Select>
+              {formErrors.companySize && <p className="text-red-400 text-sm mt-1">{formErrors.companySize}</p>}
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAssessmentForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  const errors: Record<string, string> = {};
+                  if (!assessmentForm.challenge.trim()) errors.challenge = "Please describe your challenge";
+                  if (!assessmentForm.companySize) errors.companySize = "Please select company size";
+                  
+                  if (Object.keys(errors).length > 0) {
+                    setFormErrors(errors);
+                    return;
+                  }
+                  
+                  sendQuickMessage(`I need an AI assessment. Challenge: ${assessmentForm.challenge}. Company size: ${assessmentForm.companySize}`);
+                  setShowAssessmentForm(false);
+                  setAssessmentForm({ challenge: "", companySize: "" });
+                  setFormErrors({});
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cloud Migration Form */}
+      <Dialog open={showMigrationForm} onOpenChange={setShowMigrationForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">☁️ Cloud Migration</DialogTitle>
+            <DialogDescription>Tell us about your migration needs</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Current platform</label>
+              <Select value={migrationForm.currentPlatform} onValueChange={(value) => setMigrationForm({ ...migrationForm, currentPlatform: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="on-prem">On-Premises</SelectItem>
+                  <SelectItem value="aws">AWS</SelectItem>
+                  <SelectItem value="azure">Azure</SelectItem>
+                  <SelectItem value="gcp">Google Cloud</SelectItem>
+                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Target platform</label>
+              <Select value={migrationForm.targetPlatform} onValueChange={(value) => setMigrationForm({ ...migrationForm, targetPlatform: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="aws">AWS</SelectItem>
+                  <SelectItem value="azure">Azure</SelectItem>
+                  <SelectItem value="gcp">Google Cloud</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Timeline</label>
+              <Select value={migrationForm.timeline} onValueChange={(value) => setMigrationForm({ ...migrationForm, timeline: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="asap">ASAP (1-3 months)</SelectItem>
+                  <SelectItem value="3-6">3-6 months</SelectItem>
+                  <SelectItem value="6-12">6-12 months</SelectItem>
+                  <SelectItem value="12+">12+ months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowMigrationForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (migrationForm.currentPlatform && migrationForm.targetPlatform && migrationForm.timeline) {
+                    sendQuickMessage(`I need cloud migration help. From: ${migrationForm.currentPlatform}, To: ${migrationForm.targetPlatform}, Timeline: ${migrationForm.timeline}`);
+                    setShowMigrationForm(false);
+                    setMigrationForm({ currentPlatform: "", targetPlatform: "", timeline: "" });
+                  }
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Automation Form */}
+      <Dialog open={showAutomationForm} onOpenChange={setShowAutomationForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">⚡ Automation</DialogTitle>
+            <DialogDescription>What would you like to automate?</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Process to automate</label>
+              <Textarea
+                placeholder="e.g., User provisioning, report generation, ticket routing..."
+                value={automationForm.processToAutomate}
+                onChange={(e) => setAutomationForm({ ...automationForm, processToAutomate: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Current tool (if any)</label>
+              <Input
+                placeholder="e.g., Manual process, Excel, existing software..."
+                value={automationForm.currentTool}
+                onChange={(e) => setAutomationForm({ ...automationForm, currentTool: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAutomationForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (automationForm.processToAutomate) {
+                    sendQuickMessage(`I want to automate: ${automationForm.processToAutomate}. Current tool: ${automationForm.currentTool || "Manual"}`);
+                    setShowAutomationForm(false);
+                    setAutomationForm({ processToAutomate: "", currentTool: "" });
+                  }
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Security Audit Form */}
+      <Dialog open={showSecurityForm} onOpenChange={setShowSecurityForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">🛡️ Security Audit</DialogTitle>
+            <DialogDescription>What's your security focus?</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Focus area</label>
+              <Select value={securityForm.focus} onValueChange={(value) => setSecurityForm({ ...securityForm, focus: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="compliance">Compliance (HIPAA, SOC 2, PCI-DSS)</SelectItem>
+                  <SelectItem value="threat">Threat Detection & Prevention</SelectItem>
+                  <SelectItem value="access">Access Control & Identity</SelectItem>
+                  <SelectItem value="full">Full Security Audit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowSecurityForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (securityForm.focus) {
+                    sendQuickMessage(`I need a security audit focused on: ${securityForm.focus}`);
+                    setShowSecurityForm(false);
+                    setSecurityForm({ focus: "" });
+                  }
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report a Bug Form */}
+      <Dialog open={showBugForm} onOpenChange={setShowBugForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">🐛 Report a Bug</DialogTitle>
+            <DialogDescription>Help us fix the issue</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Bug description</label>
+              <Textarea
+                placeholder="What went wrong? What did you expect?"
+                value={bugForm.description}
+                onChange={(e) => setBugForm({ ...bugForm, description: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Affected service</label>
+              <Select value={bugForm.affectedService} onValueChange={(value) => setBugForm({ ...bugForm, affectedService: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="chat">Chat Widget</SelectItem>
+                  <SelectItem value="website">Website</SelectItem>
+                  <SelectItem value="portal">Customer Portal</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowBugForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (bugForm.description) {
+                    sendQuickMessage(`Bug report: ${bugForm.description}. Affected service: ${bugForm.affectedService || "General"}`);
+                    setShowBugForm(false);
+                    setBugForm({ description: "", affectedService: "" });
+                  }
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Talk to a Specialist Form */}
+      <Dialog open={showSpecialistForm} onOpenChange={setShowSpecialistForm}>
+        <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">📞 Schedule a Call</DialogTitle>
+            <DialogDescription>Connect with a GigitekAI specialist</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white font-medium mb-2 block">Name</label>
+              <Input
+                placeholder="Your name"
+                value={specialistForm.name}
+                onChange={(e) => setSpecialistForm({ ...specialistForm, name: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Company</label>
+              <Input
+                placeholder="Your company"
+                value={specialistForm.company}
+                onChange={(e) => setSpecialistForm({ ...specialistForm, company: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Email</label>
+              <Input
+                type="email"
+                placeholder="your@email.com"
+                value={specialistForm.email}
+                onChange={(e) => setSpecialistForm({ ...specialistForm, email: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-white font-medium mb-2 block">Reason for call</label>
+              <Select value={specialistForm.reason} onValueChange={(value) => setSpecialistForm({ ...specialistForm, reason: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="m365">M365 support inquiry</SelectItem>
+                  <SelectItem value="pricing">Pricing for help desk</SelectItem>
+                  <SelectItem value="audit">AI Readiness Audit</SelectItem>
+                  <SelectItem value="demo">Product demo</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowSpecialistForm(false)} className="flex-1">Cancel</Button>
+              <Button
+                onClick={() => {
+                  if (specialistForm.name && specialistForm.email && specialistForm.reason) {
+                    captureLead.mutate({
+                      name: specialistForm.name,
+                      email: specialistForm.email,
+                      company: specialistForm.company,
+                      interest: specialistForm.reason,
+                    });
+                    toast.success("Thanks! A specialist will contact you soon.");
+                    setShowSpecialistForm(false);
+                    setSpecialistForm({ name: "", company: "", email: "", reason: "" });
+                  } else {
+                    toast.error("Please fill in all required fields");
+                  }
+                }}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Schedule Call
               </Button>
             </div>
           </div>
