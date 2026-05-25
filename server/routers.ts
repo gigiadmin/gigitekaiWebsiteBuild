@@ -398,14 +398,16 @@ export const appRouter = router({
                 userId: 1,
                 title: input.subject || `Contact Form: ${input.name}`,
                 description: `**Contact Form Submission**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**How did you hear about us:** ${input.hearAboutUs || "Not provided"}\n\n**Message:**\n${input.message}`,
+                stepsAttempted: input.message,
                 priority: "medium" as const,
                 category: "general_support" as const,
                 status: "open" as const,
-                source: "contact_form",
+                source: "contact_form" as const,
                 requesterName: input.name,
                 requesterEmail: input.email,
                 tags: "contact-form",
-              };
+                includeChatTranscript: false,
+              } as any;
               const ticketResult = await createTicket(ticketData);
               console.log(`[Contact Form] Ticket created: ${ticketResult?.id}`);
             }
