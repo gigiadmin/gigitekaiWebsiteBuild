@@ -10,11 +10,13 @@
 
 - [x] **Admin Login Issue** — FIXED: ApprovalGuard now redirects to /admin/login (Azure AD). Visiting /admin redirects to Microsoft 365 sign-in page. Only harry@gigitekai.com allowed.
 
-- [ ] **Voicemail Integration** — Teams webhook and duplicate prevention
-  - Verify Teams webhook integration (TEAMS_WEBHOOK_URL configured)
-  - Verify adaptive card formatting in Teams
-  - Add deduplication logic to prevent same call creating multiple tickets
-  - Clean up duplicate test voicemail tickets from database
+- [ ] **Voicemail Integration** — PARTIAL: Teams webhook created via Power Automate Workflows (HTTP 202 working)
+  - [x] Webhook URL configured and tested
+  - [x] Health check re-enabled to verify hourly
+  - [x] Messages posting to Help Desk channel successfully
+  - [ ] Add voicemail deduplication logic (prevent same call → multiple tickets)
+  - [ ] Clean up duplicate test voicemail tickets from database
+  - [ ] Verify adaptive card formatting in Teams messages
 
 ---
 
