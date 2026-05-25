@@ -5605,3 +5605,11 @@
   - AdminTicketDetail verifies admin auth via adminAuth.me before rendering TicketDetail
   - Route now correctly redirects to /admin/login when not authenticated (expected behavior)
   - Ticket detail page will render correctly when admin is logged in
+
+
+## Service Worker Cache Fix (May 2026)
+- [x] Updated service worker to use network-first strategy for /assets/ (dynamic imports)
+  - Prevents "Failed to fetch dynamically imported module" errors
+  - Always tries network first, falls back to cache on network failure
+  - Clears all caches on activation to prevent stale chunks
+  - Fixes AdminCallQualityPage and other admin pages loading after hard refresh
