@@ -5,7 +5,7 @@ import { publicProcedure, adminProcedure, protectedProcedure, router } from "./_
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
-import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers, createTicket } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers } from "./db";
 import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
@@ -410,32 +410,6 @@ Submitted from GigitekAI website contact form.
             content: notificationContent,
           });
 
-          // Create a helpdesk ticket from the contact form submission
-          try {
-            const db = await getDb();
-            if (db) {
-              // Create a temporary user for the contact if they don't exist
-              // We'll use email as identifier for non-authenticated contacts
-              const ticketId = await createTicket({
-                userId: 0, // System/contact form submission
-                subject: input.subject || `Contact Form: ${input.name}`,
-                description: `**Contact Form Submission**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**How did you hear about us:** ${input.hearAboutUs || "Not provided"}\n\n**Message:**\n${input.message}`,
-                status: "open",
-                priority: "medium",
-                category: "contact-form",
-                assignedTo: null,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                customerEmail: input.email,
-                customerName: input.name,
-              });
-              console.log(`[Contact Form] Ticket created: ${ticketId?.id}`);
-            }
-          } catch (ticketError) {
-            console.error("[Contact Form] Failed to create ticket:", ticketError);
-            // Don't fail the submission if ticket creation fails
-          }
-
           // Send email to support team
           try {
             await sendEmail({
@@ -460,73 +434,6 @@ Submitted from GigitekAI website contact form.
           } catch (emailError) {
             console.error("[Contact Form] Failed to send email notification:", emailError);
             // Don't fail the submission if email fails
-          }
-
-          // Send Teams notification
-          try {
-            const teamsWebhookUrl = process.env.TEAMS_WEBHOOK_URL;
-            if (teamsWebhookUrl) {
-              await fetch(teamsWebhookUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  text: `📧 New Contact Form Submission from ${input.name}`,
-                  sections: [
-                    {
-                      activityTitle: `Contact: ${input.name}`,
-                      facts: [
-                        { name: "Email", value: input.email },
-                        { name: "Company", value: input.company || "Not provided" },
-                        { name: "Phone", value: input.phone || "Not provided" },
-                        { name: "Source", value: input.hearAboutUs || "Not provided" },
-                      ],
-                    },
-                    {
-                      activityTitle: "Message",
-                      text: input.message,
-                    },
-                  ],
-                  potentialAction: [
-                    {
-                      "@type": "OpenUri",
-                      name: "View in Helpdesk",
-                      targets: [
-                        { os: "default", uri: `${process.env.VITE_APP_ID ? "https://gigitekai.com/admin/helpdesk" : "#"}` },
-                      ],
-                    },
-                  ],
-                }),
-              });
-              console.log("[Contact Form] Teams notification sent");
-            }
-          } catch (teamsError) {
-            console.error("[Contact Form] Failed to send Teams notification:", teamsError);
-            // Don't fail the submission if Teams notification fails
-          }
-
-          // Send confirmation email to contact submitter
-          try {
-            await sendEmail({
-              to: input.email,
-              subject: "We received your message - GigitekAI",
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                  <h2 style="color: #00D4FF;">Thank You for Reaching Out!</h2>
-                  <p>Hi ${input.name},</p>
-                  <p>We've received your message and a member of our team will get back to you within 1 business day.</p>
-                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                  <h3>Your Message:</h3>
-                  <p>${input.message.replace(/\n/g, "<br>")}</p>
-                  <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                  <p style="color: #666;">In the meantime, feel free to explore our <a href="https://gigitekai.com" style="color: #00D4FF;">website</a> or check out our <a href="https://gigitekai.com/insights" style="color: #00D4FF;">insights</a>.</p>
-                  <p style="margin-top: 30px; color: #999; font-size: 12px;">GigitekAI Support Team<br>support@gigitekai.com<br>(727) 382-6909</p>
-                </div>
-              `,
-            });
-            console.log("[Contact Form] Confirmation email sent to submitter");
-          } catch (confirmError) {
-            console.error("[Contact Form] Failed to send confirmation email:", confirmError);
-            // Don't fail the submission if confirmation email fails
           }
 
           return {
