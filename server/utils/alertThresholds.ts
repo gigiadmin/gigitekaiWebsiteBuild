@@ -142,14 +142,16 @@ export async function updateAlertThreshold(
           config.notifyOnDegraded !== undefined
             ? config.notifyOnDegraded
             : existing[0].notifyOnDegraded,
-        notifyOnCritical:
+        notifyOnCritical: (
           config.notifyOnCritical !== undefined
             ? config.notifyOnCritical
-            : existing[0].notifyOnCritical,
-        notifyOnRecovery:
+            : existing[0].notifyOnCritical
+        ) as any,
+        notifyOnRecovery: (
           config.notifyOnRecovery !== undefined
             ? config.notifyOnRecovery
-            : existing[0].notifyOnRecovery,
+            : existing[0].notifyOnRecovery
+        ) as any,
         updatedBy,
         updatedAt: new Date().toISOString() as any,
       })
