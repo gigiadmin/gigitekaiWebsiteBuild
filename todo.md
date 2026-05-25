@@ -9,10 +9,11 @@
 ## CRITICAL (Must Fix)
 
 - [ ] **Admin Login Issue** — Session cookies not being sent/recognized after Azure AD sign-in
-  - Users see "Please login (10001)" errors on admin routes
-  - Affects: /admin/dashboard, /admin/chat, /admin/helpdesk
-  - Root cause: Session cookie not transmitted with admin API requests
-  - Fix: Verify cookie domain/path settings, test auth flow end-to-end
+  - Admin page shows blank white page instead of login or content
+  - JWT signature verification failing: "JWSSignatureVerificationFailed"
+  - Session cookies inconsistently detected (sometimes yes, sometimes no)
+  - Root cause: JWT secret mismatch or session cookie not being properly transmitted
+  - Fix: Debug JWT verification, ensure session cookies are sent with admin requests
 
 - [ ] **Voicemail Integration** — Teams webhook and duplicate prevention
   - Verify Teams webhook integration (TEAMS_WEBHOOK_URL configured)
