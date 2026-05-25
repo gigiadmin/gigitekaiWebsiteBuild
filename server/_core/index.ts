@@ -317,24 +317,6 @@ async function startServer() {
   // Import SSR handler for homepage
   const { renderHomepageSSR } = await import("../ssrHandler");
 
-  // Diagnostic endpoint to check static file serving
-  app.get("/api/diag/static", (req, res) => {
-    const assetsDir = path.resolve(distPath, "assets");
-    const mainJsFiles = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir).filter((f: string) => f.startsWith('main-') && f.endsWith('.js')) : [];
-    const mainCssFiles = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir).filter((f: string) => f.startsWith('main-') && f.endsWith('.css')) : [];
-    const allJsCount = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir).filter((f: string) => f.endsWith('.js')).length : 0;
-    res.json({
-      distPath,
-      distPathExists: fs.existsSync(distPath),
-      assetsDir,
-      assetsDirExists: fs.existsSync(assetsDir),
-      mainJsFiles,
-      mainCssFiles,
-      totalJsFiles: allJsCount,
-      importMetaDirname: import.meta.dirname,
-      nodeEnv: process.env.NODE_ENV,
-    });
-  });
   
   app.get("/privacy-policy", (req, res, next) => {
     const filePath = path.resolve(distPath, "privacy-policy.html");
