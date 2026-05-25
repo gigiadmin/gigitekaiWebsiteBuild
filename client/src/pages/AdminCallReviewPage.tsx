@@ -137,7 +137,7 @@ function ReviewModal({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-[#0D1117] border border-white/10 text-white">
+      <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-[#0D1117] border border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-[#00D4FF]">
             <PhoneIncoming className="w-5 h-5" />
@@ -146,21 +146,21 @@ function ReviewModal({
         </DialogHeader>
 
         {/* Call Info */}
-        <div className="grid grid-cols-2 gap-3 p-3 bg-white/5 rounded-lg border border-white/10 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-white/5 rounded-lg border border-white/10 text-sm">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 text-[#00D4FF]" />
-            <span className="text-gray-400">Caller:</span>
-            <span className="font-mono text-white">{d.callerPhone || "Unknown"}</span>
+            <span className="text-gray-400 whitespace-nowrap">Caller:</span>
+            <span className="font-mono text-white truncate">{d.callerPhone || "Unknown"}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#00D4FF]" />
-            <span className="text-gray-400">Duration:</span>
+            <span className="text-gray-400 whitespace-nowrap">Duration:</span>
             <span className="text-white">{formatDuration(callLog?.durationSeconds || 0)}</span>
           </div>
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-[#00D4FF]" />
-            <span className="text-gray-400">Caller Name:</span>
-            <span className="text-white">{d.callerName || "Not identified"}</span>
+            <span className="text-gray-400 whitespace-nowrap">Caller Name:</span>
+            <span className="text-white truncate">{d.callerName || "Not identified"}</span>
           </div>
           <div className="flex items-center gap-2">
             {hasTranscriptText ? (
@@ -172,12 +172,12 @@ function ReviewModal({
             ) : (
               <MicOff className="w-4 h-4 text-gray-500" />
             )}
-            <span className="text-gray-400">Transcript:</span>
+            <span className="text-gray-400 whitespace-nowrap">Transcript:</span>
             <span className={hasTranscriptText ? "text-green-400" : isTranscribing ? "text-amber-400" : transcriptFailed ? "text-red-400" : "text-gray-500"}>
               {hasTranscriptText ? "Available" : isTranscribing ? "Transcribing..." : transcriptFailed ? "Failed" : "Not available"}
             </span>
           </div>
-          <div className="flex items-center gap-2 col-span-2">
+          <div className="flex items-center gap-2 col-span-2 md:col-span-3">
             <Zap className="w-4 h-4 text-[#00D4FF]" />
             <span className="text-gray-400">AI Confidence:</span>
             <span className={conf.color}>{conf.label} ({Math.round(confidence * 100)}%)</span>
