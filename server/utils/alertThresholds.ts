@@ -105,14 +105,14 @@ export async function updateAlertThreshold(
       agentAvailabilityThreshold:
         config.agentAvailabilityThreshold || undefined,
       slaComplianceThreshold: config.slaComplianceThreshold || undefined,
-      enabled: config.enabled !== false,
-      notifyOnDegraded: config.notifyOnDegraded !== false,
-      notifyOnCritical: config.notifyOnCritical !== false,
-      notifyOnRecovery: config.notifyOnRecovery !== false,
+      enabled: (config.enabled !== false) as any,
+      notifyOnDegraded: (config.notifyOnDegraded !== false) as any,
+      notifyOnCritical: (config.notifyOnCritical !== false) as any,
+      notifyOnRecovery: (config.notifyOnRecovery !== false) as any,
       updatedBy,
-      updatedAt: new Date(),
-      createdAt: new Date(),
-    });
+      updatedAt: new Date().toISOString() as any,
+      createdAt: new Date().toISOString() as any,
+    } as any);
   } else {
     // Update existing threshold
     await db
