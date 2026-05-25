@@ -314,6 +314,9 @@ async function startServer() {
   const fs = await import("fs");
   const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
   
+  // Import SSR handler for homepage
+  const { renderHomepageSSR } = await import("../ssrHandler");
+  
   app.get("/privacy-policy", (req, res, next) => {
     const filePath = path.resolve(distPath, "privacy-policy.html");
     if (fs.existsSync(filePath)) {
@@ -332,6 +335,17 @@ async function startServer() {
       return res.sendFile(filePath);
     }
     next();
+  });
+  
+  // Server-Side Rendering (SSR) for homepage
+  // Serves full HTML content with schema markup so Google and users see complete content
+  app.get("/", (req, res, next) => {
+    if (process.env.NODE_ENV === "production") {
+      renderHomepageSSR(req, res);
+    } else {
+      // Development: pass to Vite
+      next();
+    }
   });
 
   // development mode uses Vite, production mode uses static files
