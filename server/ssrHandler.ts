@@ -54,8 +54,8 @@ const SCHEMA_MARKUP = {
  * - No flash of duplicate content (hidden div removed on React mount)
  */
 const PRERENDERED_CONTENT = `
-    <!-- SSR: Pre-rendered content for SEO crawlers only - invisible to users -->
-    <div id="prerender-root" style="display:none;visibility:hidden;position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;" aria-hidden="true">
+    <!-- SSR: Pre-rendered content for SEO crawlers only (inside noscript = invisible to all browsers) -->
+    <noscript><div id="prerender-root">
       <!-- Hero Section -->
       <section style="background: linear-gradient(135deg, #0A0E1A 0%, #1a1f3a 100%); color: white; padding: 80px 20px; text-align: center;">
         <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: bold;">Intelligent Cloud & AI Solutions</h1>
@@ -182,10 +182,7 @@ const PRERENDERED_CONTENT = `
           <p style="margin-top: 8px;"><a href="https://gigitekai.com" style="color: #00D4FF; text-decoration: none;">Created by GigitekAI</a></p>
         </div>
       </footer>
-    </div>
-    <noscript>
-      <style>#prerender-root { position: static !important; }</style>
-    </noscript>
+    </div></noscript>
 `;
 
 export function renderHomepageSSR(req: Request, res: Response) {
@@ -219,28 +216,9 @@ export function renderHomepageSSR(req: Request, res: Response) {
       }
       
       // 3. Inject pre-rendered content INSIDE <div id="root"> for SEO
-      // The React app will mount and the prerender-root will be removed by the observer script
+      // Content is wrapped in <noscript> so browsers NEVER see it - only crawlers do
       html = html.replace('<div id="root"></div>', `<div id="root">${PRERENDERED_CONTENT}</div>`);
       
-      // 4. Add the observer script to remove pre-rendered content once React mounts
-      const observerScript = `
-    <script>
-      // Remove pre-rendered SEO content once React app mounts
-      var observer = new MutationObserver(function(mutations) {
-        var prerender = document.getElementById('prerender-root');
-        if (prerender && document.querySelector('[data-hero-mounted]')) {
-          prerender.remove();
-          observer.disconnect();
-        }
-      });
-      var root = document.getElementById('root');
-      if (root) observer.observe(root, { childList: true, subtree: true });
-    </script>`;
-      
-      // Only add if not already present
-      if (!html.includes('data-hero-mounted')) {
-        html = html.replace("</body>", `${observerScript}\n</body>`);
-      }
       
       cachedIndexHtml = html;
       cachedIndexMtime = mtime;
