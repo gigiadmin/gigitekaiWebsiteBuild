@@ -1381,14 +1381,23 @@ export const aibotRouter = router({
 
   // ── Admin Aria Monitoring Procedures ─────────────────────────────────────────
 
-  getAriaSessions: adminProcedure
+  getAriaSessions: protectedProcedure
     .input(z.object({
       status: z.enum(["active", "escalated", "closed", "all"]).default("all"),
       limit: z.number().min(1).max(200).default(50),
       offset: z.number().min(0).default(0),
     }))
     .query(async ({ input, ctx }) => {
-      // Admin access already verified by adminProcedure
+      // Verify admin access
+      const req = (ctx as unknown as { req: Request }).req;
+      let isAdmin = ctx.user?.role === 'admin';
+      if (!isAdmin && req) {
+        const admin = await getAdminFromRequest(req);
+        if (admin) isAdmin = true;
+      }
+      if (!isAdmin) {
+        throw new Error('Unauthorized: Admin access required');
+      }
 
       const db = await getDb();
       if (!db) return { sessions: [], total: 0 };
@@ -1443,12 +1452,21 @@ export const aibotRouter = router({
       }
     }),
 
-  getAriaSessionMessages: adminProcedure
+  getAriaSessionMessages: protectedProcedure
     .input(z.object({
       sessionId: z.string(),
     }))
     .query(async ({ input, ctx }) => {
-      // Admin access already verified by adminProcedure
+      // Verify admin access
+      const req = (ctx as unknown as { req: Request }).req;
+      let isAdmin = ctx.user?.role === 'admin';
+      if (!isAdmin && req) {
+        const admin = await getAdminFromRequest(req);
+        if (admin) isAdmin = true;
+      }
+      if (!isAdmin) {
+        throw new Error('Unauthorized: Admin access required');
+      }
 
       const db = await getDb();
       if (!db) return { messages: [], session: null };
