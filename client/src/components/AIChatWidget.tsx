@@ -11,7 +11,6 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
-import { useAuth } from "@/_core/hooks/useAuth";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
