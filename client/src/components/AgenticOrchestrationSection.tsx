@@ -2,6 +2,7 @@
  * AgenticOrchestrationSection — Homepage highlight for Multi-System Agentic AI
  * Showcases the complexity of the orchestration demo to drive /ai-demo conversions
  */
+import React from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,31 @@ const AGENT_STEPS = [
 ];
 
 export default function AgenticOrchestrationSection() {
+  const [videoVisible, setVideoVisible] = React.useState(false);
+  const videoRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVideoVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        observer.unobserve(videoRef.current);
+      }
+    };
+  }, []);
+
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-[#0A0E1A] to-[#060810] relative overflow-hidden">
       {/* Background glow */}
@@ -143,6 +169,34 @@ export default function AgenticOrchestrationSection() {
               <span className="text-xs text-slate-400">8 systems provisioned</span>
             </div>
           </div>
+        </div>
+
+        {/* AI Live Demo Video Section */}
+        <div ref={videoRef} className="mt-16 pt-8 border-t border-slate-700/50">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+              See AI Agents in Action
+            </h3>
+            <p className="text-slate-300 max-w-2xl mx-auto">
+              Watch a live demonstration of our multi-system agentic AI orchestrator provisioning a complete client environment.
+            </p>
+          </div>
+          {videoVisible && (
+            <div className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl shadow-cyan-500/20 bg-slate-900/50 border border-slate-700/50">
+              <video
+                className="w-full h-auto"
+                controls
+                preload="metadata"
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'%3E%3Crect fill='%23060810' width='1280' height='720'/%3E%3C/svg%3E"
+              >
+                <source
+                  src="https://gigitekai-mmtcdmc2.manus.space/assets/ai-demo-video.mp4"
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          )}
         </div>
 
         {/* CTA */}

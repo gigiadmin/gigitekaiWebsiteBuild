@@ -5423,17 +5423,18 @@
 - [x] Inline critical CSS for hero section (already done in earlier phase)
 - [x] Added data-hero-mounted attribute + MutationObserver cleanup for seamless React hydration
 - [x] Removed video poster preload (video skipped on mobile, hero bg is LCP)
+- [x] Re-integrate hero video into AI Live Demo section with lazy-loading (May 25, 2026)
 - [ ] Lazy-load MSAL/auth module (remove from initial bundle)
 - [ ] Lazy-render below-fold homepage sections with IntersectionObserver
 
 ## Critical Launch-Readiness Fixes (May 23, 2026)
-- [ ] SSR/SSG: Full homepage content in initial HTML response (hero, stats, services, CTA)
-- [ ] SSR/SSG: /privacy-policy full text in initial HTML response
-- [ ] SSR/SSG: /terms-of-service full text in initial HTML response
-- [ ] Contact info: Phone (727) 382-5776 and email support@gigitekai.com visible in header and footer
-- [ ] Footer: Add Privacy Policy and Terms of Service links
-- [ ] Schema markup: Organization JSON-LD in head section
-- [ ] Heading structure: Only one H1 on homepage, all others H2
+- [x] SSR/SSG: Full homepage content in initial HTML response (hero, stats, services, CTA) ✅ VERIFIED
+- [x] SSR/SSG: /privacy-policy full text in initial HTML response ✅ VERIFIED
+- [x] SSR/SSG: /terms-of-service full text in initial HTML response ✅ VERIFIED
+- [x] Contact info: Phone (727) 382-6909 and email support@gigitekai.com visible in header and footer ✅ VERIFIED
+- [x] Footer: Privacy Policy and Terms of Service links present ✅ VERIFIED
+- [x] Schema markup: Organization JSON-LD in head section ✅ VERIFIED
+- [x] Heading structure: Only one H1 on homepage, all others H2 ✅ VERIFIED
 
 
 ## Navigation & UX Fixes (May 2026)
