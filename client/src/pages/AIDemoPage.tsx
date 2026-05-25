@@ -866,15 +866,35 @@ export default function AIDemoPage() {
           <span className="text-cyan-400 text-sm font-medium">Live Agent Demo — No Sign-Up Required</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-          Watch AI Agents{" "}
-          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Work in Real Time
-          </span>
+          See AI Agents in Action
         </h1>
         <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
-          These are the same agentic workflows running inside GigitekAI client environments today.
-          Pick a scenario and hit Play — see exactly how AI replaces manual IT work.
+          Watch a live demonstration of our multi-system agentic AI orchestrator provisioning a complete client environment.
         </p>
+      </section>
+
+      {/* ── Video Section ── */}
+      <section className="px-4 max-w-4xl mx-auto mb-16">
+        <div className="rounded-2xl border border-cyan-500/30 bg-slate-900/80 overflow-hidden shadow-2xl">
+          <video
+            width="100%"
+            height="auto"
+            controls
+            className="w-full h-auto"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 675'%3E%3Crect fill='%230F1629' width='1200' height='675'/%3E%3C/svg%3E"
+          >
+            <source src="/manus-storage/ElevenLabs_I_need_to_create_a_video_for_my_AI_firm_GigitekAI__87276f5c.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <p className="text-center text-slate-400 text-sm mt-4">
+          This is one of 6 live scenarios you can run interactively — no login required.
+        </p>
+      </section>
+
+      {/* ── Interactive Demo Scenarios ── */}
+      <section className="px-4 max-w-6xl mx-auto mb-10">
+        <h2 className="text-3xl font-bold mb-8 text-center">Try Interactive Scenarios</h2>
       </section>
 
       {/* ── Scenario Selector ── */}
