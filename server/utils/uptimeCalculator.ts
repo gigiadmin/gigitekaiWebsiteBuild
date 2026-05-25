@@ -145,7 +145,7 @@ export async function updateUptimeStatistics(
     criticalChecks: stats.criticalChecks,
     offlineChecks: stats.offlineChecks,
     avgResponseTime: stats.avgResponseTime,
-    calculatedAt: new Date(),
+    calculatedAt: new Date().toISOString() as any,
   });
 
   return stats;
@@ -170,7 +170,7 @@ export async function getUptimeStats(
         eq(uptimeStatistics.period, period)
       )
     )
-    .orderBy(sql`${uptimeStatistics.calculatedAt} DESC`)
+    .orderBy(sql`${uptimeStatistics.calculatedAt} DESC` as any)
     .limit(1);
 
   if (record.length === 0) {
