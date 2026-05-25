@@ -1,30 +1,28 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { ShieldAlert, LogOut, Mail, Phone } from "lucide-react";
-import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 /**
  * Wraps admin pages to enforce Azure AD authentication.
- * Redirects to Manus OAuth login if not authenticated.
- * Admin users must be approved by the system.
+ * Checks the admin_session cookie via trpc.adminAuth.me.
+ * Redirects to /admin/login if not authenticated.
  */
 export default function ApprovalGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, loading, logout } = useAuth();
   const [, navigate] = useLocation();
 
+  const { data: admin, isLoading, error } = trpc.adminAuth.me.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   useEffect(() => {
-    // If not loading and not authenticated, redirect to login
-    if (!loading && !isAuthenticated) {
-      const loginUrl = getLoginUrl("/admin");
-      window.location.href = loginUrl;
+    if (!isLoading && !admin) {
+      navigate("/admin/login");
     }
-  }, [loading, isAuthenticated]);
+  }, [isLoading, admin]);
 
   // Show loading spinner while checking authentication
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <div className="flex flex-col items-center gap-5">
@@ -39,11 +37,11 @@ export default function ApprovalGuard({ children }: { children: React.ReactNode 
     );
   }
 
-  // If not authenticated, don't render (redirect will happen in useEffect)
-  if (!isAuthenticated) {
+  // If not authenticated, don't render children (redirect happens in useEffect)
+  if (!admin) {
     return null;
   }
 
-  // User is authenticated - render admin content
+  // Admin is authenticated — render content
   return <>{children}</>;
 }
