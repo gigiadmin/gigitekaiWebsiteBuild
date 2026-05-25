@@ -1,24 +1,17 @@
 /*
-  GigitekAI Hero Section — Muted Autoplay + Tap to Unmute
-  - Autoplays MUTED (required by all mobile browsers — iOS Safari, Android Chrome)
+  GigitekAI Hero Section — Static background image
   - Shows a prominent "Click Contact Us" button on mobile (navigates to /contact)
-  - Volume slider lets users adjust after unmuting
-  - Restart button when video ends
-  - Play icon overlay on poster so users know a video is available
+  - Video moved to AI Live Demo section for better performance
 */
 
-import { useEffect, useState, useRef } from "react";
-import { ArrowRight, RotateCcw, Volume2, VolumeX, Play, Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, Calendar } from "lucide-react";
 // PERF: Import hero images as Vite assets — served from /assets/ with content hash.
 // This bypasses the /manus-storage/ proxy which adds a 307 redirect through Cloudflare edge,
 // adding ~1-3s latency to LCP. Static /assets/ files are served directly with immutable cache.
 import heroBgDesktop from "@/assets/hero-bg-desktop.webp";
 import heroBgMobile from "@/assets/hero-bg-mobile.webp";
 
-// Video paths — /api/video/ routes go through Express (not intercepted by Cloudflare)
-const HERO_VIDEO_DESKTOP = "/api/video/gigitekai-hero-desktop-fast_2e21158c.mp4";
-const HERO_VIDEO_MOBILE = "/api/video/gigitekai-hero-mobile-fast_90faa7ac.mp4";
-const HERO_VIDEO_POSTER = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-hero-video-thumbnail-g7GvfvBm8jmHCNrHAjAoET.webp"; // Cyberpunk AI data center thumbnail
 // Optimized hero background — Vite asset imports (bypasses /manus-storage/ proxy)
 // Desktop: 46KB | Mobile: 34KB — served directly from /assets/ with immutable cache
 const HERO_BG_DESKTOP = heroBgDesktop;
@@ -26,27 +19,6 @@ const HERO_BG_MOBILE = heroBgMobile;
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [ended, setEnded] = useState(false);
-  const [muted, setMuted] = useState(true); // always starts muted
-  const [volume, setVolume] = useState(0.5);
-  // Use matchMedia for reliable mobile detection (works with Lighthouse emulation)
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return true; // default to mobile (safer for perf)
-    return window.matchMedia('(max-width: 768px)').matches;
-  });
-  // Defer video loading until after page is interactive (improves LCP)
-  const [videoReady, setVideoReady] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Detect mobile via matchMedia
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)');
-    const check = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
-    check(mq);
-    mq.addEventListener('change', check as (e: MediaQueryListEvent) => void);
-    return () => mq.removeEventListener('change', check as (e: MediaQueryListEvent) => void);
-  }, []);
 
   // Fade-in
   useEffect(() => {
@@ -54,108 +26,10 @@ export default function HeroSection() {
     return () => clearTimeout(t);
   }, []);
 
-  // Defer video element insertion until after LCP (poster image) has rendered
-  // On mobile: NEVER load the video — show static poster image only (saves 15MB download)
-  // On desktop: delay by 500ms to let LCP image render first
-  useEffect(() => {
-    if (isMobile) return; // Mobile: no video, static image only
-    const t = setTimeout(() => setVideoReady(true), 500);
-    return () => clearTimeout(t);
-  }, [isMobile]);
-
-    // Autoplay muted — works on ALL browsers including iOS Safari (desktop only)
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (isMobile) return; // Mobile: no video
-    video.muted = true;
-    video.volume = 0.5;
-    video.load();
-
-    const tryPlay = () => {
-      video.play()
-        .then(() => setPlaying(true))
-        .catch(() => {
-          const onInteract = () => {
-            video.play().then(() => setPlaying(true)).catch(() => {});
-            document.removeEventListener("touchstart", onInteract);
-            document.removeEventListener("click", onInteract);
-          };
-          document.addEventListener("touchstart", onInteract, { once: true });
-          document.addEventListener("click", onInteract, { once: true });
-        });
-    };
-
-    if (video.readyState >= 2) {
-      tryPlay();
-    } else {
-      video.addEventListener("loadeddata", tryPlay, { once: true });
-    }
-  }, []);
-
-  // Tap to unmute — this is a direct user gesture, so browser allows it
-  const handleUnmute = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = false;
-    video.volume = volume;
-    setMuted(false);
-  };
-
-  const handleMute = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    setMuted(true);
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setVolume(val);
-    if (videoRef.current) {
-      videoRef.current.volume = val;
-      if (val === 0) {
-        videoRef.current.muted = true;
-        setMuted(true);
-      } else if (muted) {
-        videoRef.current.muted = false;
-        setMuted(false);
-      }
-    }
-  };
-
-  const handleRestart = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.currentTime = 0;
-    video.play().catch(() => {});
-    setPlaying(true);
-    setEnded(false);
-  };
-
-  // Handle play button click
-  const handlePlayClick = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (ended) {
-      handleRestart();
-    } else if (video.paused) {
-      video.play().then(() => setPlaying(true)).catch(() => {});
-    }
-  };
-
-  // Handle pause
-  const handlePause = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-    setPlaying(false);
-  };
-
   return (
     <section data-hero-mounted="" className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
 
-      {/* ── Video layer ── */}
+      {/* ── Background layer ── */}
       <div className="absolute inset-0 z-0">
         {/* LCP element: img tag with fetchpriority=high for fastest Largest Contentful Paint */}
         <img
@@ -164,8 +38,8 @@ export default function HeroSection() {
           sizes="(max-width: 768px) 768px, 1920px"
           alt=""
           aria-hidden="true"
-          fetchPriority="low"
-          loading="lazy"
+          fetchPriority="high"
+          loading="eager"
           decoding="async"
           width={1920}
           height={1080}
@@ -179,120 +53,7 @@ export default function HeroSection() {
             zIndex: 1,
           }}
         />
-        {/* Video element — deferred until after LCP image renders */}
-        {videoReady && (
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload={isMobile ? "none" : "metadata"}
-            width={isMobile ? 1280 : 1920}
-            height={isMobile ? 720 : 1080}
-            src={isMobile ? HERO_VIDEO_MOBILE : HERO_VIDEO_DESKTOP}
-            poster={HERO_VIDEO_POSTER}
-            onEnded={() => { setPlaying(false); setEnded(true); }}
-            onError={() => { /* silent — video is enhancement only */ }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-              playing ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ zIndex: 2 }}
-          />
-        )}
       </div>
-
-      {/* ── Play Button with Thumbnail Backdrop ── */}
-      {!playing && (
-        <div
-          className="absolute top-1/3 right-[8%] -translate-y-1/2 z-[20] cursor-pointer hidden md:block"
-          onClick={handlePlayClick}
-        >
-          {/* Thumbnail backdrop */}
-          <div
-            className="absolute inset-0 w-20 h-20 rounded-full overflow-hidden opacity-80 hover:opacity-100 transition-opacity"
-            style={{
-              backgroundImage: `url('${HERO_VIDEO_POSTER}')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'brightness(0.6)',
-            }}
-          />
-          {/* Play button circle */}
-          <div
-            className="relative flex items-center justify-center w-20 h-20 rounded-full hover:scale-110 transition-transform"
-            style={{
-              background: "rgba(0,212,255,0.15)",
-              border: "2px solid rgba(0,212,255,0.5)",
-              boxShadow: "0 0 32px rgba(0,212,255,0.3), 0 0 64px rgba(0,212,255,0.1)",
-            }}
-          >
-            {ended ? (
-              <RotateCcw
-                size={32}
-                className="text-[#00D4FF]"
-              />
-            ) : (
-              <Play
-                size={32}
-                className="text-[#00D4FF] ml-1"
-                fill="rgba(0,212,255,0.8)"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Video Control Bar (always visible when playing) ── */}
-      {playing && (
-        <div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[20] flex items-center gap-3 bg-black/70 backdrop-blur-md px-6 py-3 rounded-lg shadow-2xl"
-        >
-          {/* Pause Button */}
-          <button
-            onClick={handlePause}
-            className="text-[#00D4FF] hover:text-white transition-colors"
-            title="Pause"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <rect x="6" y="4" width="4" height="16" />
-              <rect x="14" y="4" width="4" height="16" />
-            </svg>
-          </button>
-
-          {/* Volume Control */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={muted ? handleUnmute : handleMute}
-              className="text-[#00D4FF] hover:text-white transition-colors"
-              title={muted ? "Unmute" : "Mute"}
-            >
-              {muted ? (
-                <VolumeX size={20} />
-              ) : (
-                <Volume2 size={20} />
-              )}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-20 h-1 bg-gray-600 rounded cursor-pointer accent-[#00D4FF]"
-              title="Volume"
-            />
-          </div>
-
-          {/* Restart Button */}
-          <button
-            onClick={handleRestart}
-            className="text-[#00D4FF] hover:text-white transition-colors"
-            title="Restart"
-          >
-            <RotateCcw size={20} />
-          </button>
-        </div>
-      )}
 
       {/* ── Gradient overlays ── */}
       <div
@@ -411,52 +172,6 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Video Preview Section */}
-          <div
-            className={`mt-12 mb-8 transition-[opacity,transform] duration-700 delay-[350ms] ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
-          >
-            <div
-              className="relative w-full max-w-2xl rounded-xl overflow-hidden cursor-pointer group"
-              onClick={handlePlayClick}
-            >
-              {/* Thumbnail Image */}
-              <img
-                src={HERO_VIDEO_POSTER}
-                alt="Watch our AI solutions demo video"
-                className="w-full h-auto object-cover rounded-xl shadow-2xl group-hover:brightness-110 transition-all duration-300"
-              />
-              
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-all duration-300 rounded-xl">
-                <div
-                  className="flex items-center justify-center w-24 h-24 rounded-full group-hover:scale-110 transition-transform duration-300"
-                  style={{
-                    background: "rgba(0,212,255,0.2)",
-                    border: "3px solid rgba(0,212,255,0.8)",
-                    boxShadow: "0 0 40px rgba(0,212,255,0.4), 0 0 80px rgba(0,212,255,0.2)",
-                  }}
-                >
-                  <Play
-                    size={48}
-                    className="text-[#00D4FF] ml-2"
-                    fill="rgba(0,212,255,0.9)"
-                  />
-                </div>
-              </div>
-              
-              {/* Video Label */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-4 px-6 rounded-b-xl">
-                <p className="text-white font-semibold text-lg flex items-center gap-2">
-                  <Play size={18} className="text-[#00D4FF]" />
-                  Watch Our AI Solutions in Action
-                </p>
-                <p className="text-gray-300 text-sm mt-1">See how we transform enterprise cloud infrastructure</p>
-              </div>
-            </div>
-          </div>
-
           {/* Stats row */}
           <div
             className={`flex flex-wrap gap-8 transition-[opacity,transform] duration-700 delay-[400ms] ${
@@ -476,36 +191,6 @@ export default function HeroSection() {
               <div className="text-sm text-gray-200">AI Support</div>
             </div>
           </div>
-
-          {/* Mobile-only video controls (inline, below stats) */}
-          {playing && (
-            <div className="flex md:hidden items-center gap-3 mt-4 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg w-fit">
-              <button
-                onClick={handlePause}
-                className="text-[#00D4FF] hover:text-white transition-colors"
-                title="Pause"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <rect x="6" y="4" width="4" height="16" />
-                  <rect x="14" y="4" width="4" height="16" />
-                </svg>
-              </button>
-              <button
-                onClick={muted ? handleUnmute : handleMute}
-                className="text-[#00D4FF] hover:text-white transition-colors"
-                title={muted ? "Unmute" : "Mute"}
-              >
-                {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-              </button>
-              <button
-                onClick={handleRestart}
-                className="text-[#00D4FF] hover:text-white transition-colors"
-                title="Restart"
-              >
-                <RotateCcw size={18} />
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </section>
