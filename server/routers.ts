@@ -389,6 +389,31 @@ export const appRouter = router({
             hearAboutUs: input.hearAboutUs,
           });
 
+          // Create a helpdesk ticket from the contact form submission
+          try {
+            const db = await getDb();
+            if (db) {
+              // Use a system user ID (1) for contact form tickets
+              const ticketResult = await createTicket({
+                userId: 1,
+                title: input.subject || `Contact Form: ${input.name}`,
+                description: `**Contact Form Submission**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**How did you hear about us:** ${input.hearAboutUs || "Not provided"}\n\n**Message:**\n${input.message}`,
+                stepsAttempted: null,
+                priority: "medium",
+                category: "general_support",
+                status: "open",
+                source: "contact_form",
+                requesterName: input.name,
+                requesterEmail: input.email,
+                tags: "contact-form",
+              });
+              console.log(`[Contact Form] Ticket created: ${ticketResult?.id}`);
+            }
+          } catch (ticketError) {
+            console.error("[Contact Form] Failed to create ticket:", ticketError);
+            // Don't fail the submission if ticket creation fails
+          }
+
           // Notify owner in Manus dashboard
           const notificationContent = `
 **New Contact Form Submission**
