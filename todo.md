@@ -5437,6 +5437,11 @@
 - [x] Heading structure: Only one H1 on homepage, all others H2 ✅ VERIFIED
 
 
+## Build & Deployment Fixes (May 25, 2026)
+- [x] Fix stale chunk hashes causing "Failed to fetch dynamically imported module" errors
+- [x] Rebuild AdminClosedTicketsReportPage chunk with correct hash
+- [x] Trigger redeployment to sync new chunks to production
+
 ## Navigation & UX Fixes (May 2026)
 - [ ] Add persistent navigation/header to all pages (home, websites, industries, blog, etc.) so users can navigate back
 - [ ] Update /websites page pricing to match /web-pricing (Starter $199/mo, Growth $399/mo, Pro $799/mo)
