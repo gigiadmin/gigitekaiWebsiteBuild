@@ -322,11 +322,7 @@ export default function HeroSection() {
         <div className="max-w-3xl">
 
           {/* Label */}
-          <div
-            className={`section-label mb-6 transition-[opacity,transform] duration-700 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
+          <div className="section-label mb-6">
             NEXT-GEN CLOUD & AI SOLUTIONS
           </div>
 
