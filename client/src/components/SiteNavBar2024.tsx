@@ -168,7 +168,7 @@ export default function SiteNavBar2024() {
 
             {[
               { label: "Websites", href: "/websites", show: 'always' },
-              { label: "Industries", href: "/industries/healthcare", show: 'always' },
+              { label: "Industries", href: "/industries", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
               { label: "Insights", href: "/blog", show: 'always' },
@@ -276,7 +276,7 @@ export default function SiteNavBar2024() {
               <div className="px-4 pb-2 space-y-2 pt-2" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
               {[
                 { label: "Websites", href: "/websites", id: "nav-websites" },
-                { label: "Industries", href: "/industries/healthcare", id: "nav-industries" },
+                { label: "Industries", href: "/industries", id: "nav-industries" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },

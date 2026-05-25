@@ -39,6 +39,7 @@ const BlogDetail = lazy(() => import("./pages/BlogDetail"));
 // const AboutUs = lazy(() => import("./pages/AboutUs")); // hidden - NDA
 const OurTeam = lazy(() => import("./pages/OurTeam"));
 const Partners = lazy(() => import("./pages/Partners"));
+const IndustriesPage = lazy(() => import("./pages/IndustriesPage"));
 const IndustryHealthcare = lazy(() => import("./pages/IndustryHealthcare"));
 const IndustryFinancial = lazy(() => import("./pages/IndustryFinancial"));
 const IndustryManufacturing = lazy(() => import("./pages/IndustryManufacturing"));
@@ -210,6 +211,7 @@ function Router() {
           <Route path={"/compliance-benchmark"} component={ComplianceBenchmark} />
           <Route path={"/roadmap-generator"} component={RoadmapGenerator} />
           {/* Industries */}
+          <Route path="/industries" component={IndustriesPage} />
           <Route path={"/industries/healthcare"} component={IndustryHealthcare} />
           <Route path={"/industries/financial"} component={IndustryFinancial} />
           <Route path={"/industries/manufacturing"} component={IndustryManufacturing} />
