@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, int, varchar, mysqlEnum, timestamp, foreignKey, json, text, date, decimal, datetime, float } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, int, varchar, mysqlEnum, timestamp, foreignKey, json, text, date, decimal, datetime, float, tinyint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const adminCredentials = mysqlTable("adminCredentials", {
@@ -1466,21 +1466,6 @@ export const stripeSubscriptions = mysqlTable("stripeSubscriptions", {
 	index("stripeSubscriptions_stripeSubscriptionId_unique").on(table.stripeSubscriptionId),
 ]);
 
-export const stripeCustomers = mysqlTable("stripe_customers", {
-	id: varchar({ length: 255 }).notNull(),
-	userId: varchar("user_id", { length: 255 }).notNull(),
-	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
-	email: varchar({ length: 255 }).notNull(),
-	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
-},
-(table) => [
-	index("stripe_customers_user_id_unique").on(table.userId),
-	index("stripe_customers_stripe_customer_id_unique").on(table.stripeCustomerId),
-	index("stripe_customers_user_id_idx").on(table.userId),
-	index("stripe_customers_stripe_customer_id_idx").on(table.stripeCustomerId),
-]);
-
 export const stripeInvoices = mysqlTable("stripe_invoices", {
 	id: varchar({ length: 255 }).notNull(),
 	userId: varchar("user_id", { length: 255 }).notNull(),
@@ -1521,29 +1506,6 @@ export const stripePaymentIntents = mysqlTable("stripe_payment_intents", {
 	index("stripe_payment_intents_user_id_idx").on(table.userId),
 	index("stripe_payment_intents_stripe_payment_intent_id_idx").on(table.stripePaymentIntentId),
 	index("stripe_payment_intents_status_idx").on(table.status),
-]);
-
-export const stripeSubscriptions = mysqlTable("stripe_subscriptions", {
-	id: varchar({ length: 255 }).notNull(),
-	userId: varchar("user_id", { length: 255 }).notNull(),
-	stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
-	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
-	planName: varchar("plan_name", { length: 255 }).notNull(),
-	userCount: int("user_count").default(10).notNull(),
-	isAnnual: tinyint("is_annual").default(0).notNull(),
-	status: mysqlEnum(['active','past_due','canceled','unpaid']).default('active').notNull(),
-	currentPeriodStart: timestamp("current_period_start", { mode: 'string' }),
-	currentPeriodEnd: timestamp("current_period_end", { mode: 'string' }),
-	canceledAt: timestamp("canceled_at", { mode: 'string' }),
-	cancelReason: text("cancel_reason"),
-	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
-	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
-},
-(table) => [
-	index("stripe_subscriptions_stripe_subscription_id_unique").on(table.stripeSubscriptionId),
-	index("stripe_subscriptions_user_id_idx").on(table.userId),
-	index("stripe_subscriptions_stripe_subscription_id_idx").on(table.stripeSubscriptionId),
-	index("stripe_subscriptions_status_idx").on(table.status),
 ]);
 
 export const stripeWebhookEvents = mysqlTable("stripe_webhook_events", {
@@ -1788,4 +1750,62 @@ export const xeroTokens = mysqlTable("xeroTokens", {
 },
 (table) => [
 	index("xeroTokens_tenantId_unique").on(table.tenantId),
+]);
+
+
+// ── Search Index Tables ──────────────────────────────────────────────────────
+
+export const searchIndex = mysqlTable("searchIndex", {
+	id: int().autoincrement().notNull(),
+	contentType: mysqlEnum(['blog', 'kb', 'service', 'industry', 'page', 'faq', 'pricing', 'case_study']).notNull(),
+	sourceId: varchar({ length: 255 }).notNull(),
+	title: varchar({ length: 500 }).notNull(),
+	excerpt: text().notNull(),
+	content: text().notNull(),
+	url: varchar({ length: 500 }).notNull(),
+	metadata: text(), // JSON stringified
+	embedding: text(), // JSON stringified embedding vector
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("searchIndex_contentType_sourceId_unique").on(table.contentType, table.sourceId),
+	index("searchIndex_contentType_idx").on(table.contentType),
+	index("searchIndex_url_idx").on(table.url),
+]);
+
+export const searchAnalytics = mysqlTable("searchAnalytics", {
+	id: int().autoincrement().notNull(),
+	query: varchar({ length: 500 }).notNull(),
+	resultCount: int().default(0).notNull(),
+	sessionId: varchar({ length: 255 }).notNull(),
+	userId: int(),
+	resultClicked: tinyint().default(0).notNull(),
+	clickedResultId: int(),
+	clickedResultUrl: varchar({ length: 500 }),
+	durationMs: int(),
+	userAgent: text(),
+	referrer: varchar({ length: 500 }),
+	country: varchar({ length: 100 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("searchAnalytics_query_idx").on(table.query),
+	index("searchAnalytics_sessionId_idx").on(table.sessionId),
+	index("searchAnalytics_userId_idx").on(table.userId),
+]);
+
+export const searchSuggestions = mysqlTable("searchSuggestions", {
+	id: int().autoincrement().notNull(),
+	query: varchar({ length: 500 }).notNull(),
+	suggestion: varchar({ length: 500 }).notNull(),
+	frequency: int().default(1).notNull(),
+	category: mysqlEnum(['blog', 'kb', 'service', 'industry', 'general']).default('general').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("searchSuggestions_query_idx").on(table.query),
+	index("searchSuggestions_suggestion_idx").on(table.suggestion),
+	index("searchSuggestions_category_idx").on(table.category),
 ]);

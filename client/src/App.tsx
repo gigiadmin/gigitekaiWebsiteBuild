@@ -119,6 +119,7 @@ const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
+const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -267,7 +268,9 @@ function Router() {
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
           {/* Call Transcript Search */}
-          <Route path={"/call-transcripts"} component={CallTranscriptSearch} />
+          <Route path={"call-transcripts"} component={CallTranscriptSearch} />
+          {/* Admin Search Index */}
+          <Route path={"admin/search-index"} component={AdminSearchIndexPage} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           <Route component={NotFound} />

@@ -73,6 +73,7 @@ const AdminXero = lazy(() => import("./pages/AdminXero"));
 const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
 const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
+const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 
 function PageLoader() {
   return (
@@ -174,6 +175,7 @@ export default function AdminApp() {
               <Route path="/admin/uptime" component={withApprovalOnly(AdminUptimeRobotDashboard)} />
               <Route path="/admin/xero" component={withApprovalOnly(AdminXero)} />
               <Route path="/admin/client-onboarding" component={withApprovalOnly(AdminClientOnboardingPage)} />
+              <Route path="/admin/search-index" component={withApprovalOnly(AdminSearchIndexPage)} />
 
               {/* Pages that do NOT have AdminLayout internally — use withAdminLayout */}
               <Route path="/admin/dashboard" component={withAdminLayout(Dashboard, "Dashboard")} />
