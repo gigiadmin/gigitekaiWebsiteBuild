@@ -54,7 +54,7 @@ router.get("/new-tickets", async (req, res) => {
     const newTickets = await db
       .select()
       .from(tickets)
-      .where(gte(tickets.createdAt, cutoffTime))
+      .where(gte(tickets.createdAt, cutoffTime.toISOString()))
       .orderBy(desc(tickets.createdAt))
       .limit(limit);
 
@@ -168,14 +168,14 @@ router.post("/nps-digest", async (req, res) => {
     const recentFeedback = await db
       .select()
       .from(customerFeedback)
-      .where(gteOp(customerFeedback.createdAt, weekAgo))
+      .where(gteOp(customerFeedback.createdAt, weekAgo.toISOString()))
       .orderBy(desc(customerFeedback.createdAt));
 
     // Ticket stats for the week
     const weekTickets = await db
       .select()
       .from(ticketsTable)
-      .where(gteOp(ticketsTable.createdAt, weekAgo));
+      .where(gteOp(ticketsTable.createdAt, weekAgo.toISOString()));
 
     const totalTickets = weekTickets.length;
     const resolvedTickets = weekTickets.filter((t: any) => t.status === "resolved" || t.status === "closed").length;

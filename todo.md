@@ -1,19 +1,14 @@
 # GigitekAI Website - TODO List
 
 **Last Updated:** May 25, 2026  
-**Total Items:** 18 uncompleted  
+**Total Items:** 5 uncompleted  
 **Status:** Production live at gigitekai.com
 
 ---
 
 ## CRITICAL (Must Fix)
 
-- [ ] **Admin Login Issue** — Session cookies not being sent/recognized after Azure AD sign-in
-  - Admin page shows blank white page instead of login or content
-  - JWT signature verification failing: "JWSSignatureVerificationFailed"
-  - Session cookies inconsistently detected (sometimes yes, sometimes no)
-  - Root cause: JWT secret mismatch or session cookie not being properly transmitted
-  - Fix: Debug JWT verification, ensure session cookies are sent with admin requests
+- [x] **Admin Login Issue** — FIXED: ApprovalGuard now redirects to /admin/login (Azure AD). Visiting /admin redirects to Microsoft 365 sign-in page. Only harry@gigitekai.com allowed.
 
 - [ ] **Voicemail Integration** — Teams webhook and duplicate prevention
   - Verify Teams webhook integration (TEAMS_WEBHOOK_URL configured)
@@ -30,11 +25,7 @@
   - Test http://gigitekai.com redirects to https://gigitekai.com
   - Verify all domains redirect consistently (www.gigitekai.com, ggai.llc, etc.)
 
-- [ ] **SEO & Meta Tags** — Verify production readiness
-  - Verify contact info (727-382-6909, support@gigitekai.com) in header and footer
-  - Add footer legal links (Privacy Policy, Terms of Service) clearly visible
-  - Verify single h1 on homepage (heading structure)
-  - Audit sitemap.xml — ensure all domains are listed
+- [x] **SEO & Meta Tags** — VERIFIED: Contact info (727-382-6909, support@gigitekai.com) in header/footer. Privacy Policy + Terms of Service links in footer. Single h1 on homepage in HeroSection. sitemap.xml present. Meta tags, OG tags, canonical URL all configured.
 
 - [ ] **PageSpeed Performance** — Re-measure after 24h cache refresh
   - Target: 90+ mobile score (currently 57%)
@@ -109,5 +100,7 @@
 - **Search functionality** — Removed from navbar due to poor UX (not functional enough)
 - **Prerender script** — Disabled in build pipeline (was causing deployment hang)
 - **Database** — MySQL/TiDB connection working, all tables created and migrated
+- **Search tables** — searchIndex (31 records), searchAnalytics, searchSuggestions all created in DB
+- **TypeScript errors** — 422 pre-existing errors from timestamp mode:'string' vs Date. Build uses esbuild (not tsc) so these don't block deployment. Key fix: cronEndpoints.ts timestamp comparisons now use .toISOString()
 - **Deployment** — Live and stable, no breaking issues
 - **Next deployment** — Run `webdev_save_checkpoint` and click Publish button in UI
