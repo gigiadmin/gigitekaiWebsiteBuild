@@ -266,7 +266,7 @@ router.post("/nps-digest", async (req, res) => {
     </div>
 
     <!-- Footer -->
-    <p style="color:#334155;font-size:12px;text-align:center">GigitekAI Admin Portal · support@gigitek.com · 609-676-4483</p>
+    <p style="color:#334155;font-size:12px;text-align:center">GigitekAI Admin Portal · support@gigitek.com · (727) 382-6909</p>
   </div>
 </body>
 </html>`;

@@ -277,7 +277,7 @@ async function sendWelcomeEmail(input: {
         
         <div class="footer">
           <p>GigitekAI | Microsoft 365 Architect & Managed Services Provider</p>
-          <p>Phone: 609-676-4483 | Email: support@gigitekai.com</p>
+          <p>Phone: (727) 382-6909 | Email: support@gigitekai.com</p>
         </div>
       </body>
       </html>

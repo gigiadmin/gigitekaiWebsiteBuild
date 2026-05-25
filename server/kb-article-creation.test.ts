@@ -142,7 +142,7 @@ A: Response times depend on ticket priority. **Critical** tickets receive attent
 A: Yes. End users can reply to their ticket to add information or provide updates. Administrators can edit ticket details, add internal notes, change priority, reassign agents, or update status at any time.
 
 **Q: What if I need to escalate my ticket?**  
-A: Contact our support team directly at **support@gigitekai.com** or call **609-676-4483**. Mention your ticket number, and we'll prioritize your escalation.
+A: Contact our support team directly at **support@gigitekai.com** or call **(727) 382-6909**. Mention your ticket number, and we'll prioritize your escalation.
 
 **Q: Are my tickets private?**  
 A: Yes. Only you (the ticket creator), assigned support agents, and administrators can view your ticket. All communications are confidential.
@@ -157,7 +157,7 @@ A: End users cannot directly close tickets. Once resolved, an administrator or a
 If you encounter any issues creating or managing tickets, reach out to our support team:
 
 - **Email:** support@gigitekai.com
-- **Phone:** 609-676-4483
+- **Phone:** (727) 382-6909
 - **Support Portal:** https://gigitekai.com/support
 
 ---

@@ -83,7 +83,7 @@ async function sendSatisfactionSurvey(
 
     <!-- Footer -->
     <p style="color:#334155;font-size:12px;text-align:center">
-      GigitekAI Support Team · support@gigitek.com · 609-676-4483
+      GigitekAI Support Team · support@gigitek.com · (727) 382-6909
     </p>
   </div>
 </body>

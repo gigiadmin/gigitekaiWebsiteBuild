@@ -174,7 +174,7 @@ export const teamsMeetingEscalationRouter = router({
                 </p>
                 <hr style="border-color: #2d3748; margin: 20px 0;" />
                 <p style="color: #64748b; font-size: 12px;">
-                  GigitekAI Support · support@gigitek.com · 609-676-4483
+                  GigitekAI Support · support@gigitek.com · (727) 382-6909
                 </p>
               </div>
             </div>
