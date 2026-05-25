@@ -107,11 +107,11 @@
 - **Deployment** — Live and stable, no breaking issues
 - **Next deployment** — Run `webdev_save_checkpoint` and click Publish button in UI
 
-- [x] **Chat Widget Improvements** — COMPLETE: Save/clear buttons, concise responses, KB matching fixed, resize/minimize, privacy disclaimer, ticket form
+- [x] **Chat Widget Improvements** — COMPLETE: Save/clear buttons, concise responses, KB semantic validation, resize/minimize, privacy disclaimer, ticket form
   - [x] Add "Save chat as file" button (export to .txt) — Download icon in header
   - [x] Add "Clear chat" button (delete all messages) — Trash icon in header
   - [x] Configure bot system prompt for concise, bullet-point responses (max 100 words, 3-4 lines)
-  - [x] Fix KB matching logic — LLM semantic validation prevents irrelevant suggestions (Azure Communication Services no longer shows for "helpdesk pricing")
+  - [x] Fix KB matching logic — LLM semantic validation prevents irrelevant suggestions (Azure Communication Services no longer shows for "helpdesk pricing" queries)
   - [x] Make clear-chat fully persistent (await backend deletion via trpc.aibot.clearChatHistory)
   - [x] Verify bot produces concise responses in widget
   - [x] Add minimize/expand button with chevron icon (toggles between minimized and full size)
@@ -123,4 +123,5 @@
   - [x] Add numbered steps (1-7) with visual indicators
   - [x] Include chat transcript in ticket if user enables toggle
   - [x] Database schema extended with requesterName, requesterEmail, tags, includeChatTranscript, chatSessionId, chatTranscript fields
+  - [x] Helpdesk pricing page live with three service tiers (Essential $69, Professional $119, Elite $189 per user/month)
 
