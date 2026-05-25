@@ -163,8 +163,8 @@ export default function HeroSection() {
           sizes="(max-width: 768px) 768px, 1920px"
           alt=""
           aria-hidden="true"
-          fetchPriority="high"
-          loading="eager"
+          fetchPriority="low"
+          loading="lazy"
           decoding="async"
           width={1920}
           height={1080}
