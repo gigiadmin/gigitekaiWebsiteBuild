@@ -396,10 +396,11 @@ async function startServer() {
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)
     startCallPoller();
-    // Start M365 Group voicemail poller (every 5 minutes) — directly fetches audio from voicemail@gigitekai.com
-    import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
-      startVoicemailGroupPoller();
-    }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+    // DISABLED: M365 Group voicemail poller (was polling every 5 minutes)
+    // Reason: Duplicate notifications to Teams, use voicemail webhook instead
+    // import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
+    //   startVoicemailGroupPoller();
+    // }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
     // Teams forwarding disabled - requires Mail.ReadWrite permission in Azure AD
     // To enable: Add Mail.ReadWrite permission to MS Graph app registration
     // initializeTeamsForwarding().catch(err => {

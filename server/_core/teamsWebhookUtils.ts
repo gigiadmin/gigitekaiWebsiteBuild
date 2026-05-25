@@ -257,7 +257,7 @@ export function getWebhookHealthStatus(): { healthy: boolean; lastCheckedAt: Dat
 export function startWebhookHealthMonitor(): void {
   if (healthCheckIntervalId) return; // Already running
 
-  const INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 hours
+  const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
   console.log("[Teams Health] Webhook health monitor initializing...");
   
