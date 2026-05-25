@@ -325,6 +325,11 @@ export default function SiteNavBar2024() {
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </a>
 
+              {/* Mobile Search Bar */}
+              <div className="px-4 py-3 border-t border-white/10">
+                <SearchBar />
+              </div>
+
               {/* Mobile Theme Toggle */}
               {toggleTheme && (
                 <button

@@ -117,6 +117,7 @@ import { xeroRouter } from "./routers/xero";
 import { videoPresignRouter } from "./routers/videoPresign";
 import { roiMetricsRouter } from "./routers/roiMetrics";
 import { searchRouter } from "./routers/search";
+import { adminSearchIndexRouter } from "./routers/admin-search-index";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -125,6 +126,7 @@ export const appRouter = router({
   videoPresign: videoPresignRouter,
   roiMetrics: roiMetricsRouter,
   search: searchRouter,
+  adminSearchIndex: adminSearchIndexRouter,
   uptimerobot: uptimerobotRouter,
   m365Health: m365HealthRouter,
   serviceHealthMonitoring: serviceHealthMonitoringRouter,

@@ -36,6 +36,20 @@
       "when": 1779685781900,
       "tag": "0004_nappy_random",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1779689083508,
+      "tag": "0005_icy_phalanx",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1779689152790,
+      "tag": "0006_mean_captain_britain",
+      "breakpoints": true
     }
   ]
 }

@@ -5628,3 +5628,11 @@
   - Always tries network first, falls back to cache on network failure
   - Clears all caches on activation to prevent stale chunks
   - Fixes AdminCallQualityPage and other admin pages loading after hard refresh
+
+## Search Feature Fix & Index Population (May 25, 2026)
+- [x] Fix search not visible on mobile navigation — Added SearchBar to mobile menu
+- [x] Verify search is visible and functional on desktop navigation — Confirmed working
+- [x] Fix "Nothing found" issue — Root cause: searchIndex table didn't exist, created migration
+- [x] Build admin procedure to populate search index with existing content (blog posts, KB articles, service pages, case studies) — Created adminSearchIndexRouter
+- [ ] Run index population to seed search with all website content — Ready to execute
+- [ ] Verify search works end-to-end on both mobile and desktop — Pending index population

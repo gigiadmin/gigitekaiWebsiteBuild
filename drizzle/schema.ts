@@ -1,2251 +1,1791 @@
-import { mysqlTable, int, varchar, text, timestamp, boolean, mysqlEnum, json, date, decimal } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, int, varchar, mysqlEnum, timestamp, foreignKey, json, text, date, decimal, datetime, float } from "drizzle-orm/mysql-core"
+import { sql } from "drizzle-orm"
 
-/**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
- */
-export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
-  id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin", "technician"]).default("user").notNull(),
-  approved: boolean("approved").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-  /** Soft-delete timestamp. When set, the account is in the 30-day recycle bin. */
-  deletedAt: timestamp("deletedAt"),
-});
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-
-// TODO: Add your tables here
-
-// Blog Posts - database-driven content management
-export const blogPosts = mysqlTable("blogPosts", {
-  id: int("id").autoincrement().primaryKey(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(), // URL-friendly identifier
-  title: varchar("title", { length: 500 }).notNull(),
-  excerpt: text("excerpt").notNull(),
-  content: text("content").notNull(), // Markdown content
-  category: varchar("category", { length: 100 }).notNull(),
-  readTime: varchar("readTime", { length: 50 }).notNull(), // e.g. "8 min read"
-  published: boolean("published").default(false).notNull(),
-  authorName: varchar("authorName", { length: 255 }).default("GigitekAI Team").notNull(),
-  authorTitle: varchar("authorTitle", { length: 255 }), // e.g. "CEO & Founder, GigitekAI"
-  authorBio: text("authorBio"),   // short paragraph about the author
-  authorAvatar: varchar("authorAvatar", { length: 1000 }), // CDN URL for author headshot
-  featuredImage: varchar("featuredImage", { length: 1000 }), // CDN URL
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  publishedAt: timestamp("publishedAt"),
-});
-
-export type BlogPost = typeof blogPosts.$inferSelect;
-export type InsertBlogPost = typeof blogPosts.$inferInsert;
-
-// Admin credentials table for username/password authentication (bypasses OAuth)
 export const adminCredentials = mysqlTable("adminCredentials", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 320 }).notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  hashedPassword: varchar("hashedPassword", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["admin", "agent", "viewer"]).default("agent").notNull(),
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastLoginAt: timestamp("lastLoginAt"),
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	hashedPassword: varchar({ length: 255 }).notNull(),
+	role: mysqlEnum(['admin','agent','viewer']).default('agent').notNull(),
+	isActive: tinyint().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	lastLoginAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("adminCredentials_email_unique").on(table.email),
+]);
+
+export const adminMenuCustomization = mysqlTable("adminMenuCustomization", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" } ),
+	menuOrder: json().notNull(),
+	collapsedSections: json().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
 });
 
-export type AdminCredential = typeof adminCredentials.$inferSelect;
-export type InsertAdminCredential = typeof adminCredentials.$inferInsert;
-// Contact form submissions table
+export const adminNotifications = mysqlTable("adminNotifications", {
+	id: int().autoincrement().notNull(),
+	type: varchar({ length: 50 }).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	body: text(),
+	href: varchar({ length: 500 }),
+	priority: varchar({ length: 20 }).default('normal').notNull(),
+	isRead: tinyint().default(0).notNull(),
+	ticketId: int(),
+	sessionId: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const agentAssignments = mysqlTable("agentAssignments", {
+	id: int().autoincrement().notNull(),
+	agentId: int().notNull(),
+	ticketId: int(),
+	chatSessionId: int(),
+	assignedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	completedAt: timestamp({ mode: 'string' }),
+	status: mysqlEnum(['assigned','in-progress','completed','escalated']).default('assigned').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const agentMetrics = mysqlTable("agentMetrics", {
+	id: int().autoincrement().notNull(),
+	agentId: int().notNull(),
+	// you can use { mode: 'date' }, if you want to have Date as type for this column
+	date: date({ mode: 'string' }).notNull(),
+	ticketsHandled: int().default(0).notNull(),
+	chatsHandled: int().default(0).notNull(),
+	averageResolutionTime: int(),
+	customerSatisfactionScore: varchar({ length: 10 }),
+	firstContactResolution: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const agentSchedules = mysqlTable("agentSchedules", {
+	id: int().autoincrement().notNull(),
+	agentId: int().notNull(),
+	dayOfWeek: int().notNull(),
+	startTime: varchar({ length: 5 }).notNull(),
+	endTime: varchar({ length: 5 }).notNull(),
+	isWorkingDay: tinyint().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const agentTakeoverRequests = mysqlTable("agentTakeoverRequests", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	visitorName: varchar({ length: 255 }),
+	visitorEmail: varchar({ length: 320 }),
+	visitorPhone: varchar({ length: 50 }),
+	reason: text(),
+	status: mysqlEnum(['pending','accepted','declined','timeout']).default('pending').notNull(),
+	assignedAdminId: int(),
+	ticketId: int(),
+	conversationContext: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	acceptedAt: timestamp({ mode: 'string' }),
+	closedAt: timestamp({ mode: 'string' }),
+});
+
+export const agentWorkload = mysqlTable("agentWorkload", {
+	id: int().autoincrement().notNull(),
+	agentId: int().notNull(),
+	date: varchar({ length: 10 }).notNull(),
+	assignedTickets: int().default(0).notNull(),
+	completedTickets: int().default(0).notNull(),
+	avgResolutionTime: decimal({ precision: 8, scale: 2 }),
+	slaBreaches: int().default(0).notNull(),
+	customerSatisfaction: decimal({ precision: 3, scale: 2 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const agentDashboardSessions = mysqlTable("agent_dashboard_sessions", {
+	id: int().autoincrement().notNull(),
+	agentId: int("agent_id").notNull(),
+	callId: varchar("call_id", { length: 255 }).notNull(),
+	liveTranscript: text("live_transcript"),
+	suggestedKbArticles: json("suggested_kb_articles"),
+	currentSentiment: decimal("current_sentiment", { precision: 3, scale: 2 }),
+	sentimentColor: varchar("sentiment_color", { length: 50 }),
+	suggestedResponses: json("suggested_responses"),
+	isActive: tinyint("is_active").default(1),
+	sessionStarted: timestamp("session_started", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	sessionEnded: timestamp("session_ended", { mode: 'string' }),
+	lastTranscriptUpdate: timestamp("last_transcript_update", { mode: 'string' }),
+	lastSentimentUpdate: timestamp("last_sentiment_update", { mode: 'string' }),
+	lastKbUpdate: timestamp("last_kb_update", { mode: 'string' }),
+	lastResponseUpdate: timestamp("last_response_update", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const agentQueueAssignments = mysqlTable("agent_queue_assignments", {
+	id: int().autoincrement().notNull(),
+	agentId: int("agent_id").notNull(),
+	queueId: int("queue_id").notNull(),
+	skillLevel: int("skill_level").default(1),
+	assignedAt: timestamp("assigned_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	removedAt: timestamp("removed_at", { mode: 'string' }),
+});
+
+export const agentQueues = mysqlTable("agent_queues", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	type: mysqlEnum(['general','senior','specialist','vip']).default('general'),
+	priority: int().default(0),
+	maxConcurrentCalls: int("max_concurrent_calls").default(5),
+	averageWaitTime: int("average_wait_time"),
+	callsWaiting: int("calls_waiting").default(0),
+	agentCount: int("agent_count").default(0),
+	skillRequirements: json("skill_requirements"),
+	isActive: tinyint("is_active").default(1),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("agent_queues_name_unique").on(table.name),
+]);
+
+export const agents = mysqlTable("agents", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	status: mysqlEnum(['available','busy','offline','on-break']).default('offline').notNull(),
+	specialization: varchar({ length: 255 }),
+	maxConcurrentTickets: int().default(5).notNull(),
+	currentTicketCount: int().default(0).notNull(),
+	averageResolutionTime: int(),
+	customerSatisfactionScore: varchar({ length: 10 }),
+	totalTicketsResolved: int().default(0).notNull(),
+	totalChatsHandled: int().default(0).notNull(),
+	lastStatusChange: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("agents_userId_unique").on(table.userId),
+]);
+
+export const alertThresholds = mysqlTable("alertThresholds", {
+	id: int().autoincrement().notNull(),
+	service: varchar({ length: 100 }).notNull(),
+	responseTimeThreshold: int().default(5000).notNull(),
+	errorRateThreshold: int().default(10).notNull(),
+	unprocessedTicketsThreshold: int().default(50),
+	agentAvailabilityThreshold: int().default(50),
+	slaComplianceThreshold: int().default(90),
+	enabled: tinyint().default(1).notNull(),
+	notifyOnDegraded: tinyint().default(1).notNull(),
+	notifyOnCritical: tinyint().default(1).notNull(),
+	notifyOnRecovery: tinyint().default(1).notNull(),
+	updatedBy: int(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("alertThresholds_service_unique").on(table.service),
+]);
+
+export const blogPostTags = mysqlTable("blogPostTags", {
+	id: int().autoincrement().notNull(),
+	postId: int().notNull().references(() => blogPosts.id, { onDelete: "cascade" } ),
+	tagId: int().notNull().references(() => blogTags.id, { onDelete: "cascade" } ),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const blogPosts = mysqlTable("blogPosts", {
+	id: int().autoincrement().notNull(),
+	slug: varchar({ length: 255 }).notNull(),
+	title: varchar({ length: 500 }).notNull(),
+	excerpt: text().notNull(),
+	content: text().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	readTime: varchar({ length: 50 }).notNull(),
+	published: tinyint().default(0).notNull(),
+	authorName: varchar({ length: 255 }).default('GigitekAI Team').notNull(),
+	featuredImage: varchar({ length: 1000 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	publishedAt: timestamp({ mode: 'string' }),
+	authorTitle: varchar({ length: 255 }),
+	authorBio: text(),
+	authorAvatar: varchar({ length: 1000 }),
+},
+(table) => [
+	index("blogPosts_slug_unique").on(table.slug),
+]);
+
+export const blogTags = mysqlTable("blogTags", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 100 }).notNull(),
+	slug: varchar({ length: 100 }).notNull(),
+	description: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("blogTags_name_unique").on(table.name),
+	index("blogTags_slug_unique").on(table.slug),
+]);
+
+export const bulkTicketActions = mysqlTable("bulkTicketActions", {
+	id: int().autoincrement().notNull(),
+	actionType: varchar({ length: 50 }).notNull(),
+	ticketIds: text().notNull(),
+	assignedTo: int(),
+	newPriority: varchar({ length: 20 }),
+	newStatus: varchar({ length: 20 }),
+	performedBy: int().notNull(),
+	affectedCount: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const callDraftTickets = mysqlTable("callDraftTickets", {
+	id: int().autoincrement().notNull(),
+	callLogId: int().notNull(),
+	callerPhone: varchar({ length: 50 }),
+	callerName: varchar({ length: 255 }),
+	callerEmail: varchar({ length: 320 }),
+	userId: int(),
+	title: varchar({ length: 500 }).notNull(),
+	description: text(),
+	category: varchar({ length: 100 }),
+	priority: varchar({ length: 50 }),
+	reviewStatus: mysqlEnum(['pending','approved','rejected','edited']).default('pending'),
+	reviewedBy: int(),
+	reviewedAt: timestamp({ mode: 'string' }),
+	reviewNotes: text(),
+	ticketId: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const callLogs = mysqlTable("callLogs", {
+	id: int().autoincrement().notNull(),
+	graphCallId: varchar({ length: 255 }).notNull(),
+	callerNumber: varchar({ length: 50 }),
+	calleeNumber: varchar({ length: 50 }),
+	calleeDisplayName: varchar({ length: 255 }),
+	calleeUpn: varchar({ length: 320 }),
+	matchedUserId: int(),
+	direction: mysqlEnum(['inbound','outbound']).default('inbound'),
+	startedAt: timestamp({ mode: 'string' }),
+	endedAt: timestamp({ mode: 'string' }),
+	durationSeconds: int(),
+	hasTranscript: tinyint().default(0),
+	transcriptText: text(),
+	aiSummary: text(),
+	aiTitle: varchar({ length: 500 }),
+	aiPriority: varchar({ length: 50 }),
+	aiCategory: varchar({ length: 100 }),
+	aiConfidence: varchar({ length: 10 }),
+	status: mysqlEnum(['pending','analyzed','draft_created','ticket_created','dismissed']).default('pending'),
+	draftTicketId: int(),
+	ticketId: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+	transcriptionStatus: mysqlEnum(['pending','transcribing','done','failed','unavailable']).default('unavailable'),
+	acsRecordingId: varchar({ length: 255 }),
+	acsRecordingUrl: varchar({ length: 2048 }),
+},
+(table) => [
+	index("callLogs_graphCallId_unique").on(table.graphCallId),
+]);
+
+export const callQualityScores = mysqlTable("callQualityScores", {
+	id: int().autoincrement().notNull(),
+	callLogId: int().notNull(),
+	agentName: varchar({ length: 255 }),
+	agentUpn: varchar({ length: 320 }),
+	scoreGreeting: int(),
+	scoreEmpathy: int(),
+	scoreTechnical: int(),
+	scoreResolution: int(),
+	scoreCommunication: int(),
+	scoreCompliance: int(),
+	totalScore: int(),
+	grade: varchar({ length: 2 }),
+	aiSummary: text(),
+	strengths: text(),
+	improvements: text(),
+	modelVersion: varchar({ length: 20 }).default('v1').notNull(),
+	scoredBy: mysqlEnum(['auto','manual']).default('auto').notNull(),
+	scoredAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("callQualityScores_callLogId_unique").on(table.callLogId),
+]);
+
+export const callAnalytics = mysqlTable("call_analytics", {
+	id: int().autoincrement().notNull(),
+	callId: varchar("call_id", { length: 255 }).notNull(),
+	recordingId: int("recording_id"),
+	customerId: int("customer_id"),
+	agentId: int("agent_id"),
+	duration: int(),
+	holdTime: int("hold_time"),
+	talkTime: int("talk_time"),
+	silenceTime: int("silence_time"),
+	transferCount: int("transfer_count").default(0),
+	initialSentiment: decimal("initial_sentiment", { precision: 3, scale: 2 }),
+	finalSentiment: decimal("final_sentiment", { precision: 3, scale: 2 }),
+	sentimentTrend: varchar("sentiment_trend", { length: 50 }),
+	customerSatisfaction: decimal("customer_satisfaction", { precision: 3, scale: 2 }),
+	npsScore: int("nps_score"),
+	effortScore: int("effort_score"),
+	isResolved: tinyint("is_resolved").default(0),
+	resolutionTime: int("resolution_time"),
+	requiresFollowUp: tinyint("requires_follow_up").default(0),
+	aiHandledPercentage: decimal("ai_handled_percentage", { precision: 3, scale: 2 }),
+	aiAccuracy: decimal("ai_accuracy", { precision: 3, scale: 2 }),
+	kbArticlesUsed: int("kb_articles_used").default(0),
+	estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const callRecordings = mysqlTable("call_recordings", {
+	id: int().autoincrement().notNull(),
+	callId: varchar("call_id", { length: 255 }).notNull(),
+	customerId: int("customer_id"),
+	agentId: int("agent_id"),
+	recordingUrl: text("recording_url").notNull(),
+	recordingKey: varchar("recording_key", { length: 255 }).notNull(),
+	duration: int(),
+	fileSize: int("file_size"),
+	mimeType: varchar("mime_type", { length: 100 }).default('audio/wav'),
+	startTime: timestamp("start_time", { mode: 'string' }).notNull(),
+	endTime: timestamp("end_time", { mode: 'string' }),
+	status: mysqlEnum(['pending','processing','completed','failed']).default('pending'),
+	retentionDays: int("retention_days").default(90),
+	expiresAt: timestamp("expires_at", { mode: 'string' }),
+	isTranscribed: tinyint("is_transcribed").default(0),
+	consentGiven: tinyint("consent_given").default(1),
+	complianceNotes: text("compliance_notes"),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("call_recordings_call_id_unique").on(table.callId),
+]);
+
+export const callRouting = mysqlTable("call_routing", {
+	id: int().autoincrement().notNull(),
+	callId: varchar("call_id", { length: 255 }).notNull(),
+	customerId: int("customer_id"),
+	queueId: int("queue_id"),
+	agentId: int("agent_id"),
+	routingReason: varchar("routing_reason", { length: 100 }),
+	sentimentScore: decimal("sentiment_score", { precision: 3, scale: 2 }),
+	complexityScore: decimal("complexity_score", { precision: 3, scale: 2 }),
+	routingDecision: varchar("routing_decision", { length: 100 }),
+	routingTime: int("routing_time"),
+	routingConfidence: decimal("routing_confidence", { precision: 3, scale: 2 }),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const callTranscripts = mysqlTable("call_transcripts", {
+	id: int().autoincrement().notNull(),
+	recordingId: int("recording_id").notNull(),
+	callId: varchar("call_id", { length: 255 }).notNull(),
+	fullTranscript: text("full_transcript").notNull(),
+	segments: json(),
+	language: varchar({ length: 10 }).default('en-US'),
+	confidence: decimal({ precision: 3, scale: 2 }),
+	keywords: json(),
+	entities: json(),
+	summary: text(),
+	actionItems: json("action_items"),
+	searchable: tinyint().default(1),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const cannedResponses = mysqlTable("cannedResponses", {
+	id: int().autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	body: text().notNull(),
+	category: varchar({ length: 100 }).default('general').notNull(),
+	usageCount: int().default(0).notNull(),
+	createdBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const chatAnalytics = mysqlTable("chatAnalytics", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	messageId: int().notNull(),
+	sentiment: mysqlEnum(['positive','neutral','negative','angry']).default('neutral').notNull(),
+	sentimentScore: varchar({ length: 10 }),
+	intent: mysqlEnum(['sales','support','billing','general','complaint']).default('general').notNull(),
+	intentConfidence: varchar({ length: 10 }),
+	routedTo: varchar({ length: 255 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const chatLeads = mysqlTable("chatLeads", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	company: varchar({ length: 255 }),
+	interest: varchar({ length: 255 }),
+	conversationSummary: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	phone: varchar({ length: 50 }),
+	consentEmail: tinyint().default(0).notNull(),
+	consentPhone: tinyint().default(0).notNull(),
+	consentText: tinyint().default(0).notNull(),
+});
+
+export const chatMessages = mysqlTable("chatMessages", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	role: mysqlEnum(['user','assistant']).notNull(),
+	message: text().notNull(),
+	metadata: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const chatSessions = mysqlTable("chatSessions", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	visitorName: varchar({ length: 255 }),
+	visitorEmail: varchar({ length: 320 }),
+	visitorCompany: varchar({ length: 255 }),
+	visitorInterest: varchar({ length: 100 }),
+	escalatedToTicketId: int(),
+	status: mysqlEnum(['active','escalated','closed']).default('active').notNull(),
+	messageCount: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	closedAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("chatSessions_sessionId_unique").on(table.sessionId),
+]);
+
+export const chatSuggestions = mysqlTable("chatSuggestions", {
+	id: int().autoincrement().notNull(),
+	chatSessionId: int().notNull(),
+	articleId: int().notNull(),
+	suggestedBy: mysqlEnum(['ai','agent']).default('ai').notNull(),
+	suggestedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	clickedAt: timestamp({ mode: 'string' }),
+	helpful: tinyint(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const companies = mysqlTable("companies", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	domain: varchar({ length: 255 }),
+	contactEmail: varchar({ length: 255 }),
+	contactPhone: varchar({ length: 50 }),
+	industry: varchar({ length: 100 }),
+	tier: mysqlEnum(['starter','professional','enterprise']).default('starter'),
+	teamsChannelId: varchar({ length: 255 }),
+	teamsChannelName: varchar({ length: 255 }),
+	teamsChannelWebhookUrl: varchar({ length: 1024 }),
+	teamsChannelCreatedAt: timestamp({ mode: 'string' }),
+	notes: text(),
+	isActive: tinyint().default(1),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
 export const contactSubmissions = mysqlTable("contactSubmissions", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  phone: varchar("phone", { length: 20 }), // E.164 format: +1234567890
-  company: varchar("company", { length: 255 }),
-  message: text("message").notNull(),
-  hearAboutUs: varchar("hearAboutUs", { length: 100 }), // How did you hear about us?
-  fileKey: varchar("fileKey", { length: 255 }), // S3 key for uploaded file
-  fileName: varchar("fileName", { length: 255 }), // Original filename
-  fileSize: int("fileSize"), // File size in bytes
-  fileMimeType: varchar("fileMimeType", { length: 100 }), // MIME type (pdf, doc, xls, etc)
-  fileUrl: text("fileUrl"), // Presigned S3 URL for download
-  pricingTier: varchar("pricingTier", { length: 50 }), // Pricing tier: starter, professional, enterprise
-  companySize: varchar("companySize", { length: 50 }), // Company size: 1-10, 11-50, 51-200, 200+
-  subject: varchar("subject", { length: 255 }), // Email subject line
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	company: varchar({ length: 255 }),
+	message: text().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	hearAboutUs: varchar({ length: 100 }),
+	phone: varchar({ length: 20 }),
+	fileKey: varchar({ length: 255 }),
+	fileName: varchar({ length: 255 }),
+	fileSize: int(),
+	fileMimeType: varchar({ length: 100 }),
+	fileUrl: text(),
+	pricingTier: varchar({ length: 50 }),
+	companySize: varchar({ length: 50 }),
+	subject: varchar({ length: 255 }),
 });
 
-export type ContactSubmission = typeof contactSubmissions.$inferSelect;
-export type InsertContactSubmission = typeof contactSubmissions.$inferInsert;
+export const conversationSummaries = mysqlTable("conversationSummaries", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	summary: text().notNull(),
+	keyPoints: text(),
+	suggestedActions: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("conversationSummaries_sessionId_unique").on(table.sessionId),
+]);
 
-// Help Desk Tables
-export const tickets = mysqlTable("tickets", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  description: text("description").notNull(),
-  stepsAttempted: text("stepsAttempted"), // Customer's troubleshooting steps
-  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
-  category: mysqlEnum("category", ["bug_report", "feature_request", "general_support", "billing", "email", "printer", "internet", "network", "other"]).default("general_support").notNull(),
-  status: mysqlEnum("status", ["open", "in_progress", "on_hold", "resolved", "closed"]).default("open").notNull(),
-  assignedTo: int("assignedTo"), // userId of assigned agent
-  // AI Triage fields
-  aiCategory: varchar("aiCategory", { length: 100 }), // LLM-suggested category
-  aiPriority: varchar("aiPriority", { length: 20 }), // LLM-suggested priority
-  aiConfidence: decimal("aiConfidence", { precision: 4, scale: 2 }), // 0.00-1.00
-  aiReasoning: text("aiReasoning"), // LLM explanation
-  source: varchar("source", { length: 50 }).default("web").notNull(), // 'web' | 'email' | 'chat' | 'phone'
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  resolvedAt: timestamp("resolvedAt"),
-  closingNotes: text("closingNotes"), // Required when closing a ticket
-  closedAt: timestamp("closedAt"),
-  mergedInto: int("mergedInto"), // ticketId of the ticket this was merged into (null if not merged)
+export const customRoles = mysqlTable("customRoles", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 100 }).notNull(),
+	description: text(),
+	permissions: json().notNull(),
+	isSystem: tinyint().default(0).notNull(),
+	createdBy: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("customRoles_name_unique").on(table.name),
+]);
+
+export const customerFeedback = mysqlTable("customerFeedback", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull().references(() => tickets.id, { onDelete: "cascade" } ),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" } ),
+	rating: int().notNull(),
+	comment: text(),
+	categories: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
 });
 
-export type Ticket = typeof tickets.$inferSelect;
-export type InsertTicket = typeof tickets.$inferInsert;
+export const customerInvites = mysqlTable("customerInvites", {
+	id: int().autoincrement().notNull(),
+	inviteToken: varchar({ length: 128 }).notNull(),
+	invitedEmail: varchar({ length: 320 }).notNull(),
+	invitedName: varchar({ length: 255 }),
+	invitedCompany: varchar({ length: 255 }),
+	invitedBy: int().notNull(),
+	status: mysqlEnum(['pending','accepted','expired','revoked']).default('pending').notNull(),
+	acceptedBy: int(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	acceptedAt: timestamp({ mode: 'string' }),
+	reminderSent: tinyint().default(0).notNull(),
+},
+(table) => [
+	index("customerInvites_inviteToken_unique").on(table.inviteToken),
+]);
+
+export const customerPortalActivity = mysqlTable("customerPortalActivity", {
+	id: int().autoincrement().notNull(),
+	customerId: int().notNull(),
+	action: mysqlEnum(['view_ticket','view_kb','submit_survey','add_comment','login','logout']).notNull(),
+	resourceType: varchar({ length: 50 }),
+	resourceId: int(),
+	metadata: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const customerPortalSessions = mysqlTable("customerPortalSessions", {
+	id: int().autoincrement().notNull(),
+	customerId: int().notNull(),
+	sessionToken: varchar({ length: 255 }).notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	lastActivityAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	ipAddress: varchar({ length: 45 }),
+	userAgent: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("customerPortalSessions_sessionToken_unique").on(table.sessionToken),
+]);
+
+export const demoLeads = mysqlTable("demoLeads", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	company: varchar({ length: 255 }),
+	scenario: varchar({ length: 100 }),
+	message: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const emailDigestHistory = mysqlTable("emailDigestHistory", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	sentAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	leadsCount: int().default(0).notNull(),
+	ticketsCount: int().default(0).notNull(),
+	approvalsCount: int().default(0).notNull(),
+	status: mysqlEnum(['sent','failed','pending']).default('pending').notNull(),
+	errorMessage: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const emailDigestPreferences = mysqlTable("emailDigestPreferences", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	enabled: tinyint().default(1).notNull(),
+	frequency: mysqlEnum(['daily','weekly','bi-weekly','monthly']).default('daily').notNull(),
+	sendTime: varchar({ length: 5 }).default('06:00').notNull(),
+	includeLeads: tinyint().default(1).notNull(),
+	includeTickets: tinyint().default(1).notNull(),
+	includeApprovals: tinyint().default(1).notNull(),
+	lastSentAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("emailDigestPreferences_userId_unique").on(table.userId),
+]);
+
+export const emailGroupMembers = mysqlTable("emailGroupMembers", {
+	id: int().autoincrement().notNull(),
+	groupId: int().notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	name: varchar({ length: 255 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const emailMessages = mysqlTable("emailMessages", {
+	id: int().autoincrement().notNull(),
+	direction: varchar({ length: 20 }).notNull(),
+	from: varchar({ length: 255 }).notNull(),
+	to: varchar({ length: 1000 }).notNull(),
+	subject: varchar({ length: 500 }).notNull(),
+	body: text().notNull(),
+	templateId: int(),
+	linkedTicketId: int(),
+	linkedSessionId: int(),
+	status: varchar({ length: 20 }).default('sent').notNull(),
+	messageId: varchar({ length: 255 }),
+	sentBy: int(),
+	timestamp: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const emailRecipientGroups = mysqlTable("emailRecipientGroups", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	type: varchar({ length: 50 }).notNull(),
+	createdBy: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const emailTemplates = mysqlTable("emailTemplates", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	subject: varchar({ length: 500 }).notNull(),
+	body: text().notNull(),
+	category: varchar({ length: 50 }).notNull(),
+	createdBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const escalationPatterns = mysqlTable("escalationPatterns", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 255 }).notNull(),
+	originalMessage: text().notNull(),
+	detectedIntent: varchar({ length: 100 }).default('general'),
+	intentConfidence: varchar({ length: 20 }).default('0.5'),
+	sentiment: varchar({ length: 50 }).default('neutral'),
+	sentimentScore: varchar({ length: 20 }).default('0.5'),
+	escalationReason: varchar({ length: 255 }).default('user_requested'),
+	kbArticleSuggested: tinyint().default(0),
+	kbArticleId: int(),
+	ticketId: int(),
+	resolvedByAgent: tinyint().default(0),
+	resolutionNotes: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	resolvedAt: timestamp({ mode: 'string' }),
+});
+
+export const exitIntentPopups = mysqlTable("exitIntentPopups", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	firstName: varchar({ length: 100 }).notNull(),
+	lastName: varchar({ length: 100 }).notNull(),
+	phone: varchar({ length: 20 }),
+	companyName: varchar({ length: 255 }),
+	leadMagnetDownloaded: varchar({ length: 255 }),
+	downloadUrl: varchar({ length: 500 }),
+	pageUrl: varchar({ length: 500 }).notNull(),
+	emailSent: tinyint().default(0),
+	leadCaptured: tinyint().default(1),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const freeAuditSubmissions = mysqlTable("freeAuditSubmissions", {
+	id: int().autoincrement().notNull(),
+	companyName: varchar({ length: 255 }).notNull(),
+	industry: varchar({ length: 100 }).notNull(),
+	description: text(),
+	contactName: varchar({ length: 255 }).notNull(),
+	contactEmail: varchar({ length: 320 }).notNull(),
+	contactPhone: varchar({ length: 20 }),
+	auditType: varchar({ length: 100 }),
+	currentChallenges: text(),
+	goals: text(),
+	status: mysqlEnum(['submitted','contacted','in_progress','completed','archived']).default('submitted').notNull(),
+	notes: text(),
+	assignedTo: int(),
+	submittedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	contactedAt: timestamp({ mode: 'string' }),
+	completedAt: timestamp({ mode: 'string' }),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const healthCheckHistory = mysqlTable("healthCheckHistory", {
+	id: int().autoincrement().notNull(),
+	service: varchar({ length: 100 }).notNull(),
+	status: mysqlEnum(['healthy','degraded','critical','offline']).notNull(),
+	responseTime: int().notNull(),
+	message: text(),
+	metrics: json(),
+	checkedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const kbArticleAnalytics = mysqlTable("kbArticleAnalytics", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull(),
+	views: int().default(0).notNull(),
+	shares: int().default(0).notNull(),
+	ticketsResolved: int().default(0).notNull(),
+	avgHelpfulnessRating: decimal({ precision: 3, scale: 2 }),
+	lastViewedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const kbArticleComments = mysqlTable("kbArticleComments", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull().references(() => kbArticles.id, { onDelete: "cascade" } ),
+	userId: int(),
+	userName: varchar({ length: 255 }),
+	userEmail: varchar({ length: 320 }),
+	comment: text().notNull(),
+	helpful: tinyint(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const kbArticleFeedback = mysqlTable("kbArticleFeedback", {
+	id: int().autoincrement().notNull(),
+	messageId: int().notNull(),
+	articleId: int().notNull(),
+	rating: mysqlEnum(['helpful','unhelpful']).notNull(),
+	feedbackMessage: text(),
+	sessionId: varchar({ length: 64 }),
+	userId: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const kbArticleRatings = mysqlTable("kbArticleRatings", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull().references(() => kbArticles.id, { onDelete: "cascade" } ),
+	userId: int(),
+	rating: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("unique_user_article").on(table.articleId, table.userId),
+]);
+
+export const kbArticleShares = mysqlTable("kbArticleShares", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull(),
+	sharedBy: int().notNull(),
+	sharedWith: varchar({ length: 255 }),
+	sharedVia: mysqlEnum(['email','link','ticket']).default('email').notNull(),
+	ticketId: int(),
+	message: text(),
+	sharedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	viewedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const kbArticleTags = mysqlTable("kbArticleTags", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull().references(() => kbArticles.id, { onDelete: "cascade" } ),
+	tag: varchar({ length: 100 }).notNull(),
+	source: varchar({ length: 50 }).default('manual').notNull(),
+	confidence: decimal({ precision: 3, scale: 2 }).default('1.00'),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const kbArticleVersions = mysqlTable("kbArticleVersions", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull().references(() => kbArticles.id, { onDelete: "cascade" } ),
+	title: varchar({ length: 500 }).notNull(),
+	content: text().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	tags: varchar({ length: 500 }),
+	editedBy: int(),
+	changeDescription: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const kbArticleViews = mysqlTable("kbArticleViews", {
+	id: int().autoincrement().notNull(),
+	articleId: int().notNull(),
+	viewedBy: int(),
+	viewedFrom: mysqlEnum(['kb_portal','ticket_detail','search_widget','share_link']).default('kb_portal').notNull(),
+	ticketId: int(),
+	viewedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	timeSpent: int(),
+	helpful: tinyint(),
+});
+
+export const kbArticles = mysqlTable("kbArticles", {
+	id: int().autoincrement().notNull(),
+	title: varchar({ length: 500 }).notNull(),
+	content: text().notNull(),
+	category: varchar({ length: 100 }).default('general').notNull(),
+	tags: varchar({ length: 500 }),
+	isPublished: tinyint().default(0).notNull(),
+	createdBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	viewCount: int().default(0),
+	averageRating: decimal({ precision: 3, scale: 2 }),
+	ratingCount: int().default(0),
+	commentCount: int().default(0),
+	sourceUrl: varchar({ length: 1000 }),
+	externalUid: varchar({ length: 500 }),
+	syncSource: varchar({ length: 100 }),
+	lastSyncedAt: timestamp({ mode: 'string' }),
+	subcategory: varchar({ length: 150 }),
+	audience: mysqlEnum(['end-user','technician','admin']).default('technician'),
+	difficulty: mysqlEnum(['beginner','intermediate','advanced']).default('intermediate'),
+	estimatedResolutionTime: varchar({ length: 50 }),
+	ariaEnabled: tinyint().default(1).notNull(),
+	articleCode: varchar({ length: 20 }),
+});
+
+export const kbGenerationMetrics = mysqlTable("kbGenerationMetrics", {
+	id: int().autoincrement().notNull(),
+	// you can use { mode: 'date' }, if you want to have Date as type for this column
+	date: date({ mode: 'string' }).notNull(),
+	totalGenerated: int().default(0),
+	totalApproved: int().default(0),
+	totalPublished: int().default(0),
+	totalRejected: int().default(0),
+	avgConfidenceScore: int().default(0),
+	avgApprovalTime: int().default(0),
+	suggestionsShown: int().default(0),
+	suggestionsUsed: int().default(0),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("kbGenerationMetrics_date_unique").on(table.date),
+]);
+
+export const kbGenerationQueue = mysqlTable("kbGenerationQueue", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull().references(() => tickets.id, { onDelete: "cascade" } ),
+	status: mysqlEnum(['pending','processing','completed','failed']).default('pending').notNull(),
+	priority: int().default(0),
+	errorMessage: text(),
+	attemptCount: int().default(0),
+	maxAttempts: int().default(3),
+	nextRetryAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const kbGenerations = mysqlTable("kbGenerations", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull().references(() => tickets.id, { onDelete: "cascade" } ),
+	sourceTicketTitle: varchar({ length: 500 }).notNull(),
+	sourceTicketContent: text().notNull(),
+	generatedTitle: varchar({ length: 500 }).notNull(),
+	generatedContent: text().notNull(),
+	suggestedCategory: varchar({ length: 100 }).default('general'),
+	suggestedTags: varchar({ length: 500 }),
+	status: mysqlEnum(['draft','pending_approval','approved','published','rejected']).default('draft').notNull(),
+	confidence: int().default(0),
+	generatedBy: varchar({ length: 50 }).default('copilot'),
+	generatedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	approvedBy: int(),
+	approvedAt: timestamp({ mode: 'string' }),
+	rejectionReason: text(),
+	rejectedBy: int(),
+	rejectedAt: timestamp({ mode: 'string' }),
+	publishedArticleId: int(),
+	publishedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const kbSearchQueries = mysqlTable("kbSearchQueries", {
+	id: int().autoincrement().notNull(),
+	query: varchar({ length: 500 }).notNull(),
+	resultsCount: int().default(0).notNull(),
+	clickedArticleId: int(),
+	source: varchar({ length: 50 }).default('kb_portal').notNull(),
+	userId: int(),
+	sessionId: varchar({ length: 100 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const knowledgeBase = mysqlTable("knowledgeBase", {
+	id: int().autoincrement().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	content: text().notNull(),
+	keywords: text().notNull(),
+	priority: int().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const leadGenAnalytics = mysqlTable("leadGenAnalytics", {
+	id: int().autoincrement().notNull(),
+	// you can use { mode: 'date' }, if you want to have Date as type for this column
+	date: date({ mode: 'string' }).notNull(),
+	assessmentLeads: int().default(0),
+	popupLeads: int().default(0),
+	formLeads: int().default(0),
+	totalLeads: int().default(0),
+	assessmentConversions: int().default(0),
+	popupConversions: int().default(0),
+	formConversions: int().default(0),
+	totalConversions: int().default(0),
+	conversionRate: decimal({ precision: 5, scale: 2 }).default('0'),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const magicLinkTokens = mysqlTable("magicLinkTokens", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	token: varchar({ length: 128 }).notNull(),
+	expiresAt: datetime({ mode: 'string'}).notNull(),
+	used: tinyint().default(0).notNull(),
+	createdAt: datetime({ mode: 'string'}).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("token").on(table.token),
+]);
+
+export const meetingBookings = mysqlTable("meetingBookings", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	phone: varchar({ length: 50 }),
+	company: varchar({ length: 255 }),
+	meetingDate: varchar({ length: 10 }).notNull(),
+	meetingTime: varchar({ length: 5 }).notNull(),
+	notes: text(),
+	status: mysqlEnum(['confirmed','cancelled','rescheduled']).default('confirmed').notNull(),
+	cancelToken: varchar({ length: 64 }),
+	m365EventId: varchar({ length: 500 }),
+	cancelledAt: timestamp({ mode: 'string' }),
+	rescheduledTo: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("meetingBookings_cancelToken_unique").on(table.cancelToken),
+]);
+
+export const multiStepFormSubmissions = mysqlTable("multiStepFormSubmissions", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	firstName: varchar({ length: 100 }).notNull(),
+	lastName: varchar({ length: 100 }).notNull(),
+	phone: varchar({ length: 20 }).notNull(),
+	companyName: varchar({ length: 255 }).notNull(),
+	employeeCount: varchar({ length: 50 }),
+	currentItSetup: varchar({ length: 500 }),
+	needsCybersecurity: tinyint().default(0),
+	needsCloud: tinyint().default(0),
+	needsHelpdesk: tinyint().default(0),
+	needsAi: tinyint().default(0),
+	otherNeeds: varchar({ length: 500 }),
+	formCompletedAt: timestamp({ mode: 'string' }),
+	leadQuality: varchar({ length: 20 }),
+	assignedTo: int(),
+	status: varchar({ length: 20 }).default('new'),
+	notes: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).onUpdateNow().notNull(),
+	fileKey: varchar({ length: 255 }),
+	fileName: varchar({ length: 255 }),
+	fileSize: int(),
+	fileMimeType: varchar({ length: 100 }),
+	fileUrl: text(),
+});
+
+export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
+	id: int().autoincrement().notNull(),
+	subject: varchar({ length: 500 }).notNull(),
+	body: text().notNull(),
+	recipientCount: int().default(0).notNull(),
+	sentCount: int().default(0).notNull(),
+	failedCount: int().default(0).notNull(),
+	status: varchar({ length: 50 }).default('completed').notNull(),
+	sentBy: varchar({ length: 255 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	scheduledAt: timestamp({ mode: 'string' }),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	unsubscribeToken: varchar({ length: 64 }).notNull(),
+	source: varchar({ length: 500 }),
+	active: tinyint().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("newsletterSubscribers_email_unique").on(table.email),
+	index("newsletterSubscribers_unsubscribeToken_unique").on(table.unsubscribeToken),
+]);
+
+export const notificationPreferences = mysqlTable("notificationPreferences", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	emailNotifications: tinyint().default(1).notNull(),
+	smsNotifications: tinyint().default(0).notNull(),
+	inAppNotifications: tinyint().default(1).notNull(),
+	emailFrequency: mysqlEnum(['immediate','daily','weekly']).default('immediate').notNull(),
+	smsPhoneNumber: varchar({ length: 20 }),
+	notifyOnTicketCreated: tinyint().default(1).notNull(),
+	notifyOnTicketUpdated: tinyint().default(1).notNull(),
+	notifyOnTicketResolved: tinyint().default(1).notNull(),
+	notifyOnSurveyRequest: tinyint().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("notificationPreferences_userId_unique").on(table.userId),
+]);
+
+export const notificationQueue = mysqlTable("notificationQueue", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	type: mysqlEnum(['email','sms','in_app']).notNull(),
+	subject: varchar({ length: 255 }),
+	content: text().notNull(),
+	relatedTicketId: int(),
+	relatedEntityType: varchar({ length: 50 }),
+	relatedEntityId: int(),
+	status: mysqlEnum(['pending','sent','failed','bounced']).default('pending').notNull(),
+	sentAt: timestamp({ mode: 'string' }),
+	failureReason: text(),
+	retryCount: int().default(0).notNull(),
+	maxRetries: int().default(3).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const pricingAnalytics = mysqlTable("pricingAnalytics", {
+	id: int().autoincrement().notNull(),
+	date: varchar({ length: 10 }).notNull(),
+	pageViews: int().default(0).notNull(),
+	tierViews: text(),
+	calculatorUsed: int().default(0).notNull(),
+	contactFormSubmitted: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("pricingAnalytics_date_unique").on(table.date),
+]);
+
+export const pricingTiers = mysqlTable("pricingTiers", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	monthlyPrice: decimal({ precision: 10, scale: 2 }).notNull(),
+	annualPrice: decimal({ precision: 10, scale: 2 }).notNull(),
+	isPopular: tinyint().default(0).notNull(),
+	features: text().notNull(),
+	maxUsers: int(),
+	maxTickets: int(),
+	maxStorage: int(),
+	supportLevel: varchar({ length: 50 }),
+	slaResponse: varchar({ length: 50 }),
+	slaResolution: varchar({ length: 50 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("pricingTiers_name_unique").on(table.name),
+]);
+
+export const pushNotifications = mysqlTable("pushNotifications", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	endpoint: text().notNull(),
+	auth: varchar({ length: 255 }).notNull(),
+	p256Dh: varchar({ length: 255 }).notNull(),
+	isActive: tinyint().default(1).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 64 }).notNull(),
+	endpoint: text().notNull(),
+	p256Dh: text().notNull(),
+	auth: varchar({ length: 255 }).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const quickAssistSessions = mysqlTable("quickAssistSessions", {
+	id: int().autoincrement().notNull(),
+	sessionCode: varchar({ length: 10 }).notNull(),
+	ticketId: int(),
+	customerId: int(),
+	initiatedBy: int().notNull(),
+	description: text(),
+	status: mysqlEnum(['active','ended','expired']).default('active').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	endedAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("quickAssistSessions_sessionCode_unique").on(table.sessionCode),
+]);
+
+export const realtimeChatMessages = mysqlTable("realtimeChatMessages", {
+	id: int().autoincrement().notNull(),
+	sessionId: int().notNull(),
+	senderId: int().notNull(),
+	senderRole: mysqlEnum(['user','admin']).notNull(),
+	message: text().notNull(),
+	isRead: tinyint().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	adminId: int(),
+	status: mysqlEnum(['active','closed','archived']).default('active').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	closedAt: timestamp({ mode: 'string' }),
+	ticketId: int(),
+});
+
+export const responseRatings = mysqlTable("responseRatings", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	messageId: int().notNull(),
+	rating: mysqlEnum(['helpful','neutral','unhelpful']).notNull(),
+	feedback: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const roiCalculations = mysqlTable("roiCalculations", {
+	id: int().autoincrement().notNull(),
+	userId: int(),
+	tierName: varchar({ length: 255 }),
+	currentEmployees: int().notNull(),
+	ticketsPerMonth: int().notNull(),
+	avgResolutionTime: decimal({ precision: 5, scale: 2 }).notNull(),
+	costPerHour: decimal({ precision: 10, scale: 2 }).notNull(),
+	estimatedSavings: decimal({ precision: 12, scale: 2 }).notNull(),
+	paybackPeriod: decimal({ precision: 5, scale: 2 }),
+	roiPercentage: decimal({ precision: 10, scale: 2 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const roiReports = mysqlTable("roiReports", {
+	id: int().autoincrement().notNull(),
+	clientId: varchar({ length: 255 }),
+	clientName: varchar({ length: 255 }),
+	periodStart: datetime({ mode: 'string'}).notNull(),
+	periodEnd: datetime({ mode: 'string'}).notNull(),
+	ticketCount: int().default(0).notNull(),
+	resolvedCount: int().default(0).notNull(),
+	avgHandleTimeMinutes: float().notNull(),
+	aiDeflectionCount: int().default(0).notNull(),
+	aiDeflectionRate: float().notNull(),
+	uptimePct: float().default(99.9).notNull(),
+	hoursFreed: float().notNull(),
+	estimatedCostSavings: float().notNull(),
+	avgCallQualityScore: float(),
+	totalCalls: int().default(0).notNull(),
+	voicemailCount: int().default(0).notNull(),
+	kbArticlesCreated: int().default(0).notNull(),
+	kbSearches: int().default(0).notNull(),
+	snapshotAt: datetime({ mode: 'string'}).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: datetime({ mode: 'string'}).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("idx_roi_period").on(table.periodStart, table.periodEnd),
+	index("idx_roi_client").on(table.clientId),
+]);
+
+export const securityAssessments = mysqlTable("securityAssessments", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	companyName: varchar({ length: 255 }).notNull(),
+	firstName: varchar({ length: 100 }).notNull(),
+	lastName: varchar({ length: 100 }).notNull(),
+	phone: varchar({ length: 20 }),
+	emailSecurityScore: int().notNull(),
+	endpointProtectionScore: int().notNull(),
+	backupRecoveryScore: int().notNull(),
+	identityManagementScore: int().notNull(),
+	complianceScore: int().notNull(),
+	overallScore: int().notNull(),
+	riskLevel: varchar({ length: 20 }).notNull(),
+	pdfGenerated: tinyint().default(0),
+	pdfUrl: varchar({ length: 500 }),
+	leadCaptured: tinyint().default(1),
+	emailSent: tinyint().default(0),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).onUpdateNow().notNull(),
+});
+
+export const sentimentRoutingRules = mysqlTable("sentiment_routing_rules", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	sentimentMin: decimal("sentiment_min", { precision: 3, scale: 2 }),
+	sentimentMax: decimal("sentiment_max", { precision: 3, scale: 2 }),
+	targetQueueId: int("target_queue_id"),
+	targetAgentId: int("target_agent_id"),
+	escalateToSenior: tinyint("escalate_to_senior").default(0),
+	priority: int().default(0),
+	isActive: tinyint("is_active").default(1),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+});
+
+export const serviceStatusChanges = mysqlTable("serviceStatusChanges", {
+	id: int().autoincrement().notNull(),
+	service: varchar({ length: 100 }).notNull(),
+	previousStatus: mysqlEnum(['healthy','degraded','critical','offline']).notNull(),
+	newStatus: mysqlEnum(['healthy','degraded','critical','offline']).notNull(),
+	message: text(),
+	notificationsSent: int().default(0).notNull(),
+	changedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const serviceStatusSubscriptions = mysqlTable("serviceStatusSubscriptions", {
+	id: int().autoincrement().notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	service: varchar({ length: 100 }).notNull(),
+	notifyOnHealthy: tinyint().default(0).notNull(),
+	notifyOnDegraded: tinyint().default(1).notNull(),
+	notifyOnCritical: tinyint().default(1).notNull(),
+	notifyOnOffline: tinyint().default(1).notNull(),
+	isActive: tinyint().default(1).notNull(),
+	unsubscribeToken: varchar({ length: 64 }),
+	subscribedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	lastNotificationSentAt: timestamp({ mode: 'string' }),
+	unsubscribedAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("serviceStatusSubscriptions_unsubscribeToken_unique").on(table.unsubscribeToken),
+]);
+
+export const settings = mysqlTable("settings", {
+	id: int().autoincrement().notNull(),
+	key: varchar({ length: 255 }).notNull(),
+	value: text().notNull(),
+	description: text(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("settings_key_unique").on(table.key),
+]);
+
+export const slaConfigurations = mysqlTable("slaConfigurations", {
+	id: int().autoincrement().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	priority: varchar({ length: 20 }).notNull(),
+	responseTimeMinutes: int().notNull(),
+	resolutionTimeMinutes: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const slaSnoozes = mysqlTable("slaSnoozes", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	snoozedUntil: timestamp({ mode: 'string' }).notNull(),
+	snoozedBy: int().notNull(),
+	reason: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const slaTracking = mysqlTable("slaTracking", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	responseDeadline: timestamp({ mode: 'string' }).notNull(),
+	resolutionDeadline: timestamp({ mode: 'string' }).notNull(),
+	responseBreached: tinyint().default(0).notNull(),
+	resolutionBreached: tinyint().default(0).notNull(),
+	firstResponseAt: timestamp({ mode: 'string' }),
+	resolvedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("slaTracking_ticketId_unique").on(table.ticketId),
+]);
+
+export const smsCampaigns = mysqlTable("smsCampaigns", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	message: text().notNull(),
+	status: mysqlEnum(['draft','scheduled','sending','sent','paused','cancelled']).default('draft').notNull(),
+	scheduledAt: timestamp({ mode: 'string' }),
+	sentAt: timestamp({ mode: 'string' }),
+	createdBy: int(),
+	totalRecipients: int().default(0).notNull(),
+	totalSent: int().default(0).notNull(),
+	totalDelivered: int().default(0).notNull(),
+	totalFailed: int().default(0).notNull(),
+	totalOptedOut: int().default(0).notNull(),
+	fromNumber: varchar({ length: 20 }),
+	tags: json(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const smsContacts = mysqlTable("smsContacts", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	phone: varchar({ length: 20 }).notNull(),
+	email: varchar({ length: 320 }),
+	company: varchar({ length: 255 }),
+	source: varchar({ length: 50 }).default('manual').notNull(),
+	optedIn: tinyint().default(1).notNull(),
+	optedInAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	optedOutAt: timestamp({ mode: 'string' }),
+	optOutReason: varchar({ length: 100 }),
+	tags: json(),
+	notes: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const smsMessages = mysqlTable("smsMessages", {
+	id: int().autoincrement().notNull(),
+	campaignId: int(),
+	contactId: int().notNull(),
+	toPhone: varchar({ length: 20 }).notNull(),
+	fromPhone: varchar({ length: 20 }).notNull(),
+	body: text().notNull(),
+	status: mysqlEnum(['queued','sent','delivered','failed','undelivered']).default('queued').notNull(),
+	provider: mysqlEnum(['twilio','acs']).default('twilio').notNull(),
+	providerMessageId: varchar({ length: 100 }),
+	errorCode: varchar({ length: 50 }),
+	errorMessage: text(),
+	sentAt: timestamp({ mode: 'string' }),
+	deliveredAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const smsOptOuts = mysqlTable("smsOptOuts", {
+	id: int().autoincrement().notNull(),
+	phone: varchar({ length: 20 }).notNull(),
+	contactId: int(),
+	reason: varchar({ length: 100 }).default('STOP').notNull(),
+	source: varchar({ length: 50 }).default('inbound').notNull(),
+	processedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const socialConnections = mysqlTable("socialConnections", {
+	id: int().autoincrement().notNull(),
+	platform: mysqlEnum(['linkedin','twitter','facebook']).notNull(),
+	accessToken: text().notNull(),
+	accessTokenSecret: text(),
+	refreshToken: text(),
+	expiresAt: timestamp({ mode: 'string' }),
+	pageId: varchar({ length: 255 }),
+	personUrn: varchar({ length: 255 }),
+	screenName: varchar({ length: 255 }),
+	connectedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("socialConnections_platform_unique").on(table.platform),
+]);
+
+export const socialPosts = mysqlTable("socialPosts", {
+	id: int().autoincrement().notNull(),
+	title: varchar({ length: 500 }).notNull(),
+	platform: mysqlEnum(['linkedin','twitter','facebook']).notNull(),
+	postId: varchar({ length: 500 }),
+	content: text().notNull(),
+	url: varchar({ length: 1000 }),
+	status: mysqlEnum(['published','failed','pending','scheduled','draft']).default('pending').notNull(),
+	errorMessage: text(),
+	publishedAt: timestamp({ mode: 'string' }),
+	createdBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	scheduledAt: timestamp({ mode: 'string' }),
+	platforms: text(),
+	link: varchar({ length: 1000 }),
+	engagementLikes: int().default(0),
+	engagementComments: int().default(0),
+	engagementShares: int().default(0),
+	engagementLastFetched: timestamp({ mode: 'string' }),
+});
+
+export const stripeCustomers = mysqlTable("stripeCustomers", {
+	id: int().autoincrement().notNull(),
+	userId: varchar({ length: 255 }).notNull(),
+	stripeCustomerId: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("stripeCustomers_userId_unique").on(table.userId),
+	index("stripeCustomers_stripeCustomerId_unique").on(table.stripeCustomerId),
+]);
+
+export const stripeSubscriptions = mysqlTable("stripeSubscriptions", {
+	id: int().autoincrement().notNull(),
+	userId: varchar({ length: 255 }).notNull(),
+	stripeSubscriptionId: varchar({ length: 255 }).notNull(),
+	stripeCustomerId: varchar({ length: 255 }).notNull(),
+	planName: varchar({ length: 50 }).notNull(),
+	userCount: int().notNull(),
+	isAnnual: tinyint().default(0).notNull(),
+	status: varchar({ length: 50 }).notNull(),
+	currentPeriodStart: timestamp({ mode: 'string' }).notNull(),
+	currentPeriodEnd: timestamp({ mode: 'string' }).notNull(),
+	canceledAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("stripeSubscriptions_stripeSubscriptionId_unique").on(table.stripeSubscriptionId),
+]);
+
+export const stripeCustomers = mysqlTable("stripe_customers", {
+	id: varchar({ length: 255 }).notNull(),
+	userId: varchar("user_id", { length: 255 }).notNull(),
+	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("stripe_customers_user_id_unique").on(table.userId),
+	index("stripe_customers_stripe_customer_id_unique").on(table.stripeCustomerId),
+	index("stripe_customers_user_id_idx").on(table.userId),
+	index("stripe_customers_stripe_customer_id_idx").on(table.stripeCustomerId),
+]);
+
+export const stripeInvoices = mysqlTable("stripe_invoices", {
+	id: varchar({ length: 255 }).notNull(),
+	userId: varchar("user_id", { length: 255 }).notNull(),
+	stripeInvoiceId: varchar("stripe_invoice_id", { length: 255 }).notNull(),
+	stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
+	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+	amountCents: int("amount_cents").notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	status: mysqlEnum(['draft','open','paid','void','uncollectible']).notNull(),
+	paidAt: timestamp("paid_at", { mode: 'string' }),
+	dueDate: timestamp("due_date", { mode: 'string' }),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("stripe_invoices_stripe_invoice_id_unique").on(table.stripeInvoiceId),
+	index("stripe_invoices_user_id_idx").on(table.userId),
+	index("stripe_invoices_stripe_invoice_id_idx").on(table.stripeInvoiceId),
+	index("stripe_invoices_stripe_subscription_id_idx").on(table.stripeSubscriptionId),
+	index("stripe_invoices_status_idx").on(table.status),
+]);
+
+export const stripePaymentIntents = mysqlTable("stripe_payment_intents", {
+	id: varchar({ length: 255 }).notNull(),
+	userId: varchar("user_id", { length: 255 }).notNull(),
+	stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }).notNull(),
+	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+	amountCents: int("amount_cents").notNull(),
+	currency: varchar({ length: 3 }).default('USD').notNull(),
+	description: text(),
+	status: mysqlEnum(['succeeded','processing','requires_payment_method','requires_confirmation','canceled']).notNull(),
+	metadata: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("stripe_payment_intents_stripe_payment_intent_id_unique").on(table.stripePaymentIntentId),
+	index("stripe_payment_intents_user_id_idx").on(table.userId),
+	index("stripe_payment_intents_stripe_payment_intent_id_idx").on(table.stripePaymentIntentId),
+	index("stripe_payment_intents_status_idx").on(table.status),
+]);
+
+export const stripeSubscriptions = mysqlTable("stripe_subscriptions", {
+	id: varchar({ length: 255 }).notNull(),
+	userId: varchar("user_id", { length: 255 }).notNull(),
+	stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
+	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+	planName: varchar("plan_name", { length: 255 }).notNull(),
+	userCount: int("user_count").default(10).notNull(),
+	isAnnual: tinyint("is_annual").default(0).notNull(),
+	status: mysqlEnum(['active','past_due','canceled','unpaid']).default('active').notNull(),
+	currentPeriodStart: timestamp("current_period_start", { mode: 'string' }),
+	currentPeriodEnd: timestamp("current_period_end", { mode: 'string' }),
+	canceledAt: timestamp("canceled_at", { mode: 'string' }),
+	cancelReason: text("cancel_reason"),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().onUpdateNow(),
+},
+(table) => [
+	index("stripe_subscriptions_stripe_subscription_id_unique").on(table.stripeSubscriptionId),
+	index("stripe_subscriptions_user_id_idx").on(table.userId),
+	index("stripe_subscriptions_stripe_subscription_id_idx").on(table.stripeSubscriptionId),
+	index("stripe_subscriptions_status_idx").on(table.status),
+]);
+
+export const stripeWebhookEvents = mysqlTable("stripe_webhook_events", {
+	id: varchar({ length: 255 }).notNull(),
+	stripeEventId: varchar("stripe_event_id", { length: 255 }).notNull(),
+	eventType: varchar("event_type", { length: 255 }).notNull(),
+	userId: varchar("user_id", { length: 255 }),
+	payload: text().notNull(),
+	processed: tinyint().default(0).notNull(),
+	processedAt: timestamp("processed_at", { mode: 'string' }),
+	error: text(),
+	createdAt: timestamp("created_at", { mode: 'string' }).default('CURRENT_TIMESTAMP'),
+},
+(table) => [
+	index("stripe_webhook_events_stripe_event_id_unique").on(table.stripeEventId),
+	index("stripe_webhook_events_stripe_event_id_idx").on(table.stripeEventId),
+	index("stripe_webhook_events_event_type_idx").on(table.eventType),
+	index("stripe_webhook_events_user_id_idx").on(table.userId),
+	index("stripe_webhook_events_processed_idx").on(table.processed),
+]);
+
+export const teamsClientChannels = mysqlTable("teamsClientChannels", {
+	id: int().autoincrement().notNull(),
+	companyId: int().notNull(),
+	companyName: varchar({ length: 255 }).notNull(),
+	teamsTeamId: varchar({ length: 255 }).notNull(),
+	teamsChannelId: varchar({ length: 255 }).notNull(),
+	teamsChannelName: varchar({ length: 255 }).notNull(),
+	webhookUrl: varchar({ length: 1024 }),
+	provisionedBy: int(),
+	provisionedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP'),
+	isActive: tinyint().default(1),
+	lastNotificationAt: timestamp({ mode: 'string' }),
+	notificationCount: int().default(0),
+});
+
+export const teamsIntegration = mysqlTable("teamsIntegration", {
+	id: int().autoincrement().notNull(),
+	sessionId: varchar({ length: 100 }).notNull(),
+	teamsConversationId: varchar({ length: 255 }).notNull(),
+	teamsUserId: varchar({ length: 255 }).notNull(),
+	status: mysqlEnum(['active','archived','synced']).default('active').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const ticketActivity = mysqlTable("ticketActivity", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	actorId: int().notNull(),
+	actorName: varchar({ length: 255 }).notNull(),
+	action: varchar({ length: 100 }).notNull(),
+	fromValue: varchar({ length: 255 }),
+	toValue: varchar({ length: 255 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const ticketFeedback = mysqlTable("ticketFeedback", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	userId: int().notNull(),
+	rating: mysqlEnum(['1','2','3','4','5']).notNull(),
+	comment: text(),
+	wouldRecommend: tinyint(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+});
+
+export const ticketKbSuggestions = mysqlTable("ticketKbSuggestions", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull().references(() => tickets.id, { onDelete: "cascade" } ),
+	articleId: int().notNull().references(() => kbArticles.id, { onDelete: "cascade" } ),
+	relevanceScore: int().default(0),
+	suggestedBy: mysqlEnum(['ai','agent']).default('ai').notNull(),
+	suggestedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	viewedAt: timestamp({ mode: 'string' }),
+	usedAt: timestamp({ mode: 'string' }),
+	helpful: tinyint(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const ticketMerges = mysqlTable("ticketMerges", {
+	id: int().autoincrement().notNull(),
+	primaryTicketId: int().notNull(),
+	mergedTicketId: int().notNull(),
+	mergedBy: int().notNull(),
+	reason: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
+export const ticketNotes = mysqlTable("ticketNotes", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	authorId: int().notNull(),
+	authorName: varchar({ length: 255 }).notNull(),
+	content: text().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
 
 export const ticketReplies = mysqlTable("ticketReplies", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  userId: int("userId").notNull(),
-  message: text("message").notNull(),
-  isStaffReply: int("isStaffReply").default(0).notNull(), // 0 = customer, 1 = staff
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	userId: int().notNull(),
+	message: text().notNull(),
+	isStaffReply: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
-export type TicketReply = typeof ticketReplies.$inferSelect;
-export type InsertTicketReply = typeof ticketReplies.$inferInsert;
-
-// Internal staff notes on tickets (not visible to customers)
-export const ticketNotes = mysqlTable("ticketNotes", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  authorId: int("authorId").notNull(), // userId of staff member
-  authorName: varchar("authorName", { length: 255 }).notNull(),
-  content: text("content").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type TicketNote = typeof ticketNotes.$inferSelect;
-export type InsertTicketNote = typeof ticketNotes.$inferInsert;
-
-// Ticket activity/audit log
-export const ticketActivity = mysqlTable("ticketActivity", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  actorId: int("actorId").notNull(), // userId who performed the action
-  actorName: varchar("actorName", { length: 255 }).notNull(),
-  action: varchar("action", { length: 100 }).notNull(), // e.g. "status_changed", "note_added", "assigned"
-  fromValue: varchar("fromValue", { length: 255 }), // previous value
-  toValue: varchar("toValue", { length: 255 }), // new value
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type TicketActivityEntry = typeof ticketActivity.$inferSelect;
-export type InsertTicketActivity = typeof ticketActivity.$inferInsert;
-
-// AI Support Bot - Knowledge Base
-export const knowledgeBase = mysqlTable("knowledgeBase", {
-  id: int("id").autoincrement().primaryKey(),
-  category: varchar("category", { length: 100 }).notNull(), // e.g., "Microsoft 365", "Managed IT", "Troubleshooting", "Pricing", "Onboarding", "Sales"
-  title: varchar("title", { length: 255 }).notNull(),
-  content: text("content").notNull(),
-  keywords: text("keywords").notNull(), // comma-separated for search
-  priority: int("priority").default(1).notNull(), // higher = more relevant
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type KnowledgeBase = typeof knowledgeBase.$inferSelect;
-export type InsertKnowledgeBase = typeof knowledgeBase.$inferInsert;
-
-// AI Support Bot - Chat Sessions
-export const chatSessions = mysqlTable("chatSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull().unique(), // UUID for browser session
-  visitorName: varchar("visitorName", { length: 255 }),
-  visitorEmail: varchar("visitorEmail", { length: 320 }),
-  visitorCompany: varchar("visitorCompany", { length: 255 }),
-  visitorInterest: varchar("visitorInterest", { length: 100 }), // e.g., "Microsoft 365", "Pricing", "Support"
-  escalatedToTicketId: int("escalatedToTicketId"), // if escalated to help desk
-  status: mysqlEnum("status", ["active", "escalated", "closed"]).default("active").notNull(),
-  messageCount: int("messageCount").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  closedAt: timestamp("closedAt"),
-});
-
-export type ChatSession = typeof chatSessions.$inferSelect;
-export type InsertChatSession = typeof chatSessions.$inferInsert;
-
-// AI Support Bot - Chat Messages
-export const chatMessages = mysqlTable("chatMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
-  message: text("message").notNull(),
-  metadata: text("metadata"), // JSON: confidence, sources, escalation_reason, etc.
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type ChatMessage = typeof chatMessages.$inferSelect;
-export type InsertChatMessage = typeof chatMessages.$inferInsert;
-
-// Lead Capture from Chat
-export const chatLeads = mysqlTable("chatLeads", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  phone: varchar("phone", { length: 50 }),
-  company: varchar("company", { length: 255 }),
-  interest: varchar("interest", { length: 255 }),
-  consentEmail: boolean("consentEmail").default(false).notNull(),
-  consentPhone: boolean("consentPhone").default(false).notNull(),
-  consentText: boolean("consentText").default(false).notNull(),
-  conversationSummary: text("conversationSummary"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type ChatLead = typeof chatLeads.$inferSelect;
-export type InsertChatLead = typeof chatLeads.$inferInsert;
-
-// Sentiment Analysis & Intent Detection
-export const chatAnalytics = mysqlTable("chatAnalytics", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  messageId: int("messageId").notNull(), // Reference to chatMessages
-  sentiment: mysqlEnum("sentiment", ["positive", "neutral", "negative", "angry"]).default("neutral").notNull(),
-  sentimentScore: varchar("sentimentScore", { length: 10 }), // 0.0 to 1.0
-  intent: mysqlEnum("intent", ["sales", "support", "billing", "general", "complaint"]).default("general").notNull(),
-  intentConfidence: varchar("intentConfidence", { length: 10 }), // 0.0 to 1.0
-  routedTo: varchar("routedTo", { length: 255 }), // email address (sales@, support@, billing@)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type ChatAnalytic = typeof chatAnalytics.$inferSelect;
-export type InsertChatAnalytic = typeof chatAnalytics.$inferInsert;
-
-// Response Ratings - User Feedback
-export const responseRatings = mysqlTable("responseRatings", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  messageId: int("messageId").notNull(), // Reference to chatMessages
-  rating: mysqlEnum("rating", ["helpful", "neutral", "unhelpful"]).notNull(),
-  feedback: text("feedback"), // Optional user comment
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type ResponseRating = typeof responseRatings.$inferSelect;
-export type InsertResponseRating = typeof responseRatings.$inferInsert;
-
-// Conversation Summaries
-export const conversationSummaries = mysqlTable("conversationSummaries", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull().unique(),
-  summary: text("summary").notNull(), // AI-generated summary
-  keyPoints: text("keyPoints"), // JSON array of key points
-  suggestedActions: text("suggestedActions"), // JSON array of next steps
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type ConversationSummary = typeof conversationSummaries.$inferSelect;
-export type InsertConversationSummary = typeof conversationSummaries.$inferInsert;
-
-// Teams Integration - Message Log
-export const teamsIntegration = mysqlTable("teamsIntegration", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  teamsConversationId: varchar("teamsConversationId", { length: 255 }).notNull(),
-  teamsUserId: varchar("teamsUserId", { length: 255 }).notNull(),
-  status: mysqlEnum("status", ["active", "archived", "synced"]).default("active").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TeamsIntegration = typeof teamsIntegration.$inferSelect;
-export type InsertTeamsIntegration = typeof teamsIntegration.$inferInsert;
-
-// Agent Takeover Requests
-export const agentTakeoverRequests = mysqlTable("agentTakeoverRequests", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 100 }).notNull(),
-  visitorName: varchar("visitorName", { length: 255 }),
-  visitorEmail: varchar("visitorEmail", { length: 320 }),
-  visitorPhone: varchar("visitorPhone", { length: 50 }),
-  reason: text("reason"), // Why they want to talk to an agent
-  status: mysqlEnum("status", ["pending", "accepted", "declined", "timeout"]).default("pending").notNull(),
-  assignedAdminId: int("assignedAdminId"), // Admin who accepted the request
-  ticketId: int("ticketId"), // Link to help desk ticket
-  conversationContext: text("conversationContext"), // JSON: summary of chat before handoff
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  acceptedAt: timestamp("acceptedAt"),
-  closedAt: timestamp("closedAt"),
-});
-
-export type AgentTakeoverRequest = typeof agentTakeoverRequests.$inferSelect;
-export type InsertAgentTakeoverRequest = typeof agentTakeoverRequests.$inferInsert;
-
-// Real-Time Chat - Admin to User Communication
-export const realtimeChatSessions = mysqlTable("realtimeChatSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  adminId: int("adminId"),
-  ticketId: int("ticketId"), // Link to help desk ticket
-  status: mysqlEnum("status", ["active", "closed", "archived"]).default("active").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  closedAt: timestamp("closedAt"),
-});
-
-export type RealtimeChatSession = typeof realtimeChatSessions.$inferSelect;
-export type InsertRealtimeChatSession = typeof realtimeChatSessions.$inferInsert;
-
-// Relation: Chat sessions to tickets
-export const chatSessionsRelations = relations(realtimeChatSessions, ({ one }) => ({
-  ticket: one(tickets, {
-    fields: [realtimeChatSessions.ticketId],
-    references: [tickets.id],
-  }),
-}));
-
-// Relation: Tickets to chat sessions
-export const ticketsRelations = relations(tickets, ({ many }) => ({
-  chatSessions: many(realtimeChatSessions),
-}));
-
-// Real-Time Chat Messages
-export const realtimeChatMessages = mysqlTable("realtimeChatMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: int("sessionId").notNull(),
-  senderId: int("senderId").notNull(),
-  senderRole: mysqlEnum("senderRole", ["user", "admin"]).notNull(),
-  message: text("message").notNull(),
-  isRead: boolean("isRead").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type RealtimeChatMessage = typeof realtimeChatMessages.$inferSelect;
-export type InsertRealtimeChatMessage = typeof realtimeChatMessages.$inferInsert;
-
-// User Online Status
-export const userSessions = mysqlTable("userSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(),
-  isOnline: boolean("isOnline").default(false).notNull(),
-  lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type UserSession = typeof userSessions.$inferSelect;
-export type InsertUserSession = typeof userSessions.$inferInsert;
-
-// Customer Invites - Admin invites customers to support portal
-export const customerInvites = mysqlTable("customerInvites", {
-  id: int("id").autoincrement().primaryKey(),
-  inviteToken: varchar("inviteToken", { length: 128 }).notNull().unique(), // Unique token for invite link
-  invitedEmail: varchar("invitedEmail", { length: 320 }).notNull(),
-  invitedName: varchar("invitedName", { length: 255 }),
-  invitedCompany: varchar("invitedCompany", { length: 255 }),
-  invitedBy: int("invitedBy").notNull(), // Admin ID who sent invite
-  status: mysqlEnum("status", ["pending", "accepted", "expired", "revoked"]).default("pending").notNull(),
-  acceptedBy: int("acceptedBy"), // User ID who accepted (after signup)
-  expiresAt: timestamp("expiresAt").notNull(), // Invite expires after 72 hours
-  reminderSent: boolean("reminderSent").default(false).notNull(), // Whether expiration reminder was sent
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  acceptedAt: timestamp("acceptedAt"),
-});
-
-export type CustomerInvite = typeof customerInvites.$inferSelect;
-export type InsertCustomerInvite = typeof customerInvites.$inferInsert;
-
-// Ticket Feedback - Customer feedback after ticket closure
-export const ticketFeedback = mysqlTable("ticketFeedback", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  userId: int("userId").notNull(),
-  rating: mysqlEnum("rating", ["1", "2", "3", "4", "5"]).notNull(), // 1-5 star rating
-  comment: text("comment"), // Optional feedback comment
-  wouldRecommend: boolean("wouldRecommend"), // Would recommend our service?
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TicketFeedback = typeof ticketFeedback.$inferSelect;
-export type InsertTicketFeedback = typeof ticketFeedback.$inferInsert;
-
-
-// Email Digest Preferences - Admin preferences for daily email digest
-export const emailDigestPreferences = mysqlTable("emailDigestPreferences", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(), // Admin user ID
-  enabled: boolean("enabled").default(true).notNull(), // Enable/disable digest
-  frequency: mysqlEnum("frequency", ["daily", "weekly", "bi-weekly", "monthly"]).default("daily").notNull(), // Digest frequency
-  sendTime: varchar("sendTime", { length: 5 }).default("06:00").notNull(), // Time to send (HH:MM format, UTC)
-  includeLeads: boolean("includeLeads").default(true).notNull(), // Include new leads
-  includeTickets: boolean("includeTickets").default(true).notNull(), // Include ticket summary
-  includeApprovals: boolean("includeApprovals").default(true).notNull(), // Include pending approvals
-  lastSentAt: timestamp("lastSentAt"), // Last time digest was sent
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type EmailDigestPreferences = typeof emailDigestPreferences.$inferSelect;
-export type InsertEmailDigestPreferences = typeof emailDigestPreferences.$inferInsert;
-
-// Email Digest History - Track sent digests
-export const emailDigestHistory = mysqlTable("emailDigestHistory", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(), // Admin user ID
-  sentAt: timestamp("sentAt").defaultNow().notNull(),
-  leadsCount: int("leadsCount").default(0).notNull(),
-  ticketsCount: int("ticketsCount").default(0).notNull(),
-  approvalsCount: int("approvalsCount").default(0).notNull(),
-  status: mysqlEnum("status", ["sent", "failed", "pending"]).default("pending").notNull(),
-  errorMessage: text("errorMessage"), // Error details if failed
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type EmailDigestHistory = typeof emailDigestHistory.$inferSelect;
-export type InsertEmailDigestHistory = typeof emailDigestHistory.$inferInsert;
-
-
-// Agent Management - Track agents/technicians and their assignments
-export const agents = mysqlTable("agents", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(), // Reference to users table
-  status: mysqlEnum("status", ["available", "busy", "offline", "on-break"]).default("offline").notNull(),
-  specialization: varchar("specialization", { length: 255 }), // e.g., "Microsoft 365", "Security", "Cloud"
-  maxConcurrentTickets: int("maxConcurrentTickets").default(5).notNull(), // Max tickets agent can handle
-  currentTicketCount: int("currentTicketCount").default(0).notNull(), // Current active tickets
-  averageResolutionTime: int("averageResolutionTime"), // Average time to resolve in minutes
-  customerSatisfactionScore: varchar("customerSatisfactionScore", { length: 10 }), // 0-5 rating (stored as string)
-  totalTicketsResolved: int("totalTicketsResolved").default(0).notNull(),
-  totalChatsHandled: int("totalChatsHandled").default(0).notNull(),
-  lastStatusChange: timestamp("lastStatusChange").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Agent = typeof agents.$inferSelect;
-export type InsertAgent = typeof agents.$inferInsert;
-
-// Agent Performance Metrics - Track agent performance over time
-export const agentMetrics = mysqlTable("agentMetrics", {
-  id: int("id").autoincrement().primaryKey(),
-  agentId: int("agentId").notNull(), // Reference to agents table
-  date: date("date").notNull(), // Date of metrics
-  ticketsHandled: int("ticketsHandled").default(0).notNull(),
-  chatsHandled: int("chatsHandled").default(0).notNull(),
-  averageResolutionTime: int("averageResolutionTime"), // In minutes
-  customerSatisfactionScore: varchar("customerSatisfactionScore", { length: 10 }), // 0-5 rating
-  firstContactResolution: int("firstContactResolution").default(0).notNull(), // % of tickets resolved on first contact
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type AgentMetrics = typeof agentMetrics.$inferSelect;
-export type InsertAgentMetrics = typeof agentMetrics.$inferInsert;
-
-// Agent Assignments - Track which tickets/chats are assigned to which agents
-export const agentAssignments = mysqlTable("agentAssignments", {
-  id: int("id").autoincrement().primaryKey(),
-  agentId: int("agentId").notNull(), // Reference to agents table
-  ticketId: int("ticketId"), // Reference to tickets table (optional, for ticket assignments)
-  chatSessionId: int("chatSessionId"), // Reference to realtimeChatSessions table (optional, for chat assignments)
-  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
-  completedAt: timestamp("completedAt"), // When agent completed the assignment
-  status: mysqlEnum("status", ["assigned", "in-progress", "completed", "escalated"]).default("assigned").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type AgentAssignment = typeof agentAssignments.$inferSelect;
-export type InsertAgentAssignment = typeof agentAssignments.$inferInsert;
-
-// Agent Availability Schedule - Track when agents are available
-export const agentSchedules = mysqlTable("agentSchedules", {
-  id: int("id").autoincrement().primaryKey(),
-  agentId: int("agentId").notNull(), // Reference to agents table
-  dayOfWeek: int("dayOfWeek").notNull(), // 0-6 (Sunday-Saturday)
-  startTime: varchar("startTime", { length: 5 }).notNull(), // HH:MM format
-  endTime: varchar("endTime", { length: 5 }).notNull(), // HH:MM format
-  isWorkingDay: boolean("isWorkingDay").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type AgentSchedule = typeof agentSchedules.$inferSelect;
-export type InsertAgentSchedule = typeof agentSchedules.$inferInsert;
-
-// Newsletter Subscribers — public email capture from blog pages
-export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 320 }).notNull().unique(),
-  /** Random token used for one-click unsubscribe links */
-  unsubscribeToken: varchar("unsubscribeToken", { length: 64 }).notNull().unique(),
-  /** Source page where the user signed up (e.g. "/blog", "/blog/some-slug") */
-  source: varchar("source", { length: 500 }),
-  active: boolean("active").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
-export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
-
-// Newsletter Campaigns — broadcast history log
-export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
-  id: int("id").autoincrement().primaryKey(),
-  subject: varchar("subject", { length: 500 }).notNull(),
-  /** HTML body of the campaign email */
-  body: text("body").notNull(),
-  /** Total active subscribers at time of send */
-  recipientCount: int("recipientCount").default(0).notNull(),
-  /** How many emails were sent successfully */
-  sentCount: int("sentCount").default(0).notNull(),
-  /** How many emails failed */
-  failedCount: int("failedCount").default(0).notNull(),
-  /** 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed' */
-  status: varchar("status", { length: 50 }).default("completed").notNull(),
-  sentBy: varchar("sentBy", { length: 255 }),  // admin name/email
-  /** UTC timestamp for when a scheduled campaign should be sent */
-  scheduledAt: timestamp("scheduledAt"),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
-export type InsertNewsletterCampaign = typeof newsletterCampaigns.$inferInsert;
-
-// Admin Notifications — real-time alert log for the admin portal
-export const adminNotifications = mysqlTable("adminNotifications", {
-  id: int("id").autoincrement().primaryKey(),
-  /** 'new_ticket' | 'new_chat' | 'ticket_reply' | 'chat_message' */
-  type: varchar("type", { length: 50 }).notNull(),
-  /** Short headline shown in the bell dropdown */
-  title: varchar("title", { length: 255 }).notNull(),
-  /** Optional longer description */
-  body: text("body"),
-  /** Link the admin should navigate to when clicking the notification */
-  href: varchar("href", { length: 500 }),
-  /** Priority: 'critical' | 'high' | 'normal' */
-  priority: varchar("priority", { length: 20 }).default("normal").notNull(),
-  /** Whether the notification has been read by an admin */
-  isRead: boolean("isRead").default(false).notNull(),
-  /** Optional reference to a ticket id */
-  ticketId: int("ticketId"),
-  /** Optional reference to a chat session id */
-  sessionId: int("sessionId"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type AdminNotification = typeof adminNotifications.$inferSelect;
-export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
-
-// Email Templates — pre-built templates for common support responses
-export const emailTemplates = mysqlTable("emailTemplates", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Template name (e.g., "Ticket Response", "Follow-up", "Resolution") */
-  name: varchar("name", { length: 255 }).notNull(),
-  /** Email subject template (can include {{variables}}) */
-  subject: varchar("subject", { length: 500 }).notNull(),
-  /** Email body template (can include {{variables}}) */
-  body: text("body").notNull(),
-  /** Category: 'ticket_response' | 'follow_up' | 'resolution' | 'general' */
-  category: varchar("category", { length: 50 }).notNull(),
-  /** Admin who created this template (null = system template) */
-  createdBy: int("createdBy"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type EmailTemplate = typeof emailTemplates.$inferSelect;
-export type InsertEmailTemplate = typeof emailTemplates.$inferInsert;
-
-// Email Messages — sent and received emails from support@gigitekai.com
-export const emailMessages = mysqlTable("emailMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  /** 'sent' | 'received' */
-  direction: varchar("direction", { length: 20 }).notNull(),
-  /** Sender email address */
-  from: varchar("from", { length: 255 }).notNull(),
-  /** Recipient email address(es) — comma-separated for multiple */
-  to: varchar("to", { length: 1000 }).notNull(),
-  /** Email subject */
-  subject: varchar("subject", { length: 500 }).notNull(),
-  /** Email body (HTML) */
-  body: text("body").notNull(),
-  /** Optional reference to emailTemplates.id if sent from template */
-  templateId: int("templateId"),
-  /** Optional reference to tickets.id if linked to a ticket */
-  linkedTicketId: int("linkedTicketId"),
-  /** Optional reference to realtimeChatSessions.id if linked to a chat */
-  linkedSessionId: int("linkedSessionId"),
-  /** 'draft' | 'sent' | 'failed' | 'received' */
-  status: varchar("status", { length: 20 }).default("sent").notNull(),
-  /** SendGrid Message-ID for tracking (if sent via SendGrid) */
-  messageId: varchar("messageId", { length: 255 }),
-  /** Admin who sent this email (null = system/webhook) */
-  sentBy: int("sentBy"),
-  /** When the email was sent or received */
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type EmailMessage = typeof emailMessages.$inferSelect;
-export type InsertEmailMessage = typeof emailMessages.$inferInsert;
-
-
-// Email Recipient Groups — manage groups of recipients for targeted email campaigns
-export const emailRecipientGroups = mysqlTable("emailRecipientGroups", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Group name (e.g., "Newsletter Subscribers", "VIP Customers") */
-  name: varchar("name", { length: 255 }).notNull(),
-  /** Group description */
-  description: text("description"),
-  /** Group type: 'newsletter_subscribers' | 'customers' | 'custom' */
-  type: varchar("type", { length: 50 }).notNull(),
-  /** Admin who created this group */
-  createdBy: int("createdBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type EmailRecipientGroup = typeof emailRecipientGroups.$inferSelect;
-export type InsertEmailRecipientGroup = typeof emailRecipientGroups.$inferInsert;
-
-// Email Group Members — email addresses in each recipient group
-export const emailGroupMembers = mysqlTable("emailGroupMembers", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Reference to emailRecipientGroups.id */
-  groupId: int("groupId").notNull(),
-  /** Email address of the group member */
-  email: varchar("email", { length: 255 }).notNull(),
-  /** Optional name of the recipient */
-  name: varchar("name", { length: 255 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type EmailGroupMember = typeof emailGroupMembers.$inferSelect;
-export type InsertEmailGroupMember = typeof emailGroupMembers.$inferInsert;
-
-// Ticket Templates — pre-built responses for common issues
-export const ticketTemplates = mysqlTable("ticketTemplates", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Template name (e.g., "Password Reset", "License Renewal") */
-  name: varchar("name", { length: 255 }).notNull(),
-  /** Template subject line */
-  subject: varchar("subject", { length: 500 }).notNull(),
-  /** Template body/content */
-  body: text("body").notNull(),
-  /** Category (e.g., "General Support", "Billing", "Technical") */
-  category: varchar("category", { length: 100 }).notNull(),
-  /** Admin who created this template */
-  createdBy: int("createdBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type TicketTemplate = typeof ticketTemplates.$inferSelect;
-export type InsertTicketTemplate = typeof ticketTemplates.$inferInsert;
-
-
-// Push Notifications — store push subscription endpoints for Web Push API
-export const pushNotifications = mysqlTable("pushNotifications", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Reference to users.id */
-  userId: int("userId").notNull(),
-  /** Web Push API endpoint URL */
-  endpoint: text("endpoint").notNull(),
-  /** Push subscription auth key (base64) */
-  auth: varchar("auth", { length: 255 }).notNull(),
-  /** Push subscription p256dh key (base64) */
-  p256dh: varchar("p256dh", { length: 255 }).notNull(),
-  /** Whether this subscription is still active */
-  isActive: boolean("isActive").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type PushNotification = typeof pushNotifications.$inferSelect;
-export type InsertPushNotification = typeof pushNotifications.$inferInsert;
-
-
-// User Activity Tracking - track logins and user interactions
-export const userActivity = mysqlTable("userActivity", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  activityType: varchar("activityType", { length: 50 }).notNull(), // "login", "logout", "ticket_created", "chat_started", etc.
-  description: text("description"), // Additional details about the activity
-  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
-  userAgent: text("userAgent"), // Browser/client info
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type UserActivity = typeof userActivity.$inferSelect;
-export type InsertUserActivity = typeof userActivity.$inferInsert;
-
-// Customer Feedback & Ratings - track customer satisfaction
-export const customerFeedback = mysqlTable("customerFeedback", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  rating: int("rating").notNull(), // 1-5 star rating
-  comment: text("comment"), // Customer feedback text
-  categories: varchar("categories", { length: 500 }), // JSON array of feedback categories
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type CustomerFeedback = typeof customerFeedback.$inferSelect;
-export type InsertCustomerFeedback = typeof customerFeedback.$inferInsert;
-
-// Website Traffic Analytics - store traffic data
-export const websiteTraffic = mysqlTable("websiteTraffic", {
-  id: int("id").autoincrement().primaryKey(),
-  date: date("date").notNull(),
-  pageUrl: varchar("pageUrl", { length: 500 }).notNull(),
-  pageTitle: varchar("pageTitle", { length: 500 }),
-  visitors: int("visitors").default(0).notNull(),
-  pageViews: int("pageViews").default(0).notNull(),
-  bounceRate: decimal("bounceRate", { precision: 5, scale: 2 }).default("0"), // percentage
-  avgTimeOnPage: int("avgTimeOnPage").default(0), // seconds
-  referrer: varchar("referrer", { length: 500 }), // traffic source
-  country: varchar("country", { length: 100 }), // visitor location
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type WebsiteTraffic = typeof websiteTraffic.$inferSelect;
-export type InsertWebsiteTraffic = typeof websiteTraffic.$inferInsert;
-
-
-// ── Lead Generation Features ──────────────────────────────────────────────────
-
-/**
- * Cybersecurity Risk Assessment - Stores quiz responses and scores
- */
-export const securityAssessments = mysqlTable("securityAssessments", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull(),
-  companyName: varchar("companyName", { length: 255 }).notNull(),
-  firstName: varchar("firstName", { length: 100 }).notNull(),
-  lastName: varchar("lastName", { length: 100 }).notNull(),
-  phone: varchar("phone", { length: 20 }),
-  // Quiz responses (0-10 scale for each category)
-  emailSecurityScore: int("emailSecurityScore").notNull(), // 0-10
-  endpointProtectionScore: int("endpointProtectionScore").notNull(), // 0-10
-  backupRecoveryScore: int("backupRecoveryScore").notNull(), // 0-10
-  identityManagementScore: int("identityManagementScore").notNull(), // 0-10
-  complianceScore: int("complianceScore").notNull(), // 0-10
-  overallScore: int("overallScore").notNull(), // 0-50 total
-  riskLevel: varchar("riskLevel", { length: 20 }).notNull(), // "critical", "high", "medium", "low"
-  pdfGenerated: boolean("pdfGenerated").default(false),
-  pdfUrl: varchar("pdfUrl", { length: 500 }),
-  leadCaptured: boolean("leadCaptured").default(true),
-  emailSent: boolean("emailSent").default(false),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").onUpdateNow().notNull(),
-});
-export type SecurityAssessment = typeof securityAssessments.$inferSelect;
-export type InsertSecurityAssessment = typeof securityAssessments.$inferInsert;
-
-/**
- * Exit Intent Popup - Tracks popup interactions and conversions
- */
-export const exitIntentPopups = mysqlTable("exitIntentPopups", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull(),
-  firstName: varchar("firstName", { length: 100 }).notNull(),
-  lastName: varchar("lastName", { length: 100 }).notNull(),
-  phone: varchar("phone", { length: 20 }),
-  companyName: varchar("companyName", { length: 255 }),
-  leadMagnetDownloaded: varchar("leadMagnetDownloaded", { length: 255 }), // which guide they downloaded
-  downloadUrl: varchar("downloadUrl", { length: 500 }),
-  pageUrl: varchar("pageUrl", { length: 500 }).notNull(), // which page they were on
-  emailSent: boolean("emailSent").default(false),
-  leadCaptured: boolean("leadCaptured").default(true),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type ExitIntentPopup = typeof exitIntentPopups.$inferSelect;
-export type InsertExitIntentPopup = typeof exitIntentPopups.$inferInsert;
-
-/**
- * Multi-Step Contact Form - Tracks multi-step form submissions
- */
-export const multiStepFormSubmissions = mysqlTable("multiStepFormSubmissions", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull(),
-  firstName: varchar("firstName", { length: 100 }).notNull(),
-  lastName: varchar("lastName", { length: 100 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  companyName: varchar("companyName", { length: 255 }).notNull(),
-  employeeCount: varchar("employeeCount", { length: 50 }), // "1-10", "11-50", "51-100", "100+"
-  currentITSetup: varchar("currentITSetup", { length: 500 }), // description of current setup
-  // Step 1: What do you need help with?
-  needsCybersecurity: boolean("needsCybersecurity").default(false),
-  needsCloud: boolean("needsCloud").default(false),
-  needsHelpdesk: boolean("needsHelpdesk").default(false),
-  needsAI: boolean("needsAI").default(false),
-  otherNeeds: varchar("otherNeeds", { length: 500 }),
-  // File upload fields
-  fileKey: varchar("fileKey", { length: 255 }), // S3 key for uploaded file
-  fileName: varchar("fileName", { length: 255 }), // Original filename
-  fileSize: int("fileSize"), // File size in bytes
-  fileMimeType: varchar("fileMimeType", { length: 100 }), // MIME type
-  fileUrl: text("fileUrl"), // Presigned S3 URL for download
-  // Metadata
-  formCompletedAt: timestamp("formCompletedAt"),
-  leadQuality: varchar("leadQuality", { length: 20 }), // "hot", "warm", "cold"
-  assignedTo: int("assignedTo"), // user ID of assigned sales rep
-  status: varchar("status", { length: 20 }).default("new"), // "new", "contacted", "qualified", "converted", "rejected"
-  notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").onUpdateNow().notNull(),
-});
-export type MultiStepFormSubmission = typeof multiStepFormSubmissions.$inferSelect;
-export type InsertMultiStepFormSubmission = typeof multiStepFormSubmissions.$inferInsert;
-
-/**
- * Lead Generation Analytics - Tracks overall lead gen performance
- */
-export const leadGenAnalytics = mysqlTable("leadGenAnalytics", {
-  id: int("id").autoincrement().primaryKey(),
-  date: date("date").notNull(),
-  assessmentLeads: int("assessmentLeads").default(0), // from security assessment
-  popupLeads: int("popupLeads").default(0), // from exit intent
-  formLeads: int("formLeads").default(0), // from multi-step form
-  totalLeads: int("totalLeads").default(0),
-  assessmentConversions: int("assessmentConversions").default(0), // leads who booked call
-  popupConversions: int("popupConversions").default(0),
-  formConversions: int("formConversions").default(0),
-  totalConversions: int("totalConversions").default(0),
-  conversionRate: decimal("conversionRate", { precision: 5, scale: 2 }).default("0"), // percentage
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type LeadGenAnalytics = typeof leadGenAnalytics.$inferSelect;
-export type InsertLeadGenAnalytics = typeof leadGenAnalytics.$inferInsert;
-
-// Meeting Bookings — tracks all scheduled strategy calls for cancel/reschedule
-export const meetingBookings = mysqlTable("meetingBookings", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  phone: varchar("phone", { length: 50 }),
-  company: varchar("company", { length: 255 }),
-  meetingDate: varchar("meetingDate", { length: 10 }).notNull(), // YYYY-MM-DD
-  meetingTime: varchar("meetingTime", { length: 5 }).notNull(),  // HH:MM
-  notes: text("notes"),
-  status: mysqlEnum("status", ["confirmed", "cancelled", "rescheduled"]).default("confirmed").notNull(),
-  cancelToken: varchar("cancelToken", { length: 64 }).unique(), // unique token for cancel/reschedule link
-  m365EventId: varchar("m365EventId", { length: 500 }), // Microsoft Graph event ID for deletion
-  cancelledAt: timestamp("cancelledAt"),
-  rescheduledTo: int("rescheduledTo"), // references another meetingBookings.id
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type MeetingBooking = typeof meetingBookings.$inferSelect;
-export type InsertMeetingBooking = typeof meetingBookings.$inferInsert;
-
-// SLA Snooze — allows agents to temporarily dismiss SLA breach alerts for a ticket
-export const slaSnoozes = mysqlTable("slaSnoozes", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull(),
-  snoozedUntil: timestamp("snoozedUntil").notNull(),
-  snoozedBy: int("snoozedBy").notNull(), // userId of the agent who snoozed
-  reason: varchar("reason", { length: 500 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type SlaSnooze = typeof slaSnoozes.$inferSelect;
-export type InsertSlaSnooze = typeof slaSnoozes.$inferInsert;
-
-// Knowledge Base Articles — admin-managed articles surfaced in AI chatbot and agent reply suggestions
-export const kbArticles = mysqlTable("kbArticles", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 500 }).notNull(),
-  content: text("content").notNull(), // Markdown
-  category: varchar("category", { length: 100 }).notNull().default("general"),
-  tags: varchar("tags", { length: 500 }), // comma-separated
-  isPublished: boolean("isPublished").default(false).notNull(),
-  createdBy: int("createdBy"), // userId
-  // External sync fields (MS Learn, etc.)
-  sourceUrl: varchar("sourceUrl", { length: 1000 }), // Original URL (e.g. MS Learn module URL)
-  externalUid: varchar("externalUid", { length: 500 }), // External unique ID for dedup (e.g. MS Learn UID)
-  syncSource: varchar("syncSource", { length: 100 }), // 'ms-learn' | 'manual'
-  lastSyncedAt: timestamp("lastSyncedAt"), // When this article was last synced from external source
-  // User-focused metadata fields
-  subcategory: varchar("subcategory", { length: 150 }), // More specific classification
-  audience: mysqlEnum("audience", ["end-user", "technician", "admin"]).default("technician"), // Who this article targets
-  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).default("intermediate"), // Complexity level
-  estimatedResolutionTime: varchar("estimatedResolutionTime", { length: 50 }), // e.g. '5-10 minutes'
-  ariaEnabled: boolean("ariaEnabled").default(true).notNull(), // Whether ARIA can suggest this article
-  articleCode: varchar("articleCode", { length: 20 }), // e.g. USR-101, WIN-001, SPO-076
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type KbArticle = typeof kbArticles.$inferSelect;
-export type InsertKbArticle = typeof kbArticles.$inferInsert;
-
-// KB Article Versions - track edit history for rollback capability
-export const kbArticleVersions = mysqlTable("kbArticleVersions", {
-  id: int("id").autoincrement().primaryKey(),
-  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
-  title: varchar("title", { length: 500 }).notNull(),
-  content: text("content").notNull(),
-  category: varchar("category", { length: 100 }).notNull(),
-  tags: varchar("tags", { length: 500 }),
-  editedBy: int("editedBy"), // userId who made the edit
-  changeDescription: varchar("changeDescription", { length: 500 }), // What changed in this version
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type KbArticleVersion = typeof kbArticleVersions.$inferSelect;
-export type InsertKbArticleVersion = typeof kbArticleVersions.$inferInsert;
-
-// KB Article Tags - normalized tags for better search and filtering
-export const kbArticleTags = mysqlTable("kbArticleTags", {
-  id: int("id").autoincrement().primaryKey(),
-  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
-  tag: varchar("tag", { length: 100 }).notNull(),
-  source: varchar("source", { length: 50 }).notNull().default("manual"), // 'manual' | 'auto_llm' | 'auto_search'
-  confidence: decimal("confidence", { precision: 3, scale: 2 }).default("1.00"), // 0.00-1.00 for LLM-generated tags
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type KbArticleTag = typeof kbArticleTags.$inferSelect;
-export type InsertKbArticleTag = typeof kbArticleTags.$inferInsert;
-
-// Canned Responses — pre-written reply templates for agents
-export const cannedResponses = mysqlTable("cannedResponses", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  body: text("body").notNull(),
-  category: varchar("category", { length: 100 }).notNull().default("general"),
-  usageCount: int("usageCount").default(0).notNull(),
-  createdBy: int("createdBy"), // userId
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type CannedResponse = typeof cannedResponses.$inferSelect;
-export type InsertCannedResponse = typeof cannedResponses.$inferInsert;
-
-// Push Subscriptions — Web Push API subscriptions for proactive notifications
-export const pushSubscriptions = mysqlTable("pushSubscriptions", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionId: varchar("sessionId", { length: 64 }).notNull(),
-  endpoint: text("endpoint").notNull(),
-  p256dh: text("p256dh").notNull(),
-  auth: varchar("auth", { length: 255 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type PushSubscription = typeof pushSubscriptions.$inferSelect;
-export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
-
-// Social Posts — history of posts published to social media platforms
-export const socialPosts = mysqlTable("socialPosts", {
-  id: int("id").autoincrement().primaryKey(),
-  title: varchar("title", { length: 500 }).notNull(),
-  platform: mysqlEnum("platform", ["linkedin", "twitter", "facebook"]).notNull(),
-  postId: varchar("postId", { length: 500 }), // platform-assigned post ID
-  content: text("content").notNull(), // the actual text posted
-  url: varchar("url", { length: 1000 }), // link to the live post
-  status: mysqlEnum("status", ["published", "failed", "pending", "scheduled", "draft"]).default("pending").notNull(),
-  errorMessage: text("errorMessage"),
-  publishedAt: timestamp("publishedAt"),
-  scheduledAt: timestamp("scheduledAt"),                 // null = immediate, set = scheduled
-  platforms: text("platforms"),                          // JSON array e.g. ["linkedin","twitter"]
-  link: varchar("link", { length: 1000 }),               // optional link attached to post
-  engagementLikes: int("engagementLikes").default(0),
-  engagementComments: int("engagementComments").default(0),
-  engagementShares: int("engagementShares").default(0),
-  engagementLastFetched: timestamp("engagementLastFetched"),
-  createdBy: int("createdBy"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type SocialPost = typeof socialPosts.$inferSelect;
-export type InsertSocialPost = typeof socialPosts.$inferInsert;
-
-// Social platform OAuth connections — stores tokens obtained via OAuth flows
-export const socialConnections = mysqlTable("socialConnections", {
-  id: int("id").autoincrement().primaryKey(),
-  platform: mysqlEnum("platform", ["linkedin", "twitter", "facebook"]).notNull().unique(),
-  accessToken: text("accessToken").notNull(),
-  accessTokenSecret: text("accessTokenSecret"), // Twitter OAuth 1.0a only
-  refreshToken: text("refreshToken"),
-  expiresAt: timestamp("expiresAt"),
-  pageId: varchar("pageId", { length: 255 }), // Facebook page ID
-  personUrn: varchar("personUrn", { length: 255 }), // LinkedIn person URN
-  screenName: varchar("screenName", { length: 255 }), // display name / handle
-  connectedAt: timestamp("connectedAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
-export type SocialConnection = typeof socialConnections.$inferSelect;
-export type InsertSocialConnection = typeof socialConnections.$inferInsert;
-
-// KB Article Feedback — user ratings and feedback on suggested KB articles
-export const kbArticleFeedback = mysqlTable("kbArticleFeedback", {
-  id: int("id").autoincrement().primaryKey(),
-  messageId: int("messageId").notNull(), // chatMessages.id - the bot message that suggested the KB article
-  articleId: int("articleId").notNull(), // kbArticles.id - the KB article that was suggested
-  rating: mysqlEnum("rating", ["helpful", "unhelpful"]).notNull(), // thumbs-up or thumbs-down
-  feedbackMessage: text("feedbackMessage"), // optional: what was missing or why it wasn't helpful
-  sessionId: varchar("sessionId", { length: 64 }), // chat session ID for context
-  userId: int("userId"), // user ID if authenticated
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type KbArticleFeedback = typeof kbArticleFeedback.$inferSelect;
-export type InsertKbArticleFeedback = typeof kbArticleFeedback.$inferInsert;
-
-
-// Pricing Tiers — helpdesk service tiers and pricing
-export const pricingTiers = mysqlTable("pricingTiers", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull().unique(), // "Starter", "Pro", "Enterprise"
-  description: text("description"),
-  monthlyPrice: decimal("monthlyPrice", { precision: 10, scale: 2 }).notNull(),
-  annualPrice: decimal("annualPrice", { precision: 10, scale: 2 }).notNull(),
-  isPopular: boolean("isPopular").default(false).notNull(),
-  features: text("features").notNull(), // JSON array of feature strings
-  maxUsers: int("maxUsers"), // max team members
-  maxTickets: int("maxTickets"), // max tickets per month
-  maxStorage: int("maxStorage"), // in GB
-  supportLevel: varchar("supportLevel", { length: 50 }), // "Basic", "Priority", "24/7"
-  slaResponse: varchar("slaResponse", { length: 50 }), // e.g. "4 hours", "1 hour"
-  slaResolution: varchar("slaResolution", { length: 50 }), // e.g. "48 hours", "24 hours"
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type PricingTier = typeof pricingTiers.$inferSelect;
-export type InsertPricingTier = typeof pricingTiers.$inferInsert;
-
-// ROI Calculations — user ROI calculator submissions
-export const roiCalculations = mysqlTable("roiCalculations", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId"), // null if anonymous
-  tierName: varchar("tierName", { length: 255 }),
-  currentEmployees: int("currentEmployees").notNull(),
-  ticketsPerMonth: int("ticketsPerMonth").notNull(),
-  avgResolutionTime: decimal("avgResolutionTime", { precision: 5, scale: 2 }).notNull(), // hours
-  costPerHour: decimal("costPerHour", { precision: 10, scale: 2 }).notNull(),
-  estimatedSavings: decimal("estimatedSavings", { precision: 12, scale: 2 }).notNull(), // annual
-  paybackPeriod: decimal("paybackPeriod", { precision: 5, scale: 2 }), // months
-  roiPercentage: decimal("roiPercentage", { precision: 10, scale: 2 }), // %
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type RoiCalculation = typeof roiCalculations.$inferSelect;
-export type InsertRoiCalculation = typeof roiCalculations.$inferInsert;
-
-// Pricing Analytics — track pricing page engagement
-export const pricingAnalytics = mysqlTable("pricingAnalytics", {
-  id: int("id").autoincrement().primaryKey(),
-  date: varchar("date", { length: 10 }).notNull().unique(), // YYYY-MM-DD
-  pageViews: int("pageViews").default(0).notNull(),
-  tierViews: text("tierViews"), // JSON object with tier view counts
-  calculatorUsed: int("calculatorUsed").default(0).notNull(),
-  contactFormSubmitted: int("contactFormSubmitted").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type PricingAnalytics = typeof pricingAnalytics.$inferSelect;
-export type InsertPricingAnalytics = typeof pricingAnalytics.$inferInsert;
-
-
-// SLA Configuration — defines SLA rules for different ticket categories and priorities
-export const slaConfigurations = mysqlTable("slaConfigurations", {
-  id: int("id").autoincrement().primaryKey(),
-  category: varchar("category", { length: 100 }).notNull(),
-  priority: varchar("priority", { length: 20 }).notNull(),
-  responseTimeMinutes: int("responseTimeMinutes").notNull(), // time to first response
-  resolutionTimeMinutes: int("resolutionTimeMinutes").notNull(), // time to resolution
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type SlaConfiguration = typeof slaConfigurations.$inferSelect;
-export type InsertSlaConfiguration = typeof slaConfigurations.$inferInsert;
-
-// SLA Tracking — tracks SLA metrics for each ticket
-export const slaTracking = mysqlTable("slaTracking", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().unique(),
-  responseDeadline: timestamp("responseDeadline").notNull(),
-  resolutionDeadline: timestamp("resolutionDeadline").notNull(),
-  responseBreached: boolean("responseBreached").default(false).notNull(),
-  resolutionBreached: boolean("resolutionBreached").default(false).notNull(),
-  firstResponseAt: timestamp("firstResponseAt"),
-  resolvedAt: timestamp("resolvedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type SlaTracking = typeof slaTracking.$inferSelect;
-export type InsertSlaTracking = typeof slaTracking.$inferInsert;
-
-// Ticket Merge History — tracks when tickets are merged together
-export const ticketMerges = mysqlTable("ticketMerges", {
-  id: int("id").autoincrement().primaryKey(),
-  primaryTicketId: int("primaryTicketId").notNull(), // the ticket that remains
-  mergedTicketId: int("mergedTicketId").notNull(), // the ticket that was merged into primary
-  mergedBy: int("mergedBy").notNull(), // userId of agent who performed merge
-  reason: text("reason"), // why tickets were merged
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type TicketMerge = typeof ticketMerges.$inferSelect;
-export type InsertTicketMerge = typeof ticketMerges.$inferInsert;
-
-// Agent Workload — tracks agent ticket assignments and workload
-export const agentWorkload = mysqlTable("agentWorkload", {
-  id: int("id").autoincrement().primaryKey(),
-  agentId: int("agentId").notNull(),
-  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
-  assignedTickets: int("assignedTickets").default(0).notNull(),
-  completedTickets: int("completedTickets").default(0).notNull(),
-  avgResolutionTime: decimal("avgResolutionTime", { precision: 8, scale: 2 }), // minutes
-  slaBreaches: int("slaBreaches").default(0).notNull(),
-  customerSatisfaction: decimal("customerSatisfaction", { precision: 3, scale: 2 }), // 0-5
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type AgentWorkload = typeof agentWorkload.$inferSelect;
-export type InsertAgentWorkload = typeof agentWorkload.$inferInsert;
-
-// Bulk Ticket Actions — tracks bulk operations performed on tickets
-export const bulkTicketActions = mysqlTable("bulkTicketActions", {
-  id: int("id").autoincrement().primaryKey(),
-  actionType: varchar("actionType", { length: 50 }).notNull(), // 'close', 'assign', 'prioritize', 'tag'
-  ticketIds: text("ticketIds").notNull(), // JSON array of ticket IDs
-  assignedTo: int("assignedTo"), // for assign action
-  newPriority: varchar("newPriority", { length: 20 }), // for prioritize action
-  newStatus: varchar("newStatus", { length: 20 }), // for status change action
-  performedBy: int("performedBy").notNull(), // userId of agent
-  affectedCount: int("affectedCount").notNull(), // number of tickets affected
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type BulkTicketAction = typeof bulkTicketActions.$inferSelect;
-export type InsertBulkTicketAction = typeof bulkTicketActions.$inferInsert;
-
-
-// Ticket Surveys — customer satisfaction surveys for closed tickets
 export const ticketSurveys = mysqlTable("ticketSurveys", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().unique(), // one survey per ticket
-  rating: int("rating").notNull(), // 1-5 star rating
-  comment: text("comment"), // optional customer feedback
-  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
-  submittedBy: int("submittedBy"), // userId of customer who submitted
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull(),
+	rating: int().notNull(),
+	comment: text(),
+	submittedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	submittedBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("ticketSurveys_ticketId_unique").on(table.ticketId),
+]);
+
+export const ticketTemplates = mysqlTable("ticketTemplates", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	subject: varchar({ length: 500 }).notNull(),
+	body: text().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	createdBy: int().notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
 });
-export type TicketSurvey = typeof ticketSurveys.$inferSelect;
-export type InsertTicketSurvey = typeof ticketSurveys.$inferInsert;
 
-
-// KB Article Analytics — track views, shares, and effectiveness
-export const kbArticleAnalytics = mysqlTable("kbArticleAnalytics", {
-  id: int("id").autoincrement().primaryKey(),
-  articleId: int("articleId").notNull(),
-  views: int("views").default(0).notNull(), // total views
-  shares: int("shares").default(0).notNull(), // total shares
-  ticketsResolved: int("ticketsResolved").default(0).notNull(), // tickets resolved using this article
-  avgHelpfulnessRating: decimal("avgHelpfulnessRating", { precision: 3, scale: 2 }), // 0-5 rating
-  lastViewedAt: timestamp("lastViewedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const tickets = mysqlTable("tickets", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text().notNull(),
+	stepsAttempted: text(),
+	priority: mysqlEnum(['low','medium','high','critical']).default('medium').notNull(),
+	category: mysqlEnum(['bug_report','feature_request','general_support','billing','email','printer','internet','network','other']).default('general_support').notNull(),
+	status: mysqlEnum(['open','in_progress','on_hold','resolved','closed']).default('open').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	resolvedAt: timestamp({ mode: 'string' }),
+	assignedTo: int(),
+	aiCategory: varchar({ length: 100 }),
+	aiPriority: varchar({ length: 20 }),
+	aiConfidence: decimal({ precision: 4, scale: 2 }),
+	aiReasoning: text(),
+	source: varchar({ length: 50 }).default('web').notNull(),
+	closingNotes: text(),
+	closedAt: timestamp({ mode: 'string' }),
+	mergedInto: int(),
 });
-export type KbArticleAnalytic = typeof kbArticleAnalytics.$inferSelect;
-export type InsertKbArticleAnalytic = typeof kbArticleAnalytics.$inferInsert;
 
-// KB Article Shares — track when articles are shared with customers/agents
-export const kbArticleShares = mysqlTable("kbArticleShares", {
-  id: int("id").autoincrement().primaryKey(),
-  articleId: int("articleId").notNull(),
-  sharedBy: int("sharedBy").notNull(), // userId of agent who shared
-  sharedWith: varchar("sharedWith", { length: 255 }), // email address or userId
-  sharedVia: mysqlEnum("sharedVia", ["email", "link", "ticket"]).default("email").notNull(),
-  ticketId: int("ticketId"), // optional: ticket this was shared from
-  message: text("message"), // optional: custom message with share
-  sharedAt: timestamp("sharedAt").defaultNow().notNull(),
-  viewedAt: timestamp("viewedAt"), // when recipient viewed the share
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+export const uptimeStatistics = mysqlTable("uptimeStatistics", {
+	id: int().autoincrement().notNull(),
+	service: varchar({ length: 100 }).notNull(),
+	period: mysqlEnum(['1h','24h','7d','30d']).notNull(),
+	uptimePercentage: decimal({ precision: 5, scale: 2 }).notNull(),
+	totalChecks: int().notNull(),
+	healthyChecks: int().notNull(),
+	degradedChecks: int().notNull(),
+	criticalChecks: int().notNull(),
+	offlineChecks: int().notNull(),
+	avgResponseTime: int(),
+	calculatedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
-export type KbArticleShare = typeof kbArticleShares.$inferSelect;
-export type InsertKbArticleShare = typeof kbArticleShares.$inferInsert;
 
-// KB Article Views — track individual views for analytics
-export const kbArticleViews = mysqlTable("kbArticleViews", {
-  id: int("id").autoincrement().primaryKey(),
-  articleId: int("articleId").notNull(),
-  viewedBy: int("viewedBy"), // userId (null for anonymous)
-  viewedFrom: mysqlEnum("viewedFrom", ["kb_portal", "ticket_detail", "search_widget", "share_link"]).default("kb_portal").notNull(),
-  ticketId: int("ticketId"), // optional: ticket context
-  viewedAt: timestamp("viewedAt").defaultNow().notNull(),
-  timeSpent: int("timeSpent"), // seconds spent reading
-  helpful: boolean("helpful"), // user marked as helpful
-});
-export type KbArticleView = typeof kbArticleViews.$inferSelect;
-export type InsertKbArticleView = typeof kbArticleViews.$inferInsert;
-
-// KB Search Queries — track what users search for in the KB to identify content gaps
-export const kbSearchQueries = mysqlTable("kbSearchQueries", {
-  id: int("id").autoincrement().primaryKey(),
-  query: varchar("query", { length: 500 }).notNull(), // the search term
-  resultsCount: int("resultsCount").default(0).notNull(), // how many results were returned
-  clickedArticleId: int("clickedArticleId"), // which article (if any) the user clicked
-  source: varchar("source", { length: 50 }).default("kb_portal").notNull(), // 'kb_portal' | 'aria_chat' | 'ticket_widget'
-  userId: int("userId"), // null for anonymous
-  sessionId: varchar("sessionId", { length: 100 }), // browser session
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type KbSearchQuery = typeof kbSearchQueries.$inferSelect;
-export type InsertKbSearchQuery = typeof kbSearchQueries.$inferInsert;
-
-
-// Customer Portal Sessions — track customer self-service portal access
-export const customerPortalSessions = mysqlTable("customerPortalSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  customerId: int("customerId").notNull(), // userId of customer
-  sessionToken: varchar("sessionToken", { length: 255 }).notNull().unique(),
-  expiresAt: timestamp("expiresAt").notNull(),
-  lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
-  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
-  userAgent: varchar("userAgent", { length: 500 }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type CustomerPortalSession = typeof customerPortalSessions.$inferSelect;
-export type InsertCustomerPortalSession = typeof customerPortalSessions.$inferInsert;
-
-// Notification Preferences — customer choices for notifications
-export const notificationPreferences = mysqlTable("notificationPreferences", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(), // customer userId
-  emailNotifications: boolean("emailNotifications").default(true).notNull(),
-  smsNotifications: boolean("smsNotifications").default(false).notNull(),
-  inAppNotifications: boolean("inAppNotifications").default(true).notNull(),
-  emailFrequency: mysqlEnum("emailFrequency", ["immediate", "daily", "weekly"]).default("immediate").notNull(),
-  smsPhoneNumber: varchar("smsPhoneNumber", { length: 20 }), // E.164 format
-  notifyOnTicketCreated: boolean("notifyOnTicketCreated").default(true).notNull(),
-  notifyOnTicketUpdated: boolean("notifyOnTicketUpdated").default(true).notNull(),
-  notifyOnTicketResolved: boolean("notifyOnTicketResolved").default(true).notNull(),
-  notifyOnSurveyRequest: boolean("notifyOnSurveyRequest").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type NotificationPreference = typeof notificationPreferences.$inferSelect;
-export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
-
-// Notification Queue — pending notifications to be sent
-export const notificationQueue = mysqlTable("notificationQueue", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(), // recipient userId
-  type: mysqlEnum("type", ["email", "sms", "in_app"]).notNull(),
-  subject: varchar("subject", { length: 255 }), // for email
-  content: text("content").notNull(),
-  relatedTicketId: int("relatedTicketId"), // optional: ticket this relates to
-  relatedEntityType: varchar("relatedEntityType", { length: 50 }), // "ticket", "survey", "kb_article"
-  relatedEntityId: int("relatedEntityId"), // ID of related entity
-  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).default("pending").notNull(),
-  sentAt: timestamp("sentAt"),
-  failureReason: text("failureReason"),
-  retryCount: int("retryCount").default(0).notNull(),
-  maxRetries: int("maxRetries").default(3).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type NotificationQueueItem = typeof notificationQueue.$inferSelect;
-export type InsertNotificationQueueItem = typeof notificationQueue.$inferInsert;
-
-// Customer Portal Activity — track customer actions in self-service portal
-export const customerPortalActivity = mysqlTable("customerPortalActivity", {
-  id: int("id").autoincrement().primaryKey(),
-  customerId: int("customerId").notNull(),
-  action: mysqlEnum("action", ["view_ticket", "view_kb", "submit_survey", "add_comment", "login", "logout"]).notNull(),
-  resourceType: varchar("resourceType", { length: 50 }), // "ticket", "kb_article", "survey"
-  resourceId: int("resourceId"), // ID of resource
-  metadata: text("metadata"), // additional context (JSON string)
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type CustomerPortalActivity = typeof customerPortalActivity.$inferSelect;
-export type InsertCustomerPortalActivity = typeof customerPortalActivity.$inferInsert;
-
-// Chat Suggestions — track KB article suggestions shown in live chat
-export const chatSuggestions = mysqlTable("chatSuggestions", {
-  id: int("id").autoincrement().primaryKey(),
-  chatSessionId: int("chatSessionId").notNull(), // realtimeChatSessions.id
-  articleId: int("articleId").notNull(),
-  suggestedBy: mysqlEnum("suggestedBy", ["ai", "agent"]).default("ai").notNull(),
-  suggestedAt: timestamp("suggestedAt").defaultNow().notNull(),
-  clickedAt: timestamp("clickedAt"), // when user clicked the suggestion
-  helpful: boolean("helpful"), // user feedback
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type ChatSuggestion = typeof chatSuggestions.$inferSelect;
-export type InsertChatSuggestion = typeof chatSuggestions.$inferInsert;
-
-
-// Custom User Roles & Permissions
-export const customRoles = mysqlTable("customRoles", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull().unique(),
-  description: text("description"),
-  permissions: json("permissions").$type<string[]>().notNull(), // Array of permission codes
-  isSystem: boolean("isSystem").default(false).notNull(), // System roles cannot be deleted
-  createdBy: int("createdBy").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const userActivity = mysqlTable("userActivity", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" } ),
+	activityType: varchar({ length: 50 }).notNull(),
+	description: text(),
+	ipAddress: varchar({ length: 45 }),
+	userAgent: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
 export const userRoleAssignments = mysqlTable("userRoleAssignments", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  roleId: int("roleId").notNull().references(() => customRoles.id, { onDelete: "cascade" }),
-  assignedBy: int("assignedBy").notNull(),
-  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+	id: int().autoincrement().notNull(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" } ),
+	roleId: int().notNull().references(() => customRoles.id, { onDelete: "cascade" } ),
+	assignedBy: int().notNull(),
+	assignedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
-// Admin Menu Customization
-export const adminMenuCustomization = mysqlTable("adminMenuCustomization", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  menuOrder: json("menuOrder").$type<string[]>().notNull(), // Array of menu item IDs in custom order
-  collapsedSections: json("collapsedSections").$type<string[]>().notNull(), // Array of collapsed section names
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const userSessions = mysqlTable("userSessions", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull(),
+	isOnline: tinyint().default(0).notNull(),
+	lastActivityAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("userSessions_userId_unique").on(table.userId),
+]);
+
+export const users = mysqlTable("users", {
+	id: int().autoincrement().notNull(),
+	openId: varchar({ length: 64 }).notNull(),
+	name: text(),
+	email: varchar({ length: 320 }),
+	loginMethod: varchar({ length: 64 }),
+	role: mysqlEnum(['user','admin','technician']).default('user').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	lastSignedIn: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	approved: tinyint().default(0).notNull(),
+	deletedAt: timestamp({ mode: 'string' }),
+},
+(table) => [
+	index("users_openId_unique").on(table.openId),
+]);
+
+export const websiteTraffic = mysqlTable("websiteTraffic", {
+	id: int().autoincrement().notNull(),
+	// you can use { mode: 'date' }, if you want to have Date as type for this column
+	date: date({ mode: 'string' }).notNull(),
+	pageUrl: varchar({ length: 500 }).notNull(),
+	pageTitle: varchar({ length: 500 }),
+	visitors: int().default(0).notNull(),
+	pageViews: int().default(0).notNull(),
+	bounceRate: decimal({ precision: 5, scale: 2 }).default('0'),
+	avgTimeOnPage: int().default(0),
+	referrer: varchar({ length: 500 }),
+	country: varchar({ length: 100 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
-export type CustomRole = typeof customRoles.$inferSelect;
-export type InsertCustomRole = typeof customRoles.$inferInsert;
-export type UserRoleAssignment = typeof userRoleAssignments.$inferSelect;
-export type AdminMenuCustomization = typeof adminMenuCustomization.$inferSelect;
-
-
-// Service Health Check History — track health status over time for uptime calculations
-export const healthCheckHistory = mysqlTable("healthCheckHistory", {
-  id: int("id").autoincrement().primaryKey(),
-  service: varchar("service", { length: 100 }).notNull(), // "Email API", "Helpdesk System", "M365 Service Health"
-  status: mysqlEnum("status", ["healthy", "degraded", "critical", "offline"]).notNull(),
-  responseTime: int("responseTime").notNull(), // milliseconds
-  message: text("message"),
-  metrics: json("metrics").$type<Record<string, unknown>>(), // Service-specific metrics
-  checkedAt: timestamp("checkedAt").defaultNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type HealthCheckRecord = typeof healthCheckHistory.$inferSelect;
-export type InsertHealthCheckRecord = typeof healthCheckHistory.$inferInsert;
-
-// Alert Thresholds — configurable thresholds for each service
-export const alertThresholds = mysqlTable("alertThresholds", {
-  id: int("id").autoincrement().primaryKey(),
-  service: varchar("service", { length: 100 }).notNull().unique(), // "Email API", "Helpdesk System", "M365 Service Health"
-  
-  // Response time threshold (ms) - alert if exceeded
-  responseTimeThreshold: int("responseTimeThreshold").default(5000).notNull(),
-  
-  // Error rate threshold (%) - alert if exceeded
-  errorRateThreshold: int("errorRateThreshold").default(10).notNull(),
-  
-  // Unprocessed tickets threshold - for Helpdesk
-  unprocessedTicketsThreshold: int("unprocessedTicketsThreshold").default(50),
-  
-  // Agent availability threshold (%) - alert if below
-  agentAvailabilityThreshold: int("agentAvailabilityThreshold").default(50),
-  
-  // SLA compliance threshold (%) - alert if below
-  slaComplianceThreshold: int("slaComplianceThreshold").default(90),
-  
-  // Enable/disable alerts for this service
-  enabled: boolean("enabled").default(true).notNull(),
-  
-  // Notification settings
-  notifyOnDegraded: boolean("notifyOnDegraded").default(true).notNull(),
-  notifyOnCritical: boolean("notifyOnCritical").default(true).notNull(),
-  notifyOnRecovery: boolean("notifyOnRecovery").default(true).notNull(),
-  
-  // Last modified
-  updatedBy: int("updatedBy"),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type AlertThreshold = typeof alertThresholds.$inferSelect;
-export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
-
-// Uptime Statistics — pre-calculated uptime percentages for dashboard display
-export const uptimeStatistics = mysqlTable("uptimeStatistics", {
-  id: int("id").autoincrement().primaryKey(),
-  service: varchar("service", { length: 100 }).notNull(),
-  
-  // Time period
-  period: mysqlEnum("period", ["1h", "24h", "7d", "30d"]).notNull(),
-  
-  // Uptime percentage (0-100)
-  uptimePercentage: decimal("uptimePercentage", { precision: 5, scale: 2 }).notNull(),
-  
-  // Counts
-  totalChecks: int("totalChecks").notNull(),
-  healthyChecks: int("healthyChecks").notNull(),
-  degradedChecks: int("degradedChecks").notNull(),
-  criticalChecks: int("criticalChecks").notNull(),
-  offlineChecks: int("offlineChecks").notNull(),
-  
-  // Average response time
-  avgResponseTime: int("avgResponseTime"), // milliseconds
-  
-  // Calculated at
-  calculatedAt: timestamp("calculatedAt").defaultNow().notNull(),
-});
-
-export type UptimeStatistic = typeof uptimeStatistics.$inferSelect;
-export type InsertUptimeStatistic = typeof uptimeStatistics.$inferInsert;
-
-// Service Status Subscriptions — users can subscribe to status updates for specific services
-export const serviceStatusSubscriptions = mysqlTable("serviceStatusSubscriptions", {
-  id: int("id").autoincrement().primaryKey(),
-  email: varchar("email", { length: 320 }).notNull(), // Subscriber email (can be non-user)
-  service: varchar("service", { length: 100 }).notNull(), // "Email API", "Helpdesk System", "M365 Service Health"
-  
-  // Notification preferences
-  notifyOnHealthy: boolean("notifyOnHealthy").default(false).notNull(), // Alert when service recovers
-  notifyOnDegraded: boolean("notifyOnDegraded").default(true).notNull(), // Alert on degradation
-  notifyOnCritical: boolean("notifyOnCritical").default(true).notNull(), // Alert on critical issues
-  notifyOnOffline: boolean("notifyOnOffline").default(true).notNull(), // Alert when offline
-  
-  // Subscription management
-  isActive: boolean("isActive").default(true).notNull(),
-  unsubscribeToken: varchar("unsubscribeToken", { length: 64 }).unique(), // One-click unsubscribe token
-  
-  // Tracking
-  subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
-  lastNotificationSentAt: timestamp("lastNotificationSentAt"),
-  unsubscribedAt: timestamp("unsubscribedAt"),
-  
-  // Unique constraint: one subscription per email+service combo
-});
-
-export type ServiceStatusSubscription = typeof serviceStatusSubscriptions.$inferSelect;
-export type InsertServiceStatusSubscription = typeof serviceStatusSubscriptions.$inferInsert;
-
-// Service Status Change Log — track all status changes for audit trail
-export const serviceStatusChanges = mysqlTable("serviceStatusChanges", {
-  id: int("id").autoincrement().primaryKey(),
-  service: varchar("service", { length: 100 }).notNull(),
-  previousStatus: mysqlEnum("previousStatus", ["healthy", "degraded", "critical", "offline"]).notNull(),
-  newStatus: mysqlEnum("newStatus", ["healthy", "degraded", "critical", "offline"]).notNull(),
-  message: text("message"),
-  notificationsSent: int("notificationsSent").default(0).notNull(), // Count of emails sent
-  changedAt: timestamp("changedAt").defaultNow().notNull(),
-});
-
-export type ServiceStatusChange = typeof serviceStatusChanges.$inferSelect;
-export type InsertServiceStatusChange = typeof serviceStatusChanges.$inferInsert;
-
-
-// Microsoft Quick Assist Sessions — track remote support sessions
-export const quickAssistSessions = mysqlTable("quickAssistSessions", {
-  id: int("id").autoincrement().primaryKey(),
-  sessionCode: varchar("sessionCode", { length: 10 }).notNull().unique(), // 6-digit code
-  ticketId: int("ticketId"), // Link to helpdesk ticket
-  customerId: int("customerId"), // Link to customer
-  initiatedBy: int("initiatedBy").notNull(), // User who started the session
-  description: text("description"), // Session notes
-  status: mysqlEnum("status", ["active", "ended", "expired"]).default("active").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  expiresAt: timestamp("expiresAt").notNull(), // 24 hour expiry
-  endedAt: timestamp("endedAt"), // When session ended
-});
-
-export type QuickAssistSession = typeof quickAssistSessions.$inferSelect;
-export type InsertQuickAssistSession = typeof quickAssistSessions.$inferInsert;
-
-// Blog Tags — tags for blog posts
-export const blogTags = mysqlTable("blogTags", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull().unique(),
-  slug: varchar("slug", { length: 100 }).notNull().unique(), // URL-friendly version
-  description: text("description"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type BlogTag = typeof blogTags.$inferSelect;
-export type InsertBlogTag = typeof blogTags.$inferInsert;
-
-// Blog Post Tags — junction table for many-to-many relationship
-export const blogPostTags = mysqlTable("blogPostTags", {
-  id: int("id").autoincrement().primaryKey(),
-  postId: int("postId").notNull().references(() => blogPosts.id, { onDelete: "cascade" }),
-  tagId: int("tagId").notNull().references(() => blogTags.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type BlogPostTag = typeof blogPostTags.$inferSelect;
-export type InsertBlogPostTag = typeof blogPostTags.$inferInsert;
-
-// KB Generation — tracks auto-generated KB articles from tickets
-export const kbGenerations = mysqlTable("kbGenerations", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
-  sourceTicketTitle: varchar("sourceTicketTitle", { length: 500 }).notNull(),
-  sourceTicketContent: text("sourceTicketContent").notNull(),
-  generatedTitle: varchar("generatedTitle", { length: 500 }).notNull(),
-  generatedContent: text("generatedContent").notNull(), // Markdown
-  suggestedCategory: varchar("suggestedCategory", { length: 100 }).default("general"),
-  suggestedTags: varchar("suggestedTags", { length: 500 }), // comma-separated
-  status: mysqlEnum("status", ["draft", "pending_approval", "approved", "published", "rejected"]).default("draft").notNull(),
-  confidence: int("confidence").default(0), // 0-100 confidence score
-  generatedBy: varchar("generatedBy", { length: 50 }).default("copilot"), // "copilot", "agent", "manual"
-  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
-  approvedBy: int("approvedBy"), // userId who approved
-  approvedAt: timestamp("approvedAt"),
-  rejectionReason: text("rejectionReason"),
-  rejectedBy: int("rejectedBy"),
-  rejectedAt: timestamp("rejectedAt"),
-  publishedArticleId: int("publishedArticleId"), // references kbArticles.id if published
-  publishedAt: timestamp("publishedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type KbGeneration = typeof kbGenerations.$inferSelect;
-export type InsertKbGeneration = typeof kbGenerations.$inferInsert;
-
-// KB Generation Queue — tracks pending KB generation jobs
-export const kbGenerationQueue = mysqlTable("kbGenerationQueue", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
-  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
-  priority: int("priority").default(0), // higher = more urgent
-  errorMessage: text("errorMessage"),
-  attemptCount: int("attemptCount").default(0),
-  maxAttempts: int("maxAttempts").default(3),
-  nextRetryAt: timestamp("nextRetryAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type KbGenerationQueue = typeof kbGenerationQueue.$inferSelect;
-export type InsertKbGenerationQueue = typeof kbGenerationQueue.$inferInsert;
-
-// KB Suggestions for Tickets — suggests relevant KB articles when creating/viewing tickets
-export const ticketKbSuggestions = mysqlTable("ticketKbSuggestions", {
-  id: int("id").autoincrement().primaryKey(),
-  ticketId: int("ticketId").notNull().references(() => tickets.id, { onDelete: "cascade" }),
-  articleId: int("articleId").notNull().references(() => kbArticles.id, { onDelete: "cascade" }),
-  relevanceScore: int("relevanceScore").default(0), // 0-100 relevance score
-  suggestedBy: mysqlEnum("suggestedBy", ["ai", "agent"]).default("ai").notNull(),
-  suggestedAt: timestamp("suggestedAt").defaultNow().notNull(),
-  viewedAt: timestamp("viewedAt"), // when agent viewed the suggestion
-  usedAt: timestamp("usedAt"), // when agent used the suggestion to resolve ticket
-  helpful: boolean("helpful"), // agent feedback
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type TicketKbSuggestion = typeof ticketKbSuggestions.$inferSelect;
-export type InsertTicketKbSuggestion = typeof ticketKbSuggestions.$inferInsert;
-
-// KB Generation Metrics — analytics on KB generation performance
-export const kbGenerationMetrics = mysqlTable("kbGenerationMetrics", {
-  id: int("id").autoincrement().primaryKey(),
-  date: date("date").notNull().unique(),
-  totalGenerated: int("totalGenerated").default(0),
-  totalApproved: int("totalApproved").default(0),
-  totalPublished: int("totalPublished").default(0),
-  totalRejected: int("totalRejected").default(0),
-  avgConfidenceScore: int("avgConfidenceScore").default(0),
-  avgApprovalTime: int("avgApprovalTime").default(0), // in minutes
-  suggestionsShown: int("suggestionsShown").default(0),
-  suggestionsUsed: int("suggestionsUsed").default(0),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type KbGenerationMetric = typeof kbGenerationMetrics.$inferSelect;
-export type InsertKbGenerationMetric = typeof kbGenerationMetrics.$inferInsert;
-
-// ─── Companies / Clients ──────────────────────────────────────────────────────
-
-export const companies = mysqlTable("companies", {
-  id: int("id").primaryKey().autoincrement(),
-  name: varchar("name", { length: 255 }).notNull(),
-  domain: varchar("domain", { length: 255 }),
-  contactEmail: varchar("contactEmail", { length: 255 }),
-  contactPhone: varchar("contactPhone", { length: 50 }),
-  industry: varchar("industry", { length: 100 }),
-  tier: mysqlEnum("tier", ["starter", "professional", "enterprise"]).default("starter"),
-  // Teams per-client channel
-  teamsChannelId: varchar("teamsChannelId", { length: 255 }),
-  teamsChannelName: varchar("teamsChannelName", { length: 255 }),
-  teamsChannelWebhookUrl: varchar("teamsChannelWebhookUrl", { length: 1024 }),
-  teamsChannelCreatedAt: timestamp("teamsChannelCreatedAt"),
-  // Metadata
-  notes: text("notes"),
-  isActive: boolean("isActive").default(true),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
-});
-
-export type Company = typeof companies.$inferSelect;
-export type InsertCompany = typeof companies.$inferInsert;
-
-// Per-client Teams channel provisioning log
-export const teamsClientChannels = mysqlTable("teamsClientChannels", {
-  id: int("id").primaryKey().autoincrement(),
-  companyId: int("companyId").notNull(),
-  companyName: varchar("companyName", { length: 255 }).notNull(),
-  teamsTeamId: varchar("teamsTeamId", { length: 255 }).notNull(),
-  teamsChannelId: varchar("teamsChannelId", { length: 255 }).notNull(),
-  teamsChannelName: varchar("teamsChannelName", { length: 255 }).notNull(),
-  webhookUrl: varchar("webhookUrl", { length: 1024 }),
-  provisionedBy: int("provisionedBy"),
-  provisionedAt: timestamp("provisionedAt").defaultNow(),
-  isActive: boolean("isActive").default(true),
-  lastNotificationAt: timestamp("lastNotificationAt"),
-  notificationCount: int("notificationCount").default(0),
-});
-
-export type TeamsClientChannel = typeof teamsClientChannels.$inferSelect;
-
-// ─── Escalation Pattern Tracking ────────────────────────────────────────────
-// Logs every time Aria escalates to a human agent, capturing the original message
-// and detected intent so we can surface monthly reports in the admin panel.
-export const escalationPatterns = mysqlTable("escalationPatterns", {
-  id: int("id").primaryKey().autoincrement(),
-  sessionId: varchar("sessionId", { length: 255 }).notNull(),
-  originalMessage: text("originalMessage").notNull(),
-  detectedIntent: varchar("detectedIntent", { length: 100 }).default("general"),
-  intentConfidence: varchar("intentConfidence", { length: 20 }).default("0.5"),
-  sentiment: varchar("sentiment", { length: 50 }).default("neutral"),
-  sentimentScore: varchar("sentimentScore", { length: 20 }).default("0.5"),
-  escalationReason: varchar("escalationReason", { length: 255 }).default("user_requested"),
-  kbArticleSuggested: boolean("kbArticleSuggested").default(false),
-  kbArticleId: int("kbArticleId"),
-  ticketId: int("ticketId"),
-  resolvedByAgent: boolean("resolvedByAgent").default(false),
-  resolutionNotes: text("resolutionNotes"),
-  createdAt: timestamp("createdAt").defaultNow(),
-  resolvedAt: timestamp("resolvedAt"),
-});
-export type EscalationPattern = typeof escalationPatterns.$inferSelect;
-export type InsertEscalationPattern = typeof escalationPatterns.$inferInsert;
-
-// ─── Teams Call Logs ─────────────────────────────────────────────────────────
-// Stores PSTN call records fetched from Microsoft Graph API.
-// Used to detect new inbound support calls and generate draft tickets.
-export const callLogs = mysqlTable("callLogs", {
-  id: int("id").primaryKey().autoincrement(),
-  // Microsoft Graph call record ID (unique per call)
-  graphCallId: varchar("graphCallId", { length: 255 }).notNull().unique(),
-  // Caller phone number (E.164 format: +12125551234)
-  callerNumber: varchar("callerNumber", { length: 50 }),
-  // Callee (Teams user) phone number
-  calleeNumber: varchar("calleeNumber", { length: 50 }),
-  // Display name of Teams user who received the call
-  calleeDisplayName: varchar("calleeDisplayName", { length: 255 }),
-  // UPN of the Teams user who answered
-  calleeUpn: varchar("calleeUpn", { length: 320 }),
-  // Matched user ID from our users table (if phone lookup succeeded)
-  matchedUserId: int("matchedUserId"),
-  // Call direction: inbound = customer calling us, outbound = we called them
-  direction: mysqlEnum("direction", ["inbound", "outbound"]).default("inbound"),
-  // Call start/end timestamps
-  startedAt: timestamp("startedAt"),
-  endedAt: timestamp("endedAt"),
-  // Duration in seconds
-  durationSeconds: int("durationSeconds"),
-  // Whether Teams transcription was available
-  hasTranscript: boolean("hasTranscript").default(false),
-  // Transcription status: pending=not yet attempted, transcribing=in progress, done=success, failed=error, unavailable=no audio source
-  transcriptionStatus: mysqlEnum("transcriptionStatus", ["pending", "transcribing", "done", "failed", "unavailable"]).default("unavailable"),
-  // Full transcript text (VTT format converted to plain text)
-  transcriptText: text("transcriptText"),
-  // AI-generated summary of the call
-  aiSummary: text("aiSummary"),
-  // AI-suggested ticket title
-  aiTitle: varchar("aiTitle", { length: 500 }),
-  // AI-suggested priority: low, medium, high, critical
-  aiPriority: varchar("aiPriority", { length: 50 }),
-  // AI-suggested category
-  aiCategory: varchar("aiCategory", { length: 100 }),
-  // AI confidence score (0.0 - 1.0)
-  aiConfidence: varchar("aiConfidence", { length: 10 }),
-  // Processing status
-  status: mysqlEnum("status", ["pending", "analyzed", "draft_created", "ticket_created", "dismissed"]).default("pending"),
-  // Linked draft ticket ID (once created)
-  draftTicketId: int("draftTicketId"),
-  // Linked final ticket ID (once approved)
-  ticketId: int("ticketId"),
-  // ACS recording ID (from startAcsRecording)
-  acsRecordingId: varchar("acsRecordingId", { length: 255 }),
-  // ACS/S3 recording URL for audit trail
-  acsRecordingUrl: varchar("acsRecordingUrl", { length: 2048 }),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
-});
-export type CallLog = typeof callLogs.$inferSelect;
-export type InsertCallLog = typeof callLogs.$inferInsert;
-
-// ─── Call Draft Tickets ───────────────────────────────────────────────────────
-// Holds AI-generated draft tickets from calls, pending admin review.
-// Admin can edit fields before approving to create a real helpdesk ticket.
-export const callDraftTickets = mysqlTable("callDraftTickets", {
-  id: int("id").primaryKey().autoincrement(),
-  // Source call log
-  callLogId: int("callLogId").notNull(),
-  // Caller info (pre-filled from phone lookup or AI)
-  callerPhone: varchar("callerPhone", { length: 50 }),
-  callerName: varchar("callerName", { length: 255 }),
-  callerEmail: varchar("callerEmail", { length: 320 }),
-  // Matched user ID from our system
-  userId: int("userId"),
-  // Draft ticket fields (editable by admin before approval)
-  title: varchar("title", { length: 500 }).notNull(),
-  description: text("description"),
-  category: varchar("category", { length: 100 }),
-  priority: varchar("priority", { length: 50 }),
-  // Admin review status
-  reviewStatus: mysqlEnum("reviewStatus", ["pending", "approved", "rejected", "edited"]).default("pending"),
-  // Admin who reviewed
-  reviewedBy: int("reviewedBy"),
-  reviewedAt: timestamp("reviewedAt"),
-  reviewNotes: text("reviewNotes"),
-  // Final ticket ID after approval
-  ticketId: int("ticketId"),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
-});
-export type CallDraftTicket = typeof callDraftTickets.$inferSelect;
-export type InsertCallDraftTicket = typeof callDraftTickets.$inferInsert;
-
-
-// ============================================================================
-// PHASE 2: CALL CENTER INTEGRATION TABLES
-// ============================================================================
-
-// CALL RECORDING METADATA
-export const callRecordings = mysqlTable("call_recordings", {
-  id: int("id").primaryKey().autoincrement(),
-  callId: varchar("call_id", { length: 255 }).notNull().unique(),
-  customerId: int("customer_id"),
-  agentId: int("agent_id"),
-  recordingUrl: text("recording_url").notNull(),
-  recordingKey: varchar("recording_key", { length: 255 }).notNull(),
-  duration: int("duration"),
-  fileSize: int("file_size"),
-  mimeType: varchar("mime_type", { length: 100 }).default("audio/wav"),
-  startTime: timestamp("start_time").notNull(),
-  endTime: timestamp("end_time"),
-  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
-  retentionDays: int("retention_days").default(90),
-  expiresAt: timestamp("expires_at"),
-  isTranscribed: boolean("is_transcribed").default(false),
-  consentGiven: boolean("consent_given").default(true),
-  complianceNotes: text("compliance_notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type CallRecording = typeof callRecordings.$inferSelect;
-export type InsertCallRecording = typeof callRecordings.$inferInsert;
-
-// CALL TRANSCRIPTS
-export const callTranscripts = mysqlTable("call_transcripts", {
-  id: int("id").primaryKey().autoincrement(),
-  recordingId: int("recording_id").notNull(),
-  callId: varchar("call_id", { length: 255 }).notNull(),
-  fullTranscript: text("full_transcript").notNull(),
-  segments: json("segments"),
-  language: varchar("language", { length: 10 }).default("en-US"),
-  confidence: decimal("confidence", { precision: 3, scale: 2 }),
-  keywords: json("keywords"),
-  entities: json("entities"),
-  summary: text("summary"),
-  actionItems: json("action_items"),
-  searchable: boolean("searchable").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type CallTranscript = typeof callTranscripts.$inferSelect;
-export type InsertCallTranscript = typeof callTranscripts.$inferInsert;
-
-// AGENT QUEUES
-export const agentQueues = mysqlTable("agent_queues", {
-  id: int("id").primaryKey().autoincrement(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
-  description: text("description"),
-  type: mysqlEnum("type", ["general", "senior", "specialist", "vip"]).default("general"),
-  priority: int("priority").default(0),
-  maxConcurrentCalls: int("max_concurrent_calls").default(5),
-  averageWaitTime: int("average_wait_time"),
-  callsWaiting: int("calls_waiting").default(0),
-  agentCount: int("agent_count").default(0),
-  skillRequirements: json("skill_requirements"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type AgentQueue = typeof agentQueues.$inferSelect;
-export type InsertAgentQueue = typeof agentQueues.$inferInsert;
-
-// AGENT QUEUE ASSIGNMENTS
-export const agentQueueAssignments = mysqlTable("agent_queue_assignments", {
-  id: int("id").primaryKey().autoincrement(),
-  agentId: int("agent_id").notNull(),
-  queueId: int("queue_id").notNull(),
-  skillLevel: int("skill_level").default(1),
-  assignedAt: timestamp("assigned_at").defaultNow(),
-  removedAt: timestamp("removed_at"),
-});
-
-export type AgentQueueAssignment = typeof agentQueueAssignments.$inferSelect;
-export type InsertAgentQueueAssignment = typeof agentQueueAssignments.$inferInsert;
-
-// CALL ROUTING
-export const callRouting = mysqlTable("call_routing", {
-  id: int("id").primaryKey().autoincrement(),
-  callId: varchar("call_id", { length: 255 }).notNull(),
-  customerId: int("customer_id"),
-  queueId: int("queue_id"),
-  agentId: int("agent_id"),
-  routingReason: varchar("routing_reason", { length: 100 }),
-  sentimentScore: decimal("sentiment_score", { precision: 3, scale: 2 }),
-  complexityScore: decimal("complexity_score", { precision: 3, scale: 2 }),
-  routingDecision: varchar("routing_decision", { length: 100 }),
-  routingTime: int("routing_time"),
-  routingConfidence: decimal("routing_confidence", { precision: 3, scale: 2 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type CallRouting = typeof callRouting.$inferSelect;
-export type InsertCallRouting = typeof callRouting.$inferInsert;
-
-// CALL ANALYTICS
-export const callAnalytics = mysqlTable("call_analytics", {
-  id: int("id").primaryKey().autoincrement(),
-  callId: varchar("call_id", { length: 255 }).notNull(),
-  recordingId: int("recording_id"),
-  customerId: int("customer_id"),
-  agentId: int("agent_id"),
-  duration: int("duration"),
-  holdTime: int("hold_time"),
-  talkTime: int("talk_time"),
-  silenceTime: int("silence_time"),
-  transferCount: int("transfer_count").default(0),
-  initialSentiment: decimal("initial_sentiment", { precision: 3, scale: 2 }),
-  finalSentiment: decimal("final_sentiment", { precision: 3, scale: 2 }),
-  sentimentTrend: varchar("sentiment_trend", { length: 50 }),
-  customerSatisfaction: decimal("customer_satisfaction", { precision: 3, scale: 2 }),
-  npsScore: int("nps_score"),
-  effortScore: int("effort_score"),
-  isResolved: boolean("is_resolved").default(false),
-  resolutionTime: int("resolution_time"),
-  requiresFollowUp: boolean("requires_follow_up").default(false),
-  aiHandledPercentage: decimal("ai_handled_percentage", { precision: 3, scale: 2 }),
-  aiAccuracy: decimal("ai_accuracy", { precision: 3, scale: 2 }),
-  kbArticlesUsed: int("kb_articles_used").default(0),
-  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type CallAnalytic = typeof callAnalytics.$inferSelect;
-export type InsertCallAnalytic = typeof callAnalytics.$inferInsert;
-
-// AGENT DASHBOARD SESSIONS
-export const agentDashboardSessions = mysqlTable("agent_dashboard_sessions", {
-  id: int("id").primaryKey().autoincrement(),
-  agentId: int("agent_id").notNull(),
-  callId: varchar("call_id", { length: 255 }).notNull(),
-  liveTranscript: text("live_transcript"),
-  suggestedKbArticles: json("suggested_kb_articles"),
-  currentSentiment: decimal("current_sentiment", { precision: 3, scale: 2 }),
-  sentimentColor: varchar("sentiment_color", { length: 50 }),
-  suggestedResponses: json("suggested_responses"),
-  isActive: boolean("is_active").default(true),
-  sessionStarted: timestamp("session_started").defaultNow(),
-  sessionEnded: timestamp("session_ended"),
-  lastTranscriptUpdate: timestamp("last_transcript_update"),
-  lastSentimentUpdate: timestamp("last_sentiment_update"),
-  lastKbUpdate: timestamp("last_kb_update"),
-  lastResponseUpdate: timestamp("last_response_update"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type AgentDashboardSession = typeof agentDashboardSessions.$inferSelect;
-export type InsertAgentDashboardSession = typeof agentDashboardSessions.$inferInsert;
-
-// SENTIMENT ROUTING RULES
-export const sentimentRoutingRules = mysqlTable("sentiment_routing_rules", {
-  id: int("id").primaryKey().autoincrement(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  sentimentMin: decimal("sentiment_min", { precision: 3, scale: 2 }),
-  sentimentMax: decimal("sentiment_max", { precision: 3, scale: 2 }),
-  targetQueueId: int("target_queue_id"),
-  targetAgentId: int("target_agent_id"),
-  escalateToSenior: boolean("escalate_to_senior").default(false),
-  priority: int("priority").default(0),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
-});
-
-export type SentimentRoutingRule = typeof sentimentRoutingRules.$inferSelect;
-export type InsertSentimentRoutingRule = typeof sentimentRoutingRules.$inferInsert;
-
-// AI Demo Page - Lead Capture
-export const demoLeads = mysqlTable("demoLeads", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  company: varchar("company", { length: 255 }),
-  scenario: varchar("scenario", { length: 100 }), // Which demo scenario they were viewing
-  message: text("message"), // Optional message / question
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type DemoLead = typeof demoLeads.$inferSelect;
-export type InsertDemoLead = typeof demoLeads.$inferInsert;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SMS CAMPAIGN SYSTEM
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** SMS Contacts — opted-in recipients */
-export const smsContacts = mysqlTable("smsContacts", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(), // E.164 format: +12125551234
-  email: varchar("email", { length: 320 }),
-  company: varchar("company", { length: 255 }),
-  source: varchar("source", { length: 50 }).default("manual").notNull(),
-  optedIn: boolean("optedIn").default(true).notNull(),
-  optedInAt: timestamp("optedInAt").defaultNow().notNull(),
-  optedOutAt: timestamp("optedOutAt"),
-  optOutReason: varchar("optOutReason", { length: 100 }),
-  tags: json("tags"),
-  notes: text("notes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type SmsContact = typeof smsContacts.$inferSelect;
-export type InsertSmsContact = typeof smsContacts.$inferInsert;
-
-/** SMS Campaigns */
-export const smsCampaigns = mysqlTable("smsCampaigns", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  message: text("message").notNull(),
-  status: mysqlEnum("status", ["draft", "scheduled", "sending", "sent", "paused", "cancelled"]).default("draft").notNull(),
-  scheduledAt: timestamp("scheduledAt"),
-  sentAt: timestamp("sentAt"),
-  createdBy: int("createdBy"),
-  totalRecipients: int("totalRecipients").default(0).notNull(),
-  totalSent: int("totalSent").default(0).notNull(),
-  totalDelivered: int("totalDelivered").default(0).notNull(),
-  totalFailed: int("totalFailed").default(0).notNull(),
-  totalOptedOut: int("totalOptedOut").default(0).notNull(),
-  fromNumber: varchar("fromNumber", { length: 20 }),
-  tags: json("tags"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type SmsCampaign = typeof smsCampaigns.$inferSelect;
-export type InsertSmsCampaign = typeof smsCampaigns.$inferInsert;
-
-/** SMS Messages — individual send records */
-export const smsMessages = mysqlTable("smsMessages", {
-  id: int("id").autoincrement().primaryKey(),
-  campaignId: int("campaignId"),
-  contactId: int("contactId").notNull(),
-  toPhone: varchar("toPhone", { length: 20 }).notNull(),
-  fromPhone: varchar("fromPhone", { length: 20 }).notNull(),
-  body: text("body").notNull(),
-  status: mysqlEnum("status", ["queued", "sent", "delivered", "failed", "undelivered"]).default("queued").notNull(),
-  provider: mysqlEnum("provider", ["twilio", "acs"]).default("twilio").notNull(),
-  providerMessageId: varchar("providerMessageId", { length: 100 }),
-  errorCode: varchar("errorCode", { length: 50 }),
-  errorMessage: text("errorMessage"),
-  sentAt: timestamp("sentAt"),
-  deliveredAt: timestamp("deliveredAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type SmsMessage = typeof smsMessages.$inferSelect;
-export type InsertSmsMessage = typeof smsMessages.$inferInsert;
-
-/** SMS Opt-Out Log — TCPA compliance */
-export const smsOptOuts = mysqlTable("smsOptOuts", {
-  id: int("id").autoincrement().primaryKey(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  contactId: int("contactId"),
-  reason: varchar("reason", { length: 100 }).default("STOP").notNull(),
-  source: varchar("source", { length: 50 }).default("inbound").notNull(),
-  processedAt: timestamp("processedAt").defaultNow().notNull(),
-});
-export type SmsOptOut = typeof smsOptOuts.$inferSelect;
-export type InsertSmsOptOut = typeof smsOptOuts.$inferInsert;
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// STRIPE PAYMENT SYSTEM
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Stripe Customers — maps users to Stripe customer IDs */
-export const stripeCustomers = mysqlTable("stripeCustomers", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: varchar("userId", { length: 255 }).notNull().unique(),
-  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull().unique(),
-  email: varchar("email", { length: 320 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type StripeCustomer = typeof stripeCustomers.$inferSelect;
-export type InsertStripeCustomer = typeof stripeCustomers.$inferInsert;
-
-/** Stripe Subscriptions — tracks active helpdesk subscriptions */
-export const stripeSubscriptions = mysqlTable("stripeSubscriptions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: varchar("userId", { length: 255 }).notNull(),
-  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).notNull().unique(),
-  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull(),
-  planName: varchar("planName", { length: 50 }).notNull(), // Essential, Professional, Elite
-  userCount: int("userCount").notNull(), // Number of users in subscription
-  isAnnual: boolean("isAnnual").default(false).notNull(),
-  status: varchar("status", { length: 50 }).notNull(), // active, past_due, canceled, unpaid
-  currentPeriodStart: timestamp("currentPeriodStart").notNull(),
-  currentPeriodEnd: timestamp("currentPeriodEnd").notNull(),
-  canceledAt: timestamp("canceledAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type StripeSubscription = typeof stripeSubscriptions.$inferSelect;
-export type InsertStripeSubscription = typeof stripeSubscriptions.$inferInsert;
-
-// Xero OAuth Tokens — stores access/refresh tokens for Xero API integration
 export const xeroTokens = mysqlTable("xeroTokens", {
-  id: int("id").autoincrement().primaryKey(),
-  /** Xero tenant ID (organisation ID) returned after OAuth connect */
-  tenantId: varchar("tenantId", { length: 255 }).notNull().unique(),
-  /** Xero tenant name (organisation name) */
-  tenantName: varchar("tenantName", { length: 255 }),
-  /** Xero access token (short-lived, ~30 min) */
-  accessToken: text("accessToken").notNull(),
-  /** Xero refresh token (long-lived) */
-  refreshToken: text("refreshToken").notNull(),
-  /** When the access token expires (UTC ms) */
-  expiresAt: timestamp("expiresAt").notNull(),
-  /** Scopes granted during OAuth consent */
-  scopes: text("scopes"),
-  /** Admin user ID who connected this Xero org */
-  connectedBy: int("connectedBy"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type XeroToken = typeof xeroTokens.$inferSelect;
-export type InsertXeroToken = typeof xeroTokens.$inferInsert;
-
-// Application Settings — key-value store for system configuration and scheduler state
-export const settings = mysqlTable("settings", {
-  id: int("id").autoincrement().primaryKey(),
-  key: varchar("key", { length: 255 }).notNull().unique(), // e.g., "aiNewsLastRunDate", "emailDigestLastRunDate"
-  value: text("value").notNull(), // JSON-serialized value
-  description: text("description"), // Optional description of what this setting does
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-export type Setting = typeof settings.$inferSelect;
-export type InsertSetting = typeof settings.$inferInsert;
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// FREE AUDIT SUBMISSIONS
-// ─────────────────────────────────────────────────────────────────────────────
-/** Free Audit Submissions — captures leads from the free audit landing page */
-export const freeAuditSubmissions = mysqlTable("freeAuditSubmissions", {
-  id: int("id").autoincrement().primaryKey(),
-  // Company Info
-  companyName: varchar("companyName", { length: 255 }).notNull(),
-  industry: varchar("industry", { length: 100 }).notNull(),
-  description: text("description"), // Company description/background
-  // Contact Info
-  contactName: varchar("contactName", { length: 255 }).notNull(),
-  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
-  contactPhone: varchar("contactPhone", { length: 20 }),
-  // Audit Details
-  auditType: varchar("auditType", { length: 100 }), // e.g., "Security", "Cloud", "M365", "AI Readiness"
-  currentChallenges: text("currentChallenges"), // What challenges are they facing?
-  goals: text("goals"), // What are their goals?
-  // Status & Tracking
-  status: mysqlEnum("status", ["submitted", "contacted", "in_progress", "completed", "archived"]).default("submitted").notNull(),
-  notes: text("notes"), // Admin notes
-  assignedTo: int("assignedTo"), // Admin user ID
-  // Timestamps
-  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
-  contactedAt: timestamp("contactedAt"),
-  completedAt: timestamp("completedAt"),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type FreeAuditSubmission = typeof freeAuditSubmissions.$inferSelect;
-export type InsertFreeAuditSubmission = typeof freeAuditSubmissions.$inferInsert;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CALL QUALITY SCORES
-// ─────────────────────────────────────────────────────────────────────────────
-/**
- * AI-generated quality scores for call transcripts.
- * Each scored call gets one row with rubric-based category scores and an overall total.
- * Linked to callLogs via callLogId.
- */
-export const callQualityScores = mysqlTable("callQualityScores", {
-  id: int("id").autoincrement().primaryKey(),
-  // Source call log
-  callLogId: int("callLogId").notNull().unique(),
-  // Agent who handled the call
-  agentName: varchar("agentName", { length: 255 }),
-  agentUpn: varchar("agentUpn", { length: 320 }),
-  // Rubric category scores (0–10 each)
-  scoreGreeting: int("scoreGreeting"),         // Professional greeting & intro
-  scoreEmpathy: int("scoreEmpathy"),           // Empathy & active listening
-  scoreTechnical: int("scoreTechnical"),       // Technical accuracy & knowledge
-  scoreResolution: int("scoreResolution"),     // Problem resolution effectiveness
-  scoreCommunication: int("scoreCommunication"), // Clarity & communication style
-  scoreCompliance: int("scoreCompliance"),     // Compliance & procedure adherence
-  // Weighted total (0–100)
-  totalScore: int("totalScore"),
-  // Letter grade: A, B, C, D, F
-  grade: varchar("grade", { length: 2 }),
-  // AI narrative summary of the call quality
-  aiSummary: text("aiSummary"),
-  // Key strengths identified
-  strengths: text("strengths"),
-  // Areas for improvement
-  improvements: text("improvements"),
-  // Scoring model version (for future rubric changes)
-  modelVersion: varchar("modelVersion", { length: 20 }).default("v1").notNull(),
-  // Whether this was manually triggered or auto-scored
-  scoredBy: mysqlEnum("scoredBy", ["auto", "manual"]).default("auto").notNull(),
-  scoredAt: timestamp("scoredAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type CallQualityScore = typeof callQualityScores.$inferSelect;
-export type InsertCallQualityScore = typeof callQualityScores.$inferInsert;
-
-
-// ============================================================================
-// SEARCH FEATURE TABLES
-// ============================================================================
-
-/**
- * Search Index Table
- * Stores searchable content from all pages, blog posts, KB articles, services, etc.
- * Supports full-text search and semantic search via embeddings.
- */
-export const searchIndex = mysqlTable("searchIndex", {
-  id: int("id").autoincrement().primaryKey(),
-  
-  // Content identification
-  contentType: mysqlEnum("contentType", [
-    "page",           // Static pages (services, industries, etc.)
-    "blog",           // Blog posts
-    "kb",             // Knowledge base articles
-    "faq",            // FAQ entries
-    "service",        // Service pages
-    "industry",       // Industry pages
-    "pricing",        // Pricing pages
-    "case_study",     // Case studies
-  ]).notNull(),
-  
-  sourceId: varchar("sourceId", { length: 255 }).notNull(), // ID from source table (e.g., blog post ID)
-  
-  // Content fields for full-text search
-  title: varchar("title", { length: 500 }).notNull(),
-  excerpt: text("excerpt").notNull(), // 100-200 char summary
-  content: text("content").notNull(), // Full searchable content
-  
-  // URL and metadata
-  url: varchar("url", { length: 1000 }).notNull(),
-  metadata: json("metadata").$type<{
-    author?: string;
-    category?: string;
-    tags?: string[];
-    date?: string;
-    readTime?: string;
-    imageUrl?: string;
-  }>(),
-  
-  // Semantic search embedding (vector representation of content)
-  // Stored as JSON for MySQL compatibility (can be migrated to vector DB later)
-  embedding: text("embedding"), // JSON stringified float32 array
-  
-  // Search ranking factors
-  popularity: int("popularity").default(0), // Click count or view count
-  relevanceScore: int("relevanceScore").default(0), // Computed relevance (0-100)
-  
-  // Indexing metadata
-  indexed: boolean("indexed").default(true).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type SearchIndex = typeof searchIndex.$inferSelect;
-export type InsertSearchIndex = typeof searchIndex.$inferInsert;
-
-/**
- * Search Analytics Table
- * Tracks user search queries, click-through rates, and popular searches
- */
-export const searchAnalytics = mysqlTable("searchAnalytics", {
-  id: int("id").autoincrement().primaryKey(),
-  
-  // Query information
-  query: varchar("query", { length: 500 }).notNull(),
-  resultsCount: int("resultsCount").default(0).notNull(),
-  
-  // User interaction
-  userId: int("userId"), // Optional: logged-in user ID
-  sessionId: varchar("sessionId", { length: 255 }).notNull(), // Session identifier
-  
-  // Click tracking
-  clickedResultId: int("clickedResultId"), // Which search result was clicked
-  clickedUrl: varchar("clickedUrl", { length: 1000 }), // URL of clicked result
-  clickPosition: int("clickPosition"), // Position in results (1st, 2nd, etc.)
-  
-  // Query quality metrics
-  hasResults: boolean("hasResults").notNull(), // Did query return any results?
-  noResultsQuery: boolean("noResultsQuery").default(false).notNull(), // Flag for no-results queries
-  
-  // Metadata
-  userAgent: varchar("userAgent", { length: 500 }), // Browser/device info
-  referrer: varchar("referrer", { length: 1000 }), // Where user came from
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type SearchAnalytic = typeof searchAnalytics.$inferSelect;
-export type InsertSearchAnalytic = typeof searchAnalytics.$inferInsert;
-
-/**
- * Search Suggestions Table
- * Pre-computed suggestions for real-time autocomplete
- */
-export const searchSuggestions = mysqlTable("searchSuggestions", {
-  id: int("id").autoincrement().primaryKey(),
-  
-  // Suggestion text
-  suggestion: varchar("suggestion", { length: 255 }).notNull().unique(),
-  
-  // Suggestion metadata
-  type: mysqlEnum("type", [
-    "popular",        // Popular search term
-    "trending",       // Trending search
-    "content_title",  // Exact content title
-    "auto_complete",  // Auto-completion suggestion
-  ]).notNull(),
-  
-  // Ranking
-  popularity: int("popularity").default(0).notNull(), // How often searched
-  clickThroughRate: int("clickThroughRate").default(0).notNull(), // CTR percentage
-  
-  // Metadata
-  relatedContentIds: text("relatedContentIds"), // JSON array of related search index IDs
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type SearchSuggestion = typeof searchSuggestions.$inferSelect;
-export type InsertSearchSuggestion = typeof searchSuggestions.$inferInsert;
+	id: int().autoincrement().notNull(),
+	tenantId: varchar({ length: 255 }).notNull(),
+	tenantName: varchar({ length: 255 }),
+	accessToken: text().notNull(),
+	refreshToken: text().notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	scopes: text(),
+	connectedBy: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("xeroTokens_tenantId_unique").on(table.tenantId),
+]);
