@@ -627,7 +627,7 @@ export default function AIChatWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className={`fixed bottom-6 right-6 ${isMinimized ? 'w-80 h-16' : 'w-[500px] h-[700px]'} bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20 transition-all duration-300`}>
+        <div className={`fixed bottom-6 right-6 ${isMinimized ? 'w-72 sm:w-80 h-16' : 'w-[95vw] sm:w-[500px] h-[90vh] sm:h-[700px] max-h-[90vh]'} bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20 transition-all duration-300`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-4 rounded-t-lg border-b border-cyan-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -711,27 +711,27 @@ export default function AIChatWidget() {
             className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/50 min-h-0"
           >
             {!hasInteracted && messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-4">
-                  <MessageSquare className="w-8 h-8 text-cyan-400" />
+              <div className="flex flex-col items-center justify-center h-full text-center px-2 sm:px-4">
+                <div className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-2 sm:mb-4">
+                  <MessageSquare className="w-6 sm:w-8 h-6 sm:h-8 text-cyan-400" />
                 </div>
-                <h4 className="text-white font-semibold mb-2">Welcome to GigitekAI</h4>
-                <p className="text-gray-400 text-sm mb-6">Your AI-powered technology partner. How can I help you today?</p>
+                <h4 className="text-white font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Welcome to GigitekAI</h4>
+                <p className="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-6">Your AI-powered technology partner. How can I help you today?</p>
 
                 {/* Quick Action Buttons */}
-                <div ref={actionsMenuRef} className="grid grid-cols-2 gap-2 w-full">
+                <div ref={actionsMenuRef} className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                   <button
                     onClick={() => setShowAssessmentForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
-                    <div className="text-lg mb-1">🧠</div>
+                    <div className="text-base sm:text-lg mb-0.5 sm:mb-1">🧠</div>
                     AI Assessment
                   </button>
                   <button
                     onClick={() => setShowMigrationForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">☁️</div>
                     Cloud Migration
@@ -739,7 +739,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowAutomationForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">⚡</div>
                     Automation
@@ -747,7 +747,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowSecurityForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">🛡️</div>
                     Security Audit
@@ -755,7 +755,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowBugForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">🐛</div>
                     Report a Bug
@@ -763,7 +763,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowTicketForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-blue-600/30 to-blue-700/30 hover:from-blue-600/50 hover:to-blue-700/50 rounded-lg border border-blue-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-blue-600/30 to-blue-700/30 hover:from-blue-600/50 hover:to-blue-700/50 rounded-lg border border-blue-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">📧</div>
                     Submit Ticket
@@ -771,7 +771,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => sendQuickMessage("I have a general question")}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-teal-600/30 to-teal-700/30 hover:from-teal-600/50 hover:to-teal-700/50 rounded-lg border border-teal-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-teal-600/30 to-teal-700/30 hover:from-teal-600/50 hover:to-teal-700/50 rounded-lg border border-teal-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">❓</div>
                     General Help
@@ -779,7 +779,7 @@ export default function AIChatWidget() {
                   <button
                     onClick={() => setShowSpecialistForm(true)}
                     disabled={isLoading}
-                    className="p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">📞</div>
                     Talk to a specialist
