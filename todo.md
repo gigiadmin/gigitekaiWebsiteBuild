@@ -133,7 +133,7 @@
   - [x] Generate formatted payload for all 50 articles
   - [x] Articles ready for AI chat self-service support
   - [x] KB semantic validation prevents irrelevant suggestions
-  - [ ] Execute bulkInsert to populate database (requires admin access to call tRPC)
+  - [x] Execute bulkInsert to populate database (requires admin access to call tRPC)
 
 - [x] **Execute KB Bulk Insertion** — KB seeding module created with `seed` admin procedure
 - [x] **Create Admin KB Management UI** — `bulkInsert` and `seed` tRPC procedures ready
