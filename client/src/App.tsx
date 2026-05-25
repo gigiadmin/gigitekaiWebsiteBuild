@@ -337,7 +337,7 @@ function App() {
               {!hideWidgets && <AnnouncementBar />}
               {!hideWidgets && <FloatingContactDial />}
               {!hideWidgets && <MobileAIDemoCTA />}
-              {/* <AIChatWidget /> - Temporarily disabled due to component error */}
+              <AIChatWidget />
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
           )}
