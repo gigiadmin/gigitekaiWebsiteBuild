@@ -156,3 +156,11 @@
   - [x] Auto-trigger specialist contact form modal when bot says "I'll connect you"
   - [x] Test bot recognizes "yes to call" and opens form instead of asking for clarification
   - [x] Form submission captures contact info without requiring chat typing
+
+
+- [x] **Fix Holiday/Business Hours Detection** — Prevent agent connection offers when team is closed
+  - [x] Add US holidays list (Memorial Day, July 4th, Labor Day, Thanksgiving, Christmas, New Year's, etc.)
+  - [x] Check current time and date before offering specialist connection
+  - [x] Modify bot response to suggest alternatives when agents unavailable (KB articles, leave message, schedule callback)
+  - [x] Bot now shows "We're closed today for [Holiday]" message instead of offering connection
+  - [x] Suggests KB articles and callback scheduling when support is unavailable

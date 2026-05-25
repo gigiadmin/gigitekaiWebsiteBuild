@@ -3,6 +3,7 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import { isSupportAvailable, getNextAvailableTime } from "../business-hours";
 import {
   buildTicketConfirmationEmail,
   formatCategory,
@@ -541,6 +542,16 @@ export const aibotRouter = router({
             console.warn('[AIBot] Proactive KB suggestion failed (non-critical):', proactiveErr);
           }
         }
+        // Check if support team is available BEFORE offering specialist connection
+        const supportStatus = isSupportAvailable();
+        if (!supportStatus.available && 
+            (assistantMessage.toLowerCase().includes("i'll connect you") ||
+             assistantMessage.toLowerCase().includes("connect you with our specialist") ||
+             assistantMessage.toLowerCase().includes("specialist team"))) {
+          const nextAvailable = getNextAvailableTime();
+          assistantMessage = `${supportStatus.reason}\n\n💬 **In the meantime:**\n- Browse our KB articles for self-service help\n- Leave a message with your details and we'll respond ${nextAvailable}\n- Or schedule a callback when we're back online`;
+        }
+
 
         // Check if escalation is needed (angry customers or complex issues)
         const autoEscalateFromSentiment = shouldAutoEscalate(analysis.sentiment, analysis.sentimentScore);
@@ -608,10 +619,24 @@ export const aibotRouter = router({
           // Message count is incremented by the database
         }
 
-        // Detect if bot is connecting user to specialist
-        const openSpecialistForm = assistantMessage.toLowerCase().includes("i'll connect you") ||
-          assistantMessage.toLowerCase().includes("connect you with our specialist") ||
-          assistantMessage.toLowerCase().includes("specialist team");
+        // Check if support team is available before offering specialist connection
+        const supportStatus = isSupportAvailable();
+        let openSpecialistForm = false;
+
+        if (assistantMessage.toLowerCase().includes("i'll connect you") ||
+            assistantMessage.toLowerCase().includes("connect you with our specialist") ||
+            assistantMessage.toLowerCase().includes("specialist team")) {
+          
+          if (!supportStatus.available) {
+            // Support is closed - modify response to suggest alternatives
+            const nextAvailable = getNextAvailableTime();
+            assistantMessage = `${supportStatus.reason}\n\n💬 **In the meantime:**\n- Browse our KB articles for self-service help\n- Leave a message with your details and we'll respond ${nextAvailable}\n- Or schedule a callback when we're back online`;
+            openSpecialistForm = false; // Don't open form if support is closed
+          } else {
+            // Support is available - open specialist form
+            openSpecialistForm = true;
+          }
+        }
 
         return {
           sessionId,
