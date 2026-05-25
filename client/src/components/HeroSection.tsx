@@ -30,21 +30,22 @@ export default function HeroSection() {
   const [ended, setEnded] = useState(false);
   const [muted, setMuted] = useState(true); // always starts muted
   const [volume, setVolume] = useState(0.5);
-  // Default to true on first render so mobile gets the correct (smaller) video immediately
+  // Use matchMedia for reliable mobile detection (works with Lighthouse emulation)
   const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth <= 768;
+    if (typeof window === 'undefined') return true; // default to mobile (safer for perf)
+    return window.matchMedia('(max-width: 768px)').matches;
   });
   // Defer video loading until after page is interactive (improves LCP)
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Detect mobile
+  // Detect mobile via matchMedia
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const mq = window.matchMedia('(max-width: 768px)');
+    const check = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    check(mq);
+    mq.addEventListener('change', check as (e: MediaQueryListEvent) => void);
+    return () => mq.removeEventListener('change', check as (e: MediaQueryListEvent) => void);
   }, []);
 
   // Fade-in
