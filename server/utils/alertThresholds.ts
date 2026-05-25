@@ -151,7 +151,7 @@ export async function updateAlertThreshold(
             ? config.notifyOnRecovery
             : existing[0].notifyOnRecovery,
         updatedBy,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString() as any,
       })
       .where(eq(alertThresholds.service, service));
   }
