@@ -496,6 +496,13 @@ export default function AIChatWidget() {
       console.log("[Chat] Got response:", response.message.substring(0, 50));
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
 
+      // Auto-trigger specialist form if bot is connecting user to specialist
+      if (response.openSpecialistForm) {
+        setTimeout(() => {
+          setShowSpecialistForm(true);
+        }, 500);
+      }
+
       if (response.shouldEscalate && response.messageCount && response.messageCount > 2) {
         setTimeout(() => {
           toast.info("Our support team is ready", {

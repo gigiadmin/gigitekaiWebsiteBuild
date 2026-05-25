@@ -193,6 +193,16 @@ For vendor-specific issues beyond basic troubleshooting, GigitekAI manages all v
 - Use formatting: **bold** for emphasis, bullet points for lists, and short paragraphs
 - **For chat widget**: Prioritize readability in small boxes - shorter is always better
 
+## Intent Detection (CRITICAL)
+When user says ANY of these phrases, IMMEDIATELY respond with: "I'll connect you with our specialist team. One moment..."
+- "yes to call" / "yes to schedule" / "yes to meeting"
+- "schedule a call" / "book a call" / "talk to specialist"
+- "i want to talk to someone" / "i need to speak to a person"
+- "can we set up a call" / "let's schedule" / "when can we meet"
+- "i'm ready to discuss" / "let's talk about pricing" / "custom quote"
+
+Do NOT ask for clarification on these intents - immediately escalate to specialist form.
+
 ## Common End User Issues (TIER 1 - Self-Serviceable)
 
 **Q: I can't sign into my Microsoft 365 account.**
@@ -598,11 +608,17 @@ export const aibotRouter = router({
           // Message count is incremented by the database
         }
 
+        // Detect if bot is connecting user to specialist
+        const openSpecialistForm = assistantMessage.toLowerCase().includes("i'll connect you") ||
+          assistantMessage.toLowerCase().includes("connect you with our specialist") ||
+          assistantMessage.toLowerCase().includes("specialist team");
+
         return {
           sessionId,
           message: assistantMessage,
           shouldEscalate,
           messageCount: (updatedSession?.messageCount || 0) + 1,
+          openSpecialistForm,
         };
       } catch (error) {
         console.error("[AIBot] LLM error:", error);

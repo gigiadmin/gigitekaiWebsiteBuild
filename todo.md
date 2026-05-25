@@ -149,3 +149,10 @@
   - [x] Create data file at /client/src/data/kb-articles-51-80.json
   - [x] AdminKBBulkInsert component ready to insert articles
   - [x] Access admin panel and click "Insert 30 KB Articles" button to populate database
+
+
+- [x] **Fix Bot Intent Detection & Form Modal** — Auto-trigger specialist form on "yes to call" and contact info requests
+  - [x] Improve bot intent detection for "yes to call" and "schedule call" keywords (added to system prompt)
+  - [x] Auto-trigger specialist contact form modal when bot says "I'll connect you"
+  - [x] Test bot recognizes "yes to call" and opens form instead of asking for clarification
+  - [x] Form submission captures contact info without requiring chat typing
