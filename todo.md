@@ -5593,6 +5593,8 @@
 - [x] Add voicemail deduplication logic to prevent duplicate tickets
 - [x] Create test endpoint (/api/voicemail/test) for development
 - [x] All 9 vitest tests passing
+- [x] Disabled M365 Group voicemail poller (was polling every 5 minutes and creating duplicates)
+- [x] Updated webhook health check to run hourly instead of every 4 hours
 - [ ] Fix Teams webhook URL (API version invalid - needs TEAMS_WEBHOOK_URL update in secrets)
   - Current error: API version 1 is not supported. Supported versions: 2024-10-01, 2022-03-01-preview, 2021-10-01-preview
   - Action: Update TEAMS_WEBHOOK_URL secret with valid webhook URL from Teams
