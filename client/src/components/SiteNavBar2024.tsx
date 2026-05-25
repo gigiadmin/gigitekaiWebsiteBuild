@@ -186,10 +186,7 @@ export default function SiteNavBar2024() {
              ))}
           </div>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex items-center flex-1 max-w-xs mx-4">
-            <SearchBar />
-          </div>
+          {/* Search Bar - DISABLED - removed due to poor UX */}
 
           {/* CTA + Theme Toggle */}
           <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
@@ -325,10 +322,7 @@ export default function SiteNavBar2024() {
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </a>
 
-              {/* Mobile Search Bar */}
-              <div className="px-4 py-3 border-t border-white/10">
-                <SearchBar />
-              </div>
+              {/* Mobile Search Bar - DISABLED - removed due to poor UX */}
 
               {/* Mobile Theme Toggle */}
               {toggleTheme && (
