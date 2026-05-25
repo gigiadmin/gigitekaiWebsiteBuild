@@ -38,6 +38,7 @@ export async function calculateUptimeStats(
   if (!db) throw new Error("Database connection failed");
 
   const startTime = getTimeRange(period);
+  const startTimeStr = startTime.toISOString();
 
   // Fetch all health checks in the period
   const checks = await db
@@ -46,7 +47,7 @@ export async function calculateUptimeStats(
     .where(
       and(
         eq(healthCheckHistory.service, service),
-        gte(healthCheckHistory.checkedAt, startTime)
+        gte(healthCheckHistory.checkedAt, startTimeStr)
       )
     );
 
@@ -106,8 +107,8 @@ export async function storeHealthCheck(
     responseTime,
     message,
     metrics,
-    checkedAt: new Date(),
-    createdAt: new Date(),
+    checkedAt: new Date().toISOString() as any,
+    createdAt: new Date().toISOString() as any,
   });
 }
 
@@ -196,6 +197,7 @@ export async function getUptimeTrendData(service: string) {
   if (!db) throw new Error("Database connection failed");
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString();
 
   // Get hourly uptime data for the last 7 days
   const checks = await db
@@ -204,7 +206,7 @@ export async function getUptimeTrendData(service: string) {
     .where(
       and(
         eq(healthCheckHistory.service, service),
-        gte(healthCheckHistory.checkedAt, sevenDaysAgo)
+        gte(healthCheckHistory.checkedAt, sevenDaysAgoStr)
       )
     )
     .orderBy(healthCheckHistory.checkedAt);
@@ -247,10 +249,11 @@ export async function cleanupOldHealthChecks() {
   if (!db) throw new Error("Database connection failed");
 
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const ninetyDaysAgoStr = ninetyDaysAgo.toISOString();
 
   const result = await db
     .delete(healthCheckHistory)
-    .where(gte(healthCheckHistory.createdAt, ninetyDaysAgo));
+    .where(gte(healthCheckHistory.createdAt, ninetyDaysAgoStr));
 
   return result;
 }
