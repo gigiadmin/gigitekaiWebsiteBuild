@@ -137,7 +137,7 @@ function ReviewModal({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-[#0D1117] border border-white/10 text-white">
+      <DialogContent className="w-[95vw] max-w-5xl max-h-[90vh] overflow-y-auto overflow-x-auto bg-[#0D1117] border border-white/10 text-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-[#00D4FF]">
             <PhoneIncoming className="w-5 h-5" />
@@ -265,7 +265,7 @@ function ReviewModal({
                 className="bg-white/5 border-white/10 text-white resize-none break-words [overflow-wrap:anywhere]"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-xs text-gray-400 mb-1 block">Priority</label>
                 <Select value={priority} onValueChange={setPriority}>
