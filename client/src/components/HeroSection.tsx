@@ -330,11 +330,9 @@ export default function HeroSection() {
             NEXT-GEN CLOUD & AI SOLUTIONS
           </div>
 
-          {/* Headline */}
-          <h1 fetchPriority="high"
-            className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6 transition-[opacity,transform] duration-700 delay-100 ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
+          {/* Headline — visible immediately (no fade-in) to make it the LCP element */}
+          <h1
+            className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Intelligent
