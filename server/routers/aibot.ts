@@ -518,9 +518,14 @@ export const aibotRouter = router({
           // This avoids iterating all 1800+ articles with weak 1-word matching
           try {
             const proactiveSuggestions = await searchKBArticles(message, 2);
-            if (proactiveSuggestions.length > 0) {
-              const suggestSection = proactiveSuggestions.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
-              assistantMessage += `\n\n\ud83d\udca1 **Hey, this might help:**\n${suggestSection}`;
+            // Only show suggestions if they have high relevance (score >= 70)
+            // This prevents false positives like 'hello' matching 'Windows Hello'
+            const highRelevanceSuggestions = proactiveSuggestions.filter(
+              (a: any) => (a.relevanceScore || 0) >= 70
+            );
+            if (highRelevanceSuggestions.length > 0) {
+              const suggestSection = highRelevanceSuggestions.map(a => `- [${a.title}](/kb/${a.id})`).join("\n");
+              assistantMessage += `\n\n💡 **Hey, this might help:**\n${suggestSection}`;
             }
           } catch (proactiveErr) {
             console.warn('[AIBot] Proactive KB suggestion failed (non-critical):', proactiveErr);
