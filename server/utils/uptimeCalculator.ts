@@ -213,7 +213,7 @@ export async function getUptimeTrendData(service: string) {
   const hourlyData: Record<string, { healthy: number; total: number }> = {};
 
   checks.forEach((check) => {
-    const hour = new Date(check.checkedAt);
+    const hour = new Date(typeof check.checkedAt === 'string' ? check.checkedAt : check.checkedAt);
     hour.setMinutes(0, 0, 0);
     const key = hour.toISOString();
 

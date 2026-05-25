@@ -620,7 +620,6 @@ export const aibotRouter = router({
         }
 
         // Check if support team is available before offering specialist connection
-        const supportStatus = isSupportAvailable();
         let openSpecialistForm = false;
 
         if (assistantMessage.toLowerCase().includes("i'll connect you") ||
