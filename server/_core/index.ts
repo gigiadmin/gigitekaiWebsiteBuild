@@ -44,6 +44,7 @@ import newsletterAutoPost from "../newsletterAutoPost";
 import stripeWebhookRoute from "../routes/stripe-webhook-route";
 import { registerXeroOAuthRoutes } from "../routers/xero";
 import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
+import { voicemailRouter } from "../voicemailRoute";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -221,6 +222,9 @@ async function startServer() {
 
   // ACS Call Recording webhooks (Event Grid + recording state callbacks)
   registerAcsRecordingWebhook(app);
+
+  // Voicemail webhook and test endpoints
+  app.use("/api/voicemail", voicemailRouter);
 
   // Cron job endpoints
   app.use("/api/cron", cronEndpoints);

@@ -5562,3 +5562,19 @@
 - [x] Lazy-load hero video on mobile to reduce initial network payload
 - [x] Vendor chunk reduced from 334KB/116KB gzip to 244KB/89KB gzip
 - [ ] Verify 90+ PageSpeed mobile score after deployment
+
+
+## Voicemail Automation (May 2026 - In Progress)
+- [x] Create voicemailProcessor.ts - AI-driven sentiment and priority analysis using LLM
+- [x] Create voicemailWebhook.ts - Ticket creation and Teams/Email notifications
+- [x] Create emailService.ts - M365/SendGrid email integration with retry logic
+- [x] Create voicemailRoute.ts - API endpoint for voicemail webhooks (/api/voicemail/webhook and /api/voicemail/test)
+- [x] Register voicemail router in server/_core/index.ts
+- [x] Create comprehensive vitest tests for voicemail processor (9 tests passing)
+- [ ] Configure environment variables (MS_GRAPH_CLIENT_ID, MS_GRAPH_CLIENT_SECRET, MS_GRAPH_TENANT_ID, TEAMS_WEBHOOK_URL)
+- [ ] Test voicemail webhook endpoint (/api/voicemail/webhook)
+- [ ] Test voicemail test endpoint (/api/voicemail/test)
+- [ ] Verify Teams webhook integration and adaptive card formatting
+- [ ] Verify email notifications to support@gigitekai.com
+- [ ] Verify ticket assignment to harry@gigitekai.com (architect)
+- [ ] Integrate with Teams voicemail group poller (voicemailGroupPoller.ts already started in server index)
