@@ -1381,23 +1381,14 @@ export const aibotRouter = router({
 
   // ── Admin Aria Monitoring Procedures ─────────────────────────────────────────
 
-  getAriaSessions: publicProcedure
+  getAriaSessions: adminProcedure
     .input(z.object({
       status: z.enum(["active", "escalated", "closed", "all"]).default("all"),
       limit: z.number().min(1).max(200).default(50),
       offset: z.number().min(0).default(0),
     }))
     .query(async ({ input, ctx }) => {
-      // Verify admin access via OAuth or custom admin JWT
-      const req = (ctx as unknown as { req: Request }).req;
-      let isAdmin = ctx.user?.role === 'admin';
-      if (!isAdmin && req) {
-        const admin = await getAdminFromRequest(req);
-        if (admin) isAdmin = true;
-      }
-      if (!isAdmin) {
-        return { sessions: [], total: 0 };
-      }
+      // Admin access already verified by adminProcedure
 
       const db = await getDb();
       if (!db) return { sessions: [], total: 0 };
@@ -1452,21 +1443,12 @@ export const aibotRouter = router({
       }
     }),
 
-  getAriaSessionMessages: publicProcedure
+  getAriaSessionMessages: adminProcedure
     .input(z.object({
       sessionId: z.string(),
     }))
     .query(async ({ input, ctx }) => {
-      // Verify admin access
-      const req = (ctx as unknown as { req: Request }).req;
-      let isAdmin = ctx.user?.role === 'admin';
-      if (!isAdmin && req) {
-        const admin = await getAdminFromRequest(req);
-        if (admin) isAdmin = true;
-      }
-      if (!isAdmin) {
-        return { messages: [], session: null };
-      }
+      // Admin access already verified by adminProcedure
 
       const db = await getDb();
       if (!db) return { messages: [], session: null };
