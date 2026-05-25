@@ -107,11 +107,15 @@
 - **Deployment** — Live and stable, no breaking issues
 - **Next deployment** — Run `webdev_save_checkpoint` and click Publish button in UI
 
-- [x] **Chat Widget Improvements** — COMPLETE: Save/clear buttons, concise responses, KB matching fixed
+- [x] **Chat Widget Improvements** — COMPLETE: Save/clear buttons, concise responses, KB matching fixed, resize/minimize, privacy disclaimer
   - [x] Add "Save chat as file" button (export to .txt) — Download icon in header
   - [x] Add "Clear chat" button (delete all messages) — Trash icon in header
   - [x] Configure bot system prompt for concise, bullet-point responses (max 100 words, 3-4 lines)
-  - [x] Fix KB matching logic — only show suggestions if relevanceScore >= 70 (prevents false positives like 'hello' → 'Windows Hello')
+  - [x] Fix KB matching logic — only show suggestions if relevanceScore >= 70 (prevents false positives)
   - [x] Make clear-chat fully persistent (await backend deletion via trpc.aibot.clearChatHistory)
   - [x] Verify bot produces concise responses in widget
+  - [x] Add minimize/expand button with chevron icon (toggles between minimized and full size)
+  - [x] Resize chat widget to 500px width x 700px height (larger than previous 384x600)
+  - [x] Add privacy disclaimer footer with Privacy Policy link
+  - [x] Add Powered by GigitekAI branding footer with emojis
 

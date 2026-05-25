@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -20,6 +21,7 @@ interface ChatMessage {
 
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -591,7 +593,7 @@ export default function AIChatWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20">
+        <div className={`fixed bottom-6 right-6 ${isMinimized ? 'w-80 h-16' : 'w-[500px] h-[700px]'} bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20 transition-all duration-300`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-4 rounded-t-lg border-b border-cyan-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -604,44 +606,57 @@ export default function AIChatWidget() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {/* Save Chat Button */}
-              <button
-                onClick={() => {
-                  const transcript = messages
-                    .map(msg => `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.message}`)
-                    .join('\n\n');
-                  const element = document.createElement('a');
-                  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(transcript));
-                  element.setAttribute('download', `chat-${new Date().toISOString().split('T')[0]}.txt`);
-                  element.style.display = 'none';
-                  document.body.appendChild(element);
-                  element.click();
-                  document.body.removeChild(element);
-                  toast.success('Chat saved as file');
-                }}
-                className="text-gray-400 hover:text-white transition-colors p-1"
-                title="Save chat as file"
-                disabled={messages.length === 0}
-              >
-                <Download className="w-4 h-4" />
-              </button>
+              {!isMinimized && (
+                <>
+                  {/* Save Chat Button */}
+                  <button
+                    onClick={() => {
+                      const transcript = messages
+                        .map(msg => `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.message}`)
+                        .join('\n\n');
+                      const element = document.createElement('a');
+                      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(transcript));
+                      element.setAttribute('download', `chat-${new Date().toISOString().split('T')[0]}.txt`);
+                      element.style.display = 'none';
+                      document.body.appendChild(element);
+                      element.click();
+                      document.body.removeChild(element);
+                      toast.success('Chat saved as file');
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors p-1"
+                    title="Save chat as file"
+                    disabled={messages.length === 0}
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                  
+                  {/* Clear Chat Button */}
+                  <button
+                    onClick={() => {
+                      if (confirm('Are you sure you want to clear all messages?')) {
+                        setMessages([]);
+                        if (sessionId) {
+                          clearChatHistoryMutation.mutate({ sessionId });
+                        }
+                        toast.success('Chat cleared');
+                      }
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors p-1"
+                    title="Clear chat"
+                    disabled={messages.length === 0}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
               
-              {/* Clear Chat Button */}
+              {/* Minimize Button */}
               <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to clear all messages?')) {
-                    setMessages([]);
-                    if (sessionId) {
-                      clearChatHistoryMutation.mutate({ sessionId });
-                    }
-                    toast.success('Chat cleared');
-                  }
-                }}
+                onClick={() => setIsMinimized(!isMinimized)}
                 className="text-gray-400 hover:text-white transition-colors p-1"
-                title="Clear chat"
-                disabled={messages.length === 0}
+                title={isMinimized ? "Expand" : "Minimize"}
               >
-                <Trash2 className="w-4 h-4" />
+                <ChevronDown className={`w-4 h-4 transition-transform ${isMinimized ? 'rotate-180' : ''}`} />
               </button>
               
               {/* Close Button */}
@@ -655,6 +670,7 @@ export default function AIChatWidget() {
           </div>
 
           {/* Messages Container */}
+          {!isMinimized && (
           <div
             ref={messagesContainerRef}
             onScroll={handleScroll}
@@ -760,6 +776,7 @@ export default function AIChatWidget() {
             ))}
             <div ref={messagesEndRef} />
           </div>
+          )}
 
           {/* Scroll Down Button */}
           {showScrollDown && (
@@ -772,6 +789,7 @@ export default function AIChatWidget() {
           )}
 
           {/* Input Area - Fixed at bottom */}
+          {!isMinimized && (
           <div className="bg-slate-800 border-t border-cyan-500/20 p-4 flex flex-col gap-2">
             <div className="flex gap-2 items-end">
               <textarea
@@ -870,6 +888,19 @@ export default function AIChatWidget() {
                 <span>AI is thinking...</span>
               </div>
             )}
+          </div>
+          )}
+          
+          {/* Privacy Disclaimer */}
+          <div className="bg-slate-800 border-t border-cyan-500/20 px-4 py-3 text-xs text-gray-400 leading-relaxed">
+            <p>By chatting here, you agree we and authorized partners may process, monitor, and record this chat and your data in line with our <a href="/privacy" className="text-cyan-400 hover:text-cyan-300 underline">Privacy Policy</a>.</p>
+          </div>
+          
+          {/* Powered by GigitekAI Footer */}
+          <div className="bg-slate-900 border-t border-cyan-500/20 px-4 py-2 flex items-center justify-center gap-2 text-xs text-gray-400">
+            <span>🚀 Powered by</span>
+            <span className="font-semibold text-cyan-400">GigitekAI</span>
+            <span>⚡</span>
           </div>
         </div>
       )}
