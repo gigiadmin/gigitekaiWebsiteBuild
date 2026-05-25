@@ -1659,6 +1659,13 @@ export const tickets = mysqlTable("tickets", {
 	closingNotes: text(),
 	closedAt: timestamp({ mode: 'string' }),
 	mergedInto: int(),
+	// New fields for ticket form
+	requesterName: varchar({ length: 255 }),
+	requesterEmail: varchar({ length: 320 }),
+	tags: varchar({ length: 255 }), // comma-separated tags
+	includeChatTranscript: tinyint().default(1).notNull(),
+	chatSessionId: varchar({ length: 100 }), // link to chat session
+	chatTranscript: text(), // full chat history if included
 });
 
 export const uptimeStatistics = mysqlTable("uptimeStatistics", {

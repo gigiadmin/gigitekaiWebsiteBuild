@@ -32,6 +32,19 @@ export default function AIChatWidget() {
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" });
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [handoffComplete, setHandoffComplete] = useState(false);
+  // Ticket form state
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketForm, setTicketForm] = useState({
+    subject: "",
+    requesterName: "",
+    requesterEmail: "",
+    tags: "chatbot",
+    priority: "medium",
+    includeChatTranscript: true,
+    description: "",
+  });
+  const [ticketFormErrors, setTicketFormErrors] = useState<Record<string, string>>({});
+  const [ticketSubmitting, setTicketSubmitting] = useState(false);
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -727,7 +740,7 @@ export default function AIChatWidget() {
                     Report a Bug
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("I want to submit a support ticket")}
+                    onClick={() => setShowTicketForm(true)}
                     disabled={isLoading}
                     className="p-3 bg-gradient-to-br from-blue-600/30 to-blue-700/30 hover:from-blue-600/50 hover:to-blue-700/50 rounded-lg border border-blue-500/30 text-white text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -1004,6 +1017,208 @@ export default function AIChatWidget() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Ticket Form Modal */}
+      <Dialog open={showTicketForm} onOpenChange={setShowTicketForm}>
+        <DialogContent className="bg-slate-900 border-cyan-500/20 max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <span>📋</span> Create Support Ticket
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Fill out the form below to create a support ticket
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Step 1: Subject */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">1</span>
+                Subject
+              </label>
+              <Input
+                placeholder="Brief description of your issue"
+                value={ticketForm.subject}
+                onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+              {ticketFormErrors.subject && <p className="text-red-400 text-sm mt-1">{ticketFormErrors.subject}</p>}
+            </div>
+
+            {/* Step 2: Requester Name */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">2</span>
+                Your Name
+              </label>
+              <Input
+                placeholder="John Smith"
+                value={ticketForm.requesterName}
+                onChange={(e) => setTicketForm({ ...ticketForm, requesterName: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+              {ticketFormErrors.requesterName && <p className="text-red-400 text-sm mt-1">{ticketFormErrors.requesterName}</p>}
+            </div>
+
+            {/* Step 3: Email */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">3</span>
+                Email
+              </label>
+              <Input
+                type="email"
+                placeholder="john@company.com"
+                value={ticketForm.requesterEmail}
+                onChange={(e) => setTicketForm({ ...ticketForm, requesterEmail: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              />
+              {ticketFormErrors.requesterEmail && <p className="text-red-400 text-sm mt-1">{ticketFormErrors.requesterEmail}</p>}
+            </div>
+
+            {/* Step 4: Tags */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">4</span>
+                Category
+              </label>
+              <Select value={ticketForm.tags} onValueChange={(value) => setTicketForm({ ...ticketForm, tags: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="chatbot">Chatbot Issue</SelectItem>
+                  <SelectItem value="support">Support Request</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="billing">Billing</SelectItem>
+                  <SelectItem value="technical">Technical</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Step 5: Priority */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">5</span>
+                Priority
+              </label>
+              <Select value={ticketForm.priority} onValueChange={(value) => setTicketForm({ ...ticketForm, priority: value })}>
+                <SelectTrigger className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border border-cyan-500/30">
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Step 6: Include Chat Transcript */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">6</span>
+                Include Chat Transcript
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setTicketForm({ ...ticketForm, includeChatTranscript: !ticketForm.includeChatTranscript })}
+                  className={`w-12 h-6 rounded-full transition-colors ${
+                    ticketForm.includeChatTranscript ? "bg-cyan-600" : "bg-slate-700"
+                  }`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                    ticketForm.includeChatTranscript ? "translate-x-6" : "translate-x-0.5"
+                  }`} />
+                </button>
+                <span className="text-gray-400 text-sm">{ticketForm.includeChatTranscript ? "On" : "Off"}</span>
+              </div>
+            </div>
+
+            {/* Step 7: Description */}
+            <div>
+              <label className="flex items-center gap-2 text-white font-medium mb-2">
+                <span className="w-6 h-6 bg-cyan-600 rounded-full flex items-center justify-center text-xs">7</span>
+                Description
+              </label>
+              <Textarea
+                placeholder="Describe your issue in detail..."
+                value={ticketForm.description}
+                onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
+                className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 min-h-[100px]"
+              />
+              {ticketFormErrors.description && <p className="text-red-400 text-sm mt-1">{ticketFormErrors.description}</p>}
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-2 pt-4">
+              <Button
+                onClick={() => setShowTicketForm(false)}
+                variant="outline"
+                className="flex-1 border-gray-600 text-gray-400 hover:bg-slate-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmitTicket}
+                disabled={ticketSubmitting}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                {ticketSubmitting ? "Creating..." : "Create Ticket"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
+
+  async function handleSubmitTicket() {
+    // Validate form
+    const errors: Record<string, string> = {};
+    if (!ticketForm.subject.trim()) errors.subject = "Subject is required";
+    if (!ticketForm.requesterName.trim()) errors.requesterName = "Name is required";
+    if (!ticketForm.requesterEmail.trim()) errors.requesterEmail = "Email is required";
+    if (!ticketForm.description.trim()) errors.description = "Description is required";
+
+    if (Object.keys(errors).length > 0) {
+      setTicketFormErrors(errors);
+      return;
+    }
+
+    setTicketSubmitting(true);
+    try {
+      // Get chat transcript if enabled
+      let transcript = "";
+      if (ticketForm.includeChatTranscript) {
+        transcript = messages.map(m => `${m.role === "user" ? "You" : "AI"}: ${m.message}`).join("\n\n");
+      }
+
+      // Create ticket via tRPC
+      await sendMessageMutation.mutateAsync({
+        sessionId: sessionId || `local-${Date.now()}`,
+        message: `[TICKET_SUBMISSION] Subject: ${ticketForm.subject}\nName: ${ticketForm.requesterName}\nEmail: ${ticketForm.requesterEmail}\nCategory: ${ticketForm.tags}\nPriority: ${ticketForm.priority}\nDescription: ${ticketForm.description}${transcript ? `\n\nChat Transcript:\n${transcript}` : ""}`
+      });
+
+      toast.success("Ticket created successfully! We'll be in touch soon.");
+      setShowTicketForm(false);
+      setTicketForm({
+        subject: "",
+        requesterName: "",
+        requesterEmail: "",
+        tags: "chatbot",
+        priority: "medium",
+        includeChatTranscript: true,
+        description: "",
+      });
+      setTicketFormErrors({});
+    } catch (error) {
+      toast.error("Failed to create ticket. Please try again.");
+      console.error("Ticket submission error:", error);
+    } finally {
+      setTicketSubmitting(false);
+    }
+  }
 }

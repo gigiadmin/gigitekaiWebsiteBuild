@@ -1373,10 +1373,48 @@ export async function searchKBArticles(keywords: string, limit: number = 3) {
 
     // HIGH threshold: require score > 60 to avoid weak/irrelevant matches
     // This means at least 1 strong title match + 1 tag match, or 2 title matches
-    return scored
+    const filtered = scored
       .filter(a => a.relevanceScore >= 60)
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
-      .slice(0, limit);
+      .slice(0, limit * 2); // Get extra articles for semantic filtering
+
+    // Semantic relevance validation: use LLM to verify articles are truly relevant
+    // This prevents false positives like 'Azure Communication Services' for 'helpdesk pricing'
+    if (filtered.length > 0) {
+      try {
+        const { invokeLLM } = await import("./_core/llm");
+        const articlesToValidate = filtered.slice(0, limit + 2);
+        const validationPrompt = `Given the user query: "${keywords}"
+
+Evaluate if each KB article is semantically relevant (not just keyword overlap):
+
+${articlesToValidate.map((a, i) => `${i + 1}. "${a.title}" - Tags: ${a.tags || 'none'}`).join('\n')}
+
+Respond with a JSON array of booleans indicating relevance (true/false) for each article in order. Example: [true, false, true]
+
+Be strict: reject articles that only share keywords but are about different topics.`;
+
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a semantic relevance validator. Respond ONLY with a JSON array of booleans." },
+            { role: "user", content: validationPrompt }
+          ],
+        });
+
+        const responseText = response.choices?.[0]?.message?.content || "[]";
+        const relevanceArray = JSON.parse(responseText.match(/\[.*\]/s)?.[0] || "[]");
+
+        // Filter articles based on semantic validation
+        const semanticallyRelevant = articlesToValidate.filter((_, i) => relevanceArray[i] === true);
+        return semanticallyRelevant.slice(0, limit);
+      } catch (validationErr) {
+        // If semantic validation fails, fall back to keyword-based filtering
+        console.warn('[Database] Semantic KB validation failed, using keyword filtering:', validationErr);
+        return filtered.slice(0, limit);
+      }
+    }
+
+    return filtered.slice(0, limit);
   } catch (error) {
     console.error("[Database] Failed to search KB articles:", error);
     return [];
