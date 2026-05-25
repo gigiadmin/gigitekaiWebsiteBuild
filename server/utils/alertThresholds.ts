@@ -136,12 +136,14 @@ export async function updateAlertThreshold(
           config.slaComplianceThreshold !== undefined
             ? config.slaComplianceThreshold
             : existing[0].slaComplianceThreshold,
-        enabled:
-          config.enabled !== undefined ? config.enabled : existing[0].enabled,
-        notifyOnDegraded:
+        enabled: (
+          config.enabled !== undefined ? config.enabled : existing[0].enabled
+        ) as any,
+        notifyOnDegraded: (
           config.notifyOnDegraded !== undefined
             ? config.notifyOnDegraded
-            : existing[0].notifyOnDegraded,
+            : existing[0].notifyOnDegraded
+        ) as any,
         notifyOnCritical: (
           config.notifyOnCritical !== undefined
             ? config.notifyOnCritical
