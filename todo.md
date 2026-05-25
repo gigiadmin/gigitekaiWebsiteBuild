@@ -1,7 +1,7 @@
 # GigitekAI Website - TODO List
 
 **Last Updated:** May 25, 2026  
-**Total Items:** 5 uncompleted  
+**Total Items:** 6 uncompleted  
 **Status:** Production live at gigitekai.com
 
 ---
@@ -106,3 +106,12 @@
 - **TypeScript errors** — 422 pre-existing errors from timestamp mode:'string' vs Date. Build uses esbuild (not tsc) so these don't block deployment. Key fix: cronEndpoints.ts timestamp comparisons now use .toISOString()
 - **Deployment** — Live and stable, no breaking issues
 - **Next deployment** — Run `webdev_save_checkpoint` and click Publish button in UI
+
+- [ ] **Chat Widget Improvements** — PARTIAL: Save/clear buttons added, system prompt updated
+  - [x] Add "Save chat as file" button (export to .txt) — Download icon in header
+  - [x] Add "Clear chat" button (delete all messages) — Trash icon in header
+  - [x] Configure bot system prompt for concise, bullet-point responses (max 100 words, 3-4 lines)
+  - [ ] Make clear-chat fully persistent (await backend deletion, invalidate history, clear localStorage)
+  - [ ] Add automated tests for save/clear chat functionality
+  - [ ] Verify bot produces concise responses in widget and test small-box readability
+

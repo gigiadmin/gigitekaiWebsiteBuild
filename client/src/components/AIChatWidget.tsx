@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle, Mic, Square, Upload } from "lucide-react";
+import { Loader2, Send, X, ChevronDown, Phone, MessageSquare, AlertCircle, Mic, Square, Upload, Download, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -603,12 +603,55 @@ export default function AIChatWidget() {
                 <p className="text-xs text-cyan-400">AI-powered support • Always online</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Save Chat Button */}
+              <button
+                onClick={() => {
+                  const transcript = messages
+                    .map(msg => `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.message}`)
+                    .join('\n\n');
+                  const element = document.createElement('a');
+                  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(transcript));
+                  element.setAttribute('download', `chat-${new Date().toISOString().split('T')[0]}.txt`);
+                  element.style.display = 'none';
+                  document.body.appendChild(element);
+                  element.click();
+                  document.body.removeChild(element);
+                  toast.success('Chat saved as file');
+                }}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+                title="Save chat as file"
+                disabled={messages.length === 0}
+              >
+                <Download className="w-4 h-4" />
+              </button>
+              
+              {/* Clear Chat Button */}
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to clear all messages?')) {
+                    setMessages([]);
+                    if (sessionId) {
+                      clearChatHistoryMutation.mutate({ sessionId });
+                    }
+                    toast.success('Chat cleared');
+                  }
+                }}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+                title="Clear chat"
+                disabled={messages.length === 0}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Messages Container */}
