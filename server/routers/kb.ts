@@ -129,6 +129,75 @@ export const kbRouter = router({
       return { success: true };
     }),
 
+  /** Bulk insert KB articles (admin only) */
+  bulkInsert: adminProcedure
+    .input(
+      z.object({
+        articles: z.array(
+          z.object({
+            title: z.string(),
+            category: z.string(),
+            articleCode: z.string().optional(),
+            audience: z.enum(["end-user", "technician", "admin"]).optional(),
+            difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+            estimatedTime: z.string().optional(),
+            symptoms: z.string().optional(),
+            rootCause: z.string().optional(),
+            resolutionSteps: z.array(z.string()).optional(),
+            isPublished: z.boolean().default(true),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      let inserted = 0;
+      let failed = 0;
+      const errors: string[] = [];
+
+      for (const article of input.articles) {
+        try {
+          const content = [
+            article.symptoms ? `**Symptoms:** ${article.symptoms}` : "",
+            article.rootCause ? `**Root Cause:** ${article.rootCause}` : "",
+            article.resolutionSteps && article.resolutionSteps.length > 0
+              ? `**Resolution Steps:**\n${article.resolutionSteps.map((step, i) => `${i + 1}. ${step}`).join("\n")}`
+              : "",
+          ]
+            .filter((s) => s)
+            .join("\n\n");
+
+          await db.insert(kbArticles).values({
+            title: article.title,
+            content: content || article.title,
+            category: article.category,
+            articleCode: article.articleCode,
+            audience: (article.audience as any) || "technician",
+            difficulty: (article.difficulty as any) || "intermediate",
+            estimatedResolutionTime: article.estimatedTime,
+            isPublished: article.isPublished ? 1 : 0,
+            createdBy: ctx.user.id,
+            ariaEnabled: 1,
+          });
+
+          inserted++;
+        } catch (err) {
+          failed++;
+          errors.push(`${article.articleCode || article.title}: ${(err as any).message}`);
+        }
+      }
+
+      return {
+        success: true,
+        inserted,
+        failed,
+        total: input.articles.length,
+        errors: errors.length > 0 ? errors : undefined,
+      };
+    }),
+
   /** Email a KB article to a recipient */
   emailArticle: publicProcedure
     .input(z.object({

@@ -125,3 +125,12 @@
   - [x] Database schema extended with requesterName, requesterEmail, tags, includeChatTranscript, chatSessionId, chatTranscript fields
   - [x] Helpdesk pricing page live with three service tiers (Essential $69, Professional $119, Elite $189 per user/month)
 
+
+- [x] **Add 50 KB Articles to Knowledge Base** — COMPLETE: All articles structured and ready for insertion
+  - [x] Create comprehensive KB articles covering Microsoft 365, Azure AD, Windows, Networking, Mobile, Hardware
+  - [x] Format articles with symptoms, root causes, resolution steps
+  - [x] Add bulkInsert tRPC procedure to KB router (admin-only)
+  - [x] Generate formatted payload for all 50 articles
+  - [x] Articles ready for AI chat self-service support
+  - [x] KB semantic validation prevents irrelevant suggestions
+  - [ ] Execute bulkInsert to populate database (requires admin access to call tRPC)
