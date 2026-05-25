@@ -116,6 +116,7 @@ import { kbBulkInsertRouter } from "./routers/kb-bulk-insert";
 import { xeroRouter } from "./routers/xero";
 import { videoPresignRouter } from "./routers/videoPresign";
 import { roiMetricsRouter } from "./routers/roiMetrics";
+import { searchRouter } from "./routers/search";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -123,6 +124,7 @@ export const appRouter = router({
   uptime: uptimeRouter,
   videoPresign: videoPresignRouter,
   roiMetrics: roiMetricsRouter,
+  search: searchRouter,
   uptimerobot: uptimerobotRouter,
   m365Health: m365HealthRouter,
   serviceHealthMonitoring: serviceHealthMonitoringRouter,

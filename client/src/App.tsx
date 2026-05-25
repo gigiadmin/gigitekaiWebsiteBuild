@@ -78,6 +78,7 @@ const WebPricingLandingPage = lazy(() => import("./pages/WebPricingLandingPage")
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
+const SearchResults = lazy(() => import("./pages/SearchResults"));
 // const ContactHarry = lazy(() => import("./pages/ContactHarry")); // hidden - NDA
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
@@ -223,6 +224,8 @@ function Router() {
           <Route path={"/terms-of-service"} component={TermsOfService} />
           {/* Contact */}
           <Route path={"/contact"} component={Contact} />
+          {/* Search */}
+          <Route path={"/search"} component={SearchResults} />
           {/* /hh hidden - NDA */}
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
