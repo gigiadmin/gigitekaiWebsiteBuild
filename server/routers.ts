@@ -394,19 +394,19 @@ export const appRouter = router({
             const db = await getDb();
             if (db) {
               // Use a system user ID (1) for contact form tickets
-              const ticketResult = await createTicket({
+              const ticketData = {
                 userId: 1,
                 title: input.subject || `Contact Form: ${input.name}`,
                 description: `**Contact Form Submission**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**How did you hear about us:** ${input.hearAboutUs || "Not provided"}\n\n**Message:**\n${input.message}`,
-                stepsAttempted: null,
-                priority: "medium",
-                category: "general_support",
-                status: "open",
+                priority: "medium" as const,
+                category: "general_support" as const,
+                status: "open" as const,
                 source: "contact_form",
                 requesterName: input.name,
                 requesterEmail: input.email,
                 tags: "contact-form",
-              });
+              };
+              const ticketResult = await createTicket(ticketData);
               console.log(`[Contact Form] Ticket created: ${ticketResult?.id}`);
             }
           } catch (ticketError) {
