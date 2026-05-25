@@ -685,7 +685,7 @@ export default function AdminCallReviewPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/helpdesk/ticket/${d.ticketId}`)}
+                          onClick={() => navigate(`/admin/helpdesk/${d.ticketId}`)}
                           className="border-white/10 text-gray-400 hover:text-white shrink-0"
                         >
                           View Ticket #{d.ticketId}

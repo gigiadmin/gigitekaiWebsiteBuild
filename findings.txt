@@ -1,0 +1,18 @@
+Key findings about /admin/helpdesk/:ticketId black screen:
+
+ROOT CAUSE IDENTIFIED:
+- TicketDetail.tsx uses `useAuth()` which calls `trpc.auth.me` (Manus OAuth)
+- AdminLayout uses `trpc.adminAuth.me` (custom admin JWT auth via Azure/M365)
+- When accessed from /admin/helpdesk/:ticketId, TicketDetail checks `useAuth()` (Manus OAuth)
+- If user is NOT logged in via Manus OAuth (which Harry isn't - he uses Azure admin login), 
+  then `isAuthenticated` is false and the component redirects to `/helpdesk`
+- But the redirect happens via useEffect, and before that, the component shows a loading spinner
+- The issue on PRODUCTION is that the route doesn't exist yet (needs deploy)
+- On dev server, the route exists but redirects to /admin/login because AdminLayout wraps it
+
+SOLUTION:
+The TicketDetail component needs to also check adminAuth when accessed from /admin/* routes.
+OR we need a separate AdminTicketDetail wrapper that uses adminAuth instead of Manus OAuth.
+
+The simplest fix: When the URL starts with /admin/, use adminAuth.me instead of auth.me.
+Or: Create a wrapper component that passes admin context to TicketDetail.

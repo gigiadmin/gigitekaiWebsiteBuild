@@ -66,14 +66,14 @@ async function sendViaM365(options: EmailOptions): Promise<boolean> {
     };
 
     const response = await fetch(
-      "https://graph.microsoft.com/v1.0/me/sendMail",
+      "https://graph.microsoft.com/v1.0/users/support@gigitekai.com/sendMail",
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, saveToSentItems: false }),
       }
     );
 

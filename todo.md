@@ -5578,3 +5578,30 @@
 - [ ] Verify email notifications to support@gigitekai.com
 - [ ] Verify ticket assignment to harry@gigitekai.com (architect)
 - [ ] Integrate with Teams voicemail group poller (voicemailGroupPoller.ts already started in server index)
+
+## Bug Fixes
+- [ ] Fix /admin/helpdesk/:id ticket detail page showing black screen (no route defined in AdminApp.tsx)
+- [ ] Add voicemail deduplication logic to prevent same call creating multiple tickets
+- [ ] Clean up duplicate test voicemail tickets from database
+
+
+## Voicemail Automation (May 2026)
+- [x] Create voicemail processor with AI sentiment analysis and priority classification
+- [x] Implement voicemail webhook endpoint (/api/voicemail/webhook)
+- [x] Add Teams adaptive card notifications to Helpdesk channel
+- [x] Add email alerts to support@gigitekai.com (M365 + SendGrid fallback)
+- [x] Add voicemail deduplication logic to prevent duplicate tickets
+- [x] Create test endpoint (/api/voicemail/test) for development
+- [x] All 9 vitest tests passing
+- [ ] Fix Teams webhook URL (API version invalid - needs TEAMS_WEBHOOK_URL update in secrets)
+  - Current error: API version 1 is not supported. Supported versions: 2024-10-01, 2022-03-01-preview, 2021-10-01-preview
+  - Action: Update TEAMS_WEBHOOK_URL secret with valid webhook URL from Teams
+
+## Admin Ticket Detail Page Fix (May 2026)
+- [x] Added /admin/helpdesk/:ticketId route to AdminApp.tsx
+- [x] Fixed AdminPanel.tsx ticket links to navigate to /admin/helpdesk/:ticketId
+- [x] Fixed AdminCallReviewPage.tsx ticket links to use /admin/helpdesk/:ticketId
+- [x] Created AdminTicketDetail wrapper to use adminAuth instead of Manus OAuth
+  - AdminTicketDetail verifies admin auth via adminAuth.me before rendering TicketDetail
+  - Route now correctly redirects to /admin/login when not authenticated (expected behavior)
+  - Ticket detail page will render correctly when admin is logged in

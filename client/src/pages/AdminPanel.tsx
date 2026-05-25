@@ -627,7 +627,7 @@ export default function AdminPanel() {
                       </div>
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         <button
-                          onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                          onClick={() => navigate(`/admin/helpdesk/${ticket.id}`)}
                           className="flex items-center gap-1 px-2.5 py-1.5 bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20 rounded-lg text-xs font-medium"
                         >
                           <Eye className="w-3 h-3" /> View
@@ -733,7 +733,7 @@ export default function AdminPanel() {
                     {/* Actions - compact icon buttons + more dropdown */}
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                        onClick={() => navigate(`/admin/helpdesk/${ticket.id}`)}
                         className="p-1.5 rounded-lg text-gray-400 hover:text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors"
                         title="View ticket"
                       >
@@ -839,7 +839,7 @@ export default function AdminPanel() {
                         {/* Mobile action buttons in the expanded panel */}
                         <div className="flex flex-wrap gap-2 pt-2">
                           <button
-                            onClick={() => navigate(`/helpdesk/tickets/${ticket.id}`)}
+                            onClick={() => navigate(`/admin/helpdesk/${ticket.id}`)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20 rounded-lg text-xs font-medium"
                           >
                             <Eye className="w-3 h-3" /> View Full Ticket

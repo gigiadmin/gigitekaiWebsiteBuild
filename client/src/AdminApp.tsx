@@ -71,6 +71,8 @@ const AdminClientOnboardingPage = lazy(() => import("./pages/AdminClientOnboardi
 const WebPricingPage = lazy(() => import("./pages/WebPricingPage"));
 const AdminXero = lazy(() => import("./pages/AdminXero"));
 const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
+const TicketDetail = lazy(() => import("./pages/TicketDetail"));
+const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 
 function PageLoader() {
   return (
@@ -123,6 +125,7 @@ export default function AdminApp() {
             <Switch>
               {/* Pages that ALREADY have AdminLayout internally — use withApprovalOnly */}
               <Route path="/admin" component={withApprovalOnly(AdminHome)} />
+              <Route path="/admin/helpdesk/:ticketId" component={withApprovalOnly(AdminTicketDetail)} />
               <Route path="/admin/helpdesk" component={withApprovalOnly(AdminPanelPage)} />
               <Route path="/admin/chat" component={withApprovalOnly(AdminChatPage)} />
               <Route path="/admin/agents" component={withApprovalOnly(AdminAgentsPage)} />

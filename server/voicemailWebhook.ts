@@ -9,7 +9,44 @@ import { analyzeVoicemail, extractCallerInfo } from "./voicemailProcessor";
 import { sendToTeamsWithRetry } from "./_core/teamsWebhookUtils";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/emailService";
-import { eq } from "drizzle-orm";
+import { eq, and, gt, like } from "drizzle-orm";
+
+// ─── Deduplication ────────────────────────────────────────────────────────────
+// Tracks recently processed callIds and phone+time combos to prevent duplicates
+const recentlyProcessed = new Map<string, number>(); // key -> timestamp
+const DEDUP_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+function isDuplicate(payload: VoicemailWebhookPayload): boolean {
+  // Clean up old entries
+  const now = Date.now();
+  const entries = Array.from(recentlyProcessed.entries());
+  for (const [key, ts] of entries) {
+    if (now - ts > DEDUP_WINDOW_MS) {
+      recentlyProcessed.delete(key);
+    }
+  }
+
+  // Check by callId first (most reliable)
+  if (payload.callId) {
+    const callKey = `callId:${payload.callId}`;
+    if (recentlyProcessed.has(callKey)) {
+      console.log(`[Voicemail] DUPLICATE detected by callId: ${payload.callId}`);
+      return true;
+    }
+    recentlyProcessed.set(callKey, now);
+  }
+
+  // Also check by phone + transcription hash (catches retries with different callIds)
+  const transcriptHash = payload.transcription.substring(0, 50).trim();
+  const phoneKey = `phone:${payload.callerPhone}:${transcriptHash}`;
+  if (recentlyProcessed.has(phoneKey)) {
+    console.log(`[Voicemail] DUPLICATE detected by phone+content: ${payload.callerPhone}`);
+    return true;
+  }
+  recentlyProcessed.set(phoneKey, now);
+
+  return false;
+}
 
 export interface VoicemailWebhookPayload {
   callId: string;
@@ -30,6 +67,12 @@ export async function processVoicemail(
 ): Promise<{ ticketId: number; success: boolean; error?: string }> {
   try {
     console.log(`[Voicemail] Processing voicemail from ${payload.callerPhone}`);
+
+    // Deduplication check
+    if (isDuplicate(payload)) {
+      console.log(`[Voicemail] Skipping duplicate voicemail from ${payload.callerPhone} (callId: ${payload.callId})`);
+      return { ticketId: 0, success: true, error: "Duplicate voicemail — skipped" };
+    }
 
     // Analyze voicemail for sentiment and priority
     const analysis = await analyzeVoicemail(payload.transcription);
@@ -182,7 +225,19 @@ async function postToTeamsHelpdesk(
     return;
   }
 
-  await sendToTeamsWithRetry(webhookUrl, card, `voicemail-processor: ticket #${ticketId}`);
+  // Teams Incoming Webhook requires wrapping adaptive card in message attachment format
+  const teamsPayload = {
+    type: "message",
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        contentUrl: null,
+        content: card,
+      },
+    ],
+  };
+
+  await sendToTeamsWithRetry(webhookUrl, teamsPayload, `voicemail-processor: ticket #${ticketId}`);
 }
 
 /**
