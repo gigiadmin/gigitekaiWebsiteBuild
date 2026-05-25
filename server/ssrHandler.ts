@@ -54,8 +54,8 @@ const SCHEMA_MARKUP = {
  * - No flash of duplicate content (hidden div removed on React mount)
  */
 const PRERENDERED_CONTENT = `
-    <!-- SSR: Pre-rendered content for SEO (hidden once React mounts) -->
-    <div id="prerender-root" style="position:absolute;left:0;top:0;width:100%;z-index:0;">
+    <!-- SSR: Pre-rendered content for SEO crawlers only - invisible to users -->
+    <div id="prerender-root" style="display:none;visibility:hidden;position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;" aria-hidden="true">
       <!-- Hero Section -->
       <section style="background: linear-gradient(135deg, #0A0E1A 0%, #1a1f3a 100%); color: white; padding: 80px 20px; text-align: center;">
         <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: bold;">Intelligent Cloud & AI Solutions</h1>
