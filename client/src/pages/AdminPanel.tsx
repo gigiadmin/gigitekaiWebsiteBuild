@@ -115,17 +115,6 @@ export default function AdminPanel() {
   const ticketScrollRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
 
-  const allTicketsSelected = filteredTickets && selectedTicketIds.length === filteredTickets.length && filteredTickets.length > 0;
-  const someTicketsSelected = selectedTicketIds.length > 0 && selectedTicketIds.length < (filteredTickets?.length ?? 0);
-
-  const toggleSelectAllTickets = () => {
-    if (allTicketsSelected) {
-      setSelectedTicketIds([]);
-    } else {
-      setSelectedTicketIds(filteredTickets?.map((t: any) => t.id) ?? []);
-    }
-  };
-
   function toggleTicketExpanded(id: number) {
     const next = new Set(expandedTicketIds);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -320,6 +309,18 @@ export default function AdminPanel() {
       return matchesSearch && matchesStatus && matchesPriority && matchesDateRange && matchesEmail;
     });
   }, [allTickets, searchQuery, statusFilter, priorityFilter, dateRangeStart, dateRangeEnd, customerEmailFilter]);
+
+  // Select All logic
+  const allTicketsSelected = filteredTickets && selectedTicketIds.length === filteredTickets.length && filteredTickets.length > 0;
+  const someTicketsSelected = selectedTicketIds.length > 0 && selectedTicketIds.length < (filteredTickets?.length ?? 0);
+
+  const toggleSelectAllTickets = () => {
+    if (allTicketsSelected) {
+      setSelectedTicketIds([]);
+    } else {
+      setSelectedTicketIds(filteredTickets?.map((t: any) => t.id) ?? []);
+    }
+  };
 
   // Stats
   const stats = useMemo(() => {
