@@ -406,7 +406,7 @@ export const appRouter = router({
                 requesterName: input.name,
                 requesterEmail: input.email,
                 tags: "contact-form",
-                includeChatTranscript: false,
+                includeChatTranscript: 0, // tinyint: 0 = false, 1 = true
               } as any;
               const ticketResult = await createTicket(ticketData);
               console.log(`[Contact Form] Ticket created: ${ticketResult?.id}`);
