@@ -789,4 +789,63 @@ export const helpdeskRouter = router({
       await db.delete(ticketTemplates).where(eq(ticketTemplates.id, input.id));
       return { success: true };
     }),
+
+  bulkAssignAgent: adminProcedure
+    .input(z.object({ ticketIds: z.array(z.number()), agentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      const { inArray } = await import("drizzle-orm");
+      await db.update(tickets).set({ assignedTo: input.agentId }).where(inArray(tickets.id, input.ticketIds));
+      for (const ticketId of input.ticketIds) {
+        try {
+          await sendAssignmentNotificationToTeams(ticketId, String(input.agentId), ctx.user.name || "Admin");
+        } catch (e) { /* ignore */ }
+      }
+      return { success: true, count: input.ticketIds.length };
+    }),
+
+  bulkSendEmail: adminProcedure
+    .input(z.object({
+      ticketIds: z.array(z.number()),
+      subject: z.string().min(1),
+      message: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { tickets } = await import("../../drizzle/schema");
+      const { inArray } = await import("drizzle-orm");
+      const ticketList = await db.select().from(tickets).where(inArray(tickets.id, input.ticketIds));
+      let sent = 0;
+      for (const ticket of ticketList) {
+        if (!ticket.requesterEmail) continue;
+        try {
+          await sendEmail({
+            to: ticket.requesterEmail,
+            subject: input.subject,
+            html: `<div style="font-family:sans-serif;padding:20px;">
+              <p>Hello${ticket.requesterName ? ` ${ticket.requesterName}` : ""},</p>
+              <p>${input.message.replace(/\n/g, "<br/>")}</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:20px 0;"/>
+              <p style="color:#666;font-size:12px;">Regarding Ticket #${ticket.id}: ${ticket.title}</p>
+              <p style="color:#666;font-size:12px;">— ${ctx.user.name || "GigitekAI Support Team"}</p>
+            </div>`,
+          });
+          sent++;
+        } catch (e) { /* ignore */ }
+      }
+      return { success: true, sent, total: ticketList.length };
+    }),
+
+  getAdminUsers: adminProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      const { users } = await import("../../drizzle/schema");
+      return await db.select({ id: users.id, name: users.name, email: users.email })
+        .from(users)
+        .where(eq(users.role, "admin"));
+    }),
 });

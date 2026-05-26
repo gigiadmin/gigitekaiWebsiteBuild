@@ -190,7 +190,7 @@ export const customerInvitesRouter = router({
 
       try {
         // Get the invite directly by ID (no need to filter by adminId)
-        const db = await getDb();
+        const db = (await getDb())!;
         if (!db) return { success: false, message: 'Database unavailable' };
         const rows = await db.select().from(customerInvitesTable).where(eq(customerInvitesTable.id, input.inviteId)).limit(1);
         const invite = rows[0] ?? null;
@@ -278,7 +278,7 @@ export const customerInvitesRouter = router({
         };
 
         const processedEmails = new Set<string>();
-        const db = await getDb();
+        const db = (await getDb())!;
 
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
@@ -402,7 +402,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         
         // Soft delete: set deletedAt timestamp
         await db.update(customerInvitesTable)
@@ -450,7 +450,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         const now = new Date().toISOString();
         
         // Soft delete all
@@ -500,7 +500,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         
         // Restore: clear deletedAt
         await db.update(customerInvitesTable)
@@ -543,7 +543,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         const offset = (input.page - 1) * input.limit;
         
         // Build where clause
@@ -617,7 +617,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         
         const timeline = await db.select()
           .from(accountAuditLog)
@@ -647,7 +647,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         
         const conditions = [];
         if (input.status === 'deleted') {
@@ -710,7 +710,7 @@ export const customerInvitesRouter = router({
       }
 
       try {
-        const db = await getDb();
+        const db = (await getDb())!;
         let resent = 0;
 
         for (const accountId of input.accountIds) {
