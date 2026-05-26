@@ -1,180 +1,342 @@
-import { useState, useEffect } from "react";
-import SiteNavBar2024 from "@/components/SiteNavBar2024";
-import WebsitePricingTiers from "./WebsitePricingTiers";
-import WebsiteFeatureComparison from "./WebsiteFeatureComparison";
-import WebsiteAddOns from "./WebsiteAddOns";
-import WebsiteROICalculator from "./WebsiteROICalculator";
-import FreeAuditForm from "./FreeAuditForm";
-import TestimonialsSection from "./TestimonialsSection";
-import FAQSection from "./FAQSection";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { trpc } from "@/lib/trpc";
+import { useToast } from "@/components/ui/use-toast";
+import { CheckCircle, Loader2 } from "lucide-react";
 
 export default function FreeAuditLandingPage() {
-  useEffect(() => {
-    // Update page title
-    document.title = "Free Website Audit + 50% Off | GigitekAI";
-    
-    // Update meta description
-    const updateMetaTag = (name: string, content: string) => {
-      let tag = document.querySelector(`meta[name="${name}"]`);
-      if (!tag) {
-        tag = document.createElement("meta");
-        tag.setAttribute("name", name);
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute("content", content);
-    };
-    
-    updateMetaTag("description", "Get a free comprehensive website audit and save 50% on professional website design & SEO services. Limited time offer - 1 month free on 1-year commitment!");
-    updateMetaTag("keywords", "website design, SEO services, website audit, web development, Tampa MSP");
-  }, []);
+  const { toast } = useToast();
+  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    companyName: "",
+    industry: "",
+    description: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    auditType: "general",
+    currentChallenges: "",
+    goals: "",
+  });
+
+  const submitAudit = trpc.audit.submit.useMutation({
+    onSuccess: () => {
+      setSubmitted(true);
+      toast({
+        title: "✅ Audit Request Submitted",
+        description: "We'll review your information and contact you within 24 hours.",
+      });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 3000);
+    },
+    onError: (error) => {
+      toast({
+        title: "❌ Submission Failed",
+        description: error.message || "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, auditType: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.companyName.trim()) {
+      toast({
+        title: "⚠️ Missing Field",
+        description: "Please enter your company name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.contactName.trim()) {
+      toast({
+        title: "⚠️ Missing Field",
+        description: "Please enter your name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.contactEmail.trim()) {
+      toast({
+        title: "⚠️ Missing Field",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    submitAudit.mutate(formData);
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center px-4">
+        <div className="max-w-md text-center">
+          <CheckCircle className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-white mb-2">Thank You!</h1>
+          <p className="text-slate-300 mb-6">
+            Your free audit request has been submitted successfully. Our team will review your information and contact you within 24 hours.
+          </p>
+          <p className="text-sm text-slate-400">Redirecting to home page...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white">
-      <SiteNavBar2024 />
-      <main>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900/50 to-transparent border-b border-gray-800/40">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-[#00D4FF] to-[#9D4EDD] bg-clip-text text-transparent">
-            Professional Websites Built for Growth
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Get a free website audit + save 50% on professional web design, SEO, and integrations
-          </p>
-          <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-6 py-3 mb-8">
-            <p className="text-green-300 font-semibold">
-              🎁 Limited Time: 50% OFF + 1 Month FREE on 1-Year Commitment
+      <div className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          {/* Background accent */}
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+
+          <div className="relative z-10 text-center mb-12">
+            <div className="inline-block px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-full mb-4">
+              <span className="text-cyan-300 text-sm font-semibold">FREE ASSESSMENT</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Get Your Free <span className="text-cyan-400">Cloud & AI Audit</span>
+            </h1>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Discover optimization opportunities, cost savings, and AI automation potential in your Microsoft 365 and cloud infrastructure.
             </p>
           </div>
-          <button
-            onClick={() =>
-              document.getElementById("audit-form")?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="inline-block px-8 py-4 bg-[#00D4FF] text-black font-bold rounded-lg hover:bg-[#00D4FF]/90 transition-colors text-lg"
-          >
-            Get Your Free Website Audit
-          </button>
-        </div>
-      </section>
 
-      {/* Main Content */}
-      <WebsitePricingTiers />
-      <WebsiteFeatureComparison />
-      <WebsiteAddOns />
-      <WebsiteROICalculator />
-      <FreeAuditForm />
-      <TestimonialsSection />
-      <FAQSection />
-
-      {/* Helpdesk Services CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-900/40 border-t border-gray-800/40">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Also Need Managed IT Services?</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Combine your website with our comprehensive helpdesk support, AI automation, and managed IT services
-          </p>
-          <a
-            href="https://gigitekai.com/helpdesk-pricing"
-            className="inline-block px-8 py-4 bg-[#9D4EDD] text-white font-bold rounded-lg hover:bg-[#9D4EDD]/90 transition-colors text-lg"
-          >
-            View Helpdesk Pricing
-          </a>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-gray-800/40 bg-gray-900/20">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>
-                  <a href="https://gigitekai.com" className="hover:text-[#00D4FF]">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/blog" className="hover:text-[#00D4FF]">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/careers" className="hover:text-[#00D4FF]">
-                    Careers
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">Services</h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>
-                  <a href="https://gigitekai.com/services" className="hover:text-[#00D4FF]">
-                    Services
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/helpdesk-pricing" className="hover:text-[#00D4FF]">
-                    Helpdesk Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/websites" className="hover:text-[#00D4FF]">
-                    Websites
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>
-                  <a href="https://gigitekai.com/roi-calculator" className="hover:text-[#00D4FF]">
-                    ROI Calculator
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/case-studies" className="hover:text-[#00D4FF]">
-                    Case Studies
-                  </a>
-                </li>
-                <li>
-                  <a href="https://gigitekai.com/contact" className="hover:text-[#00D4FF]">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">Contact</h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>
-                  <a href="tel:+1727-382-6909" className="hover:text-[#00D4FF]">
-                    (727) 382-6909
-                  </a>
-                </li>
-                <li>
-                  <a href="mailto:support@gigitekai.com" className="hover:text-[#00D4FF]">
-                    support@gigitekai.com
-                  </a>
-                </li>
-              </ul>
-            </div>
+          {/* Benefits Grid */}
+          <div className="grid md:grid-cols-3 gap-4 mb-12">
+            {[
+              {
+                icon: "🔍",
+                title: "Comprehensive Analysis",
+                desc: "In-depth review of your current cloud setup",
+              },
+              {
+                icon: "💰",
+                title: "Cost Optimization",
+                desc: "Identify savings opportunities (avg. 40%)",
+              },
+              {
+                icon: "🤖",
+                title: "AI Readiness",
+                desc: "Assess automation & agent deployment potential",
+              },
+            ].map((benefit, idx) => (
+              <div
+                key={idx}
+                className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 text-center hover:border-cyan-500/50 transition"
+              >
+                <div className="text-3xl mb-2">{benefit.icon}</div>
+                <h3 className="text-white font-semibold mb-1">{benefit.title}</h3>
+                <p className="text-sm text-slate-400">{benefit.desc}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="border-t border-gray-800/40 pt-8">
-            <p className="text-center text-sm text-gray-300">
-              © 2026 GigitekAI LLC. All rights reserved. | 
-              <a href="https://gigitekai.com/privacy" className="hover:text-[#00D4FF] ml-2">
-                Privacy Policy
-              </a>
-            </p>
+          {/* Form Section */}
+          <div className="bg-slate-800/40 border border-slate-700/50 rounded-xl p-8 backdrop-blur-sm">
+            <h2 className="text-2xl font-bold text-white mb-6">Request Your Free Audit</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Row 1: Company & Industry */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Company Name *
+                  </label>
+                  <Input
+                    type="text"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    placeholder="Your company name"
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Industry
+                  </label>
+                  <Input
+                    type="text"
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleChange}
+                    placeholder="e.g., Healthcare, Finance, Retail"
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Contact Info */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Your Name *
+                  </label>
+                  <Input
+                    type="text"
+                    name="contactName"
+                    value={formData.contactName}
+                    onChange={handleChange}
+                    placeholder="Full name"
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Email Address *
+                  </label>
+                  <Input
+                    type="email"
+                    name="contactEmail"
+                    value={formData.contactEmail}
+                    onChange={handleChange}
+                    placeholder="your@company.com"
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Phone & Audit Type */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Phone Number
+                  </label>
+                  <Input
+                    type="tel"
+                    name="contactPhone"
+                    value={formData.contactPhone}
+                    onChange={handleChange}
+                    placeholder="(555) 123-4567"
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Audit Focus
+                  </label>
+                  <Select value={formData.auditType} onValueChange={handleSelectChange}>
+                    <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      <SelectItem value="general">General Cloud Audit</SelectItem>
+                      <SelectItem value="m365">Microsoft 365 Optimization</SelectItem>
+                      <SelectItem value="security">Security & Compliance</SelectItem>
+                      <SelectItem value="ai">AI & Automation</SelectItem>
+                      <SelectItem value="cost">Cost Optimization</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Row 4: Current Challenges */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Current Challenges
+                </label>
+                <Textarea
+                  name="currentChallenges"
+                  value={formData.currentChallenges}
+                  onChange={handleChange}
+                  placeholder="What are your main pain points? (e.g., high cloud costs, security concerns, manual workflows)"
+                  rows={3}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                />
+              </div>
+
+              {/* Row 5: Goals */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Goals & Objectives
+                </label>
+                <Textarea
+                  name="goals"
+                  value={formData.goals}
+                  onChange={handleChange}
+                  placeholder="What would you like to achieve? (e.g., reduce costs by 30%, automate helpdesk, improve security posture)"
+                  rows={3}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                />
+              </div>
+
+              {/* Row 6: Additional Notes */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Additional Information
+                </label>
+                <Textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Anything else we should know?"
+                  rows={2}
+                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={submitAudit.isPending}
+                className="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold py-3 rounded-lg transition"
+              >
+                {submitAudit.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Request Your Free Audit"
+                )}
+              </Button>
+
+              {/* Disclaimer */}
+              <p className="text-xs text-slate-400 text-center">
+                We respect your privacy. Your information will only be used to prepare your audit.
+              </p>
+            </form>
+          </div>
+
+          {/* Trust Section */}
+          <div className="mt-12 text-center">
+            <p className="text-slate-400 mb-4">Trusted by 50+ companies across North America</p>
+            <div className="flex justify-center gap-6 flex-wrap">
+              {["HIPAA", "SOC 2", "PCI-DSS", "CMMC"].map((cert) => (
+                <div key={cert} className="text-sm font-semibold text-slate-300">
+                  ✓ {cert}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </footer>
-          </main>
+      </div>
     </div>
   );
 }
