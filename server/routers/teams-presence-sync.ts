@@ -43,7 +43,7 @@ export const teamsPresenceSyncRouter = router({
           availability: agentRecord.status === "available" ? "available" : agentRecord.status === "busy" ? "busy" : "offline",
           currentTicketCount: agentRecord.currentTicketCount,
           maxConcurrentTickets: agentRecord.maxConcurrentTickets,
-          lastUpdated: new Date(),
+          lastUpdated: new Date().toISOString(),
         };
       } catch (error) {
         console.error("[Teams Presence] Error getting agent presence:", error);

@@ -127,8 +127,8 @@ async function getValidAccessToken(): Promise<{
         .set({
           accessToken: refreshed.access_token,
           refreshToken: refreshed.refresh_token,
-          expiresAt: newExpiresAt,
-          updatedAt: new Date(),
+          expiresAt: newExpiresAt.toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(xeroTokens.id, token.id));
 
@@ -240,10 +240,10 @@ export function registerXeroOAuthRoutes(app: Express) {
           .set({
             accessToken: tokenData.access_token,
             refreshToken: tokenData.refresh_token,
-            expiresAt,
+            expiresAt: expiresAt.toISOString(),
             scopes: tokenData.scope,
             tenantName: tenant.tenantName,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(xeroTokens.tenantId, tenant.tenantId));
       } else {
@@ -252,7 +252,7 @@ export function registerXeroOAuthRoutes(app: Express) {
           tenantName: tenant.tenantName,
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token,
-          expiresAt,
+          expiresAt: expiresAt.toISOString(),
           scopes: tokenData.scope,
         });
       }

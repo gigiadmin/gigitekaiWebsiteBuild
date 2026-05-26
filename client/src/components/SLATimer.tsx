@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AlertCircle, Clock, CheckCircle2 } from "lucide-react";
 
 interface SLATimerProps {
-  createdAt: Date;
+  createdAt: string | Date;
   priority: "low" | "medium" | "high" | "critical";
   status?: "open" | "in_progress" | "on_hold" | "resolved" | "closed";
 }
@@ -28,8 +28,8 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
     const updateSLA = () => {
       const config = SLA_CONFIG[priority];
       const now = new Date();
-      const responseDeadline = new Date(createdAt.getTime() + config.response * 60000);
-      const resolutionDeadline = new Date(createdAt.getTime() + config.resolution * 60000);
+      const responseDeadline = new Date((createdAt instanceof Date ? createdAt : new Date(createdAt)).getTime() + config.response * 60000);
+      const resolutionDeadline = new Date((createdAt instanceof Date ? createdAt : new Date(createdAt)).getTime() + config.resolution * 60000);
 
       const responseBreached = now > responseDeadline;
       const resolutionBreached = now > resolutionDeadline;
@@ -40,10 +40,10 @@ export function SLATimer({ createdAt, priority, status = "open" }: SLATimerProps
         timeToResponseDeadline: Math.max(0, responseDeadline.getTime() - now.getTime()),
         timeToResolutionDeadline: Math.max(0, resolutionDeadline.getTime() - now.getTime()),
         responsePercentage: Math.min(100, Math.max(0,
-          ((now.getTime() - createdAt.getTime()) / (config.response * 60000)) * 100
+          ((now.getTime() - (createdAt instanceof Date ? createdAt : new Date(createdAt)).getTime()) / (config.response * 60000)) * 100
         )),
         resolutionPercentage: Math.min(100, Math.max(0,
-          ((now.getTime() - createdAt.getTime()) / (config.resolution * 60000)) * 100
+          ((now.getTime() - (createdAt instanceof Date ? createdAt : new Date(createdAt)).getTime()) / (config.resolution * 60000)) * 100
         )),
       });
     };

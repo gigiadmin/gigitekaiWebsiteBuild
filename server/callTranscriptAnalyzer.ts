@@ -100,7 +100,7 @@ export async function analyzeCallTranscript(transcript: CallTranscript): Promise
       const articles = await db
         .select()
         .from(kbArticles)
-        .where(eq(kbArticles.isPublished, true))
+        .where(eq(kbArticles.isPublished, 1))
         .limit(1);
 
       if (articles.length > 0) {
@@ -173,7 +173,7 @@ export async function generateKBFromCallAnalysis(analysis: CallAnalysis): Promis
           title,
           content: articleContent,
           category: "auto_generated",
-          isPublished: false, // Requires admin review
+          isPublished: 0, // Requires admin review
         });
 
         console.log(`[CallAnalyzer] Generated KB article: ${title}`);

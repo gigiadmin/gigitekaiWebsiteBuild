@@ -34,8 +34,8 @@ interface BreachPrediction {
   ticketNumber: string;
   priority: string;
   category: string;
-  createdAt: Date;
-  slaDeadline: Date;
+  createdAt: string;
+  slaDeadline: string;
   timeRemaining: number; // minutes
   breachRisk: "critical" | "high" | "medium" | "low"; // risk level
   breachProbability: number; // 0-100
@@ -47,7 +47,7 @@ interface BreachPrediction {
 /**
  * Calculate SLA deadline based on priority
  */
-function calculateSLADeadline(createdAt: Date, priority: string): Date {
+function calculateSLADeadline(createdAt: string | Date, priority: string): Date {
   const minutes = SLA_WINDOWS[priority as keyof SLAConfig] || SLA_WINDOWS.medium;
   const deadline = new Date(createdAt);
   deadline.setMinutes(deadline.getMinutes() + minutes);
@@ -72,7 +72,7 @@ async function predictSLABreach(ticketId: number): Promise<BreachPrediction | nu
 
   const t = ticket[0];
   const now = new Date();
-  const slaDeadline = calculateSLADeadline(t.createdAt, t.priority);
+  const slaDeadline = calculateSLADeadline(t.createdAt as any, t.priority);
   const timeRemaining = Math.round((slaDeadline.getTime() - now.getTime()) / (1000 * 60));
 
   // Get agent workload (number of open tickets assigned to agent)
@@ -163,7 +163,7 @@ async function predictSLABreach(ticketId: number): Promise<BreachPrediction | nu
     priority: t.priority,
     category: t.category,
     createdAt: t.createdAt,
-    slaDeadline,
+    slaDeadline: slaDeadline.toISOString(),
     timeRemaining,
     breachRisk,
     breachProbability: Math.round(breachProbability),
@@ -225,19 +225,19 @@ export const slaPredicationRouter = router({
     const recentTickets = await db
       .select()
       .from(tickets)
-      .where(gt(tickets.createdAt, last24h));
+      .where(gt(tickets.createdAt, last24h.toISOString()));
 
     // Get closed tickets in last 24 hours
     const closedTickets = await db
       .select()
       .from(tickets)
-      .where(and(eq(tickets.status, "closed"), gt(tickets.updatedAt, last24h)));
+      .where(and(eq(tickets.status, "closed"), gt(tickets.updatedAt, last24h.toISOString())));
 
     // Calculate on-time resolution rate
     let onTimeCount = 0;
     for (const ticket of closedTickets) {
-      const slaDeadline = calculateSLADeadline(ticket.createdAt, ticket.priority);
-      if (ticket.updatedAt <= slaDeadline) {
+      const slaDeadline = calculateSLADeadline(ticket.createdAt as any, ticket.priority);
+      if (new Date(ticket.updatedAt) <= slaDeadline) {
         onTimeCount++;
       }
     }

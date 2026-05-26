@@ -5,7 +5,7 @@ import { publicProcedure, adminProcedure, protectedProcedure, router } from "./_
 import { z } from "zod";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
-import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers } from "./db";
+import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers, createTicket } from "./db";
 import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
@@ -313,7 +313,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
-        return await recordWebsiteTraffic({ date: new Date(), pageUrl: input.pageUrl, pageTitle: input.pageTitle, referrer: input.referrer });
+        return await recordWebsiteTraffic({ date: new Date().toISOString(), pageUrl: input.pageUrl, pageTitle: input.pageTitle, referrer: input.referrer });
       }),
     
     getTrafficStats: adminProcedure

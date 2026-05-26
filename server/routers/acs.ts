@@ -196,7 +196,7 @@ export const acsRouter = router({
         avgDuration: sql<number>`AVG(durationSeconds)`,
       })
       .from(callLogs)
-      .where(gte(callLogs.startedAt, today));
+      .where(gte(callLogs.startedAt, today.toISOString()));
 
     const row = logs[0];
     const todayCalls = Number(row?.count ?? 0);
@@ -206,7 +206,7 @@ export const acsRouter = router({
     const missedLogs = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(callLogs)
-      .where(gte(callLogs.startedAt, today));
+      .where(gte(callLogs.startedAt, today.toISOString()));
     // Note: missedCalls approximation — calls < 10s duration
     const missed = 0; // Requires durationSeconds < 10 filter — add when schema supports it
 

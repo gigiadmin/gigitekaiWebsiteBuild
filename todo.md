@@ -164,3 +164,11 @@
   - [x] Modify bot response to suggest alternatives when agents unavailable (KB articles, leave message, schedule callback)
   - [x] Bot now shows "We're closed today for [Holiday]" message instead of offering connection
   - [x] Suggests KB articles and callback scheduling when support is unavailable
+
+- [ ] Standardize ticket creation: single unified TicketForm component used by both /helpdesk/tickets/new (user) and /admin/helpdesk/new (admin)
+- [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
+- [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
+- [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
+- [ ] Fix Teams webhook health check HTTP 400 alert spam (70+ emails sent)
+- [ ] Suppress duplicate webhook health check alerts - add deduplication/cooldown logic
+- [ ] Unified ticket creation form (user + admin) with AI-ready fields

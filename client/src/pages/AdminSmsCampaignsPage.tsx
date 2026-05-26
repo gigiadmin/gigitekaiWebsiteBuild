@@ -194,8 +194,8 @@ export default function AdminSmsCampaignsPage() {
   const [testForm, setTestForm] = useState({ to: "", message: "Hi {{name}}, this is a test from GigitekAI. Reply STOP to opt out." });
 
   const metrics = metricsQ.data;
-  const contacts = (contactsQ.data?.contacts ?? []) as SmsContact[];
-  const campaigns = (campaignsQ.data?.campaigns ?? []) as SmsCampaign[];
+  const contacts = (contactsQ.data?.contacts ?? []) as unknown as SmsContact[];
+  const campaigns = (campaignsQ.data?.campaigns ?? []) as unknown as SmsCampaign[];
   const optOuts = optOutsQ.data?.optOuts ?? [];
 
   const tabs: { id: Tab; label: string; icon: any }[] = [

@@ -43,7 +43,7 @@ vi.mock("./admin-auth", async (importOriginal) => {
         name,
         hashedPassword: hashed,
         role: role ?? "agent",
-        isActive: true,
+        isActive: 1,
         lastLoginAt: null,
         createdAt: new Date(),
       };

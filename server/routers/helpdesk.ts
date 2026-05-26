@@ -369,21 +369,38 @@ export const helpdeskRouter = router({
 
   adminCreateTicket: adminProcedure
     .input(z.object({
-      title: z.string(),
-      description: z.string(),
-      category: z.enum(["bug_report", "feature_request", "general_support", "billing"]).default("general_support"),
+      title: z.string().min(5, "Title must be at least 5 characters"),
+      description: z.string().min(10, "Description must be at least 10 characters"),
+      stepsAttempted: z.string().optional(),
+      category: z.enum(["bug_report", "feature_request", "general_support", "billing", "email", "printer", "internet", "network", "other"]).default("general_support"),
       priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+      channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
       userId: z.number().optional(),
+      requesterName: z.string().optional(),
+      requesterEmail: z.string().email().optional().or(z.literal("")),
     }))
     .mutation(async ({ input, ctx }) => {
+      const combinedDescription = input.stepsAttempted
+        ? `ISSUE DESCRIPTION:\n${input.description}\n\nSTEPS ALREADY ATTEMPTED:\n${input.stepsAttempted}`
+        : input.description;
       const ticket = await createTicket({
         title: input.title,
-        description: input.description,
+        description: combinedDescription,
+        stepsAttempted: input.stepsAttempted,
         category: input.category,
         priority: input.priority,
-        source: "web",
+        source: input.channel,
         userId: input.userId || ctx.user.id,
+        requesterName: input.requesterName,
+        requesterEmail: input.requesterEmail || undefined,
       });
+      if (!ticket) throw new Error("Failed to create ticket");
+      // Send Teams notification
+      try {
+        await sendTicketNotificationToTeams(ticket);
+      } catch (e) {
+        console.error("[Helpdesk] Admin ticket Teams notification failed:", e);
+      }
       return ticket;
     }),
 
@@ -479,8 +496,8 @@ export const helpdeskRouter = router({
       }
 
       const conditions = [];
-      if (dateFrom) conditions.push(gte(customerFeedback.createdAt, dateFrom));
-      if (input.dateTo) conditions.push(lte(customerFeedback.createdAt, input.dateTo));
+      if (dateFrom) conditions.push(gte(customerFeedback.createdAt, dateFrom.toISOString()));
+      if (input.dateTo) conditions.push(lte(customerFeedback.createdAt, String(input.dateTo)));
 
       const feedbacks = await db
         .select()
@@ -533,12 +550,12 @@ export const helpdeskRouter = router({
         eq(tickets.status, "resolved" as any),
       ];
       if (dateFilter) {
-        conditions.push(gte(tickets.resolvedAt, dateFilter) as any);
+        conditions.push(gte(tickets.resolvedAt, String(dateFilter)) as any);
       }
 
       const resolvedTickets = await db.select().from(tickets).where(and(...conditions));
       const allTickets = dateFilter
-        ? await db.select().from(tickets).where(gte(tickets.createdAt, dateFilter))
+        ? await db.select().from(tickets).where(gte(tickets.createdAt, String(dateFilter)))
         : await db.select().from(tickets);
 
       // Get all agents (users with admin role)
@@ -554,7 +571,7 @@ export const helpdeskRouter = router({
         const resolvedWithTime = resolved.filter(t => t.resolvedAt && t.createdAt);
         if (resolvedWithTime.length > 0) {
           const totalHours = resolvedWithTime.reduce((sum, t) => {
-            const diff = (t.resolvedAt!.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60);
+            const diff = (new Date(t.resolvedAt!).getTime() - new Date(t.createdAt).getTime()) / (1000 * 60 * 60);
             return sum + diff;
           }, 0);
           avgResponseTime = Math.round(totalHours / resolvedWithTime.length);
@@ -637,7 +654,7 @@ export const helpdeskRouter = router({
       const { tickets } = await import("../../drizzle/schema");
       await db.update(tickets).set({
         status: "closed",
-        closedAt: new Date(),
+        closedAt: new Date().toISOString(),
         closingNotes: input.closingNotes || null,
       }).where(eq(tickets.id, input.ticketId));
       return { success: true };
@@ -681,7 +698,7 @@ export const helpdeskRouter = router({
       for (let i = 29; i >= 0; i--) {
         const day = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
         const dayStr = day.toISOString().split('T')[0];
-        const count = allTickets.filter(t => t.createdAt.toISOString().split('T')[0] === dayStr).length;
+        const count = allTickets.filter(t => t.createdAt.split('T')[0] === dayStr).length;
         ticketsByDay.push({ date: dayStr, count });
       }
       // Avg resolution time
@@ -689,7 +706,7 @@ export const helpdeskRouter = router({
       let avgResolutionHours = 0;
       if (resolvedWithTime.length > 0) {
         const totalHours = resolvedWithTime.reduce((sum, t) => {
-          return sum + (t.resolvedAt!.getTime() - t.createdAt.getTime()) / (1000 * 60 * 60);
+          return sum + (new Date(t.resolvedAt!).getTime() - new Date(t.createdAt).getTime()) / (1000 * 60 * 60);
         }, 0);
         avgResolutionHours = Math.round(totalHours / resolvedWithTime.length);
       }

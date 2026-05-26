@@ -67,8 +67,9 @@ export function formatChannel(channel: string): string {
 /**
  * Format a Date object as a readable string in Eastern Time
  */
-export function formatReceivedAt(date: Date = new Date()): string {
-  return date.toLocaleString("en-US", {
+export function formatReceivedAt(date: Date | string = new Date()): string {
+  const d = date instanceof Date ? date : new Date(date as string);
+  return d.toLocaleString("en-US", {
     timeZone: "America/New_York",
     weekday: "long",
     year: "numeric",

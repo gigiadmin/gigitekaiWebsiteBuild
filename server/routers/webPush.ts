@@ -13,7 +13,7 @@ export const webPushRouter = router({
     .input(z.object({
       endpoint: z.string().url(),
       auth: z.string(),
-      p256dh: z.string(),
+      p256Dh: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -28,9 +28,9 @@ export const webPushRouter = router({
           .update(pushNotifications)
           .set({
             auth: input.auth,
-            p256dh: input.p256dh,
-            isActive: true,
-            updatedAt: new Date(),
+            p256Dh: input.p256Dh,
+            isActive: 1,
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(pushNotifications.endpoint, input.endpoint));
       } else {
@@ -39,8 +39,8 @@ export const webPushRouter = router({
           userId: ctx.user.id,
           endpoint: input.endpoint,
           auth: input.auth,
-          p256dh: input.p256dh,
-          isActive: true,
+          p256Dh: input.p256Dh,
+          isActive: 1,
         });
       }
 
@@ -60,7 +60,7 @@ export const webPushRouter = router({
       
       await db
         .update(pushNotifications)
-        .set({ isActive: false })
+        .set({ isActive: 0 })
         .where(eq(pushNotifications.endpoint, input.endpoint));
 
       return { success: true };
@@ -123,7 +123,7 @@ export const webPushRouter = router({
           // Mark subscription as inactive if it fails
           await db
             .update(pushNotifications)
-            .set({ isActive: false })
+            .set({ isActive: 0 })
             .where(eq(pushNotifications.endpoint, sub.endpoint));
         }
       }

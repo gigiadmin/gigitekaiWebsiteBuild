@@ -344,7 +344,7 @@ export const remoteAssistanceRbacRouter = router({
             action: 'role_assigned',
             oldRole: 'technician',
             newRole: 'supervisor',
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
             performedBy: 'admin@example.com',
           },
         ];

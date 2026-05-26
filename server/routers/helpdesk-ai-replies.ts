@@ -32,7 +32,7 @@ export const helpdeskAiRepliesRouter = router({
       // Get relevant KB articles
       let kbContext = "";
       if (input.includeKB) {
-        const kbList = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+        const kbList = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
         // Find relevant articles based on ticket keywords
         const keywords = ticket.title.toLowerCase().split(" ");
@@ -186,7 +186,7 @@ Keep the reply to 2-3 sentences.`;
         userId: input.userId,
         message: input.reply,
         isStaffReply: 1,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
 
       return {
@@ -238,7 +238,7 @@ Keep the reply to 2-3 sentences.`;
         throw new TRPCError({ code: "NOT_FOUND", message: "Ticket not found" });
       }
 
-      const kbList = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+      const kbList = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
       // Find relevant articles
       const keywords = ticket.title.toLowerCase().split(" ").filter((w) => w.length > 3);

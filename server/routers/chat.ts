@@ -50,7 +50,7 @@ export const chatRouter = router({
     const users = await db
       .select()
       .from(userSessions)
-      .where(eq(userSessions.isOnline, true));
+      .where(eq(userSessions.isOnline, 1));
 
     return users.map((session) => ({
       userId: session.userId,
@@ -96,7 +96,7 @@ export const chatRouter = router({
           status: "active",
         })
         .$returningId();
-      const newSessionId = result[0].id;
+      const newSessionId = (result[0] as any).id;
 
       // Notify admin portal when a user (not admin) starts a new chat
       if (ctx.user.role !== "admin") {
@@ -118,8 +118,8 @@ export const chatRouter = router({
         userId: targetUserId,
         adminId: ctx.user.role === "admin" ? ctx.user.id : undefined,
         status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
     }),
 
@@ -193,7 +193,7 @@ export const chatRouter = router({
         .update(realtimeChatSessions)
         .set({
           status: "closed",
-          closedAt: new Date(),
+          closedAt: new Date().toISOString(),
         })
         .where(eq(realtimeChatSessions.id, input.sessionId));
 
@@ -248,7 +248,7 @@ export const chatRouter = router({
 
       await db
         .update(realtimeChatMessages)
-        .set({ isRead: true })
+        .set({ isRead: 1 })
         .where(
           and(
             eq(realtimeChatMessages.sessionId, input.sessionId),
@@ -355,7 +355,7 @@ export const chatRouter = router({
       }
 
       // Text format
-      const header = `Chat Transcript - Session #${chatSession.id}\nDate: ${chatSession.createdAt?.toISOString()}\nStatus: ${chatSession.status}\n${"-".repeat(50)}\n`;
+      const header = `Chat Transcript - Session #${chatSession.id}\nDate: ${chatSession.createdAt}\nStatus: ${chatSession.status}\n${"-".repeat(50)}\n`;
       const body = messages
         .map((m) => {
           const name = userMap.get(m.senderId) || `User #${m.senderId}`;
@@ -406,7 +406,7 @@ export const chatRouter = router({
             const allRtSessions = await db
               .select()
               .from(realtimeChatSessions)
-              .where(gte(realtimeChatSessions.createdAt, since));
+              .where(gte(realtimeChatSessions.createdAt, since.toISOString()));
 
             const activeSessions = allRtSessions.filter((s) => s.status === "active").length;
             const closedSessions = allRtSessions.filter((s) => s.status === "closed").length;
@@ -414,18 +414,18 @@ export const chatRouter = router({
             const rtMsgCount = await db
               .select({ cnt: count() })
               .from(realtimeChatMessages)
-              .where(gte(realtimeChatMessages.createdAt, since));
+              .where(gte(realtimeChatMessages.createdAt, since.toISOString()));
 
             // AI chat stats
             const aiSessions = await db
               .select()
               .from(chatSessions)
-              .where(gte(chatSessions.createdAt, since));
+              .where(gte(chatSessions.createdAt, since.toISOString()));
 
             const aiMsgCount = await db
               .select({ cnt: count() })
               .from(chatMessages)
-              .where(gte(chatMessages.createdAt, since));
+              .where(gte(chatMessages.createdAt, since.toISOString()));
 
             const escalated = aiSessions.filter((s) => s.status === "escalated").length;
 
@@ -433,7 +433,7 @@ export const chatRouter = router({
             const leads = await db
               .select({ cnt: count() })
               .from(chatLeads)
-              .where(gte(chatLeads.createdAt, since));
+              .where(gte(chatLeads.createdAt, since.toISOString()));
 
             // Recent sessions for timeline
             const recentSessions = await db
@@ -592,7 +592,7 @@ export const chatRouter = router({
             status: "active",
           })
           .$returningId();
-        rtSessionId = result[0].id;
+        rtSessionId = (result[0] as any).id;
       }
 
       // Ensure user session exists for online tracking
@@ -604,13 +604,13 @@ export const chatRouter = router({
       if (existingUserSession.length === 0) {
         await db.insert(userSessions).values({
           userId: ctx.user.id,
-          isOnline: true,
-          lastActivityAt: new Date(),
+          isOnline: 1,
+          lastActivityAt: new Date().toISOString(),
         });
       } else {
         await db
           .update(userSessions)
-          .set({ isOnline: true, lastActivityAt: new Date() })
+          .set({ isOnline: 1, lastActivityAt: new Date().toISOString() })
           .where(eq(userSessions.userId, ctx.user.id));
       }
 
@@ -623,7 +623,7 @@ export const chatRouter = router({
         senderId: ctx.user.id,
         senderRole: "user",
         message: summaryText,
-        isRead: false,
+        isRead: 0,
       });
 
       // Update AI session status to escalated
@@ -752,7 +752,7 @@ export const chatRouter = router({
         senderId: ctx.user.id,
         senderRole: ctx.user.role === "admin" ? "admin" : "user",
         message: messageContent,
-        isRead: false,
+        isRead: 0,
       });
 
       return {

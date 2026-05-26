@@ -153,8 +153,8 @@ export default function SearchResults() {
                 {/* Metadata */}
                 {result.metadata && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {result.metadata.tags && Array.isArray(result.metadata.tags) && (
-                      result.metadata.tags.slice(0, 3).map((tag: string) => (
+                    {(typeof result.metadata === "string" ? JSON.parse(result.metadata)?.tags : (typeof result.metadata === "string" ? JSON.parse(result.metadata || "{}") : result.metadata)?.tags) && Array.isArray((typeof result.metadata === "string" ? JSON.parse(result.metadata)?.tags : (typeof result.metadata === "string" ? JSON.parse(result.metadata || "{}") : result.metadata)?.tags)) && (
+                      (typeof result.metadata === "string" ? JSON.parse(result.metadata)?.tags : (typeof result.metadata === "string" ? JSON.parse(result.metadata || "{}") : result.metadata)?.tags).slice(0, 3).map((tag: string) => (
                         <span
                           key={tag}
                           className="text-xs px-2 py-1 bg-gray-700/50 text-gray-300 rounded"

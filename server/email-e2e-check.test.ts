@@ -37,7 +37,7 @@ describe("Daily Email Flow E2E Check", () => {
     mockGetToken.mockResolvedValue(fakeToken(["Mail.Send", "Mail.Read"]));
     mockSendEmail.mockResolvedValue(true);
     mockFetchInbox.mockResolvedValue([
-      { id: "1", subject: "Test", from: null, toRecipients: [], receivedDateTime: "", bodyPreview: "", body: { content: "", contentType: "HTML" }, isRead: false, conversationId: null },
+      { id: "1", subject: "Test", from: null, toRecipients: [], receivedDateTime: "", bodyPreview: "", body: { content: "", contentType: "HTML" }, isRead: 0, conversationId: null },
     ]);
 
     const result = await runEmailFlowE2ECheck();

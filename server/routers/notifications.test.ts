@@ -21,7 +21,7 @@ describe("Notification System", () => {
       openId: "test-openid-" + Date.now(),
       role: "user",
       loginMethod: "oauth",
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     });
 
     testUserId = userResult[0].insertId;
@@ -33,7 +33,7 @@ describe("Notification System", () => {
       openId: "admin-openid-" + Date.now(),
       role: "admin",
       loginMethod: "oauth",
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     });
 
     testAdminId = adminResult[0].insertId;
@@ -58,9 +58,9 @@ describe("Notification System", () => {
         openId: "test-openid",
         role,
         loginMethod: "oauth",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastSignedIn: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastSignedIn: new Date().toISOString(),
       },
       req: {
         protocol: "https",

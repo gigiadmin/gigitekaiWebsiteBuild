@@ -109,7 +109,7 @@ export const helpdeskDashboardMetricsRouter = router({
     });
 
     return {
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       agents: agentMetrics,
       totalAgents: allAgents.length,
       totalAssignedTickets: allTickets.filter((t) => t.assignedTo !== null).length,
@@ -225,7 +225,7 @@ export const helpdeskDashboardMetricsRouter = router({
     });
 
     return {
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       totalBreaches: breaches.length,
       breachRate: allTickets.length > 0 ? ((breaches.length / allTickets.length) * 100).toFixed(2) : "0",
       byPriority,
@@ -267,7 +267,7 @@ export const helpdeskDashboardMetricsRouter = router({
     });
 
     return {
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       categories: performance,
     };
   }),

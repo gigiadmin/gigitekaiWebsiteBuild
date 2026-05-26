@@ -140,8 +140,8 @@ describe("Copilot Router", () => {
         category: "Test",
         priority: "medium",
         status: "open",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       const mockDb = {
@@ -170,8 +170,8 @@ describe("Copilot Router", () => {
         category: "Account",
         priority: "medium",
         status: "resolved",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       const mockDb = {

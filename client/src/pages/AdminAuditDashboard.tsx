@@ -229,7 +229,7 @@ export default function AdminAuditDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleOpenEdit(audit)}
+                          onClick={() => handleOpenEdit(audit as unknown as unknown as AuditSubmission)}
                           className="gap-1"
                         >
                           <Edit2 className="w-4 h-4" />

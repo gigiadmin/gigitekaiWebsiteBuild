@@ -195,7 +195,7 @@ async function findOrCreateUser(
       email: email,
       name: displayName,
       role: "user",
-      approved: true,
+      approved: 1,
     });
 
     // Fetch the newly created user
@@ -404,7 +404,7 @@ async function createTicketFromEmail(
         category: classification.category,
         status: "open",
         userId: String(user.id),
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       await sendTicketNotificationToTeams(ticketData as any);
     } catch (teamsError) {

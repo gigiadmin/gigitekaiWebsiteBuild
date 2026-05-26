@@ -55,12 +55,12 @@ export const emailToTicketRouter = router({
           userId: 0, // External user (no user ID)
           message: input.body,
           isStaffReply: 0,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
 
         // Update ticket timestamp
         await db.update(tickets)
-          .set({ updatedAt: new Date() })
+          .set({ updatedAt: new Date().toISOString() })
           .where(eq(tickets.id, ticketId));
 
         return {
@@ -80,8 +80,8 @@ export const emailToTicketRouter = router({
         category: "general_support", // Default category
         status: "open",
         source: "email",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       const newTicketId = newTicket[0]?.insertId as number;
@@ -93,7 +93,7 @@ export const emailToTicketRouter = router({
           userId: 0,
           message: input.body,
           isStaffReply: 0,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -160,7 +160,7 @@ export const emailToTicketRouter = router({
         .from(tickets)
         .where(eq(tickets.source, "email"));
 
-      const recentEmailTickets = emailTickets.filter(t => t.createdAt >= thirtyDaysAgo);
+      const recentEmailTickets = emailTickets.filter(t => new Date(t.createdAt as string) >= thirtyDaysAgo);
 
       return {
         totalEmailTickets: emailTickets.length,

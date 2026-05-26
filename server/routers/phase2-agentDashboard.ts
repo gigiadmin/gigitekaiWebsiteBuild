@@ -56,7 +56,7 @@ export const agentDashboardRouter = router({
           .values({
             agentId: input.agentId,
             callId: input.callId,
-            isActive: true,
+            isActive: 1 as unknown as boolean,
           });
 
         return {
@@ -194,7 +194,7 @@ export const agentDashboardRouter = router({
         await db
           .update(agentDashboardSessions)
           .set({
-            isActive: false,
+            isActive: 0 as unknown as boolean,
             sessionEnded: new Date(),
           })
           .where(eq(agentDashboardSessions.id, input.sessionId));

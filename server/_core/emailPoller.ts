@@ -233,7 +233,7 @@ async function findOrCreateUser(
       email: email,
       name: displayName,
       role: "user",
-      approved: true,
+      approved: 1,
     });
 
     // Fetch the newly created user
@@ -1141,7 +1141,7 @@ async function processEmail(msgData: any): Promise<boolean> {
         priority: (classification.priority as 'critical' | 'high' | 'medium' | 'low') || 'medium',
         status: 'open' as any,
         category: (classification.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       await sendTicketNotificationToTeams(ticket, 'created');
       console.log(`[Email Poller] Teams notification sent for ticket #${ticketId}`);

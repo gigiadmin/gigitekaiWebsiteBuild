@@ -200,9 +200,9 @@ export async function processCallRecording(
         graphCallId: request.callId,
         transcriptText: transcript,
         aiSummary: analysis.summary,
-        hasTranscript: true,
+        hasTranscript: 1,
         status: "analyzed",
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
 
       // Create KB article if content is substantial
@@ -213,8 +213,8 @@ export async function processCallRecording(
           content: kbContent,
           category: "auto-generated",
           tags: JSON.stringify(analysis.keyTopics),
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
       }
     }

@@ -59,7 +59,7 @@ async function createForwardingRule(): Promise<{ success: boolean; ruleId?: stri
 
     const rulePayload = {
       displayName: RULE_NAME,
-      enabled: true,
+      enabled: 1,
       conditions: {
         // Apply to all messages
       },

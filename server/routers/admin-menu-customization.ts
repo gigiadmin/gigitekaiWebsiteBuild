@@ -30,7 +30,7 @@ export const adminMenuCustomizationRouter = router({
           .set({
             menuOrder: input.menuOrder,
             collapsedSections: input.collapsedSections || [],
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(adminMenuCustomization.userId, ctx.user.id));
       } else {
@@ -91,7 +91,7 @@ export const adminMenuCustomizationRouter = router({
         .from(adminMenuCustomization)
         .where(eq(adminMenuCustomization.userId, ctx.user.id));
 
-      let collapsedSections = result.length > 0 ? result[0].collapsedSections : [];
+      let collapsedSections: string[] = result.length > 0 ? (result[0].collapsedSections as string[] || []) : [];
 
       if (collapsedSections.includes(input.section)) {
         collapsedSections = collapsedSections.filter((s) => s !== input.section);
@@ -104,7 +104,7 @@ export const adminMenuCustomizationRouter = router({
           .update(adminMenuCustomization)
           .set({
             collapsedSections,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(adminMenuCustomization.userId, ctx.user.id));
       } else {

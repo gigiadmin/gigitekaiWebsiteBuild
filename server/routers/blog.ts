@@ -42,7 +42,7 @@ export const blogRouter = router({
         createdAt: blogPosts.createdAt,
       })
       .from(blogPosts)
-      .where(eq(blogPosts.published, true))
+      .where(eq(blogPosts.published, 1))
       .orderBy(desc(blogPosts.publishedAt));
     return posts;
   }),
@@ -56,7 +56,7 @@ export const blogRouter = router({
       const [post] = await db
         .select()
         .from(blogPosts)
-        .where(and(eq(blogPosts.slug, input.slug), eq(blogPosts.published, true)))
+        .where(and(eq(blogPosts.slug, input.slug), eq(blogPosts.published, 1)))
         .limit(1);
       if (!post) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Post not found" });
@@ -118,8 +118,8 @@ export const blogRouter = router({
         authorBio: input.authorBio ?? null,
         authorAvatar: input.authorAvatar ?? null,
         featuredImage: input.featuredImage ?? null,
-        published: input.published,
-        publishedAt: input.published ? new Date() : null,
+        published: input.published ? 1 : 0,
+        publishedAt: input.published ? new Date().toISOString() : null,
       });
       return { id: (result as any).insertId as number };
     }),
@@ -159,11 +159,12 @@ export const blogRouter = router({
       // If publishing for the first time, set publishedAt
       const publishedAt =
         fields.published === true && !existing.published ? new Date() : undefined;
+      const mappedFields = { ...fields, ...(fields.published !== undefined && { published: fields.published ? 1 : 0 }) };
       await db
         .update(blogPosts)
         .set({
-          ...fields,
-          ...(publishedAt !== undefined ? { publishedAt } : {}),
+          ...(mappedFields as any),
+          ...(publishedAt !== undefined ? { publishedAt: publishedAt ? new Date(publishedAt as any).toISOString() : null } : {}),
         })
         .where(eq(blogPosts.id, id));
       return { success: true };
@@ -208,10 +209,10 @@ export const blogRouter = router({
       requireAdmin(ctx.user.role);
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-      const publishedAt = input.published ? new Date() : null;
+      const publishedAt = input.published ? new Date().toISOString() : null;
       await db
         .update(blogPosts)
-        .set({ published: input.published, publishedAt })
+        .set({ published: input.published ? 1 : 0, publishedAt })
         .where(eq(blogPosts.id, input.id));
       return { success: true };
     }),
@@ -247,7 +248,7 @@ export const blogRouter = router({
           createdAt: blogPosts.createdAt,
         })
         .from(blogPosts)
-        .where(and(eq(blogPosts.published, true), eq(blogPosts.category, input.category)))
+        .where(and(eq(blogPosts.published, 1), eq(blogPosts.category, input.category)))
         .orderBy(desc(blogPosts.publishedAt));
       return posts;
     }),
@@ -279,7 +280,7 @@ export const blogRouter = router({
           createdAt: blogPosts.createdAt,
         })
         .from(blogPosts)
-        .where(and(eq(blogPosts.published, true), inArray(blogPosts.id, postIds.map(p => p.postId))))
+        .where(and(eq(blogPosts.published, 1), inArray(blogPosts.id, postIds.map(p => p.postId))))
         .orderBy(desc(blogPosts.publishedAt));
       return posts;
     }),
@@ -305,7 +306,7 @@ export const blogRouter = router({
           createdAt: blogPosts.createdAt,
         })
         .from(blogPosts)
-        .where(and(eq(blogPosts.published, true)))
+        .where(and(eq(blogPosts.published, 1)))
         .orderBy(desc(blogPosts.publishedAt));
       // Filter in-memory for title and excerpt matches
       return posts.filter(p => 

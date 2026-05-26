@@ -574,8 +574,8 @@ export const aibotRouter = router({
               sentiment: analysis.sentiment || 'neutral',
               sentimentScore: String(analysis.sentimentScore || '0.5'),
               escalationReason: 'auto_escalation_angry_sentiment',
-              kbArticleSuggested: false,
-              createdAt: new Date(),
+              kbArticleSuggested: 0,
+              createdAt: new Date().toISOString(),
             });
           } catch (logError) {
             console.warn('[AIBot] Failed to log auto-escalation pattern:', logError);
@@ -764,9 +764,9 @@ export const aibotRouter = router({
           sentiment: 'neutral',
           sentimentScore: '0.5',
           escalationReason: reason.substring(0, 255),
-          kbArticleSuggested: false,
+          kbArticleSuggested: 0,
           ticketId,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       } catch (logError) {
         console.warn('[AIBot] Failed to log escalation pattern:', logError);
@@ -1253,7 +1253,7 @@ export const aibotRouter = router({
           feedbackMessage: input.feedbackMessage || null,
           sessionId: input.sessionId || null,
           userId: null,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
         return { success: !!result, feedback: result };
       } catch (error) {

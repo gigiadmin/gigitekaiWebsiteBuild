@@ -69,7 +69,7 @@ export const customerInvitesRouter = router({
               <div style="text-align: center; margin: 32px 0;">
                 <a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">Accept Invitation</a>
               </div>
-              <p style="color: #8892a4; font-size: 13px;">This invite expires on ${result.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+              <p style="color: #8892a4; font-size: 13px;">This invite expires on ${new Date(String(result.expiresAt)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
               <p style="color: #8892a4; font-size: 13px;">If the button doesn't work, copy and paste this link into your browser:<br/><a href="${inviteLink}" style="color: #00D4FF;">${inviteLink}</a></p>
               <hr style="border-color: #21262d; margin: 24px 0;"/>
               <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
@@ -220,7 +220,7 @@ export const customerInvitesRouter = router({
               <div style="text-align: center; margin: 32px 0;">
                 <a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">Accept Invitation</a>
               </div>
-              <p style="color: #8892a4; font-size: 13px;">This invite expires on ${invite.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
+              <p style="color: #8892a4; font-size: 13px;">This invite expires on ${new Date(String(invite.expiresAt)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
               <p style="color: #8892a4; font-size: 13px;">If the button doesn't work, copy and paste this link:<br/><a href="${inviteLink}" style="color: #00D4FF;">${inviteLink}</a></p>
               <hr style="border-color: #21262d; margin: 24px 0;"/>
               <p style="color: #8892a4; font-size: 12px; text-align: center;">Questions? Contact us at <a href="mailto:support@gigitekai.com" style="color: #00D4FF;">support@gigitekai.com</a> or call +1 727 382 6909</p>
@@ -319,7 +319,7 @@ export const customerInvitesRouter = router({
                 to: email,
                 subject: "You're invited to GigitekAI Support Portal",
                 fromName: 'GigitekAI Support',
-                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0E1A; color: #ffffff; padding: 32px; border-radius: 8px;"><div style="text-align: center; margin-bottom: 24px;"><h1 style="color: #00D4FF; font-size: 24px; margin: 0;">GigitekAI</h1></div><h2 style="color: #ffffff; font-size: 20px;">You're Invited!</h2><p style="color: #c9d1d9;">Hi ${name || 'there'},</p><p style="color: #c9d1d9;">You've been invited to access the <strong style="color: #00D4FF;">GigitekAI Support Portal</strong>.</p><div style="text-align: center; margin: 32px 0;"><a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Accept Invitation</a></div><p style="color: #8892a4; font-size: 13px;">This invite expires on ${result.expiresAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p></div>`
+                html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0E1A; color: #ffffff; padding: 32px; border-radius: 8px;"><div style="text-align: center; margin-bottom: 24px;"><h1 style="color: #00D4FF; font-size: 24px; margin: 0;">GigitekAI</h1></div><h2 style="color: #ffffff; font-size: 20px;">You're Invited!</h2><p style="color: #c9d1d9;">Hi ${name || 'there'},</p><p style="color: #c9d1d9;">You've been invited to access the <strong style="color: #00D4FF;">GigitekAI Support Portal</strong>.</p><div style="text-align: center; margin: 32px 0;"><a href="${inviteLink}" style="background-color: #00D4FF; color: #0A0E1A; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Accept Invitation</a></div><p style="color: #8892a4; font-size: 13px;">This invite expires on ${new Date(String(result.expiresAt)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p></div>`
               });
               results.sent++;
             } else {

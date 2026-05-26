@@ -129,7 +129,7 @@ function ScoreDetailDialog({
             <div>
               <p className="font-semibold text-white">{score.score.agentName || "Unknown Agent"}</p>
               <p className="text-sm text-slate-400">
-                {score.call.callerNumber} · {formatDate(score.call.startedAt)} · {formatDuration(score.call.durationSeconds)}
+                {score.call.callerNumber} · {formatDate(score.call.startedAt ? new Date(score.call.startedAt) : null)} · {formatDuration(score.call.durationSeconds)}
               </p>
             </div>
             <div className="text-center">
@@ -472,7 +472,7 @@ export default function AdminCallQualityPage() {
                   <TableRow key={call.id} className="border-slate-700 hover:bg-slate-800/50">
                     <TableCell className="text-slate-300 font-mono text-sm">{call.callerNumber || "Unknown"}</TableCell>
                     <TableCell className="text-slate-300">{call.calleeDisplayName || call.calleeUpn || "—"}</TableCell>
-                    <TableCell className="text-slate-400 text-sm">{formatDate(call.startedAt)}</TableCell>
+                    <TableCell className="text-slate-400 text-sm">{formatDate(call.startedAt ? new Date(call.startedAt) : null)}</TableCell>
                     <TableCell className="text-slate-400 text-sm">{formatDuration(call.durationSeconds)}</TableCell>
                     <TableCell>
                       {call.aiCategory && (
@@ -539,7 +539,7 @@ export default function AdminCallQualityPage() {
                     <TableCell className="text-slate-300 font-mono text-sm">
                       {item.call.callerNumber || "Unknown"}
                     </TableCell>
-                    <TableCell className="text-slate-400 text-sm">{formatDate(item.call.startedAt)}</TableCell>
+                    <TableCell className="text-slate-400 text-sm">{formatDate(item.call.startedAt ? new Date(item.call.startedAt) : null)}</TableCell>
                     <TableCell className="text-center">
                       <span className={`font-bold text-lg ${scoreColor(item.score.totalScore ?? 0)}`}>
                         {item.score.totalScore ?? "—"}

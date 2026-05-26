@@ -44,7 +44,7 @@ async function markExpiredInvitations() {
       .from(customerInvites)
       .where(
         and(
-          lt(customerInvites.expiresAt, now),
+          lt(customerInvites.expiresAt, now.toISOString()),
           eq(customerInvites.status, "pending")
         )
       );
@@ -98,10 +98,10 @@ async function sendExpiringReminders() {
       .from(customerInvites)
       .where(
         and(
-          gte(customerInvites.expiresAt, now),
-          lte(customerInvites.expiresAt, oneDayFromNow),
+          gte(customerInvites.expiresAt, now instanceof Date ? now.toISOString() : now),
+          lte(customerInvites.expiresAt, oneDayFromNow instanceof Date ? oneDayFromNow.toISOString() : oneDayFromNow),
           eq(customerInvites.status, "pending"),
-          eq(customerInvites.reminderSent, false)
+          eq(customerInvites.reminderSent, 0)
         )
       );
 
@@ -113,7 +113,7 @@ async function sendExpiringReminders() {
     // Send reminder emails to admins for each expiring invitation
     for (const invite of expiringInvites) {
       const hoursUntilExpiry = Math.ceil(
-        (invite.expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)
+        (new Date(invite.expiresAt).getTime() - now.getTime()) / (60 * 60 * 1000)
       );
 
       const emailSent = await sendEmail({
@@ -155,7 +155,7 @@ async function sendExpiringReminders() {
         await db
           .update(customerInvites)
           .set({
-            reminderSent: true,
+            reminderSent: 1,
           })
           .where(eq(customerInvites.id, invite.id));
 
@@ -194,7 +194,7 @@ async function cleanupOldExpiredInvitations() {
       .where(
         and(
           eq(customerInvites.status, "expired"),
-          lt(customerInvites.expiresAt, thirtyDaysAgo)
+          lt(customerInvites.expiresAt, thirtyDaysAgo instanceof Date ? thirtyDaysAgo.toISOString() : thirtyDaysAgo)
         )
       );
 

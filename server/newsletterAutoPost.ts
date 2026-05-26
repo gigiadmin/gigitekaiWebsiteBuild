@@ -171,8 +171,8 @@ router.post("/auto-post", async (req, res) => {
         category,
         readTime,
         authorName,
-        published: true,
-        publishedAt: new Date(),
+        published: 1,
+        publishedAt: new Date().toISOString(),
       });
 
       const blogId = (insertResult as any).insertId as number;
@@ -191,7 +191,7 @@ router.post("/auto-post", async (req, res) => {
       const subscribers = await db
         .select({ id: newsletterSubscribers.id })
         .from(newsletterSubscribers)
-        .where(eq(newsletterSubscribers.active, true));
+        .where(eq(newsletterSubscribers.active, 1));
 
       if (subscribers.length === 0) {
         console.log("[Newsletter Auto-Post] No active subscribers — skipping send");

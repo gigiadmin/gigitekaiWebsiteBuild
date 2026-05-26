@@ -37,7 +37,7 @@ export const emailRecipientGroupsRouter = router({
           })
           .$returningId();
 
-        return { success: true, groupId: result[0].id };
+        return { success: true, groupId: (result[0] as any).id };
       } catch (error) {
         console.error("[Email Groups] Create failed:", error);
         throw error;

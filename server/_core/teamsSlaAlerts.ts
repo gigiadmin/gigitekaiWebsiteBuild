@@ -226,7 +226,7 @@ export async function checkAndAlertSlaBreaches(): Promise<number> {
   const activeSnoozes = await db
     .select({ ticketId: slaSnoozes.ticketId })
     .from(slaSnoozes)
-    .where(gt(slaSnoozes.snoozedUntil, nowDate));
+    .where(gt(slaSnoozes.snoozedUntil, nowDate.toISOString()));
   const snoozedTicketIds = new Set(activeSnoozes.map((s) => s.ticketId));
 
   for (const ticket of activeTickets) {

@@ -65,7 +65,7 @@ export async function sendTicketNotificationToTeams(
             .update(teamsClientChannels)
             .set({
               notificationCount: sql`notificationCount + 1`,
-              lastNotificationAt: new Date(),
+              lastNotificationAt: new Date().toISOString(),
             })
             .where(sql`webhookUrl = ${webhookUrl} AND isActive = 1`);
           console.log(`[Teams Notification] ✅ DB counter updated for webhook: ${webhookUrl.slice(0, 60)}...`);

@@ -179,6 +179,9 @@ export function getChannelRoutingSummary(): Array<{ category: string; configured
 let lastHealthCheckAt: Date | null = null;
 let lastHealthCheckPassed = true;
 let healthCheckIntervalId: NodeJS.Timeout | null = null;
+// Cooldown: only send one failure notification per 24 hours to avoid email spam
+let lastFailureNotifiedAt: Date | null = null;
+const FAILURE_NOTIFY_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
  * Perform a single health check ping to the default Teams webhook.
@@ -219,10 +222,19 @@ export async function pingTeamsWebhook(): Promise<boolean> {
 
     if (!response.ok) {
       console.warn(`[Teams Health] ❌ Webhook ping failed: HTTP ${response.status}`);
-      notifyOwner({
-        title: "⚠️ Teams Webhook Health Check Failed",
-        content: `The Teams webhook health check returned HTTP ${response.status} at ${lastHealthCheckAt.toISOString()}. Teams notifications may not be delivered. Please verify the webhook URL in your Teams channel settings.`,
-      }).catch(() => {});
+      // Only notify once per 24 hours to prevent email spam
+      const now = new Date();
+      const cooldownElapsed = !lastFailureNotifiedAt ||
+        (now.getTime() - lastFailureNotifiedAt.getTime()) >= FAILURE_NOTIFY_COOLDOWN_MS;
+      if (cooldownElapsed) {
+        lastFailureNotifiedAt = now;
+        notifyOwner({
+          title: "⚠️ Teams Webhook Health Check Failed",
+          content: `The Teams webhook health check returned HTTP ${response.status} at ${lastHealthCheckAt!.toISOString()}. Teams notifications may not be delivered. Please verify the webhook URL in your Teams channel settings. (You will only receive this alert once per 24 hours.)`,
+        }).catch(() => {});
+      } else {
+        console.warn(`[Teams Health] Suppressing duplicate failure notification (cooldown active, last notified: ${lastFailureNotifiedAt?.toISOString()})`);
+      }
     }
 
     console.log(`[Teams Health] ✅ Webhook ping successful: HTTP ${response.status}`);
@@ -231,10 +243,19 @@ export async function pingTeamsWebhook(): Promise<boolean> {
     lastHealthCheckAt = new Date();
     lastHealthCheckPassed = false;
     console.warn(`[Teams Health] ❌ Webhook ping error: ${err?.message}`);
-    notifyOwner({
-      title: "⚠️ Teams Webhook Unreachable",
-      content: `The Teams webhook health check threw an error at ${lastHealthCheckAt.toISOString()}: ${err?.message}. Teams notifications are likely not being delivered.`,
-    }).catch(() => {});
+    // Only notify once per 24 hours to prevent email spam
+    const now = new Date();
+    const cooldownElapsed = !lastFailureNotifiedAt ||
+      (now.getTime() - lastFailureNotifiedAt.getTime()) >= FAILURE_NOTIFY_COOLDOWN_MS;
+    if (cooldownElapsed) {
+      lastFailureNotifiedAt = now;
+      notifyOwner({
+        title: "⚠️ Teams Webhook Unreachable",
+        content: `The Teams webhook health check threw an error at ${lastHealthCheckAt!.toISOString()}: ${err?.message}. Teams notifications are likely not being delivered. (You will only receive this alert once per 24 hours.)`,
+      }).catch(() => {});
+    } else {
+      console.warn(`[Teams Health] Suppressing duplicate error notification (cooldown active, last notified: ${lastFailureNotifiedAt?.toISOString()})`);
+    }
     return false;
   }
 }

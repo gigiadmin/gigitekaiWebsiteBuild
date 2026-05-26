@@ -44,7 +44,7 @@ const kbData = [
 - Only specific folders not syncing`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'email', 'sync', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Crashes on Startup',
@@ -86,7 +86,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Error codes appear in crash message`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'crash', 'microsoft-365', 'troubleshooting']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Cannot Send Emails in Outlook',
@@ -130,7 +130,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Error messages appear when sending`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'email', 'send', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Slow Performance',
@@ -183,7 +183,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Specific folder is extremely slow`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'performance', 'slow', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Calendar Not Syncing',
@@ -227,7 +227,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Calendar events missing on some devices`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'calendar', 'sync', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Rules Not Working',
@@ -276,7 +276,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need help with complex rule logic`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'rules', 'filters', 'email']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Cannot Access Shared Mailbox',
@@ -322,7 +322,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Permissions appear correct but access denied`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'shared-mailbox', 'permissions', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Attachment Issues',
@@ -369,7 +369,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Specific file type causing problems`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'attachments', 'email', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Outlook Signature Not Appearing',
@@ -425,7 +425,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Signature appearing incorrectly formatted`,
     category: 'Email',
     tags: JSON.stringify(['outlook', 'signature', 'email', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   // Microsoft Teams (Articles 9-15)
   {
@@ -482,7 +482,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Freezing continues after troubleshooting`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'microsoft-365', 'crash', 'performance']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Teams Microphone or Camera Not Working',
@@ -538,7 +538,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Device works on other computers but not Teams`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'microphone', 'camera', 'audio']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Teams Meeting Connection Issues',
@@ -593,7 +593,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Only specific meetings have problems`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'meeting', 'connection', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Teams Chat Messages Not Syncing',
@@ -647,7 +647,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Specific chat not syncing`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'chat', 'sync', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Teams Channel Notifications Not Working',
@@ -701,7 +701,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Only specific channels not notifying`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'notifications', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Teams File Sharing Issues',
@@ -752,7 +752,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Specific file types causing problems`,
     category: 'Collaboration',
     tags: JSON.stringify(['teams', 'file-sharing', 'onedrive', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   // Network & Connectivity (Articles 16-25)
   {
@@ -811,7 +811,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need professional router configuration`,
     category: 'Network',
     tags: JSON.stringify(['wifi', 'connectivity', 'internet', 'network']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Slow Internet Speed',
@@ -873,7 +873,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need network optimization`,
     category: 'Network',
     tags: JSON.stringify(['internet', 'speed', 'slow', 'network']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Cannot Connect to WiFi Network',
@@ -940,7 +940,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Error messages appearing`,
     category: 'Network',
     tags: JSON.stringify(['wifi', 'connection', 'network', 'connectivity']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Ethernet Connection Issues',
@@ -1001,7 +1001,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need professional network diagnostics`,
     category: 'Network',
     tags: JSON.stringify(['ethernet', 'network', 'connection', 'wired']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'VPN Connection Problems',
@@ -1061,7 +1061,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Cannot access specific resources on VPN`,
     category: 'Network',
     tags: JSON.stringify(['vpn', 'network', 'security', 'connection']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'DNS Resolution Issues',
@@ -1128,7 +1128,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need ISP DNS investigation`,
     category: 'Network',
     tags: JSON.stringify(['dns', 'network', 'internet', 'troubleshooting']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Printer Not Found on Network',
@@ -1193,7 +1193,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need printer network configuration`,
     category: 'Hardware',
     tags: JSON.stringify(['printer', 'network', 'hardware', 'connectivity']),
-    isPublished: true,
+    isPublished: 1,
   },
   // OneDrive & SharePoint (Articles 26-32)
   {
@@ -1256,7 +1256,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Files stuck in "syncing" state`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['onedrive', 'sync', 'microsoft-365', 'storage']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Cannot Access SharePoint Site',
@@ -1318,7 +1318,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Error messages appearing`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['sharepoint', 'microsoft-365', 'access', 'permissions']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'SharePoint File Upload Failing',
@@ -1378,7 +1378,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Error messages appearing`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['sharepoint', 'upload', 'file', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'SharePoint Permissions Issues',
@@ -1443,7 +1443,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need complex permission setup`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['sharepoint', 'permissions', 'access', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'SharePoint Search Not Working',
@@ -1504,7 +1504,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need advanced search configuration`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['sharepoint', 'search', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'OneDrive Storage Full',
@@ -1566,7 +1566,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need help managing storage`,
     category: 'Cloud Storage',
     tags: JSON.stringify(['onedrive', 'storage', 'quota', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   // Windows & System (Articles 33-40)
   {
@@ -1629,7 +1629,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - System unstable after update`,
     category: 'System',
     tags: JSON.stringify(['windows', 'update', 'system', 'troubleshooting']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Computer Running Slow',
@@ -1693,7 +1693,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need hardware upgrade advice`,
     category: 'System',
     tags: JSON.stringify(['performance', 'slow', 'windows', 'system']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Blue Screen of Death (BSOD)',
@@ -1758,7 +1758,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - May indicate hardware failure`,
     category: 'System',
     tags: JSON.stringify(['bsod', 'crash', 'windows', 'error']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Disk Space Running Out',
@@ -1820,7 +1820,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Considering hardware upgrade`,
     category: 'System',
     tags: JSON.stringify(['storage', 'disk-space', 'windows', 'cleanup']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Windows Defender Issues',
@@ -1881,7 +1881,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Threats won't quarantine`,
     category: 'System',
     tags: JSON.stringify(['security', 'antivirus', 'windows-defender', 'malware']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Password Reset Issues',
@@ -1938,7 +1938,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need professional password recovery`,
     category: 'System',
     tags: JSON.stringify(['password', 'security', 'windows', 'login']),
-    isPublished: true,
+    isPublished: 1,
   },
   // Security & Best Practices (Articles 41-50)
   {
@@ -1998,7 +1998,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need help with backup codes`,
     category: 'Security',
     tags: JSON.stringify(['security', '2fa', 'authentication', 'microsoft-365']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Phishing Email Recognition',
@@ -2062,7 +2062,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need help reporting phishing`,
     category: 'Security',
     tags: JSON.stringify(['security', 'phishing', 'email', 'scam']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Malware Removal Steps',
@@ -2132,7 +2132,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Antivirus keeps getting disabled`,
     category: 'Security',
     tags: JSON.stringify(['security', 'malware', 'antivirus', 'removal']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Backup and Recovery Best Practices',
@@ -2200,7 +2200,7 @@ Add-ins can cause crashes. Try Safe Mode:
 - Need help recovering files`,
     category: 'System',
     tags: JSON.stringify(['backup', 'recovery', 'data-protection', 'windows']),
-    isPublished: true,
+    isPublished: 1,
   },
 ];
 
@@ -2220,9 +2220,9 @@ export async function seedComprehensiveKB() {
         content: article.content,
         category: article.category,
         tags: article.tags,
-        isPublished: Boolean(article.isPublished),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        isPublished: article.isPublished ? 1 : 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       console.log(`✓ Seeded: ${article.title}`);

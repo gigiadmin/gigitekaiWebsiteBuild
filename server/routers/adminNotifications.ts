@@ -34,7 +34,7 @@ export const adminNotificationsRouter = router({
       const rows = await db
         .select()
         .from(adminNotifications)
-        .where(onlyUnread ? eq(adminNotifications.isRead, false) : undefined)
+        .where(onlyUnread ? eq(adminNotifications.isRead, 0) : undefined)
         .orderBy(desc(adminNotifications.createdAt))
         .limit(limit);
       return rows;
@@ -47,7 +47,7 @@ export const adminNotificationsRouter = router({
     const rows = await db
       .select({ id: adminNotifications.id })
       .from(adminNotifications)
-      .where(eq(adminNotifications.isRead, false));
+      .where(eq(adminNotifications.isRead, 0));
     return rows.length;
   }),
 
@@ -59,7 +59,7 @@ export const adminNotificationsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
       await db
         .update(adminNotifications)
-        .set({ isRead: true })
+        .set({ isRead: 1 })
         .where(eq(adminNotifications.id, input.id));
       return { success: true };
     }),
@@ -70,8 +70,8 @@ export const adminNotificationsRouter = router({
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
     await db
       .update(adminNotifications)
-      .set({ isRead: true })
-      .where(eq(adminNotifications.isRead, false));
+      .set({ isRead: 1 })
+      .where(eq(adminNotifications.isRead, 0));
     return { success: true };
   }),
 
@@ -82,7 +82,7 @@ export const adminNotificationsRouter = router({
     const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     await db
       .delete(adminNotifications)
-      .where(lt(adminNotifications.createdAt, cutoff));
+      .where(lt(adminNotifications.createdAt, cutoff.toISOString()));
     return { success: true };
   }),
 });
@@ -111,12 +111,12 @@ export async function createAdminNotification(payload: {
         body: payload.body ?? null,
         href: payload.href ?? null,
         priority: payload.priority ?? "normal",
-        isRead: false,
+        isRead: 0,
         ticketId: payload.ticketId ?? null,
         sessionId: payload.sessionId ?? null,
       })
       .$returningId();
-    const id = result[0]?.id ?? null;
+    const id = (result[0] as any)?.id ?? null;
 
     // Broadcast via WebSocket so online admins get instant delivery
     try {

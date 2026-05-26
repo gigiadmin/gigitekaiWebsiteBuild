@@ -262,7 +262,7 @@ Example format: ["microsoft-365", "teams", "troubleshooting"]`;
         .where(
           and(
             ne(kbArticles.id, input.articleId),
-            eq(kbArticles.isPublished, true)
+            eq(kbArticles.isPublished, 1)
           )
         )
         .groupBy(kbArticles.id, kbArticles.title, kbArticles.category)
@@ -286,7 +286,7 @@ Example format: ["microsoft-365", "teams", "troubleshooting"]`;
       const totalArticles = (await db
         .select({ count: sql<number>`COUNT(*)`.as("count") })
         .from(kbArticles)
-        .where(eq(kbArticles.isPublished, true))) as any[];
+        .where(eq(kbArticles.isPublished, 1))) as any[];
 
       // Articles with tags
       const articlesWithTags = (await db

@@ -244,7 +244,7 @@ export const emailRouter = router({
           })
           .$returningId();
 
-        return { success: true, templateId: result[0].id };
+        return { success: true, templateId: (result[0] as any).id };
       } catch (error) {
         console.error("[Email] Template creation failed:", error);
         throw error;
@@ -439,7 +439,7 @@ export const emailRouter = router({
             messageId: msg.id,
             linkedTicketId: ticketId,
             linkedSessionId: sessionId,
-            timestamp: new Date(msg.receivedDateTime),
+            timestamp: new Date(msg.receivedDateTime).toISOString(),
           });
 
           // Notify admin of new incoming email

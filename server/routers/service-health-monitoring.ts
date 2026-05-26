@@ -33,7 +33,7 @@ export enum ServiceHealthStatus {
 export interface ServiceHealthCheck {
   service: string;
   status: ServiceHealthStatus;
-  lastChecked: Date;
+  lastChecked: string;
   responseTime: number; // milliseconds
   message: string;
   metrics?: Record<string, unknown>;
@@ -59,7 +59,7 @@ export interface M365ServiceDegradation {
 interface EmailHealthMetrics {
   msGraphCredentialsValid: boolean;
   sendgridConfigured: boolean;
-  lastSuccessfulSend?: Date;
+  lastSuccessfulSend?: string;
   failureCount: number;
   successRate: number; // percentage
   avgResponseTime: number; // milliseconds
@@ -84,21 +84,21 @@ interface M365HealthMetrics {
   credentialsValid: boolean;
   criticalIssuesCount: number;
   degradedServicesCount: number;
-  lastSync: Date;
+  lastSync: string;
 }
 
 /**
  * Overall system health dashboard
  */
 interface SystemHealthDashboard {
-  timestamp: Date;
+  timestamp: string;
   overallStatus: ServiceHealthStatus;
   services: ServiceHealthCheck[];
   alerts: Array<{
     severity: "critical" | "warning" | "info";
     service: string;
     message: string;
-    timestamp: Date;
+    timestamp: string;
   }>;
   metrics: {
     email: EmailHealthMetrics;
@@ -151,7 +151,7 @@ export async function checkEmailApiHealth(): Promise<ServiceHealthCheck> {
   return {
     service: "Email API",
     status,
-    lastChecked: new Date(),
+    lastChecked: new Date().toISOString(),
     responseTime: Date.now() - startTime,
     message,
     metrics: metrics as unknown as Record<string, unknown>,
@@ -182,7 +182,7 @@ export async function checkHelpdeskHealth(): Promise<ServiceHealthCheck> {
       return {
         service: "Helpdesk System",
         status,
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
         responseTime: Date.now() - startTime,
         message,
         metrics: metrics as unknown as Record<string, unknown>,
@@ -265,7 +265,7 @@ export async function checkHelpdeskHealth(): Promise<ServiceHealthCheck> {
   return {
     service: "Helpdesk System",
     status,
-    lastChecked: new Date(),
+    lastChecked: new Date().toISOString(),
     responseTime: Date.now() - startTime,
     message,
     metrics: metrics as unknown as Record<string, unknown>,
@@ -461,7 +461,7 @@ export async function checkM365Health(): Promise<ServiceHealthCheck> {
     credentialsValid: false,
     criticalIssuesCount: 0,
     degradedServicesCount: 0,
-    lastSync: new Date(),
+    lastSync: new Date().toISOString(),
   };
 
   try {
@@ -472,7 +472,7 @@ export async function checkM365Health(): Promise<ServiceHealthCheck> {
       return {
         service: "M365 Service Health",
         status,
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
         responseTime: Date.now() - startTime,
         message,
         metrics: metrics as unknown as Record<string, unknown>,
@@ -495,7 +495,7 @@ export async function checkM365Health(): Promise<ServiceHealthCheck> {
       return {
         service: "M365 Service Health",
         status,
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
         responseTime: Date.now() - startTime,
         message,
         metrics: metrics as unknown as Record<string, unknown>,
@@ -543,7 +543,7 @@ export async function checkM365Health(): Promise<ServiceHealthCheck> {
   return {
     service: "M365 Service Health",
     status,
-    lastChecked: new Date(),
+    lastChecked: new Date().toISOString(),
     responseTime: Date.now() - startTime,
     message,
     metrics: metrics as unknown as Record<string, unknown>,
@@ -613,7 +613,7 @@ export const serviceHealthMonitoringRouter = router({
       const alerts = generateAlerts(services);
 
       return {
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         overallStatus,
         services,
         alerts,

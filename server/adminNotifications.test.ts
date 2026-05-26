@@ -53,7 +53,7 @@ describe("createAdminNotification helper", () => {
         type: "new_ticket",
         title: "New Ticket: Test issue",
         priority: "high",
-        isRead: false,
+        isRead: 0,
         ticketId: 7,
       })
     );
@@ -89,7 +89,7 @@ describe("createAdminNotification helper", () => {
       expect.objectContaining({
         type: "new_chat",
         sessionId: 5,
-        isRead: false,
+        isRead: 0,
       })
     );
     expect(id).toBe(99);

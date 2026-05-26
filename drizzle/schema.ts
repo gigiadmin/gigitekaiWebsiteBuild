@@ -1816,3 +1816,64 @@ export const searchSuggestions = mysqlTable("searchSuggestions", {
 	index("searchSuggestions_suggestion_idx").on(table.suggestion),
 	index("searchSuggestions_category_idx").on(table.category),
 ]);
+
+// ─── Inferred Types (Insert & Select) ────────────────────────────────────────
+// These are derived from the table definitions above using Drizzle's type inference.
+// Use these instead of manually defined interfaces to stay in sync with schema changes.
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+
+export type Ticket = typeof tickets.$inferSelect;
+export type InsertTicket = typeof tickets.$inferInsert;
+
+export type TicketReply = typeof ticketReplies.$inferSelect;
+export type InsertTicketReply = typeof ticketReplies.$inferInsert;
+
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type InsertContactSubmission = typeof contactSubmissions.$inferInsert;
+
+export type CustomerInvite = typeof customerInvites.$inferSelect;
+export type InsertCustomerInvite = typeof customerInvites.$inferInsert;
+
+export type TicketFeedback = typeof ticketFeedback.$inferSelect;
+export type InsertTicketFeedback = typeof ticketFeedback.$inferInsert;
+
+export type EmailDigestPreferences = typeof emailDigestPreferences.$inferSelect;
+export type InsertEmailDigestPreferences = typeof emailDigestPreferences.$inferInsert;
+
+export type EmailDigestHistory = typeof emailDigestHistory.$inferSelect;
+export type InsertEmailDigestHistory = typeof emailDigestHistory.$inferInsert;
+
+export type KbArticleFeedback = typeof kbArticleFeedback.$inferSelect;
+export type InsertKbArticleFeedback = typeof kbArticleFeedback.$inferInsert;
+
+export type EscalationPattern = typeof escalationPatterns.$inferSelect;
+export type InsertEscalationPattern = typeof escalationPatterns.$inferInsert;
+
+export type Setting = typeof settings.$inferSelect;
+export type InsertSetting = typeof settings.$inferInsert;
+
+export type UserActivity = typeof userActivity.$inferSelect;
+export type InsertUserActivity = typeof userActivity.$inferInsert;
+
+export type CustomerFeedback = typeof customerFeedback.$inferSelect;
+export type InsertCustomerFeedback = typeof customerFeedback.$inferInsert;
+
+export type WebsiteTraffic = typeof websiteTraffic.$inferSelect;
+export type InsertWebsiteTraffic = typeof websiteTraffic.$inferInsert;
+
+export type ChatAnalytic = typeof chatAnalytics.$inferSelect;
+export type InsertChatAnalytic = typeof chatAnalytics.$inferInsert;
+
+export type ResponseRating = typeof responseRatings.$inferSelect;
+export type InsertResponseRating = typeof responseRatings.$inferInsert;
+
+export type ConversationSummary = typeof conversationSummaries.$inferSelect;
+export type InsertConversationSummary = typeof conversationSummaries.$inferInsert;
+
+export type TeamsIntegration = typeof teamsIntegration.$inferSelect;
+export type InsertTeamsIntegration = typeof teamsIntegration.$inferInsert;
+
+export type AgentTakeoverRequest = typeof agentTakeoverRequests.$inferSelect;
+export type InsertAgentTakeoverRequest = typeof agentTakeoverRequests.$inferInsert;

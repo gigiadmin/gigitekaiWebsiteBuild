@@ -64,8 +64,8 @@ describe("KB Feedback Router", () => {
       const mockDb = {
         select: vi.fn().mockReturnValue({
           from: vi.fn().mockResolvedValue([
-            { id: 1, isPublished: true },
-            { id: 2, isPublished: false },
+            { id: 1, isPublished: 1 },
+            { id: 2, isPublished: 0 },
           ]),
         }),
       };

@@ -348,7 +348,7 @@ export default function AdminBlog() {
                         size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-[#00D4FF]"
                         title="Edit"
-                        onClick={() => openEdit(post as Post)}
+                        onClick={() => openEdit(post as unknown as Post)}
                       >
                         <Pencil size={14} />
                       </Button>
@@ -356,7 +356,7 @@ export default function AdminBlog() {
                         size="sm" variant="ghost"
                         className="h-8 w-8 p-0 text-gray-400 hover:text-red-400"
                         title="Delete"
-                        onClick={() => setDeleteTarget(post as Post)}
+                        onClick={() => setDeleteTarget(post as unknown as Post)}
                       >
                         <Trash2 size={14} />
                       </Button>

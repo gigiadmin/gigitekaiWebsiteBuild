@@ -27,7 +27,7 @@ export const helpdeskAgentSlaRouter = router({
 
       // Update assignment
       await db.update(tickets)
-        .set({ assignedTo: input.agentId, updatedAt: new Date() })
+        .set({ assignedTo: input.agentId, updatedAt: new Date().toISOString() })
         .where(eq(tickets.id, input.ticketId));
 
       return { success: true, ticketId: input.ticketId, agentId: input.agentId };
@@ -64,7 +64,7 @@ export const helpdeskAgentSlaRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       await db.update(tickets)
-        .set({ assignedTo: input.agentId, updatedAt: new Date() })
+        .set({ assignedTo: input.agentId, updatedAt: new Date().toISOString() })
         .where(inArray(tickets.id, input.ticketIds));
 
       return { success: true, affectedCount: input.ticketIds.length };

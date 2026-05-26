@@ -12,9 +12,9 @@ function createAdminContext(): TrpcContext {
     name: "Test Admin",
     loginMethod: "oauth",
     role: "admin",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastSignedIn: new Date().toISOString(),
   };
 
   const ctx: TrpcContext = {
@@ -37,9 +37,9 @@ function createUserContext(): TrpcContext {
     name: "Test User",
     loginMethod: "oauth",
     role: "user",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastSignedIn: new Date().toISOString(),
   };
 
   const ctx: TrpcContext = {

@@ -2,7 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { kbArticleShares, kbArticles, kbArticleAnalytics } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc , gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
 
@@ -128,7 +128,7 @@ export const kbSharingRouter = router({
 
       const result = await db
         .update(kbArticleShares)
-        .set({ viewedAt: new Date() })
+        .set({ viewedAt: new Date().toISOString() })
         .where(eq(kbArticleShares.id, input.shareId));
 
       return { success: true, shareId: input.shareId };
@@ -204,7 +204,7 @@ export const kbSharingRouter = router({
       const shares = await db
         .select()
         .from(kbArticleShares)
-        .where(eq(kbArticleShares.sharedAt, thirtyDaysAgo));
+        .where(gte(kbArticleShares.sharedAt, thirtyDaysAgo.toISOString()));
 
       // Group by articleId and count
       const grouped = shares.reduce(

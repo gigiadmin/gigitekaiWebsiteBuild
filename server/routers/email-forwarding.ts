@@ -61,7 +61,7 @@ async function setupMailForwardingRule(teamsChannelEmail: string): Promise<{ suc
     // Create the forwarding rule
     const rulePayload = {
       displayName: "Forward to Teams Help Desk",
-      enabled: true,
+      enabled: 1,
       conditions: {
         // Apply to all messages
       },
@@ -148,7 +148,7 @@ async function getMailForwardingStatus(): Promise<{ enabled: boolean; targetEmai
 
     if (forwardingRule && forwardingRule.actions?.forwardTo?.[0]?.emailAddress?.address) {
       return {
-        enabled: forwardingRule.enabled,
+        enabled: Boolean(forwardingRule.enabled),
         targetEmail: forwardingRule.actions.forwardTo[0].emailAddress.address,
         ruleId: forwardingRule.id,
       };

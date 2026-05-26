@@ -37,7 +37,7 @@ export const contactCenterTrends = {
             status: tickets.status,
           })
           .from(tickets)
-          .where(gte(tickets.createdAt, daysAgo));
+          .where(gte(tickets.createdAt, daysAgo.toISOString()));
         
         const ticketData = await query.execute();
 
@@ -134,7 +134,7 @@ export const contactCenterTrends = {
             status: tickets.status,
           })
           .from(tickets)
-          .where(gte(tickets.createdAt, daysAgo));
+          .where(gte(tickets.createdAt, daysAgo.toISOString()));
         
         const ticketData = await query.execute();
 
@@ -231,7 +231,7 @@ export const contactCenterTrends = {
             priority: tickets.priority,
           })
           .from(tickets)
-          .where(gte(tickets.createdAt, daysAgo));
+          .where(gte(tickets.createdAt, daysAgo.toISOString()));
         
         const ticketData = await query.execute();
 

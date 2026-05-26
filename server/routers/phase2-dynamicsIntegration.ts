@@ -105,7 +105,7 @@ export const dynamicsIntegrationRouter = router({
           source: "voice_call",
           callId: input.callId,
           customerId: input.customerId,
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         };
 
         return {

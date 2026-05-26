@@ -37,11 +37,11 @@ export async function createContext(
           name: payload.name || null,
           email: payload.email || null,
           loginMethod: "admin",
-          role: payload.role === "admin" ? "admin" : "user",
-          approved: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastSignedIn: new Date(),
+          role: (payload.role === "admin" ? "admin" : "user") as "admin" | "user" | "technician",
+          approved: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastSignedIn: new Date().toISOString(),
           deletedAt: null,
         } as User;
         

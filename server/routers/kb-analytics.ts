@@ -30,7 +30,7 @@ export const kbAnalyticsRouter = router({
         viewedFrom: input.viewedFrom,
         ticketId: input.ticketId,
         timeSpent: input.timeSpent,
-        helpful: input.helpful,
+        helpful: input.helpful !== undefined ? (input.helpful ? 1 : 0) : null,
       });
 
       // Update analytics
@@ -42,7 +42,7 @@ export const kbAnalyticsRouter = router({
       if (analytics.length > 0) {
         await db
           .update(kbArticleAnalytics)
-          .set({ views: (analytics[0].views || 0) + 1, lastViewedAt: new Date() })
+          .set({ views: (analytics[0].views || 0) + 1, lastViewedAt: new Date().toISOString() })
           .where(eq(kbArticleAnalytics.articleId, input.articleId));
       } else {
         // Create analytics record if it doesn't exist
@@ -80,8 +80,8 @@ export const kbAnalyticsRouter = router({
         .from(kbArticleViews)
         .where(eq(kbArticleViews.articleId, input.articleId));
 
-      const helpfulCount = views.filter((v) => v.helpful === true).length;
-      const unhelpfulCount = views.filter((v) => v.helpful === false).length;
+      const helpfulCount = views.filter((v) => v.helpful === 1).length;
+      const unhelpfulCount = views.filter((v) => v.helpful === 0).length;
 
       return {
         ...analytics[0],
@@ -152,7 +152,7 @@ export const kbAnalyticsRouter = router({
     const totalShares = allAnalytics.reduce((sum, a) => sum + (a.shares || 0), 0);
     const totalResolved = allAnalytics.reduce((sum, a) => sum + (a.ticketsResolved || 0), 0);
 
-    const helpfulViews = allViews.filter((v) => v.helpful === true).length;
+    const helpfulViews = allViews.filter((v) => v.helpful === 1).length;
     const totalViewRecords = allViews.length;
     const helpfulRate = totalViewRecords > 0 ? Math.round((helpfulViews / totalViewRecords) * 100) : 0;
 
@@ -191,7 +191,7 @@ export const kbAnalyticsRouter = router({
       // Group by day
       const trends = views.reduce(
         (acc: Record<string, { views: number; helpful: number }>, view) => {
-          const day = view.viewedAt?.toISOString().split("T")[0] || "unknown";
+          const day = (view.viewedAt as string)?.split("T")[0] || "unknown";
           if (!acc[day]) {
             acc[day] = { views: 0, helpful: 0 };
           }
@@ -255,7 +255,7 @@ export const kbAnalyticsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       // Get all published articles
-      const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+      const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
       if (articles.length === 0) {
         return [];

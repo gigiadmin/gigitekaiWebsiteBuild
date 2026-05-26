@@ -385,7 +385,7 @@ export const m365HealthRouter = router({
       down: services.filter((s) => s.status === "serviceInterruption").length,
       investigating: services.filter((s) => s.status === "investigating").length,
       critical: services.filter((s) => isCriticalStatus(s.status)).length,
-      lastUpdated: new Date(),
+      lastUpdated: new Date().toISOString(),
     };
 
     return summary;

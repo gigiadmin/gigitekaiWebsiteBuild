@@ -57,9 +57,9 @@ export const smsCampaignRouter = router({
       const query = db.select().from(smsContacts);
       const contacts = await (input.includeOptedOut
         ? query.orderBy(desc(smsContacts.createdAt)).limit(input.limit).offset(input.offset)
-        : query.where(eq(smsContacts.optedIn, true)).orderBy(desc(smsContacts.createdAt)).limit(input.limit).offset(input.offset));
+        : query.where(eq(smsContacts.optedIn, 1)).orderBy(desc(smsContacts.createdAt)).limit(input.limit).offset(input.offset));
       const [{ count }] = await db.select({ count: sql<number>`COUNT(*)` }).from(smsContacts);
-      const [{ optedInCount }] = await db.select({ optedInCount: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, true));
+      const [{ optedInCount }] = await db.select({ optedInCount: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, 1));
       return { contacts, total: Number(count), optedIn: Number(optedInCount) };
     }),
 
@@ -88,7 +88,7 @@ export const smsCampaignRouter = router({
         company: input.company ?? null,
         source: input.source,
         notes: input.notes ?? null,
-        optedIn: true,
+        optedIn: 1,
       });
       const [contact] = await db.select().from(smsContacts).where(eq(smsContacts.phone, input.phone)).limit(1);
       return { success: true, contact };
@@ -121,7 +121,7 @@ export const smsCampaignRouter = router({
           // Check duplicate
           const existing = await db.select().from(smsContacts).where(eq(smsContacts.phone, phone)).limit(1);
           if (existing.length > 0) { skipped++; continue; }
-          await db.insert(smsContacts).values({ name: c.name, phone, email: c.email ?? null, company: c.company ?? null, source: "import", optedIn: true });
+          await db.insert(smsContacts).values({ name: c.name, phone, email: c.email ?? null, company: c.company ?? null, source: "import", optedIn: 1 });
           imported++;
         } catch (e: any) {
           errors.push(e.message);
@@ -142,7 +142,7 @@ export const smsCampaignRouter = router({
       if (!db) throw new Error("DB unavailable");
       const [contact] = await db.select().from(smsContacts).where(eq(smsContacts.id, input.contactId)).limit(1);
       if (!contact) throw new Error("Contact not found");
-      await db.update(smsContacts).set({ optedIn: false, optedOutAt: new Date(), optOutReason: input.reason }).where(eq(smsContacts.id, input.contactId));
+      await db.update(smsContacts).set({ optedIn: 0, optedOutAt: new Date().toISOString(), optOutReason: input.reason }).where(eq(smsContacts.id, input.contactId));
       await db.insert(smsOptOuts).values({ phone: contact.phone, contactId: contact.id, reason: input.reason, source: "admin" });
       return { success: true };
     }),
@@ -183,7 +183,7 @@ export const smsCampaignRouter = router({
         description: input.description ?? null,
         message: input.message,
         status: "draft",
-        scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
+        scheduledAt: input.scheduledAt ? new Date(input.scheduledAt).toISOString() : null,
         createdBy: ctx.user.id,
         fromNumber: ENV.twilioPhoneNumber || null,
       });
@@ -237,7 +237,7 @@ export const smsCampaignRouter = router({
       if (!campaign) throw new Error("Campaign not found");
       if (!["draft", "scheduled"].includes(campaign.status)) throw new Error("Campaign cannot be sent in its current status");
 
-      const contacts = await db.select().from(smsContacts).where(eq(smsContacts.optedIn, true));
+      const contacts = await db.select().from(smsContacts).where(eq(smsContacts.optedIn, 1));
       if (contacts.length === 0) throw new Error("No opted-in contacts to send to");
 
       const fromNumber = getFromNumber();
@@ -257,7 +257,7 @@ export const smsCampaignRouter = router({
             status: "sent",
             provider: "twilio",
             providerMessageId: result.sid,
-            sentAt: new Date(),
+            sentAt: new Date().toISOString(),
           });
           sent++;
         } catch (e: any) {
@@ -279,7 +279,7 @@ export const smsCampaignRouter = router({
 
       await db.update(smsCampaigns).set({
         status: "sent",
-        sentAt: new Date(),
+        sentAt: new Date().toISOString(),
         totalSent: sent,
         totalFailed: failed,
       }).where(eq(smsCampaigns.id, input.campaignId));
@@ -306,8 +306,8 @@ export const smsCampaignRouter = router({
     const db = await getDb();
     if (!db) throw new Error("DB unavailable");
     const [{ totalContacts }] = await db.select({ totalContacts: sql<number>`COUNT(*)` }).from(smsContacts);
-    const [{ optedIn }] = await db.select({ optedIn: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, true));
-    const [{ optedOut }] = await db.select({ optedOut: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, false));
+    const [{ optedIn }] = await db.select({ optedIn: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, 1));
+    const [{ optedOut }] = await db.select({ optedOut: sql<number>`COUNT(*)` }).from(smsContacts).where(eq(smsContacts.optedIn, 0));
     const [{ totalCampaigns }] = await db.select({ totalCampaigns: sql<number>`COUNT(*)` }).from(smsCampaigns);
     const [{ totalMessages }] = await db.select({ totalMessages: sql<number>`COUNT(*)` }).from(smsMessages);
     const [{ delivered }] = await db.select({ delivered: sql<number>`COUNT(*)` }).from(smsMessages).where(eq(smsMessages.status, "delivered"));

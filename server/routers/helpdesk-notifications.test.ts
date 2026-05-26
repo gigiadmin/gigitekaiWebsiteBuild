@@ -44,14 +44,14 @@ describe("Notifications Router", () => {
         ticketId: 1,
         type: "status_change",
         title: "Ticket Status Updated",
-        isRead: false,
+        isRead: 0,
       },
       {
         id: 2,
         ticketId: 2,
         type: "assignment",
         title: "Ticket Assigned",
-        isRead: false,
+        isRead: 0,
       },
     ];
 
@@ -108,9 +108,9 @@ describe("Notifications Router", () => {
 
   it("should filter unread notifications", () => {
     const allNotifications = [
-      { id: 1, isRead: false },
-      { id: 2, isRead: true },
-      { id: 3, isRead: false },
+      { id: 1, isRead: 0 },
+      { id: 2, isRead: 1 },
+      { id: 3, isRead: 0 },
     ];
 
     const unread = allNotifications.filter((n) => !n.isRead);

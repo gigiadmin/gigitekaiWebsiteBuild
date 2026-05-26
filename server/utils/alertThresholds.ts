@@ -15,10 +15,10 @@ export interface AlertThresholdConfig {
   unprocessedTicketsThreshold?: number;
   agentAvailabilityThreshold?: number;
   slaComplianceThreshold?: number;
-  enabled: boolean;
-  notifyOnDegraded: boolean;
-  notifyOnCritical: boolean;
-  notifyOnRecovery: boolean;
+  enabled: number; // tinyint: 0 or 1
+  notifyOnDegraded: number; // tinyint: 0 or 1
+  notifyOnCritical: number; // tinyint: 0 or 1
+  notifyOnRecovery: number; // tinyint: 0 or 1
 }
 
 /**
@@ -105,10 +105,10 @@ export async function updateAlertThreshold(
       agentAvailabilityThreshold:
         config.agentAvailabilityThreshold || undefined,
       slaComplianceThreshold: config.slaComplianceThreshold || undefined,
-      enabled: (config.enabled !== false) as any,
-      notifyOnDegraded: (config.notifyOnDegraded !== false) as any,
-      notifyOnCritical: (config.notifyOnCritical !== false) as any,
-      notifyOnRecovery: (config.notifyOnRecovery !== false) as any,
+      enabled: config.enabled !== undefined ? (config.enabled ? 1 : 0) : 1,
+      notifyOnDegraded: config.notifyOnDegraded !== undefined ? (config.notifyOnDegraded ? 1 : 0) : 1,
+      notifyOnCritical: config.notifyOnCritical !== undefined ? (config.notifyOnCritical ? 1 : 0) : 1,
+      notifyOnRecovery: config.notifyOnRecovery !== undefined ? (config.notifyOnRecovery ? 1 : 0) : 1,
       updatedBy,
       updatedAt: new Date().toISOString() as any,
       createdAt: new Date().toISOString() as any,
@@ -136,24 +136,10 @@ export async function updateAlertThreshold(
           config.slaComplianceThreshold !== undefined
             ? config.slaComplianceThreshold
             : existing[0].slaComplianceThreshold,
-        enabled: (
-          config.enabled !== undefined ? config.enabled : existing[0].enabled
-        ) as any,
-        notifyOnDegraded: (
-          config.notifyOnDegraded !== undefined
-            ? config.notifyOnDegraded
-            : existing[0].notifyOnDegraded
-        ) as any,
-        notifyOnCritical: (
-          config.notifyOnCritical !== undefined
-            ? config.notifyOnCritical
-            : existing[0].notifyOnCritical
-        ) as any,
-        notifyOnRecovery: (
-          config.notifyOnRecovery !== undefined
-            ? config.notifyOnRecovery
-            : existing[0].notifyOnRecovery
-        ) as any,
+        enabled: config.enabled !== undefined ? (config.enabled ? 1 : 0) : existing[0].enabled,
+        notifyOnDegraded: config.notifyOnDegraded !== undefined ? (config.notifyOnDegraded ? 1 : 0) : existing[0].notifyOnDegraded,
+        notifyOnCritical: config.notifyOnCritical !== undefined ? (config.notifyOnCritical ? 1 : 0) : existing[0].notifyOnCritical,
+        notifyOnRecovery: config.notifyOnRecovery !== undefined ? (config.notifyOnRecovery ? 1 : 0) : existing[0].notifyOnRecovery,
         updatedBy,
         updatedAt: new Date().toISOString() as any,
       })
@@ -198,10 +184,10 @@ export async function initializeDefaultThresholds() {
           unprocessedTicketsThreshold: 50,
           agentAvailabilityThreshold: 50,
           slaComplianceThreshold: 90,
-          enabled: true,
-          notifyOnDegraded: true,
-          notifyOnCritical: true,
-          notifyOnRecovery: true,
+          enabled: 1,
+          notifyOnDegraded: 1,
+          notifyOnCritical: 1,
+          notifyOnRecovery: 1,
         },
         0 // System initialization
       );

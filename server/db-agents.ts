@@ -58,7 +58,7 @@ export async function updateAgentStatus(agentId: number, status: "available" | "
     .update(agents)
     .set({
       status,
-      lastStatusChange: new Date(),
+      lastStatusChange: new Date().toISOString(),
     })
     .where(eq(agents.id, agentId));
 }
@@ -96,8 +96,8 @@ export async function getAgentMetrics(agentId: number, startDate: Date, endDate:
     .where(
       and(
         eq(agentMetrics.agentId, agentId),
-        gte(agentMetrics.date, startDate),
-        lte(agentMetrics.date, endDate)
+        gte(agentMetrics.date, startDate instanceof Date ? startDate.toISOString() : startDate),
+        lte(agentMetrics.date, endDate instanceof Date ? endDate.toISOString() : endDate)
       )
     )
     .orderBy(desc(agentMetrics.date));
@@ -210,7 +210,7 @@ export async function setAgentSchedule(
       .set({
         startTime,
         endTime,
-        isWorkingDay,
+        isWorkingDay: isWorkingDay ? 1 : 0,
       })
       .where(eq(agentSchedules.id, existing[0].id));
   } else {
@@ -219,7 +219,7 @@ export async function setAgentSchedule(
       dayOfWeek,
       startTime,
       endTime,
-      isWorkingDay,
+      isWorkingDay: isWorkingDay ? 1 : 0,
     });
   }
 }
@@ -270,7 +270,7 @@ export async function recordAgentMetrics(
   
   return db.insert(agentMetrics).values({
     agentId,
-    date: new Date(),
+    date: new Date().toISOString(),
     ticketsHandled,
     chatsHandled,
     averageResolutionTime: averageResolutionTime || null,

@@ -130,10 +130,10 @@ export async function linkedinCallback(req: Request, res: Response) {
         .set({
           accessToken: tokenData.access_token,
           refreshToken: tokenData.refresh_token ?? null,
-          expiresAt,
+          expiresAt: expiresAt.toISOString(),
           personUrn,
           screenName,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(socialConnections.platform, "linkedin"));
     } else {
@@ -141,7 +141,7 @@ export async function linkedinCallback(req: Request, res: Response) {
         platform: "linkedin",
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token ?? null,
-        expiresAt,
+        expiresAt: expiresAt.toISOString(),
         personUrn,
         screenName,
       });
@@ -290,7 +290,7 @@ export async function twitterCallback(req: Request, res: Response) {
           accessToken,
           accessTokenSecret: accessTokenSecretVal,
           screenName,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(socialConnections.platform, "twitter"));
     } else {
@@ -394,7 +394,7 @@ export async function facebookCallback(req: Request, res: Response) {
           accessToken: page.access_token,
           pageId: page.id,
           screenName: page.name,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(socialConnections.platform, "facebook"));
     } else {

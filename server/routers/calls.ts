@@ -145,7 +145,7 @@ export const callsRouter = router({
             email: callerEmail,
             name: draft.callerName || draft.callerPhone || "Phone Caller",
             role: "user",
-            approved: true,
+            approved: 1,
           });
           resolvedUserId = (newUser as any).insertId;
         }
@@ -183,7 +183,7 @@ export const callsRouter = router({
         .set({
           reviewStatus: "approved",
           ticketId: ticket?.id ?? null,
-          reviewedAt: new Date(),
+          reviewedAt: new Date().toISOString(),
         })
         .where(eq(callDraftTickets.id, input.draftId));
 
@@ -207,7 +207,7 @@ export const callsRouter = router({
         .set({
           reviewStatus: "rejected",
           reviewNotes: input.reason ?? null,
-          reviewedAt: new Date(),
+          reviewedAt: new Date().toISOString(),
         })
         .where(eq(callDraftTickets.id, input.draftId));
 
@@ -305,7 +305,7 @@ export const callsRouter = router({
           .update(callLogs)
           .set({
             transcriptText: transcript,
-            hasTranscript: true,
+            hasTranscript: 1,
             transcriptionStatus: "done",
           })
           .where(eq(callLogs.id, input.callLogId));

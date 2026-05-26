@@ -157,7 +157,7 @@ Respond in JSON: {"category": "bug_report|feature_request|general_support|billin
             aiPriority: parsed.priority,
             aiConfidence: parsed.confidence,
             aiReasoning: `Auto-triaged with ${(parsed.confidence * 100).toFixed(0)}% confidence`,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(tickets.id, input.ticketId));
 
@@ -266,7 +266,7 @@ Respond in JSON: {"category": "bug_report|feature_request|general_support|billin
                 aiCategory: parsed.category,
                 aiPriority: parsed.priority,
                 aiConfidence: parsed.confidence,
-                updatedAt: new Date(),
+                updatedAt: new Date().toISOString(),
               })
               .where(eq(tickets.id, ticketId));
 

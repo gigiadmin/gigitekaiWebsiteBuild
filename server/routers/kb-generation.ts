@@ -188,7 +188,7 @@ Focus on:
         content: generation.generatedContent || "",
         category: generation.suggestedCategory || "general",
         tags: generation.suggestedTags || "",
-        isPublished: input.publish,
+        isPublished: input.publish ? 1 : 0,
         createdBy: ctx.user.id,
       });
 
@@ -200,9 +200,9 @@ Focus on:
         .set({
           status: input.publish ? "published" : "approved",
           approvedBy: ctx.user.id,
-          approvedAt: new Date(),
+          approvedAt: new Date().toISOString(),
           publishedArticleId: articleId,
-          publishedAt: input.publish ? new Date() : null,
+          publishedAt: input.publish ? new Date().toISOString() : null,
         })
         .where(eq(kbGenerations.id, input.generationId));
 
@@ -238,7 +238,7 @@ Focus on:
           status: "rejected",
           rejectionReason: input.reason,
           rejectedBy: ctx.user.id,
-          rejectedAt: new Date(),
+          rejectedAt: new Date().toISOString(),
         })
         .where(eq(kbGenerations.id, input.generationId));
 
@@ -310,7 +310,7 @@ Focus on:
             .from(kbArticles)
             .where(
               and(
-                eq(kbArticles.isPublished, true),
+                eq(kbArticles.isPublished, 1),
                 sql`MATCH(${kbArticles.title}, ${kbArticles.content}) AGAINST(${keyword} IN BOOLEAN MODE)`
               )
             )
@@ -357,7 +357,7 @@ Focus on:
       const metrics = await db
         .select()
         .from(kbGenerationMetrics)
-        .where(gte(kbGenerationMetrics.date, startDate))
+        .where(gte(kbGenerationMetrics.date, startDate instanceof Date ? startDate.toISOString() : startDate))
         .orderBy(desc(kbGenerationMetrics.date));
 
       // Calculate totals
@@ -453,7 +453,7 @@ Focus on:
 
       await db
         .update(ticketKbSuggestions)
-        .set({ helpful: input.helpful })
+        .set({ helpful: input.helpful ? 1 : 0 })
         .where(eq(ticketKbSuggestions.id, input.suggestionId));
 
       return { success: true };

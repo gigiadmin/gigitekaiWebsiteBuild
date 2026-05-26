@@ -135,7 +135,7 @@ GigitekAI offers a free IT Resiliency Assessment for Florida businesses. In 30 m
   authorTitle: "CEO & Founder, GigitekAI | Microsoft 365 Architect",
   authorBio:
     "Harry Henry-Santiago is a US Army veteran, Microsoft 365 Architect, and the founder of GigitekAI LLC. With over 25 years in IT, he specializes in AI-powered managed services, Zero Trust security, and cloud infrastructure for Florida SMBs.",
-  published: true,
+  published: 1,
 };
 
 async function seedBlogPost() {

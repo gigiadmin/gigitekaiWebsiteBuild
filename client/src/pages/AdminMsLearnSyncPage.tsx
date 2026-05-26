@@ -50,7 +50,7 @@ export default function AdminMsLearnSyncPage() {
     return `${(ms / 1000).toFixed(1)}s`;
   };
 
-  const formatDate = (date: Date | null | undefined) => {
+  const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "Never";
     return new Date(date).toLocaleString("en-US", {
       timeZone: "America/New_York",
@@ -108,7 +108,7 @@ export default function AdminMsLearnSyncPage() {
               {statusLoading ? (
                 <span className="text-gray-600">Loading...</span>
               ) : (
-                formatDate(status?.lastSyncedAt)
+                formatDate(status?.lastSyncedAt as string | null | undefined)
               )}
             </p>
             <p className="text-gray-500 text-xs mt-1">Nightly sync at 2:00 AM ET</p>

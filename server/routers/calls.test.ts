@@ -26,7 +26,7 @@ describe("Calls Router - Bulk Delete", () => {
           description: "Test description 1",
           priority: "medium",
           reviewStatus: "pending",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         },
       ]);
 
@@ -73,7 +73,7 @@ describe("Calls Router - Bulk Delete", () => {
           graphCallId: "test-call-id-" + Date.now(),
           callerNumber: "+1234567890",
           durationSeconds: 60,
-          startedAt: new Date(),
+          startedAt: new Date().toISOString(),
           status: "draft_created",
         },
       ]);

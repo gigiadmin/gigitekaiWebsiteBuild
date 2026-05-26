@@ -49,9 +49,9 @@ const mockAdmin = (overrides = {}) => ({
   name: "Harry",
   role: "admin" as const,
   hashedPassword: "hashed_password",
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  isActive: 1,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   lastLoginAt: null,
   ...overrides,
 });
@@ -62,9 +62,9 @@ const mockAgent = (overrides = {}) => ({
   name: "Agent Smith",
   role: "agent" as const,
   hashedPassword: "hashed_password",
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  isActive: 1,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   lastLoginAt: null,
   ...overrides,
 });
@@ -164,8 +164,8 @@ describe("Admin Account Management", () => {
     it("should allow admin to deactivate an account", async () => {
       vi.mocked(updateAdminAccount).mockResolvedValue(undefined);
 
-      await updateAdminAccount(2, { isActive: false });
-      expect(updateAdminAccount).toHaveBeenCalledWith(2, { isActive: false });
+      await updateAdminAccount(2, { isActive: 0 });
+      expect(updateAdminAccount).toHaveBeenCalledWith(2, { isActive: 0 });
     });
 
     it("should allow admin to change a user's role", async () => {

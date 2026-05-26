@@ -184,7 +184,7 @@ If you encounter any issues creating or managing tickets, reach out to our suppo
       content: articleContent,
       category: "Support & Ticketing",
       tags: "tickets, support, helpdesk, admin, users, how-to, ticket-creation",
-      isPublished: true,
+      isPublished: 1,
       createdBy: 1,
     });
 

@@ -99,7 +99,7 @@ export const notificationsRouter = router({
 
       await db
         .update(notificationQueue)
-        .set({ status: "sent", sentAt: new Date() })
+        .set({ status: "sent", sentAt: new Date().toISOString() })
         .where(eq(notificationQueue.id, input.notificationId));
 
       return { success: true };

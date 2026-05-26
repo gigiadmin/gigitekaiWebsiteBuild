@@ -352,7 +352,7 @@ export function AlertThresholdConfig() {
                 </div>
               </div>
               <Button
-                onClick={() => handleEdit(threshold)}
+                onClick={() => handleEdit(threshold as any)}
                 variant="outline"
                 size="sm"
               >

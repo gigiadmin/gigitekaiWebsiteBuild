@@ -18,7 +18,7 @@ export const feedbackRouter = router({
           userId: ctx.user.id,
           rating: input.rating,
           comment: input.comment || null,
-          wouldRecommend: input.wouldRecommend || null,
+          wouldRecommend: input.wouldRecommend === undefined ? null : (input.wouldRecommend ? 1 : 0),
         });
 
         if (success) {

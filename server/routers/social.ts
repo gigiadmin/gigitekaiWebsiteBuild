@@ -227,7 +227,7 @@ export const socialRouter = router({
           url: url || null,
           status,
           errorMessage: errorMessage || null,
-          publishedAt: status === "published" ? new Date() : null,
+          publishedAt: status === "published" ? new Date().toISOString() : null,
           createdBy: ctx.user.id,
         });
 
@@ -252,7 +252,7 @@ export const socialRouter = router({
       screenName: r.screenName,
       connectedAt: r.connectedAt,
       expiresAt: r.expiresAt,
-      isExpired: r.expiresAt ? r.expiresAt < new Date() : false,
+      isExpired: r.expiresAt ? new Date(r.expiresAt as string) < new Date() : false,
     }));
   }),
 
@@ -332,7 +332,7 @@ export const socialRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      if (input.scheduledAt <= new Date()) throw new Error("Scheduled time must be in the future");
+      if (new Date(input.scheduledAt) <= new Date()) throw new Error("Scheduled time must be in the future");
       const [result] = await db.insert(socialPosts).values({
         title: input.content.slice(0, 100),
         platform: input.platforms[0],
@@ -340,7 +340,7 @@ export const socialRouter = router({
         link: input.link ?? null,
         platforms: JSON.stringify(input.platforms),
         status: "scheduled",
-        scheduledAt: input.scheduledAt,
+        scheduledAt: input.scheduledAt instanceof Date ? input.scheduledAt.toISOString() : input.scheduledAt,
         createdBy: ctx.user.id,
       });
       return { id: (result as any).insertId };
@@ -406,7 +406,7 @@ export const socialRouter = router({
         .where(
           and(
             eq(socialPosts.status, "published"),
-            gte(socialPosts.publishedAt, cutoff)
+            gte(socialPosts.publishedAt, cutoff instanceof Date ? cutoff.toISOString() : cutoff)
           )
         )
         .orderBy(desc(socialPosts.publishedAt));
@@ -434,7 +434,7 @@ export const socialRouter = router({
       if (!db) throw new Error("Database unavailable");
       await db
         .update(socialPosts)
-        .set({ scheduledAt: new Date(input.scheduledAt) })
+        .set({ scheduledAt: new Date(input.scheduledAt).toISOString() })
         .where(and(eq(socialPosts.id, input.id), eq(socialPosts.status, "scheduled")));
       return { success: true };
     }),
@@ -451,7 +451,7 @@ export const socialRouter = router({
         .where(
           and(
             eq(socialPosts.status, "published"),
-            gte(socialPosts.publishedAt, thirtyDaysAgo)
+            gte(socialPosts.publishedAt, thirtyDaysAgo.toISOString())
           )
         );
 
@@ -649,8 +649,8 @@ Return ONLY valid JSON, no markdown formatting.`;
     await db.update(socialConnections).set({
       accessToken: data.access_token,
       refreshToken: data.refresh_token ?? conn.refreshToken,
-      expiresAt,
-      updatedAt: new Date(),
+      expiresAt: expiresAt.toISOString(),
+      updatedAt: new Date().toISOString(),
     }).where(eq(socialConnections.platform, "linkedin"));
     return { success: true, expiresAt };
   }),

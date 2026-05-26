@@ -63,7 +63,7 @@ export const ticketMergeRouter = router({
         .set({
           mergedInto: input.targetTicketId,
           status: "closed",
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(tickets.id, input.sourceTicketId));
 
@@ -134,7 +134,7 @@ export const ticketMergeRouter = router({
         .set({
           mergedInto: null,
           status: "open",
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(tickets.id, input.ticketId));
 
@@ -210,7 +210,7 @@ export const ticketMergeRouter = router({
       if (!ticket.mergedInto) {
         return {
           ticketId: input.ticketId,
-          isMerged: false,
+          isMerged: 0,
           mergedInto: null,
         };
       }
@@ -224,7 +224,7 @@ export const ticketMergeRouter = router({
 
       return {
         ticketId: input.ticketId,
-        isMerged: true,
+        isMerged: 1,
         mergedInto: ticket.mergedInto,
         targetTicket: targetTicket || null,
       };

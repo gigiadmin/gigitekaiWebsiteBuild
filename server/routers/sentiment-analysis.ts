@@ -27,7 +27,7 @@ interface AccountSentiment {
   averageRating: number;
   riskLevel: "low" | "medium" | "high" | "critical";
   topIssues: string[];
-  lastFeedbackDate: Date | null;
+  lastFeedbackDate: string | null;
   recommendedAction: string;
 }
 
@@ -157,9 +157,9 @@ async function getTicketSentiment(ticketId: number): Promise<AccountSentiment> {
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-  const recentFeedback = feedbackRecords.filter((f) => f.createdAt >= sevenDaysAgo);
+  const recentFeedback = feedbackRecords.filter((f) => f.createdAt >= sevenDaysAgo.toISOString());
   const previousFeedback = feedbackRecords.filter(
-    (f) => f.createdAt >= fourteenDaysAgo && f.createdAt < sevenDaysAgo
+    (f) => f.createdAt >= fourteenDaysAgo.toISOString() && f.createdAt < sevenDaysAgo.toISOString()
   );
 
   let recentSentiment = 0;
@@ -288,7 +288,7 @@ export const sentimentAnalysisRouter = router({
     const recentFeedback = await db
       .select()
       .from(customerFeedback)
-      .where(gte(customerFeedback.createdAt, thirtyDaysAgo));
+      .where(gte(customerFeedback.createdAt, thirtyDaysAgo.toISOString()));
 
     // Group by week and calculate average sentiment
     const weeklyTrends = [];
@@ -296,7 +296,7 @@ export const sentimentAnalysisRouter = router({
       const weekStart = new Date(now.getTime() - (i + 1) * 7 * 24 * 60 * 60 * 1000);
       const weekEnd = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
 
-      const weekFeedback = recentFeedback.filter((f) => f.createdAt >= weekStart && f.createdAt < weekEnd);
+      const weekFeedback = recentFeedback.filter((f) => f.createdAt >= weekStart.toISOString() && f.createdAt < weekEnd.toISOString());
 
       const avgRating =
         weekFeedback.length > 0

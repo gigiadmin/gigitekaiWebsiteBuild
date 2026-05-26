@@ -13,7 +13,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { callRouting, sentimentRoutingRules, agentQueues } from "../../drizzle/phase2-schema-additions";
-import { eq, and, between, desc } from "drizzle-orm";
+import { eq, and, between, desc , gte, lte } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { TRPCError } from "@trpc/server";
 
@@ -114,10 +114,8 @@ Respond with JSON:
           .where(
             and(
               eq(sentimentRoutingRules.isActive, true),
-              between(
-                sentimentRoutingRules.sentimentMin,
-                sentimentData.sentimentScore,
-                sentimentData.sentimentScore
+              gte(sentimentRoutingRules.sentimentMax, String(sentimentData.sentimentScore)),
+              lte(sentimentRoutingRules.sentimentMin, String(sentimentData.sentimentScore)
               )
             )
           )
@@ -329,7 +327,7 @@ Respond with JSON:
         const { id, sentimentMin, sentimentMax, ...updateData } = input;
 
         // Update rule
-        const updateValues: any = { ...updateData, updatedAt: new Date() };
+        const updateValues: any = { ...updateData, updatedAt: new Date().toISOString() };
         if (sentimentMin !== undefined) updateValues.sentimentMin = String(sentimentMin);
         if (sentimentMax !== undefined) updateValues.sentimentMax = String(sentimentMax);
 

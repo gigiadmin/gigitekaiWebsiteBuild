@@ -15,12 +15,12 @@ export const emailDigestRouter = router({
     const preferences = await getEmailDigestPreferences(ctx.user.id);
     return preferences || {
       userId: ctx.user.id,
-      enabled: true,
+      enabled: 1,
       frequency: "daily",
       sendTime: "06:00",
-      includeLeads: true,
-      includeTickets: true,
-      includeApprovals: true,
+      includeLeads: 1,
+      includeTickets: 1,
+      includeApprovals: 1,
       lastSentAt: null,
     };
   }),
@@ -38,7 +38,12 @@ export const emailDigestRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const result = await updateEmailDigestPreferences(ctx.user.id, input);
+      const mapped: Record<string, unknown> = { ...input };
+      if (input.enabled !== undefined) mapped.enabled = input.enabled ? 1 : 0;
+      if (input.includeLeads !== undefined) mapped.includeLeads = input.includeLeads ? 1 : 0;
+      if (input.includeTickets !== undefined) mapped.includeTickets = input.includeTickets ? 1 : 0;
+      if (input.includeApprovals !== undefined) mapped.includeApprovals = input.includeApprovals ? 1 : 0;
+      await updateEmailDigestPreferences(ctx.user.id, mapped as any);
       return { success: true, message: "Preferences updated successfully" };
     }),
 

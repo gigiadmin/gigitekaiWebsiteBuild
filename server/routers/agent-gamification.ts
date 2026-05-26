@@ -91,8 +91,8 @@ async function getMonthlyLeaderboard(year: number, month: number): Promise<Agent
         and(
           eq(tickets.assignedTo, agent.id),
           eq(tickets.status, "closed"),
-          gte(tickets.updatedAt, monthStart),
-          lte(tickets.updatedAt, monthEnd)
+          gte(tickets.updatedAt, monthStart.toISOString()),
+          lte(tickets.updatedAt, monthEnd.toISOString())
         )
       );
 

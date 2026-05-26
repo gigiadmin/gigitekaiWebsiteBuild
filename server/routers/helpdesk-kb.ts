@@ -21,7 +21,7 @@ export const helpdeskKbRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-      const conditions = [eq(kbArticles.isPublished, true)];
+      const conditions = [eq(kbArticles.isPublished, 1)];
 
       if (input.category) {
         conditions.push(eq(kbArticles.category, input.category));
@@ -116,10 +116,10 @@ export const helpdeskKbRouter = router({
         content: input.content,
         category: input.category,
         tags: input.tags,
-        isPublished: input.isPublished,
+        isPublished: input.isPublished ? 1 : 0,
         createdBy: ctx.user.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       return {
@@ -152,7 +152,7 @@ export const helpdeskKbRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
       }
 
-      const updates: any = { updatedAt: new Date() };
+      const updates: any = { updatedAt: new Date().toISOString() };
       if (input.title) updates.title = input.title;
       if (input.content) updates.content = input.content;
       if (input.category) updates.category = input.category;
@@ -183,7 +183,7 @@ export const helpdeskKbRouter = router({
       }
 
       // Soft delete by unpublishing
-      await db.update(kbArticles).set({ isPublished: false }).where(eq(kbArticles.id, input.id));
+      await db.update(kbArticles).set({ isPublished: 0 }).where(eq(kbArticles.id, input.id));
 
       return {
         success: true,
@@ -227,7 +227,7 @@ export const helpdeskKbRouter = router({
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-    const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+    const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
     const categories = new Map<string, number>();
     articles.forEach((a) => {
@@ -254,7 +254,7 @@ export const helpdeskKbRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-      const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+      const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
       const queryLower = input.query.toLowerCase();
       const results = articles

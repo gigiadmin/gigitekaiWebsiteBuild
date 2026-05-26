@@ -90,7 +90,7 @@ export async function executeCampaignSend(opts: {
       unsubscribeToken: newsletterSubscribers.unsubscribeToken,
     })
     .from(newsletterSubscribers)
-    .where(eq(newsletterSubscribers.active, true));
+    .where(eq(newsletterSubscribers.active, 1));
 
   // Mark as sending
   await db
@@ -146,8 +146,8 @@ export const newsletterRouter = router({
         .limit(1);
 
       if (existing) {
-        if (existing.active) return { success: true, alreadySubscribed: true };
-        await db.update(newsletterSubscribers).set({ active: true }).where(eq(newsletterSubscribers.id, existing.id));
+        if (existing.active === 1) return { success: true, alreadySubscribed: true };
+        await db.update(newsletterSubscribers).set({ active: 1 }).where(eq(newsletterSubscribers.id, existing.id));
         return { success: true, alreadySubscribed: false };
       }
 
@@ -156,7 +156,7 @@ export const newsletterRouter = router({
         email: input.email.toLowerCase(),
         unsubscribeToken: token,
         source: input.source ?? null,
-        active: true,
+        active: 1,
       });
 
       // Send welcome email to new subscriber
@@ -246,7 +246,7 @@ export const newsletterRouter = router({
         .limit(1);
 
       if (!sub) throw new TRPCError({ code: "NOT_FOUND", message: "Invalid unsubscribe link" });
-      await db.update(newsletterSubscribers).set({ active: false }).where(eq(newsletterSubscribers.id, sub.id));
+      await db.update(newsletterSubscribers).set({ active: 0 }).where(eq(newsletterSubscribers.id, sub.id));
       return { success: true };
     }),
 
@@ -284,10 +284,10 @@ export const newsletterRouter = router({
     const rows = await db
       .select()
       .from(newsletterSubscribers)
-      .where(eq(newsletterSubscribers.active, true))
+      .where(eq(newsletterSubscribers.active, 1))
       .orderBy(desc(newsletterSubscribers.createdAt));
     const header = "email,source,subscribedAt";
-    const lines = rows.map((r) => `"${r.email}","${r.source ?? ""}","${r.createdAt.toISOString()}"`);
+    const lines = rows.map((r) => `"${r.email}","${r.source ?? ""}","${r.createdAt}"`);
     return { csv: [header, ...lines].join("\n") };
   }),
 
@@ -309,7 +309,7 @@ export const newsletterRouter = router({
       const activeCount = await db
         .select({ active: newsletterSubscribers.active })
         .from(newsletterSubscribers)
-        .where(eq(newsletterSubscribers.active, true));
+        .where(eq(newsletterSubscribers.active, 1));
 
       if (activeCount.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "No active subscribers to send to." });
@@ -482,7 +482,7 @@ export const newsletterRouter = router({
 
       if (input.id) {
         await db.update(newsletterCampaigns)
-          .set({ subject: input.subject, body: input.bodyHtml, status: "scheduled", scheduledAt: scheduledDate })
+          .set({ subject: input.subject, body: input.bodyHtml, status: "scheduled", scheduledAt: scheduledDate instanceof Date ? scheduledDate.toISOString() : scheduledDate })
           .where(eq(newsletterCampaigns.id, input.id));
         return { success: true, id: input.id };
       }
@@ -495,7 +495,7 @@ export const newsletterRouter = router({
         failedCount: 0,
         status: "scheduled",
         sentBy: ctx.user.name ?? ctx.user.email ?? "admin",
-        scheduledAt: scheduledDate,
+        scheduledAt: scheduledDate instanceof Date ? scheduledDate.toISOString() : scheduledDate,
       });
       // @ts-ignore
       const id: number = (result as any).insertId ?? 0;
@@ -547,7 +547,7 @@ export function startNewsletterScheduler(siteUrl = "https://gigitekai.com") {
         .where(
           and(
             eq(newsletterCampaigns.status, "scheduled"),
-            lte(newsletterCampaigns.scheduledAt, now)
+            lte(newsletterCampaigns.scheduledAt, now.toISOString())
           )
         );
 

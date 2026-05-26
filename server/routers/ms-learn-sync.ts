@@ -182,8 +182,8 @@ export async function runMsLearnSync(options: { maxModules?: number } = {}): Pro
               category,
               tags,
               sourceUrl: module.url,
-              lastSyncedAt: now,
-              updatedAt: now,
+              lastSyncedAt: now.toISOString(),
+              updatedAt: now.toISOString(),
             })
             .where(eq(kbArticles.id, existing[0].id));
           result.updated++;
@@ -194,11 +194,11 @@ export async function runMsLearnSync(options: { maxModules?: number } = {}): Pro
             content,
             category,
             tags,
-            isPublished: true,
+            isPublished: 1,
             sourceUrl: module.url,
             externalUid: module.uid,
             syncSource: "ms-learn",
-            lastSyncedAt: now,
+            lastSyncedAt: now.toISOString(),
           });
           result.created++;
         }
@@ -260,8 +260,8 @@ export const msLearnSyncRouter = router({
 
       const lastSync = articles
         .filter(a => a.lastSyncedAt)
-        .sort((a: { lastSyncedAt: Date | null }, b: { lastSyncedAt: Date | null }) =>
-          (b.lastSyncedAt?.getTime() ?? 0) - (a.lastSyncedAt?.getTime() ?? 0)
+        .sort((a: { lastSyncedAt: string | null }, b: { lastSyncedAt: string | null }) =>
+          (new Date(b.lastSyncedAt ?? 0).getTime()) - (new Date(a.lastSyncedAt ?? 0).getTime())
         )[0]?.lastSyncedAt ?? null;
 
       return {
@@ -293,7 +293,7 @@ export const msLearnSyncRouter = router({
           and(
             eq(kbArticles.syncSource, "ms-learn"),
             eq(kbArticles.category, input.category),
-            eq(kbArticles.isPublished, true)
+            eq(kbArticles.isPublished, 1)
           )
         )
         .limit(input.limit);

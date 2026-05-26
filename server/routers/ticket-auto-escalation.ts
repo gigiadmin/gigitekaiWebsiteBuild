@@ -24,7 +24,7 @@ interface TicketEscalation {
   currentAssignee?: string;
   minutesUntilBreach: number;
   escalatedTo?: string;
-  escalatedAt: Date;
+  escalatedAt: string;
 }
 
 /**
@@ -148,7 +148,7 @@ export const ticketAutoEscalationRouter = router({
             priority: ticket.priority,
             currentAssignee: ticket.assigned_to,
             minutesUntilBreach: Math.round(minutesUntilBreach),
-            escalatedAt: new Date(),
+            escalatedAt: new Date().toISOString(),
           });
         }
       }

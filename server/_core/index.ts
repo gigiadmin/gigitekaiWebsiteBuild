@@ -176,13 +176,13 @@ async function startServer() {
         ? await db
             .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt, publishedAt: blogPosts.publishedAt })
             .from(blogPosts)
-            .where(eq(blogPosts.published, true))
+            .where(eq(blogPosts.published, 1))
             .orderBy(desc(blogPosts.publishedAt))
         : [];
       const base = "https://gigitekai.com";
       const urls = posts
         .map((p) => {
-          const lastmod = (p.publishedAt ?? p.updatedAt).toISOString().split("T")[0];
+          const lastmod = (p.publishedAt ?? p.updatedAt).split("T")[0];
           return `  <url>\n    <loc>${base}/blog/${p.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
         })
         .join("\n");

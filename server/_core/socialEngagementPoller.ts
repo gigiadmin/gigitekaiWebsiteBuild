@@ -98,7 +98,7 @@ export async function runEngagementPoller() {
       and(
         eq(socialPosts.status, "published"),
         isNotNull(socialPosts.postId),
-        gte(socialPosts.publishedAt, cutoff)
+        gte(socialPosts.publishedAt, cutoff.toISOString())
       )
     );
 
@@ -124,7 +124,7 @@ export async function runEngagementPoller() {
           engagementLikes: engagement.likes,
           engagementComments: engagement.comments,
           engagementShares: engagement.shares,
-          engagementLastFetched: new Date(),
+          engagementLastFetched: new Date().toISOString(),
         })
         .where(eq(socialPosts.id, post.id));
     } catch (err) {

@@ -28,7 +28,7 @@ describe("Admin Search Index Router", () => {
             author: "Test Author",
             category: "Technology",
             tags: "test,blog",
-            publishedAt: new Date(),
+            publishedAt: new Date().toISOString(),
             featuredImage: "https://example.com/image.jpg",
           },
         ]),

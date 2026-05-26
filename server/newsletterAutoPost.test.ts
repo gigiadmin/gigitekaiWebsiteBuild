@@ -41,7 +41,7 @@ describe("Newsletter Auto-Post Endpoint", () => {
       content: "# Test Content\n\nThis is a test article for the auto-post endpoint.",
       category: "AI News",
       excerpt: "This is a test article for the auto-post endpoint.",
-      published: true,
+      published: 1,
       readTime: "1 min read",
     };
 

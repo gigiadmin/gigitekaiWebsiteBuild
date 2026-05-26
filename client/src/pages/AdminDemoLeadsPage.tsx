@@ -39,7 +39,7 @@ type DemoLead = {
   company: string | null;
   scenario: string | null;
   message: string | null;
-  createdAt: Date;
+  createdAt: Date | string;
 };
 
 const SCENARIO_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -55,8 +55,8 @@ function getScenarioStyle(scenario: string | null) {
   return SCENARIO_COLORS[scenario] ?? { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30" };
 }
 
-function formatDate(date: Date) {
-  return new Date(date).toLocaleString("en-US", {
+function formatDate(date: Date | string) {
+  return new Date(date as string).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -74,7 +74,7 @@ function exportToCSV(leads: DemoLead[]) {
     `"${(l.company ?? "").replace(/"/g, '""')}"`,
     `"${(l.scenario ?? "").replace(/"/g, '""')}"`,
     `"${(l.message ?? "").replace(/"/g, '""')}"`,
-    new Date(l.createdAt).toISOString(),
+    new Date(String(l.createdAt)).toISOString(),
   ]);
   const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -121,10 +121,10 @@ export default function AdminDemoLeadsPage() {
   // Stats
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const todayCount = leads.filter((l) => new Date(l.createdAt) >= today).length;
+  const todayCount = leads.filter((l) => new Date(l.createdAt as string) >= today).length;
   const thisWeek = new Date(today);
   thisWeek.setDate(thisWeek.getDate() - 7);
-  const weekCount = leads.filter((l) => new Date(l.createdAt) >= thisWeek).length;
+  const weekCount = leads.filter((l) => new Date(l.createdAt as string) >= thisWeek).length;
 
   return (
     <AdminLayout title="AI Demo Leads">

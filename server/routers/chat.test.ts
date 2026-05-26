@@ -15,9 +15,9 @@ describe("Chat Router", () => {
     email: "hhenry23@gmail.com",
     role: "user" as const,
     loginMethod: "oauth",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastSignedIn: new Date().toISOString(),
   };
 
   const mockAdmin = {
@@ -27,9 +27,9 @@ describe("Chat Router", () => {
     email: "admin@example.com",
     role: "admin" as const,
     loginMethod: "oauth",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastSignedIn: new Date().toISOString(),
   };
 
   describe("getOrCreateSession", () => {
@@ -68,8 +68,8 @@ describe("Chat Router", () => {
         userId: mockUser.id,
         adminId: null,
         status: "active" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         closedAt: null,
       };
 
@@ -103,8 +103,8 @@ describe("Chat Router", () => {
         userId: mockUser.id,
         adminId: null,
         status: "active" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         closedAt: null,
       };
 
@@ -140,8 +140,8 @@ describe("Chat Router", () => {
         userId: 999, // Different user
         adminId: null,
         status: "active" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         closedAt: null,
       };
 
@@ -174,8 +174,8 @@ describe("Chat Router", () => {
         userId: mockUser.id,
         adminId: mockAdmin.id,
         status: "active" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         closedAt: null,
       };
 
@@ -186,8 +186,8 @@ describe("Chat Router", () => {
           senderId: mockUser.id,
           senderRole: "user" as const,
           message: "Hello admin",
-          isRead: false,
-          createdAt: new Date(),
+          isRead: 0,
+          createdAt: new Date().toISOString(),
         },
         {
           id: 2,
@@ -195,8 +195,8 @@ describe("Chat Router", () => {
           senderId: mockAdmin.id,
           senderRole: "admin" as const,
           message: "Hello user",
-          isRead: false,
-          createdAt: new Date(),
+          isRead: 0,
+          createdAt: new Date().toISOString(),
         },
       ];
 
@@ -235,8 +235,8 @@ describe("Chat Router", () => {
         userId: 999, // Different user
         adminId: null,
         status: "active" as const,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         closedAt: null,
       };
 
@@ -270,8 +270,8 @@ describe("Chat Router", () => {
           userId: mockUser.id,
           adminId: mockAdmin.id,
           status: "active" as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           closedAt: null,
         },
       ];
@@ -307,8 +307,8 @@ describe("Chat Router", () => {
           userId: mockUser.id,
           adminId: mockAdmin.id,
           status: "active" as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           closedAt: null,
         },
       ];

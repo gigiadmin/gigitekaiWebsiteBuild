@@ -23,7 +23,7 @@ export const adminRolesRouter = router({
         description: input.description || "",
         permissions: input.permissions,
         createdBy: ctx.user.id,
-        isSystem: false,
+        isSystem: 0,
       });
       return { success: true };
     }),
@@ -201,7 +201,7 @@ export const adminRolesRouter = router({
         .where(eq(customRoles.id, assignments[0].roleId));
 
       if (roles.length === 0) return false;
-      const permissions = roles[0].permissions;
-      return permissions.includes(input.permission);
+      const permissions = roles[0].permissions as string[] | null;
+      return Array.isArray(permissions) && permissions.includes(input.permission);
     }),
 });

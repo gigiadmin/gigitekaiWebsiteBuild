@@ -124,7 +124,7 @@ export const teamsChannelsRouter = router({
         industry: input.industry,
         tier: input.tier,
         notes: input.notes,
-        isActive: true,
+        isActive: 1,
       });
 
       const insertId = (result as any).insertId;
@@ -150,7 +150,8 @@ export const teamsChannelsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
 
       const { id, ...updates } = input;
-      await db.update(companies).set(updates).where(eq(companies.id, id));
+      const mappedUpdates = { ...updates, ...(updates.isActive !== undefined && { isActive: updates.isActive ? 1 : 0 }) };
+      await db.update(companies).set(mappedUpdates as any).where(eq(companies.id, id));
       const [company] = await db.select().from(companies).where(eq(companies.id, id));
       return company;
     }),
@@ -196,14 +197,14 @@ export const teamsChannelsRouter = router({
         teamsChannelId,
         teamsChannelName: channelName,
         provisionedBy: ctx.user?.id ?? null,
-        isActive: true,
+        isActive: 1,
       });
 
       // Update company record with channel info
       await db.update(companies).set({
         teamsChannelId,
         teamsChannelName: channelName,
-        teamsChannelCreatedAt: new Date(),
+        teamsChannelCreatedAt: new Date().toISOString(),
       }).where(eq(companies.id, company.id));
 
       // Send welcome message to the new channel
@@ -249,7 +250,7 @@ export const teamsChannelsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
 
       await db.update(teamsClientChannels)
-        .set({ isActive: false })
+        .set({ isActive: 0 })
         .where(eq(teamsClientChannels.companyId, input.companyId));
 
       await db.update(companies)
@@ -286,7 +287,7 @@ export const teamsChannelsRouter = router({
     
     if (!configured) {
       return {
-        health: { healthy: false, lastCheckedAt: new Date(), configured: false },
+        health: { healthy: false, lastCheckedAt: new Date().toISOString(), configured: false },
         deadLetterQueue: getDeadLetterQueue().slice(-10),
       };
     }
@@ -313,13 +314,13 @@ export const teamsChannelsRouter = router({
       const healthy = response.ok;
       console.log(`[Teams Health] getWebhookHealth live ping: HTTP ${response.status} → ${healthy ? 'healthy' : 'failed'}`);
       return {
-        health: { healthy, lastCheckedAt: new Date(), configured: true },
+        health: { healthy, lastCheckedAt: new Date().toISOString(), configured: true },
         deadLetterQueue: getDeadLetterQueue().slice(-10),
       };
     } catch (err: any) {
       console.warn(`[Teams Health] getWebhookHealth live ping error: ${err?.message}`);
       return {
-        health: { healthy: false, lastCheckedAt: new Date(), configured: true },
+        health: { healthy: false, lastCheckedAt: new Date().toISOString(), configured: true },
         deadLetterQueue: getDeadLetterQueue().slice(-10),
       };
     }

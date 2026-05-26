@@ -69,7 +69,7 @@ export function setupWebSocket(server: Server) {
           if (db) {
             await db
               .update(userSessions)
-              .set({ isOnline: false })
+              .set({ isOnline: 0 })
               .where(eq(userSessions.userId, userId));
           }
 
@@ -307,7 +307,7 @@ async function handleJoin(
   if (db) {
     await db
       .update(userSessions)
-      .set({ isOnline: true, lastActivityAt: new Date() })
+      .set({ isOnline: 1, lastActivityAt: new Date().toISOString() })
       .where(eq(userSessions.userId, userId))
       .catch((err: any) => console.error("[WS] Error updating user session:", err));
   }
@@ -369,7 +369,7 @@ async function handleChatMessage(
     senderId,
     senderRole,
     message,
-    isRead: false,
+    isRead: 0,
   });
 
   // Broadcast to session participants
@@ -426,7 +426,7 @@ async function handleReadReceipt(sessionId: number, userId: number) {
 
   await db
     .update(realtimeChatMessages)
-    .set({ isRead: true })
+    .set({ isRead: 1 })
     .where(
       and(
         eq(realtimeChatMessages.sessionId, sessionId),

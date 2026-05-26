@@ -37,7 +37,7 @@ describe("KB Router - Manual Creation", () => {
       content: "This is a test KB article with comprehensive content.",
       category: "General",
       tags: "test,kb,manual",
-      isPublished: false,
+      isPublished: 0,
     };
 
     // Insert test article
@@ -80,7 +80,7 @@ describe("KB Router - Manual Creation", () => {
     const updatedData = {
       title: "Updated Test KB Article",
       content: "This is updated content with more information.",
-      isPublished: true,
+      isPublished: 1,
     };
 
     // Update the article

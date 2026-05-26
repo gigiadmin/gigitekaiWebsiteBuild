@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { router, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
@@ -44,10 +45,10 @@ export const adminSearchIndexRouter = router({
                 content: post.content || "",
                 url: `/blog/${post.slug}`,
                 metadata: {
-                  author: post.author,
+                  author: post.authorName,
                   category: post.category,
-                  tags: post.tags ? post.tags.split(",") : [],
-                  date: post.publishedAt?.toISOString(),
+                  tags: [],
+                  date: post.publishedAt || undefined,
                   imageUrl: post.featuredImage,
                 },
               });
@@ -77,13 +78,13 @@ export const adminSearchIndexRouter = router({
                 contentType: "kb",
                 sourceId: article.id.toString(),
                 title: article.title,
-                excerpt: article.excerpt || article.title.substring(0, 200),
+                excerpt: article.title.substring(0, 200),
                 content: article.content || "",
                 url: `/kb/${article.id}`,
                 metadata: {
                   category: article.category,
                   tags: article.tags ? article.tags.split(",") : [],
-                  date: article.createdAt?.toISOString(),
+                  date: article.createdAt || undefined,
                 },
               });
             }
@@ -260,7 +261,7 @@ export const adminSearchIndexRouter = router({
       const stats = await db
         .select({
           contentType: searchIndex.contentType,
-          count: z.number(),
+          count: sql<number>`COUNT(*)`,
         })
         .from(searchIndex);
 

@@ -239,7 +239,7 @@ export function AdminRolesManager() {
                     <div className="flex-1">
                       <h4 className="font-semibold mb-2">{role.name}</h4>
                       <div className="flex flex-wrap gap-2">
-                        {role.permissions.map((perm) => (
+                        {(role.permissions as string[]).map((perm) => (
                           <Badge key={perm} variant="secondary" className="text-xs">
                             {perm}
                           </Badge>
@@ -250,7 +250,7 @@ export function AdminRolesManager() {
                       <Button
                         onClick={() => {
                           setEditingRole(role.id as number);
-                          setEditingPermissions(role.permissions);
+                          setEditingPermissions(role.permissions as string[]);
                         }}
                         size="sm"
                         variant="outline"

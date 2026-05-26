@@ -231,7 +231,7 @@ Respond with JSON:
           .offset(input.offset);
 
         const total = await db
-          .select({ count: sql`COUNT(*)` })
+          .select({ count: sql<number>`COUNT(*)` })
           .from(callTranscripts)
           .where(
             and(
@@ -377,7 +377,7 @@ Respond with JSON:
 
       const stats = await db
         .select({
-          totalTranscripts: sql`COUNT(*)`,
+          totalTranscripts: sql<number>`COUNT(*)`,
           averageConfidence: sql`AVG(confidence)`,
           transcriptsWithSummary: sql`SUM(CASE WHEN summary IS NOT NULL THEN 1 ELSE 0 END)`,
           transcriptsWithActionItems: sql`SUM(CASE WHEN action_items IS NOT NULL THEN 1 ELSE 0 END)`,

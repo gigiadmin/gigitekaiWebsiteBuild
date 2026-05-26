@@ -98,7 +98,7 @@ export const systemRouter = router({
             createdAt: tickets.createdAt,
           })
           .from(tickets)
-          .where(gte(tickets.createdAt, cutoffTime))
+          .where(gte(tickets.createdAt, cutoffTime.toISOString()))
           .limit(50);
 
         return { data: newTickets };

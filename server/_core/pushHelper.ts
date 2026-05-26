@@ -74,7 +74,7 @@ export async function sendPushToUser(userId: number, payload: PushPayload): Prom
           endpoint: sub.endpoint,
           keys: {
             auth: sub.auth,
-            p256dh: sub.p256dh,
+            p256dh: sub.p256Dh,
           },
         },
         notification
@@ -86,7 +86,7 @@ export async function sendPushToUser(userId: number, payload: PushPayload): Prom
       if (err?.statusCode === 410 || err?.statusCode === 404) {
         await db
           .update(pushNotifications)
-          .set({ isActive: false })
+          .set({ isActive: 0 })
           .where(eq(pushNotifications.endpoint, sub.endpoint));
       }
       console.warn(`[Push] Failed to send to user ${userId}:`, err?.message ?? err);

@@ -31,7 +31,7 @@ Microsoft 365 is a comprehensive cloud-based productivity suite that includes em
 Contact your IT support team for account issues or access problems.`,
     category: 'Microsoft 365',
     tags: JSON.stringify(['onboarding', 'microsoft-365', 'email', 'teams']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Troubleshooting Email Delivery Issues',
@@ -79,7 +79,7 @@ If you've tried these steps and still have issues, contact IT support with:
 - Error messages (if any)`,
     category: 'Email',
     tags: JSON.stringify(['email', 'outlook', 'troubleshooting', 'delivery']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Network Connectivity Troubleshooting',
@@ -131,7 +131,7 @@ If basic troubleshooting doesn't work:
 - List any recent network changes`,
     category: 'Network',
     tags: JSON.stringify(['network', 'connectivity', 'internet', 'wifi']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Printer Setup and Troubleshooting',
@@ -195,7 +195,7 @@ Contact IT if:
 - Print quality issues persist`,
     category: 'Hardware',
     tags: JSON.stringify(['printer', 'printing', 'hardware', 'setup']),
-    isPublished: true,
+    isPublished: 1,
   },
   {
     title: 'Password Security Best Practices',
@@ -264,7 +264,7 @@ Strong passwords are your first line of defense against unauthorized access. Fol
 - Remove old/unused accounts`,
     category: 'Security',
     tags: JSON.stringify(['security', 'password', 'authentication', 'mfa']),
-    isPublished: true,
+    isPublished: 1,
   },
 ];
 
@@ -284,9 +284,9 @@ export async function seedKnowledgeBase() {
         content: article.content,
         category: article.category,
         tags: article.tags,
-        isPublished: Boolean(article.isPublished),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        isPublished: article.isPublished ? 1 : 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       console.log(`✓ Seeded: ${article.title}`);

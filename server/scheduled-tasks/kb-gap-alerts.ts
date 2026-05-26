@@ -43,7 +43,7 @@ export async function runKbGapAlerts() {
       .from(kbSearchQueries)
       .where(
         eq(kbSearchQueries.resultsCount, 0) &&
-        gte(kbSearchQueries.createdAt, since)
+        gte(kbSearchQueries.createdAt, since.toISOString())
       )
       .groupBy(kbSearchQueries.query)
       .orderBy(sql`COUNT(*) DESC`)

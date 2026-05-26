@@ -44,7 +44,7 @@ export function AdminMenuCustomizer() {
   useEffect(() => {
     if (loadCustomization.data?.menuOrder) {
       // Reconstruct menu items from saved order
-      const savedIds = loadCustomization.data.menuOrder;
+      const savedIds = (loadCustomization.data.menuOrder as string[]) ?? [];
       const reorderedItems = savedIds
         .map((id: string) => DEFAULT_MENU.find((item) => item.id === id))
         .filter((item): item is MenuItem => item !== undefined);

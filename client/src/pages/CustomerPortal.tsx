@@ -251,7 +251,7 @@ export default function CustomerPortal() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={preferences.emailNotifications}
+                  checked={Boolean(preferences.emailNotifications)}
                   onChange={(e) => {
                     updatePreferencesMutation.mutate({
                       emailNotifications: e.target.checked,
@@ -269,7 +269,7 @@ export default function CustomerPortal() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={preferences.smsNotifications}
+                  checked={Boolean(preferences.smsNotifications)}
                   onChange={(e) => {
                     updatePreferencesMutation.mutate({
                       smsNotifications: e.target.checked,
@@ -287,7 +287,7 @@ export default function CustomerPortal() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={preferences.inAppNotifications}
+                  checked={Boolean(preferences.inAppNotifications)}
                   onChange={(e) => {
                     updatePreferencesMutation.mutate({
                       inAppNotifications: e.target.checked,

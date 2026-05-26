@@ -40,8 +40,8 @@ export const quickAssistRouter = router({
         initiatedBy: ctx.user.id,
         description: input.description || null,
         status: "active",
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       });
 
       // Generate Intune Remote Help link
@@ -51,7 +51,7 @@ export const quickAssistRouter = router({
       return {
         sessionCode,
         remoteHelpUrl,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         instructions: `Share this code with the user: ${sessionCode}\nOr send them this link: ${remoteHelpUrl}`,
       };
     }),
@@ -92,7 +92,7 @@ export const quickAssistRouter = router({
       const session = sessions.find((s: any) => s.sessionCode === input.sessionCode);
 
       if (session) {
-        await db.update(quickAssistSessions).set({ status: "ended", endedAt: new Date() });
+        await db.update(quickAssistSessions).set({ status: "ended", endedAt: new Date().toISOString() });
       }
 
       return { success: true };

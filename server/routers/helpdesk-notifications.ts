@@ -163,8 +163,8 @@ export const helpdeskNotificationsRouter = router({
           type: "status_change",
           title: "Ticket Status Updated",
           message: "Your ticket has been updated",
-          isRead: false,
-          createdAt: new Date(),
+          isRead: 0,
+          createdAt: new Date().toISOString(),
         },
       ];
     }),
@@ -193,7 +193,7 @@ export const helpdeskNotificationsRouter = router({
         assignment: 1,
         new_reply: 1,
       },
-      lastNotification: new Date(),
+      lastNotification: new Date().toISOString(),
     };
   }),
 

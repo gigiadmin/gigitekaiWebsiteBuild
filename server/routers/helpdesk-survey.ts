@@ -47,7 +47,7 @@ export const helpdeskSurveyRouter = router({
         ticketId: input.ticketId,
         rating: input.rating,
         comment: input.comment || null,
-        submittedAt: new Date(),
+        submittedAt: new Date().toISOString(),
         submittedBy: ctx.user?.id || null,
       });
 

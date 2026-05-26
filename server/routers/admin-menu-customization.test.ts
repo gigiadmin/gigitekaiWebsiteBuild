@@ -21,7 +21,7 @@ describe("Admin Menu Customization Router", () => {
       openId: "test-openid-" + Date.now(),
       role: "admin",
       loginMethod: "oauth",
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     });
 
     testUserId = userResult[0].insertId;
@@ -44,9 +44,9 @@ describe("Admin Menu Customization Router", () => {
         openId: "test-openid",
         role: "admin",
         loginMethod: "oauth",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastSignedIn: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastSignedIn: new Date().toISOString(),
       },
       req: {
         protocol: "https",
@@ -94,7 +94,7 @@ describe("Admin Menu Customization Router", () => {
       openId: "test-openid-" + Date.now(),
       role: "admin",
       loginMethod: "oauth",
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     });
 
     const newUserId = newUserResult[0].insertId;
@@ -107,9 +107,9 @@ describe("Admin Menu Customization Router", () => {
         openId: "test-openid",
         role: "admin",
         loginMethod: "oauth",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastSignedIn: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastSignedIn: new Date().toISOString(),
       },
       req: {
         protocol: "https",

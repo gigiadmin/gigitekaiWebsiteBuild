@@ -99,7 +99,7 @@ export default function EmailDigestSettings() {
               </p>
             </div>
             <Switch
-              checked={preferences?.enabled ?? true}
+              checked={Boolean(preferences?.enabled ?? true)}
               onCheckedChange={handleToggleEnabled}
               disabled={isSaving}
             />
@@ -185,7 +185,7 @@ export default function EmailDigestSettings() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences?.includeLeads ?? true}
+                  checked={Boolean(preferences?.includeLeads ?? true)}
                   onCheckedChange={(value) => handleToggleInclude("includeLeads", value)}
                   disabled={isSaving}
                 />
@@ -199,7 +199,7 @@ export default function EmailDigestSettings() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences?.includeTickets ?? true}
+                  checked={Boolean(preferences?.includeTickets ?? true)}
                   onCheckedChange={(value) => handleToggleInclude("includeTickets", value)}
                   disabled={isSaving}
                 />
@@ -213,7 +213,7 @@ export default function EmailDigestSettings() {
                   </p>
                 </div>
                 <Switch
-                  checked={preferences?.includeApprovals ?? true}
+                  checked={Boolean(preferences?.includeApprovals ?? true)}
                   onCheckedChange={(value) => handleToggleInclude("includeApprovals", value)}
                   disabled={isSaving}
                 />

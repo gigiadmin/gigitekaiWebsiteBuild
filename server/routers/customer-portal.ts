@@ -30,14 +30,14 @@ export const customerPortalRouter = router({
       await db.insert(customerPortalSessions).values({
         customerId: input.customerId,
         sessionToken,
-        expiresAt,
+        expiresAt: expiresAt.toISOString(),
         ipAddress: input.ipAddress,
         userAgent: input.userAgent,
       });
 
       return {
         sessionToken,
-        expiresAt,
+        expiresAt: expiresAt.toISOString(),
         customerId: input.customerId,
       };
     }),
@@ -57,7 +57,7 @@ export const customerPortalRouter = router({
         .where(
           and(
             eq(customerPortalSessions.sessionToken, input.sessionToken),
-            gt(customerPortalSessions.expiresAt, new Date())
+            gt(customerPortalSessions.expiresAt, new Date().toISOString())
           )
         );
 
@@ -68,7 +68,7 @@ export const customerPortalRouter = router({
       // Update last activity
       await db
         .update(customerPortalSessions)
-        .set({ lastActivityAt: new Date() })
+        .set({ lastActivityAt: new Date().toISOString() })
         .where(eq(customerPortalSessions.id, session[0].id));
 
       return session[0];
@@ -107,9 +107,9 @@ export const customerPortalRouter = router({
     // Create default preferences
     await db.insert(notificationPreferences).values({
       userId: ctx.user.id,
-      emailNotifications: true,
-      smsNotifications: false,
-      inAppNotifications: true,
+      emailNotifications: 1,
+      smsNotifications: 0,
+      inAppNotifications: 1,
     });
 
     const newPrefs = await db
@@ -143,7 +143,7 @@ export const customerPortalRouter = router({
 
       const updateData: any = {
         ...input,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       };
 
       await db

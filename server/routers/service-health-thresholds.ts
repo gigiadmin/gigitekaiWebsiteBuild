@@ -48,8 +48,14 @@ export const serviceHealthThresholdsRouter = router({
     .mutation(async (opts) => {
       const { input, ctx } = opts;
       const userId = ctx.user?.id || 0;
-
-      return updateAlertThreshold(input.service, input, userId);
+      const mapped = {
+        ...input,
+        ...(input.enabled !== undefined && { enabled: input.enabled ? 1 : 0 }),
+        ...(input.notifyOnDegraded !== undefined && { notifyOnDegraded: input.notifyOnDegraded ? 1 : 0 }),
+        ...(input.notifyOnCritical !== undefined && { notifyOnCritical: input.notifyOnCritical ? 1 : 0 }),
+        ...(input.notifyOnRecovery !== undefined && { notifyOnRecovery: input.notifyOnRecovery ? 1 : 0 }),
+      };
+      return updateAlertThreshold(input.service, mapped as any, userId);
     }),
 
   /**

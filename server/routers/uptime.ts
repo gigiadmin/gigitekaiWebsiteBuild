@@ -21,7 +21,7 @@ export const uptimeRouter = router({
       return {
         success: true,
         monitors,
-        lastUpdated: new Date(),
+        lastUpdated: new Date().toISOString(),
       };
     } catch (error) {
       console.error("[UptimeRouter] Error in getMonitors, returning empty:", error);
@@ -29,7 +29,7 @@ export const uptimeRouter = router({
       return {
         success: false,
         monitors: [],
-        lastUpdated: new Date(),
+        lastUpdated: new Date().toISOString(),
       };
     }
   }),

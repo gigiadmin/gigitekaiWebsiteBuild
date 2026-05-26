@@ -158,7 +158,7 @@ export const kbAiProactiveRouter = router({
       const articles = await db
         .select()
         .from(kbArticles)
-        .where(eq(kbArticles.isPublished, true));
+        .where(eq(kbArticles.isPublished, 1));
 
       return uniqueTitles
         .map(title => {
@@ -249,7 +249,7 @@ export const kbAiProactiveRouter = router({
     const db = await getDb();
     if (!db) return null;
 
-    const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, true));
+    const articles = await db.select().from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
     const context = {
       systemPrompt: `You are GigitekAI's intelligent support assistant. Your role includes proactively suggesting relevant KB articles when users describe issues.

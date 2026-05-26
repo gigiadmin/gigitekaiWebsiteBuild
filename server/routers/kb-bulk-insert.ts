@@ -815,7 +815,7 @@ export const kbBulkInsertRouter = router({
             content: article.content,
             category: article.category,
             tags: article.tags,
-            isPublished: true,
+            isPublished: 1,
             syncSource: 'manual',
           });
           insertedCount++;

@@ -205,7 +205,7 @@ Example format: ["microsoft-365", "teams", "troubleshooting", "setup"]`;
           content: version.content,
           category: version.category,
           tags: version.tags,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(kbArticles.id, input.articleId));
 
@@ -267,7 +267,7 @@ Example format: ["microsoft-365", "teams", "troubleshooting", "setup"]`;
         .from(kbSearchQueries)
         .where(
           and(
-            gte(kbSearchQueries.createdAt, since),
+            gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since),
             eq(kbSearchQueries.resultsCount, 0)
           )
         )
@@ -334,7 +334,7 @@ Example format: ["microsoft-365", "teams", "troubleshooting", "setup"]`;
             eq(kbArticleTags.tag, input.tag.toLowerCase())
           )
         )
-        .where(eq(kbArticles.isPublished, true));
+        .where(eq(kbArticles.isPublished, 1));
 
       return articles;
     }),

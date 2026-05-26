@@ -381,7 +381,7 @@ export async function markMessageAsRead(messageId: string): Promise<boolean> {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ isRead: true }),
+      body: JSON.stringify({ isRead: 1 }),
     });
 
     if (response.ok) {
@@ -399,7 +399,7 @@ export async function markMessageAsRead(messageId: string): Promise<boolean> {
             Authorization: `Bearer ${freshToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ isRead: true }),
+          body: JSON.stringify({ isRead: 1 }),
         });
         if (retryResponse.ok) {
           console.log(`[Email] Marked message ${messageId} as read (after token refresh)`);

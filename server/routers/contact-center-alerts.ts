@@ -13,16 +13,16 @@ interface ServiceAlert {
   status: "healthy" | "degraded" | "error";
   previousStatus?: "healthy" | "degraded" | "error";
   message: string;
-  timestamp: Date;
+  timestamp: string;
   escalated: boolean;
 }
 
 // Track service status to detect transitions
-const serviceStatusCache: Record<string, { status: string; lastChecked: Date }> = {
-  d365: { status: 'unknown', lastChecked: new Date() },
-  teams: { status: 'unknown', lastChecked: new Date() },
-  acs: { status: 'unknown', lastChecked: new Date() },
-  copilot: { status: 'unknown', lastChecked: new Date() },
+const serviceStatusCache: Record<string, { status: string; lastChecked: string }> = {
+  d365: { status: 'unknown', lastChecked: new Date().toISOString() },
+  teams: { status: 'unknown', lastChecked: new Date().toISOString() },
+  acs: { status: 'unknown', lastChecked: new Date().toISOString() },
+  copilot: { status: 'unknown', lastChecked: new Date().toISOString() },
 };
 
 export const contactCenterAlertsRouter = router({
@@ -42,14 +42,14 @@ export const contactCenterAlertsRouter = router({
       // Update cache
       serviceStatusCache[service] = {
         status: currentStatus,
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
       };
 
       // Detect status transition (healthy → degraded/error)
       const isTransition = previousStatus === 'healthy' && (currentStatus === 'degraded' || currentStatus === 'error');
 
       if (!isTransition) {
-        return { escalated: false, reason: 'No status transition detected' };
+        return { escalated: 0, reason: 'No status transition detected' };
       }
 
       // Escalate to admin
@@ -82,20 +82,20 @@ export const contactCenterAlertsRouter = router({
         // Email notification sent via notifyOwner API above
 
         return {
-          escalated: true,
+          escalated: 1,
           reason: `Service transitioned from ${previousStatus} to ${currentStatus}`,
           alert: {
             service,
             currentStatus,
             previousStatus,
             message,
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
           },
         };
       } catch (error) {
         // Escalation failed but log it
         return {
-          escalated: false,
+          escalated: 0,
           reason: `Failed to escalate: ${error instanceof Error ? error.message : 'Unknown error'}`,
         };
       }
@@ -112,7 +112,7 @@ export const contactCenterAlertsRouter = router({
           status: data.status,
           lastChecked: data.lastChecked,
         })),
-        lastUpdated: new Date(),
+        lastUpdated: new Date().toISOString(),
       };
     }),
 
@@ -122,9 +122,9 @@ export const contactCenterAlertsRouter = router({
   resetStatusCache: protectedProcedure
     .mutation(() => {
       Object.keys(serviceStatusCache).forEach(service => {
-        serviceStatusCache[service] = { status: 'unknown', lastChecked: new Date() };
+        serviceStatusCache[service] = { status: 'unknown', lastChecked: new Date().toISOString() };
       });
-      return { reset: true, timestamp: new Date() };
+      return { reset: true, timestamp: new Date().toISOString() };
     }),
 
   /**
@@ -148,7 +148,7 @@ export const contactCenterAlertsRouter = router({
         // Update cache
         serviceStatusCache[service.name] = {
           status: service.status,
-          lastChecked: new Date(),
+          lastChecked: new Date().toISOString(),
         };
 
         if (isTransition) {
@@ -158,17 +158,17 @@ export const contactCenterAlertsRouter = router({
               title,
               content: `${service.name.toUpperCase()}: ${service.message}`,
             });
-            results.push({ service: service.name, escalated: true });
+            results.push({ service: service.name, escalated: 1 });
           } catch (error) {
-            results.push({ service: service.name, escalated: false, error: String(error) });
+            results.push({ service: service.name, escalated: 0, error: String(error) });
           }
         } else {
-          results.push({ service: service.name, escalated: false, reason: 'No transition' });
+          results.push({ service: service.name, escalated: 0, reason: 'No transition' });
         }
       }
 
       return {
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         escalations: results,
         totalEscalated: results.filter(r => r.escalated).length,
       };

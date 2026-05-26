@@ -116,7 +116,7 @@ export async function createAdminAccount(data: {
     name: data.name,
     hashedPassword,
     role: data.role ?? "agent",
-    isActive: true,
+    isActive: 1,
   });
   return findAdminByEmail(data.email);
 }
@@ -126,7 +126,7 @@ export async function updateLastLogin(adminId: number) {
   if (!database) throw new Error("Database not available");
   await database
     .update(adminCredentials)
-    .set({ lastLoginAt: new Date() })
+    .set({ lastLoginAt: new Date().toISOString() })
     .where(eq(adminCredentials.id, adminId));
 }
 

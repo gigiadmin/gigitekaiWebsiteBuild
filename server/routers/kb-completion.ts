@@ -219,7 +219,7 @@ Respond with JSON: { "translatedTitle": "...", "translatedContent": "..." }`;
           content: translation.translatedContent,
           category: originalArticle.category,
           tags: `${originalArticle.tags || ""},translation,${input.targetLanguage}`,
-          isPublished: false, // Require review before publishing
+          isPublished: 0, // Require review before publishing
           syncSource: null,
         })) as any;
 

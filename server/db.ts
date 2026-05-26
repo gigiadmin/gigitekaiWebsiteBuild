@@ -69,16 +69,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
     // Auto-approve admin users and the site owner
     if (values.role === 'admin' || user.openId === ENV.ownerOpenId) {
-      values.approved = true;
-      updateSet.approved = true;
+      values.approved = 1;
+      updateSet.approved = 1;
     }
 
     if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
+      values.lastSignedIn = new Date().toISOString();
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
+      updateSet.lastSignedIn = new Date().toISOString();
     }
 
     // Check if this is a new user (for notification)
@@ -197,7 +197,7 @@ export async function updateTicketStatus(ticketId: number, status: string) {
   }
 
   try {
-    const updateData: any = { status: status as any, updatedAt: new Date() };
+    const updateData: any = { status: status as any, updatedAt: new Date().toISOString() };
     if (status === "resolved" || status === "closed") {
       updateData.resolvedAt = new Date();
     } else if (status === "open" || status === "in_progress" || status === "on_hold") {
@@ -406,7 +406,7 @@ export async function updateChatSessionStatus(sessionId: string, status: string,
   }
 
   try {
-    const updateData: any = { status, updatedAt: new Date() };
+    const updateData: any = { status, updatedAt: new Date().toISOString() };
     if (ticketId) updateData.escalatedToTicketId = ticketId;
     const result = await db.update(chatSessions).set(updateData).where(eq(chatSessions.sessionId, sessionId));
     return result;
@@ -435,7 +435,7 @@ export async function approveUser(userId: number) {
   if (!db) return false;
 
   try {
-    await db.update(users).set({ approved: true }).where(eq(users.id, userId));
+    await db.update(users).set({ approved: 1 }).where(eq(users.id, userId));
     return true;
   } catch (error) {
     console.error("[Database] Failed to approve user:", error);
@@ -448,7 +448,7 @@ export async function revokeUser(userId: number) {
   if (!db) return false;
 
   try {
-    await db.update(users).set({ approved: false }).where(eq(users.id, userId));
+    await db.update(users).set({ approved: 0 }).where(eq(users.id, userId));
     return true;
   } catch (error) {
     console.error("[Database] Failed to revoke user:", error);
@@ -462,7 +462,7 @@ export async function softDeleteUser(userId: number) {
   const db = await getDb();
   if (!db) return false;
   try {
-    await db.update(users).set({ deletedAt: new Date() }).where(eq(users.id, userId));
+    await db.update(users).set({ deletedAt: new Date().toISOString() }).where(eq(users.id, userId));
     return true;
   } catch (error) {
     console.error("[Database] Failed to soft-delete user:", error);
@@ -768,7 +768,7 @@ export async function createCustomerInvite(
       invitedName: invitedName || null,
       invitedCompany: invitedCompany || null,
       invitedBy,
-      expiresAt,
+      expiresAt: expiresAt.toISOString(),
     });
 
     console.log("[Database] Customer invite created successfully");
@@ -793,7 +793,7 @@ export async function getCustomerInviteByToken(token: string) {
     if (!invite) return null;
 
     // Check if expired
-    if (new Date() > invite.expiresAt) {
+    if (new Date().toISOString() > invite.expiresAt) {
       await db.update(customerInvites).set({ status: "expired" }).where(eq(customerInvites.id, invite.id));
       return null;
     }
@@ -825,7 +825,7 @@ export async function acceptCustomerInvite(token: string, userId: number) {
       .set({
         status: "accepted",
         acceptedBy: userId,
-        acceptedAt: new Date(),
+        acceptedAt: new Date().toISOString(),
       })
       .where(eq(customerInvites.id, invite.id));
 
@@ -1025,7 +1025,7 @@ export async function getAdminsForDigest() {
       })
       .from(emailDigestPreferences)
       .innerJoin(users, eq(emailDigestPreferences.userId, users.id))
-      .where(eq(emailDigestPreferences.enabled, true));
+      .where(eq(emailDigestPreferences.enabled, 1));
     return result;
   } catch (error) {
     console.error("[Database] Failed to get admins for digest:", error);
@@ -1045,7 +1045,7 @@ export async function getDigestSummary(userId: number) {
       .select({ count: sql<number>`COUNT(*)` })
       .from(chatLeads)
       .where(
-        gte(chatLeads.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000))
+        gte(chatLeads.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       );
 
     // Get open/in-progress tickets
@@ -1060,7 +1060,7 @@ export async function getDigestSummary(userId: number) {
     const approvalsResult = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(users)
-      .where(eq(users.approved, false));
+      .where(eq(users.approved, 0));
 
     return {
       leadsCount: leadsResult[0]?.count || 0,
@@ -1104,7 +1104,7 @@ export async function updateDigestPreferencesLastSent(userId: number) {
   try {
     const result = await db
       .update(emailDigestPreferences)
-      .set({ lastSentAt: new Date() })
+      .set({ lastSentAt: new Date().toISOString() })
       .where(eq(emailDigestPreferences.userId, userId));
     console.log("[Database] Last sent timestamp updated successfully");
     return result;
@@ -1239,7 +1239,7 @@ export async function recordWebsiteTraffic(data: InsertWebsiteTraffic) {
   }
 }
 
-export async function getWebsiteTrafficByDate(date: Date) {
+export async function getWebsiteTrafficByDate(date: Date | string) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get traffic: database not available");
@@ -1249,7 +1249,7 @@ export async function getWebsiteTrafficByDate(date: Date) {
     const traffic = await db
       .select()
       .from(websiteTraffic)
-      .where(eq(websiteTraffic.date, date))
+      .where(eq(websiteTraffic.date, date instanceof Date ? date.toISOString().split("T")[0] : date))
       .orderBy(desc(websiteTraffic.pageViews));
     return traffic;
   } catch (error) {
@@ -1276,7 +1276,7 @@ export async function getWebsiteTrafficSummary(days: number = 30) {
         avgTimeOnPage: sql<number>`AVG(avgTimeOnPage)`,
       })
       .from(websiteTraffic)
-      .where(gte(websiteTraffic.date, startDate));
+      .where(gte(websiteTraffic.date, typeof startDate === "string" ? startDate : startDate.toISOString().split("T")[0]));
     
     return summary[0] || null;
   } catch (error) {
@@ -1336,7 +1336,7 @@ export async function searchKBArticles(keywords: string, limit: number = 3) {
     const articles = await db
       .select()
       .from(kbArticles)
-      .where(eq(kbArticles.isPublished, true));
+      .where(eq(kbArticles.isPublished, 1));
 
     // Score each article based on keyword matches with topic filtering
     const scored = articles.map(article => {
@@ -1401,8 +1401,9 @@ Be strict: reject articles that only share keywords but are about different topi
           ],
         });
 
-        const responseText = response.choices?.[0]?.message?.content || "[]";
-        const relevanceArray = JSON.parse(responseText.match(/\[.*\]/s)?.[0] || "[]");
+        const rawContent = response.choices?.[0]?.message?.content;
+        const responseText = typeof rawContent === 'string' ? rawContent : "[]";
+        const relevanceArray = JSON.parse(responseText.match(/\[[\s\S]*\]/)?.[0] || "[]");
 
         // Filter articles based on semantic validation
         const semanticallyRelevant = articlesToValidate.filter((_, i) => relevanceArray[i] === true);
@@ -1436,7 +1437,7 @@ export async function getAllPublishedKBArticles() {
     return await db
       .select()
       .from(kbArticles)
-      .where(eq(kbArticles.isPublished, true))
+      .where(eq(kbArticles.isPublished, 1))
       .orderBy(desc(kbArticles.updatedAt));
   } catch (error) {
     console.error("[Database] Failed to get KB articles:", error);
@@ -1456,7 +1457,7 @@ export async function isKBArticleRelevant(articleId: number, userMessage: string
     const [article] = await db
       .select()
       .from(kbArticles)
-      .where(and(eq(kbArticles.id, articleId), eq(kbArticles.isPublished, true)))
+      .where(and(eq(kbArticles.id, articleId), eq(kbArticles.isPublished, 1)))
       .limit(1);
 
     if (!article) return false;
@@ -1579,7 +1580,7 @@ export async function getEscalationPatterns(opts?: {
   if (!db) return [];
   try {
     const conditions = [];
-    if (opts?.startDate) conditions.push(gte(escalationPatterns.createdAt, opts.startDate));
+    if (opts?.startDate) conditions.push(gte(escalationPatterns.createdAt, opts.startDate instanceof Date ? opts.startDate.toISOString() : opts.startDate));
     if (opts?.endDate) conditions.push(sql`${escalationPatterns.createdAt} <= ${opts.endDate}`);
     const rows = await db
       .select()
@@ -1600,7 +1601,7 @@ export async function getEscalationPatternStats(startDate?: Date, endDate?: Date
   if (!db) return { total: 0, byIntent: {}, byReason: {}, resolvedCount: 0 };
   try {
     const conditions = [];
-    if (startDate) conditions.push(gte(escalationPatterns.createdAt, startDate));
+    if (startDate) conditions.push(gte(escalationPatterns.createdAt, startDate instanceof Date ? startDate.toISOString() : startDate));
     if (endDate) conditions.push(sql`${escalationPatterns.createdAt} <= ${endDate}`);
     const rows = await db
       .select()
@@ -1674,15 +1675,15 @@ export async function setSetting(key: string, value: any, description?: string):
     if (existing) {
       await db
         .update(settings)
-        .set({ value: serialized, description, updatedAt: new Date() })
+        .set({ value: serialized, description, updatedAt: new Date().toISOString() })
         .where(eq(settings.key, key));
     } else {
       await db.insert(settings).values({
         key,
         value: serialized,
         description,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
     }
     return true;

@@ -75,7 +75,7 @@ export async function handleCheckoutSessionCompleted(
         userId,
         stripeCustomerId,
         email: customerEmail || "",
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
     } else {
       // Update existing customer
@@ -106,14 +106,12 @@ export async function handleCheckoutSessionCompleted(
         stripeCustomerId,
         planName: metadata.planName || "Unknown",
         userCount: parseInt(metadata.userCount || "10"),
-        isAnnual: metadata.isAnnual === "true",
+        isAnnual: metadata.isAnnual === "true" ? 1 : 0,
         status: subscription.status,
-        currentPeriodStart: periodStart,
-        currentPeriodEnd: periodEnd,
-        canceledAt: subscription.canceled_at
-          ? new Date(subscription.canceled_at * 1000)
-          : null,
-        createdAt: new Date(),
+        currentPeriodStart: periodStart.toISOString(),
+        currentPeriodEnd: periodEnd.toISOString(),
+        canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000).toISOString() : null,
+        createdAt: new Date().toISOString(),
       });
 
       console.log(
@@ -160,11 +158,9 @@ export async function handleSubscriptionUpdated(
         .update(stripeSubscriptions)
         .set({
           status: subscription.status,
-          currentPeriodStart: periodStart,
-          currentPeriodEnd: periodEnd,
-          canceledAt: subscription.canceled_at
-            ? new Date(subscription.canceled_at * 1000)
-            : null,
+          currentPeriodStart: periodStart.toISOString(),
+          currentPeriodEnd: periodEnd.toISOString(),
+          canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000).toISOString() : null,
         })
         .where(eq(stripeSubscriptions.stripeSubscriptionId, subscription.id));
 
@@ -193,7 +189,7 @@ export async function handleSubscriptionDeleted(
       .update(stripeSubscriptions)
       .set({
         status: "canceled",
-        canceledAt: new Date(),
+        canceledAt: new Date().toISOString(),
       })
       .where(eq(stripeSubscriptions.stripeSubscriptionId, subscription.id));
 

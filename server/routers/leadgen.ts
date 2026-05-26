@@ -72,7 +72,7 @@ export const leadgenRouter = router({
             complianceScore: input.complianceScore,
             overallScore,
             riskLevel,
-            leadCaptured: true,
+            leadCaptured: 1,
           })
           .$returningId();
 
@@ -174,7 +174,7 @@ export const leadgenRouter = router({
             companyName: input.companyName,
             leadMagnetDownloaded: input.leadMagnetDownloaded,
             pageUrl: input.pageUrl,
-            leadCaptured: true,
+            leadCaptured: 1,
           })
           .$returningId();
 
@@ -307,13 +307,13 @@ export const leadgenRouter = router({
             phone: input.phone,
             companyName: input.companyName,
             employeeCount: input.employeeCount,
-            currentITSetup: input.currentITSetup,
-            needsCybersecurity: input.needsCybersecurity,
-            needsCloud: input.needsCloud,
-            needsHelpdesk: input.needsHelpdesk,
-            needsAI: input.needsAI,
+            currentItSetup: input.currentITSetup,
+            needsCybersecurity: input.needsCybersecurity ? 1 : 0,
+            needsCloud: input.needsCloud ? 1 : 0,
+            needsHelpdesk: input.needsHelpdesk ? 1 : 0,
+            needsAi: input.needsAI ? 1 : 0,
             otherNeeds: input.otherNeeds,
-            formCompletedAt: new Date(),
+            formCompletedAt: new Date().toISOString(),
             leadQuality,
             status: "new",
             fileKey: fileKey || undefined,
@@ -392,7 +392,7 @@ export const leadgenRouter = router({
         const analytics = await db
           .select()
           .from(leadGenAnalytics)
-          .where(and(lte(leadGenAnalytics.date, end), gte(leadGenAnalytics.date, start)))
+          .where(and(lte(leadGenAnalytics.date, end instanceof Date ? end.toISOString() : end), gte(leadGenAnalytics.date, start instanceof Date ? start.toISOString() : start)))
           .orderBy(desc(leadGenAnalytics.date));
 
         return analytics;
@@ -471,7 +471,7 @@ export const leadgenRouter = router({
           .set({
             status: input.status,
             notes: input.notes,
-            updatedAt: new Date(),
+            updatedAt: new Date().toISOString(),
           })
           .where(eq(multiStepFormSubmissions.id, input.leadId));
 

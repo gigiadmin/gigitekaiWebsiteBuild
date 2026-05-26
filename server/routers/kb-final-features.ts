@@ -439,7 +439,7 @@ Code or detailed example...
           content: `# ${input.title}\n\n[Article content here]`,
           category: input.category || template.category,
           tags: (input.tags || []).join(","),
-          isPublished: false,
+          isPublished: 0,
           syncSource: null,
         })) as any;
 

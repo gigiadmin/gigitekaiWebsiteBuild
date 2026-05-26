@@ -14,7 +14,7 @@ import { serviceStatusSubscriptions } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 interface HealthCheckLog {
-  timestamp: Date;
+  timestamp: string;
   service: string;
   status: ServiceHealthStatus;
   message: string;
@@ -151,8 +151,8 @@ async function sendEmailsToSubscribers(
       .where(
         and(
           eq(serviceStatusSubscriptions.service, service),
-          eq(serviceStatusSubscriptions.isActive, true),
-          eq(serviceStatusSubscriptions[preferenceField], true)
+          eq(serviceStatusSubscriptions.isActive, 1),
+          eq(serviceStatusSubscriptions[preferenceField], 1)
         )
       );
 
@@ -207,7 +207,7 @@ async function runHealthCheckCycle() {
 
     // Log health checks
     logHealthCheck({
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       service: emailHealth.service,
       status: emailHealth.status,
       message: emailHealth.message,
@@ -215,7 +215,7 @@ async function runHealthCheckCycle() {
     });
 
     logHealthCheck({
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       service: helpdeskHealth.service,
       status: helpdeskHealth.status,
       message: helpdeskHealth.message,
@@ -223,7 +223,7 @@ async function runHealthCheckCycle() {
     });
 
     logHealthCheck({
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       service: m365Health.service,
       status: m365Health.status,
       message: m365Health.message,

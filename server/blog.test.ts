@@ -86,7 +86,7 @@ describe("blog router — getPostBySlug", () => {
   });
 
   it("returns the post when found", async () => {
-    const fakePost = { id: 2, slug: "my-post", title: "My Post", published: true };
+    const fakePost = { id: 2, slug: "my-post", title: "My Post", published: 1 };
     const chain = makeChain([fakePost]);
     mockDb.select.mockReturnValue(chain);
     const { blogRouter } = await import("./routers/blog");
@@ -115,7 +115,7 @@ describe("blog router — createPost (admin only)", () => {
           content: "Test",
           category: "AI",
           readTime: "5 min read",
-          published: false,
+          published: 0,
         },
       })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
@@ -136,7 +136,7 @@ describe("blog router — createPost (admin only)", () => {
           content: "Test",
           category: "AI",
           readTime: "5 min read",
-          published: false,
+          published: 0,
         },
       })
     ).rejects.toMatchObject({ code: "CONFLICT" });
@@ -180,7 +180,7 @@ describe("blog router — togglePublished (admin only)", () => {
       // @ts-expect-error
       blogRouter._def.procedures.togglePublished._def.resolver({
         ctx: { user: { role: "viewer" } },
-        input: { id: 1, published: true },
+        input: { id: 1, published: 1 },
       })
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
@@ -192,7 +192,7 @@ describe("blog router — togglePublished (admin only)", () => {
     // @ts-expect-error
     const result = await blogRouter._def.procedures.togglePublished._def.resolver({
       ctx: { user: { role: "admin" } },
-      input: { id: 3, published: true },
+      input: { id: 3, published: 1 },
     });
     expect(mockDb.update).toHaveBeenCalled();
     expect(result).toEqual({ success: true });

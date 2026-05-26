@@ -28,7 +28,7 @@ export const copilotRouter = router({
       const recentTickets = await db
         .select()
         .from(tickets)
-        .where(gte(tickets.createdAt, thirtyDaysAgo));
+        .where(gte(tickets.createdAt, thirtyDaysAgo.toISOString()));
 
       if (recentTickets.length === 0) {
         return {
@@ -281,7 +281,7 @@ Create a JSON object with:
             difficulty: article.difficulty,
             estimatedTime: article.estimatedTime,
             sourceTicketId: input.ticketId,
-            isPublished: false, // Requires admin approval
+            isPublished: 0, // Requires admin approval
           },
         };
       } catch (error) {
@@ -307,7 +307,7 @@ Create a JSON object with:
       const weekTickets = await db
         .select()
         .from(tickets)
-        .where(gte(tickets.createdAt, sevenDaysAgo));
+        .where(gte(tickets.createdAt, sevenDaysAgo.toISOString()));
 
       if (weekTickets.length === 0) {
         return {

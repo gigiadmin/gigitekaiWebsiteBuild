@@ -37,7 +37,7 @@ describe("KB Router", () => {
       title: "New Article",
       content: "This is a new knowledge base article",
       category: "general",
-      isPublished: false,
+      isPublished: 0,
     };
 
     expect(newArticle.title).toBeTruthy();
@@ -48,7 +48,7 @@ describe("KB Router", () => {
     const updated = {
       id: 1,
       title: "Updated Title",
-      isPublished: true,
+      isPublished: 1,
     };
 
     expect(updated.id).toBe(1);

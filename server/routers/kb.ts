@@ -18,7 +18,7 @@ export const kbRouter = router({
       const rows = await db
         .select()
         .from(kbArticles)
-        .where(showAll ? undefined : eq(kbArticles.isPublished, true))
+        .where(showAll ? undefined : eq(kbArticles.isPublished, 1))
         .orderBy(desc(kbArticles.updatedAt));
       return rows;
     }),
@@ -49,7 +49,7 @@ export const kbRouter = router({
         .from(kbArticles)
         .where(
           and(
-            eq(kbArticles.isPublished, true),
+            eq(kbArticles.isPublished, 1),
 
             or(
               like(kbArticles.title, kw),
@@ -81,7 +81,7 @@ export const kbRouter = router({
         content: input.content,
         category: input.category,
         tags: input.tags,
-        isPublished: input.isPublished,
+        isPublished: input.isPublished ? 1 : 0,
         createdBy: ctx.user.id,
       });
       return { id: (result as any).insertId };
@@ -103,7 +103,7 @@ export const kbRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const { id, ...updates } = input;
-      await db.update(kbArticles).set(updates).where(eq(kbArticles.id, id));
+      await db.update(kbArticles).set(updates as any).where(eq(kbArticles.id, id));
       return { success: true };
     }),
 
@@ -115,7 +115,7 @@ export const kbRouter = router({
       if (!db) throw new Error("Database not available");
       await db
         .update(kbArticles)
-        .set({ isPublished: input.isPublished })
+        .set({ isPublished: input.isPublished ? 1 : 0 })
         .where(eq(kbArticles.id, input.id));
       return { success: true };
     }),

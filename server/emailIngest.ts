@@ -118,7 +118,7 @@ export async function handleEmailIngest(req: Request, res: Response) {
         // Update ticket updatedAt
         await db
           .update(tickets)
-          .set({ updatedAt: new Date() })
+          .set({ updatedAt: new Date().toISOString() })
           .where(eq(tickets.id, referencedTicketId));
 
         console.log(`[EmailIngest] Added reply to ticket #${referencedTicketId} from ${senderEmail}`);

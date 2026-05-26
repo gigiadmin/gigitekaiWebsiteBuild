@@ -140,7 +140,7 @@ Category guidelines:
           .from(kbArticles)
           .where(
             and(
-              eq(kbArticles.isPublished, true),
+              eq(kbArticles.isPublished, 1),
               or(...keywords.map((kw: string) => like(kbArticles.content, `%${kw}%`)))
             )
           )

@@ -367,7 +367,7 @@ export const calendarRouter = router({
       // Update DB status
       await dbConn
         .update(meetingBookings)
-        .set({ status: "cancelled", cancelledAt: new Date() })
+        .set({ status: "cancelled", cancelledAt: new Date().toISOString() })
         .where(eq(meetingBookings.id, b.id));
 
       // Send cancellation confirmation email

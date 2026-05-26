@@ -24,7 +24,7 @@ export const bulkActionsRouter = router({
         .update(tickets)
         .set({
           status: input.status,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 
@@ -37,7 +37,7 @@ export const bulkActionsRouter = router({
           toValue: input.status,
           actorId: ctx.user.id,
           actorName: ctx.user.name || "Unknown",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -67,7 +67,7 @@ export const bulkActionsRouter = router({
         .update(tickets)
         .set({
           assignedTo: input.agentId,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 
@@ -79,7 +79,7 @@ export const bulkActionsRouter = router({
           toValue: `Agent #${input.agentId}`,
           actorId: ctx.user.id,
           actorName: ctx.user.name || "Unknown",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -109,7 +109,7 @@ export const bulkActionsRouter = router({
         .update(tickets)
         .set({
           priority: input.priority,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 
@@ -121,7 +121,7 @@ export const bulkActionsRouter = router({
           toValue: input.priority,
           actorId: ctx.user.id,
           actorName: ctx.user.name || "Unknown",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -151,7 +151,7 @@ export const bulkActionsRouter = router({
         .update(tickets)
         .set({
           category: input.category,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 
@@ -163,7 +163,7 @@ export const bulkActionsRouter = router({
           toValue: input.category,
           actorId: ctx.user.id,
           actorName: ctx.user.name || "Unknown",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -194,8 +194,8 @@ export const bulkActionsRouter = router({
         .set({
           status: "closed",
           closingNotes: input.closingNotes || null,
-          closedAt: new Date(),
-          updatedAt: new Date(),
+          closedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 
@@ -207,7 +207,7 @@ export const bulkActionsRouter = router({
           toValue: "closed",
           actorId: ctx.user.id,
           actorName: ctx.user.name || "Unknown",
-          createdAt: new Date(),
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -236,7 +236,7 @@ export const bulkActionsRouter = router({
         .update(tickets)
         .set({
           status: "closed",
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(inArray(tickets.id, input.ticketIds));
 

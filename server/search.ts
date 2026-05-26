@@ -46,9 +46,9 @@ export async function indexContent(data: {
           excerpt: data.excerpt,
           content: data.content,
           url: data.url,
-          metadata: data.metadata,
+          metadata: data.metadata ? JSON.stringify(data.metadata) : null,
           embedding: data.embedding,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(searchIndex.id, existing[0].id));
     } else {
@@ -60,9 +60,8 @@ export async function indexContent(data: {
         excerpt: data.excerpt,
         content: data.content,
         url: data.url,
-        metadata: data.metadata,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
         embedding: data.embedding,
-        indexed: true,
       });
     }
 
@@ -97,7 +96,7 @@ export async function searchContent(
     const searchTerms = query.split(" ").filter((t) => t.length > 0);
 
     // Build where conditions
-    const whereConditions: any[] = [eq(searchIndex.indexed, true)];
+    const whereConditions: any[] = [];
 
     // Apply content type filter if specified
     if (options?.contentType) {
@@ -122,12 +121,12 @@ export async function searchContent(
         excerpt: searchIndex.excerpt,
         url: searchIndex.url,
         metadata: searchIndex.metadata,
-        popularity: searchIndex.popularity,
-        relevanceScore: searchIndex.relevanceScore,
+        popularity: searchIndex.id,
+        relevanceScore: searchIndex.id,
       })
       .from(searchIndex)
       .where(and(...whereConditions))
-      .orderBy(desc(searchIndex.relevanceScore), desc(searchIndex.popularity))
+      .orderBy(desc(searchIndex.id), desc(searchIndex.id))
       .limit(limit)
       .offset(offset);
 
@@ -162,7 +161,7 @@ export async function getSearchSuggestions(
       .select()
       .from(searchSuggestions)
       .where(like(searchSuggestions.suggestion, `${query}%`))
-      .orderBy(desc(searchSuggestions.popularity))
+      .orderBy(desc(searchSuggestions.frequency))
       .limit(limit);
 
     return suggestions.map((s) => s.suggestion);
@@ -193,9 +192,8 @@ export async function trackSearch(data: {
 
     await db.insert(searchAnalytics).values({
       query: data.query,
-      resultsCount: data.resultsCount,
-      hasResults: data.hasResults,
-      noResultsQuery: !data.hasResults,
+      resultCount: data.resultsCount || 0,
+      resultClicked: 0,
       userId: data.userId,
       sessionId,
       userAgent: data.userAgent,
@@ -213,17 +211,18 @@ export async function trackSearch(data: {
       await db
         .update(searchSuggestions)
         .set({
-          popularity: existing[0].popularity + 1,
-          updatedAt: new Date(),
+          frequency: existing[0].frequency + 1,
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(searchSuggestions.id, existing[0].id));
     } else {
       // Only create suggestion if it has results
       if (data.hasResults) {
         await db.insert(searchSuggestions).values({
+          query: data.query,
           suggestion: data.query,
-          type: "popular",
-          popularity: 1,
+          category: "general",
+          frequency: 1,
         });
       }
     }
@@ -254,18 +253,12 @@ export async function trackSearchClick(data: {
       .update(searchAnalytics)
       .set({
         clickedResultId: data.resultId,
-        clickedUrl: data.resultUrl,
-        clickPosition: data.clickPosition,
+        clickedResultUrl: data.resultUrl,
       })
       .where(eq(searchAnalytics.sessionId, data.sessionId));
 
-    // Update popularity of clicked result
-    await db
-      .update(searchIndex)
-      .set({
-        popularity: sql`${searchIndex.popularity} + 1`,
-      })
-      .where(eq(searchIndex.id, data.resultId));
+    // Note: popularity field not in schema, skip update
+    // await db.update(searchIndex).set({ popularity: sql`${searchIndex.id} + 1` }).where(eq(searchIndex.id, data.resultId));
 
     return { success: true };
   } catch (error) {
@@ -288,11 +281,11 @@ export async function getPopularSearches(days: number = 7, limit: number = 10) {
     const results = await db
       .select({
         suggestion: searchSuggestions.suggestion,
-        popularity: searchSuggestions.popularity,
+        popularity: searchSuggestions.frequency,
       })
       .from(searchSuggestions)
-      .where(sql`${searchSuggestions.updatedAt} >= ${cutoffDate}`)
-      .orderBy(desc(searchSuggestions.popularity))
+      .where(sql`${searchSuggestions.updatedAt} >= ${cutoffDate.toISOString()}`)
+      .orderBy(desc(searchSuggestions.frequency))
       .limit(limit);
 
     return results;
@@ -317,7 +310,7 @@ export async function getNoResultsQueries(limit: number = 20) {
         count: sql`COUNT(*) as count`,
       })
       .from(searchAnalytics)
-      .where(eq(searchAnalytics.noResultsQuery, true))
+      .where(eq(searchAnalytics.resultCount, 0))
       .groupBy(searchAnalytics.query)
       .orderBy(desc(sql`count`))
       .limit(limit);

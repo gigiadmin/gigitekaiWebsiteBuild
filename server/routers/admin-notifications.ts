@@ -16,7 +16,7 @@ export const adminNotificationsRouter = router({
     const notifications = await db
       .select()
       .from(adminNotifications)
-      .where(eq(adminNotifications.isRead, false))
+      .where(eq(adminNotifications.isRead, 0))
       .orderBy(desc(adminNotifications.createdAt))
       .limit(50);
 
@@ -61,7 +61,7 @@ export const adminNotificationsRouter = router({
 
       await db
         .update(adminNotifications)
-        .set({ isRead: true })
+        .set({ isRead: 1 })
         .where(eq(adminNotifications.id, input.notificationId));
 
       return { success: true };
@@ -76,8 +76,8 @@ export const adminNotificationsRouter = router({
 
     await db
       .update(adminNotifications)
-      .set({ isRead: true })
-      .where(eq(adminNotifications.isRead, false));
+      .set({ isRead: 1 })
+      .where(eq(adminNotifications.isRead, 0));
 
     return { success: true };
   }),
@@ -108,7 +108,7 @@ export const adminNotificationsRouter = router({
     const unreadCount = await db
       .select({ count: adminNotifications.id })
       .from(adminNotifications)
-      .where(eq(adminNotifications.isRead, false));
+      .where(eq(adminNotifications.isRead, 0));
 
     const criticalCount = await db
       .select({ count: adminNotifications.id })

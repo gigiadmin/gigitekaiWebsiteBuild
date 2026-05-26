@@ -78,7 +78,7 @@ export const kbSearchAnalyticsRouter = router({
           clickCount: sql<number>`SUM(CASE WHEN ${kbSearchQueries.clickedArticleId} IS NOT NULL THEN 1 ELSE 0 END)`.as("clickCount"),
         })
         .from(kbSearchQueries)
-        .where(gte(kbSearchQueries.createdAt, since))
+        .where(gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since))
         .groupBy(kbSearchQueries.query)
         .orderBy(sql`searchCount DESC`)
         .limit(input.limit);
@@ -109,7 +109,7 @@ export const kbSearchAnalyticsRouter = router({
         .from(kbSearchQueries)
         .where(
           and(
-            gte(kbSearchQueries.createdAt, since),
+            gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since),
             eq(kbSearchQueries.resultsCount, 0)
           )
         )
@@ -141,7 +141,7 @@ export const kbSearchAnalyticsRouter = router({
           withClicks: sql<number>`SUM(CASE WHEN ${kbSearchQueries.clickedArticleId} IS NOT NULL THEN 1 ELSE 0 END)`.as("withClicks"),
         })
         .from(kbSearchQueries)
-        .where(gte(kbSearchQueries.createdAt, since))
+        .where(gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since))
         .groupBy(sql`DATE(${kbSearchQueries.createdAt})`)
         .orderBy(sql`day ASC`);
 
@@ -168,7 +168,7 @@ export const kbSearchAnalyticsRouter = router({
           clickCount: sql<number>`SUM(CASE WHEN ${kbSearchQueries.clickedArticleId} IS NOT NULL THEN 1 ELSE 0 END)`.as("clickCount"),
         })
         .from(kbSearchQueries)
-        .where(gte(kbSearchQueries.createdAt, since))
+        .where(gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since))
         .groupBy(kbSearchQueries.source);
 
       return rows;
@@ -195,7 +195,7 @@ export const kbSearchAnalyticsRouter = router({
           withClicks: sql<number>`SUM(CASE WHEN ${kbSearchQueries.clickedArticleId} IS NOT NULL THEN 1 ELSE 0 END)`.as("withClicks"),
         })
         .from(kbSearchQueries)
-        .where(gte(kbSearchQueries.createdAt, since));
+        .where(gte(kbSearchQueries.createdAt, since instanceof Date ? since.toISOString() : since));
 
       const total = Number(metrics?.totalSearches) || 0;
       const zeroResults = Number(metrics?.zeroResults) || 0;

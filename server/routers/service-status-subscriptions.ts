@@ -68,11 +68,11 @@ export const serviceStatusSubscriptionRouter = router({
             await db
               .update(serviceStatusSubscriptions)
               .set({
-                isActive: true,
-                notifyOnHealthy: input.notifyOnHealthy,
-                notifyOnDegraded: input.notifyOnDegraded,
-                notifyOnCritical: input.notifyOnCritical,
-                notifyOnOffline: input.notifyOnOffline,
+                isActive: 1,
+                notifyOnHealthy: input.notifyOnHealthy ? 1 : 0,
+                notifyOnDegraded: input.notifyOnDegraded ? 1 : 0,
+                notifyOnCritical: input.notifyOnCritical ? 1 : 0,
+                notifyOnOffline: input.notifyOnOffline ? 1 : 0,
                 unsubscribedAt: null,
                 unsubscribeToken,
               })
@@ -87,11 +87,11 @@ export const serviceStatusSubscriptionRouter = router({
             await db.insert(serviceStatusSubscriptions).values({
               email: input.email,
               service,
-              notifyOnHealthy: input.notifyOnHealthy,
-              notifyOnDegraded: input.notifyOnDegraded,
-              notifyOnCritical: input.notifyOnCritical,
-              notifyOnOffline: input.notifyOnOffline,
-              isActive: true,
+              notifyOnHealthy: input.notifyOnHealthy ? 1 : 0,
+              notifyOnDegraded: input.notifyOnDegraded ? 1 : 0,
+              notifyOnCritical: input.notifyOnCritical ? 1 : 0,
+              notifyOnOffline: input.notifyOnOffline ? 1 : 0,
+              isActive: 1,
               unsubscribeToken,
             });
           }
@@ -161,8 +161,8 @@ export const serviceStatusSubscriptionRouter = router({
           await db
             .update(serviceStatusSubscriptions)
             .set({
-              isActive: false,
-              unsubscribedAt: new Date(),
+              isActive: 0,
+              unsubscribedAt: new Date().toISOString(),
             })
             .where(
               and(
@@ -175,8 +175,8 @@ export const serviceStatusSubscriptionRouter = router({
           await db
             .update(serviceStatusSubscriptions)
             .set({
-              isActive: false,
-              unsubscribedAt: new Date(),
+              isActive: 0,
+              unsubscribedAt: new Date().toISOString(),
             })
             .where(
               and(
@@ -189,8 +189,8 @@ export const serviceStatusSubscriptionRouter = router({
           await db
             .update(serviceStatusSubscriptions)
             .set({
-              isActive: false,
-              unsubscribedAt: new Date(),
+              isActive: 0,
+              unsubscribedAt: new Date().toISOString(),
             })
             .where(eq(serviceStatusSubscriptions.email, input.email));
         }
@@ -224,7 +224,7 @@ export const serviceStatusSubscriptionRouter = router({
           .where(
             and(
               eq(serviceStatusSubscriptions.email, input.email),
-              eq(serviceStatusSubscriptions.isActive, true)
+              eq(serviceStatusSubscriptions.isActive, 1)
             )
           );
 
@@ -313,7 +313,7 @@ export const serviceStatusSubscriptionRouter = router({
           .where(
             and(
               eq(serviceStatusSubscriptions.service, input.service),
-              eq(serviceStatusSubscriptions.isActive, true)
+              eq(serviceStatusSubscriptions.isActive, 1)
             )
           );
 

@@ -91,7 +91,7 @@ export function usePushNotifications() {
       await subscribeMutation.mutateAsync({
         endpoint: subscription.endpoint,
         auth: (subscriptionJSON.keys?.auth as string) || '',
-        p256dh: (subscriptionJSON.keys?.p256dh as string) || '',
+        p256Dh: (subscriptionJSON.keys?.p256dh as string) || '',
       });
 
       setIsSubscribed(true);

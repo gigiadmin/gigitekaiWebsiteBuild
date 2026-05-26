@@ -46,7 +46,7 @@ export default function AdminClosedTicketsReportPage() {
   });
 
   const filteredTickets = useMemo(() => {
-    let results = closedTickets as Ticket[];
+    let results = closedTickets as unknown as Ticket[];
 
     // Apply search filter
     if (searchQuery) {

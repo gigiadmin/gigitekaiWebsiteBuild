@@ -20,11 +20,11 @@ interface ContactCenterStatus {
   service: string;
   status: "healthy" | "degraded" | "error" | "not_configured";
   details?: string;
-  lastChecked: Date;
+  lastChecked: string;
 }
 
 interface ContactCenterHealth {
-  timestamp: Date;
+  timestamp: string;
   overallStatus: "healthy" | "degraded" | "error";
   services: ContactCenterStatus[];
   agents: {
@@ -323,7 +323,7 @@ export const contactCenterRouter = router({
         service: "Dynamics 365 Contact Center",
         status: d365Result.healthy ? "healthy" : "degraded",
         details: d365Result.details,
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
       });
 
       // 2. Teams Webhook
@@ -333,7 +333,7 @@ export const contactCenterRouter = router({
         details: teamsWebhookUrl
           ? "Webhook configured · Last check: never"
           : "TEAMS_WEBHOOK_URL not set",
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
       });
 
       // 3. Copilot Studio Voice Agent — FIX: check both tenantId AND environmentId
@@ -346,7 +346,7 @@ export const contactCenterRouter = router({
           : environmentId
           ? "Environment ID set but MS_GRAPH_TENANT_ID missing"
           : "COPILOT_STUDIO_ENVIRONMENT_ID not set",
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
       });
 
       // 4. Azure Communication Services
@@ -356,7 +356,7 @@ export const contactCenterRouter = router({
         details: acsConnectionString
           ? "ACS resource is reachable"
           : "ACS_CONNECTION_STRING not set",
-        lastChecked: new Date(),
+        lastChecked: new Date().toISOString(),
       });
 
       // Fetch Copilot agents
@@ -383,7 +383,7 @@ export const contactCenterRouter = router({
         errorCount > 0 ? "error" : degradedCount > 0 || issues.length > 0 ? "degraded" : "healthy";
 
       return {
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         overallStatus,
         services,
         agents: {
@@ -402,14 +402,14 @@ export const contactCenterRouter = router({
     } catch (error) {
       // Contact Center health check failed
       return {
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         overallStatus: "error",
         services: [
           {
             service: "Health Check System",
             status: "error",
             details: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-            lastChecked: new Date(),
+            lastChecked: new Date().toISOString(),
           },
         ],
         agents: { ticketClassifier: null, kbQa: null, voiceAgent: null },
@@ -540,39 +540,39 @@ export const contactCenterRouter = router({
         switch (input.service) {
           case "d365": {
             const d365R = await checkDynamics365Status();
-            return { service: "Dynamics 365 Contact Center", status: d365R.healthy ? "healthy" : "degraded", detail: d365R.details, lastChecked: new Date() };
+            return { service: "Dynamics 365 Contact Center", status: d365R.healthy ? "healthy" : "degraded", detail: d365R.details, lastChecked: new Date().toISOString() };
           }
           case "teams": {
             const url = process.env.TEAMS_WEBHOOK_URL;
-            return { service: "Teams Webhook", status: url ? "healthy" : "not_configured", detail: url ? "Webhook configured" : "Not configured", lastChecked: new Date() };
+            return { service: "Teams Webhook", status: url ? "healthy" : "not_configured", detail: url ? "Webhook configured" : "Not configured", lastChecked: new Date().toISOString() };
           }
           case "copilot": {
             const tenantId = process.env.MS_GRAPH_TENANT_ID;
             const envId = process.env.COPILOT_STUDIO_ENVIRONMENT_ID;
             const configured = !!(tenantId && envId);
-            return { service: "Copilot Studio Voice Agent", status: configured ? "healthy" : "degraded", detail: configured ? "Tenant + Environment configured" : "Missing tenant or environment ID", lastChecked: new Date() };
+            return { service: "Copilot Studio Voice Agent", status: configured ? "healthy" : "degraded", detail: configured ? "Tenant + Environment configured" : "Missing tenant or environment ID", lastChecked: new Date().toISOString() };
           }
           case "acs": {
             const conn = process.env.ACS_CONNECTION_STRING;
-            return { service: "Azure Communication Services", status: conn ? "healthy" : "not_configured", detail: conn ? "ACS resource reachable" : "Not configured", lastChecked: new Date() };
+            return { service: "Azure Communication Services", status: conn ? "healthy" : "not_configured", detail: conn ? "ACS resource reachable" : "Not configured", lastChecked: new Date().toISOString() };
           }
           case "ticketClassifier": {
             const id = process.env.COPILOT_TICKET_CLASSIFIER_AGENT_ID;
-            return { service: "Ticket Classifier Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+            return { service: "Ticket Classifier Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date().toISOString() };
           }
           case "kbQA": {
             const id = process.env.COPILOT_KB_QA_AGENT_ID;
-            return { service: "KB Q&A Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+            return { service: "KB Q&A Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date().toISOString() };
           }
           case "voiceAgent": {
             const id = process.env.COPILOT_VOICE_AGENT_ID;
-            return { service: "Voice Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date() };
+            return { service: "Voice Agent", status: id ? "healthy" : "error", detail: id ? `Agent ID: ${id.substring(0, 8)}...` : "Agent ID not configured", lastChecked: new Date().toISOString() };
           }
           default:
-            return { service: "Unknown", status: "error", detail: "Unknown service", lastChecked: new Date() };
+            return { service: "Unknown", status: "error", detail: "Unknown service", lastChecked: new Date().toISOString() };
         }
       } catch (error) {
-        return { service: input.service, status: "error", detail: error instanceof Error ? error.message : "Refresh failed", lastChecked: new Date() };
+        return { service: input.service, status: "error", detail: error instanceof Error ? error.message : "Refresh failed", lastChecked: new Date().toISOString() };
       }
     }),
 
@@ -585,7 +585,7 @@ export const contactCenterRouter = router({
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-      const openTickets = await db.select().from(tickets).where(and(eq(tickets.status, "open"), gte(tickets.createdAt, todayStart)));
+      const openTickets = await db.select().from(tickets).where(and(eq(tickets.status, "open"), gte(tickets.createdAt, todayStart.toISOString())));
       const inProgressTickets = await db.select().from(tickets).where(eq(tickets.status, "in_progress"));
 
       let totalWaitMs = 0;
@@ -594,7 +594,7 @@ export const contactCenterRouter = router({
       }
       const avgWaitMin = openTickets.length > 0 ? Math.round(totalWaitMs / openTickets.length / 60000) : 0;
 
-      const allTodayTickets = await db.select().from(tickets).where(gte(tickets.createdAt, todayStart));
+      const allTodayTickets = await db.select().from(tickets).where(gte(tickets.createdAt, todayStart.toISOString()));
       const respondedInTime = allTodayTickets.filter(t => {
         if (t.status === "open") return false;
         const responseTime = new Date(t.updatedAt).getTime() - new Date(t.createdAt).getTime();
@@ -673,7 +673,7 @@ export const contactCenterRouter = router({
       const now = new Date();
       const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-      const recentTickets = await db.select().from(tickets).where(gte(tickets.createdAt, last24h));
+      const recentTickets = await db.select().from(tickets).where(gte(tickets.createdAt, last24h.toISOString()));
 
       let totalResponseTime = 0;
       let respondedCount = 0;

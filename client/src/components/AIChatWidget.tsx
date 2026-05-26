@@ -1522,6 +1522,7 @@ export default function AIChatWidget() {
                 onClick={() => {
                   if (specialistForm.name && specialistForm.email && specialistForm.reason) {
                     captureLead.mutate({
+                      sessionId: sessionId || 'widget-' + Date.now(),
                       name: specialistForm.name,
                       email: specialistForm.email,
                       company: specialistForm.company,

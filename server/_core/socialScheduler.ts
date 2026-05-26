@@ -131,7 +131,7 @@ export async function runSocialScheduler() {
       and(
         eq(socialPosts.status, "scheduled"),
         isNotNull(socialPosts.scheduledAt),
-        lte(socialPosts.scheduledAt, now)
+        lte(socialPosts.scheduledAt, now instanceof Date ? now.toISOString() : now)
       )
     );
 
@@ -185,7 +185,7 @@ export async function runSocialScheduler() {
         platforms: null,
         status,
         errorMessage: errorMessage || null,
-        publishedAt: status === "published" ? new Date() : null,
+        publishedAt: status === "published" ? new Date().toISOString() : null,
         createdBy: post.createdBy,
       });
     }
@@ -195,7 +195,7 @@ export async function runSocialScheduler() {
       .update(socialPosts)
       .set({
         status: anySuccess ? "published" : "failed",
-        publishedAt: anySuccess ? new Date() : null,
+        publishedAt: anySuccess ? new Date().toISOString() : null,
         errorMessage: anySuccess ? null : lastError,
       })
       .where(eq(socialPosts.id, post.id));

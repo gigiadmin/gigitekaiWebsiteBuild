@@ -25,7 +25,7 @@ export async function expireOldInvites() {
       .where(
         and(
           eq(customerInvites.status, "pending"),
-          lt(customerInvites.expiresAt, now)
+          lt(customerInvites.expiresAt, now.toISOString())
         )
       );
 
@@ -43,7 +43,7 @@ export async function expireOldInvites() {
       .where(
         and(
           eq(customerInvites.status, "pending"),
-          lt(customerInvites.expiresAt, now)
+          lt(customerInvites.expiresAt, now.toISOString())
         )
       );
 

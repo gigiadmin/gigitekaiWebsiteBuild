@@ -280,10 +280,10 @@ async function processVoicemail(
       calleeUpn: "voicemail@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,
       direction: "inbound",
-      startedAt: startTime,
-      endedAt: startTime,
+      startedAt: startTime.toISOString(),
+      endedAt: startTime.toISOString(),
       durationSeconds: 0, // Unknown for voicemail
-      hasTranscript: !!transcript,
+      hasTranscript: transcript ? 1 : 0,
       transcriptionStatus: transcript ? "done" : "failed",
       transcriptText: transcript,
       aiSummary: analysis.summary,
