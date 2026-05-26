@@ -723,7 +723,6 @@ export const helpdeskRouter = router({
         neutral: feedbacks.filter(f => f.rating === 3).length,
         unhelpful: feedbacks.filter(f => f.rating <= 2).length,
       };
-      console.log('[Metrics] ticketsByDay:', JSON.stringify(ticketsByDay));
       return { total: allTickets.length, open, inProgress, resolved, closed, avgResolutionHours, dailyTrend: ticketsByDay, byPriority, byCategory, ticketsByDay, satisfaction };
     }),
 
