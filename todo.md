@@ -24,6 +24,7 @@
   - [x] Verify adaptive card formatting in Teams messages
   - [x] Wire up ACS recording service to call poller for PSTN calls
   - [x] Voicemail transcription now working (ACS recording → Whisper → ticket)
+  - [x] Voicemail draft tickets now appear in "Pending Review" — Changed status from 'open' to 'draft' so voicemails require approval before becoming official tickets
 
 ---
 
