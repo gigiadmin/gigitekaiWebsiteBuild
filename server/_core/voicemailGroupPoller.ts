@@ -138,6 +138,12 @@ function isSystemOrInfoMessage(transcript: string): boolean {
     /get started/i,
     /organize group work/i,
     /collaborate with your group/i,
+    /use the group to share/i,
+    /view group in outlook/i,
+    /you're set to receive/i,
+    /change this setting/i,
+    /coordinate group events/i,
+    /replies and events in your inbox/i,
   ];
   return systemPatterns.some(pattern => pattern.test(transcript));
 }

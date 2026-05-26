@@ -25,6 +25,7 @@
   - [x] Wire up ACS recording service to call poller for PSTN calls
   - [x] Voicemail transcription now working (ACS recording → Whisper → ticket)
   - [x] Voicemail draft tickets now appear in "Pending Review" — Changed status from 'open' to 'draft' so voicemails require approval before becoming official tickets
+  - [x] Filter system/informational messages from M365 group (skip "Work Brilliantly Together", etc.)
 
 ---
 
@@ -187,3 +188,4 @@
 - [ ] Fix Teams webhook health check HTTP 400 alert spam (70+ emails sent)
 - [ ] Suppress duplicate webhook health check alerts - add deduplication/cooldown logic
 - [ ] Unified ticket creation form (user + admin) with AI-ready fields
+- [ ] Verify production voicemail pipeline with live test calls
