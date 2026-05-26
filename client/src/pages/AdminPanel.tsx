@@ -1022,6 +1022,17 @@ export default function AdminPanel() {
         )}
       </div>
 
+      {/* Create Ticket Modal */}
+      <CreateTicketModal
+        mode="admin"
+        open={showCreateTicket}
+        onClose={() => setShowCreateTicket(false)}
+        onSuccess={() => {
+          setShowCreateTicket(false);
+          refetch();
+        }}
+      />
+
       {/* Agent Assignment Modal */}
       {assignmentModalTicketId && (
         <AgentAssignmentModal
