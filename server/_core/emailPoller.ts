@@ -8,8 +8,8 @@
 import { fetchInboxFromMsGraph, markMessageAsRead, fetchAttachmentsFromMessage, downloadAttachmentContent } from "./email";
 import { createTicket } from "../db";
 import { getDb } from "../db";
-import { eq } from "drizzle-orm";
-import { emailMessages } from "../../drizzle/schema";
+import { eq, and, gt } from "drizzle-orm";
+import { emailMessages, voicemailDedup } from "../../drizzle/schema";
 import { invokeLLM } from "./llm";
 import { sendEmail } from "./email";
 import { notifyOwner } from "./notification";
@@ -587,6 +587,56 @@ function getAudioExtension(mimeType: string): string {
 }
 
 /**
+ * Check if a voicemail has already been processed (persistent dedup)
+ */
+async function isVoicemailDuplicate(callerNumber: string, transcriptHash: string): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+    
+    const existing = await db
+      .select({ id: voicemailDedup.id })
+      .from(voicemailDedup)
+      .where(
+        and(
+          eq(voicemailDedup.callerPhone, callerNumber),
+          eq(voicemailDedup.transcriptHash, transcriptHash),
+          gt(voicemailDedup.expiresAt, new Date().toISOString())
+        )
+      )
+      .limit(1);
+    
+    return existing.length > 0;
+  } catch (err) {
+    console.warn('[Email Poller] Voicemail dedup check failed:', err);
+    return false;
+  }
+}
+
+/**
+ * Record a voicemail in the dedup table
+ */
+async function recordVoicemailDedup(callerNumber: string, transcriptHash: string, messageId?: string): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) return;
+    
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24-hour window
+    
+    await db.insert(voicemailDedup).values({
+      callerPhone: callerNumber,
+      transcriptHash,
+      source: 'email',
+      externalId: messageId,
+      expiresAt: expiresAt.toISOString(),
+    });
+  } catch (err) {
+    console.warn('[Email Poller] Failed to record voicemail dedup:', err);
+  }
+}
+
+/**
  * Analyze voicemail transcript using AI and create a ticket
  */
 async function processVoicemailEmail(msgData: any): Promise<boolean> {
@@ -615,7 +665,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 
     // Extract voicemail details
     let { transcript, callerNumber, duration } = extractVoicemailTranscript(emailBody);
-
+    
     // If no transcript found, try to extract audio from attachments or URL and transcribe it
     if (!transcript || transcript.length < 10) {
       console.log('[Email Poller] No transcript in email, attempting to extract audio for transcription');
@@ -752,6 +802,23 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         }
       }
     }
+    
+    // Compute transcript hash AFTER all transcription attempts (for accurate dedup)
+    const transcriptHash = transcript.substring(0, 50).trim();
+    
+    // Check persistent dedup AFTER transcription is complete
+    if (callerNumber && transcriptHash && await isVoicemailDuplicate(callerNumber, transcriptHash)) {
+      console.log(`[Email Poller] DUPLICATE VOICEMAIL detected: ${callerNumber} with transcript "${transcriptHash}..."`);
+      // Mark as read and skip
+      if (messageId) {
+        try {
+          await markMessageAsRead(messageId);
+        } catch (err) {
+          console.warn('[Email Poller] Failed to mark duplicate voicemail as read:', err);
+        }
+      }
+      return true; // Skip processing
+    }
 
     // Parse sender
     let fromStr = typeof from === 'string' ? from : (from?.emailAddress?.address || from?.email || 'voicemail@teams.microsoft.com');
@@ -872,6 +939,11 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     }
 
     console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
+    
+    // Record in dedup table to prevent future duplicates
+    if (callerNumber && transcriptHash) {
+      await recordVoicemailDedup(callerNumber, transcriptHash, messageId);
+    }
 
     // Send email notification to support@gigitekai.com
     try {

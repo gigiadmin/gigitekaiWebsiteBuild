@@ -240,6 +240,21 @@ export const bulkTicketActions = mysqlTable("bulkTicketActions", {
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
+export const voicemailDedup = mysqlTable("voicemailDedup", {
+	id: int().autoincrement().notNull(),
+	callerPhone: varchar({ length: 50 }).notNull(),
+	transcriptHash: varchar({ length: 100 }).notNull(), // First 50 chars of transcript
+	timestamp: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(), // 24 hours from creation
+	source: mysqlEnum(['email','webhook','group']).default('email').notNull(),
+	externalId: varchar({ length: 255 }), // messageId, callId, or threadId
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("voicemailDedup_phone_hash").on(table.callerPhone, table.transcriptHash),
+	index("voicemailDedup_expiresAt").on(table.expiresAt),
+]);
+
 export const callDraftTickets = mysqlTable("callDraftTickets", {
 	id: int().autoincrement().notNull(),
 	callLogId: int().notNull(),
