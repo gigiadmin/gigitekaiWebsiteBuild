@@ -11,7 +11,7 @@ import {
 } from "../emailTemplates";
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { classifyTicket, saveClassificationToTicket, sendClassificationEmail, type GigitekAICategory } from "./gigitekai-ticket-classifier";
-import { customerFeedback } from "../../drizzle/schema";
+import { customerFeedback, users } from "../../drizzle/schema";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -113,6 +113,16 @@ export const helpdeskRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Resolve userId - admin users may not exist in users table, fall back to system user (1)
+      const db = await getDb();
+      let resolvedUserId = ctx.user.id;
+      if (db) {
+        const userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+        if (!userExists.length) {
+          // Admin user not in users table - use system user ID 1
+          resolvedUserId = 1;
+        }
+      }
       const ticket = await createTicket({
         title: input.title,
         description: input.description,
@@ -120,7 +130,9 @@ export const helpdeskRouter = router({
         category: input.category,
         priority: input.priority,
         source: input.channel,
-        userId: ctx.user.id,
+        userId: resolvedUserId,
+        requesterName: ctx.user.name || undefined,
+        requesterEmail: ctx.user.email || undefined,
       });
 
       if (!ticket) throw new Error("Failed to create ticket");
