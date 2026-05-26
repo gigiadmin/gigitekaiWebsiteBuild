@@ -10,11 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { useToast } from "@/components/ui/use-toast";
+
 import { CheckCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function FreeAuditLandingPage() {
-  const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     companyName: "",
@@ -31,8 +31,7 @@ export default function FreeAuditLandingPage() {
   const submitAudit = trpc.audit.submit.useMutation({
     onSuccess: () => {
       setSubmitted(true);
-      toast({
-        title: "✅ Audit Request Submitted",
+      toast.success("✅ Audit Request Submitted", {
         description: "We'll review your information and contact you within 24 hours.",
       });
       setTimeout(() => {
@@ -40,10 +39,8 @@ export default function FreeAuditLandingPage() {
       }, 3000);
     },
     onError: (error) => {
-      toast({
-        title: "❌ Submission Failed",
+      toast.error("❌ Submission Failed", {
         description: error.message || "Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -62,28 +59,22 @@ export default function FreeAuditLandingPage() {
 
     // Validation
     if (!formData.companyName.trim()) {
-      toast({
-        title: "⚠️ Missing Field",
+      toast.error("⚠️ Missing Field", {
         description: "Please enter your company name.",
-        variant: "destructive",
       });
       return;
     }
 
     if (!formData.contactName.trim()) {
-      toast({
-        title: "⚠️ Missing Field",
+      toast.error("⚠️ Missing Field", {
         description: "Please enter your name.",
-        variant: "destructive",
       });
       return;
     }
 
     if (!formData.contactEmail.trim()) {
-      toast({
-        title: "⚠️ Missing Field",
+      toast.error("⚠️ Missing Field", {
         description: "Please enter your email address.",
-        variant: "destructive",
       });
       return;
     }
