@@ -57,9 +57,10 @@ import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard"
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
 import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
+import AdminWebhookMonitoring from "./AdminWebhookMonitoring";
 import CreateTicketModal from "@/components/CreateTicketModal";
 
-type AdminTab = "tickets" | "users";
+type AdminTab = "tickets" | "users" | "webhooks";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -1016,12 +1017,15 @@ export default function AdminPanel() {
                 <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                 <h3 className="text-white font-bold text-xl mb-2">No users yet</h3>
                 <p className="text-gray-400 text-sm">Users will appear here once they sign in to the Support Center.</p>
-              </div>
+                            </div>
             )}
           </div>
         )}
-      </div>
 
+        {activeTab === "webhooks" && (
+          <AdminWebhookMonitoring />
+        )}
+      </div>
       {/* Invite Customer Modal */}
       <InviteCustomerModal
         isOpen={showInviteModal}

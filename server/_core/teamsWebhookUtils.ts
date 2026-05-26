@@ -274,29 +274,13 @@ export function getWebhookHealthStatus(): { healthy: boolean; lastCheckedAt: Dat
 /**
  * Start the hourly webhook health monitor.
  * Should be called once at server startup.
+ * DISABLED: Health check notifications are currently disabled to prevent email spam.
+ * The webhook still works for actual ticket/voicemail notifications.
  */
 export function startWebhookHealthMonitor(): void {
-  if (healthCheckIntervalId) return; // Already running
-
-  const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
-
-  console.log("[Teams Health] Webhook health monitor initializing...");
-  
-  // Run first check immediately
-  console.log("[Teams Health] Running first health check immediately...");
-  pingTeamsWebhook().catch((err) => {
-    console.error("[Teams Health] First health check error:", err);
-  });
-  
-  // Then run subsequent checks every hour
-  healthCheckIntervalId = setInterval(() => {
-    console.log("[Teams Health] Running hourly health check...");
-    pingTeamsWebhook().catch((err) => {
-      console.error("[Teams Health] Hourly health check error:", err);
-    });
-  }, INTERVAL_MS);
-
-  console.log("[Teams Health] ✅ Webhook health monitor started (hourly checks, first check immediate)");
+  console.log("[Teams Health] Webhook health monitor DISABLED (notifications suppressed)");
+  // Health check is disabled — no emails will be sent
+  return;
 }
 
 /**
