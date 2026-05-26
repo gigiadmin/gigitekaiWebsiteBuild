@@ -699,18 +699,8 @@ export const helpdeskRouter = router({
       for (let i = 6; i >= 0; i--) {
         const day = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
         const dayStr = day.toISOString().split('T')[0];
-        // FIX: Handle both Date objects and strings
-        const count = allTickets.filter(t => {
-          let ticketDate: string;
-          if (t.createdAt instanceof Date) {
-            ticketDate = t.createdAt.toISOString();
-          } else if (typeof t.createdAt === 'string') {
-            ticketDate = t.createdAt;
-          } else {
-            return false; // Invalid date
-          }
-          return ticketDate.split('T')[0] === dayStr;
-        }).length;
+        // createdAt is a string (mode: 'string' in schema) like "2026-05-26T14:55:04.000Z"
+        const count = allTickets.filter(t => t.createdAt && t.createdAt.substring(0, 10) === dayStr).length;
         ticketsByDay.push({ date: dayStr, count });
       }
       // Avg resolution time
@@ -733,6 +723,7 @@ export const helpdeskRouter = router({
         neutral: feedbacks.filter(f => f.rating === 3).length,
         unhelpful: feedbacks.filter(f => f.rating <= 2).length,
       };
+      console.log('[Metrics] ticketsByDay:', JSON.stringify(ticketsByDay));
       return { total: allTickets.length, open, inProgress, resolved, closed, avgResolutionHours, dailyTrend: ticketsByDay, byPriority, byCategory, ticketsByDay, satisfaction };
     }),
 
