@@ -17,6 +17,7 @@ import { Send, UserPlus, Building2, Mail, Trash2, CheckCircle, Clock, XCircle, L
 export default function AdminCustomers() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [form, setForm] = useState({ email: "", name: "", company: "" });
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const { data, isLoading, refetch } = trpc.customerInvites.listCustomerInvites.useQuery();
   const sendInvite = trpc.customerInvites.sendCustomerInvite.useMutation({
@@ -60,6 +61,22 @@ export default function AdminCustomers() {
   });
 
   const invites = data?.invites ?? [];
+  const allSelected = selectedIds.length === invites.length && invites.length > 0;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < invites.length;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(invites.map((i: any) => i.id));
+    }
+  };
+
+  const toggleSelectId = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
   const statusBadge = (status: string) => {
     if (status === "accepted") return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Accepted</Badge>;
@@ -152,6 +169,39 @@ export default function AdminCustomers() {
           ))}
       </div>
 
+      {/* Bulk Actions Bar */}
+      {selectedIds.length > 0 && (
+        <div className="flex items-center gap-2 p-3 bg-blue-950/60 border border-blue-800 rounded-lg flex-wrap">
+          <span className="text-sm font-semibold text-blue-300">
+            {selectedIds.length} selected
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs border-red-600 text-red-400 hover:bg-red-900/30"
+            onClick={() => {
+              if (window.confirm(`Revoke ${selectedIds.length} invite(s)?`)) {
+                selectedIds.forEach((id) => {
+                  revokeInvite.mutate({ inviteId: id });
+                });
+                setSelectedIds([]);
+              }
+            }}
+          >
+            <Trash2 className="w-3 h-3 mr-1" />
+            Revoke Selected
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs text-gray-400 ml-auto"
+            onClick={() => setSelectedIds([])}
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+
       {/* Invites table */}
       <Card className="bg-[#161B22] border-slate-700/50">
           <CardHeader className="pb-3">
@@ -174,6 +224,18 @@ export default function AdminCustomers() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-700/50">
+                      <th className="text-left text-slate-400 font-medium pb-3 pr-4 w-8">
+                        <input
+                          type="checkbox"
+                          checked={allSelected}
+                          ref={(el) => {
+                            if (el) el.indeterminate = someSelected;
+                          }}
+                          onChange={toggleSelectAll}
+                          className="cursor-pointer"
+                          title="Select all customers"
+                        />
+                      </th>
                       <th className="text-left text-slate-400 font-medium pb-3 pr-4">Customer</th>
                       <th className="text-left text-slate-400 font-medium pb-3 pr-4">Company</th>
                       <th className="text-left text-slate-400 font-medium pb-3 pr-4">Status</th>
@@ -183,7 +245,15 @@ export default function AdminCustomers() {
                   </thead>
                   <tbody className="divide-y divide-slate-700/30">
                     {invites.map((invite: any) => (
-                      <tr key={invite.id} className="hover:bg-slate-800/30 transition-colors">
+                      <tr key={invite.id} className={`hover:bg-slate-800/30 transition-colors ${selectedIds.includes(invite.id) ? "bg-slate-800/50" : ""}`}>
+                        <td className="py-3 pr-4 w-8">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(invite.id)}
+                            onChange={() => toggleSelectId(invite.id)}
+                            className="cursor-pointer"
+                          />
+                        </td>
                         <td className="py-3 pr-4">
                           <div className="text-white font-medium">{invite.invitedName || "—"}</div>
                           <div className="text-slate-400 text-xs">{invite.invitedEmail}</div>
