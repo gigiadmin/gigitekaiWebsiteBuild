@@ -10,13 +10,6 @@
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/about-us</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://www.gigitekai.com/our-team</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
@@ -174,34 +167,6 @@
     <priority>0.6</priority>
   </url>
 
-  <url>
-    <loc>https://www.gigitekai.com/blog/strategic-it-upgrades-2026</loc>
-    <lastmod>2026-04-13</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
-    <loc>https://www.gigitekai.com/blog/enterprise-cloud-migration-playbook-2026</loc>
-    <lastmod>2026-04-12</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
-    <loc>https://www.gigitekai.com/blog/generative-ai-enterprise-operations</loc>
-    <lastmod>2026-03-20</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
-    <loc>https://www.gigitekai.com/blog/zero-trust-architecture-ai</loc>
-    <lastmod>2026-03-13</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
   <!-- ===== Florida Elite Pages ===== -->
   <url>
     <loc>https://www.gigitekai.com/florida-it-resiliency</loc>
@@ -272,20 +237,6 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://www.gigitekai.com/blog/microsoft-365-licensing-optimization-2026</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
-    <loc>https://www.gigitekai.com/blog/managed-it-services-tampa-bay-2026</loc>
-    <lastmod>2026-04-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
   <!-- ===== Special Pages ===== -->
   <url>
     <loc>https://www.gigitekai.com/AIStrategicBriefing</loc>
@@ -331,10 +282,5 @@
     <priority>0.7</priority>
   </url>
 
-  <url>
-    <loc>https://www.gigitekai.com/helpdesk/guide</loc>
-    <lastmod>2026-04-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
+
 </urlset>

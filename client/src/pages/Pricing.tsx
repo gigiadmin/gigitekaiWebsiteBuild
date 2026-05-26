@@ -36,7 +36,7 @@ export default function Pricing() {
   // Track page view on mount
   useEffect(() => {
     trackPageView.mutate({});
-  }, [trackPageView]);
+  }, []);
 
   const handleCalculateROI = () => {
     trackCalculator.mutate();

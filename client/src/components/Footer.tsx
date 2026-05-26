@@ -28,7 +28,6 @@ const footerLinks = {
     "Compliance Scorecard",
     "Florida IT Resiliency",
     "The Switch Program",
-    "Client Exchange",
   ],
   Industries: [
     "Healthcare",
@@ -125,6 +124,9 @@ export default function Footer() {
                   if (link === "Retail & eCommerce") href = "/industries/retail-ecommerce";
                   if (link === "Government") href = "/industries/government";
                   if (link === "Education") href = "/industries/education";
+                  if (link === "Compliance Scorecard") href = "/compliance-scorecard";
+                  if (link === "Florida IT Resiliency") href = "/florida-it-resiliency";
+                  if (link === "The Switch Program") href = "/switch-program";
                   return (
                   <li key={link}>
                     <a
