@@ -41,6 +41,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+  Trash2,
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -111,6 +112,7 @@ export default function AdminPanel() {
   const [showCreateTicket, setShowCreateTicket] = useState(false);
   const [showSnoozeMenu, setShowSnoozeMenu] = useState<number | null>(null);
   const [expandedTicketIds, setExpandedTicketIds] = useState<Set<number>>(new Set());
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const ticketScrollRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
@@ -161,6 +163,33 @@ export default function AdminPanel() {
       refetchUsers();
     },
     onError: (error: any) => toast.error(error.message || "Failed to update user role"),
+  });
+
+  const bulkApproveMutation = trpc.users.bulkApprove.useMutation({
+    onSuccess: () => {
+      toast.success("Users approved!");
+      setSelectedUserIds(new Set());
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to approve users"),
+  });
+
+  const bulkRevokeMutation = trpc.users.bulkRevoke.useMutation({
+    onSuccess: () => {
+      toast.success("Users revoked!");
+      setSelectedUserIds(new Set());
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to revoke users"),
+  });
+
+  const bulkDeleteMutation = trpc.userAccountMgmt.bulkDeleteUsers.useMutation({
+    onSuccess: () => {
+      toast.success("Users deleted!");
+      setSelectedUserIds(new Set());
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to delete users"),
   });
 
   // adminCreateTicket is now handled by CreateTicketModal
@@ -897,6 +926,59 @@ export default function AdminPanel() {
 
         {activeTab === "users" && (
           <div>
+            {/* Bulk Actions Toolbar */}
+            {selectedUserIds.size > 0 && (
+              <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-center justify-between">
+                <span className="text-white font-medium">{selectedUserIds.size} user(s) selected</span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const userIds = Array.from(selectedUserIds);
+                      bulkDeleteMutation.mutate({ userIds });
+                    }}
+                    disabled={bulkDeleteMutation.isPending}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete Selected
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const userIds = Array.from(selectedUserIds);
+                      bulkApproveMutation.mutate({ userIds });
+                    }}
+                    disabled={bulkApproveMutation.isPending}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <UserCheck className="w-4 h-4 mr-1" />
+                    Approve All
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const userIds = Array.from(selectedUserIds);
+                      bulkRevokeMutation.mutate({ userIds });
+                    }}
+                    disabled={bulkRevokeMutation.isPending}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <UserX className="w-4 h-4 mr-1" />
+                    Revoke All
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedUserIds(new Set())}
+                    className="border-gray-700 text-gray-400 hover:text-[#00D4FF]"
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="mb-4 flex gap-3">
               <Button
                 size="sm"
@@ -931,11 +1013,43 @@ export default function AdminPanel() {
                     <h3 className="text-lg font-semibold text-amber-400 mb-3 flex items-center gap-2">
                       <Clock className="w-5 h-5" />
                       Pending Approval ({allUsers.filter((u: any) => !u.approved && u.role !== "admin").length})
+                      {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length > 0 && (
+                        <label className="ml-auto flex items-center gap-2 cursor-pointer text-sm font-normal">
+                          <input
+                            type="checkbox"
+                            checked={allUsers.filter((u: any) => !u.approved && u.role !== "admin").every((u: any) => selectedUserIds.has(u.id))}
+                            onChange={(e) => {
+                              const pendingUsers = allUsers.filter((u: any) => !u.approved && u.role !== "admin");
+                              if (e.target.checked) {
+                                pendingUsers.forEach((u: any) => selectedUserIds.add(u.id));
+                              } else {
+                                pendingUsers.forEach((u: any) => selectedUserIds.delete(u.id));
+                              }
+                              setSelectedUserIds(new Set(selectedUserIds));
+                            }}
+                            className="w-4 h-4"
+                          />
+                          Select All
+                        </label>
+                      )}
                     </h3>
                     <div className="space-y-2">
                       {allUsers.filter((u: any) => !u.approved && u.role !== "admin").map((u: any) => (
                         <div key={u.id} className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={selectedUserIds.has(u.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  selectedUserIds.add(u.id);
+                                } else {
+                                  selectedUserIds.delete(u.id);
+                                }
+                                setSelectedUserIds(new Set(selectedUserIds));
+                              }}
+                              className="w-4 h-4 cursor-pointer"
+                            />
                             <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400 font-bold text-sm shrink-0">
                               {u.name?.charAt(0)?.toUpperCase() || "?"}
                             </div>
@@ -967,11 +1081,43 @@ export default function AdminPanel() {
                   <h3 className="text-lg font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5" />
                     Approved Users ({allUsers.filter((u: any) => u.approved && u.role !== "admin").length})
+                    {allUsers.filter((u: any) => u.approved && u.role !== "admin").length > 0 && (
+                      <label className="ml-auto flex items-center gap-2 cursor-pointer text-sm font-normal">
+                        <input
+                          type="checkbox"
+                          checked={allUsers.filter((u: any) => u.approved && u.role !== "admin").every((u: any) => selectedUserIds.has(u.id))}
+                          onChange={(e) => {
+                            const approvedUsers = allUsers.filter((u: any) => u.approved && u.role !== "admin");
+                            if (e.target.checked) {
+                              approvedUsers.forEach((u: any) => selectedUserIds.add(u.id));
+                            } else {
+                              approvedUsers.forEach((u: any) => selectedUserIds.delete(u.id));
+                            }
+                            setSelectedUserIds(new Set(selectedUserIds));
+                          }}
+                          className="w-4 h-4"
+                        />
+                        Select All
+                      </label>
+                    )}
                   </h3>
                   <div className="space-y-2">
                     {allUsers.filter((u: any) => u.approved && u.role !== "admin").map((u: any) => (
                       <div key={u.id} className="bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-4 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={selectedUserIds.has(u.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                selectedUserIds.add(u.id);
+                              } else {
+                                selectedUserIds.delete(u.id);
+                              }
+                              setSelectedUserIds(new Set(selectedUserIds));
+                            }}
+                            className="w-4 h-4 cursor-pointer"
+                          />
                           <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-sm shrink-0">
                             {u.name?.charAt(0)?.toUpperCase() || "?"}
                           </div>
