@@ -25,7 +25,7 @@
   - [x] Wire up ACS recording service to call poller for PSTN calls
   - [x] Voicemail transcription now working (ACS recording → Whisper → ticket)
   - [x] Voicemail draft tickets now appear in "Pending Review" — Changed status from 'open' to 'draft' so voicemails require approval before becoming official tickets
-  - [x] Filter system/informational messages from M365 group (skip "Work Brilliantly Together", etc.)
+  - [x] Filter system/informational messages from M365 group (skip "Work Brilliantly Together", etc.) — MOVED TO M365 POST LEVEL (isSystemMessagePost function)
 
 ---
 
@@ -191,7 +191,7 @@
 - [ ] Verify production voicemail pipeline with live test calls
 
 - [ ] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
-  - [ ] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
+  - [x] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
   - [ ] Update AdminCallReviewPage UI with "Approve Selected", "Reject Selected", "Open Tickets" buttons
   - [ ] Track selected call IDs in component state
   - [ ] Disable buttons when no calls selected

@@ -404,6 +404,37 @@ export default function AdminCallReviewPage() {
     onError: (err) => toast.error(err.message),
   });
 
+  // Bulk approve/reject/open mutations
+  const bulkApproveMutation = trpc.calls.bulkApproveDrafts.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Approved ${data.approved} draft(s) and created ${data.approved} ticket(s)`);
+      setSelectedIds(new Set());
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => toast.error(`Failed to approve: ${err.message}`),
+  });
+
+  const bulkRejectMutation = trpc.calls.bulkRejectDrafts.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Rejected ${data.rejected} draft(s)`);
+      setSelectedIds(new Set());
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => toast.error(`Failed to reject: ${err.message}`),
+  });
+
+  const bulkOpenMutation = trpc.calls.bulkOpenTickets.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Opened ${data.opened} ticket(s)`);
+      setSelectedIds(new Set());
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => toast.error(`Failed to open tickets: ${err.message}`),
+  });
+
   // Multi-select delete mutations
   const deleteDraftsMutation = trpc.calls.deleteDrafts.useMutation({
     onSuccess: () => {
@@ -576,6 +607,37 @@ export default function AdminCallReviewPage() {
               {selectedIds.size > 0 && (
                 <>
                   <span className="text-xs text-gray-500">({selectedIds.size} selected)</span>
+                  {(activeTab === "pending" || activeTab === "all") && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => bulkApproveMutation.mutate({ draftIds: Array.from(selectedIds) })}
+                        disabled={bulkApproveMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700 text-white border border-green-600"
+                      >
+                        {bulkApproveMutation.isPending ? "Approving..." : "✓ Approve Selected"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => bulkRejectMutation.mutate({ draftIds: Array.from(selectedIds) })}
+                        disabled={bulkRejectMutation.isPending}
+                        className="bg-orange-600 hover:bg-orange-700 text-white border border-orange-600"
+                      >
+                        {bulkRejectMutation.isPending ? "Rejecting..." : "✗ Reject Selected"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => bulkOpenMutation.mutate({ draftIds: Array.from(selectedIds) })}
+                        disabled={bulkOpenMutation.isPending}
+                        className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-600"
+                      >
+                        {bulkOpenMutation.isPending ? "Opening..." : "🎫 Open Tickets"}
+                      </Button>
+                    </>
+                  )}
                   <Button
                     size="sm"
                     variant="destructive"
