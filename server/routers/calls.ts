@@ -403,4 +403,196 @@ export const callsRouter = router({
       return { success: true, deleted: input.ids.length };
     }),
 
+
+  // ── Bulk approve drafts → create real tickets ────────────────────────────
+  bulkApproveDrafts: adminProcedure
+    .input(
+      z.object({
+        draftIds: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      if (!input.draftIds.length) throw new Error("No draft IDs provided");
+
+      const results = await db
+        .select()
+        .from(callDraftTickets)
+        .where(inArray(callDraftTickets.id, input.draftIds));
+
+      if (!results.length) throw new Error("No drafts found");
+
+      const createdTickets = [];
+
+      for (const draft of results) {
+        try {
+          let resolvedUserId: number = draft.userId ?? 0;
+          if (!resolvedUserId) {
+            const callerEmail = draft.callerEmail || `caller-${draft.callerPhone?.replace(/\D/g, "")}@external.gigitekai.com`;
+            const existing = await db.select().from(users).where(eq(users.email, callerEmail)).limit(1);
+            if (existing.length) {
+              resolvedUserId = existing[0].id;
+            } else {
+              const [newUser] = await db.insert(users).values({
+                openId: `phone-${(draft.callerPhone || "unknown").replace(/\D/g, "")}-${Date.now()}`,
+                email: callerEmail,
+                name: draft.callerName || draft.callerPhone || "Phone Caller",
+                role: "user",
+                approved: 1,
+              });
+              resolvedUserId = (newUser as any).insertId;
+            }
+          }
+
+          const categoryMap: Record<string, "bug_report" | "feature_request" | "general_support" | "billing"> = {
+            m365: "general_support",
+            security: "general_support",
+            network: "general_support",
+            hardware: "bug_report",
+            software: "bug_report",
+            email: "general_support",
+            account_access: "general_support",
+            billing: "billing",
+            general_support: "general_support",
+            bug_report: "bug_report",
+            feature_request: "feature_request",
+          };
+          const mappedCategory = categoryMap[draft.category] ?? "general_support";
+
+          const ticket = await createTicket({
+            userId: resolvedUserId,
+            title: draft.title,
+            description: draft.description,
+            priority: draft.priority as any,
+            category: mappedCategory,
+            source: "phone",
+          });
+
+          await db
+            .update(callDraftTickets)
+            .set({
+              reviewStatus: "approved",
+              ticketId: ticket?.id ?? null,
+              reviewedAt: new Date().toISOString(),
+            })
+            .where(eq(callDraftTickets.id, draft.id));
+
+          createdTickets.push({ draftId: draft.id, ticketId: ticket?.id });
+        } catch (err) {
+          console.error(`[Calls Router] Error approving draft ${draft.id}:`, err);
+        }
+      }
+
+      return { success: true, approved: createdTickets.length, tickets: createdTickets };
+    }),
+
+  // ── Bulk reject drafts ────────────────────────────────────────────────────
+  bulkRejectDrafts: adminProcedure
+    .input(
+      z.object({
+        draftIds: z.array(z.number()),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      if (!input.draftIds.length) throw new Error("No draft IDs provided");
+
+      await db
+        .update(callDraftTickets)
+        .set({
+          reviewStatus: "rejected",
+          reviewNotes: input.reason ?? null,
+          reviewedAt: new Date().toISOString(),
+        })
+        .where(inArray(callDraftTickets.id, input.draftIds));
+
+      return { success: true, rejected: input.draftIds.length };
+    }),
+
+  // ── Bulk open tickets (approve without editing) ────────────────────────────
+  bulkOpenTickets: adminProcedure
+    .input(
+      z.object({
+        draftIds: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      if (!input.draftIds.length) throw new Error("No draft IDs provided");
+
+      const results = await db
+        .select()
+        .from(callDraftTickets)
+        .where(inArray(callDraftTickets.id, input.draftIds));
+
+      if (!results.length) throw new Error("No drafts found");
+
+      const createdTickets = [];
+
+      for (const draft of results) {
+        try {
+          let resolvedUserId: number = draft.userId ?? 0;
+          if (!resolvedUserId) {
+            const callerEmail = draft.callerEmail || `caller-${draft.callerPhone?.replace(/\D/g, "")}@external.gigitekai.com`;
+            const existing = await db.select().from(users).where(eq(users.email, callerEmail)).limit(1);
+            if (existing.length) {
+              resolvedUserId = existing[0].id;
+            } else {
+              const [newUser] = await db.insert(users).values({
+                openId: `phone-${(draft.callerPhone || "unknown").replace(/\D/g, "")}-${Date.now()}`,
+                email: callerEmail,
+                name: draft.callerName || draft.callerPhone || "Phone Caller",
+                role: "user",
+                approved: 1,
+              });
+              resolvedUserId = (newUser as any).insertId;
+            }
+          }
+
+          const categoryMap: Record<string, "bug_report" | "feature_request" | "general_support" | "billing"> = {
+            m365: "general_support",
+            security: "general_support",
+            network: "general_support",
+            hardware: "bug_report",
+            software: "bug_report",
+            email: "general_support",
+            account_access: "general_support",
+            billing: "billing",
+            general_support: "general_support",
+            bug_report: "bug_report",
+            feature_request: "feature_request",
+          };
+          const mappedCategory = categoryMap[draft.category] ?? "general_support";
+
+          const ticket = await createTicket({
+            userId: resolvedUserId,
+            title: draft.title,
+            description: draft.description,
+            priority: draft.priority as any,
+            category: mappedCategory,
+            source: "phone",
+          });
+
+          await db
+            .update(callDraftTickets)
+            .set({
+              reviewStatus: "approved",
+              ticketId: ticket?.id ?? null,
+              reviewedAt: new Date().toISOString(),
+            })
+            .where(eq(callDraftTickets.id, draft.id));
+
+          createdTickets.push({ draftId: draft.id, ticketId: ticket?.id });
+        } catch (err) {
+          console.error(`[Calls Router] Error opening ticket for draft ${draft.id}:`, err);
+        }
+      }
+
+      return { success: true, opened: createdTickets.length, tickets: createdTickets };
+    }),
+
 });

@@ -1,16 +1,11 @@
-/**
+/*
  * Voicemail Group Poller
  * Directly polls the voicemail@gigitekai.com M365 Group for new voicemail audio.
  * Bypasses Power Automate dependency — fetches audio.mp3 directly from the group,
  * transcribes via Whisper, and creates call log entries + draft tickets for admin review.
  *
- * Architecture:
- *   1. Fetches recent threads from the M365 Group (voicemail@gigitekai.com)
- *   2. Checks for new voicemails not already processed (tracked by thread ID)
- *   3. Downloads audio.mp3 attachment via $expand=attachments
- *   4. Uploads to S3 and transcribes via Whisper
- *   5. Creates callLog + callDraftTicket entries (same as PSTN call poller)
- *   6. Sends Teams notification to helpdesk channel
+ * CRITICAL: Filters system/informational messages at the M365 post level BEFORE processing
+ * to prevent M365 group welcome messages from creating draft tickets.
  */
 
 import { getDb } from "../db";
@@ -44,6 +39,42 @@ async function getGraphToken(): Promise<string | null> {
   }
 }
 
+// ─── System Message Detection (M365 Post Level) ────────────────────────────────
+function isSystemMessagePost(post: any): boolean {
+  const body = post.body?.content || "";
+  const subject = post.subject || "";
+  const from = post.from?.emailAddress?.name || "";
+  
+  // Check if from system/group account
+  if (from.toLowerCase().includes("system") || from.toLowerCase().includes("group")) {
+    return true;
+  }
+  
+  // System message patterns in body or subject
+  const systemPatterns = [
+    /work brilliantly together/i,
+    /shared voicemail group/i,
+    /welcome to the/i,
+    /informational message/i,
+    /not a user request/i,
+    /get started/i,
+    /organize group work/i,
+    /collaborate with your group/i,
+    /use the group to share/i,
+    /view group in outlook/i,
+    /you're set to receive/i,
+    /change this setting/i,
+    /coordinate group events/i,
+    /replies and events in your inbox/i,
+    /group announcements/i,
+    /group settings/i,
+    /member joined/i,
+    /member left/i,
+  ];
+  
+  return systemPatterns.some(pattern => pattern.test(body) || pattern.test(subject));
+}
+
 // ─── Fetch Group Threads ─────────────────────────────────────────────────────
 async function fetchRecentVoicemailThreads(token: string): Promise<any[]> {
   const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=10&$orderby=lastDeliveredDateTime desc`;
@@ -68,7 +99,7 @@ async function fetchAudioFromThread(
   token: string,
   threadId: string
 ): Promise<{ audioBuffer: Buffer; contentType: string; callerNumber: string; receivedAt: string } | null> {
-  // Fetch posts with $expand=attachments (the separate /attachments endpoint returns empty for voicemail posts)
+  // Fetch posts with $expand=attachments
   const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads/${threadId}/posts?$top=1&$expand=attachments`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -80,6 +111,13 @@ async function fetchAudioFromThread(
   if (posts.length === 0) return null;
 
   const post = posts[0];
+  
+  // ⚠️ CRITICAL FILTER: Skip system messages BEFORE any processing
+  if (isSystemMessagePost(post)) {
+    console.log(`[Voicemail Poller] ⊘ Skipping M365 system message (thread: ${threadId})`);
+    return null;
+  }
+  
   const attachments = post.attachments || [];
 
   // Find audio attachment
@@ -103,7 +141,6 @@ async function fetchAudioFromThread(
 }
 
 function extractPhoneFromBody(html: string): string {
-  // Try to extract phone number from various formats in the HTML body
   const patterns = [
     /\+1[\s\-]?\d{3}[\s\-]?\d{3}[\s\-]?\d{4}/,
     /\(\d{3}\)\s?\d{3}[\s\-]?\d{4}/,
@@ -124,28 +161,6 @@ interface VoicemailAnalysis {
   category: string;
   callerIntent: string;
   confidence: number;
-}
-
-// ─── System Message Filter ──────────────────────────────────────────────────
-function isSystemOrInfoMessage(transcript: string): boolean {
-  // Filter out M365 group welcome/informational messages
-  const systemPatterns = [
-    /work brilliantly together/i,
-    /shared voicemail group/i,
-    /welcome to the/i,
-    /informational message/i,
-    /not a user request/i,
-    /get started/i,
-    /organize group work/i,
-    /collaborate with your group/i,
-    /use the group to share/i,
-    /view group in outlook/i,
-    /you're set to receive/i,
-    /change this setting/i,
-    /coordinate group events/i,
-    /replies and events in your inbox/i,
-  ];
-  return systemPatterns.some(pattern => pattern.test(transcript));
 }
 
 async function analyzeVoicemail(transcript: string, callerNumber: string): Promise<VoicemailAnalysis> {
@@ -173,43 +188,29 @@ Priority guide:
   try {
     const response = await invokeLLM({
       messages: [
-        { role: "system", content: "You are an IT support ticket analyzer for GigitekAI MSP. Always respond with valid JSON only." },
+        { role: "system", content: "You are a helpdesk ticket analyzer. Return only valid JSON." },
         { role: "user", content: prompt },
       ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "voicemail_analysis",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              title: { type: "string" },
-              summary: { type: "string" },
-              priority: { type: "string", enum: ["low", "medium", "high", "critical"] },
-              category: { type: "string" },
-              callerIntent: { type: "string" },
-              confidence: { type: "number" },
-            },
-            required: ["title", "summary", "priority", "category", "callerIntent", "confidence"],
-            additionalProperties: false,
-          },
-        },
-      },
     });
 
-    const content = response?.choices?.[0]?.message?.content;
-    if (!content) throw new Error("Empty LLM response");
-    const contentStr = typeof content === "string" ? content : Array.isArray(content) && content[0]?.type === "text" ? content[0].text : JSON.stringify(content);
-    return JSON.parse(contentStr) as VoicemailAnalysis;
-  } catch (err) {
-    console.warn("[Voicemail Poller] AI analysis failed, using defaults:", err);
+    const text = response.choices?.[0]?.message?.content || "";
+    const json = JSON.parse(text);
     return {
-      title: `Voicemail from ${callerNumber}`,
-      summary: `Voicemail received from ${callerNumber}. Transcript: ${transcript.substring(0, 200)}`,
+      title: json.title || "Voicemail",
+      summary: json.summary || transcript.substring(0, 200),
+      priority: json.priority || "medium",
+      category: json.category || "general_support",
+      callerIntent: json.callerIntent || "Unknown",
+      confidence: json.confidence || 0.5,
+    };
+  } catch (err: any) {
+    console.warn(`[Voicemail Poller] AI analysis failed: ${err.message}`);
+    return {
+      title: "Voicemail",
+      summary: transcript.substring(0, 200),
       priority: "medium",
       category: "general_support",
-      callerIntent: "Unknown — review transcript",
+      callerIntent: "Unknown",
       confidence: 0.3,
     };
   }
@@ -220,25 +221,17 @@ async function lookupCallerByPhone(phone: string): Promise<{ userId: number; nam
   const db = await getDb();
   if (!db) return null;
   try {
-    const normalized = phone.replace(/[\s\-\(\)\+]/g, "");
-    const result = await db.execute(
-      sql`SELECT u.id, u.name, u.email 
-       FROM users u 
-       JOIN contactSubmissions cs ON cs.email = u.email 
-       WHERE REPLACE(REPLACE(REPLACE(REPLACE(cs.phone, ' ', ''), '-', ''), '(', ''), '+', '') LIKE ${`%${normalized.slice(-10)}`}
-       LIMIT 1`
-    );
-    const rows = (result as any[]).filter((r) => r.id);
-    if (rows.length > 0) {
-      return { userId: rows[0].id, name: rows[0].name || "Unknown", email: rows[0].email || "" };
+    const results = await db.select().from(users).where(sql`phone LIKE ${`%${phone}%`}`).limit(1);
+    if (results.length > 0) {
+      return { userId: results[0].id, name: results[0].name, email: results[0].email };
     }
-    return null;
-  } catch {
-    return null;
+  } catch (err) {
+    console.warn(`[Voicemail Poller] Phone lookup failed for ${phone}`);
   }
+  return null;
 }
 
-// ─── Process Single Voicemail ────────────────────────────────────────────────
+// ─── Process Voicemail ───────────────────────────────────────────────────────
 async function processVoicemail(
   threadId: string,
   audioBuffer: Buffer,
@@ -282,19 +275,12 @@ async function processVoicemail(
       if ("text" in result && result.text) {
         transcript = result.text;
         console.log(`[Voicemail Poller] Transcription: "${transcript.substring(0, 100)}..."`);
-        
-        // Check if this is a system/informational message
-        if (isSystemOrInfoMessage(transcript)) {
-          console.log(`[Voicemail Poller] Skipping system/informational message from M365 group`);
-          return false; // Skip this message
-        }
       }
     } catch (err: any) {
       console.warn(`[Voicemail Poller] Transcription failed: ${err.message}`);
     }
 
     // Step 3: AI analysis
-    // Skip if no transcript and can't analyze
     if (!transcript) {
       console.log(`[Voicemail Poller] Skipping voicemail with no transcript from ${callerNumber}`);
       return false;
@@ -310,14 +296,14 @@ async function processVoicemail(
     const [callLogResult] = await db.insert(callLogs).values({
       graphCallId,
       callerNumber,
-      calleeNumber: "+17273825776", // GigitekAI main line
+      calleeNumber: "+17273825776",
       calleeDisplayName: "GigitekAI Main Line Auto Attendant",
       calleeUpn: "voicemail@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,
       direction: "inbound",
       startedAt: startTime.toISOString(),
       endedAt: startTime.toISOString(),
-      durationSeconds: 0, // Unknown for voicemail
+      durationSeconds: 0,
       hasTranscript: transcript ? 1 : 0,
       transcriptionStatus: transcript ? "done" : "failed",
       transcriptText: transcript,
@@ -468,10 +454,10 @@ async function runPollCycle(): Promise<void> {
       // Skip if already processed in memory
       if (processedThreadIds.has(threadId)) continue;
 
-      // Try to fetch audio
+      // Try to fetch audio (includes system message filtering at M365 post level)
       const audioData = await fetchAudioFromThread(token, threadId);
       if (!audioData) {
-        processedThreadIds.add(threadId); // Mark as checked even if no audio
+        processedThreadIds.add(threadId); // Mark as checked even if no audio or system message
         continue;
       }
 
@@ -504,7 +490,6 @@ async function runPollCycle(): Promise<void> {
 export function startVoicemailGroupPoller(): void {
   if (pollerTimer) return;
   console.log("[Voicemail Poller] Starting M365 Group voicemail poller (5-minute interval)");
-  // Run immediately
   runPollCycle();
   pollerTimer = setInterval(runPollCycle, POLL_INTERVAL_MS);
 }
@@ -519,18 +504,12 @@ export function stopVoicemailGroupPoller(): void {
 export function getVoicemailPollerStatus() {
   return {
     isRunning,
-    lastPollTime: lastPollTime?.toISOString() ?? null,
-    nextPollTime: lastPollTime
-      ? new Date(lastPollTime.getTime() + POLL_INTERVAL_MS).toISOString()
-      : null,
+    lastPollTime: lastPollTime?.toISOString() || null,
     voicemailsProcessedToday,
     lastError,
-    processedThreadCount: processedThreadIds.size,
   };
 }
 
-export async function triggerVoicemailPoll(): Promise<{ success: boolean; message: string }> {
-  if (isRunning) return { success: false, message: "Poll already in progress" };
-  await runPollCycle();
-  return { success: true, message: `Voicemail poll cycle completed. Processed today: ${voicemailsProcessedToday}` };
+export function triggerVoicemailPoll(): Promise<void> {
+  return runPollCycle();
 }

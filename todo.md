@@ -189,3 +189,11 @@
 - [ ] Suppress duplicate webhook health check alerts - add deduplication/cooldown logic
 - [ ] Unified ticket creation form (user + admin) with AI-ready fields
 - [ ] Verify production voicemail pipeline with live test calls
+
+- [ ] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
+  - [ ] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
+  - [ ] Update AdminCallReviewPage UI with "Approve Selected", "Reject Selected", "Open Tickets" buttons
+  - [ ] Track selected call IDs in component state
+  - [ ] Disable buttons when no calls selected
+  - [ ] Show success toast after bulk operation
+  - [ ] Refresh call list after bulk operation completes
