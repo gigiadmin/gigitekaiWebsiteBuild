@@ -576,14 +576,19 @@ export const customerInvitesRouter = router({
         const total = countResult[0]?.count || 0;
 
         // Get paginated results
+        let orderByClause;
+        if (input.sortBy === 'createdAt') {
+          orderByClause = input.sortOrder === 'asc' ? asc(customerInvitesTable.createdAt) : desc(customerInvitesTable.createdAt);
+        } else if (input.sortBy === 'invitedEmail') {
+          orderByClause = input.sortOrder === 'asc' ? asc(customerInvitesTable.invitedEmail) : desc(customerInvitesTable.invitedEmail);
+        } else {
+          orderByClause = input.sortOrder === 'asc' ? asc(customerInvitesTable.status) : desc(customerInvitesTable.status);
+        }
+        
         const results = await db.select()
           .from(customerInvitesTable)
           .where(whereClause)
-          .orderBy(
-            input.sortOrder === 'asc'
-              ? asc(customerInvitesTable[input.sortBy as keyof typeof customerInvitesTable])
-              : desc(customerInvitesTable[input.sortBy as keyof typeof customerInvitesTable])
-          )
+          .orderBy(orderByClause)
           .limit(input.limit)
           .offset(offset);
 

@@ -181,6 +181,13 @@
   - [x] Bot now shows "We're closed today for [Holiday]" message instead of offering connection
   - [x] Suggests KB articles and callback scheduling when support is unavailable
 
+- [x] **Public Knowledge Base** — COMPLETE: Public-facing KB at /kb
+  - [x] Create PublicKB.tsx component with search, filter, sort
+  - [x] Register /kb route in App.tsx
+  - [x] Verify public procedures in KB router (list, get, search)
+  - [x] Add unit tests for public KB procedures
+  - [x] Build live at https://gigitekai.com/kb
+
 - [ ] Standardize ticket creation: single unified TicketForm component used by both /helpdesk/tickets/new (user) and /admin/helpdesk/new (admin)
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
