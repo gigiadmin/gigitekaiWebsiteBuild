@@ -1918,3 +1918,27 @@ export type InsertTeamsIntegration = typeof teamsIntegration.$inferInsert;
 
 export type AgentTakeoverRequest = typeof agentTakeoverRequests.$inferSelect;
 export type InsertAgentTakeoverRequest = typeof agentTakeoverRequests.$inferInsert;
+
+
+// ── Customer Account Management Tables ───────────────────────────────────────
+
+export const accountAuditLog = mysqlTable("accountAuditLog", {
+	id: int().autoincrement().notNull(),
+	accountId: int().notNull().references(() => customerInvites.id, { onDelete: "cascade" }),
+	action: mysqlEnum(['created','updated','deleted','restored','role_changed','resend_invitation','login','logout']).notNull(),
+	performedBy: int().notNull(),
+	performedByEmail: varchar({ length: 320 }).notNull(),
+	changes: text(), // JSON object with before/after values
+	reason: text(),
+	ipAddress: varchar({ length: 45 }),
+	userAgent: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("accountAuditLog_accountId_idx").on(table.accountId),
+	index("accountAuditLog_performedBy_idx").on(table.performedBy),
+	index("accountAuditLog_createdAt_idx").on(table.createdAt),
+]);
+
+export type AccountAuditLog = typeof accountAuditLog.$inferSelect;
+export type InsertAccountAuditLog = typeof accountAuditLog.$inferInsert;

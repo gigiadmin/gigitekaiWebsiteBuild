@@ -190,10 +190,10 @@
 - [ ] Unified ticket creation form (user + admin) with AI-ready fields
 - [ ] Verify production voicemail pipeline with live test calls
 
-- [ ] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
+- [x] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
   - [x] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
-  - [ ] Update AdminCallReviewPage UI with "Approve Selected", "Reject Selected", "Open Tickets" buttons
-  - [ ] Track selected call IDs in component state
-  - [ ] Disable buttons when no calls selected
-  - [ ] Show success toast after bulk operation
-  - [ ] Refresh call list after bulk operation completes
+  - [x] Update AdminCallReviewPage UI with "Approve Selected", "Reject Selected", "Open Tickets" buttons
+  - [x] Track selected call IDs in component state
+  - [x] Disable buttons when no calls selected
+  - [x] Show success toast after bulk operation
+  - [x] Refresh call list after bulk operation completes

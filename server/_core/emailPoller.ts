@@ -836,6 +836,42 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       return true; // Skip processing
     }
 
+    // ── SYSTEM MESSAGE FILTER: Skip M365 group welcome/informational messages ──
+    // These arrive via the voicemail group mailbox but are NOT real voicemails.
+    const transcriptLower = transcript.toLowerCase();
+    const subjectLower2 = (subject || '').toLowerCase();
+    const M365_SYSTEM_PATTERNS = [
+      'work brilliantly together',
+      'welcome to the gigitekai shared voicemail group',
+      'use the group to share messages and files',
+      'view group in outlook',
+      'you\'re set to receive only replies',
+      'change this setting below',
+      'coordinate group events',
+      'replies and events in your inbox',
+      'get the conversation rolling',
+      'keep things together',
+      'stay on the same page',
+      'don\'t miss a thing',
+      'collaborate with your group',
+      'create content seamlessly',
+      'organize group work with planner',
+      'sharepoint team site',
+      'groups that take notes together',
+      'in the group notebook',
+      'track milestones',
+      'in the group calendar',
+      'follow in inbox',
+    ];
+    const isM365SystemMessage = M365_SYSTEM_PATTERNS.some(p =>
+      transcriptLower.includes(p) || subjectLower2.includes(p)
+    );
+    if (isM365SystemMessage) {
+      console.log(`[Email Poller] 🚫 SKIPPING M365 system/group message: "${subject}" — not a real voicemail`);
+      if (messageId) await markMessageAsRead(messageId).catch(() => {});
+      return true; // Skip — not a real voicemail
+    }
+
     // Parse sender
     let fromStr = typeof from === 'string' ? from : (from?.emailAddress?.address || from?.email || 'voicemail@teams.microsoft.com');
     const emailMatch = fromStr.match(/<(.+?)>/);

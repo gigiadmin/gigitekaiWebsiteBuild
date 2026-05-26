@@ -4,8 +4,8 @@ import { publicProcedure, router } from "../_core/trpc";
 import { sendEmail } from "../_core/email";
 import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite, getDb } from "../db";
 import { getAdminFromRequest } from "./admin-auth";
-import { customerInvites as customerInvitesTable } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { customerInvites as customerInvitesTable, accountAuditLog } from "../../drizzle/schema";
+import { eq, isNull, isNotNull, inArray, and, or, like, asc, desc, sql } from "drizzle-orm";
 
 export const customerInvitesRouter = router({
   sendCustomerInvite: publicProcedure
@@ -376,3 +376,385 @@ export const customerInvitesRouter = router({
       }
     }),
 });
+
+
+  // ── Account Management Procedures ────────────────────────────────────────
+
+  deleteAccount: publicProcedure
+    .input(z.object({
+      accountId: z.number(),
+      reason: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      let adminEmail = ctx.user?.email;
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+          adminEmail = admin.email;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+
+      try {
+        const db = await getDb();
+        
+        // Soft delete: set deletedAt timestamp
+        await db.update(customerInvitesTable)
+          .set({ deletedAt: new Date().toISOString() })
+          .where(eq(customerInvitesTable.id, input.accountId));
+
+        // Log audit
+        await db.insert(accountAuditLog).values({
+          accountId: input.accountId,
+          action: 'deleted',
+          performedBy: adminId!,
+          performedByEmail: adminEmail || '',
+          reason: input.reason,
+          createdAt: new Date().toISOString(),
+        });
+
+        return { success: true, message: 'Account deleted (soft delete, recoverable for 30 days)' };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to delete account:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to delete account' });
+      }
+    }),
+
+  bulkDeleteAccounts: publicProcedure
+    .input(z.object({
+      accountIds: z.array(z.number()),
+      reason: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      let adminEmail = ctx.user?.email;
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+          adminEmail = admin.email;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+
+      try {
+        const db = await getDb();
+        const now = new Date().toISOString();
+        
+        // Soft delete all
+        await db.update(customerInvitesTable)
+          .set({ deletedAt: now })
+          .where(inArray(customerInvitesTable.id, input.accountIds));
+
+        // Log audit for each
+        for (const accountId of input.accountIds) {
+          await db.insert(accountAuditLog).values({
+            accountId,
+            action: 'deleted',
+            performedBy: adminId!,
+            performedByEmail: adminEmail || '',
+            reason: input.reason,
+            createdAt: now,
+          });
+        }
+
+        return { success: true, deleted: input.accountIds.length };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to bulk delete:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to bulk delete accounts' });
+      }
+    }),
+
+  restoreAccount: publicProcedure
+    .input(z.object({
+      accountId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      let adminEmail = ctx.user?.email;
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+          adminEmail = admin.email;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+
+      try {
+        const db = await getDb();
+        
+        // Restore: clear deletedAt
+        await db.update(customerInvitesTable)
+          .set({ deletedAt: null })
+          .where(eq(customerInvitesTable.id, input.accountId));
+
+        // Log audit
+        await db.insert(accountAuditLog).values({
+          accountId: input.accountId,
+          action: 'restored',
+          performedBy: adminId!,
+          performedByEmail: adminEmail || '',
+          createdAt: new Date().toISOString(),
+        });
+
+        return { success: true, message: 'Account restored' };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to restore account:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to restore account' });
+      }
+    }),
+
+  listAccountsWithFilters: publicProcedure
+    .input(z.object({
+      search: z.string().optional(),
+      status: z.enum(['pending', 'accepted', 'expired', 'revoked', 'deleted']).optional(),
+      page: z.number().default(1),
+      limit: z.number().default(20),
+      sortBy: z.enum(['createdAt', 'invitedEmail', 'status']).default('createdAt'),
+      sortOrder: z.enum(['asc', 'desc']).default('desc'),
+    }))
+    .query(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (!admin) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+      }
+
+      try {
+        const db = await getDb();
+        const offset = (input.page - 1) * input.limit;
+        
+        // Build where clause
+        const conditions = [];
+        if (input.search) {
+          conditions.push(
+            or(
+              like(customerInvitesTable.invitedEmail, `%${input.search}%`),
+              like(customerInvitesTable.invitedName, `%${input.search}%`),
+              like(customerInvitesTable.invitedCompany, `%${input.search}%`)
+            )
+          );
+        }
+        
+        if (input.status === 'deleted') {
+          conditions.push(isNotNull(customerInvitesTable.deletedAt));
+        } else if (input.status) {
+          conditions.push(eq(customerInvitesTable.status, input.status));
+          conditions.push(isNull(customerInvitesTable.deletedAt));
+        } else {
+          conditions.push(isNull(customerInvitesTable.deletedAt));
+        }
+
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+        // Get total count
+        const countResult = await db.select({ count: sql`COUNT(*) as count` })
+          .from(customerInvitesTable)
+          .where(whereClause);
+        const total = countResult[0]?.count || 0;
+
+        // Get paginated results
+        const results = await db.select()
+          .from(customerInvitesTable)
+          .where(whereClause)
+          .orderBy(
+            input.sortOrder === 'asc'
+              ? asc(customerInvitesTable[input.sortBy as keyof typeof customerInvitesTable])
+              : desc(customerInvitesTable[input.sortBy as keyof typeof customerInvitesTable])
+          )
+          .limit(input.limit)
+          .offset(offset);
+
+        return {
+          data: results,
+          pagination: {
+            page: input.page,
+            limit: input.limit,
+            total,
+            pages: Math.ceil(total / input.limit),
+          },
+        };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to list accounts:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list accounts' });
+      }
+    }),
+
+  getAccountTimeline: publicProcedure
+    .input(z.object({
+      accountId: z.number(),
+    }))
+    .query(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (!admin) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+      }
+
+      try {
+        const db = await getDb();
+        
+        const timeline = await db.select()
+          .from(accountAuditLog)
+          .where(eq(accountAuditLog.accountId, input.accountId))
+          .orderBy(desc(accountAuditLog.createdAt));
+
+        return timeline;
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to get timeline:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to get timeline' });
+      }
+    }),
+
+  exportAccounts: publicProcedure
+    .input(z.object({
+      status: z.enum(['pending', 'accepted', 'expired', 'revoked', 'deleted']).optional(),
+      format: z.enum(['csv', 'json']).default('csv'),
+    }))
+    .query(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (!admin) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+      }
+
+      try {
+        const db = await getDb();
+        
+        const conditions = [];
+        if (input.status === 'deleted') {
+          conditions.push(isNotNull(customerInvitesTable.deletedAt));
+        } else if (input.status) {
+          conditions.push(eq(customerInvitesTable.status, input.status));
+        }
+
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+        const results = await db.select()
+          .from(customerInvitesTable)
+          .where(whereClause);
+
+        if (input.format === 'json') {
+          return { data: results, format: 'json' };
+        }
+
+        // CSV format
+        const headers = ['Email', 'Name', 'Company', 'Status', 'Created', 'Accepted', 'Expires'];
+        const rows = results.map(r => [
+          r.invitedEmail,
+          r.invitedName || '',
+          r.invitedCompany || '',
+          r.status,
+          new Date(r.createdAt).toISOString().split('T')[0],
+          r.acceptedAt ? new Date(r.acceptedAt).toISOString().split('T')[0] : '',
+          new Date(r.expiresAt).toISOString().split('T')[0],
+        ]);
+
+        const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        
+        return { data: csv, format: 'csv' };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to export:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to export accounts' });
+      }
+    }),
+
+  bulkResendInvitations: publicProcedure
+    .input(z.object({
+      accountIds: z.array(z.number()),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let isAdmin = ctx.user?.role === 'admin';
+      let adminId = ctx.user?.id;
+      let adminEmail = ctx.user?.email;
+      
+      if (!isAdmin && ctx.req) {
+        const admin = await getAdminFromRequest(ctx.req);
+        if (admin) {
+          isAdmin = true;
+          adminId = admin.id;
+          adminEmail = admin.email;
+        }
+      }
+      
+      if (!isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
+
+      try {
+        const db = await getDb();
+        let resent = 0;
+
+        for (const accountId of input.accountIds) {
+          const invite = await db.select()
+            .from(customerInvitesTable)
+            .where(eq(customerInvitesTable.id, accountId))
+            .limit(1);
+
+          if (!invite[0]) continue;
+
+          // Send email
+          await sendEmail({
+            to: invite[0].invitedEmail,
+            subject: 'GigitekAI Portal Invitation (Reminder)',
+            html: `
+              <p>Hi ${invite[0].invitedName || 'there'},</p>
+              <p>This is a reminder about your GigitekAI portal invitation.</p>
+              <p><a href="https://gigitekai.com/accept-invite?token=${invite[0].inviteToken}">Accept Invitation</a></p>
+              <p>This invitation expires on ${new Date(invite[0].expiresAt).toLocaleDateString()}</p>
+            `,
+          });
+
+          // Update reminderSent
+          await db.update(customerInvitesTable)
+            .set({ reminderSent: 1 })
+            .where(eq(customerInvitesTable.id, accountId));
+
+          // Log audit
+          await db.insert(accountAuditLog).values({
+            accountId,
+            action: 'resend_invitation',
+            performedBy: adminId!,
+            performedByEmail: adminEmail || '',
+            createdAt: new Date().toISOString(),
+          });
+
+          resent++;
+        }
+
+        return { success: true, resent };
+      } catch (error) {
+        console.error('[CustomerInvites] Failed to bulk resend:', error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to bulk resend' });
+      }
+    }),
