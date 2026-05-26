@@ -991,9 +991,9 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     // Send email notification to support@gigitekai.com
     try {
       const voicemailEmailBody = `
-<h2>New Voicemail Ticket Created</h2>
+<h2>New Voicemail Draft Ticket Awaiting Review</h2>
 <hr />
-<p><strong>Ticket ID:</strong> #${ticketId}<br />
+<p><strong>Ticket ID:</strong> <br />
 <strong>Title:</strong> ${ticketData.title}<br />
 <strong>Priority:</strong> ${ticketData.priority.toUpperCase()}<br />
 <strong>Category:</strong> ${ticketData.category}</p>
@@ -1005,17 +1005,17 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 <h3>Caller Intent:</h3>
 <p>${ticketData.callerIntent}</p>
 <hr />
-<p><a href="${BASE_URL}/admin/helpdesk/ticket/${ticketId}">View ticket in GigitekAI</a></p>
+<p><a href="${BASE_URL}/admin/call-review?tab=pending-review">Review in Call Review Panel</a></p>
 `;
 
       await sendEmail({
         to: 'support@gigitekai.com',
-        subject: `[VOICEMAIL] New Ticket #${ticketId}: ${ticketData.title}`,
+        subject: `[VOICEMAIL] New Ticket : ${ticketData.title}`,
         html: voicemailEmailBody.replace(/\n/g, '<br />'),
       });
-      console.log(`[Email Poller] Email notification sent to support@gigitekai.com for voicemail ticket #${ticketId}`);
+      console.log(`[Email Poller] Email notification sent to support@gigitekai.com for voicemail ticket `);
     } catch (emailError) {
-      console.warn(`[Email Poller] Failed to send email notification for voicemail ticket #${ticketId}:`, emailError);
+      console.warn(`[Email Poller] Failed to send email notification for voicemail ticket :`, emailError);
     }
 
     // Send Teams webhook notification for voicemail ticket
@@ -1036,14 +1036,14 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
               body: [
                 {
                   type: 'TextBlock',
-                  text: '📞 New Voicemail Ticket',
+                  text: '📞 New Voicemail Draft Ticket',
                   weight: 'bolder',
                   size: 'large',
                   color: 'accent',
                 },
                 {
                   type: 'TextBlock',
-                  text: `Ticket #${ticketId}: ${ticketData.title}`,
+                  text: `Ticket : ${ticketData.title}`,
                   weight: 'bolder',
                   size: 'medium',
                   wrap: true,
@@ -1072,7 +1072,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
                 {
                   type: 'Action.OpenUrl',
                   title: 'View Ticket',
-                  url: `${BASE_URL}/admin/helpdesk/ticket/${ticketId}`,
+                  url: `${BASE_URL}/admin/call-review?tab=pending-review`,
                 },
               ],
             },
@@ -1080,10 +1080,10 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         ],
       };
       
-      await sendToTeamsWithRetry(webhookUrl, voicemailTeamsPayload, `Voicemail ticket #${ticketId} created`);
-      console.log(`[Email Poller] Teams webhook notification sent for voicemail ticket #${ticketId}`);
+      await sendToTeamsWithRetry(webhookUrl, voicemailTeamsPayload, `Voicemail ticket  created`);
+      console.log(`[Email Poller] Teams webhook notification sent for voicemail ticket `);
     } catch (teamsError) {
-      console.warn(`[Email Poller] Failed to send Teams webhook notification for voicemail ticket #${ticketId}:`, teamsError);
+      console.warn(`[Email Poller] Failed to send Teams webhook notification for voicemail ticket :`, teamsError);
     }
 
     // Store in emailMessages for deduplication
@@ -1097,7 +1097,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
           to: SUPPORT_EMAIL,
           subject: subject,
           body: transcript.slice(0, 5000) || 'Voicemail - no transcript',
-          linkedTicketId: ticketId,
+          linkedTicketId: null,
           status: 'received',
         });
       }
@@ -1108,7 +1108,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     // Notify owner
     try {
       await notifyOwner({
-        title: `New Voicemail Ticket #${ticketId}: ${ticketData.title}`,
+        title: `New Voicemail Draft Ticket : ${ticketData.title}`,
         content: `Caller: ${callerNumber || 'Unknown'}\nPriority: ${ticketData.priority}\nIntent: ${ticketData.callerIntent}\n\nTranscript:\n${transcript.slice(0, 500)}`,
       });
     } catch (_) {}
@@ -1245,7 +1245,7 @@ async function processEmail(msgData: any): Promise<boolean> {
     // Reset error counter on successful ticket creation
     pollerStatus.consecutiveErrors = 0;
 
-    console.log(`[Email Poller] Created ticket #${ticketId} from ${senderEmail}`);
+    console.log(`[Email Poller] Created ticket  from ${senderEmail}`);
 
     // Send Teams notification
     try {
@@ -1259,9 +1259,9 @@ async function processEmail(msgData: any): Promise<boolean> {
         createdAt: new Date().toISOString(),
       };
       await sendTicketNotificationToTeams(ticket, 'created');
-      console.log(`[Email Poller] Teams notification sent for ticket #${ticketId}`);
+      console.log(`[Email Poller] Teams notification sent for ticket `);
     } catch (teamsError) {
-      console.warn(`[Email Poller] Failed to send Teams notification for ticket #${ticketId}:`, teamsError);
+      console.warn(`[Email Poller] Failed to send Teams notification for ticket :`, teamsError);
     }
 
     // Send confirmation email to customer
@@ -1271,18 +1271,18 @@ async function processEmail(msgData: any): Promise<boolean> {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #00D4FF;">We received your request</h2>
           <p>Hi ${firstName},</p>
-          <p>Thank you for contacting GigitekAI Support. We've received your request and created ticket <strong>#${ticketId}</strong>.</p>
+          <p>Thank you for contacting GigitekAI Support. We've received your request and created ticket <strong></strong>.</p>
           <p><strong>Subject:</strong> ${subject}</p>
           <p><strong>Priority:</strong> ${classification.priority}</p>
           <p>Our team will review your request and respond within our SLA timeframe. You can track your ticket status at:</p>
-          <p><a href="${BASE_URL}/helpdesk/ticket/${ticketId}" style="color: #00D4FF; text-decoration: none;">View Ticket #${ticketId}</a></p>
+          <p><a href="${BASE_URL}/helpdesk/ticket/${ticketId}" style="color: #00D4FF; text-decoration: none;">View Ticket </a></p>
           <p>— GigitekAI Support Team</p>
         </div>
       `;
 
       await sendEmail({
         to: senderEmail,
-        subject: `[Ticket #${ticketId}] We received your request — ${subject}`,
+        subject: `[Ticket ] We received your request — ${subject}`,
         html: confirmationEmail,
         replyTo: SUPPORT_EMAIL,
         fromName: "GigitekAI Support",
@@ -1306,7 +1306,7 @@ async function processEmail(msgData: any): Promise<boolean> {
           to: SUPPORT_EMAIL,
           subject: subject,
           body: plainBody || 'No body content',
-          linkedTicketId: ticketId,
+          linkedTicketId: null,
           status: 'received',
         });
       }
@@ -1317,7 +1317,7 @@ async function processEmail(msgData: any): Promise<boolean> {
     // Notify owner
     try {
       await notifyOwner({
-        title: `New Support Ticket #${ticketId}: ${subject}`,
+        title: `New Support Ticket : ${subject}`,
         content: `From: ${senderName} (${senderEmail})\n\nCategory: ${classification.category}\nPriority: ${classification.priority}\n\n${typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 500) : String(emailBody).slice(0, 500)}`,
       });
     } catch (notifyError) {
