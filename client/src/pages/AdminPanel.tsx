@@ -40,8 +40,8 @@ import {
   Plus,
   Sparkles,
   X,
-} from "lucide-react";
   Trash2,
+} from "lucide-react";
 import { exportTicketsToCSV, exportUsersToCSV } from "@/lib/exportUtils";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
