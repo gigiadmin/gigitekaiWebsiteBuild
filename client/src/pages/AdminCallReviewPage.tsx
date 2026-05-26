@@ -390,10 +390,16 @@ export default function AdminCallReviewPage() {
   }, { enabled: activeTab === "logs" });
 
   const triggerPoll = trpc.calls.triggerPoll.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Poll cycle triggered — check back in a moment.");
-      utils.calls.getDraftTickets.invalidate();
-      utils.calls.getStats.invalidate();
+      // Invalidate and immediately refetch
+      await utils.calls.getDraftTickets.invalidate();
+      await utils.calls.getStats.invalidate();
+      // Force immediate refetch
+      setTimeout(() => {
+        utils.calls.getDraftTickets.refetch();
+        utils.calls.getStats.refetch();
+      }, 500);
     },
     onError: (err) => toast.error(err.message),
   });

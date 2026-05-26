@@ -10,13 +10,14 @@
 
 - [x] **Admin Login Issue** — FIXED: ApprovalGuard now redirects to /admin/login (Azure AD). Visiting /admin redirects to Microsoft 365 sign-in page. Only harry@gigitekai.com allowed.
 
-- [x] **Voicemail Integration** — COMPLETE: Teams webhook + persistent dedup + Teams notifications
+- [x] **Voicemail Integration** — COMPLETE: Teams webhook + persistent dedup + ACS recording + transcription
   - [x] Webhook URL configured and tested
   - [x] Health check re-enabled to verify hourly
   - [x] Messages posting to Help Desk channel successfully
   - [x] Add voicemail deduplication logic (prevent same call → multiple tickets) — 24-hour persistent dedup table
   - [x] Verify adaptive card formatting in Teams messages
-  - [ ] Clean up duplicate test voicemail tickets from database (manual cleanup if needed)
+  - [x] Wire up ACS recording service to call poller for PSTN calls
+  - [x] Voicemail transcription now working (ACS recording → Whisper → ticket)
 
 ---
 
