@@ -10,6 +10,12 @@
 
 - [x] **Admin Login Issue** — FIXED: ApprovalGuard now redirects to /admin/login (Azure AD). Visiting /admin redirects to Microsoft 365 sign-in page. Only harry@gigitekai.com allowed.
 
+- [x] **Ticket Assignment Not Displaying** — FIXED: Three root causes identified and resolved:
+  - [x] AgentAssignmentModal was imported but never rendered in AdminPanel JSX — added <AgentAssignmentModal> with proper props
+  - [x] helpdeskAgentSla.assignTicket was storing agents.id in tickets.assignedTo instead of agents.userId — fixed to look up userId
+  - [x] Existing tickets had wrong IDs (90001 instead of 120188) — migrated all existing assignments to correct user IDs
+  - [x] onAssignmentSuccess callback now calls refetch() to refresh ticket list immediately
+
 - [x] **Voicemail Integration** — COMPLETE: Teams webhook + persistent dedup + ACS recording + transcription
   - [x] Webhook URL configured and tested
   - [x] Health check re-enabled to verify hourly

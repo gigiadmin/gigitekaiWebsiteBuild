@@ -1021,6 +1021,21 @@ export default function AdminPanel() {
           </div>
         )}
       </div>
+
+      {/* Agent Assignment Modal */}
+      {assignmentModalTicketId && (
+        <AgentAssignmentModal
+          ticketId={assignmentModalTicketId}
+          isOpen={isAssignmentModalOpen}
+          onClose={() => {
+            setIsAssignmentModalOpen(false);
+            setAssignmentModalTicketId(null);
+          }}
+          onAssignmentSuccess={() => {
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }

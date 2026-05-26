@@ -37,11 +37,20 @@ export function AgentAssignmentModal({
     currentAssignedTo?.toString() || ""
   );
 
-  // Fetch list of agents
-  const { data: agents, isLoading: agentsLoading } =
-    trpc.agents.getAllAgents.useQuery();
+  // Fetch list of agents (from agents table which has userId, status, specialization)
+  const { data: agentsList, isLoading: agentsLoading } =
+    trpc.agents.getAllAgents.useQuery(undefined, { enabled: isOpen });
 
-  // Assign ticket mutation
+  // Also fetch users to get names for agents
+  const { data: usersList } = trpc.agents.getUsers.useQuery(undefined, { enabled: isOpen });
+
+  // Build a map of userId -> userName for display
+  const userNameMap = new Map<number, string>();
+  if (usersList) {
+    usersList.forEach((u) => userNameMap.set(u.id, u.name));
+  }
+
+  // Assign ticket mutation - uses helpdeskAgentSla which resolves agent.userId internally
   const assignMutation = trpc.helpdeskAgentSla.assignTicket.useMutation({
     onSuccess: () => {
       toast.success("Ticket assigned successfully!");
@@ -67,8 +76,6 @@ export function AgentAssignmentModal({
   };
 
   const handleUnassign = () => {
-    // Call unassign by passing undefined or by calling a separate unassign endpoint
-    // For now, we'll just close the modal and show a message
     toast.info("Unassign feature coming soon");
     onClose();
   };
@@ -111,34 +118,35 @@ export function AgentAssignmentModal({
                   <div className="p-2 text-center text-gray-400 text-sm">
                     <Loader2 className="w-4 h-4 animate-spin mx-auto" />
                   </div>
-                ) : agents && agents.length > 0 ? (
-                  agents.map((agent) => (
-                    <SelectItem
-                      key={agent.id}
-                      value={agent.id.toString()}
-                      className="text-white"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            agent.status === "available"
-                              ? "bg-green-500"
-                              : agent.status === "busy"
-                                ? "bg-orange-500"
-                                : "bg-gray-500"
-                          }`}
-                        />
-                        <span>
-                          {agent.specialization || `Agent #${agent.id}`}
-                        </span>
-                        {agent.status && (
-                          <span className="text-xs text-gray-400">
-                            {agent.status}
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))
+                ) : agentsList && agentsList.length > 0 ? (
+                  agentsList.map((agent) => {
+                    const agentName = userNameMap.get(agent.userId) || agent.specialization || `Agent #${agent.id}`;
+                    return (
+                      <SelectItem
+                        key={agent.id}
+                        value={agent.id.toString()}
+                        className="text-white"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              agent.status === "available"
+                                ? "bg-green-500"
+                                : agent.status === "busy"
+                                  ? "bg-orange-500"
+                                  : "bg-gray-500"
+                            }`}
+                          />
+                          <span>{agentName}</span>
+                          {agent.status && (
+                            <span className="text-xs text-gray-400 ml-1">
+                              ({agent.status})
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    );
+                  })
                 ) : (
                   <div className="p-2 text-center text-gray-400 text-sm">
                     No agents available
@@ -149,11 +157,21 @@ export function AgentAssignmentModal({
           </div>
 
           {/* Agent Workload Info */}
-          {selectedAgentId && agents && (
+          {selectedAgentId && agentsList && (
             <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-              <p className="text-xs text-gray-400">
-                Agent workload and availability info would display here
-              </p>
+              {(() => {
+                const selected = agentsList.find(a => a.id.toString() === selectedAgentId);
+                if (!selected) return null;
+                return (
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <p><span className="text-cyan-400">Current tickets:</span> {selected.currentTicketCount} / {selected.maxConcurrentTickets}</p>
+                    <p><span className="text-cyan-400">Total resolved:</span> {selected.totalTicketsResolved}</p>
+                    {selected.customerSatisfactionScore && (
+                      <p><span className="text-cyan-400">CSAT:</span> {selected.customerSatisfactionScore}</p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

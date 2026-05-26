@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { tickets } from "../../drizzle/schema";
+import { tickets, agents } from "../../drizzle/schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -10,7 +10,7 @@ export const helpdeskAgentSlaRouter = router({
   assignTicket: protectedProcedure
     .input(z.object({
       ticketId: z.number(),
-      agentId: z.number(),
+      agentId: z.number(), // This is agents.id from the agents table
       reason: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
@@ -25,12 +25,20 @@ export const helpdeskAgentSlaRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Ticket not found" });
       }
 
-      // Update assignment
+      // Look up the agent's userId (which maps to users.id for the LEFT JOIN in getAllTickets)
+      const agentRecord = await db.select().from(agents).where(eq(agents.id, input.agentId)).limit(1);
+      const agentUserId = agentRecord[0]?.userId;
+
+      if (!agentUserId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Agent not found or has no linked user" });
+      }
+
+      // Update assignment using the agent's userId (matches users.id for display)
       await db.update(tickets)
-        .set({ assignedTo: input.agentId, updatedAt: new Date().toISOString() })
+        .set({ assignedTo: agentUserId, updatedAt: new Date().toISOString() })
         .where(eq(tickets.id, input.ticketId));
 
-      return { success: true, ticketId: input.ticketId, agentId: input.agentId };
+      return { success: true, ticketId: input.ticketId, agentId: input.agentId, userId: agentUserId };
     }),
 
   // Get agent's assigned tickets

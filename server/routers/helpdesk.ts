@@ -354,12 +354,13 @@ export const helpdeskRouter = router({
   assignTicket: adminProcedure
     .input(z.object({
       ticketId: z.number(),
-      agentId: z.number(),
+      agentId: z.number(), // This expects a users.id (NOT agents.id) since getAllTickets JOINs on users
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { tickets } = await import("../../drizzle/schema");
+      // assignedTo stores users.id for proper LEFT JOIN resolution in getAllTickets
       await db.update(tickets).set({ assignedTo: input.agentId }).where(eq(tickets.id, input.ticketId));
       try {
         await sendAssignmentNotificationToTeams(input.ticketId, String(input.agentId), ctx.user.name || "Admin");
