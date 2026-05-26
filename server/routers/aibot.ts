@@ -712,6 +712,7 @@ export const aibotRouter = router({
         priority: priority as any,
         category: "general_support" as any,
         status: "open" as any,
+        source: "chat",
       });
 
       const ticketId = ticketResult?.id || 1;
@@ -1188,6 +1189,7 @@ export const aibotRouter = router({
           status: 'open',
           category: 'general_support',
           userId: 1,
+          source: 'chat',
         });
 
         const ticketId = (ticket as any)?.[0]?.insertId || 1;

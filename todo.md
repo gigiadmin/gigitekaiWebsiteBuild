@@ -50,6 +50,13 @@
   - Add audit submission email notifications
   - Create admin dashboard for audit submissions
 
+- [x] **Website Audit Fixes** (5 critical issues) — ALL FIXED
+  - [x] /about page broken → Fixed: Now loads About component instead of redirecting
+  - [x] Portfolio broken links → Verified: All links working correctly
+  - [x] Conflicting addresses → Fixed: Standardized to Tampa, FL 33601 in SchemaMarkup + WebPricingLandingPage
+  - [x] Wrong canonical URLs → Verified: Already implemented correctly in BlogDetail
+  - [x] Old pricing → Verified: Current pricing displayed ($300 one-time + $100/month)
+
 - [ ] **Web Pricing / Portfolio Pages**
   - Replace skeleton browser mockup with real interactive demo website
   - Add Featured Sites section showing live client examples
