@@ -64,7 +64,7 @@ export const callsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
-      let query = db
+      const baseSelect = db
         .select({
           draft: callDraftTickets,
           log: {
@@ -80,11 +80,10 @@ export const callsRouter = router({
         .leftJoin(callLogs, eq(callDraftTickets.callLogId, callLogs.id));
 
       // Filter by status at database level if not "all"
-      if (input.status !== "all") {
-        query = query.where(eq(callDraftTickets.reviewStatus, input.status as any));
-      }
-
-      const results = await query
+      const results = await (input.status !== "all"
+        ? baseSelect.where(eq(callDraftTickets.reviewStatus, input.status as any))
+        : baseSelect
+      )
         .orderBy(desc(callDraftTickets.createdAt))
         .limit(input.limit)
         .offset(input.offset);
