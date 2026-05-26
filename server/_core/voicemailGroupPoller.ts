@@ -126,6 +126,22 @@ interface VoicemailAnalysis {
   confidence: number;
 }
 
+// ─── System Message Filter ──────────────────────────────────────────────────
+function isSystemOrInfoMessage(transcript: string): boolean {
+  // Filter out M365 group welcome/informational messages
+  const systemPatterns = [
+    /work brilliantly together/i,
+    /shared voicemail group/i,
+    /welcome to the/i,
+    /informational message/i,
+    /not a user request/i,
+    /get started/i,
+    /organize group work/i,
+    /collaborate with your group/i,
+  ];
+  return systemPatterns.some(pattern => pattern.test(transcript));
+}
+
 async function analyzeVoicemail(transcript: string, callerNumber: string): Promise<VoicemailAnalysis> {
   const prompt = `Analyze this voicemail transcript from a caller to GigitekAI's support line.
 
@@ -239,7 +255,11 @@ async function processVoicemail(
 
     console.log(`[Voicemail Poller] Processing voicemail from ${callerNumber} (received: ${receivedAt})`);
 
-    // Step 1: Upload audio to S3
+    // Step 1: Upload audio to S3 (skip if no audio buffer)
+    if (!audioBuffer || audioBuffer.length === 0) {
+      console.log(`[Voicemail Poller] Skipping voicemail with no audio buffer from ${callerNumber}`);
+      return false;
+    }
     const ext = contentType.includes("mp3") ? "mp3" : contentType.includes("wav") ? "wav" : "mp3";
     const fileKey = `voicemail-recordings/${Date.now()}-${callerNumber.replace(/\+/g, "")}.${ext}`;
     const { url: audioUrl } = await storagePut(fileKey, audioBuffer, contentType);
@@ -256,16 +276,25 @@ async function processVoicemail(
       if ("text" in result && result.text) {
         transcript = result.text;
         console.log(`[Voicemail Poller] Transcription: "${transcript.substring(0, 100)}..."`);
+        
+        // Check if this is a system/informational message
+        if (isSystemOrInfoMessage(transcript)) {
+          console.log(`[Voicemail Poller] Skipping system/informational message from M365 group`);
+          return false; // Skip this message
+        }
       }
     } catch (err: any) {
       console.warn(`[Voicemail Poller] Transcription failed: ${err.message}`);
     }
 
     // Step 3: AI analysis
-    const analysis = await analyzeVoicemail(
-      transcript || "No transcript available — voicemail audio could not be transcribed",
-      callerNumber
-    );
+    // Skip if no transcript and can't analyze
+    if (!transcript) {
+      console.log(`[Voicemail Poller] Skipping voicemail with no transcript from ${callerNumber}`);
+      return false;
+    }
+    
+    const analysis = await analyzeVoicemail(transcript, callerNumber);
 
     // Step 4: Phone lookup
     const callerInfo = await lookupCallerByPhone(callerNumber);
@@ -291,7 +320,7 @@ async function processVoicemail(
       aiPriority: analysis.priority,
       aiCategory: analysis.category,
       aiConfidence: String(analysis.confidence),
-      status: "analyzed",
+      status: "draft_created",
       acsRecordingUrl: audioUrl,
     });
 
@@ -317,6 +346,8 @@ async function processVoicemail(
       priority: analysis.priority,
       reviewStatus: "pending",
     });
+    
+    console.log(`[Voicemail Poller] Draft ticket created for ${callerNumber}: "${analysis.title}"`);
 
     // Step 7: Update call log status
     await db.update(callLogs).set({ status: "draft_created", draftTicketId: callLogId }).where(eq(callLogs.id, callLogId));
