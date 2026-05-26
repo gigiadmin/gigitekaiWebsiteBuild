@@ -940,6 +940,45 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
 
     console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
     
+    // ALSO create a call log entry so the voicemail appears in Call Review
+    try {
+      const db = await getDb();
+      if (db) {
+        const { callLogs } = await import('../../drizzle/schema');
+        const now = new Date().toISOString();
+        const callLogId = `voicemail-${messageId || Date.now()}`;
+        
+        await db.insert(callLogs).values({
+          graphCallId: callLogId,
+          callerNumber: callerNumber || 'Unknown',
+          calleeNumber: '+1 609-676-4483', // GigitekAI main support line
+          calleeDisplayName: 'GigitekAI Support',
+          calleeUpn: 'support@gigitekai.com',
+          matchedUserId: userId,
+          direction: 'inbound',
+          startedAt: now,
+          endedAt: now,
+          durationSeconds: 0,
+          hasTranscript: transcript ? 1 : 0,
+          transcriptText: transcript || null,
+          aiSummary: ticketData.description,
+          aiTitle: ticketData.title,
+          aiPriority: ticketData.priority,
+          aiCategory: ticketData.category as string,
+          aiConfidence: '0.85',
+          status: 'ticket_created',
+          ticketId: ticketId,
+          createdAt: now,
+          updatedAt: now,
+          transcriptionStatus: transcript ? 'done' : 'unavailable',
+        });
+        console.log(`[Email Poller] Created call log entry for voicemail #${ticketId}`);
+      }
+    } catch (callLogError) {
+      console.warn('[Email Poller] Failed to create call log entry for voicemail:', callLogError);
+      // Don't fail the entire voicemail processing if call log creation fails
+    }
+    
     // Record in dedup table to prevent future duplicates
     if (callerNumber && transcriptHash) {
       await recordVoicemailDedup(callerNumber, transcriptHash, messageId);
