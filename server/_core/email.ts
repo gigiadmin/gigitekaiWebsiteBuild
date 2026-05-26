@@ -229,7 +229,8 @@ export interface MsGraphAttachment {
  */
 export async function fetchInboxFromMsGraph(
   top = 50,
-  skip = 0
+  skip = 0,
+  mailbox = "support@gigitekai.com"
 ): Promise<MsGraphMessage[]> {
   const token = await getMsGraphToken();
   if (!token) {
@@ -237,7 +238,7 @@ export async function fetchInboxFromMsGraph(
     return [];
   }
 
-  const senderEmail = "support@gigitekai.com";
+  const senderEmail = mailbox;
   const select = "id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,conversationId,hasAttachments";
   // Fetch ALL emails (not just unread) - rely on messageId deduplication to prevent reprocessing
   // Some email systems auto-mark emails as read, so we can't depend on isRead flag
@@ -245,7 +246,7 @@ export async function fetchInboxFromMsGraph(
     `https://graph.microsoft.com/v1.0/users/${senderEmail}/mailFolders/Inbox/messages` +
     `?$top=${top}&$skip=${skip}&$orderby=receivedDateTime desc&$select=${select}`;
   
-  console.log(`[Email] Fetching inbox from: ${url.substring(0, 100)}... (fetching ALL emails, deduplication via messageId)`);
+  console.log(`[Email] Fetching inbox from ${senderEmail}: ${url.substring(0, 100)}... (fetching ALL emails, deduplication via messageId)`);
 
   try {
     const response = await fetch(url, {

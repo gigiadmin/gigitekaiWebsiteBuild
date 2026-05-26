@@ -673,40 +673,56 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       // First, try to get audio from attachments
       if (msgData.hasAttachments) {
         try {
+          console.log(`[Email Poller] Message has attachments, fetching...`);
           const attachments = await fetchAttachmentsFromMessage(messageId);
+          console.log(`[Email Poller] Fetched ${attachments.length} total attachments`);
           const audioAttachments = attachments.filter(att => 
             att.contentType?.startsWith('audio/') || 
             /\.(mp3|wav|m4a|webm|ogg)$/i.test(att.name)
           );
+          console.log(`[Email Poller] Found ${audioAttachments.length} audio attachment(s): ${audioAttachments.map(a => a.name).join(', ')}`);
           
           if (audioAttachments.length > 0) {
             console.log(`[Email Poller] Found ${audioAttachments.length} audio attachment(s), attempting transcription`);
             const audioAtt = audioAttachments[0];
+            console.log(`[Email Poller] Downloading audio attachment: ${audioAtt.name} (${audioAtt.size} bytes)`);
             const audioBuffer = await downloadAttachmentContent(messageId, audioAtt.id);
+            console.log(`[Email Poller] Downloaded audio buffer: ${audioBuffer ? audioBuffer.length : 0} bytes`);
             
             if (audioBuffer && audioBuffer.length > 0) {
               try {
                 const { transcribeAudio } = await import('./voiceTranscription');
                 const { storagePut } = await import('../storage');
                 const fileKey = `voicemail-transcriptions/${messageId}-${Date.now()}.${getAudioExtension(audioAtt.contentType)}`;
+                console.log(`[Email Poller] Uploading to S3: ${fileKey}`);
                 const { url: audioUrl } = await storagePut(fileKey, audioBuffer, audioAtt.contentType);
+                console.log(`[Email Poller] Uploaded to S3: ${audioUrl}`);
                 
                 console.log(`[Email Poller] Transcribing voicemail attachment: ${audioAtt.name}`);
                 const transcriptionResult = await transcribeAudio({ audioUrl, language: 'en' });
+                console.log(`[Email Poller] Transcription result:`, transcriptionResult);
                 if ('text' in transcriptionResult && transcriptionResult.text) {
                   transcript = transcriptionResult.text;
                   console.log(`[Email Poller] Successfully transcribed voicemail: ${transcript.substring(0, 100)}...`);
                 } else if ('error' in transcriptionResult) {
                   console.warn(`[Email Poller] Transcription failed: ${transcriptionResult.error}`);
+                } else {
+                  console.warn(`[Email Poller] Unexpected transcription result format:`, transcriptionResult);
                 }
               } catch (transcribeError) {
                 console.error('[Email Poller] Error during attachment transcription:', transcribeError);
               }
+            } else {
+              console.warn(`[Email Poller] Audio buffer is empty or null`);
             }
+          } else {
+            console.log(`[Email Poller] No audio attachments found in message`);
           }
         } catch (attachmentError) {
           console.error('[Email Poller] Error fetching attachments:', attachmentError);
         }
+      } else {
+        console.log(`[Email Poller] Message has no attachments`);
       }
       
       // Fallback: try to extract audio URL from email body
@@ -1357,11 +1373,16 @@ export async function runEmailPoller(): Promise<void> {
 
   try {
     console.log(`[Email Poller] Starting email poll at ${new Date().toISOString()}`);
-    console.log(`[Email Poller] NODE_ENV=${process.env.NODE_ENV}, Polling mailbox: support@gigitekai.com`);
+    console.log(`[Email Poller] NODE_ENV=${process.env.NODE_ENV}, Polling mailboxes: support@gigitekai.com + voicemailbox@gigitekai.com`);
 
-    // Fetch unread emails from mailbox
-    const messages = await fetchInboxFromMsGraph(50, 0);
-    console.log(`[Email Poller] Fetched ${messages.length} emails from mailbox`);
+    // Fetch emails from BOTH support and voicemail mailboxes
+    // voicemailbox@gigitekai.com is the shared voicemail group that receives Teams voicemails
+    const [supportMessages, voicemailMessages] = await Promise.all([
+      fetchInboxFromMsGraph(50, 0, "support@gigitekai.com"),
+      fetchInboxFromMsGraph(50, 0, "voicemailbox@gigitekai.com")
+    ]);
+    const messages = [...supportMessages, ...voicemailMessages];
+    console.log(`[Email Poller] Fetched ${supportMessages.length} from support@gigitekai.com + ${voicemailMessages.length} from voicemailbox@gigitekai.com (total: ${messages.length})`);
     if (messages.length === 0) {
       console.log(`[Email Poller] DEBUG: No emails fetched. Checking Graph API credentials...`);
       const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = await import('./env').then(m => ({ msGraphTenantId: m.ENV.msGraphTenantId, msGraphClientId: m.ENV.msGraphClientId, msGraphClientSecret: m.ENV.msGraphClientSecret }));
