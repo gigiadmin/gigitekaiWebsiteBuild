@@ -45,6 +45,7 @@ import stripeWebhookRoute from "../routes/stripe-webhook-route";
 import { registerXeroOAuthRoutes } from "../routers/xero";
 import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
 import { voicemailRouter } from "../voicemailRoute";
+import uptimeWebhookRouter from "../uptimeWebhook";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -234,6 +235,9 @@ async function startServer() {
   
   // Stripe webhook endpoint
   app.use("/api/stripe/webhook", stripeWebhookRoute);
+  
+  // UptimeRobot webhook endpoint
+  app.use("/api", uptimeWebhookRouter);
   
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);

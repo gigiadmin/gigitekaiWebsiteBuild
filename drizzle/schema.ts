@@ -1817,6 +1817,32 @@ export const searchAnalytics = mysqlTable("searchAnalytics", {
 	index("searchAnalytics_userId_idx").on(table.userId),
 ]);
 
+export const uptimeAlerts = mysqlTable("uptimeAlerts", {
+	id: int().autoincrement().notNull(),
+	monitorId: int().notNull(),
+	monitorName: varchar({ length: 255 }).notNull(),
+	monitorUrl: varchar({ length: 2048 }).notNull(),
+	previousStatus: varchar({ length: 50 }).notNull(), // 'up' or 'down'
+	currentStatus: varchar({ length: 50 }).notNull(), // 'up' or 'down'
+	transitionType: mysqlEnum(['up_to_down', 'down_to_up']).notNull(),
+	downtimeMinutes: int(), // How long it was down (if transitioning to up)
+	downStartedAt: timestamp({ mode: 'string' }),
+	downEndedAt: timestamp({ mode: 'string' }),
+	teamsNotificationSent: tinyint().default(0).notNull(),
+	emailNotificationSent: tinyint().default(0).notNull(),
+	teamsMessageId: varchar({ length: 255 }),
+	teamsChannelId: varchar({ length: 255 }),
+	acknowledgedAt: timestamp({ mode: 'string' }),
+	acknowledgedBy: varchar({ length: 320 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("uptimeAlerts_monitorId_idx").on(table.monitorId),
+	index("uptimeAlerts_transitionType_idx").on(table.transitionType),
+	index("uptimeAlerts_createdAt_idx").on(table.createdAt),
+]);
+
 export const searchSuggestions = mysqlTable("searchSuggestions", {
 	id: int().autoincrement().notNull(),
 	query: varchar({ length: 500 }).notNull(),
