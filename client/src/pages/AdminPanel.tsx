@@ -57,10 +57,9 @@ import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard"
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
 import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
-import AdminWebhookMonitoring from "./AdminWebhookMonitoring";
 import CreateTicketModal from "@/components/CreateTicketModal";
 
-type AdminTab = "tickets" | "users" | "webhooks";
+type AdminTab = "tickets" | "users";
 
 export default function AdminPanel() {
   // Primary: Manus OAuth (same session as /helpdesk)
@@ -1017,210 +1016,15 @@ export default function AdminPanel() {
                 <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                 <h3 className="text-white font-bold text-xl mb-2">No users yet</h3>
                 <p className="text-gray-400 text-sm">Users will appear here once they sign in to the Support Center.</p>
-                            </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "webhooks" && (
-          <AdminWebhookMonitoring />
-        )}
-      </div>
-      {/* Invite Customer Modal */}
-      <InviteCustomerModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        onSuccess={() => {
-          refetchUsers();
-          setShowInviteModal(false);
-        }}
-      />
-
-      {/* Quick Reply Modal */}
-      <QuickReplyModal
-        isOpen={showQuickReply}
-        onClose={() => setShowQuickReply(false)}
-        linkedTicketId={quickReplyTicketId}
-        recipientEmail={quickReplyEmail}
-        recipientName={quickReplyName}
-        onSuccess={() => refetch()}
-      />
-
-      {/* Assign Ticket Modal */}
-      {showAssignModal && assignTicketId !== null && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-[#141B2D] border border-gray-800 rounded-xl p-6 w-96">
-            <h3 className="text-white font-bold text-lg mb-1">Assign Ticket #{assignTicketId}</h3>
-            <p className="text-gray-400 text-sm mb-4">Select an agent. A Teams notification will be sent to the Help Desk channel.</p>
-            <div className="space-y-2 mb-4">
-              {(() => {
-                const agents = (allAdminUsers || [])
-                  .filter((u: any) => u.role === "admin" || u.role === "technician")
-                  .map((u: any) => {
-                    const wl = (agentWorkloads || []).find((w: any) => w.agentId === u.id);
-                    return { ...u, openTickets: wl ? Number(wl.openTickets) : 0 };
-                  })
-                  .sort((a: any, b: any) => a.openTickets - b.openTickets);
-                const minLoad = agents.length > 0 ? agents[0].openTickets : 0;
-                return agents.map((u: any) => {
-                  const isRecommended = u.openTickets === minLoad;
-                  return (
-                    <button
-                      key={u.id}
-                      onClick={() => setAssignAgentId(String(u.id))}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-[opacity,transform] text-sm ${
-                        assignAgentId === String(u.id)
-                          ? "border-cyan-500 bg-cyan-500/10 text-white"
-                          : "border-gray-700 bg-[#0A0E1A] text-gray-300 hover:border-cyan-500/40 hover:bg-cyan-500/5"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        {isRecommended && <Star className="w-3 h-3 text-amber-400" />}
-                        {u.name || u.email}
-                      </span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        u.openTickets === 0 ? "bg-emerald-500/20 text-emerald-400" :
-                        u.openTickets <= 3 ? "bg-cyan-500/20 text-cyan-400" :
-                        "bg-red-500/20 text-red-400"
-                      }`}>
-                        {u.openTickets} open
-                      </span>
-                    </button>
-                  );
-                });
-              })()}
-            </div>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => { setShowAssignModal(false); setAssignTicketId(null); setAssignAgentId(""); }}
-                className="border-gray-700 text-gray-400"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  if (!assignAgentId) { toast.error("Please select an agent"); return; }
-                  assignTicketMutation.mutate({ ticketId: assignTicketId, agentId: parseInt(assignAgentId) });
-                }}
-                disabled={assignTicketMutation.isPending || !assignAgentId}
-                className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
-              >
-                {assignTicketMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><UserPlus className="w-4 h-4 mr-2" />Assign</>}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Save Filter Preset Modal */}
-      {showPresetModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#141B2D] border border-gray-800 rounded-xl p-6 w-96">
-            <h3 className="text-white font-bold text-lg mb-4">Save Filter Preset</h3>
-            <input
-              type="text"
-              placeholder="Enter preset name..."
-              value={presetName}
-              onChange={(e) => setPresetName(e.target.value)}
-              className="w-full bg-[#0A0E1A] border border-gray-800 rounded-lg px-4 py-2 text-white mb-4 focus:border-[#00D4FF]/50 focus:outline-none"
-              onKeyPress={(e) => e.key === "Enter" && saveFilterPreset()}
-            />
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => { setShowPresetModal(false); setPresetName(""); }}
-                className="border-gray-700 text-gray-400"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={saveFilterPreset}
-                className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
-              >
-                Save
-              </Button>
-            </div>
-            {filterPresets.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-gray-800">
-                <h4 className="text-gray-400 text-sm font-semibold mb-3">Existing Presets</h4>
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {filterPresets.map((p) => (
-                    <div key={p.name} className="flex items-center justify-between bg-[#0A0E1A] rounded p-2">
-                      <span className="text-gray-300 text-sm">{p.name}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteFilterPreset(p.name)}
-                        className="text-red-400 hover:text-red-300 h-6 w-6 p-0"
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Close Ticket Dialog — requires closing notes */}
-      {closeDialogTicket && (
-        <CloseTicketDialog
-          open={closeDialogOpen}
-          onOpenChange={setCloseDialogOpen}
-          ticketId={closeDialogTicket.id}
-          ticketTitle={closeDialogTicket.title}
-          ticketStatus={closeDialogTicket.status}
-          onSuccess={() => {
-            setCloseDialogTicket(null);
-            refetch();
-          }}
-        />
-      )}
-
-      {/* Escalate to Meeting Dialog */}
-      {escalateTicket && (
-        <EscalateToMeetingDialog
-          open={escalateDialogOpen}
-          onOpenChange={(open) => {
-            setEscalateDialogOpen(open);
-            if (!open) setEscalateTicket(null);
-          }}
-          ticketId={escalateTicket.id}
-          ticketTitle={escalateTicket.title}
-        />
-      )}
-
-      {/* Create Ticket Modal — unified component */}
-      <CreateTicketModal
-        mode="admin"
-        open={showCreateTicket}
-        onClose={() => setShowCreateTicket(false)}
-        onSuccess={() => { refetch(); setShowCreateTicket(false); }}
-      />
-
-      {/* Agent Assignment Modal */}
-      {assignmentModalTicketId && (
-        <AgentAssignmentModal
-          ticketId={assignmentModalTicketId}
-          isOpen={isAssignmentModalOpen}
-          onClose={() => {
-            setIsAssignmentModalOpen(false);
-            setAssignmentModalTicketId(null);
-          }}
-          onAssignmentSuccess={() => {
-            refetch();
-            setIsAssignmentModalOpen(false);
-            setAssignmentModalTicketId(null);
-          }}
-        />
-      )}
-
+        )}
+      </div>
     </div>
   );
 }
+
 function MetricCard({
   label, value, icon, color, onClick, active, highlight = false
 }: {
