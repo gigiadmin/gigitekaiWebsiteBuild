@@ -36,7 +36,8 @@ const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
-// const AboutUs = lazy(() => import("./pages/AboutUs")); // hidden - NDA
+const About = lazy(() => import("./pages/About"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
 const OurTeam = lazy(() => import("./pages/OurTeam"));
 const Partners = lazy(() => import("./pages/Partners"));
 const IndustriesPage = lazy(() => import("./pages/IndustriesPage"));
@@ -199,8 +200,8 @@ function Router() {
           <Route path={"/portfolio/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
-          <Route path={"/about"}>{() => { window.location.replace("/"); return null; }}</Route>
-          <Route path={"/about-us"}>{() => { window.location.replace("/"); return null; }}</Route>
+          <Route path={"/about"} component={About} />
+          <Route path={"/about-us"} component={AboutUs} />
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />

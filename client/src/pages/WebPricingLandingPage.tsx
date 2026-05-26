@@ -626,7 +626,7 @@ export default function WebPricingLandingPage() {
                     <MapPin size={24} className="text-cyan-400" />
                     <div>
                       <p className="text-gray-300 text-sm">Location</p>
-                      <p className="text-white">Egg Harbor City, NJ</p>
+                      <p className="text-white">Tampa, FL 33601</p>
                     </div>
                   </div>
                 </div>

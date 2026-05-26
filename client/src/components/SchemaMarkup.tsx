@@ -27,8 +27,10 @@ export function SchemaMarkup() {
     },
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Egg Harbor City",
-      addressLocality: "New Jersey",
+      streetAddress: "Tampa",
+      addressLocality: "Tampa",
+      addressRegion: "FL",
+      postalCode: "33601",
       addressCountry: "US"
     }
   };
@@ -45,8 +47,10 @@ export function SchemaMarkup() {
     email: "support@gigitekai.com",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Egg Harbor City",
-      addressLocality: "New Jersey",
+      streetAddress: "Tampa",
+      addressLocality: "Tampa",
+      addressRegion: "FL",
+      postalCode: "33601",
       addressCountry: "US"
     },
     priceRange: "$$",
