@@ -13,6 +13,7 @@ import { invokeLLM } from "./llm";
 import { getDb } from "../db";
 import { callLogs, callDraftTickets, users } from "../../drizzle/schema";
 import { eq, desc, and, gte } from "drizzle-orm";
+import { startAcsRecording } from "../acsRecordingService";
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 const TENANT_ID = process.env.MS_GRAPH_TENANT_ID;
@@ -307,10 +308,23 @@ async function processCall(pstnRow: any): Promise<void> {
   // PSTN calls (regular phone calls) don't have conferenceId — transcript only available for Teams meetings
   let transcriptText: string | null = null;
   let transcriptionStatus: "pending" | "done" | "failed" | "unavailable" = "unavailable";
+  let acsRecordingId: string | null = null;
+  
   if (pstnRow.userId && pstnRow.conferenceId) {
     transcriptionStatus = "pending";
     transcriptText = await fetchTranscript(pstnRow.userId, pstnRow.conferenceId);
     transcriptionStatus = transcriptText ? "done" : "unavailable";
+  } else if (pstnRow.serverCallId) {
+    // For PSTN calls without Teams transcript, start ACS recording
+    console.log(`[Call Poller] Starting ACS recording for PSTN call ${graphCallId}`);
+    const callbackBaseUrl = process.env.VITE_APP_ID ? `https://${process.env.VITE_APP_ID}.manus.space` : "https://gigitekai.com";
+    acsRecordingId = await startAcsRecording(pstnRow.serverCallId, callbackBaseUrl);
+    if (acsRecordingId) {
+      transcriptionStatus = "pending";
+      console.log(`[Call Poller] ACS recording started: ${acsRecordingId}`);
+    } else {
+      console.warn(`[Call Poller] Failed to start ACS recording for call ${graphCallId}`);
+    }
   }
 
   // AI analysis
@@ -338,6 +352,7 @@ async function processCall(pstnRow: any): Promise<void> {
     hasTranscript: transcriptText ? 1 : 0,
     transcriptionStatus,
     transcriptText: transcriptText ?? null,
+    acsRecordingId: acsRecordingId ?? null,
     aiSummary: analysis.summary,
     aiTitle: analysis.title,
     aiPriority: analysis.priority,
