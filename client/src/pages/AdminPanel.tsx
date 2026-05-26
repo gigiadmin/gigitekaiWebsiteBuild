@@ -115,6 +115,17 @@ export default function AdminPanel() {
   const ticketScrollRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
 
+  const allTicketsSelected = filteredTickets && selectedTicketIds.length === filteredTickets.length && filteredTickets.length > 0;
+  const someTicketsSelected = selectedTicketIds.length > 0 && selectedTicketIds.length < (filteredTickets?.length ?? 0);
+
+  const toggleSelectAllTickets = () => {
+    if (allTicketsSelected) {
+      setSelectedTicketIds([]);
+    } else {
+      setSelectedTicketIds(filteredTickets?.map((t: any) => t.id) ?? []);
+    }
+  };
+
   function toggleTicketExpanded(id: number) {
     const next = new Set(expandedTicketIds);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -543,7 +554,16 @@ export default function AdminPanel() {
             <div className="w-full" ref={ticketScrollRef} style={{ maxHeight: "calc(100vh - 420px)", overflowY: "auto", overflowX: "auto" }}>
               {/* Table Header */}
               <div className="hidden lg:grid gap-2 px-4 py-3 border-b border-gray-800/60 text-xs text-gray-500 font-semibold uppercase tracking-wider w-full sticky top-0 bg-[#141B2D]/80 z-10" style={{ gridTemplateColumns: 'auto 60px 1fr 100px 100px 100px 100px 100px auto' }}>
-                <span></span>
+                <input
+                  type="checkbox"
+                  checked={allTicketsSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someTicketsSelected;
+                  }}
+                  onChange={toggleSelectAllTickets}
+                  className="w-4 h-4 cursor-pointer"
+                  title="Select all tickets"
+                />
                 <span>ID</span>
                 <span>Title</span>
                 <span>Status</span>
@@ -560,7 +580,7 @@ export default function AdminPanel() {
                   const statusConfig = getStatusConfig(ticket.status);
                   const priorityConfig = getPriorityConfig(ticket.priority);
                   return (
-                    <div key={ticket.id} className="w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors overflow-hidden relative">
+                    <div key={ticket.id} className={`w-full border-b border-gray-800/40 hover:bg-white/[0.02] transition-colors overflow-hidden relative ${selectedTicketIds.includes(ticket.id) ? 'bg-blue-900/20' : ''}`}>
                     {/* ===== MOBILE CARD LAYOUT (hidden on lg+) ===== */}
                     <div className="lg:hidden px-4 py-3 space-y-2">
                       <div className="flex items-start justify-between gap-2">
