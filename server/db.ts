@@ -145,8 +145,14 @@ export async function createTicket(ticket: InsertTicket) {
   try {
     const result = await db.insert(tickets).values(ticket);
     console.log("[Database] Ticket created successfully");
-    // Get the inserted ticket to return with ID
-    const insertedTickets = await db.select().from(tickets).where(eq(tickets.userId, ticket.userId)).orderBy(desc(tickets.createdAt)).limit(1);
+    // Get the inserted ticket ID from the insert result
+    // Drizzle returns the inserted row(s) in the result
+    const insertedId = (result as any).insertId || (result as any)[0]?.id;
+    if (!insertedId) {
+      console.error("[Database] Could not get inserted ticket ID from result");
+      return null;
+    }
+    const insertedTickets = await db.select().from(tickets).where(eq(tickets.id, insertedId as any));
     const insertedTicket = insertedTickets[0];
     if (!insertedTicket) return null;
     console.log(`[Database] Returning ticket ID: ${insertedTicket.id}`);
