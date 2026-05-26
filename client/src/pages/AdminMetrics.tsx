@@ -64,9 +64,9 @@ export default function AdminMetrics() {
     { name: "Low", value: metrics?.byPriority?.low ?? 0, fill: "#34D399" },
   ];
 
-  // Last 7 days trend
+  // Last 7 days trend — backend returns { date: "2026-05-26", count: N }
   const trendData = (metrics?.ticketsByDay ?? []).map(d => ({
-    day: new Date(d.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+    day: new Date(d.date + 'T12:00:00').toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
     count: d.count,
   }));
 

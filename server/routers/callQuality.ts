@@ -11,6 +11,21 @@ import { callLogs, callQualityScores } from "../../drizzle/schema";
 import { eq, desc, isNotNull, sql, and, gte } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
+// ── Voicemail detection ───────────────────────────────────────────────────────
+const VOICEMAIL_UPNS = ['voicemail@gigitekai.com', 'voicemail@gigitek.com'];
+const AUTO_ATTENDANT_NAMES = ['auto attendant', 'voicemail', 'main line auto attendant'];
+
+function isVoicemailCall(call: { calleeUpn?: string | null; calleeDisplayName?: string | null; durationSeconds?: number | null }): boolean {
+  // Check if callee is a voicemail/auto-attendant UPN
+  if (call.calleeUpn && VOICEMAIL_UPNS.includes(call.calleeUpn.toLowerCase())) return true;
+  // Check if callee display name indicates auto-attendant
+  if (call.calleeDisplayName) {
+    const name = call.calleeDisplayName.toLowerCase();
+    if (AUTO_ATTENDANT_NAMES.some(pattern => name.includes(pattern))) return true;
+  }
+  return false;
+}
+
 // ── Scoring rubric ─────────────────────────────────────────────────────────────
 const SCORING_RUBRIC = `
 You are a call quality analyst for GigitekAI, an AI-first Managed Services Provider.
@@ -110,6 +125,11 @@ export const callQualityRouter = router({
 
       if (!call) throw new Error("Call log not found");
       if (!call.transcriptText) throw new Error("No transcript available for this call");
+
+      // Warn if this is a voicemail (but still allow manual scoring if admin insists)
+      if (isVoicemailCall(call)) {
+        console.warn(`[Call Quality] Warning: Scoring voicemail/auto-attendant call ${input.callLogId} — results may be all zeros`);
+      }
 
       const agentName = call.calleeDisplayName || call.calleeUpn || "Unknown Agent";
 
@@ -245,14 +265,16 @@ export const callQualityRouter = router({
         .groupBy(sql`DATE(scoredAt)`)
         .orderBy(sql`DATE(scoredAt)`);
 
-      // Calls with transcripts that haven't been scored yet
+      // Calls with transcripts that haven't been scored yet (excludes voicemails)
       const unscoredCount = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(callLogs)
         .where(
           and(
             isNotNull(callLogs.transcriptText),
-            sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`
+            sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
+            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+            sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
           )
         );
 
@@ -264,7 +286,7 @@ export const callQualityRouter = router({
       };
     }),
 
-  // Get calls with transcripts that haven't been scored yet
+  // Get calls with transcripts that haven't been scored yet (excludes voicemails)
   getUnscoredCalls: adminProcedure
     .input(z.object({ limit: z.number().min(1).max(50).default(20) }))
     .query(async ({ input }) => {
@@ -277,7 +299,10 @@ export const callQualityRouter = router({
         .where(
           and(
             isNotNull(callLogs.transcriptText),
-            sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`
+            sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
+            // Exclude voicemail/auto-attendant calls — no agent interaction to score
+            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+            sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
           )
         )
         .orderBy(desc(callLogs.startedAt))
@@ -286,7 +311,7 @@ export const callQualityRouter = router({
       return unscored;
     }),
 
-  // Score all unscored calls with transcripts (batch)
+  // Score all unscored calls with transcripts (batch) — skips voicemails
   scoreAllUnscored: adminProcedure.mutation(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database unavailable");
@@ -297,7 +322,10 @@ export const callQualityRouter = router({
       .where(
         and(
           isNotNull(callLogs.transcriptText),
-          sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`
+          sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
+          // Exclude voicemail/auto-attendant calls
+          sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+          sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
         )
       )
       .orderBy(desc(callLogs.startedAt))
@@ -305,9 +333,16 @@ export const callQualityRouter = router({
 
     let scored = 0;
     let failed = 0;
+    let skipped = 0;
     const errors: string[] = [];
 
     for (const call of unscored) {
+      // Double-check: skip voicemails that slipped through
+      if (isVoicemailCall(call)) {
+        skipped++;
+        continue;
+      }
+
       try {
         const agentName = call.calleeDisplayName || call.calleeUpn || "Unknown Agent";
         const scores = await scoreTranscript(call.transcriptText!, agentName);
@@ -327,7 +362,7 @@ export const callQualityRouter = router({
       }
     }
 
-    return { scored, failed, errors, total: unscored.length };
+    return { scored, failed, skipped, errors, total: unscored.length };
   }),
 });
 
@@ -340,6 +375,12 @@ export async function autoScoreCall(
 ): Promise<void> {
   const db = await getDb();
   if (!db) return;
+
+  // Skip voicemail/auto-attendant calls — no agent interaction to score
+  if (isVoicemailCall(callMeta)) {
+    console.log(`[Call Quality] Skipping voicemail/auto-attendant call ${callLogId} — no agent interaction`);
+    return;
+  }
 
   const agentName = callMeta.calleeDisplayName || callMeta.calleeUpn || "Unknown Agent";
 

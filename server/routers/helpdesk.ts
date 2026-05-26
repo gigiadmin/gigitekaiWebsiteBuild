@@ -693,13 +693,24 @@ export const helpdeskRouter = router({
         general_support: allTickets.filter(t => t.category === "general_support").length,
         billing: allTickets.filter(t => t.category === "billing").length,
       };
-      // Tickets by day (last 30 days)
+      // Tickets by day (last 7 days)
       const ticketsByDay: { date: string; count: number }[] = [];
       const now = new Date();
-      for (let i = 29; i >= 0; i--) {
+      for (let i = 6; i >= 0; i--) {
         const day = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
         const dayStr = day.toISOString().split('T')[0];
-        const count = allTickets.filter(t => t.createdAt.split('T')[0] === dayStr).length;
+        // FIX: Handle both Date objects and strings
+        const count = allTickets.filter(t => {
+          let ticketDate: string;
+          if (t.createdAt instanceof Date) {
+            ticketDate = t.createdAt.toISOString();
+          } else if (typeof t.createdAt === 'string') {
+            ticketDate = t.createdAt;
+          } else {
+            return false; // Invalid date
+          }
+          return ticketDate.split('T')[0] === dayStr;
+        }).length;
         ticketsByDay.push({ date: dayStr, count });
       }
       // Avg resolution time
