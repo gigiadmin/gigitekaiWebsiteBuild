@@ -918,36 +918,17 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       transcript || '(No transcript available)',
     ].join('\n');
 
-    const ticket = await createTicket({
-      userId,
-      title: ticketData.title,
-      description: fullDescription,
-      priority: ticketData.priority,
-      category: (ticketData.category as 'bug_report' | 'feature_request' | 'general_support' | 'billing') || 'general_support',
-      status: 'draft',
-      source: 'phone',
-      aiCategory: (ticketData.category as string) || 'general_support',
-      aiPriority: ticketData.priority,
-      aiConfidence: '0.85',
-      aiReasoning: `Voicemail auto-ticket: ${ticketData.callerIntent}`,
-    });
-
-    const ticketId = ticket?.id || null;
-    if (!ticketId) {
-      console.error('[Email Poller] Failed to create voicemail ticket');
-      return false;
-    }
-
-    console.log(`[Email Poller] Created VOICEMAIL ticket #${ticketId} from ${callerNumber || 'unknown'}`);
-    
-    // ALSO create a call log entry so the voicemail appears in Call Review
+    // Create a DRAFT ticket in callDraftTickets (for Pending Review tab)
+    // Do NOT create a regular ticket yet — wait for admin approval
     try {
       const db = await getDb();
       if (db) {
-        const { callLogs } = await import('../../drizzle/schema');
+        const { callDraftTickets, callLogs } = await import('../../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
         const now = new Date().toISOString();
         const callLogId = `voicemail-${messageId || Date.now()}`;
         
+        // 1. Create call log entry (for Call Logs tab)
         await db.insert(callLogs).values({
           graphCallId: callLogId,
           callerNumber: callerNumber || 'Unknown',
@@ -966,17 +947,40 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
           aiPriority: ticketData.priority,
           aiCategory: ticketData.category as string,
           aiConfidence: '0.85',
-          status: 'ticket_created',
-          ticketId: ticketId,
+          status: 'pending_review',
           createdAt: now,
           updatedAt: now,
           transcriptionStatus: transcript ? 'done' : 'unavailable',
         });
-        console.log(`[Email Poller] Created call log entry for voicemail #${ticketId}`);
+        
+        // Get the call log ID we just created
+        const callLogResult = await db
+          .select({ id: callLogs.id })
+          .from(callLogs)
+          .where(eq(callLogs.graphCallId, callLogId))
+          .limit(1);
+        const callLogDbId = callLogResult[0]?.id || 0;
+        
+        // 2. Create draft ticket (for Pending Review tab)
+        await db.insert(callDraftTickets).values({
+          callLogId: callLogDbId,
+          callerPhone: callerNumber || 'Unknown',
+          callerName: `Caller ${callerNumber || 'Unknown'}`,
+          userId: userId,
+          title: ticketData.title,
+          description: fullDescription,
+          category: ticketData.category as string,
+          priority: ticketData.priority,
+          reviewStatus: 'pending',
+          createdAt: now,
+          updatedAt: now,
+        });
+        
+        console.log(`[Email Poller] Created DRAFT voicemail ticket from ${callerNumber || 'unknown'} - awaiting review`);
       }
-    } catch (callLogError) {
-      console.warn('[Email Poller] Failed to create call log entry for voicemail:', callLogError);
-      // Don't fail the entire voicemail processing if call log creation fails
+    } catch (draftError) {
+      console.error('[Email Poller] Failed to create draft voicemail ticket:', draftError);
+      return false;
     }
     
     // Record in dedup table to prevent future duplicates
