@@ -375,8 +375,6 @@ export const customerInvitesRouter = router({
         return { success: false, message: 'Failed to revoke invite' };
       }
     }),
-});
-
 
   // ── Account Management Procedures ────────────────────────────────────────
 
@@ -758,3 +756,4 @@ export const customerInvitesRouter = router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to bulk resend' });
       }
     }),
+});
