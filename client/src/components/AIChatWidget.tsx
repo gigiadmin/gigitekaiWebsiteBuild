@@ -1567,10 +1567,14 @@ export default function AIChatWidget() {
         transcript = messages.map(m => `${m.role === "user" ? "You" : "AI"}: ${m.message}`).join("\n\n");
       }
 
-      // Create ticket via tRPC
-      await sendMessageMutation.mutateAsync({
+      // Build the ticket description with all form data
+      const fullDescription = `**Requester:** ${ticketForm.requesterName}\n**Email:** ${ticketForm.requesterEmail}\n\n**Description:**\n${ticketForm.description}${transcript ? `\n\n**Chat Transcript:**\n${transcript}` : ""}`;
+
+      // Create ticket directly via escalateToHelpDesk
+      await escalate.mutateAsync({
         sessionId: sessionId || `local-${Date.now()}`,
-        message: `[TICKET_SUBMISSION] Subject: ${ticketForm.subject}\nName: ${ticketForm.requesterName}\nEmail: ${ticketForm.requesterEmail}\nCategory: ${ticketForm.tags}\nPriority: ${ticketForm.priority}\nDescription: ${ticketForm.description}${transcript ? `\n\nChat Transcript:\n${transcript}` : ""}`
+        reason: `${ticketForm.subject}\n\n${fullDescription}`,
+        priority: ticketForm.priority as "low" | "medium" | "high" | "critical",
       });
 
       toast.success("Ticket created successfully! We'll be in touch soon.");
