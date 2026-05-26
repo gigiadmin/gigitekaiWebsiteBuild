@@ -947,7 +947,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
           aiPriority: ticketData.priority,
           aiCategory: ticketData.category as string,
           aiConfidence: '0.85',
-          status: 'pending_review',
+          status: 'draft_created',
           createdAt: now,
           updatedAt: now,
           transcriptionStatus: transcript ? 'done' : 'unavailable',
