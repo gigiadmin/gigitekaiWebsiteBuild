@@ -280,6 +280,12 @@
     box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
   }
 
+  /* Ticket modal loading step fade-in */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
   /* Animated counter */
   @keyframes countUp {
     from { opacity: 0; transform: translateY(20px); }

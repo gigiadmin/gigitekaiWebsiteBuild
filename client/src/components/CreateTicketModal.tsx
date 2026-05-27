@@ -188,6 +188,46 @@ export default function CreateTicketModal({
         className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0F1629] border border-gray-800 rounded-2xl shadow-2xl shadow-black/50"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* ── Full-modal loading overlay ─────────────────────────────────── */}
+        {isPending && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center rounded-2xl bg-[#0A0E1A]/90 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-5 px-8 text-center">
+              {/* Animated ring */}
+              <div className="relative w-20 h-20">
+                <div className="absolute inset-0 rounded-full border-4 border-[#00D4FF]/20" />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#00D4FF] animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Send className="w-7 h-7 text-[#00D4FF]" />
+                </div>
+              </div>
+              {/* Status text */}
+              <div>
+                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {isAdmin ? "Creating Ticket…" : "Submitting Ticket…"}
+                </p>
+                <p className="text-gray-400 text-sm mt-1">AI is classifying and routing your request</p>
+              </div>
+              {/* Progress steps */}
+              <div className="flex flex-col gap-2 w-full max-w-xs">
+                {[
+                  { label: "Validating form data",       delay: "0ms" },
+                  { label: "AI classifying issue",        delay: "400ms" },
+                  { label: "Routing to support team",     delay: "800ms" },
+                  { label: "Sending notifications",       delay: "1200ms" },
+                ].map((step, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2.5 text-sm text-gray-400"
+                    style={{ animation: `fadeIn 0.4s ease forwards`, animationDelay: step.delay, opacity: 0 }}
+                  >
+                    <Loader2 className="w-3.5 h-3.5 text-[#00D4FF] animate-spin shrink-0" />
+                    <span>{step.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[#0F1629] border-b border-gray-800/60">
           <div>
@@ -201,8 +241,9 @@ export default function CreateTicketModal({
             </p>
           </div>
           <button
-            onClick={() => { reset(); onClose(); }}
-            className="p-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+            onClick={() => { if (!isPending) { reset(); onClose(); } }}
+            disabled={isPending}
+            className="p-2 text-gray-500 hover:text-white hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -429,7 +470,8 @@ export default function CreateTicketModal({
               type="button"
               onClick={() => { reset(); onClose(); }}
               variant="outline"
-              className="border-gray-700 text-gray-400 hover:text-white rounded-xl py-6 px-6"
+              disabled={isPending}
+              className="border-gray-700 text-gray-400 hover:text-white rounded-xl py-6 px-6 disabled:opacity-30"
             >
               Cancel
             </Button>
