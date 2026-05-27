@@ -311,16 +311,16 @@
   - [x] Disabled Close/Cancel buttons during submission
 
 
-## Chat Support System Forms (In Progress)
+## Chat Support System Forms (Complete)
 
-- [ ] Create category-specific form components for each support type
-  - [ ] AI Assessment form (name, company, email, assessment type)
-  - [ ] Cloud Migration form (name, company, email, current setup, goals)
-  - [ ] Automation form (name, company, email, process details)
-  - [ ] Security Audit form (name, company, email, scope)
-  - [ ] Report a Bug form (name, email, bug description, steps to reproduce)
-  - [ ] General Help form (name, email, question/topic)
-- [ ] Integrate forms with AIChatBox component (replace button clicks with form modals)
-- [ ] Wire forms to backend routers (contact, ticket, bug report)
-- [ ] Add "Talk to a Specialist" phone link (727-382-6909)
-- [ ] Test all forms and verify UX flow
+- [x] Create category-specific form components for each support type
+  - [x] AI Assessment form (name, company, email, assessment type)
+  - [x] Cloud Migration form (name, company, email, current setup, goals)
+  - [x] Automation form (name, company, email, process details)
+  - [x] Security Audit form (name, company, email, scope)
+  - [x] Report a Bug form (name, email, bug description, steps to reproduce)
+  - [x] General Help form (name, email, question/topic)
+- [x] Integrate forms with AIChatWidget component (replace button clicks with form modals)
+- [x] Wire forms to backend routers (contact.submit)
+- [x] Add "Talk to a Specialist" phone link (727-382-6909) — Direct tel: link
+- [x] Test all forms and verify UX flow (ChatCategoryForms component created, integrated, auto-fills from auth)
