@@ -170,6 +170,7 @@ export default function SiteNavBar2024() {
             {[
               { label: "Websites", href: "/websites", show: 'always' },
               { label: "Industries", href: "/industries", show: 'always' },
+              { label: "Free Audit", href: "/free-audit", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               // { label: "ROI Calculator", href: "/roi-calculator", show: 'always' }, // REMOVED: too complex for now
               { label: "Insights", href: "/blog", show: 'always' },
@@ -281,6 +282,7 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Websites", href: "/websites", id: "nav-websites" },
                 { label: "Industries", href: "/industries", id: "nav-industries" },
+                { label: "Free Audit", href: "/free-audit", id: "nav-audit" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 // { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" }, // REMOVED: too complex for now
                 { label: "Insights", href: "/blog", id: "nav-insights" },
