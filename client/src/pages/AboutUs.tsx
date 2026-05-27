@@ -102,7 +102,7 @@ export default function AboutUs() {
               <div className="text-center">
                 <div className="w-full mx-auto rounded-lg overflow-hidden border-2 border-cyan-500/40">
                   <img
-                    src="/manus-storage/IMG_5021_2a405ce9.PNG"
+                    src="/manus-storage/IMG_5021_8ad4b34e.PNG"
                     alt="Harry and Brenda Henry — Founders, GigitekAI"
                     className="w-full h-auto object-cover"
                     loading="lazy"
