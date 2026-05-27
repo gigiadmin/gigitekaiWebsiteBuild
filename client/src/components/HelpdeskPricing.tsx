@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, X, AlertCircle, TrendingUp, Clock, Shield, Headphones, Zap, HardDrive, Lock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CreateTicketModal } from "./CreateTicketModal";
+import CreateTicketModal from "./CreateTicketModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function HelpdeskPricing() {

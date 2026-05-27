@@ -242,11 +242,18 @@
   - [x] Sends notification email to harry@gigitekai.com
   - [x] Configuration saved to config/scheduled-tasks.json
 
+- [x] **Fix HelpdeskPricing Component** — FIXED: showContactForm is not defined error
+  - [x] Added missing useState import
+  - [x] Added showContactForm and selectedPlan state
+  - [x] Added handleSelectPlan function
+  - [x] Removed StripeCheckoutButton import
+  - [x] Replaced all Stripe checkout buttons with contact form modal
+  - [x] Build successful, no more production errors
+
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
 - [ ] Investigate actual source of 70+ HTTP 400 emails (Teams webhook health monitor is disabled)
-- [ ] Unified ticket creation form (user + admin) with AI-ready fields
 - [ ] Verify production voicemail pipeline with live test calls
 
 - [x] **Bulk Ticket Operations** — Select multiple calls and perform batch actions

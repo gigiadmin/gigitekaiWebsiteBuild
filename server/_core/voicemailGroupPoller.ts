@@ -247,13 +247,14 @@ async function processVoicemail(
     const graphCallId = `voicemail-${threadId}`;
 
     // CRITICAL: Check voicemailDedup table first (persistent 24-hour dedup)
+    // Use externalId match only - don't rely on expiresAt comparison which can fail with string timestamps
     const dedupCheck = await db.select().from(voicemailDedup).where(
-      sql`externalId = ${threadId} AND expiresAt > NOW()`
+      eq(voicemailDedup.externalId, threadId)
     ).limit(1);
     
     if (dedupCheck.length > 0) {
       console.log(`[Voicemail Poller] Voicemail already processed (dedup hit): ${threadId}`);
-      return false; // Already processed within 24 hours
+      return false; // Already processed - externalId exists in dedup table
     }
 
     // Also check callLogs for extra safety
@@ -304,17 +305,24 @@ async function processVoicemail(
     expiresAt.setHours(expiresAt.getHours() + 24);
     
     try {
+      // Format date as MySQL-compatible string: 'YYYY-MM-DD HH:MM:SS'
+      const mysqlExpiresAt = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
       await db.insert(voicemailDedup).values({
         callerPhone: callerNumber,
         transcriptHash,
         externalId: threadId,
         source: "group",
-        expiresAt: expiresAt.toISOString(),
+        expiresAt: mysqlExpiresAt,
       });
-      console.log(`[Voicemail Poller] Dedup entry recorded for threadId: ${threadId} (expires in 24h)`);
+      console.log(`[Voicemail Poller] ✅ Dedup entry recorded for threadId: ${threadId} (expires: ${mysqlExpiresAt})`);
     } catch (err: any) {
+      if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate')) {
+        console.log(`[Voicemail Poller] Dedup entry already exists (race condition safe): ${threadId}`);
+        return false; // Already being processed
+      }
       console.warn(`[Voicemail Poller] Failed to record dedup entry: ${err.message}`);
-      // Continue anyway - dedup failure shouldn't block draft creation
+      // DO NOT continue - if we can't record dedup, don't create draft to prevent duplicates
+      return false;
     }
     
     const analysis = await analyzeVoicemail(transcript, callerNumber);
