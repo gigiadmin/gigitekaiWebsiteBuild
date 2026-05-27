@@ -78,20 +78,20 @@ export default function AboutUs() {
         {/* Founder Spotlight */}
         <section className="py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-8">Founder Spotlight</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Founders</h2>
             <div className="grid md:grid-cols-3 gap-8 items-start">
               <div className="md:col-span-2 space-y-4 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-cyan-400">Harry Henry Santiago</strong> is a Microsoft 365 Subject Matter Expert with 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation.
+                  <strong className="text-cyan-400">Harry and Brenda Henry</strong> bring over 40 years of combined industry experience to GigitekAI. With deep expertise in enterprise IT, cloud infrastructure, and business operations, they founded GigitekAI with a clear mission: build an AI-first MSP where intelligent agents function as full employees — replacing manual workflows with automation and intelligence.
                 </p>
                 <p>
-                  Harry has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. Career highlights include serving as a <strong className="text-white">Sr. Microsoft Escalation Engineer at Microsoft</strong> (Premier Support), a <strong className="text-white">Global Messaging Consultant at HCL America</strong> supporting 100k+ users across multiple continents, and currently as <strong className="text-white">Senior Consultant (Senior M365 Engineer) at large global consulting firm</strong>.
+                  Harry has 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation. He has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. Career highlights include serving as a <strong className="text-white">Sr. Microsoft Escalation Engineer at Microsoft</strong> (Premier Support), a <strong className="text-white">Global Messaging Consultant at HCL America</strong> supporting 100k+ users across multiple continents, and currently as <strong className="text-white">Senior Consultant (Senior M365 Engineer) at large global consulting firm</strong>.
                 </p>
                 <p>
-                  Born in Manatí, Puerto Rico, and raised in New Brunswick, NJ, Harry served in the U.S. Army as a Legal Specialist (MOS 71D) from 1993 to 1997 before transitioning into IT in the late 1990s. He founded GigitekAI in 2024 with a clear mission: build an AI-first MSP where intelligent agents function as full employees — replacing manual workflows with automation and intelligence.
+                  Born in Manatí, Puerto Rico, and raised in New Brunswick, NJ, Harry served in the U.S. Army as a Legal Specialist (MOS 71D) from 1993 to 1997 before transitioning into IT in the late 1990s. Harry holds 10 Proofpoint certifications (TRAP, TAP, PPS series) and MCSA + Messaging, and is actively integrating Agentic AI frameworks into enterprise IT workflows.
                 </p>
                 <p>
-                  Harry holds 10 Proofpoint certifications (TRAP, TAP, PPS series) and MCSA + Messaging, and is actively integrating Agentic AI frameworks into enterprise IT workflows.
+                  Together, Harry and Brenda have built GigitekAI into a trusted partner for businesses seeking enterprise-grade cloud, AI, and managed IT solutions.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   {["Exchange Online", "Entra ID", "Proofpoint", "PowerShell", "Graph API", "Hybrid Migration", "Agentic AI", "Zero Trust"].map((tag) => (
@@ -100,27 +100,18 @@ export default function AboutUs() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-cyan-500/40">
+                <div className="w-full mx-auto rounded-lg overflow-hidden border-2 border-cyan-500/40">
                   <img
-                    src="/manus-storage/harry-headshot_df3577a8.jpeg"
-                    alt="Harry Henry Santiago — CEO & Founder, GigitekAI"
-                    className="w-full h-full object-cover"
+                    src="https://manus-storage.s3.us-west-2.amazonaws.com/IMG_5021_4b43899a.PNG"
+                    alt="Harry and Brenda Henry — Founders, GigitekAI"
+                    className="w-full h-auto object-cover"
                     loading="lazy"
                   />
                 </div>
-                <p className="text-cyan-400 font-semibold mt-4">Harry Henry Santiago</p>
-                <p className="text-gray-400 text-sm mt-1">CEO & Founder</p>
-                <p className="text-gray-400 text-sm">Microsoft 365 SME</p>
+                <p className="text-cyan-400 font-semibold mt-4">Harry & Brenda Henry</p>
+                <p className="text-gray-400 text-sm mt-1">Founders & CEOs</p>
                 <p className="text-gray-500 text-sm mt-2">U.S. Army Veteran</p>
                 <p className="text-gray-500 text-sm">📍 Tampa, Florida</p>
-                <a
-                  href="https://www.linkedin.com/in/gigitekinc"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-xs text-cyan-400 hover:text-cyan-300 transition underline"
-                >
-                  linkedin.com/in/gigitekinc
-                </a>
               </div>
             </div>
           </div>
