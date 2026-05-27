@@ -278,3 +278,35 @@
   - [ ] Add processing flag to mark voicemails as handled
   - [ ] Test: Delete voicemail, verify it doesn't reappear
   - [ ] Test: Receive new voicemail, verify single ticket created
+
+- [x] **Fix contact.submit procedure name mismatch** — FIXED
+  - [x] Router had `submitForm` but frontend called `contact.submit`
+  - [x] Renamed procedure from `submitForm` to `submit` in contact-form.ts
+  - [x] Added `list` alias for `getSubmissions` in contact-form.ts
+  - [x] Added missing fields: pricingTier, companySize, smsOptIn, hearAboutUs
+  - [x] All 3 frontend callers now match: Contact.tsx, CTASection.tsx, LeadCapturePopup.tsx
+
+- [x] **Voicemail Dedup Permanent Fix** — FIXED
+  - [x] Root cause: expiresAt stored as ISO string but compared with MySQL NOW() — silent mismatch
+  - [x] Fix: Dedup check now uses simple eq(externalId, threadId) — no date comparison needed
+  - [x] Fix: expiresAt now stored in MySQL-compatible format (no T separator)
+  - [x] Fix: Dedup recorded BEFORE draft creation (was after, causing race condition)
+  - [x] Fix: If dedup insert fails, draft creation is blocked (was silently continuing)
+
+- [x] **Canned Responses Bulk Insert** — 10 templates added
+  - [x] Password Reset / Login Issue
+  - [x] Account Access / Permission Issue
+  - [x] General Acknowledgment
+  - [x] Feature Request
+  - [x] Bug Report
+  - [x] How-To / Guidance Request
+  - [x] Billing / Subscription Inquiry
+  - [x] Performance / Slow Response
+  - [x] Cancellation Request
+  - [x] Urgent / Escalation
+
+- [x] **CreateTicketModal Loading Spinner** — Enhanced UX
+  - [x] Full-modal overlay with semi-transparent backdrop
+  - [x] Animated cyan spinner ring with Send icon
+  - [x] 4 staggered progress steps with fade-in animation
+  - [x] Disabled Close/Cancel buttons during submission

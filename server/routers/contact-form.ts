@@ -16,7 +16,7 @@ export const contactFormRouter = router({
    * Submit contact form from public website
    * Stores submission and sends notifications
    */
-  submitForm: publicProcedure
+  submit: publicProcedure
     .input(
       z.object({
         name: z.string().min(2, "Name must be at least 2 characters"),
@@ -25,6 +25,10 @@ export const contactFormRouter = router({
         phone: z.string().optional().default(""),
         subject: z.string().min(5, "Subject must be at least 5 characters").optional(),
         message: z.string().min(10, "Message must be at least 10 characters"),
+        pricingTier: z.string().optional().default(""),
+        companySize: z.string().optional().default(""),
+        smsOptIn: z.boolean().optional().default(false),
+        hearAboutUs: z.string().optional().default(""),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -122,6 +126,38 @@ Time: ${new Date().toISOString()}
   /**
    * Get contact submissions (admin only)
    */
+  list: adminProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+        limit: z.number().default(20),
+        status: z.enum(["new", "in-progress", "resolved", "spam"]).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
+        const submissions = await db
+          .select()
+          .from(contactSubmissions)
+          .limit(input.limit)
+          .offset((input.page - 1) * input.limit);
+        return submissions;
+      } catch (error) {
+        console.error("[Contact Form] Error fetching submissions:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch submissions",
+        });
+      }
+    }),
+
   getSubmissions: adminProcedure
     .input(
       z.object({
