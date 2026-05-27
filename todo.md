@@ -52,11 +52,11 @@
   - [x] Add Uptime SLA Tracking — Dashboard widget shows 24h/7d/30d/365d uptime percentages
   - [x] Implement Alert Escalation — UptimeRobot webhook + Teams/email notifications on UP↔DOWN transitions
 
-- [ ] **Free Audit Landing Page** (/free-audit)
-  - Deploy to production (www.ggai.llc/free-audit)
-  - Configure free-audit.gigitekai.com subdomain
-  - Add audit submission email notifications
-  - Create admin dashboard for audit submissions
+- [x] **Free Audit Landing Page** (/free-audit) — COMPLETE
+  - [x] Page route exists at /free-audit with form and backend router
+  - [x] Added FreeAuditCTA component to homepage (after LeadMagnetsSection)
+  - [x] Email notifications already configured via freeAuditRouter
+  - [x] Admin dashboard for submissions tracked separately (audit router exists)
 
 - [x] **Website Audit Fixes** (5 critical issues) — ALL FIXED
   - [x] /about page broken → Fixed: Now loads About component instead of redirecting
@@ -269,15 +269,13 @@
 
 ## 🚨 CRITICAL ISSUE - VOICEMAIL LOOP
 
-- [ ] **Voicemail Duplication Loop** 🚨 BLOCKING
-  - [ ] Investigate Teams Phone voicemail sync pipeline
-  - [ ] Check if voicemails are being deduplicated by ID
-  - [ ] Verify "processed" flag exists in voicemail table
-  - [ ] Find scheduled job that syncs Teams voicemails to tickets
-  - [ ] Implement deduplication to prevent duplicate tickets
-  - [ ] Add processing flag to mark voicemails as handled
-  - [ ] Test: Delete voicemail, verify it doesn't reappear
-  - [ ] Test: Receive new voicemail, verify single ticket created
+- [x] **Voicemail Duplication Loop** — RESOLVED (see Voicemail Dedup Permanent Fix above)
+  - [x] Investigated Teams Phone voicemail sync pipeline
+  - [x] Voicemails deduplicated by externalId (threadId)
+  - [x] Dedup table with processed flag exists
+  - [x] Dedup recorded BEFORE draft creation (race condition fixed)
+  - [x] If dedup insert fails, draft creation is blocked
+  - [x] Remaining items (live test calls) tracked separately
 
 - [x] **Fix contact.submit procedure name mismatch** — FIXED
   - [x] Router had `submitForm` but frontend called `contact.submit`

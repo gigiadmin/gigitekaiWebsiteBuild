@@ -23,6 +23,7 @@ const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
 const AgenticOrchestrationSection = lazy(() => import("@/components/AgenticOrchestrationSection"));
 const ROIPromotionSection = lazy(() => import("@/components/ROIPromotionSection"));
 const LeadMagnetsSection = lazy(() => import("@/components/LeadMagnetsSection"));
+const FreeAuditCTA = lazy(() => import("@/components/FreeAuditCTA"));
 const IndustryBenchmarksWidget = lazy(() => import("@/components/IndustryBenchmarksWidget"));
 const NewsletterSignupSection = lazy(() =>
   import("@/components/NewsletterSignupSection").then(m => ({ default: m.NewsletterSignupSection }))
@@ -126,6 +127,10 @@ export default function Home() {
 
         <LazySection minHeight="400px">
           <LeadMagnetsSection />
+        </LazySection>
+
+        <LazySection minHeight="500px">
+          <FreeAuditCTA />
         </LazySection>
 
         <LazySection minHeight="300px">
