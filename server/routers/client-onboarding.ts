@@ -134,19 +134,26 @@ async function createHubSpotContact(input: {
 
 async function getGraphAccessToken(): Promise<string> {
   try {
+    // Microsoft OAuth token endpoint requires URL-encoded form data, NOT JSON
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", ENV.msGraphClientId);
+    params.append("client_secret", ENV.msGraphClientSecret);
+    params.append("scope", "https://graph.microsoft.com/.default");
+
     const response = await axios.post(
       `https://login.microsoftonline.com/${ENV.msGraphTenantId}/oauth2/v2.0/token`,
+      params,
       {
-        grant_type: "client_credentials",
-        client_id: ENV.msGraphClientId,
-        client_secret: ENV.msGraphClientSecret,
-        scope: "https://graph.microsoft.com/.default",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
     );
 
     return response.data.access_token;
-  } catch (error) {
-    console.error("Error getting Graph access token:", error);
+  } catch (error: any) {
+    console.error("Error getting Graph access token:", error?.response?.data || error?.message || error);
     throw error;
   }
 }
@@ -165,8 +172,10 @@ async function createOutlookCalendarEvent(input: {
     const endTime = new Date(startTime);
     endTime.setHours(11, 0, 0, 0);
 
+    // client_credentials flow cannot use /me/ - must use /users/{userId}
+    const userEmail = "support@gigitekai.com";
     const response = await axios.post(
-      "https://graph.microsoft.com/v1.0/me/events",
+      `https://graph.microsoft.com/v1.0/users/${userEmail}/events`,
       {
         subject: `Kickoff Meeting: ${input.companyName}`,
         body: {
@@ -282,8 +291,10 @@ async function sendWelcomeEmail(input: {
       </html>
     `;
 
+    // client_credentials flow cannot use /me/ - must use /users/{userId}
+    const userEmail = "support@gigitekai.com";
     await axios.post(
-      "https://graph.microsoft.com/v1.0/me/sendMail",
+      `https://graph.microsoft.com/v1.0/users/${userEmail}/sendMail`,
       {
         message: {
           subject: "Welcome to GigitekAI - Your Onboarding Begins!",
