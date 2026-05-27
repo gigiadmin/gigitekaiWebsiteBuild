@@ -11,6 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ApprovalGuard from "./components/ApprovalGuard";
 import AdminLayout from "./components/AdminLayout";
+import { LazyComponentWrapper } from "./components/LazyComponentWrapper";
 
 // Admin portal pages — lazy loaded
 const AdminHome = lazy(() => import("./pages/AdminHome"));
@@ -95,11 +96,13 @@ function PageLoader() {
  */
 function withApprovalOnly(Component: React.ComponentType<any>) {
   return () => (
-    <ApprovalGuard>
-      <AdminLayout>
-        <Component />
-      </AdminLayout>
-    </ApprovalGuard>
+    <LazyComponentWrapper>
+      <ApprovalGuard>
+        <AdminLayout>
+          <Component />
+        </AdminLayout>
+      </ApprovalGuard>
+    </LazyComponentWrapper>
   );
 }
 
@@ -109,11 +112,13 @@ function withApprovalOnly(Component: React.ComponentType<any>) {
  */
 function withAdminLayout(Component: React.ComponentType<any>, title?: string) {
   return () => (
-    <ApprovalGuard>
-      <AdminLayout title={title}>
-        <Component />
-      </AdminLayout>
-    </ApprovalGuard>
+    <LazyComponentWrapper>
+      <ApprovalGuard>
+        <AdminLayout title={title}>
+          <Component />
+        </AdminLayout>
+      </ApprovalGuard>
+    </LazyComponentWrapper>
   );
 }
 
