@@ -73,6 +73,13 @@
   - [x] Functional AI chatbot widget with message history
   - [x] Contact form (no Stripe - users directed to contact page for signup)
 
+- [x] **Fix Contact Form Duplicate Drafts** — COMPLETE
+  - [x] Root cause: contact-form.ts using wrong column names (requesterName instead of callerName)
+  - [x] Fixed: Updated contact form to use correct callDraftTickets column names
+  - [x] Changed status to reviewStatus, removed source field, requester* fields to caller*
+  - [x] Deleted duplicate draft tickets from database
+  - [x] Contact form now creates only 1 draft per submission
+
 - [ ] **AI Integration** (Optional) — DEFERRED (nice-to-have, not critical for production)
   - Add Claude API key to environment secrets
   - Add Gemini API key to environment secrets

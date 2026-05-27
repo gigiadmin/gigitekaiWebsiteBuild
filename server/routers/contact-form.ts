@@ -86,23 +86,22 @@ export const contactFormRouter = router({
         // AUTO-CREATE TICKET from contact submission
         try {
           const ticketResult = await db.insert(callDraftTickets).values({
+            callLogId: 0, // No associated call log for contact form submissions
             title: input.subject || "Website Contact Form",
             description: input.message,
-            category: "general support",
+            category: "general_support", // Use enum value
             priority: "medium",
-            status: "draft",
-            source: "contact_form",
-            requesterName: input.name,
-            requesterEmail: input.email,
-            requesterPhone: input.phone || null,
-            requesterCompany: input.company || null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          } as any);
+            reviewStatus: "pending", // Use correct column name
+            callerName: input.name, // Use correct column name
+            callerEmail: input.email, // Use correct column name
+            callerPhone: input.phone || null, // Use correct column name
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
 
-          console.log(`[Contact Form] Auto-created ticket from submission #${submissionId}`);
+          console.log(`[Contact Form] Auto-created draft ticket from submission #${submissionId}`);
         } catch (ticketError) {
-          console.warn(`[Contact Form] Failed to auto-create ticket from submission #${submissionId}:`, ticketError);
+          console.warn(`[Contact Form] Failed to auto-create draft ticket from submission #${submissionId}:`, ticketError);
         }
 
         // Send confirmation email to user
