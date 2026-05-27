@@ -104,12 +104,12 @@ async function createHubSpotContact(input: {
     // Associate contact with company
     if (input.companyId) {
       await axios.post(
-        `https://api.hubapi.com/crm/v4/objects/companies/${input.companyId}/associations/contacts/batch/create`,
+        `https://api.hubapi.com/crm/v4/objects/contacts/${contactId}/associations/companies/batch/create`,
         {
           inputs: [
             {
-              id: contactId,
-              type: "contact",
+              id: input.companyId,
+              type: "company",
             },
           ],
         },
@@ -301,7 +301,7 @@ async function sendWelcomeEmail(input: {
             },
           ],
         },
-        saveToSentItems: "true",
+        saveToSentItems: true,
       },
       {
         headers: {
