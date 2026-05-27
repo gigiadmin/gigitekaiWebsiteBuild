@@ -38,10 +38,10 @@ export default function AboutUs() {
               <div>
                 <h2 className="text-3xl font-bold text-cyan-400 mb-6">Our Mission</h2>
                 <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                  At GigitekAI, we believe that intelligent technology should be accessible to every organization. Our mission is to empower businesses to modernize their infrastructure, leverage artificial intelligence, and automate their operations to achieve unprecedented growth.
+                  To provide small and mid-sized businesses with elite-level cloud, AI, and managed IT support — the same high-quality service usually reserved for large enterprises. We are committed to being a true partner, not just another vendor.
                 </p>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  We're not just a Managed Services Provider—we're your strategic technology partner dedicated to transforming how you work.
+                  As a family-owned company, we understand the real challenges business owners face every day — tight budgets, limited resources, and the need for technology that actually works. That's why we treat every client like family. We listen closely, communicate honestly, and deliver solutions with integrity and heart. For us, success isn't just about completing a project — it's about helping our clients thrive.
                 </p>
               </div>
               <div>
@@ -50,7 +50,7 @@ export default function AboutUs() {
                   We envision a future where AI-powered agents function as full employees, handling complex tasks with precision and intelligence. Where cloud infrastructure enables unlimited scalability, and where automation eliminates repetitive work.
                 </p>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  We're building an AI-first technology firm that leads this transformation.
+                  Led by Harry Henry Santiago, GigitekAI continues to grow while staying true to our roots: delivering exceptional technology solutions with honesty, hard work, and genuine care.
                 </p>
               </div>
             </div>
@@ -63,13 +63,13 @@ export default function AboutUs() {
             <h2 className="text-3xl font-bold text-white mb-8">Our Story</h2>
             <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
               <p>
-                Founded in 2024, GigitekAI was born from a simple observation: enterprises struggle to modernize their technology infrastructure while simultaneously adopting AI and automation. Most MSPs focus on reactive support; we focus on strategic transformation.
+                GigitekAI is a veteran and family-owned business founded by Harry Henry and Brenda Henry. With over 45 years of combined experience in technology and enterprise solutions, we bring deep expertise and a personal commitment to every client we serve.
               </p>
               <p>
-                Our founder, Harry Henry Santiago, is a Microsoft 365 Architect with over two decades of IT experience. His vision was to build an MSP that doesn't just manage technology—it transforms it. An organization where intelligent agents augment human expertise, where cloud-native architecture is the default, and where automation drives profitability.
+                Harry, a veteran with a strong technical background, and Brenda, with her extensive operational experience, built GigitekAI from the ground up. Our journey began with a simple but powerful belief: every business, no matter its size, deserves reliable, high-quality technology support. From the very beginning, integrity has been our cornerstone — the foundation of how we operate, how we treat our clients, and how we build long-term relationships based on trust and honesty.
               </p>
               <p>
-                Today, GigitekAI serves a growing roster of clients across North America, backed by a dedicated team of cloud, AI, and cybersecurity specialists. We partner with industry leaders including Microsoft, Sherweb, ConnectSecure, DefensX, and best-in-class security vendors to deliver comprehensive solutions.
+                Today, we specialize in AI implementation and cloud modernization, helping small and mid-sized businesses harness the power of advanced technology to streamline operations, strengthen security, and drive meaningful growth. Whether it's migrating legacy systems to the cloud, implementing intelligent automation, or providing responsive managed IT support, we approach every project with the same dedication, care, and attention to detail that a family business demands.
               </p>
             </div>
           </div>

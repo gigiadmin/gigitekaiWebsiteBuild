@@ -170,6 +170,7 @@ export default function SiteNavBar2024() {
             {[
               { label: "Websites", href: "/websites", show: 'always' },
               { label: "Industries", href: "/industries", show: 'always' },
+              { label: "About Us", href: "/about", show: 'always' },
               { label: "Free Audit", href: "/free-audit", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               // { label: "ROI Calculator", href: "/roi-calculator", show: 'always' }, // REMOVED: too complex for now

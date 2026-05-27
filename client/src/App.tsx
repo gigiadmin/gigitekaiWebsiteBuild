@@ -36,7 +36,6 @@ const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
-const About = lazy(() => import("./pages/About"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const OurTeam = lazy(() => import("./pages/OurTeam"));
 const Partners = lazy(() => import("./pages/Partners"));
@@ -201,7 +200,7 @@ function Router() {
           <Route path={"/portfolio/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
-          <Route path={"/about"} component={About} />
+          <Route path={"/about"} component={AboutUs} />
           <Route path={"/about-us"} component={AboutUs} />
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />

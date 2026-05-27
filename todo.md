@@ -354,3 +354,41 @@
 - [x] Wire forms to backend routers (contact.submit)
 - [x] Add "Talk to a Specialist" phone link (727-382-6909) — Direct tel: link
 - [x] Test all forms and verify UX flow (ChatCategoryForms component created, integrated, auto-fills from auth)
+
+
+---
+
+## AUDIT BRIEF REMEDIATION (May 27, 2026)
+
+- [x] **P0: Create native About Us page** — Replace GoHighLevel /about with native page
+  - [x] Create /about page component with About Us content (Harry & Brenda bio, mission statement)
+  - [x] Match dark GigitekAI design system (dark theme, cyan accents)
+  - [x] Add to main navigation menu ("About Us" link added)
+  - [x] Ensure canonical URL is /about (not GoHighLevel)
+  - [x] Verify no GHL/LeadConnector assets or links
+
+- [ ] **P0: Fix ghost pages** — Sub-service and industry routes returning homepage content
+  - [ ] Fix /services/ai, /services/security, /services/strategy, /services/data, /services/managed
+  - [ ] Fix /industries/* (healthcare, financial-services, manufacturing, retail-ecommerce, government, education)
+  - [ ] Fix /insights (redirect to /blog or create page)
+  - [ ] Verify each page has unique content, title, meta description, og:url
+
+- [ ] **P1: Standardize phone numbers** — Multiple numbers across site causing lead leakage
+  - [ ] Audit all phone numbers: 727-382-6909 vs 727-382-5776 vs 609-676-4483
+  - [ ] Pick canonical number (likely 727-382-5776 based on tel: links)
+  - [ ] Update display text and tel: href to match everywhere
+  - [ ] Check email signatures, schema.org, social profiles
+
+- [ ] **P2: Fix sitemap and canonical URLs** — www vs apex domain mismatch
+  - [ ] Verify www.gigitekai.com 301-redirects to gigitekai.com
+  - [ ] Regenerate sitemap with consistent canonical hostnames
+  - [ ] Verify all <link rel="canonical"> match actual URLs
+
+- [ ] **P2: QA untested sitemap URLs** — Verify these aren't ghost pages
+  - [ ] /our-team
+  - [ ] /pricing
+  - [ ] /florida-it-resiliency
+  - [ ] /switch-program
+  - [ ] /compliance-scorecard
+  - [ ] /compliance-benchmark
+  - [ ] /blog/ai-automation-update-april-2026
