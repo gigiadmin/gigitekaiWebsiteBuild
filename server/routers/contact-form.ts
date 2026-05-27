@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, adminProcedure, router } from "../\_core/trpc";
 import { getDb } from "../db";
 import { contactSubmissions } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
