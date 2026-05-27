@@ -57,6 +57,7 @@
   - [x] Added FreeAuditCTA component to homepage (after LeadMagnetsSection)
   - [x] Email notifications already configured via freeAuditRouter
   - [x] Admin dashboard for submissions tracked separately (audit router exists)
+  - [x] Added "Free Audit" link to navigation menu (desktop + mobile)
 
 - [x] **Website Audit Fixes** (5 critical issues) — ALL FIXED
   - [x] /about page broken → Fixed: Now loads About component instead of redirecting
@@ -308,3 +309,18 @@
   - [x] Animated cyan spinner ring with Send icon
   - [x] 4 staggered progress steps with fade-in animation
   - [x] Disabled Close/Cancel buttons during submission
+
+
+## Chat Support System Forms (In Progress)
+
+- [ ] Create category-specific form components for each support type
+  - [ ] AI Assessment form (name, company, email, assessment type)
+  - [ ] Cloud Migration form (name, company, email, current setup, goals)
+  - [ ] Automation form (name, company, email, process details)
+  - [ ] Security Audit form (name, company, email, scope)
+  - [ ] Report a Bug form (name, email, bug description, steps to reproduce)
+  - [ ] General Help form (name, email, question/topic)
+- [ ] Integrate forms with AIChatBox component (replace button clicks with form modals)
+- [ ] Wire forms to backend routers (contact, ticket, bug report)
+- [ ] Add "Talk to a Specialist" phone link (727-382-6909)
+- [ ] Test all forms and verify UX flow

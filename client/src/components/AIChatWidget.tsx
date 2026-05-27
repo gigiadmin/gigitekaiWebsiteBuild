@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
+import { ChatCategoryForms } from "@/components/ChatCategoryForms";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -56,26 +57,9 @@ export default function AIChatWidget() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
-  // Context form states
-  const [showAssessmentForm, setShowAssessmentForm] = useState(false);
-  const [assessmentForm, setAssessmentForm] = useState({ challenge: "", companySize: "" });
-  
-  const [showMigrationForm, setShowMigrationForm] = useState(false);
-  const [migrationForm, setMigrationForm] = useState({ currentPlatform: "", targetPlatform: "", timeline: "" });
-  
-  const [showAutomationForm, setShowAutomationForm] = useState(false);
-  const [automationForm, setAutomationForm] = useState({ processToAutomate: "", currentTool: "" });
-  
-  const [showSecurityForm, setShowSecurityForm] = useState(false);
-  const [securityForm, setSecurityForm] = useState({ focus: "" });
-  
-  const [showBugForm, setShowBugForm] = useState(false);
-  const [bugForm, setBugForm] = useState({ description: "", affectedService: "" });
-  
-  const [showSpecialistForm, setShowSpecialistForm] = useState(false);
-  const [specialistForm, setSpecialistForm] = useState({ name: "", company: "", email: "", reason: "" });
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [specialistSubmitting, setSpecialistSubmitting] = useState(false);
+  // Unified category form state
+  const [selectedCategory, setSelectedCategory] = useState<'ai-assessment' | 'cloud-migration' | 'automation' | 'security-audit' | 'bug-report' | 'general-help' | null>(null);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -727,7 +711,7 @@ export default function AIChatWidget() {
                 {/* Quick Action Buttons */}
                 <div ref={actionsMenuRef} className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                   <button
-                    onClick={() => setShowAssessmentForm(true)}
+                    onClick={() => { setSelectedCategory('ai-assessment'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-purple-600/30 to-purple-700/30 hover:from-purple-600/50 hover:to-purple-700/50 rounded-lg border border-purple-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -735,7 +719,7 @@ export default function AIChatWidget() {
                     AI Assessment
                   </button>
                   <button
-                    onClick={() => setShowMigrationForm(true)}
+                    onClick={() => { setSelectedCategory('cloud-migration'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-cyan-600/30 to-cyan-700/30 hover:from-cyan-600/50 hover:to-cyan-700/50 rounded-lg border border-cyan-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -743,7 +727,7 @@ export default function AIChatWidget() {
                     Cloud Migration
                   </button>
                   <button
-                    onClick={() => setShowAutomationForm(true)}
+                    onClick={() => { setSelectedCategory('automation'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-amber-600/30 to-amber-700/30 hover:from-amber-600/50 hover:to-amber-700/50 rounded-lg border border-amber-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -751,7 +735,7 @@ export default function AIChatWidget() {
                     Automation
                   </button>
                   <button
-                    onClick={() => setShowSecurityForm(true)}
+                    onClick={() => { setSelectedCategory('security-audit'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-green-600/30 to-green-700/30 hover:from-green-600/50 hover:to-green-700/50 rounded-lg border border-green-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -759,7 +743,7 @@ export default function AIChatWidget() {
                     Security Audit
                   </button>
                   <button
-                    onClick={() => setShowBugForm(true)}
+                    onClick={() => { setSelectedCategory('bug-report'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-red-600/30 to-red-700/30 hover:from-red-600/50 hover:to-red-700/50 rounded-lg border border-red-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
@@ -775,21 +759,20 @@ export default function AIChatWidget() {
                     Submit Ticket
                   </button>
                   <button
-                    onClick={() => sendQuickMessage("I have a general question")}
+                    onClick={() => { setSelectedCategory('general-help'); setShowCategoryForm(true); }}
                     disabled={isLoading}
                     className="p-2 sm:p-3 bg-gradient-to-br from-teal-600/30 to-teal-700/30 hover:from-teal-600/50 hover:to-teal-700/50 rounded-lg border border-teal-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
                   >
                     <div className="text-lg mb-1">❓</div>
                     General Help
                   </button>
-                  <button
-                    onClick={() => setShowSpecialistForm(true)}
-                    disabled={isLoading}
-                    className="p-2 sm:p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] disabled:opacity-50"
+                  <a
+                    href="tel:727-382-6909"
+                    className="p-2 sm:p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] flex flex-col items-center justify-center"
                   >
                     <div className="text-lg mb-1">📞</div>
-                    Talk to a specialist
-                  </button>
+                    Call Now
+                  </a>
                 </div>
               </div>
             )}
@@ -1200,8 +1183,8 @@ export default function AIChatWidget() {
         </DialogContent>
       </Dialog>
 
-      {/* AI Assessment Form */}
-      <Dialog open={showAssessmentForm} onOpenChange={setShowAssessmentForm}>
+      {/* AI Assessment Form - DEPRECATED, use ChatCategoryForms */}
+      <Dialog open={false} onOpenChange={() => {}}>
         <DialogContent className="bg-slate-900 border border-cyan-500/30 max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white">🧠 AI Assessment</DialogTitle>
@@ -1543,6 +1526,13 @@ export default function AIChatWidget() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Unified Category Forms */}
+      <ChatCategoryForms
+        isOpen={showCategoryForm}
+        onClose={() => setShowCategoryForm(false)}
+        category={selectedCategory}
+      />
     </>
   );
 
