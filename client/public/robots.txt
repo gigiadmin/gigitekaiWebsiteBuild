@@ -37,7 +37,7 @@ Allow: /
 User-agent: Bytespider
 Allow: /
 
-Sitemap: https://www.gigitekai.com/sitemap.xml
-Sitemap: https://www.gigitekai.com/api/sitemap-blog.xml
-Sitemap: https://www.gigitekai.com/api/sitemap-portfolio.xml
-Sitemap: https://www.gigitekai.com/api/sitemap-services.xml
+Sitemap: https://gigitekai.com/sitemap.xml
+Sitemap: https://gigitekai.com/api/sitemap-blog.xml
+Sitemap: https://gigitekai.com/api/sitemap-portfolio.xml
+Sitemap: https://gigitekai.com/api/sitemap-services.xml

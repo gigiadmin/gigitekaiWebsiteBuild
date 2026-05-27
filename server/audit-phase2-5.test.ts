@@ -40,12 +40,12 @@ describe("Phase 2-5 Audit Remediation", () => {
 
   // Phase 3: Technical SEO
   describe("Phase 3: Sitemap", () => {
-    it("sitemap.xml should use www.gigitekai.com", () => {
+    it("sitemap.xml should use apex domain gigitekai.com", () => {
       const sitemapPath = path.resolve(__dirname, "../client/public/sitemap.xml");
       const content = fs.readFileSync(sitemapPath, "utf-8");
-      expect(content).toContain("https://www.gigitekai.com");
-      // Should not have non-www
-      expect(content).not.toMatch(/https:\/\/gigitekai\.com[^.]/);
+      expect(content).toContain("https://gigitekai.com");
+      // Should not have www prefix (apex domain is canonical)
+      expect(content).not.toContain("https://www.gigitekai.com");
     });
 
     it("sitemap.xml should not contain fragment URLs (#)", () => {
@@ -81,10 +81,10 @@ describe("Phase 2-5 Audit Remediation", () => {
   });
 
   describe("Phase 3: Robots.txt", () => {
-    it("robots.txt should reference www.gigitekai.com sitemap", () => {
+    it("robots.txt should reference gigitekai.com sitemap", () => {
       const robotsPath = path.resolve(__dirname, "../client/public/robots.txt");
       const content = fs.readFileSync(robotsPath, "utf-8");
-      expect(content).toContain("https://www.gigitekai.com/sitemap.xml");
+      expect(content).toContain("https://gigitekai.com/sitemap.xml");
     });
   });
 

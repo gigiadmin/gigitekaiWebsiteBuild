@@ -3,28 +3,35 @@
 
   <!-- ===== Core Pages ===== -->
   <url>
-    <loc>https://www.gigitekai.com/</loc>
-    <lastmod>2026-04-23</lastmod>
+    <loc>https://gigitekai.com/</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/our-team</loc>
+    <loc>https://gigitekai.com/about</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gigitekai.com/our-team</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/partners</loc>
+    <loc>https://gigitekai.com/partners</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/contact</loc>
+    <loc>https://gigitekai.com/contact</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -32,56 +39,56 @@
 
   <!-- ===== Services ===== -->
   <url>
-    <loc>https://www.gigitekai.com/services</loc>
+    <loc>https://gigitekai.com/services</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/cloud</loc>
+    <loc>https://gigitekai.com/services/cloud</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/ai</loc>
+    <loc>https://gigitekai.com/services/ai</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/security</loc>
+    <loc>https://gigitekai.com/services/security</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/strategy</loc>
+    <loc>https://gigitekai.com/services/strategy</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/data</loc>
+    <loc>https://gigitekai.com/services/data</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/managed</loc>
+    <loc>https://gigitekai.com/services/managed</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/services/microsoft-365</loc>
+    <loc>https://gigitekai.com/services/microsoft-365</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -89,21 +96,21 @@
 
   <!-- ===== Pricing ===== -->
   <url>
-    <loc>https://www.gigitekai.com/pricing</loc>
+    <loc>https://gigitekai.com/pricing</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/helpdesk-pricing</loc>
+    <loc>https://gigitekai.com/helpdesk-pricing</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/roi-calculator</loc>
+    <loc>https://gigitekai.com/roi-calculator</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -111,57 +118,64 @@
 
   <!-- ===== Industries ===== -->
   <url>
-    <loc>https://www.gigitekai.com/industries/healthcare</loc>
+    <loc>https://gigitekai.com/industries/healthcare</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/industries/financial-services</loc>
+    <loc>https://gigitekai.com/industries/financial-services</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/industries/manufacturing</loc>
+    <loc>https://gigitekai.com/industries/manufacturing</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/industries/retail-ecommerce</loc>
+    <loc>https://gigitekai.com/industries/retail-ecommerce</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/industries/government</loc>
+    <loc>https://gigitekai.com/industries/government</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/industries/education</loc>
+    <loc>https://gigitekai.com/industries/education</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
-  <!-- ===== Blog ===== -->
+  <!-- ===== Blog & Insights ===== -->
   <url>
-    <loc>https://www.gigitekai.com/blog</loc>
+    <loc>https://gigitekai.com/blog</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/blog/ai-automation-update-april-2026</loc>
+    <loc>https://gigitekai.com/insights</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gigitekai.com/blog/ai-automation-update-april-2026</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
@@ -169,32 +183,35 @@
 
   <!-- ===== Florida Elite Pages ===== -->
   <url>
-    <loc>https://www.gigitekai.com/florida-it-resiliency</loc>
+    <loc>https://gigitekai.com/florida-it-resiliency</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
+
   <url>
-    <loc>https://www.gigitekai.com/switch-program</loc>
+    <loc>https://gigitekai.com/switch-program</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/compliance-scorecard</loc>
+    <loc>https://gigitekai.com/compliance-scorecard</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
-    <loc>https://www.gigitekai.com/compliance-benchmark</loc>
+    <loc>https://gigitekai.com/compliance-benchmark</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
-    <loc>https://www.gigitekai.com/roadmap-generator</loc>
+    <loc>https://gigitekai.com/roadmap-generator</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -202,36 +219,29 @@
 
   <!-- ===== Local SEO Landing Pages ===== -->
   <url>
-    <loc>https://www.gigitekai.com/managed-it-services-tampa</loc>
+    <loc>https://gigitekai.com/managed-it-services-tampa</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/managed-it-services-miami</loc>
+    <loc>https://gigitekai.com/managed-it-services-miami</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
+  <!-- ===== Blog Posts ===== -->
   <url>
-    <loc>https://www.gigitekai.com/florida-it-resiliency</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- ===== Blog (new posts) ===== -->
-  <url>
-    <loc>https://www.gigitekai.com/blog/florida-managed-it-services-fipa-compliance-guide</loc>
+    <loc>https://gigitekai.com/blog/florida-managed-it-services-fipa-compliance-guide</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/blog/hurricane-it-disaster-recovery-florida-business-guide</loc>
+    <loc>https://gigitekai.com/blog/hurricane-it-disaster-recovery-florida-business-guide</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
@@ -239,21 +249,21 @@
 
   <!-- ===== Special Pages ===== -->
   <url>
-    <loc>https://www.gigitekai.com/AIStrategicBriefing</loc>
+    <loc>https://gigitekai.com/AIStrategicBriefing</loc>
     <lastmod>2026-04-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/case-studies</loc>
+    <loc>https://gigitekai.com/case-studies</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/kb</loc>
+    <loc>https://gigitekai.com/kb</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -261,14 +271,14 @@
 
   <!-- ===== Legal Pages ===== -->
   <url>
-    <loc>https://www.gigitekai.com/privacy-policy</loc>
+    <loc>https://gigitekai.com/privacy-policy</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://www.gigitekai.com/terms-of-service</loc>
+    <loc>https://gigitekai.com/terms-of-service</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -276,11 +286,34 @@
 
   <!-- ===== Support / Helpdesk (public-facing) ===== -->
   <url>
-    <loc>https://www.gigitekai.com/helpdesk</loc>
+    <loc>https://gigitekai.com/helpdesk</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
+  <!-- ===== Portfolio / Websites ===== -->
+  <url>
+    <loc>https://gigitekai.com/websites</loc>
+    <lastmod>2026-04-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ===== Industries Hub ===== -->
+  <url>
+    <loc>https://gigitekai.com/industries</loc>
+    <lastmod>2026-04-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ===== Free Audit ===== -->
+  <url>
+    <loc>https://gigitekai.com/free-audit</loc>
+    <lastmod>2026-04-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
 
 </urlset>

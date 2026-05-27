@@ -392,3 +392,40 @@
   - [ ] /compliance-scorecard
   - [ ] /compliance-benchmark
   - [ ] /blog/ai-automation-update-april-2026
+
+
+---
+
+## AUDIT BRIEF REMEDIATION (May 27, 2026)
+
+- [x] **P0: Create native About Us page** — Replace GoHighLevel /about with native page
+  - [x] Create /about page component with About Us content (Harry & Brenda bio, mission statement)
+  - [x] Match dark GigitekAI design system (dark theme, cyan accents)
+  - [x] Add to main navigation menu ("About Us" link added)
+  - [x] Ensure canonical URL is /about (not GoHighLevel)
+  - [x] Verify no GHL/LeadConnector assets or links
+
+- [x] **P1: Fix ghost pages** — Service and industry pages returning homepage content
+  - [x] Verify /services/ai, /services/security, /services/strategy, /services/data, /services/managed have unique content (ServiceDetail.tsx handles all)
+  - [x] Verify /industries/* pages have unique content (IndustryDetail.tsx handles all)
+  - [x] Fix /insights page (added route to /blog)
+
+- [x] **P1: Standardize phone numbers** — Three different numbers causing lead leakage
+  - [x] All instances already use 727-382-6909 (canonical number)
+  - [x] Verified no other numbers present
+
+- [x] **P2: Fix sitemap/canonical URL mismatch** — www vs apex domain inconsistency
+  - [x] Updated sitemap.xml to use apex domain (gigitekai.com)
+  - [x] Updated robots.txt to match sitemap domain
+  - [x] Added /about and /insights to sitemap
+  - [x] Removed duplicate /florida-it-resiliency entry
+  - [x] Updated test expectations to reflect apex domain as canonical
+
+- [ ] **P2: QA untested sitemap URLs** — Verify 7 additional pages aren't ghost pages
+  - [ ] Test /free-audit page
+  - [ ] Test /websites page
+  - [ ] Test /industries page
+  - [ ] Test /AIStrategicBriefing page
+  - [ ] Test /case-studies page
+  - [ ] Test /kb page
+  - [ ] Test /helpdesk page
