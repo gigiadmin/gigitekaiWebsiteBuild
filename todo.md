@@ -256,3 +256,18 @@
   - [x] Disable buttons when no calls selected
   - [x] Show success toast after bulk operation
   - [x] Refresh call list after bulk operation completes
+
+
+---
+
+## 🚨 CRITICAL ISSUE - VOICEMAIL LOOP
+
+- [ ] **Voicemail Duplication Loop** 🚨 BLOCKING
+  - [ ] Investigate Teams Phone voicemail sync pipeline
+  - [ ] Check if voicemails are being deduplicated by ID
+  - [ ] Verify "processed" flag exists in voicemail table
+  - [ ] Find scheduled job that syncs Teams voicemails to tickets
+  - [ ] Implement deduplication to prevent duplicate tickets
+  - [ ] Add processing flag to mark voicemails as handled
+  - [ ] Test: Delete voicemail, verify it doesn't reappear
+  - [ ] Test: Receive new voicemail, verify single ticket created

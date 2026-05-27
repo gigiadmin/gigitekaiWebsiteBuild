@@ -9,7 +9,7 @@
  */
 
 import { getDb } from "../db";
-import { callLogs, callDraftTickets, users } from "../../drizzle/schema";
+import { callLogs, callDraftTickets, users, voicemailDedup } from "../../drizzle/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "./llm";
 import { transcribeAudio } from "./voiceTranscription";
@@ -246,9 +246,20 @@ async function processVoicemail(
     // Generate a unique call ID for this voicemail
     const graphCallId = `voicemail-${threadId}`;
 
-    // Check if already processed
+    // CRITICAL: Check voicemailDedup table first (persistent 24-hour dedup)
+    const dedupCheck = await db.select().from(voicemailDedup).where(
+      sql`externalId = ${threadId} AND expiresAt > NOW()`
+    ).limit(1);
+    
+    if (dedupCheck.length > 0) {
+      console.log(`[Voicemail Poller] Voicemail already processed (dedup hit): ${threadId}`);
+      return false; // Already processed within 24 hours
+    }
+
+    // Also check callLogs for extra safety
     const existing = await db.select().from(callLogs).where(eq(callLogs.graphCallId, graphCallId)).limit(1);
     if (existing.length > 0) {
+      console.log(`[Voicemail Poller] Voicemail already in callLogs: ${threadId}`);
       return false; // Already processed
     }
 
@@ -280,10 +291,30 @@ async function processVoicemail(
       console.warn(`[Voicemail Poller] Transcription failed: ${err.message}`);
     }
 
-    // Step 3: AI analysis
+    // Step 3: CRITICAL - Skip if no transcript (can't analyze or deduplicate)
     if (!transcript) {
       console.log(`[Voicemail Poller] Skipping voicemail with no transcript from ${callerNumber}`);
       return false;
+    }
+    
+    // Step 3b: Record in voicemailDedup table IMMEDIATELY (before draft creation)
+    // This prevents reprocessing even if an error occurs during draft creation
+    const transcriptHash = transcript.substring(0, 50);
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    
+    try {
+      await db.insert(voicemailDedup).values({
+        callerPhone: callerNumber,
+        transcriptHash,
+        externalId: threadId,
+        source: "group",
+        expiresAt: expiresAt.toISOString(),
+      });
+      console.log(`[Voicemail Poller] Dedup entry recorded for threadId: ${threadId} (expires in 24h)`);
+    } catch (err: any) {
+      console.warn(`[Voicemail Poller] Failed to record dedup entry: ${err.message}`);
+      // Continue anyway - dedup failure shouldn't block draft creation
     }
     
     const analysis = await analyzeVoicemail(transcript, callerNumber);
@@ -343,6 +374,8 @@ async function processVoicemail(
 
     // Step 7: Update call log status
     await db.update(callLogs).set({ status: "draft_created", draftTicketId: callLogId }).where(eq(callLogs.id, callLogId));
+
+    // Note: Dedup entry was already recorded in Step 3b (before draft creation) to prevent duplicates
 
     // Step 8: Send Teams notification
     try {

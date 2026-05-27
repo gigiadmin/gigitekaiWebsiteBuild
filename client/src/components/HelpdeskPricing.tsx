@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { Check, X, AlertCircle, TrendingUp, Clock, Shield, Headphones, Zap, HardDrive, Lock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StripeCheckoutButton } from "./StripeCheckoutButton";
+import { CreateTicketModal } from "./CreateTicketModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function HelpdeskPricing() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [userCount, setUserCount] = useState(10);
   const [userCountInput, setUserCountInput] = useState('10');
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { user } = useAuth();
+
+  const handleSelectPlan = (planName: string) => {
+    setSelectedPlan(planName);
+    setShowContactForm(true);
+  };
   const ANNUAL_DISCOUNT = 0.1; // 10% discount for annual prepayment
   const VOLUME_DISCOUNT_THRESHOLD = 25; // 8% discount for 25+ users
   const VOLUME_DISCOUNT = 0.08; // 8% volume discount
@@ -314,31 +321,16 @@ export default function HelpdeskPricing() {
                 </div>
 
                 {/* CTA Button */}
-                {user && tier.name !== 'Elite' ? (
-                  <StripeCheckoutButton
-                    planName={tier.name as "Essential" | "Professional" | "Elite"}
-                    userCount={userCount}
-                    isAnnual={isAnnual}
-                    userEmail={user.email || ''}
-                    userId={String(user.id)}
-                    className={`w-full mb-8 ${
-                      tier.popular
-                        ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
-                        : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
-                    }`}
-                  />
-                ) : (
-                  <Button
-                    className={`w-full mb-8 ${
-                      tier.popular
-                        ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
-                        : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
-                    }`}
-                    onClick={() => window.location.href = '/contact'}
-                  >
-                    {tier.cta}
-                  </Button>
-                )}
+                <Button
+                  className={`w-full mb-8 ${
+                    tier.popular
+                      ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
+                      : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
+                  }`}
+                  onClick={() => handleSelectPlan(tier.name)}
+                >
+                  {tier.cta}
+                </Button>
 
                 {/* Features */}
                 <div className="space-y-4">
