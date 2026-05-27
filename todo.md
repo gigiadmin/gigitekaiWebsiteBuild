@@ -206,6 +206,13 @@
   - [x] Form now displays character counts with min requirements
   - [x] Users see real-time validation feedback (✓ when valid)
 
+- [x] **Duplicate Ticket Prevention** — COMPLETE
+  - [x] Added idempotency key to escalateToHelpDesk mutation
+  - [x] Backend checks for duplicate tickets before creation
+  - [x] Aria widget generates unique idempotency key per submission
+  - [x] Returns isDuplicate flag if ticket already exists
+  - [x] Prevents multiple submissions from creating duplicate tickets
+
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)

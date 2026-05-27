@@ -689,9 +689,29 @@ export const aibotRouter = router({
       sessionId: z.string(),
       reason: z.string(),
       priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+      idempotencyKey: z.string().optional(), // Prevent duplicate ticket creation
     }))
     .mutation(async ({ input }) => {
-      const { sessionId, reason, priority } = input;
+      const { sessionId, reason, priority, idempotencyKey } = input;
+      
+      // Idempotency: Check if we've already created a ticket with this key
+      if (idempotencyKey) {
+        const existingTicket = await db
+          .select()
+          .from(tickets)
+          .where(
+            and(
+              eq(tickets.source, "chat"),
+              like(tickets.description, `%${idempotencyKey}%`)
+            )
+          )
+          .limit(1);
+        
+        if (existingTicket.length > 0) {
+          console.log(`[AIBot] Duplicate escalation detected (key: ${idempotencyKey}), returning existing ticket`);
+          return { ticketId: existingTicket[0].id, isDuplicate: true };
+        }
+      }
 
       let session = await getChatSession(sessionId);
       
@@ -806,6 +826,7 @@ export const aibotRouter = router({
       return {
         success: true,
         ticketId,
+        isDuplicate: false,
         message: "Your issue has been escalated to our support team. A specialist will contact you shortly.",
       };
     }),

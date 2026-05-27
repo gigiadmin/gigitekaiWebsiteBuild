@@ -1571,10 +1571,13 @@ export default function AIChatWidget() {
       const fullDescription = `**Requester:** ${ticketForm.requesterName}\n**Email:** ${ticketForm.requesterEmail}\n\n**Description:**\n${ticketForm.description}${transcript ? `\n\n**Chat Transcript:**\n${transcript}` : ""}`;
 
       // Create ticket directly via escalateToHelpDesk
+      // Generate idempotency key to prevent duplicate submissions
+      const idempotencyKey = `${sessionId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       await escalate.mutateAsync({
         sessionId: sessionId || `local-${Date.now()}`,
-        reason: `${ticketForm.subject}\n\n${fullDescription}`,
+        reason: `${ticketForm.subject}\n\n${fullDescription}\n\n[Idempotency: ${idempotencyKey}]`,
         priority: ticketForm.priority as "low" | "medium" | "high" | "critical",
+        idempotencyKey,
       });
 
       toast.success("Ticket created successfully! We'll be in touch soon.");
