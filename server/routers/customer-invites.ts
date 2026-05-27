@@ -558,14 +558,12 @@ export const customerInvitesRouter = router({
           );
         }
         
-        if (input.status === 'deleted') {
-          conditions.push(isNotNull(customerInvitesTable.deletedAt));
+        if (input.status === 'revoked') {
+          conditions.push(eq(customerInvitesTable.status, 'revoked'));
         } else if (input.status) {
           conditions.push(eq(customerInvitesTable.status, input.status));
-          conditions.push(isNull(customerInvitesTable.deletedAt));
-        } else {
-          conditions.push(isNull(customerInvitesTable.deletedAt));
         }
+        // Note: customerInvites table doesn't have a deletedAt field, status enum covers revoked state
 
         const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 

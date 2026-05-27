@@ -173,6 +173,7 @@ export default function SiteNavBar2024() {
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
               { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
               { label: "Insights", href: "/blog", show: 'always' },
+              { label: "Knowledge Base", href: "/kb", show: 'always' },
             ].map((item) => (
               <a
                 key={item.href}
@@ -283,6 +284,7 @@ export default function SiteNavBar2024() {
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
                 { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
+                { label: "Knowledge Base", href: "/kb", id: "nav-kb" },
               ].map((item) => (
                 <a
                   key={item.href}

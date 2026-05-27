@@ -187,8 +187,17 @@
   - [x] Verify public procedures in KB router (list, get, search)
   - [x] Add unit tests for public KB procedures
   - [x] Build live at https://gigitekai.com/kb
+  - [x] Add "Knowledge Base" link to navbar (between Insights and Support)
+  - [x] Add KB link to mobile menu
 
-- [ ] Standardize ticket creation: single unified TicketForm component used by both /helpdesk/tickets/new (user) and /admin/helpdesk/new (admin)
+- [x] **Standardize ticket creation** — COMPLETE: CreateTicketModal unified component
+  - [x] Single CreateTicketModal component used by both user and admin
+  - [x] mode prop: "user" (self-service) or "admin" (on-behalf-of)
+  - [x] Admin extras: requesterName, requesterEmail, channel selector
+  - [x] User route: /helpdesk/tickets/new (uses mode="user")
+  - [x] Admin modal: AdminPanel.tsx (uses mode="admin")
+  - [x] No duplicate code — already standardized
+
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
