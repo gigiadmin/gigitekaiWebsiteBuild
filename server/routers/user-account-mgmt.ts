@@ -53,10 +53,8 @@ export const userAccountMgmtRouter = router({
 
       await db.execute(`
         UPDATE users 
-        SET isActive = false, 
-            updatedAt = NOW(),
-            deletedAt = NOW(),
-            recoveryDeadline = '${recoveryDeadline.toISOString()}'
+        SET updatedAt = NOW(),
+            deletedAt = NOW()
         WHERE id = ${input.userId}
       `);
 
@@ -76,32 +74,22 @@ export const userAccountMgmtRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
-      // Check if recovery window is still valid
+      // Check if user exists and is deleted
       const result = await db.execute(`
-        SELECT recoveryDeadline FROM users WHERE id = ${input.userId} AND deletedAt IS NOT NULL
+        SELECT deletedAt FROM users WHERE id = ${input.userId} AND deletedAt IS NOT NULL
       `);
 
       if (!result || (result as any).length === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "User not found or recovery window expired",
-        });
-      }
-
-      const recoveryDeadline = (result as any)[0]?.recoveryDeadline;
-      if (recoveryDeadline && new Date(recoveryDeadline) < new Date()) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Recovery window has expired (30 days)",
+          message: "User not found or not deleted",
         });
       }
 
       await db.execute(`
         UPDATE users 
-        SET isActive = true, 
-            updatedAt = NOW(),
-            deletedAt = NULL,
-            recoveryDeadline = NULL
+        SET updatedAt = NOW(),
+            deletedAt = NULL
         WHERE id = ${input.userId}
       `);
 
@@ -209,12 +197,10 @@ export const userAccountMgmtRouter = router({
         email, 
         name, 
         deletedAt,
-        recoveryDeadline,
-        DATEDIFF(recoveryDeadline, NOW()) as daysRemaining
+        createdAt
       FROM users
-      WHERE deletedAt IS NOT NULL 
-        AND recoveryDeadline > NOW()
-      ORDER BY recoveryDeadline ASC
+      WHERE deletedAt IS NOT NULL
+      ORDER BY deletedAt DESC
     `);
 
     return result || [];
