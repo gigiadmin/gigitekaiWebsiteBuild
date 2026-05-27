@@ -198,6 +198,14 @@
   - [x] Admin modal: AdminPanel.tsx (uses mode="admin")
   - [x] No duplicate code — already standardized
 
+- [x] **Ticket Form Validation Improvements** — COMPLETE
+  - [x] Reduced minimum character requirements for better UX
+  - [x] Title: min 5 chars (was 10)
+  - [x] Description: min 10 chars (was 30)
+  - [x] Steps Attempted: min 5 chars (was 20)
+  - [x] Form now displays character counts with min requirements
+  - [x] Users see real-time validation feedback (✓ when valid)
+
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)

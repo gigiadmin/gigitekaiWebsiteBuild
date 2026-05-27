@@ -303,11 +303,11 @@ export default function CreateTicketModal({
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               placeholder={isAdmin ? "Brief description of the issue…" : "E.g. Cannot send emails from Outlook since this morning"}
               required
-              minLength={isAdmin ? 5 : 10}
+              minLength={5}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-colors"
             />
             <p className="text-gray-500 text-xs mt-1">
-              {form.title.length} chars (min {isAdmin ? 5 : 10}) {form.title.length >= (isAdmin ? 5 : 10) ? "✓" : ""}
+              {form.title.length} chars (min 5) {form.title.length >= 5 ? "✓" : ""}
             </p>
           </div>
 
@@ -326,17 +326,17 @@ export default function CreateTicketModal({
                   : "Describe what's happening in detail:\n• What were you trying to do?\n• What error message or behavior did you see?\n• When did it start?"
               }
               required
-              minLength={isAdmin ? 10 : 30}
+              minLength={10}
               rows={5}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-colors resize-none"
             />
             <p className="text-gray-500 text-xs mt-1">
-              {form.description.length} chars (min {isAdmin ? 10 : 30}) {form.description.length >= (isAdmin ? 10 : 30) ? "✓" : ""}
+              {form.description.length} chars (min 10) {form.description.length >= 10 ? "✓" : ""}
             </p>
           </div>
 
           {/* ── KB Search (shows when enough text entered) ─────────────────── */}
-          {(form.title.length > 10 || form.description.length > 30) && (
+          {(form.title.length >= 5 || form.description.length >= 10) && (
             <KBSearchWidget
               ticketTitle={form.title}
               ticketDescription={form.description}
@@ -358,13 +358,13 @@ export default function CreateTicketModal({
                 "Help us avoid duplicate troubleshooting:\n\n1. What have you already tried?\n2. What were the results?\n3. Any recent changes to your system?"
               }
               required={!isAdmin}
-              minLength={!isAdmin ? 20 : undefined}
+              minLength={!isAdmin ? 5 : undefined}
               rows={4}
               className="w-full bg-[#141B2D] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-colors resize-none"
             />
             {!isAdmin && (
               <p className="text-gray-500 text-xs mt-1">
-                {form.stepsAttempted.length} chars (min 20) {form.stepsAttempted.length >= 20 ? "✓" : ""}
+                {form.stepsAttempted.length} chars (min 5) {form.stepsAttempted.length >= 5 ? "✓" : ""}
               </p>
             )}
           </div>
