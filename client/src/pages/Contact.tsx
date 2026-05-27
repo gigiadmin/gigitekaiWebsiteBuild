@@ -34,7 +34,7 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [formLoadTime] = useState(() => Date.now());
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined);
 
   const sendContactMutation = trpc.contact.submit.useMutation({
     onSuccess: () => {
@@ -58,7 +58,7 @@ export default function Contact() {
       throw new Error("Please wait a moment before submitting.");
     }
 
-    setErrorMsg(null);
+    setErrorMsg(undefined);
     
     return new Promise<void>((resolve, reject) => {
       sendContactMutation.mutate(

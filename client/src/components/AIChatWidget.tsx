@@ -482,7 +482,7 @@ export default function AIChatWidget() {
       // Auto-trigger specialist form if bot is connecting user to specialist
       if (response.openSpecialistForm) {
         setTimeout(() => {
-          setShowSpecialistForm(true);
+          setShowCategoryForm(true);
         }, 500);
       }
 
