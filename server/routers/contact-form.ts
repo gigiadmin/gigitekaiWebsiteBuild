@@ -4,12 +4,13 @@
  */
 
 import { z } from "zod";
-import { publicProcedure, adminProcedure, router } from "../\_core/trpc";
+import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { contactSubmissions } from "../../drizzle/schema";
+import { contactSubmissions, callDraftTickets } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
+import { sql } from "drizzle-orm";
 
 export const contactFormRouter = router({
   /**
@@ -51,7 +52,29 @@ export const contactFormRouter = router({
           message: input.message,
         } as any);
 
-        const submissionId = result[0];
+        const submissionId = result[0]?.insertId || result[0];
+
+        // AUTO-CREATE TICKET from contact submission
+        try {
+          const ticketResult = await db.insert(callDraftTickets).values({
+            title: input.subject || "Website Contact Form",
+            description: input.message,
+            category: "general support",
+            priority: "medium",
+            status: "draft",
+            source: "contact_form",
+            requesterName: input.name,
+            requesterEmail: input.email,
+            requesterPhone: input.phone || null,
+            requesterCompany: input.company || null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as any);
+
+          console.log(`[Contact Form] Auto-created ticket from submission #${submissionId}`);
+        } catch (ticketError) {
+          console.warn(`[Contact Form] Failed to auto-create ticket from submission #${submissionId}:`, ticketError);
+        }
 
         // Send confirmation email to user
         try {
@@ -66,7 +89,7 @@ export const contactFormRouter = router({
                 <div style="padding: 24px; background: #f5f5f5;">
                   <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi ${input.name},</p>
                   <p style="color: #333; font-size: 16px; line-height: 1.6;">
-                    We've received your message and will get back to you within 24 business hours.
+                    We've received your message and will get back to you within 24 business hours. A support ticket has been created and assigned to our team for review.
                   </p>
                   <p style="color: #666; font-size: 14px; margin-top: 16px;">
                     <strong>Your Message:</strong><br/>
@@ -87,7 +110,7 @@ export const contactFormRouter = router({
           console.warn("[Contact Form] Failed to send confirmation email:", emailError);
         }
 
-        // Notify owner
+        // Notify owner via Manus notification system
         try {
           await notifyOwner({
             title: `📧 New Contact Form Submission from ${input.name}`,
@@ -101,7 +124,7 @@ Subject: ${input.subject || "Website Contact Form"}
 Message:
 ${input.message}
 
-Submission ID: #${submissionId}
+Submission ID: #${String(submissionId)}
 Time: ${new Date().toISOString()}
             `,
           });
@@ -109,10 +132,47 @@ Time: ${new Date().toISOString()}
           console.warn("[Contact Form] Failed to notify owner:", notifyError);
         }
 
+        // Send email to support@gigitekai.com
+        try {
+          await sendEmail({
+            to: "support@gigitekai.com",
+            subject: `New Contact Form Submission: ${input.subject || "Website Contact Form"} - ${input.name}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #0A0E1A 0%, #0F1A30 100%); color: #00D4FF; padding: 24px; text-align: center; border-bottom: 2px solid #00D4FF;">
+                  <h2 style="margin: 0; font-size: 22px;">📧 New Contact Form Submission</h2>
+                </div>
+                <div style="padding: 24px; background: #f5f5f5;">
+                  <p style="color: #333; font-size: 16px; line-height: 1.6;"><strong>From:</strong> ${input.name}</p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6;"><strong>Email:</strong> <a href="mailto:${input.email}" style="color: #0099CC; text-decoration: none;">${input.email}</a></p>
+                  ${input.company ? `<p style="color: #333; font-size: 16px; line-height: 1.6;"><strong>Company:</strong> ${input.company}</p>` : ''}
+                  ${input.phone ? `<p style="color: #333; font-size: 16px; line-height: 1.6;"><strong>Phone:</strong> <a href="tel:${input.phone}" style="color: #0099CC; text-decoration: none;">${input.phone}</a></p>` : ''}
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin-top: 20px;"><strong>Subject:</strong> ${input.subject || "Website Contact Form"}</p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin-top: 20px;"><strong>Message:</strong></p>
+                  <div style="background: #fff; padding: 16px; border-left: 4px solid #00D4FF; margin-top: 12px;">
+                    <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${input.message}</p>
+                  </div>
+                  <p style="color: #666; font-size: 14px; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 12px;">
+                    <strong>Submission ID:</strong> #${String(submissionId)}<br/>
+                    <strong>Received:</strong> ${new Date().toLocaleString()}<br/>
+                    <strong>Status:</strong> Draft ticket created in helpdesk system
+                  </p>
+                </div>
+                <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0;">
+                  <p style="margin: 0;">GigitekAI • Enterprise Cloud & AI Solutions</p>
+                  <p style="margin: 4px 0 0;">support@gigitekai.com • +1 (727) 382-6909</p>
+                </div>
+              </div>
+            `,
+          });
+        } catch (supportEmailError) {
+          console.warn("[Contact Form] Failed to send email to support@gigitekai.com:", supportEmailError);
+        }
+
         return {
           success: true,
-          id: submissionId,
-          message: "Thank you for your message. We will get back to you soon!",
+          id: String(submissionId),
+          message: "Thank you for your message. We will get back to you soon! A support ticket has been created and will appear in our system for review.",
         };
       } catch (error) {
         console.error("[Contact Form] Error:", error);
