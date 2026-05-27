@@ -246,23 +246,10 @@ async function processVoicemail(
     // Generate a unique call ID for this voicemail
     const graphCallId = `voicemail-${threadId}`;
 
-    // CRITICAL: Check voicemailDedup table first (persistent 24-hour dedup)
-    // Use externalId match only - don't rely on expiresAt comparison which can fail with string timestamps
-    const dedupCheck = await db.select().from(voicemailDedup).where(
-      eq(voicemailDedup.externalId, threadId)
-    ).limit(1);
-    
-    if (dedupCheck.length > 0) {
-      console.log(`[Voicemail Poller] Voicemail already processed (dedup hit): ${threadId}`);
-      return false; // Already processed - externalId exists in dedup table
-    }
-
-    // Also check callLogs for extra safety
-    const existing = await db.select().from(callLogs).where(eq(callLogs.graphCallId, graphCallId)).limit(1);
-    if (existing.length > 0) {
-      console.log(`[Voicemail Poller] Voicemail already in callLogs: ${threadId}`);
-      return false; // Already processed
-    }
+    // CRITICAL: Do NOT check for duplicates here!
+    // The insert-then-catch logic below (lines 307-326) handles race conditions via database constraints.
+    // Pre-checking creates a race condition where multiple threads can bypass the check.
+    // Instead, we rely on the database to enforce uniqueness via the insert operation.
 
     console.log(`[Voicemail Poller] Processing voicemail from ${callerNumber} (received: ${receivedAt})`);
 

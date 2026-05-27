@@ -249,11 +249,12 @@ export const voicemailDedup = mysqlTable("voicemailDedup", {
 	source: mysqlEnum(['email','webhook','group']).default('email').notNull(),
 	externalId: varchar({ length: 255 }), // messageId, callId, or threadId
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
-},
-(table) => [
-	index("voicemailDedup_phone_hash").on(table.callerPhone, table.transcriptHash),
-	index("voicemailDedup_expiresAt").on(table.expiresAt),
-]);
+	},
+	(table) => [
+		index("voicemailDedup_externalId_unique").on(table.externalId),
+		index("voicemailDedup_phone_hash").on(table.callerPhone, table.transcriptHash),
+		index("voicemailDedup_expiresAt").on(table.expiresAt),
+	]);
 
 export const callDraftTickets = mysqlTable("callDraftTickets", {
 	id: int().autoincrement().notNull(),

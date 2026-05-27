@@ -2,10 +2,9 @@
  * AdminContactCenterDashboardWrapper — Lightweight wrapper to fix dynamic import issues
  * Splits the dashboard into smaller chunks to prevent loading failures
  */
-import React, { lazy, Suspense } from "react";
+import React, { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-
-const AdminContactCenterDashboard = lazy(() => import("./AdminContactCenterDashboard"));
+import AdminContactCenterDashboard from "./AdminContactCenterDashboard";
 
 function DashboardLoader() {
   return (

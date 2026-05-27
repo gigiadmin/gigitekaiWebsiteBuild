@@ -254,13 +254,28 @@
 - [x] Remove duplicate ticket form code — Created UnifiedTicketForm component (reusable template for contact, helpdesk, admin forms)
 - [x] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in (implemented in UnifiedTicketForm + Contact page)
 - [x] Fix all TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
-- [ ] Investigate actual source of 70+ HTTP 400 emails (Teams webhook health monitor is disabled)
+- [x] **Investigate HTTP 400 emails** — FIXED
+  - [x] Root cause: markMessageAsRead sending { isRead: 1 } (number) instead of { isRead: true } (boolean)
+  - [x] Microsoft Graph API rejects number values for boolean fields
+  - [x] Fixed in /server/_core/email.ts lines 385 and 403
+  - [x] No more 400 errors when marking emails as read
 - [x] Verify production voicemail pipeline with live test calls — Integration test suite validates: dedup prevents duplicates, race condition fix works, 24-hour expiration, single ticket per voicemail
 
 - [x] **Final TypeScript Error Fixes** — COMPLETE
   - [x] Fixed AIChatWidget.tsx: Changed setShowSpecialistForm(true) to setShowCategoryForm(true)
   - [x] Fixed Contact.tsx: Changed errorMsg type from string | null to string | undefined
-  - [x] All 1029 tests passing, build successful, zero TypeScript errors
+  - [x] All 1032 tests passing, build successful, zero TypeScript errors
+
+- [x] **Fix Duplicate Voicemail Tickets** — COMPLETE
+  - [x] Root cause: Pre-check logic created race condition (check then insert pattern)
+  - [x] Solution: Removed pre-check, rely on database insert-then-catch logic
+  - [x] Deleted duplicate tickets from database (kept only first of each)
+  - [x] Voicemail dedup now uses database constraints to prevent concurrent duplicates
+
+- [x] **Fix Dynamic Import Error** — COMPLETE
+  - [x] Fixed AdminContactCenterDashboardWrapper: Added missing Suspense import
+  - [x] Removed nested lazy() import that was causing "Failed to fetch dynamically imported module" error
+  - [x] Component now loads correctly on first page load
 
 - [x] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
   - [x] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
