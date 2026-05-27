@@ -4,7 +4,7 @@ import { ENV } from "../_core/env";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { invokeLLM } from "../_core/llm";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 // ============================================================================
 // TYPES & VALIDATION
@@ -41,14 +41,10 @@ async function createHubSpotCompany(input: {
       {
         properties: {
           name: input.companyName,
-          domain: input.companyEmail,
-          annualrevenue: input.annualValue.toString(),
+          domain: input.companyEmail.split("@")[1] || input.companyEmail,
+          annualrevenue: input.annualValue,
           industry: "Technology",
           lifecyclestage: "customer",
-          hs_lead_status: "CUSTOMER",
-          service_type: input.serviceType,
-          onboarding_status: "In Progress",
-          onboarding_start_date: new Date().toISOString().split("T")[0],
         },
       },
       {
@@ -61,7 +57,12 @@ async function createHubSpotCompany(input: {
 
     return response.data.id;
   } catch (error) {
-    console.error("Error creating HubSpot company:", error);
+    if (error instanceof Error) {
+      console.error("Error creating HubSpot company:", error.message);
+      if (error.response) {
+        console.error("HubSpot Response:", error.response.status, error.response.data);
+      }
+    }
     throw error;
   }
 }
@@ -87,8 +88,6 @@ async function createHubSpotContact(input: {
           email: input.email,
           phone: input.phone,
           lifecyclestage: "customer",
-          hs_lead_status: "CUSTOMER",
-          contact_type: "Primary Contact",
         },
       },
       {
@@ -311,7 +310,12 @@ async function sendWelcomeEmail(input: {
       }
     );
   } catch (error) {
-    console.error("Error sending welcome email:", error);
+    if (error instanceof Error) {
+      console.error("Error sending welcome email:", error.message);
+      if (error.response) {
+        console.error("Graph Response:", error.response.status, error.response.data);
+      }
+    }
     throw error;
   }
 }
@@ -484,6 +488,9 @@ export const clientOnboardingRouter = router({
         };
       } catch (error) {
         console.error("Error during client onboarding:", error);
+        if (error instanceof Error && error.response) {
+          console.error("Full API Response:", error.response.status, error.response.data);
+        }
         throw new Error(
           `Onboarding failed: ${error instanceof Error ? error.message : "Unknown error"}`
         );
