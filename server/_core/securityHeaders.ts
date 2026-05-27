@@ -63,8 +63,11 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   // Cross-Origin-Resource-Policy — restrict cross-origin resource sharing (CORP)
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
 
-  // Cross-Origin-Embedder-Policy — require cross-origin resources to be CORS-enabled (COEP)
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  // Cross-Origin-Embedder-Policy — disabled (unsafe-none) because manus-storage
+  // uses 307 redirects to CloudFront signed URLs which don't include CORP headers.
+  // With require-corp, all cross-origin resources must have CORP: cross-origin,
+  // but we can't control CloudFront's response headers.
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
 
   // Strict Transport Security (HTTPS only, 1 year + preload)
   if (process.env.NODE_ENV === "production") {
