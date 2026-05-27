@@ -171,7 +171,7 @@ export default function SiteNavBar2024() {
               { label: "Websites", href: "/websites", show: 'always' },
               { label: "Industries", href: "/industries", show: 'always' },
               { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
-              { label: "ROI Calculator", href: "/roi-calculator", show: 'always' },
+              // { label: "ROI Calculator", href: "/roi-calculator", show: 'always' }, // REMOVED: too complex for now
               { label: "Insights", href: "/blog", show: 'always' },
               { label: "Knowledge Base", href: "/kb", show: 'always' },
             ].map((item) => (
@@ -282,7 +282,7 @@ export default function SiteNavBar2024() {
                 { label: "Websites", href: "/websites", id: "nav-websites" },
                 { label: "Industries", href: "/industries", id: "nav-industries" },
                 { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
-                { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" },
+                // { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" }, // REMOVED: too complex for now
                 { label: "Insights", href: "/blog", id: "nav-insights" },
                 { label: "Knowledge Base", href: "/kb", id: "nav-kb" },
               ].map((item) => (

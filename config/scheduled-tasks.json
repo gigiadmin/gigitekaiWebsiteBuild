@@ -1,0 +1,19 @@
+{
+  "scheduledTasks": [
+    {
+      "id": "ai-briefing-monthly-update",
+      "name": "AI Strategic Briefing — Monthly Update",
+      "description": "Generates a draft update with current AI industry information for the Strategic AI Briefing page",
+      "schedule": "0 9 ? * MON#1",
+      "cronExpression": "First Monday of each month at 9:00 AM UTC",
+      "script": "scripts/ai-briefing-monthly-update.mjs",
+      "enabled": true,
+      "notifyOnCompletion": true,
+      "notifyEmail": "harry@gigitekai.com",
+      "outputPath": "/tmp/ai-briefing-draft-*.md",
+      "draftForReview": true,
+      "autoPublish": false,
+      "notes": "Output is a DRAFT FOR REVIEW. User must manually review and publish to /AIStrategicBriefing page."
+    }
+  ]
+}

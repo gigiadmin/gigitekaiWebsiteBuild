@@ -63,14 +63,14 @@ async function computeMetrics(periodStart: Date, periodEnd: Date) {
   // Voicemail metrics
   const vmStats = await db.execute(sql`
     SELECT COUNT(*) as total
-    FROM voicemailLogs
-    WHERE receivedAt >= ${periodStart} AND receivedAt <= ${periodEnd}
+    FROM voicemailDedup
+    WHERE createdAt >= ${periodStart} AND createdAt <= ${periodEnd}
   `);
   const voicemailCount = Number((vmStats as any)[0]?.[0]?.total ?? 0);
 
   // Call quality average
   const qualityStats = await db.execute(sql`
-    SELECT AVG(totalScore) as avg_score
+    SELECT AVG(qualityScore) as avg_score
     FROM callQualityScores
     WHERE createdAt >= ${periodStart} AND createdAt <= ${periodEnd}
   `);

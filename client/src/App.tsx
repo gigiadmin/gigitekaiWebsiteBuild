@@ -58,7 +58,7 @@ const ComplianceBenchmark = lazy(() => import("./pages/ComplianceBenchmark"));
 const RoadmapGenerator = lazy(() => import("./pages/RoadmapGenerator"));
 const AdminScorecardDashboard = lazy(() => import("./pages/AdminScorecardDashboard"));
 const Pricing = lazy(() => import("./pages/Pricing"));
-const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage"));
+// const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage")); // REMOVED: ROI page too complex for now
 const HelpdeskPricingPage = lazy(() => import("./pages/HelpdeskPricing"));
 const AIStrategicBriefingPage = lazy(() => import("./pages/AIStrategicBriefingPage"));
 const AIDemoPage = lazy(() => import("./pages/AIDemoPage"));
@@ -95,7 +95,7 @@ const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const TicketFeedback = lazy(() => import("./pages/TicketFeedback"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
-const HelpdeskROIReport = lazy(() => import("./pages/HelpdeskROIReport"));
+// const HelpdeskROIReport = lazy(() => import("./pages/HelpdeskROIReport")); // REMOVED: ROI page too complex for now
 
 // ── Auth pages — lazy loaded ──────────────────────────────────────────────
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
@@ -173,7 +173,7 @@ function Router() {
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/web-pricing"} component={WebPricingLandingPage} />
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
-          <Route path={"/roi-calculator"} component={ROICalculatorPage} />
+          {/* <Route path={"/roi-calculator"} component={ROICalculatorPage} /> */} {/* REMOVED: ROI page too complex for now */}
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
@@ -248,7 +248,7 @@ function Router() {
           <Route path={"/helpdesk/tickets/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/profile"} component={UserProfile} />
           <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
-          <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} />
+          {/* <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} /> */} {/* REMOVED: ROI page too complex for now */}
           {/* ── Auth ── */}
           <Route path={"/accept-invite"} component={AcceptInvite} />
           <Route path={"/logout"} component={LogoutConfirmation} />

@@ -227,6 +227,21 @@
   - [x] Alert key tracks service + alert type
   - [x] Suppresses alerts within cooldown window
 
+- [x] **Remove ROI Dashboard Page** — COMPLETE
+  - [x] Removed /roi-calculator route from App.tsx
+  - [x] Removed /helpdesk/roi route
+  - [x] Removed ROI links from navbar
+  - [x] Kept router code for future use
+  - [x] Build successful
+
+- [x] **Monthly AI Briefing Update Schedule** — COMPLETE
+  - [x] Created ai-briefing-monthly-update.mjs script
+  - [x] Scheduled for first Monday of each month at 9 AM UTC
+  - [x] Generates draft with Trends, Breakthroughs, Market Data
+  - [x] Outputs as DRAFT FOR REVIEW (no auto-publish)
+  - [x] Sends notification email to harry@gigitekai.com
+  - [x] Configuration saved to config/scheduled-tasks.json
+
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
