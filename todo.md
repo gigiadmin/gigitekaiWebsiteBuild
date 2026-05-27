@@ -216,8 +216,15 @@
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
 - [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
-- [ ] Fix Teams webhook health check HTTP 400 alert spam (70+ emails sent)
-- [ ] Suppress duplicate webhook health check alerts - add deduplication/cooldown logic
+- [x] **Fix Generic Health Check Alert Spam** — COMPLETE
+  - [x] Added 30-minute cooldown to healthCheckScheduler
+  - [x] Deduplication logic prevents duplicate service health alerts
+  - [x] Alert key tracks service + alert type
+  - [x] Suppresses alerts within cooldown window
+
+- [ ] Investigate actual source of 70+ HTTP 400 emails (Teams webhook health monitor is disabled)
+
+- [ ] Remove duplicate ticket form code
 - [ ] Unified ticket creation form (user + admin) with AI-ready fields
 - [ ] Verify production voicemail pipeline with live test calls
 

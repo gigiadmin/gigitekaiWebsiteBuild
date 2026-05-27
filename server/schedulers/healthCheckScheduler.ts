@@ -29,6 +29,10 @@ const previousStatus: Record<string, ServiceHealthStatus> = {
   "M365 Service Health": ServiceHealthStatus.HEALTHY,
 };
 
+// Deduplication: Track last alert time per service to prevent spam
+const lastAlertTime: Record<string, number> = {};
+const ALERT_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes between same-status alerts
+
 function logHealthCheck(log: HealthCheckLog) {
   healthCheckLogs.push(log);
   if (healthCheckLogs.length > MAX_LOGS) {
@@ -90,6 +94,18 @@ async function sendAlertIfStatusChanged(
   if (!shouldNotify) {
     return;
   }
+
+  // Deduplication: Check if we've already sent an alert for this service recently
+  const alertKey = `${service}-${alertType}`;
+  const now = Date.now();
+  const lastAlert = lastAlertTime[alertKey] || 0;
+  
+  if (now - lastAlert < ALERT_COOLDOWN_MS) {
+    console.log(`[Health Alert] Suppressing duplicate alert for ${service} (cooldown active)`);
+    return;
+  }
+  
+  lastAlertTime[alertKey] = now;
 
   console.error(`[Health Alert] ${alertType}: ${service} is ${newStatus}`);
 
