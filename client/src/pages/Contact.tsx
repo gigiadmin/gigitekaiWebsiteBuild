@@ -6,12 +6,11 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
+import UnifiedTicketForm, { type TicketFormData } from "@/components/UnifiedTicketForm";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Mail,
   Phone,
@@ -28,65 +27,55 @@ import {
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
 
-interface ContactFormData {
-  name: string;
-  email: string;
-  company: string;
-  phone: string;
-  subject: string;
-  message: string;
-  pricingTier?: string;
-  companySize?: string;
-  smsOptIn?: boolean;
-}
-
 export default function Contact() {
   useSEO({ ...SEO_CONFIG["/contact"], path: "/contact", schemaType: "ContactPage" });
 
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: "",
-    email: "",
-    company: "",
-    phone: "",
-    subject: "",
-    message: "",
-    pricingTier: "",
-    companySize: "",
-    smsOptIn: false,
-  });
+  const { user } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [formLoadTime] = useState(() => Date.now());
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const sendContactMutation = trpc.contact.submit.useMutation({
     onSuccess: () => {
       setSubmitted(true);
       toast.success("Message sent! We'll get back to you within 24 hours.");
+      setTimeout(() => setSubmitted(false), 3000);
     },
     onError: (err: { message?: string }) => {
-      toast.error(err.message || "Failed to send message. Please try again.");
+      const message = err.message || "Failed to send message. Please try again.";
+      setErrorMsg(message);
+      toast.error(message);
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Honeypot + timing anti-spam
-    if (honeypot) return;
+  const handleFormSubmit = async (data: TicketFormData) => {
+    // Honeypot anti-spam
+    if (honeypot) throw new Error("Spam detected");
+    
+    // Timing anti-spam
     if (Date.now() - formLoadTime < 2000) {
-      toast.error("Please wait a moment before submitting.");
-      return;
+      throw new Error("Please wait a moment before submitting.");
     }
-    if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-    sendContactMutation.mutate(formData);
-  };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setErrorMsg(null);
+    
+    return new Promise<void>((resolve, reject) => {
+      sendContactMutation.mutate(
+        {
+          name: data.name,
+          email: data.email,
+          company: "",
+          phone: "",
+          subject: data.subject,
+          message: data.description,
+        },
+        {
+          onSuccess: () => resolve(),
+          onError: (err) => reject(err),
+        }
+      );
+    });
   };
 
   return (
@@ -173,8 +162,6 @@ export default function Contact() {
               </div>
             </div>
 
-
-
             {/* Trust badges */}
             <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-center gap-2 mb-3">
@@ -222,232 +209,37 @@ export default function Contact() {
                   <Button
                     variant="outline"
                     className="border-[#00d4ff]/40 text-[#00d4ff] hover:bg-[#00d4ff]/10"
-                    onClick={() => {
-                      setSubmitted(false);
-                      setFormData({
-                        name: "",
-                        email: "",
-                        company: "",
-                        phone: "",
-                        subject: "",
-                        message: "",
-                        pricingTier: "",
-                        companySize: "",
-                        smsOptIn: false,
-                      });
-                    }}
+                    onClick={() => setSubmitted(false)}
                   >
                     Send Another Message
                   </Button>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-white text-xl font-semibold mb-6">
-                    Send Us a Message
-                  </h2>
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Honeypot anti-spam field — hidden from humans */}
-                    <div className="absolute opacity-0 -z-10" aria-hidden="true" tabIndex={-1}>
-                      <input
-                        type="text"
-                        name="website_url"
-                        value={honeypot}
-                        onChange={(e) => setHoneypot(e.target.value)}
-                        tabIndex={-1}
-                        autoComplete="off"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-gray-300 text-sm">
-                          Full Name <span className="text-red-400">*</span>
-                        </Label>
-                        <Input
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          placeholder="John Smith"
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-gray-300 text-sm">
-                          Email Address <span className="text-red-400">*</span>
-                        </Label>
-                        <Input
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="john@company.com"
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
-                          required
-                        />
-                      </div>
-                    </div>
+                  {/* Honeypot anti-spam field — hidden from humans */}
+                  <div className="absolute opacity-0 -z-10" aria-hidden="true" tabIndex={-1}>
+                    <input
+                      type="text"
+                      name="website"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      autoComplete="off"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    />
+                  </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-gray-300 text-sm">
-                          Company Name
-                        </Label>
-                        <Input
-                          name="company"
-                          value={formData.company}
-                          onChange={handleChange}
-                          placeholder="Acme Corp"
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-gray-300 text-sm">
-                          Phone Number
-                        </Label>
-                        <Input
-                          name="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="(555) 000-0000"
-                          className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Pricing Tier Selection */}
-                    <div className="space-y-3 pt-2">
-                      <Label className="text-gray-300 text-sm flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-[#00d4ff]" />
-                        Interested Service Tier <span className="text-gray-500 text-xs">(Optional)</span>
-                      </Label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {[
-                          { value: "starter", label: "Starter", desc: "Small business essentials" },
-                          { value: "professional", label: "Professional", desc: "Growing companies" },
-                          { value: "enterprise", label: "Enterprise", desc: "Large-scale operations" },
-                        ].map((tier) => (
-                          <button
-                            key={tier.value}
-                            type="button"
-                            onClick={() => setFormData((prev) => ({ ...prev, pricingTier: prev.pricingTier === tier.value ? "" : tier.value }))}
-                            className={`p-3 rounded-lg border-2 transition-[opacity,transform] text-left ${
-                              formData.pricingTier === tier.value
-                                ? "border-[#00d4ff] bg-[#00d4ff]/10"
-                                : "border-white/10 bg-white/5 hover:border-[#00d4ff]/50"
-                            }`}
-                          >
-                            <div className="font-medium text-white text-sm">{tier.label}</div>
-                            <div className="text-xs text-gray-400 mt-1">{tier.desc}</div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Company Size Selection */}
-                    <div className="space-y-3">
-                      <Label className="text-gray-300 text-sm flex items-center gap-2">
-                        <Users className="w-4 h-4 text-[#00d4ff]" />
-                        Company Size <span className="text-gray-500 text-xs">(Optional)</span>
-                      </Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {[
-                          { value: "1-10", label: "1-10" },
-                          { value: "11-50", label: "11-50" },
-                          { value: "51-200", label: "51-200" },
-                          { value: "200+", label: "200+" },
-                        ].map((size) => (
-                          <button
-                            key={size.value}
-                            type="button"
-                            onClick={() => setFormData((prev) => ({ ...prev, companySize: prev.companySize === size.value ? "" : size.value }))}
-                            className={`p-2 rounded-lg border-2 transition-[opacity,transform] text-sm font-medium ${
-                              formData.companySize === size.value
-                                ? "border-[#00d4ff] bg-[#00d4ff]/10 text-[#00d4ff]"
-                                : "border-white/10 bg-white/5 text-white hover:border-[#00d4ff]/50"
-                            }`}
-                          >
-                            {size.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-gray-300 text-sm">Subject</Label>
-                      <Input
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        placeholder="e.g. M365 Quote, Helpdesk Support, Cybersecurity Assessment..."
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-gray-300 text-sm">
-                        Message <span className="text-red-400">*</span>
-                      </Label>
-                      <Textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        placeholder="Tell us about your IT challenges, current environment, or what services you're interested in..."
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-[#00d4ff]/50 min-h-[140px] resize-none"
-                        required
-                      />
-                    </div>
-
-                    {/* SMS Opt-In Checkbox — TCPA Compliant */}
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          id="smsOptIn"
-                          name="smsOptIn"
-                          checked={formData.smsOptIn || false}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, smsOptIn: e.target.checked }))}
-                          className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[#00d4ff] cursor-pointer accent-[#00d4ff]"
-                        />
-                        <label htmlFor="smsOptIn" className="text-sm text-gray-300 cursor-pointer flex-1">
-                          <span className="font-medium">Opt in to SMS updates</span>
-                          <p className="text-xs text-gray-500 mt-1">
-                            I consent to receive SMS text messages from GigitekAI about service updates, offers, and support information. Standard message rates apply. Reply STOP to opt out. See our <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#00d4ff] hover:underline">Privacy Policy</a> for details.
-                          </p>
-                        </label>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={sendContactMutation.isPending}
-                      className="w-full bg-[#00d4ff] hover:bg-[#00b8e0] text-black font-semibold py-3"
-                    >
-                      {sendContactMutation.isPending ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Send Message
-                        </>
-                      )}
-                    </Button>
-
-                    <p className="text-center text-xs text-gray-500">
-                      We typically respond within 24 business hours.
-                      <br />
-                      For urgent support, call{" "}
-                      <a
-                        href="tel:727-382-6909"
-                        className="text-[#00d4ff] hover:underline"
-                      >
-                        (727) 382-6909
-                      </a>
-                    </p>
-                  </form>
+                  {/* Unified form with auth auto-fill */}
+                  <UnifiedTicketForm
+                    onSubmit={handleFormSubmit}
+                    isLoading={sendContactMutation.isPending}
+                    errorMessage={errorMsg}
+                    successMessage="Thank you! Your message has been sent."
+                    title="Send Us a Message"
+                    submitButtonText={sendContactMutation.isPending ? "Sending..." : "Send Message"}
+                    showCategory={false}
+                    showPriority={false}
+                  />
                 </>
               )}
             </div>

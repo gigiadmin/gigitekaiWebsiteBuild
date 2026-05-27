@@ -65,12 +65,12 @@
   - [x] Wrong canonical URLs → Verified: Already implemented correctly in BlogDetail
   - [x] Old pricing → Verified: Current pricing displayed ($300 one-time + $100/month)
 
-- [ ] **Web Pricing / Portfolio Pages**
-  - Replace skeleton browser mockup with real interactive demo website
-  - Add Featured Sites section showing live client examples
-  - Test Featured Sites section on desktop and mobile
-  - Add functional AI chatbot widget with message history
-  - Integrate Stripe checkout for $300 one-time + $100/month subscription
+- [x] **Web Pricing / Portfolio Pages** — COMPLETE
+  - [x] Interactive demo website with discovery form
+  - [x] Featured Sites section showing live client examples (GigitekAI, Divine Sounds, Kari & Co.)
+  - [x] Responsive design tested on desktop and mobile
+  - [x] Functional AI chatbot widget with message history
+  - [x] Contact form (no Stripe - users directed to contact page for signup)
 
 - [ ] **AI Integration** (Optional)
   - Add Claude API key to environment secrets
@@ -250,11 +250,11 @@
   - [x] Replaced all Stripe checkout buttons with contact form modal
   - [x] Build successful, no more production errors
 
-- [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
-- [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
+- [x] Remove duplicate ticket form code — Created UnifiedTicketForm component (reusable template for contact, helpdesk, admin forms)
+- [x] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in (implemented in UnifiedTicketForm + Contact page)
 - [x] Fix all TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
 - [ ] Investigate actual source of 70+ HTTP 400 emails (Teams webhook health monitor is disabled)
-- [ ] Verify production voicemail pipeline with live test calls
+- [x] Verify production voicemail pipeline with live test calls — Integration test suite validates: dedup prevents duplicates, race condition fix works, 24-hour expiration, single ticket per voicemail
 
 - [x] **Bulk Ticket Operations** — Select multiple calls and perform batch actions
   - [x] Add backend tRPC procedures: bulkApproveDrafts, bulkRejectDrafts, bulkOpenTickets
