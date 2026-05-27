@@ -30,6 +30,7 @@ import { calendarRouter } from "./routers/calendar";
 import { aiTriageRouter } from "./routers/aiTriage";
 import { kbRouter } from "./routers/kb";
 import { kbFeedbackRouter } from "./routers/kbFeedback";
+import { contactFormRouter } from "./routers/contact-form";
 import { emailDripRouter } from "./routers/emailDrip";
 import { smsCampaignRouter } from "./routers/sms-campaigns";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
@@ -159,6 +160,7 @@ export const appRouter = router({
   aiTriage: aiTriageRouter,
   kb: kbRouter,
   kbFeedback: kbFeedbackRouter,
+  contact: contactFormRouter,
   cannedResponses: cannedResponsesRouter,
   social: socialRouter,
   copilot: copilotRouter,
