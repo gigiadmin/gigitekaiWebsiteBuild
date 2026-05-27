@@ -679,6 +679,22 @@ export default function HelpdeskPricing() {
           </Button>
         </div>
       </div>
+
+      {/* Contact Form Modal */}
+      {showContactForm && (
+        <CreateTicketModal
+          open={showContactForm}
+          onClose={() => {
+            setShowContactForm(false);
+            setSelectedPlan(null);
+          }}
+          mode="user"
+          prefillData={selectedPlan ? {
+            subject: `Inquiry: ${selectedPlan} Plan - Helpdesk Pricing`,
+            description: `I'm interested in the ${selectedPlan} helpdesk plan for ${userCount} users. ${isAnnual ? '(Annual billing)' : '(Monthly billing)'}`
+          } : undefined}
+        />
+      )}
     </div>
   );
 }
