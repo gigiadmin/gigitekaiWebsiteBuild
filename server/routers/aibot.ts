@@ -693,9 +693,29 @@ export const aibotRouter = router({
     .mutation(async ({ input }) => {
       const { sessionId, reason, priority } = input;
 
-      const session = await getChatSession(sessionId);
+      let session = await getChatSession(sessionId);
+      
+      // If session doesn't exist (e.g., local fallback ID), create it
       if (!session) {
-        throw new Error("Session not found");
+        console.log(`[AIBot] Creating new session for escalation: ${sessionId}`);
+        try {
+          await saveChatSession({
+            sessionId,
+            visitorName: "Chat Visitor",
+            visitorEmail: "",
+            visitorCompany: "",
+            status: "active",
+            createdAt: new Date(),
+          });
+          session = await getChatSession(sessionId);
+        } catch (error) {
+          console.error(`[AIBot] Failed to create session: ${error}`);
+          // Continue anyway - we'll create the ticket with minimal info
+        }
+      }
+      
+      if (!session) {
+        console.warn(`[AIBot] Session still not found after creation attempt, proceeding with escalation`);
       }
 
       // Get chat history for transcript
@@ -708,7 +728,7 @@ export const aibotRouter = router({
       const ticketResult = await createTicket({
         userId: 1, // System user for bot escalations
         title: `Chat Escalation: ${reason.substring(0, 100)}`,
-        description: `**Escalation Reason:** ${reason}\n\n**Customer Info:**\nName: ${session.visitorName || "Anonymous"}\nEmail: ${session.visitorEmail || "Not provided"}\nCompany: ${session.visitorCompany || "Not provided"}\n\n**Chat Transcript:**\n${transcript}`,
+        description: `**Escalation Reason:** ${reason}\n\n**Customer Info:**\nName: ${session?.visitorName || "Anonymous"}\nEmail: ${session?.visitorEmail || "Not provided"}\nCompany: ${session?.visitorCompany || "Not provided"}\n\n**Chat Transcript:**\n${transcript}`,
         priority: priority as any,
         category: "general_support" as any,
         status: "open" as any,
@@ -721,7 +741,7 @@ export const aibotRouter = router({
       await updateChatSessionStatus(sessionId, "escalated", ticketId);
 
       // Send branded confirmation email to customer if email is available
-      if (session.visitorEmail) {
+      if (session?.visitorEmail) {
         try {
           const firstName = (session.visitorName || session.visitorEmail).split(" ")[0] || "there";
           const priorityDetails = getPriorityDetails(priority);
