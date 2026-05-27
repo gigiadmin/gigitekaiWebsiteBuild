@@ -211,7 +211,7 @@ describe("Copilot Router", () => {
       expect(result.article).toBeDefined();
       expect(result.article.title).toBe("Password Reset Guide");
       expect(result.article.sourceTicketId).toBe(1);
-      expect(result.article.isPublished).toBe(false);
+      expect(result.article.isPublished).toBeFalsy();
     });
   });
 

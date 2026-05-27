@@ -41,8 +41,8 @@ import {
   getEscalationPatterns,
   getEscalationPatternStats
 } from "../db";
-import { eq, desc, sql, and } from "drizzle-orm";
-import { chatSessions, chatMessages } from "../../drizzle/schema";
+import { eq, desc, sql, and, like } from "drizzle-orm";
+import { chatSessions, chatMessages, tickets } from "../../drizzle/schema";
 import { getAdminFromRequest } from "./admin-auth";
 import type { Request } from "express";
 import { nanoid } from "nanoid";
@@ -696,7 +696,8 @@ export const aibotRouter = router({
       
       // Idempotency: Check if we've already created a ticket with this key
       if (idempotencyKey) {
-        const existingTicket = await db
+        const dbInstance = await getDb();
+        const existingTicket = dbInstance ? await dbInstance
           .select()
           .from(tickets)
           .where(
@@ -705,7 +706,7 @@ export const aibotRouter = router({
               like(tickets.description, `%${idempotencyKey}%`)
             )
           )
-          .limit(1);
+          .limit(1) : [];
         
         if (existingTicket.length > 0) {
           console.log(`[AIBot] Duplicate escalation detected (key: ${idempotencyKey}), returning existing ticket`);
@@ -719,7 +720,7 @@ export const aibotRouter = router({
       if (!session) {
         console.log(`[AIBot] Creating new session for escalation: ${sessionId}`);
         try {
-          await saveChatSession({
+          await createChatSession({
             sessionId,
             visitorName: "Chat Visitor",
             visitorEmail: "",
@@ -816,8 +817,8 @@ export const aibotRouter = router({
       // Send notification to owner
       try {
         await notifyOwner({
-          title: `New Support Ticket from Chat: ${session.visitorName || "Anonymous"}`,
-          content: `Priority: ${priority}\nReason: ${reason}\nCustomer Email: ${session.visitorEmail || "Not provided"}\nCompany: ${session.visitorCompany || "Not provided"}\n\nTicket #${ticketId}\n\nChat Transcript:\n${transcript}`,
+          title: `New Support Ticket from Chat: ${session?.visitorName || "Anonymous"}`,
+          content: `Priority: ${priority}\nReason: ${reason}\nCustomer Email: ${session?.visitorEmail || "Not provided"}\nCompany: ${session?.visitorCompany || "Not provided"}\n\nTicket #${ticketId}\n\nChat Transcript:\n${transcript}`,
         });
       } catch (error) {
         console.error("[AIBot] Failed to send notification:", error);

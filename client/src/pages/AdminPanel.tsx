@@ -165,32 +165,55 @@ export default function AdminPanel() {
     onError: (error: any) => toast.error(error.message || "Failed to update user role"),
   });
 
-  const bulkApproveMutation = trpc.users.bulkApprove.useMutation({
-    onSuccess: () => {
-      toast.success("Users approved!");
-      setSelectedUserIds(new Set());
-      refetchUsers();
+  // Bulk operations - use individual approve/revoke/delete for now
+  const bulkApproveMutation = {
+    mutate: async (data: { userIds: number[] }) => {
+      try {
+        for (const userId of data.userIds) {
+          await approveMutation.mutateAsync({ userId });
+        }
+        toast.success("Users approved!");
+        setSelectedUserIds(new Set());
+        refetchUsers();
+      } catch (error: any) {
+        toast.error(error.message || "Failed to approve users");
+      }
     },
-    onError: (error: any) => toast.error(error.message || "Failed to approve users"),
-  });
+    isPending: false,
+  };
 
-  const bulkRevokeMutation = trpc.users.bulkRevoke.useMutation({
-    onSuccess: () => {
-      toast.success("Users revoked!");
-      setSelectedUserIds(new Set());
-      refetchUsers();
+  const bulkRevokeMutation = {
+    mutate: async (data: { userIds: number[] }) => {
+      try {
+        for (const userId of data.userIds) {
+          await revokeMutation.mutateAsync({ userId });
+        }
+        toast.success("Users revoked!");
+        setSelectedUserIds(new Set());
+        refetchUsers();
+      } catch (error: any) {
+        toast.error(error.message || "Failed to revoke users");
+      }
     },
-    onError: (error: any) => toast.error(error.message || "Failed to revoke users"),
-  });
+    isPending: false,
+  };
 
-  const bulkDeleteMutation = trpc.userAccountMgmt.bulkDeleteUsers.useMutation({
-    onSuccess: () => {
-      toast.success("Users deleted!");
-      setSelectedUserIds(new Set());
-      refetchUsers();
+  const deleteMutation = trpc.userAccountMgmt.deleteUser.useMutation();
+  const bulkDeleteMutation = {
+    mutate: async (data: { userIds: number[] }) => {
+      try {
+        for (const userId of data.userIds) {
+          await deleteMutation.mutateAsync({ userId });
+        }
+        toast.success("Users deleted!");
+        setSelectedUserIds(new Set());
+        refetchUsers();
+      } catch (error: any) {
+        toast.error(error.message || "Failed to delete users");
+      }
     },
-    onError: (error: any) => toast.error(error.message || "Failed to delete users"),
-  });
+    isPending: false,
+  };
 
   // adminCreateTicket is now handled by CreateTicketModal
 

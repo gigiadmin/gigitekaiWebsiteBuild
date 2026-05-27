@@ -97,7 +97,7 @@ describe("Helpdesk Agent & SLA - Extended Tests", () => {
     it("should not flag recent tickets as breached", async () => {
       const result = await adminCaller.helpdeskAgentSla.getSLAStatus({
         ticketId: 1,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
         priority: "critical",
       });
 

@@ -458,12 +458,12 @@ export const callsRouter = router({
             bug_report: "bug_report",
             feature_request: "feature_request",
           };
-          const mappedCategory = categoryMap[draft.category] ?? "general_support";
+          const mappedCategory = categoryMap[draft.category || 'general_support'] ?? "general_support";
 
           const ticket = await createTicket({
             userId: resolvedUserId,
-            title: draft.title,
-            description: draft.description,
+            title: draft.title || 'Voicemail Ticket',
+            description: draft.description || '',
             priority: draft.priority as any,
             category: mappedCategory,
             source: "phone",
@@ -566,12 +566,12 @@ export const callsRouter = router({
             bug_report: "bug_report",
             feature_request: "feature_request",
           };
-          const mappedCategory = categoryMap[draft.category] ?? "general_support";
+          const mappedCategory = categoryMap[draft.category || 'general_support'] ?? "general_support";
 
           const ticket = await createTicket({
             userId: resolvedUserId,
-            title: draft.title,
-            description: draft.description,
+            title: draft.title || 'Voicemail Ticket',
+            description: draft.description || '',
             priority: draft.priority as any,
             category: mappedCategory,
             source: "phone",

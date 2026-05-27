@@ -193,7 +193,7 @@ Priority guide:
       ],
     });
 
-    const text = response.choices?.[0]?.message?.content || "";
+    const text = (response.choices?.[0]?.message?.content as string) || "";
     const json = JSON.parse(text);
     return {
       title: json.title || "Voicemail",
@@ -223,7 +223,7 @@ async function lookupCallerByPhone(phone: string): Promise<{ userId: number; nam
   try {
     const results = await db.select().from(users).where(sql`phone LIKE ${`%${phone}%`}`).limit(1);
     if (results.length > 0) {
-      return { userId: results[0].id, name: results[0].name, email: results[0].email };
+      return { userId: results[0].id, name: results[0].name || '', email: results[0].email || '' };
     }
   } catch (err) {
     console.warn(`[Voicemail Poller] Phone lookup failed for ${phone}`);

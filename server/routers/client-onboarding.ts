@@ -56,11 +56,11 @@ async function createHubSpotCompany(input: {
     );
 
     return response.data.id;
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error) {
       console.error("Error creating HubSpot company:", error.message);
-      if (error.response) {
-        console.error("HubSpot Response:", error.response.status, error.response.data);
+      if ((error as any).response) {
+        console.error("HubSpot Response:", (error as any).response.status, (error as any).response.data);
       }
     }
     throw error;
@@ -320,11 +320,11 @@ async function sendWelcomeEmail(input: {
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error) {
       console.error("Error sending welcome email:", error.message);
-      if (error.response) {
-        console.error("Graph Response:", error.response.status, error.response.data);
+      if ((error as any).response) {
+        console.error("Graph Response:", (error as any).response.status, (error as any).response.data);
       }
     }
     throw error;
@@ -497,10 +497,10 @@ export const clientOnboardingRouter = router({
           eventId,
           message: `Client onboarding initiated for ${input.companyName}`,
         };
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error during client onboarding:", error);
-        if (error instanceof Error && error.response) {
-          console.error("Full API Response:", error.response.status, error.response.data);
+        if (error instanceof Error && (error as any).response) {
+          console.error("Full API Response:", (error as any).response.status, (error as any).response.data);
         }
         throw new Error(
           `Onboarding failed: ${error instanceof Error ? error.message : "Unknown error"}`

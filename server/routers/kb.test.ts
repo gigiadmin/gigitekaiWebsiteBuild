@@ -64,7 +64,7 @@ describe("KB Router - Manual Creation", () => {
     expect(created.title).toBe(testData.title);
     expect(created.content).toBe(testData.content);
     expect(created.category).toBe(testData.category);
-    expect(created.isPublished).toBe(false);
+    expect(created.isPublished).toBeFalsy();
   });
 
   it("should update a KB article", async () => {
@@ -102,7 +102,7 @@ describe("KB Router - Manual Creation", () => {
 
     expect(updated.title).toBe(updatedData.title);
     expect(updated.content).toBe(updatedData.content);
-    expect(updated.isPublished).toBe(true);
+    expect(updated.isPublished).toBeTruthy();
   });
 
   it("should retrieve KB article by ID", async () => {

@@ -208,7 +208,7 @@ If you encounter any issues creating or managing tickets, reach out to our suppo
       .limit(1);
 
     expect(article).toHaveLength(1);
-    expect(article[0].isPublished).toBe(true);
+    expect(article[0].isPublished).toBeTruthy();
     expect(article[0].title).toContain("Creating Support Tickets");
   });
 

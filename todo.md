@@ -252,7 +252,7 @@
 
 - [ ] Remove duplicate ticket form code — contact form, helpdesk router, and admin form all use same shared component
 - [ ] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in
-- [ ] Fix all 412 TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
+- [x] Fix all TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
 - [ ] Investigate actual source of 70+ HTTP 400 emails (Teams webhook health monitor is disabled)
 - [ ] Verify production voicemail pipeline with live test calls
 

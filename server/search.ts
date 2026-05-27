@@ -103,13 +103,13 @@ export async function searchContent(
       whereConditions.push(eq(searchIndex.contentType, options.contentType as any));
     }
 
-    // Apply search term filters (LIKE matching on title and excerpt)
+    // Apply search term filters (LIKE matching on title and content)
     if (searchTerms.length > 0) {
-      const conditions = searchTerms.map((term) =>
-        sql`(${searchIndex.title} LIKE ${`%${term}%`} OR ${searchIndex.excerpt} LIKE ${`%${term}%`})`
-      );
-
-      whereConditions.push(sql`${conditions.join(" AND ")}`);
+      for (const term of searchTerms) {
+        whereConditions.push(
+          sql`(${searchIndex.title} LIKE ${`%${term}%`} OR ${searchIndex.content} LIKE ${`%${term}%`})`
+        );
+      }
     }
 
     // Execute query with all conditions

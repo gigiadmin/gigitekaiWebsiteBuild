@@ -19,10 +19,7 @@ export default function PublicKB() {
   const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
 
   // Fetch all published KB articles (public procedure)
-  const { data: articles, isLoading: articlesLoading } = trpc.kb.list.useQuery({
-    limit: 1000,
-    offset: 0,
-  });
+  const { data: articles, isLoading: articlesLoading } = trpc.kb.list.useQuery({});
 
   // Fetch article detail when selected
   const { data: articleDetail, isLoading: detailLoading } = trpc.kb.get.useQuery(
@@ -62,7 +59,7 @@ export default function PublicKB() {
     // Sort
     switch (sortBy) {
       case "rating":
-        filtered.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+        filtered.sort((a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0));
         break;
       case "newest":
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

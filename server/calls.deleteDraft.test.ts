@@ -12,7 +12,7 @@ describe("calls.deleteDraft", () => {
     if (!db) throw new Error("Database unavailable");
 
     const result = await db.insert(callDraftTickets).values({
-      callLogId: null,
+      callLogId: 0,
       title: "Test Draft for Deletion",
       description: "This draft will be deleted",
       priority: "medium",
@@ -21,9 +21,8 @@ describe("calls.deleteDraft", () => {
       callerName: "Test Caller",
       callerEmail: "test@example.com",
       reviewStatus: "pending",
-      aiConfidence: 0.75,
     });
-    testDraftId = (result as any).insertId;
+    testDraftId = (result as any)[0]?.insertId ?? (result as any).insertId;
   });
 
   it("should delete a draft ticket", async () => {

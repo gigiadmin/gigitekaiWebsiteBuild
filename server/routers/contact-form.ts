@@ -12,10 +12,31 @@ import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
 import { sql } from "drizzle-orm";
 
+// ─── Rate Limiting ──────────────────────────────────────────────────────────
+// Prevent spam and Purview alerts by limiting submissions per email/IP
+const submissionRateLimit = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 3; // max 3 submissions per window
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = submissionRateLimit.get(key);
+  if (!entry || now > entry.resetAt) {
+    submissionRateLimit.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
 export const contactFormRouter = router({
   /**
    * Submit contact form from public website
    * Stores submission and sends notifications
+   * Rate limited: 3 submissions per 15 minutes per email
    */
   submit: publicProcedure
     .input(
@@ -33,6 +54,14 @@ export const contactFormRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Rate limit by email address
+      if (!checkRateLimit(input.email.toLowerCase())) {
+        console.warn(`[Contact Form] Rate limit exceeded for ${input.email}`);
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many submissions. Please wait 15 minutes before trying again.",
+        });
+      }
       try {
         const db = await getDb();
         if (!db) {

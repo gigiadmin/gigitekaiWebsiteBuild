@@ -1,10 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 
-// Mock the database module to prevent real DB writes
+// Mock the database module with a working mock DB
+const mockInsert = vi.fn().mockReturnValue({
+  values: vi.fn().mockResolvedValue([{ insertId: 42 }]),
+});
+const mockDb = {
+  insert: mockInsert,
+  select: vi.fn().mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue([]),
+    }),
+  }),
+};
 vi.mock("./db", () => ({
   saveContactSubmission: vi.fn(async () => ({ id: 1 })),
-  getDb: vi.fn(async () => null),
+  getDb: vi.fn(async () => mockDb),
   upsertUser: vi.fn(async () => {}),
   getUserByOpenId: vi.fn(async () => null),
 }));
@@ -49,11 +60,12 @@ describe("contact.submit with database storage", () => {
       await caller.contact.submit({
         name: "",
         email: "hhenry23@gmail.com",
-        message: "Test message",
+        message: "Test message that is long enough",
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      expect(error.message).toContain("Name is required");
+      // Zod validation: "Name must be at least 2 characters"
+      expect(error.message).toContain("at least 2 characters");
     }
   });
 
@@ -68,11 +80,11 @@ describe("contact.submit with database storage", () => {
       await caller.contact.submit({
         name: "Bob Smith",
         email: "invalid-email",
-        message: "Test message",
+        message: "Test message that is long enough",
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      expect(error.message).toContain("Valid email is required");
+      expect(error.message).toContain("Invalid email");
     }
   });
 
@@ -107,7 +119,8 @@ describe("contact.submit with database storage", () => {
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      expect(error.message).toContain("Message is required");
+      // Zod validation: "Message must be at least 10 characters"
+      expect(error.message).toContain("at least 10 characters");
     }
   });
 });

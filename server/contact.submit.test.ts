@@ -3,9 +3,20 @@ import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
 // Mock the database module to prevent real DB writes
+const mockInsert = vi.fn().mockReturnValue({
+  values: vi.fn().mockResolvedValue([{ insertId: 42 }]),
+});
+const mockDb = {
+  insert: mockInsert,
+  select: vi.fn().mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue([]),
+    }),
+  }),
+};
 vi.mock("./db", () => ({
   saveContactSubmission: vi.fn(async () => ({ id: 1 })),
-  getDb: vi.fn(async () => null),
+  getDb: vi.fn(async () => mockDb),
   upsertUser: vi.fn(async () => {}),
   getUserByOpenId: vi.fn(async () => null),
 }));
@@ -45,10 +56,8 @@ describe("contact.submit", () => {
       message: "I'm interested in your cloud services.",
     });
 
-    expect(result).toEqual({
-      success: true,
-      message: expect.stringContaining("Thank you"),
-    });
+    expect(result.success).toBe(true);
+    expect(result.message).toContain("Thank you");
   });
 
   it("rejects submission with missing name", async () => {
@@ -112,9 +121,7 @@ describe("contact.submit", () => {
       message: "I need help with AI integration.",
     });
 
-    expect(result).toEqual({
-      success: true,
-      message: expect.stringContaining("Thank you"),
-    });
+    expect(result.success).toBe(true);
+    expect(result.message).toContain("Thank you");
   });
 });

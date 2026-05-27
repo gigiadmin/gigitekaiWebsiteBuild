@@ -5,7 +5,7 @@ import { sendEmail } from "../_core/email";
 import { createCustomerInvite, getCustomerInviteByToken, acceptCustomerInvite, listCustomerInvites, revokeCustomerInvite, getDb } from "../db";
 import { getAdminFromRequest } from "./admin-auth";
 import { customerInvites as customerInvitesTable, accountAuditLog } from "../../drizzle/schema";
-import { eq, isNull, isNotNull, inArray, and, or, like, asc, desc, sql } from "drizzle-orm";
+import { eq, inArray, and, or, like, asc, desc, sql } from "drizzle-orm";
 
 export const customerInvitesRouter = router({
   sendCustomerInvite: publicProcedure
@@ -404,9 +404,9 @@ export const customerInvitesRouter = router({
       try {
         const db = (await getDb())!;
         
-        // Soft delete: set deletedAt timestamp
+        // Soft delete: set status to 'revoked'
         await db.update(customerInvitesTable)
-          .set({ deletedAt: new Date().toISOString() })
+          .set({ status: 'revoked' })
           .where(eq(customerInvitesTable.id, input.accountId));
 
         // Log audit
@@ -453,9 +453,9 @@ export const customerInvitesRouter = router({
         const db = (await getDb())!;
         const now = new Date().toISOString();
         
-        // Soft delete all
+        // Soft delete all: set status to 'revoked'
         await db.update(customerInvitesTable)
-          .set({ deletedAt: now })
+          .set({ status: 'revoked' })
           .where(inArray(customerInvitesTable.id, input.accountIds));
 
         // Log audit for each
@@ -502,9 +502,9 @@ export const customerInvitesRouter = router({
       try {
         const db = (await getDb())!;
         
-        // Restore: clear deletedAt
+        // Restore: set status back to 'pending'
         await db.update(customerInvitesTable)
-          .set({ deletedAt: null })
+          .set({ status: 'pending' })
           .where(eq(customerInvitesTable.id, input.accountId));
 
         // Log audit
@@ -526,7 +526,7 @@ export const customerInvitesRouter = router({
   listAccountsWithFilters: publicProcedure
     .input(z.object({
       search: z.string().optional(),
-      status: z.enum(['pending', 'accepted', 'expired', 'revoked', 'deleted']).optional(),
+      status: z.enum(['pending', 'accepted', 'expired', 'revoked']).optional(),
       page: z.number().default(1),
       limit: z.number().default(20),
       sortBy: z.enum(['createdAt', 'invitedEmail', 'status']).default('createdAt'),
@@ -558,12 +558,9 @@ export const customerInvitesRouter = router({
           );
         }
         
-        if (input.status === 'revoked') {
-          conditions.push(eq(customerInvitesTable.status, 'revoked'));
-        } else if (input.status) {
+        if (input.status) {
           conditions.push(eq(customerInvitesTable.status, input.status));
         }
-        // Note: customerInvites table doesn't have a deletedAt field, status enum covers revoked state
 
         const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -571,7 +568,7 @@ export const customerInvitesRouter = router({
         const countResult = await db.select({ count: sql`COUNT(*) as count` })
           .from(customerInvitesTable)
           .where(whereClause);
-        const total = countResult[0]?.count || 0;
+        const total = Number(countResult[0]?.count) || 0;
 
         // Get paginated results
         let orderByClause;
@@ -636,7 +633,7 @@ export const customerInvitesRouter = router({
 
   exportAccounts: publicProcedure
     .input(z.object({
-      status: z.enum(['pending', 'accepted', 'expired', 'revoked', 'deleted']).optional(),
+      status: z.enum(['pending', 'accepted', 'expired', 'revoked']).optional(),
       format: z.enum(['csv', 'json']).default('csv'),
     }))
     .query(async ({ input, ctx }) => {
@@ -653,9 +650,7 @@ export const customerInvitesRouter = router({
         const db = (await getDb())!;
         
         const conditions = [];
-        if (input.status === 'deleted') {
-          conditions.push(isNotNull(customerInvitesTable.deletedAt));
-        } else if (input.status) {
+        if (input.status) {
           conditions.push(eq(customerInvitesTable.status, input.status));
         }
 

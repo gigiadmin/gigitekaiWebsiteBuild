@@ -69,7 +69,7 @@ describe("Newsletter Auto-Post Endpoint", () => {
     expect(created).toBeDefined();
     expect(created.title).toBe(testData.title);
     expect(created.slug).toBe(testData.slug);
-    expect(created.published).toBe(true);
+    expect(created.published).toBeTruthy();
   });
 
   it("should create a newsletter campaign", async () => {

@@ -11,7 +11,7 @@ import { Award, Clock } from "lucide-react";
 const stats = [
   { icon: Clock, value: 99.9, suffix: "%", label: "Microsoft 365 SLA", sublabel: "Published by Microsoft" },
   { icon: Clock, value: 99.95, suffix: "%", label: "Exchange Online Uptime", sublabel: "Microsoft Published SLA" },
-  { icon: Clock, value: 99.99, suffix: "%", label: "Teams Availability", sublabel: "Microsoft Published SLA" },
+  { icon: Clock, value: 99.9, suffix: "%", label: "Teams Availability", sublabel: "Microsoft Published SLA" },
   { icon: Clock, value: 99.9, suffix: "%", label: "SharePoint Online SLA", sublabel: "Microsoft Published SLA" },
 ];
 

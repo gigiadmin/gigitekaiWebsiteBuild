@@ -35,7 +35,7 @@ export default function AdminContactsPage() {
   const [selected, setSelected] = useState<number | null>(null);
 
   const { data: submissions = [], isLoading, refetch } = trpc.contact.list.useQuery(
-    undefined,
+    { page: 1, limit: 100 },
     { refetchInterval: 60_000 }
   );
 

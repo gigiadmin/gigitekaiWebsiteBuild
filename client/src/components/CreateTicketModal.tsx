@@ -71,6 +71,8 @@ interface CreateTicketModalProps {
   /** Admin-only: pre-fill on-behalf-of customer info */
   defaultRequesterEmail?: string;
   defaultRequesterName?: string;
+  /** Pre-fill subject and description */
+  prefillData?: { subject: string; description: string };
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -82,12 +84,13 @@ export default function CreateTicketModal({
   onSuccess,
   defaultRequesterEmail = "",
   defaultRequesterName = "",
+  prefillData,
 }: CreateTicketModalProps) {
   const isAdmin = mode === "admin";
 
   const [form, setForm] = useState({
-    title:            "",
-    description:      "",
+    title:            prefillData?.subject || "",
+    description:      prefillData?.description || "",
     stepsAttempted:   "",
     category:         "general_support" as Category,
     priority:         "medium"          as Priority,
