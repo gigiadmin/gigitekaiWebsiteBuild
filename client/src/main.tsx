@@ -42,6 +42,67 @@ function getOrCreateMountPoint(): HTMLElement {
   return el;
 }
 
+// ============================================================
+// CHUNK LOAD ERROR AUTO-RELOAD
+// After a new deployment, Vite generates new content-hashed chunk
+// filenames. If a user has the old app cached and tries to lazy-load
+// a chunk that no longer exists, the browser throws a ChunkLoadError.
+// We detect this and force a hard reload ONCE to fetch the new build.
+// A sessionStorage flag prevents infinite reload loops.
+// ============================================================
+(function handleChunkLoadErrors() {
+  const RELOAD_KEY = 'gigitekai_chunk_reload_v1';
+
+  // Listen for unhandled promise rejections (lazy import failures)
+  window.addEventListener('unhandledrejection', (event) => {
+    const error = event.reason;
+    if (!error) return;
+
+    const isChunkError =
+      error?.name === 'ChunkLoadError' ||
+      (typeof error?.message === 'string' &&
+        (
+          error.message.includes('Failed to fetch dynamically imported module') ||
+          error.message.includes('Importing a module script failed') ||
+          error.message.includes('error loading dynamically imported module') ||
+          error.message.includes('Unable to preload CSS')
+        )
+      );
+
+    if (!isChunkError) return;
+
+    // Only auto-reload once per session to prevent infinite loops
+    const alreadyReloaded = sessionStorage.getItem(RELOAD_KEY);
+    if (alreadyReloaded) {
+      console.warn('[GigitekAI] Chunk load error persists after reload — skipping auto-reload to prevent loop.');
+      return;
+    }
+
+    console.warn('[GigitekAI] Stale chunk detected — reloading to fetch new build...', error.message);
+    sessionStorage.setItem(RELOAD_KEY, '1');
+    // Hard reload bypasses browser cache
+    window.location.reload();
+  });
+
+  // Also listen for synchronous script errors (e.g. preload link failures)
+  window.addEventListener('error', (event) => {
+    const target = event.target as HTMLElement;
+    if (!target) return;
+    const tagName = target.tagName?.toLowerCase();
+    if (tagName !== 'script' && tagName !== 'link') return;
+
+    const src = (target as HTMLScriptElement).src || (target as HTMLLinkElement).href || '';
+    if (!src.includes('/assets/')) return;
+
+    const alreadyReloaded = sessionStorage.getItem(RELOAD_KEY);
+    if (alreadyReloaded) return;
+
+    console.warn('[GigitekAI] Asset load error — reloading to fetch new build...', src);
+    sessionStorage.setItem(RELOAD_KEY, '1');
+    window.location.reload();
+  }, true /* capture phase — fires before React */);
+})();
+
 // CLEANUP: Unregister any stale service workers that may serve cached content
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {

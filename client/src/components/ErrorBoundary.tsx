@@ -45,6 +45,23 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: { componentStack?: string | null }) {
+    // Auto-reload on chunk load errors (stale build after deployment)
+    const isChunkError =
+      error?.name === 'ChunkLoadError' ||
+      error?.message?.includes('Failed to fetch dynamically imported module') ||
+      error?.message?.includes('Importing a module script failed') ||
+      error?.message?.includes('error loading dynamically imported module');
+
+    if (isChunkError) {
+      const RELOAD_KEY = 'gigitekai_chunk_reload_v1';
+      const alreadyReloaded = sessionStorage.getItem(RELOAD_KEY);
+      if (!alreadyReloaded) {
+        sessionStorage.setItem(RELOAD_KEY, '1');
+        window.location.reload();
+        return;
+      }
+    }
+
     if (!this.state.reported) {
       this.setState({ reported: true });
       reportErrorToServer(error, info);
