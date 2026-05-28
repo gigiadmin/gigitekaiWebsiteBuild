@@ -4,8 +4,22 @@
  * Designed to convert visitors into leads for GigitekAI web development services
  */
 import { Link } from "wouter";
-import { ArrowRight, MessageCircle, Zap, Globe, Shield, Cpu, BarChart3, Smartphone, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, MessageCircle, Zap, Globe, Shield, Cpu, BarChart3, Smartphone, CheckCircle, X } from "lucide-react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+
+interface InquiryForm {
+  businessName: string;
+  email: string;
+  phone: string;
+  industry: string;
+  description: string;
+  targetAudience: string;
+  currentWebsite: string;
+  pricingTier: "starter" | "growth" | "pro" | "";
+}
 
 interface FeaturedSite {
   id: string;
@@ -20,6 +34,17 @@ interface FeaturedSite {
   external?: boolean;
   tags: string[];
 }
+
+const DEFAULT_INQUIRY: InquiryForm = {
+  businessName: "",
+  email: "",
+  phone: "",
+  industry: "",
+  description: "",
+  targetAudience: "",
+  currentWebsite: "",
+  pricingTier: "",
+};
 
 const FEATURED_SITES: FeaturedSite[] = [
   {
@@ -174,6 +199,43 @@ const CAPABILITIES = [
 ];
 
 export default function WebsitesPage() {
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquiryData, setInquiryData] = useState<InquiryForm>(DEFAULT_INQUIRY);
+
+  const submitInquiry = trpc.contactForm.submitWebsitePricingInquiry.useMutation({
+    onSuccess: () => {
+      toast.success("Inquiry submitted! We'll be in touch within 24 hours.");
+      setInquiryOpen(false);
+      setInquiryData(DEFAULT_INQUIRY);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit. Please try again.");
+    },
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setInquiryData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitInquiry.mutate({
+      businessName: inquiryData.businessName,
+      email: inquiryData.email,
+      phone: inquiryData.phone,
+      industry: inquiryData.industry,
+      description: inquiryData.description,
+      targetAudience: inquiryData.targetAudience,
+      currentWebsite: inquiryData.currentWebsite,
+      pricingTier: inquiryData.pricingTier as "starter" | "growth" | "pro" | undefined,
+    });
+  };
+
+  const openInquiry = (tier: "starter" | "growth" | "pro") => {
+    setInquiryData(prev => ({ ...prev, pricingTier: tier }));
+    setInquiryOpen(true);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0A0E1A", color: "#F1F5F9" }}>
       <SiteNavBar2024 />
@@ -487,11 +549,15 @@ export default function WebsitesPage() {
                     </div>
                   ))}
                 </div>
-                <button className="w-full py-3 rounded-lg font-semibold transition-[opacity,transform]" style={{
-                  backgroundColor: pkg.popular ? pkg.color : pkg.color + "22",
-                  color: pkg.popular ? "#000" : pkg.color,
-                  border: pkg.popular ? "none" : `1px solid ${pkg.color}44`
-                }}>
+                <button
+                  onClick={() => openInquiry(pkg.name.toLowerCase() as "starter" | "growth" | "pro")}
+                  className="w-full py-3 rounded-lg font-semibold transition-[opacity,transform] hover:opacity-90 hover:scale-[1.02]"
+                  style={{
+                    backgroundColor: pkg.popular ? pkg.color : pkg.color + "22",
+                    color: pkg.popular ? "#000" : pkg.color,
+                    border: pkg.popular ? "none" : `1px solid ${pkg.color}44`
+                  }}
+                >
                   Get Started
                 </button>
               </div>
@@ -561,7 +627,96 @@ export default function WebsitesPage() {
           </div>
         </div>
       </section>
-          </main>
+      </main>
+
+      {/* Inquiry Modal */}
+      {inquiryOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0F1428] border-2 border-cyan-500/50 rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-white">Get Started</h3>
+                {inquiryData.pricingTier && (
+                  <p className="text-cyan-400 text-sm mt-1 capitalize">{inquiryData.pricingTier} Package Selected</p>
+                )}
+              </div>
+              <button onClick={() => setInquiryOpen(false)} className="text-gray-400 hover:text-white transition">
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Business Name *</label>
+                  <input type="text" name="businessName" value={inquiryData.businessName} onChange={handleChange} required disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                    placeholder="Your business name" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
+                  <input type="email" name="email" value={inquiryData.email} onChange={handleChange} required disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                    placeholder="your@email.com" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
+                  <input type="tel" name="phone" value={inquiryData.phone} onChange={handleChange} disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                    placeholder="(727) 382-6909" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Industry *</label>
+                  <select name="industry" value={inquiryData.industry} onChange={handleChange} required disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:border-cyan-400 disabled:opacity-50">
+                    <option value="">Select industry</option>
+                    <option value="retail">Retail</option>
+                    <option value="services">Services</option>
+                    <option value="consulting">Consulting</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="tech">Technology</option>
+                    <option value="legal">Legal</option>
+                    <option value="finance">Finance</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">Business Description *</label>
+                <textarea name="description" value={inquiryData.description} onChange={handleChange} required rows={3} disabled={submitInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                  placeholder="What does your business do?" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Target Audience</label>
+                  <input type="text" name="targetAudience" value={inquiryData.targetAudience} onChange={handleChange} disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                    placeholder="Who are your customers?" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Current Website</label>
+                  <input type="text" name="currentWebsite" value={inquiryData.currentWebsite} onChange={handleChange} disabled={submitInquiry.isPending}
+                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                    placeholder="https://example.com (optional)" />
+                </div>
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button type="submit" disabled={submitInquiry.isPending}
+                  className="flex-1 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                  {submitInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
+                </button>
+                <button type="button" onClick={() => setInquiryOpen(false)} disabled={submitInquiry.isPending}
+                  className="flex-1 px-6 py-3 border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 font-bold rounded-lg transition disabled:opacity-50">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
