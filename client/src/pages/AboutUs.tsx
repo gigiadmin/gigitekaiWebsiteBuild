@@ -50,7 +50,7 @@ export default function AboutUs() {
                   We envision a future where AI-powered agents function as full employees, handling complex tasks with precision and intelligence. Where cloud infrastructure enables unlimited scalability, and where automation eliminates repetitive work.
                 </p>
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  Led by Harry Henry Santiago, GigitekAI continues to grow while staying true to our roots: delivering exceptional technology solutions with honesty, hard work, and genuine care.
+                  Led by Harry Henry, GigitekAI continues to grow while staying true to our roots: delivering exceptional technology solutions with honesty, hard work, and genuine care.
                 </p>
               </div>
             </div>
