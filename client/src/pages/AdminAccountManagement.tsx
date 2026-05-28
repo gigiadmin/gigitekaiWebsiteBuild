@@ -104,9 +104,11 @@ function daysRemaining(deletedAt: Date | string | null | undefined): number {
 export default function AdminAccountManagement() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"active" | "recycle">("active");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [confirmAction, setConfirmAction] = useState<{
-    type: "role" | "approve" | "revoke" | "delete" | "restore" | "purge-all";
+    type: "role" | "approve" | "revoke" | "delete" | "restore" | "purge-all" | "bulk-revoke" | "bulk-approve" | "bulk-delete";
     userId?: number;
+    userIds?: number[];
     label: string;
     newRole?: Role;
     destructive?: boolean;
@@ -167,6 +169,23 @@ export default function AdminAccountManagement() {
     );
   });
 
+  const allSelected = selectedIds.length === filtered.length && filtered.length > 0;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < filtered.length;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map((u) => u.id));
+    }
+  };
+
+  const toggleSelectId = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
   const filteredDeleted = deletedUsers.filter((u) => {
     const q = search.toLowerCase();
     return (
@@ -177,7 +196,7 @@ export default function AdminAccountManagement() {
 
   function handleConfirm() {
     if (!confirmAction) return;
-    const { type, userId, newRole } = confirmAction;
+    const { type, userId, userIds, newRole } = confirmAction;
     if (type === "role" && userId && newRole) {
       updateRoleMutation.mutate({ userId, role: newRole });
     } else if (type === "approve" && userId) {
@@ -190,6 +209,15 @@ export default function AdminAccountManagement() {
       restoreMutation.mutate({ userId });
     } else if (type === "purge-all") {
       purgeExpiredMutation.mutate();
+    } else if (type === "bulk-revoke" && userIds) {
+      userIds.forEach((uid) => revokeMutation.mutate({ userId: uid }));
+      setSelectedIds([]);
+    } else if (type === "bulk-approve" && userIds) {
+      userIds.forEach((uid) => approveMutation.mutate({ userId: uid }));
+      setSelectedIds([]);
+    } else if (type === "bulk-delete" && userIds) {
+      userIds.forEach((uid) => softDeleteMutation.mutate({ userId: uid }));
+      setSelectedIds([]);
     }
     setConfirmAction(null);
   }
@@ -240,10 +268,73 @@ export default function AdminAccountManagement() {
         ))}
       </div>
 
+      {/* Bulk Actions Bar */}
+      {selectedIds.length > 0 && activeTab === "active" && (
+        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 flex items-center justify-between">
+          <span className="text-cyan-300 text-sm font-medium">{selectedIds.length} selected</span>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() =>
+                setConfirmAction({
+                  type: "bulk-approve",
+                  userIds: selectedIds,
+                  label: `Activate ${selectedIds.length} user(s)?`,
+                })
+              }
+              className="text-green-400 hover:text-green-300 hover:bg-green-500/10 text-xs"
+            >
+              <UserCheck className="w-3 h-3 mr-1" /> Activate All
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() =>
+                setConfirmAction({
+                  type: "bulk-revoke",
+                  userIds: selectedIds,
+                  label: `Deactivate ${selectedIds.length} user(s)?`,
+                })
+              }
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 text-xs"
+            >
+              <UserX className="w-3 h-3 mr-1" /> Deactivate All
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() =>
+                setConfirmAction({
+                  type: "bulk-delete",
+                  userIds: selectedIds,
+                  label: `Move ${selectedIds.length} user(s) to Recycle Bin? They can be restored within 30 days.`,
+                  destructive: true,
+                })
+              }
+              className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10 text-xs"
+            >
+              <Trash2 className="w-3 h-3 mr-1" /> Delete All
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setSelectedIds([])}
+              className="text-gray-400 hover:text-white hover:bg-slate-700 text-xs"
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-slate-700">
         <button
-          onClick={() => setActiveTab("active")}
+          onClick={() => {
+            setActiveTab("active");
+            setSelectedIds([]);
+          }}
           className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
             activeTab === "active"
               ? "border-cyan-400 text-cyan-400"
@@ -301,6 +392,18 @@ export default function AdminAccountManagement() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-700 hover:bg-transparent">
+                  <TableHead className="text-gray-400 font-medium w-8">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected;
+                      }}
+                      onChange={toggleSelectAll}
+                      className="cursor-pointer"
+                      title="Select all members"
+                    />
+                  </TableHead>
                   <TableHead className="text-gray-400 font-medium">Member</TableHead>
                   <TableHead className="text-gray-400 font-medium">Role</TableHead>
                   <TableHead className="text-gray-400 font-medium">Status</TableHead>
@@ -311,7 +414,15 @@ export default function AdminAccountManagement() {
               </TableHeader>
               <TableBody>
                 {filtered.map((user) => (
-                  <TableRow key={user.id} className="border-slate-700/50 hover:bg-slate-800/30">
+                  <TableRow key={user.id} className={`border-slate-700/50 hover:bg-slate-800/30 ${selectedIds.includes(user.id) ? "bg-slate-800/50" : ""}`}>
+                    <TableCell className="w-8">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(user.id)}
+                        onChange={() => toggleSelectId(user.id)}
+                        className="cursor-pointer"
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
