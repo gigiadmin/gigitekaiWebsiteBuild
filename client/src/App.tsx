@@ -226,6 +226,7 @@ function Router() {
           <Route path={"/industries/government"} component={IndustryGovernment} />
           <Route path={"/industries/education"} component={IndustryEducation} />
           {/* Legal */}
+          <Route path={"/privacy"} component={PrivacyPolicy} />
           <Route path={"/privacy-policy"} component={PrivacyPolicy} />
           <Route path={"/terms-of-service"} component={TermsOfService} />
           {/* Contact */}
