@@ -34,6 +34,103 @@ function checkRateLimit(key: string): boolean {
 
 export const contactFormRouter = router({
   /**
+   * Submit website pricing inquiry from Web Pricing Landing Page
+   * Stores inquiry and sends notifications to owner
+   * Rate limited: 3 submissions per 15 minutes per email
+   */
+  submitWebsitePricingInquiry: publicProcedure
+    .input(
+      z.object({
+        businessName: z.string().min(2, "Business name must be at least 2 characters"),
+        industry: z.string().min(1, "Industry is required"),
+        description: z.string().min(10, "Business description must be at least 10 characters"),
+        targetAudience: z.string().optional().default(""),
+        currentWebsite: z.string().url("Invalid URL").optional().default(""),
+        email: z.string().email("Invalid email address"),
+        phone: z.string().optional().default(""),
+        pricingTier: z.enum(["starter", "growth", "pro"]).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Rate limit by email address
+      if (!checkRateLimit(input.email.toLowerCase())) {
+        console.warn(`[Website Pricing Inquiry] Rate limit exceeded for ${input.email}`);
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many submissions. Please wait 15 minutes before trying again.",
+        });
+      }
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
+
+        // Insert contact submission
+        const result = await db.insert(contactSubmissions).values({
+          name: input.businessName,
+          email: input.email,
+          company: input.businessName,
+          phone: input.phone || null,
+          subject: `Website Inquiry - ${input.industry} (${input.pricingTier || "unspecified"})`,
+          message: `Industry: ${input.industry}\n\nBusiness Description:\n${input.description}\n\nTarget Audience: ${input.targetAudience || "Not specified"}\n\nCurrent Website: ${input.currentWebsite || "None"}`,
+          pricingTier: input.pricingTier || null,
+          companySize: input.industry,
+        } as any);
+
+        const submissionId = result[0]?.insertId || result[0];
+
+        // Send confirmation email to customer
+        try {
+          await sendEmail({
+            to: input.email,
+            subject: "Website Inquiry Received - GigitekAI",
+            html: `
+              <h2>Thank you for your interest in GigitekAI websites!</h2>
+              <p>Hi ${input.businessName},</p>
+              <p>We received your inquiry about our website packages. Our team will review your requirements and get back to you within 24 hours.</p>
+              <p><strong>What's next:</strong></p>
+              <ul>
+                <li>We'll assess your business needs</li>
+                <li>Provide a customized proposal</li>
+                <li>Schedule a discovery call if needed</li>
+              </ul>
+              <p>In the meantime, feel free to reach out to us at <strong>support@gigitekai.com</strong> or <strong>(727) 382-6909</strong>.</p>
+              <p>Best regards,<br/>GigitekAI Team</p>
+            `,
+          });
+        } catch (emailErr) {
+          console.warn("[Website Pricing Inquiry] Failed to send confirmation email", emailErr);
+        }
+
+        // Notify owner
+        try {
+          await notifyOwner({
+            title: `New Website Inquiry: ${input.businessName}`,
+            content: `Industry: ${input.industry}\nEmail: ${input.email}\nPhone: ${input.phone || "Not provided"}\nPricing Tier: ${input.pricingTier || "Not specified"}\n\nDescription: ${input.description.substring(0, 200)}...`,
+          });
+        } catch (notifyErr) {
+          console.warn("[Website Pricing Inquiry] Failed to notify owner", notifyErr);
+        }
+
+        return {
+          success: true,
+          message: "Thank you! We'll be in touch soon.",
+          submissionId,
+        };
+      } catch (error) {
+        console.error("[Website Pricing Inquiry] Error:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to submit inquiry. Please try again.",
+        });
+      }
+    }),
+
+  /**
    * Submit contact form from public website
    * Stores submission and sends notifications
    * Rate limited: 3 submissions per 15 minutes per email

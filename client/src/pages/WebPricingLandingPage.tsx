@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Zap, MessageSquare, Wrench, Check, Mail, Phone, MapPin, Globe, Shield, BarChart3, Palette, Menu, X, Send, Rocket, Music, Leaf, ExternalLink } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function WebPricingLandingPage() {
   const [currentSection, setCurrentSection] = useState("home");
@@ -68,11 +70,28 @@ export default function WebPricingLandingPage() {
     setDiscoveryData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const submitWebsitePricingInquiry = trpc.contactForm.submitWebsitePricingInquiry.useMutation({
+    onSuccess: (data) => {
+      toast.success("Inquiry submitted! We'll be in touch within 24 hours.");
+      setDiscoveryFormOpen(false);
+      setDiscoveryData({ businessName: "", industry: "", description: "", targetAudience: "", currentWebsite: "" });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit inquiry. Please try again.");
+    },
+  });
+
   const handleDiscoverySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Discovery form submitted:", discoveryData);
-    setDiscoveryFormOpen(false);
-    setDiscoveryData({ businessName: "", industry: "", description: "", targetAudience: "", currentWebsite: "" });
+    submitWebsitePricingInquiry.mutate({
+      businessName: discoveryData.businessName,
+      industry: discoveryData.industry,
+      description: discoveryData.description,
+      targetAudience: discoveryData.targetAudience,
+      currentWebsite: discoveryData.currentWebsite,
+      email: formData.email || "",
+      phone: formData.phone || "",
+    });
   };
 
   const features = [
@@ -659,8 +678,34 @@ export default function WebPricingLandingPage() {
                   value={discoveryData.businessName}
                   onChange={handleDiscoveryChange}
                   required
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
                   placeholder="Your business name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2">Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                  placeholder="(727) 382-6909"
                 />
               </div>
 
@@ -671,7 +716,8 @@ export default function WebPricingLandingPage() {
                   value={discoveryData.industry}
                   onChange={handleDiscoveryChange}
                   required
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:border-cyan-400"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:border-cyan-400 disabled:opacity-50"
                 >
                   <option value="">Select an industry</option>
                   <option value="retail">Retail</option>
@@ -691,7 +737,8 @@ export default function WebPricingLandingPage() {
                   onChange={handleDiscoveryChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
                   placeholder="What does your business do?"
                 />
               </div>
@@ -703,7 +750,8 @@ export default function WebPricingLandingPage() {
                   name="targetAudience"
                   value={discoveryData.targetAudience}
                   onChange={handleDiscoveryChange}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
                   placeholder="Who are your customers?"
                 />
               </div>
@@ -715,7 +763,8 @@ export default function WebPricingLandingPage() {
                   name="currentWebsite"
                   value={discoveryData.currentWebsite}
                   onChange={handleDiscoveryChange}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
                   placeholder="https://example.com (optional)"
                 />
               </div>
@@ -723,14 +772,16 @@ export default function WebPricingLandingPage() {
               <div className="flex gap-4 pt-6">
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="flex-1 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Continue to Payment
+                  {submitWebsitePricingInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setDiscoveryFormOpen(false)}
-                  className="flex-1 px-6 py-3 border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 font-bold rounded-lg transition"
+                  disabled={submitWebsitePricingInquiry.isPending}
+                  className="flex-1 px-6 py-3 border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
