@@ -258,6 +258,14 @@
   - [x] Replaced all Stripe checkout buttons with contact form modal
   - [x] Build successful, no more production errors
 
+- [x] **Support Landing Page - Modal & Navigation Fix** — COMPLETE
+  - [x] Fixed Create Ticket card routing issue (was navigating to /kb instead of opening modal)
+  - [x] Converted card divs to button elements to prevent routing interference
+  - [x] Modal now opens correctly when clicking "Start Now"
+  - [x] Email form submission navigates to /support/lookup with email parameter
+  - [x] TicketLookup component now reads email from URL params and pre-fills field
+  - [x] End-to-end flow tested: Support landing → Create Ticket modal → Email form → Lookup page
+
 - [x] Remove duplicate ticket form code — Created UnifiedTicketForm component (reusable template for contact, helpdesk, admin forms)
 - [x] Unified form: name, email, subject, category, priority, description fields — auto-fills from auth context when logged in (implemented in UnifiedTicketForm + Contact page)
 - [x] Fix all TypeScript errors (Date→string, boolean→number, missing schema type exports, wrong imports)
@@ -421,11 +429,11 @@
   - [x] Removed duplicate /florida-it-resiliency entry
   - [x] Updated test expectations to reflect apex domain as canonical
 
-- [ ] **P2: QA untested sitemap URLs** — Verify 7 additional pages aren't ghost pages
-  - [ ] Test /free-audit page
-  - [ ] Test /websites page
-  - [ ] Test /industries page
-  - [ ] Test /AIStrategicBriefing page
-  - [ ] Test /case-studies page
-  - [ ] Test /kb page
-  - [ ] Test /helpdesk page
+- [x] **P2: QA untested sitemap URLs** — Verify 7 additional pages aren't ghost pages
+  - [x] Test /free-audit page — ✓ Working: Free audit form with all fields
+  - [x] Test /websites page — ✓ Working: Portfolio showcase with 9 demo sites
+  - [x] Test /industries page — ✓ Working: 6 industry cards with descriptions
+  - [x] Test /ai-demo page — ✓ Working: 6 interactive AI scenarios (AIStrategicBriefing route doesn't exist, but /ai-demo works)
+  - [x] Test /case-studies page — ✓ Working: 4 anonymized case studies
+  - [x] Test /kb page — ✓ Working: 2035+ knowledge base articles with search/filter
+  - [x] Test /helpdesk page — ✓ Working: Support center landing with sign-in
