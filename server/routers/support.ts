@@ -5,9 +5,49 @@ import { tickets, ticketReplies } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import crypto from "crypto";
+import { TRPCError } from "@trpc/server";
 
 // Store verification codes in memory (in production, use Redis or database)
 const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
+
+// Rate limiting: track submissions by IP
+const ipSubmissions = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const submission = ipSubmissions.get(ip);
+  
+  if (!submission || now > submission.resetAt) {
+    ipSubmissions.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 }); // 1 hour window
+    return true;
+  }
+  
+  if (submission.count >= 5) {
+    return false; // Rate limit exceeded
+  }
+  
+  submission.count++;
+  return true;
+}
+
+async function verifyRecaptchaToken(token: string): Promise<boolean> {
+  if (!token) return false;
+  
+  try {
+    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
+    });
+    
+    const data = await response.json();
+    // Accept if score > 0.5 (likely human)
+    return data.success && data.score > 0.5;
+  } catch (error) {
+    console.error("reCAPTCHA verification error:", error);
+    return false;
+  }
+}
 
 function generateVerificationCode(): string {
   return Math.random().toString().slice(2, 8);
@@ -20,12 +60,40 @@ function generateSessionToken(): string {
 export const supportRouter = router({
   // Send verification code to email
   sendVerificationCode: publicProcedure
-    .input(z.object({ email: z.string().email() }))
-    .mutation(async ({ input }) => {
+    .input(z.object({ email: z.string().email(), recaptchaToken: z.string().optional() }))
+    .mutation(async ({ input, ctx }) => {
+      // Get client IP from request headers
+      const ip = (ctx.req?.headers["x-forwarded-for"] as string)?.split(",")[0] || "unknown";
+      
+      // Check rate limit
+      if (!checkRateLimit(ip)) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please try again later.",
+        });
+      }
+      
+      // Verify reCAPTCHA token
+      if (input.recaptchaToken) {
+        const isValid = await verifyRecaptchaToken(input.recaptchaToken);
+        if (!isValid) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Bot detection failed. Please try again.",
+          });
+        }
+      }
       const code = generateVerificationCode();
       const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
 
       verificationCodes.set(input.email, { code, expiresAt });
+      
+      // Clean up old codes
+      for (const [email, data] of verificationCodes.entries()) {
+        if (Date.now() > data.expiresAt) {
+          verificationCodes.delete(email);
+        }
+      }
 
       // Send email with verification code
       try {

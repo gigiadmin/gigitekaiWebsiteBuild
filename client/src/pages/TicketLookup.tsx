@@ -28,12 +28,27 @@ export default function TicketLookup() {
     },
   });
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       alert("Please enter a valid email address");
       return;
     }
-    sendCodeMutation.mutate({ email });
+    
+    // Generate reCAPTCHA token
+    if (typeof window !== "undefined" && (window as any).grecaptcha) {
+      try {
+        const token = await (window as any).grecaptcha.execute(
+          import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+          { action: "submit" }
+        );
+        sendCodeMutation.mutate({ email, recaptchaToken: token });
+      } catch (error) {
+        console.error("reCAPTCHA error:", error);
+        sendCodeMutation.mutate({ email, recaptchaToken: "" });
+      }
+    } else {
+      sendCodeMutation.mutate({ email, recaptchaToken: "" });
+    }
   };
 
   const handleVerifyCode = () => {
