@@ -467,3 +467,16 @@
 - emailPoller now handles duplicate key errors gracefully
 - Future duplicate emails will be detected at database constraint level
 - Logs will show "Duplicate messageId detected (race condition)" when duplicates are prevented
+
+
+---
+
+## URGENT: Production Admin Login Issue
+
+- [ ] **Admin Login OAuth Error** — Production site showing "Unexpected token '<', '<html><hea'... is not valid JSON"
+  - [ ] Error occurs when clicking "Sign in with Microsoft" on /admin/login
+  - [ ] OAuth callback returning HTML error page instead of JSON/redirect
+  - [ ] Dev server works fine, production has the issue
+  - [ ] Likely cause: Environment variable mismatch or OAuth state encoding issue
+  - [ ] Need to add better error handling to OAuth callback to log the actual error
+  - [ ] Check production environment variables (VITE_APP_ID, OAUTH_SERVER_URL, etc.)
