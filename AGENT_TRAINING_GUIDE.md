@@ -284,7 +284,7 @@ Aim for:
 If you encounter issues or have questions:
 
 - **Email:** support@gigitek.com
-- **Phone:** 609-676-4483
+- **Phone:** 727-382-6909
 - **Teams:** Post in #helpdesk-support channel
 - **In-App:** Click "Help" in the top navigation
 
@@ -300,4 +300,4 @@ The new helpdesk system is designed to make your job easier by providing:
 
 Welcome to the team! We're excited to see how these new features improve our support quality and customer satisfaction.
 
-**Questions?** Reach out to the support team at support@gigitek.com or call 609-676-4483.
+**Questions?** Reach out to the support team at support@gigitek.com or call 727-382-6909.

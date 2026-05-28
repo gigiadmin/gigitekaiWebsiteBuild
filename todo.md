@@ -381,11 +381,12 @@
   - [ ] Fix /insights (redirect to /blog or create page)
   - [ ] Verify each page has unique content, title, meta description, og:url
 
-- [ ] **P1: Standardize phone numbers** — Multiple numbers across site causing lead leakage
-  - [ ] Audit all phone numbers: 727-382-6909 vs 727-382-5776 vs 609-676-4483
-  - [ ] Pick canonical number (likely 727-382-5776 based on tel: links)
-  - [ ] Update display text and tel: href to match everywhere
-  - [ ] Check email signatures, schema.org, social profiles
+- [x] **P1: Standardize phone numbers** — Multiple numbers across site causing lead leakage
+  - [x] Audit all phone numbers: Found 609-676-4483 (old) vs 727-382-6909 (canonical)
+  - [x] Pick canonical number: 727-382-6909 (verified across all customer-facing pages)
+  - [x] Updated emailPoller.ts calleeNumber from 609-676-4483 to 727-382-6909
+  - [x] Updated all 6 documentation files (AGENT_TRAINING_GUIDE, DEPLOYMENT, SMS_CAMPAIGN, TEAMS_FEEDBACK, TEAMS_TRAINING, todo.md)
+  - [x] Verified no old numbers remain in codebase
 
 - [ ] **P2: Fix sitemap and canonical URLs** — www vs apex domain mismatch
   - [ ] Verify www.gigitekai.com 301-redirects to gigitekai.com

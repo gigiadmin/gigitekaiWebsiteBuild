@@ -355,7 +355,7 @@ Fix Deployed → Post Update in Teams → Close Ticket
 If you need help setting up the feedback channel:
 
 - **Email:** support@gigitek.com
-- **Phone:** 609-676-4483
+- **Phone:** 727-382-6909
 - **Teams:** Post in #helpdesk-feedback channel
 
 ## Summary

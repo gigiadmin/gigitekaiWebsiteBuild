@@ -198,7 +198,7 @@ If issues occur:
 ## Contact Information
 
 - **Support Email:** support@gigitek.com
-- **Phone:** 609-676-4483
+- **Phone:** 727-382-6909
 - **Website:** https://gigitekai.com
 - **Emergency Contact:** [Add emergency contact]
 

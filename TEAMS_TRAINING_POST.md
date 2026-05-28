@@ -188,7 +188,7 @@ Your performance is tracked on the dashboard:
 If you encounter issues or have questions:
 
 - 📧 **Email:** support@gigitek.com
-- 📞 **Phone:** 609-676-4483
+- 📞 **Phone:** 727-382-6909
 - 💬 **Teams:** Post in #helpdesk-support channel
 - ❓ **In-App:** Click "Help" in the top navigation
 

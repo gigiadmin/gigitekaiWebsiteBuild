@@ -984,7 +984,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         await db.insert(callLogs).values({
           graphCallId: callLogId,
           callerNumber: callerNumber || 'Unknown',
-          calleeNumber: '+1 609-676-4483', // GigitekAI main support line
+          calleeNumber: '+1 727-382-6909', // GigitekAI main support line
           calleeDisplayName: 'GigitekAI Support',
           calleeUpn: 'support@gigitekai.com',
           matchedUserId: userId,

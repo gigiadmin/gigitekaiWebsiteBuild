@@ -11,7 +11,7 @@ The SMS Campaign system allows you to send targeted text messages to opted-in co
 Before launching your first SMS campaign, ensure:
 
 1. ✅ **Twilio Account**: Active Twilio account with SMS capabilities enabled
-2. ✅ **Twilio Phone Number**: A dedicated phone number for sending SMS (e.g., +1-609-676-4483)
+2. ✅ **Twilio Phone Number**: A dedicated phone number for sending SMS (e.g., +1-727-382-6909)
 3. ✅ **Environment Variables**: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` configured
 4. ✅ **Opted-In Contacts**: At least one contact with `smsOptIn = true` in the database
 5. ✅ **TCPA Compliance**: All contacts must have explicitly opted in via the contact form checkbox
