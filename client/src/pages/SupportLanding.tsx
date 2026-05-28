@@ -40,8 +40,8 @@ export default function SupportLanding() {
       toast.error("Please enter your email");
       return;
     }
-    // Redirect to create ticket with email pre-filled
-    navigate(`/helpdesk/create-ticket?email=${encodeURIComponent(emailInput)}`);
+    // Redirect to public ticket lookup with email pre-filled
+    navigate(`/support/lookup?email=${encodeURIComponent(emailInput)}`);
   };
 
   if (loading) {
