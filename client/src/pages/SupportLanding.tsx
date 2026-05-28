@@ -1,6 +1,6 @@
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   LifeBuoy,
   Ticket,
@@ -12,10 +12,8 @@ import {
   Headphones,
   Mail,
   AlertCircle,
-  X,
 } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
-import { SEO_CONFIG } from "@/lib/seoConfig";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,7 +32,7 @@ export default function SupportLanding() {
     path: "/support" 
   });
 
-  const { user, isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth();
   const [, navigate] = useLocation();
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [emailInput, setEmailInput] = useState("");
@@ -45,6 +43,7 @@ export default function SupportLanding() {
       toast.error("Please enter your email");
       return;
     }
+    setShowEmailForm(false);
     // Redirect to public ticket lookup with email pre-filled
     navigate(`/support/lookup?email=${encodeURIComponent(emailInput)}`);
   };
@@ -94,8 +93,9 @@ export default function SupportLanding() {
         {/* Three Main Options */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {/* Option 1: Browse KB */}
-          <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer"
-            onClick={() => navigate("/kb")}>
+          <button
+            onClick={() => navigate("/kb")}
+            className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer text-left w-full">
             <div className="w-14 h-14 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-6 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
               <BookOpen className="w-7 h-7" />
             </div>
@@ -109,11 +109,12 @@ export default function SupportLanding() {
               Browse Articles
               <ArrowRight className="w-4 h-4" />
             </div>
-          </div>
+          </button>
 
           {/* Option 2: Create Ticket (No Login) */}
-          <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer"
-            onClick={() => setShowEmailForm(true)}>
+          <button
+            onClick={() => setShowEmailForm(true)}
+            className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer text-left w-full">
             <div className="w-14 h-14 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-6 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
               <Ticket className="w-7 h-7" />
             </div>
@@ -127,10 +128,10 @@ export default function SupportLanding() {
               Start Now
               <ArrowRight className="w-4 h-4" />
             </div>
-          </div>
+          </button>
 
           {/* Option 3: Sign In */}
-          <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
+          <a href={getLoginUrl("/helpdesk/dashboard")} className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer block">
             <div className="w-14 h-14 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-6 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
               <MessageSquare className="w-7 h-7" />
             </div>
@@ -140,13 +141,11 @@ export default function SupportLanding() {
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Already have an account? Sign in to track your tickets, chat history, and support status.
             </p>
-            <a href={getLoginUrl("/helpdesk/dashboard")}>
-              <Button className="w-full bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-sm py-2 rounded-lg shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-all">
-                Sign In
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
-          </div>
+            <div className="flex items-center gap-2 text-[#00D4FF] text-sm font-medium group-hover:gap-3 transition-all">
+              Sign In
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </a>
         </div>
 
         {/* Trust Badges */}
