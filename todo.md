@@ -80,6 +80,10 @@
   - [x] Deleted duplicate draft tickets from database
   - [x] Contact form now creates only 1 draft per submission
 
+- [x] **Fix /privacy Route** — FIXED: Added /privacy as alias to /privacy-policy to fix 404 error
+  - [x] Privacy Policy now accessible at both /privacy and /privacy-policy URLs
+  - [x] Verified page loads correctly with full content
+
 - [ ] **AI Integration** (Optional) — DEFERRED (nice-to-have, not critical for production)
   - Add Claude API key to environment secrets
   - Add Gemini API key to environment secrets
