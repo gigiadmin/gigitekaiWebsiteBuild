@@ -57,6 +57,48 @@ function generateSessionToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+// Content filtering: detect malicious URLs and spam patterns
+const MALICIOUS_URL_PATTERNS = [
+  /bit\.ly/gi,
+  /tinyurl/gi,
+  /short\.link/gi,
+  /goo\.gl/gi,
+  /t\.co/gi,
+];
+
+const SPAM_KEYWORDS = [
+  /viagra|cialis|casino|lottery|prize/gi,
+  /click here|buy now|limited offer/gi,
+  /bitcoin|crypto|forex|trading/gi,
+  /weight loss|fat burn|diet pill/gi,
+];
+
+function detectMaliciousContent(text: string): boolean {
+  // Check for shortened URLs (often used in phishing)
+  if (MALICIOUS_URL_PATTERNS.some(pattern => pattern.test(text))) {
+    return true;
+  }
+  
+  // Check for spam keywords
+  if (SPAM_KEYWORDS.some(pattern => pattern.test(text))) {
+    return true;
+  }
+  
+  // Check for excessive URLs (spam indicator)
+  const urlCount = (text.match(/https?:\/\//gi) || []).length;
+  if (urlCount > 3) {
+    return true;
+  }
+  
+  // Check for excessive special characters (spam indicator)
+  const specialCharCount = (text.match(/[!@#$%^&*()\-_=+\[\]{};:'",.<>?/\\]/g) || []).length;
+  if (specialCharCount > text.length * 0.3) {
+    return true;
+  }
+  
+  return false;
+}
+
 export const supportRouter = router({
   // Send verification code to email
   sendVerificationCode: publicProcedure
@@ -83,6 +125,15 @@ export const supportRouter = router({
           });
         }
       }
+      
+      // Check email for malicious content
+      if (detectMaliciousContent(input.email)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Invalid email address. Please use a valid email.",
+        });
+      }
+      
       const code = generateVerificationCode();
       const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
 
