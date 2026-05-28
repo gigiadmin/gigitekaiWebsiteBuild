@@ -67,7 +67,8 @@ export const supportRouter = router({
       }
 
       // Code is valid, fetch tickets
-      const db = getDb();
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
       const userTickets = await db
         .select()
         .from(tickets)
@@ -105,7 +106,8 @@ export const supportRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
 
       // Fetch ticket and verify it belongs to this email
       const ticket = await db
@@ -145,7 +147,8 @@ export const supportRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
 
       // Verify ticket belongs to this email
       const ticket = await db
