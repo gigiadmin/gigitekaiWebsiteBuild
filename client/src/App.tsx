@@ -86,6 +86,7 @@ const PublicKB = lazy(() => import("./pages/PublicKB"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
+const SupportLanding = lazy(() => import("./pages/SupportLanding"));
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
@@ -237,6 +238,7 @@ function Router() {
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />
           {/* ── Helpdesk (customer-facing) ── */}
+          <Route path={"/support"} component={SupportLanding} />
           <Route path={"/remote-session/:roomId"} component={RemoteSession} />
           <Route path={"/helpdesk"} component={HelpDesk} />
           <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
