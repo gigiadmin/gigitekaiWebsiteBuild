@@ -31,11 +31,8 @@ export default function SupportLanding() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [emailInput, setEmailInput] = useState("");
 
-  useEffect(() => {
-    if (isAuthenticated && !loading) {
-      navigate("/helpdesk/dashboard");
-    }
-  }, [isAuthenticated, loading, navigate]);
+  // Don't redirect authenticated users - show the public support landing for everyone
+  // Authenticated users can still access /helpdesk/dashboard directly if needed
 
   const handleQuickTicket = (e: React.FormEvent) => {
     e.preventDefault();
