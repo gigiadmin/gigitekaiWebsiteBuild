@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, int, varchar, mysqlEnum, timestamp, foreignKey, json, text, date, decimal, datetime, float, tinyint } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, uniqueIndex, int, varchar, mysqlEnum, timestamp, foreignKey, json, text, date, decimal, datetime, float, tinyint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const adminCredentials = mysqlTable("adminCredentials", {
@@ -674,7 +674,10 @@ export const emailMessages = mysqlTable("emailMessages", {
 	sentBy: int(),
 	timestamp: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
-});
+},
+(table) => [
+	uniqueIndex("emailMessages_messageId_unique").on(table.messageId),
+]);
 
 export const emailRecipientGroups = mysqlTable("emailRecipientGroups", {
 	id: int().autoincrement().notNull(),

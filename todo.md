@@ -438,3 +438,30 @@
   - [x] Test /case-studies page — ✓ Working: 4 anonymized case studies
   - [x] Test /kb page — ✓ Working: 2035+ knowledge base articles with search/filter
   - [x] Test /helpdesk page — ✓ Working: Support center landing with sign-in
+
+
+---
+
+## HOTFIX: Duplicate Ticket Bug (Race Condition)
+
+**Issue:** Two identical tickets (#90001 and #90002) created for same email
+
+**Root Cause:** Race condition in email poller deduplication:
+1. Poller checks if messageId exists in emailMessages table (SELECT)
+2. If not found, creates ticket
+3. emailMessages record only inserted AFTER ticket creation
+4. Concurrent poll runs can both pass the check and create duplicate tickets
+
+**Fix Applied:**
+- Added UNIQUE constraint on `emailMessages.messageId` column in schema
+- Updated emailPoller error handling to catch ER_DUP_ENTRY and treat as processed
+- Database now prevents duplicate inserts at the constraint level
+- Concurrent processes will fail gracefully on the second insert
+
+**Migration Required:**
+- Run `pnpm db:push` to apply schema changes
+- Existing duplicate emails will need manual cleanup in emailMessages table
+
+**Testing:**
+- Verify no duplicate tickets created after schema migration
+- Monitor logs for "Duplicate messageId detected" messages

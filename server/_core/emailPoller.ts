@@ -1362,7 +1362,11 @@ async function processEmail(msgData: any): Promise<boolean> {
           status: 'received',
         });
       }
-    } catch (dbError) {
+    } catch (dbError: any) {
+      if (dbError?.code === 'ER_DUP_ENTRY' && messageId) {
+        console.log(`[Email Poller] Duplicate messageId detected (race condition): ${messageId}. Ticket already created.`);
+        return true;
+      }
       console.warn("[Email Poller] Failed to store email in DB:", dbError);
     }
 
