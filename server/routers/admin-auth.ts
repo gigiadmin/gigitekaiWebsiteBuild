@@ -137,10 +137,16 @@ export const adminAuthRouter = router({
           name: user.name,
         };
       } catch (error) {
-        console.error("[Admin Auth] MS OAuth callback failed:", error);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error("[Admin Auth] MS OAuth callback failed:", {
+          message: errorMsg,
+          stack: error instanceof Error ? error.stack : undefined,
+          redirectUri: input.redirectUri,
+          hasCode: !!input.code,
+        });
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: error instanceof Error ? error.message : "Authentication failed",
+          message: `Authentication failed: ${errorMsg}`,
         });
       }
     }),

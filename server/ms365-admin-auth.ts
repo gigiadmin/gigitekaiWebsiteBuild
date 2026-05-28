@@ -68,8 +68,16 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
 
     return response.data.access_token;
   } catch (error) {
-    console.error("[MS365 Auth] Token exchange failed:", error);
-    throw new Error("Failed to exchange authorization code");
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorData = error instanceof Error && 'response' in error ? (error as any).response?.data : null;
+    console.error("[MS365 Auth] Token exchange failed:", {
+      message: errorMsg,
+      status: (error as any).response?.status,
+      data: errorData,
+      tenantId,
+      clientId,
+    });
+    throw new Error(`Failed to exchange authorization code: ${errorMsg}`);
   }
 }
 
@@ -82,6 +90,9 @@ export async function getUserFromToken(accessToken: string): Promise<{
   name: string;
 }> {
   try {
+    if (!accessToken) {
+      throw new Error("Access token is empty or undefined");
+    }
     const response = await axios.get("https://graph.microsoft.com/v1.0/me", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -94,8 +105,14 @@ export async function getUserFromToken(accessToken: string): Promise<{
       name: response.data.displayName,
     };
   } catch (error) {
-    console.error("[MS365 Auth] Failed to get user info:", error);
-    throw new Error("Failed to retrieve user information");
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const errorStatus = (error as any).response?.status;
+    console.error("[MS365 Auth] Failed to get user info:", {
+      message: errorMsg,
+      status: errorStatus,
+      hasAccessToken: !!accessToken,
+    });
+    throw new Error(`Failed to get user information: ${errorMsg}`);
   }
 }
 

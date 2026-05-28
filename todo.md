@@ -84,6 +84,13 @@
   - [x] Privacy Policy now accessible at both /privacy and /privacy-policy URLs
   - [x] Verified page loads correctly with full content
 
+- [x] **Admin Login OAuth Error** — IMPROVED: Enhanced error logging
+  - [x] Added detailed error logging to ms365-admin-auth.ts (token exchange)
+  - [x] Added detailed error logging to admin-auth router (OAuth callback)
+  - [x] Added validation for empty access tokens
+  - [x] Error messages now include specific failure reasons
+  - [x] Next step: Check Azure app configuration on production (AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID)
+
 - [ ] **AI Integration** (Optional) — DEFERRED (nice-to-have, not critical for production)
   - Add Claude API key to environment secrets
   - Add Gemini API key to environment secrets
