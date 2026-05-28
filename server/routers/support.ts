@@ -264,6 +264,12 @@ export const supportRouter = router({
         ticketId: z.number(),
         email: z.string().email(),
         message: z.string().min(0).max(5000),
+        attachments: z.array(z.object({
+          fileName: z.string(),
+          fileSize: z.number(),
+          fileType: z.string(),
+          fileUrl: z.string(),
+        })).optional(),
       })
     )
     .mutation(async ({ input }) => {
