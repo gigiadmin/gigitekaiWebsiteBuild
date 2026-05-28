@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
+import { attachmentRouter } from "./support-attachments";
 
 // Store verification codes in memory (in production, use Redis or database)
 const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
@@ -262,7 +263,7 @@ export const supportRouter = router({
       z.object({
         ticketId: z.number(),
         email: z.string().email(),
-        message: z.string().min(1).max(5000),
+        message: z.string().min(0).max(5000),
       })
     )
     .mutation(async ({ input }) => {
@@ -290,4 +291,7 @@ export const supportRouter = router({
 
       return { success: true, replyId: result.insertId };
     }),
+
+  // Attachment procedures
+  ...attachmentRouter,
 });

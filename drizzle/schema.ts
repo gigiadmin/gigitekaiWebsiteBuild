@@ -1943,3 +1943,24 @@ export const accountAuditLog = mysqlTable("accountAuditLog", {
 
 export type AccountAuditLog = typeof accountAuditLog.$inferSelect;
 export type InsertAccountAuditLog = typeof accountAuditLog.$inferInsert;
+
+export const ticketAttachments = mysqlTable("ticketAttachments", {
+	id: int().autoincrement().notNull(),
+	ticketId: int().notNull().references(() => tickets.id, { onDelete: "cascade" }),
+	fileName: varchar({ length: 255 }).notNull(),
+	fileKey: varchar({ length: 500 }).notNull(), // S3 key
+	fileUrl: varchar({ length: 2048 }).notNull(), // CDN URL
+	fileMimeType: varchar({ length: 100 }).notNull(),
+	fileSizeBytes: int().notNull(),
+	uploadedBy: varchar({ length: 320 }), // email for public submissions
+	virusScanStatus: mysqlEnum(['pending','clean','infected','error']).default('pending').notNull(),
+	virusScanResult: text(), // JSON with scan details
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("ticketAttachments_ticketId_idx").on(table.ticketId),
+	index("ticketAttachments_createdAt_idx").on(table.createdAt),
+]);
+
+export type TicketAttachment = typeof ticketAttachments.$inferSelect;
+export type InsertTicketAttachment = typeof ticketAttachments.$inferInsert;

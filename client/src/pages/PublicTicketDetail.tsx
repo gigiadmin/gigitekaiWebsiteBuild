@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import FileUploadArea from "@/components/FileUploadArea";
 
 export default function PublicTicketDetail() {
   const [, params] = useRoute("/support/ticket/:ticketId");
@@ -12,6 +13,12 @@ export default function PublicTicketDetail() {
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'];
 
   useEffect(() => {
     // Get email and token from sessionStorage
@@ -41,12 +48,53 @@ export default function PublicTicketDetail() {
   });
 
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!message.trim() && attachments.length === 0) return;
     addReplyMutation.mutate({
       ticketId,
       email,
       message,
     });
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleFiles = (files: FileList) => {
+    const newFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`File ${file.name} is too large (max 10MB)`);
+        continue;
+      }
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        alert(`File type ${file.type} not allowed`);
+        continue;
+      }
+      newFiles.push(file);
+    }
+    setAttachments([...attachments, ...newFiles]);
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
   };
 
   if (!email || !token) {
@@ -206,9 +254,22 @@ export default function PublicTicketDetail() {
               className="bg-[#0A0E1A] border-[rgba(0,212,255,0.2)] text-white placeholder-gray-500 mb-3"
               rows={3}
             />
+            
+            {/* File Upload Component */}
+            <FileUploadArea
+              attachments={attachments}
+              onFilesAdded={handleFiles}
+              onFileRemoved={removeAttachment}
+              dragActive={dragActive}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            />
+            
             <Button
               onClick={handleSendMessage}
-              disabled={addReplyMutation.isPending || !message.trim()}
+              disabled={addReplyMutation.isPending || (!message.trim() && attachments.length === 0)}
               className="w-full bg-gradient-to-r from-[#00D4FF] to-[#0099CC] hover:from-[#00D4FF]/90 hover:to-[#0099CC]/90 text-black font-bold"
             >
               {addReplyMutation.isPending ? (
