@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Mail, Search, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function TicketLookup() {
-  const [, navigate] = useLocation();
+  const [location] = useLocation();
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"email" | "verify" | "results">("email");
+
+  // Read email from URL params if provided
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, []);
 
   // Send verification code to email
   const sendCodeMutation = trpc.support.sendVerificationCode.useMutation({
