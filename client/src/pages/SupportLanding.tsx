@@ -127,7 +127,10 @@ export default function SupportLanding() {
 
             {/* Option 2: Create Ticket (No Login) */}
             <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-8 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1 cursor-pointer"
-              onClick={() => setShowEmailForm(!showEmailForm)}>
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEmailForm(!showEmailForm);
+              }}>
               <div className="w-14 h-14 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-6 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
                 <Ticket className="w-7 h-7" />
               </div>
