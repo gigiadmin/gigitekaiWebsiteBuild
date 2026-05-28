@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Search, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function TicketLookup() {
+  const [, navigate] = useLocation();
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"email" | "verify" | "results">("email");
-  const navigate = useNavigate();
 
   // Send verification code to email
   const sendCodeMutation = trpc.support.sendVerificationCode.useMutation({
@@ -191,12 +191,12 @@ export default function TicketLookup() {
                 <p className="text-gray-400 mb-6">
                   You don't have any support tickets yet. Create one to get started.
                 </p>
-                <Button
-                  onClick={() => navigate("/support")}
-                  className="bg-gradient-to-r from-[#00D4FF] to-[#0099CC] hover:from-[#00D4FF]/90 hover:to-[#0099CC]/90 text-black font-bold"
-                >
-                  Create a Ticket
-                </Button>
+              <Button
+                onClick={() => navigate("/support")}
+                className="bg-gradient-to-r from-[#00D4FF] to-[#0099CC] hover:from-[#00D4FF]/90 hover:to-[#0099CC]/90 text-black font-bold"
+              >
+                Create a Ticket
+              </Button>
               </div>
             ) : (
               <>

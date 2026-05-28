@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
-import { useNavigate } from "wouter";
 
 export default function PublicTicketDetail() {
   const [, params] = useRoute("/support/ticket/:ticketId");
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
