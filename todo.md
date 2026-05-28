@@ -442,7 +442,7 @@
 
 ---
 
-## HOTFIX: Duplicate Ticket Bug (Race Condition)
+## HOTFIX: Duplicate Ticket Bug (Race Condition) ✅ FIXED
 
 **Issue:** Two identical tickets (#90001 and #90002) created for same email
 
@@ -452,16 +452,14 @@
 3. emailMessages record only inserted AFTER ticket creation
 4. Concurrent poll runs can both pass the check and create duplicate tickets
 
-**Fix Applied:**
-- Added UNIQUE constraint on `emailMessages.messageId` column in schema
-- Updated emailPoller error handling to catch ER_DUP_ENTRY and treat as processed
-- Database now prevents duplicate inserts at the constraint level
-- Concurrent processes will fail gracefully on the second insert
+**Fix Applied:** ✅ COMPLETE
+- Added UNIQUE constraint on `emailMessages.messageId` column in schema (drizzle/schema.ts)
+- Updated emailPoller error handling to catch ER_DUP_ENTRY and treat as processed (emailPoller.ts:1366-1369)
+- Database constraint applied via SQL: ALTER TABLE emailMessages ADD UNIQUE KEY emailMessages_messageId_unique (messageId)
+- Concurrent processes now fail gracefully on the second insert with ER_DUP_ENTRY
 
-**Migration Required:**
-- Run `pnpm db:push` to apply schema changes
-- Existing duplicate emails will need manual cleanup in emailMessages table
-
-**Testing:**
-- Verify no duplicate tickets created after schema migration
-- Monitor logs for "Duplicate messageId detected" messages
+**Status:** DEPLOYED
+- UNIQUE constraint successfully applied to production database
+- emailPoller now handles duplicate key errors gracefully
+- Future duplicate emails will be detected at database constraint level
+- Logs will show "Duplicate messageId detected (race condition)" when duplicates are prevented
