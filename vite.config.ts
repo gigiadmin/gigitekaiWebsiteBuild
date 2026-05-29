@@ -504,11 +504,18 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // Force all packages to use the SAME React instance from node_modules.
+      // This prevents the dual-React crash where manus-runtime or @trpc/react-query
+      // loads its own React copy, causing 'Cannot read properties of null (reading useState)'.
+      // The alias ensures every import of 'react' resolves to the same physical file.
+      "react": path.resolve(import.meta.dirname, "node_modules", "react"),
+      "react-dom": path.resolve(import.meta.dirname, "node_modules", "react-dom"),
+      "react-dom/client": path.resolve(import.meta.dirname, "node_modules", "react-dom", "client.js"),
     },
-    // Deduplicate React to prevent multiple instances when MSAL chunk loads separately.
-    // Without this, @azure/msal-react uses a different React copy than the app, causing
-    // 'Cannot read properties of null (reading useEffect)' crash in MsalProvider.
-    dedupe: ["react", "react-dom"],
+    // Deduplicate React to prevent multiple instances when MSAL chunk or manus-runtime loads separately.
+    // Without this, @azure/msal-react or @trpc/react-query uses a different React copy than the app,
+    // causing 'Cannot read properties of null (reading useState/useEffect)' crash.
+    dedupe: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
@@ -517,6 +524,7 @@ export default defineConfig({
     // Force Vite to always re-bundle deps so React is never duplicated across chunks.
     // Without this, clearing node_modules/.vite can leave the browser with stale
     // pre-bundled chunks that use a different React instance than the main bundle.
+    force: true,
     include: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
   },
    build: {
