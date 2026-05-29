@@ -11,7 +11,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
-import { useState, useMemo } from "react";
 
 export default function KBArticleViewer() {
   const [, params] = useRoute("/kb/:id");
@@ -23,7 +22,7 @@ export default function KBArticleViewer() {
 
   // Fetch article
   const { data: article, isLoading, error } = trpc.kb.get.useQuery(
-    { id: articleId! },
+    { id: articleId || 0 },
     { enabled: !!articleId && !isNaN(articleId!) }
   );
 
@@ -170,6 +169,7 @@ export default function KBArticleViewer() {
   if (error || !article) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <SiteNavBar2024 />
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h2 className="text-white text-xl font-semibold mb-2">Article Not Found</h2>
