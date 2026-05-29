@@ -980,6 +980,13 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         const now = new Date().toISOString();
         const callLogId = `voicemail-${messageId || Date.now()}`;
         
+        // Check if this call log already exists (prevent duplicates)
+        const existing = await db.select().from(callLogs).where(eq(callLogs.graphCallId, callLogId)).limit(1);
+        if (existing.length > 0) {
+          console.log(`[Email Poller] Call log already exists for ${callLogId} — skipping duplicate`);
+          return false;
+        }
+        
         // 1. Create call log entry (for Call Logs tab)
         await db.insert(callLogs).values({
           graphCallId: callLogId,

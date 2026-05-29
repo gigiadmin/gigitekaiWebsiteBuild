@@ -132,6 +132,12 @@
 
 ---
 
+## Bug Fixes - May 29, 2026
+
+- [x] **Fixed phantom call records in admin portal** — emailPoller was creating duplicate callLogs entries without dedup check. Added duplicate prevention check before inserting callLogs from email voicemails. This prevents the same voicemail email from creating multiple call records if the email poller runs multiple times.
+
+---
+
 ## NOTES
 
 - **Search functionality** — Removed from navbar due to poor UX (not functional enough)
