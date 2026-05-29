@@ -83,6 +83,7 @@ const SearchResults = lazy(() => import("./pages/SearchResults"));
 const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
 const PublicKB = lazy(() => import("./pages/PublicKB"));
+const KBArticleViewer = lazy(() => import("./pages/KBArticleViewer"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
@@ -237,7 +238,7 @@ function Router() {
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
           <Route path={"/kb"} component={PublicKB} />
-          <Route path={"/kb/:slug"} component={PublicKB} />
+          <Route path={"/kb/:id"} component={KBArticleViewer} />
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />
           {/* ── Helpdesk (customer-facing) ── */}
