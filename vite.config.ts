@@ -525,7 +525,13 @@ export default defineConfig({
     // Without this, clearing node_modules/.vite can leave the browser with stale
     // pre-bundled chunks that use a different React instance than the main bundle.
     force: true,
-    include: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
+    include: ["react", "react-dom", "react-dom/client"],
+    // CRITICAL: Exclude @trpc/react-query and @tanstack/react-query from pre-bundling.
+    // When pre-bundled, Vite wraps them in a CJS chunk with their own React copy.
+    // If that chunk gets a different browser hash than react-dom/client, two React
+    // instances exist → 'Cannot read properties of null (reading useState)' crash.
+    // Excluding forces native ESM imports → always same React instance, no hash mismatch.
+    exclude: ["@trpc/react-query", "@tanstack/react-query", "@tanstack/query-core"],
   },
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),

@@ -4,6 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Lock, Printer, Mail, Zap, Wifi, Cloud, ArrowRight, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
+
+// Strip markdown syntax and extract a clean content preview
+function getContentPreview(text: string): string {
+  // Split into lines and skip heading + metadata line (Category/Tier/etc)
+  const lines = text.split('\n');
+  const contentLines = lines.filter(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return false;
+    if (trimmed.startsWith('#')) return false; // skip headings
+    if (/^\*\*Category:\*\*/.test(trimmed)) return false; // skip metadata
+    if (/^Category:|^\*\*Tier:|^\*\*Difficulty:|^\*\*Resolution/.test(trimmed)) return false;
+    return true;
+  });
+  // Join and strip remaining markdown
+  return contentLines.join(' ')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`{1,3}[^`]*`{1,3}/g, '')
+    .replace(/!?\[([^\]]*?)\]\([^)]*\)/g, '$1')
+    .replace(/^[-*+>]\s+/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 const COMMON_ISSUES = [
   {
@@ -98,6 +123,7 @@ export default function PublicKB() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SiteNavBar2024 />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated background */}
@@ -243,7 +269,7 @@ export default function PublicKB() {
                 </h3>
 
                 <p className="text-sm text-slate-400 mb-4 line-clamp-2">
-                  {article.content?.substring(0, 100)}...
+                  {getContentPreview(article.content || '').substring(0, 150)}...
                 </p>
 
                 {article.averageRating && (
@@ -295,6 +321,7 @@ export default function PublicKB() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
