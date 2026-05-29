@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZELHHBGEW",
-    "secret_access_key": "y3gd1Dhx0t6Rq4D18HnruGUR8y21h4Jm+xKzUxVN",
-    "session_token": "IQoJb3JpZ2luX2VjEN7//////////wEaCXVzLWVhc3QtMSJGMEQCIF5QCNWfqkKZhu6kjqzlsAhUt0kL2epdUXnzVsymv8JHAiA8xUtvo9Kw0HwBKlNQQLHhp2E68RRD1HrA9xHW8NArgyr/Awin//////////8BEAQaDDY2NTM4NjA5ODg2NiIMnVNg2C17uiAxHxhXKtMDblGE1AIMees6s90LVD3+JWyXngNJtqqD6KsuMHDt22t5x8/9n69ObcKaYKt40qjxL8DS/6sfTuUqlZD9uDWLYKwUxohl3AYUuPU+2WbUomRZargNvrKI2QRjJtBsnEXRBk5fw+6ifqB2tjCiuq0LRR0JUvWYtFIVbOYIHazklOLlQyYHPBiDKANJjGXftWiF0Bh9UhE5OA+5Wt8thsYPObphj/VKNM2i2DPYnhHGmEMc59I5qncE3sV+Rb1bq4/C9b1FtSeylFGvgPH4KhL3+u8PjSt/mQYoHxnB609JnHzsOLMkVy0wflsgz9A9oGuzmngFsSa+7gCRPH3WrfJY9ltJ6h/TeUkd5nVpuJ/LJ8AcZTfe5T2k96Xo8HFhNh1sCy/bu0ohf1zn85v1o+0oQ+OBSAhYkLc0NRG2LadSufBQ0JgYYVbVGMOud46Aa3SXYd6M3/W1qWCvkWF3eeRuk6IM+Qjxvu8LZoNkGE9Eto08X79RYmagGklYaqnJW6ZAwF3rHyk1hq6M6W0AO18BL0hMZ4UzOO05w71aGEk9famssuoZec807w7atZzURjWqXAdMjYcivnD0DRlo9n2Hlwu8Ze9Halc9duPhXlsm8lH8kMcw06zf0AY6ngEzk6+nrTfRUt0kqyzhkMGnLW1mfkXf77LzUoixYRfmSI4AJqSz/Ko5dr9jbyRai8oUpKDUJqtoj0+4ZvxpelfwPAGpZsOIRiLM7WEbdazEq8lX522VnpEee64az7dxDJRyqSp9mMVUuiAZFxEXylLioiH+GmhODXm73cgdUZniW+fi4ZaUD2cj/CoKXCQNKfPowgl/hHhb5PmWFI8rJA==",
-    "expiration": "2026-05-28T17:44:51.000Z"
+    "access_key_id": "ASIAZV3A2ECZNBAUOGUA",
+    "secret_access_key": "gtExoPikPAPPAKy+LK0k0sgC3Ix9sGbpkQsPBdcf",
+    "session_token": "IQoJb3JpZ2luX2VjEPX//////////wEaCXVzLWVhc3QtMSJHMEUCIFkL1ETf+8J8N5OAWtwgkPWEOFFU/DLJjWm77mckjhvPAiEA41odh3KhOiKJSzumzHcbRU1tqIB0R96eODcZP3WfWoEq/wMIvv//////////ARAEGgw2NjUzODYwOTg4NjYiDE1OKHyPrNp8tPJ+2CrTAwSlrfYmDE1aN+GM6d6aHsbwAnmgLCyiPzXGDMd2IGKUPwuXq/xGfWRpKX0ts3jNtMP/vi+87shMjGcBWz5jQ8/IkE9YqDkuxDr+291fBQmQNV6lIL6jgsPuUv7LenA1Ko3PDHy0feQkC/4cFYq+TD1MRp+RnXUkaJ3d2k3CemmhyL+kXR0qNfYHIZAqJB0oXJ4yW05tQw9ALlBTxgBXKCbU3MRdURQ6y4kePP/IBW6mCrUZibrcRr0pkjp2TnQlgGiK1u0Yk2wjXxXPRf5Tne7lDtardVyycHyjBgNCepT3dZYtqmojl1FigmKBDz0K2IVP4eIn2FAtGSr9nJLVlY5YDgNBNRr+eqcyPaRZP6v5pamD53OKN0cifFVL7tAS+pC4N4gnmXLmCAwD2atqdoSODfethUQFruU1HTv0OU+ypuGiUc9mEEICYzPb+kwXfHGX9VDqVhuYzo0p34ai95acjw/o9SLhW89bNOUIbh9kHlopwRKy2Oyz530zJOlnXzrr3OKL8hNG9WDpJcyGQrPNqX/xB6JP6EGEdzZD5+W7l6AjtQCOmhGkGxCsESoFfm2cfdlU203Jib72mkYfJXFbBLDFBfMI0CggmhmHOF0Xxr8IMMC25NAGOp0B2vHk8YAA30YnG9xE/5iRfOS0a7xzIbJQFrydQcUlgHlWq6AiA1rSK9H3N+EHWq6j0t5MsCkM5OhVtcovyW8jiHGFt/pdU0u84lIniO65nhQhenCwJ5tYzwGq4gqasUxWJ4oRwQjIdSatx8GsxPbQYqjDJ1ym8A5cCisjrzNsWQSAP6O5+KnW0mx2upysIXilk7C8qW0LNEMtbP1kdw==",
+    "expiration": "2026-05-29T16:51:12.000Z"
   },
   "name": "gigitekai",
   "path": "/home/ubuntu/gigitekai",

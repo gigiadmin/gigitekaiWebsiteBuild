@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
+import { useState, useMemo } from "react";
 
 export default function KBArticleViewer() {
   const [, params] = useRoute("/kb/:id");
@@ -31,6 +32,91 @@ export default function KBArticleViewer() {
     { limit: 3 },
     { enabled: !!articleId }
   );
+
+  // Slugify helper for TOC anchors
+  const slugify = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+  // Custom Markdown components for Fortune 100 quality rendering
+  const markdownComponents = {
+    h1: ({ children }: any) => (
+      <h1 id={slugify(String(children))} className="text-3xl font-bold text-white mt-8 mb-4 border-b border-cyan-500/30 pb-3">
+        {children}
+      </h1>
+    ),
+    h2: ({ children }: any) => (
+      <h2 id={slugify(String(children))} className="text-2xl font-bold text-white mt-6 mb-3 border-b border-white/10 pb-2">
+        {children}
+      </h2>
+    ),
+    h3: ({ children }: any) => (
+      <h3 id={slugify(String(children))} className="text-xl font-semibold text-cyan-400 mt-5 mb-2">
+        {children}
+      </h3>
+    ),
+    table: ({ children }: any) => (
+      <div className="my-6 overflow-x-auto rounded-lg border border-white/10">
+        <table className="w-full text-sm">
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children }: any) => (
+      <thead className="bg-white/5 border-b border-white/10">
+        {children}
+      </thead>
+    ),
+    tbody: ({ children }: any) => (
+      <tbody className="divide-y divide-white/5">
+        {children}
+      </tbody>
+    ),
+    tr: ({ children }: any) => (
+      <tr className="hover:bg-white/2.5 transition-colors">
+        {children}
+      </tr>
+    ),
+    th: ({ children }: any) => (
+      <th className="px-4 py-3 text-left font-semibold text-white text-xs uppercase tracking-wider">
+        {children}
+      </th>
+    ),
+    td: ({ children }: any) => (
+      <td className="px-4 py-3 text-white/75">
+        {children}
+      </td>
+    ),
+    ul: ({ children }: any) => (
+      <ul className="my-4 ml-6 space-y-2 list-disc text-white/75">
+        {children}
+      </ul>
+    ),
+    ol: ({ children }: any) => (
+      <ol className="my-4 ml-6 space-y-2 list-decimal text-white/75">
+        {children}
+      </ol>
+    ),
+    li: ({ children }: any) => (
+      <li className="leading-relaxed">
+        {children}
+      </li>
+    ),
+    blockquote: ({ children }: any) => (
+      <blockquote className="my-4 pl-4 border-l-4 border-cyan-500/50 bg-cyan-500/5 py-2 pr-4 rounded-r italic text-white/70">
+        {children}
+      </blockquote>
+    ),
+    code: ({ children, inline }: any) => {
+      if (inline) {
+        return <code className="bg-white/5 text-cyan-400 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
+      }
+      return <code className="block bg-white/5 text-cyan-400 px-3 py-2 rounded text-sm font-mono">{children}</code>;
+    },
+    pre: ({ children }: any) => (
+      <pre className="my-4 bg-[#0D1220] border border-white/10 rounded-lg p-4 overflow-x-auto">
+        {children}
+      </pre>
+    ),
+  };
 
   // Generate table of contents from markdown
   const tableOfContents = useMemo(() => {
@@ -227,7 +313,7 @@ export default function KBArticleViewer() {
               prose-table:text-white/75 prose-th:text-white prose-th:bg-white/5
               prose-hr:border-white/10
               mb-10">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                 {article.content || "*No content available.*"}
               </ReactMarkdown>
             </div>
