@@ -136,6 +136,8 @@
 
 - [x] **Fixed phantom call records in admin portal** — emailPoller was creating duplicate callLogs entries without dedup check. Added duplicate prevention check before inserting callLogs from email voicemails. This prevents the same voicemail email from creating multiple call records if the email poller runs multiple times.
 
+- [x] **Fixed scorecard email delivery** — Scorecard submissions were not sending emails. Updated emailDrip router to use Azure Communication Services (ACS) as primary email provider with SendGrid as fallback. Wired ComplianceScorecard component to call emailDrip.sendDripSequence mutation. Scorecard now sends 3-email drip sequence: (1) personalized roadmap immediately, (2) case study after 2 days, (3) Switch Program offer after 5 days. Installed @azure/communication-email package.
+
 ---
 
 ## NOTES

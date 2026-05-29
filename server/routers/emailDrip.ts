@@ -1,6 +1,8 @@
 /*
   Email Drip Sequence for Compliance Scorecard Submissions
   Sends 3-email automation: (1) Personalized roadmap, (2) Case study, (3) Switch Program offer
+  Primary: Azure Communication Services (ACS)
+  Fallback: SendGrid
 */
 
 import { z } from "zod";
@@ -84,6 +86,11 @@ export const emailDripRouter = {
     )
     .mutation(async ({ input }) => {
       try {
+        // Validate email
+        if (!input.email || !input.email.includes("@")) {
+          throw new Error(`Invalid email address: ${input.email}`);
+        }
+
         // Email 1: Personalized roadmap (sent immediately)
         const email1 = EMAIL_TEMPLATES.roadmap(input.name, input.score, input.scoreBand);
         await sendEmail(input.email, email1.subject, email1.html);
@@ -106,16 +113,60 @@ export const emailDripRouter = {
 
         return { success: true, message: "Email drip sequence started" };
       } catch (err) {
-        console.error("Email drip error:", err);
+        console.error("[EmailDrip] Error:", err);
         return { success: false, error: String(err) };
       }
     }),
 };
 
-// Helper: Send email immediately
+// Helper: Send email via Azure first, fallback to SendGrid
 async function sendEmail(to: string, subject: string, html: string) {
+  // Validate email
+  if (!to || !to.includes("@")) {
+    throw new Error(`Invalid email address: ${to}`);
+  }
+
+  // Try Azure Communication Services first
   try {
-    // Use SendGrid or your email provider
+    console.log(`[Email] Attempting Azure send to ${to}: ${subject}`);
+    
+    if (!process.env.ACS_CONNECTION_STRING) {
+      console.warn("[Email] ACS_CONNECTION_STRING not configured, skipping Azure");
+      throw new Error("ACS not configured");
+    }
+
+    // Use ACS to send email
+    const { EmailClient } = await import("@azure/communication-email");
+    const client = new EmailClient(process.env.ACS_CONNECTION_STRING);
+
+    const emailMessage = {
+      senderAddress: "support@gigitekai.com",
+      content: {
+        subject,
+        html,
+      },
+      recipients: {
+        to: [{ address: to }],
+      },
+    };
+
+    const poller = await client.beginSend(emailMessage);
+    const result = await poller.pollUntilDone();
+
+    console.log(`[Email] ✓ Sent via Azure to ${to}: ${subject} (ID: ${result.id})`);
+    return;
+  } catch (azureErr) {
+    console.warn(`[Email] Azure send failed, trying SendGrid:`, azureErr);
+  }
+
+  // Fallback to SendGrid
+  try {
+    console.log(`[Email] Attempting SendGrid send to ${to}: ${subject}`);
+    
+    if (!process.env.SENDGRID_API_KEY) {
+      throw new Error("SENDGRID_API_KEY not configured");
+    }
+
     const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {
@@ -131,21 +182,25 @@ async function sendEmail(to: string, subject: string, html: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`SendGrid error: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`SendGrid error: ${response.statusText} - ${errorText}`);
     }
 
-    console.log(`Email sent to ${to}: ${subject}`);
-  } catch (err) {
-    console.error("SendEmail failed:", err);
-    throw err;
+    console.log(`[Email] ✓ Sent via SendGrid to ${to}: ${subject}`);
+    return;
+  } catch (sendgridErr) {
+    console.error(`[Email] ✗ Both Azure and SendGrid failed:`, sendgridErr);
+    throw new Error(`Email delivery failed: ${sendgridErr}`);
   }
 }
 
-// Helper: Schedule email for later
+// Helper: Schedule email for later (using persistent job queue in production)
 function scheduleEmail(to: string, email: { subject: string; html: string }, delayMs: number) {
-  // In production, use a job queue (Bull, RabbitMQ, etc.)
+  // In production, use a job queue (Bull, RabbitMQ, Heartbeat, etc.)
   // For now, use setTimeout (not recommended for production)
   setTimeout(() => {
-    sendEmail(to, email.subject, email.html).catch(console.error);
+    sendEmail(to, email.subject, email.html).catch((err) => {
+      console.error(`[Email] Scheduled email failed for ${to}:`, err);
+    });
   }, delayMs);
 }

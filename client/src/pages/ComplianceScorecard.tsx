@@ -171,17 +171,27 @@ export default function ComplianceScorecard() {
     if (!email || !name) return;
 
     try {
-      await fetch("/api/trpc/contact.submitContact", {
+      // Map percentage to score band
+      const scoreBandLabel = scoreBand?.label || "Unknown";
+      
+      // Call the emailDrip.sendDripSequence mutation
+      const response = await fetch("/api/trpc/emailDrip.sendDripSequence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          email,
-          company: "Not provided",
-          message: `Compliance Scorecard submitted - Score: ${percentage}/100 (${scoreBand?.label || "Unknown"})`,
-          source: "compliance-scorecard",
+          json: {
+            email,
+            name,
+            score: percentage,
+            scoreBand: scoreBandLabel,
+          },
         }),
       });
+
+      const result = await response.json();
+      if (!result.result?.data?.success) {
+        throw new Error(result.result?.error?.message || "Failed to send scorecard");
+      }
 
       setSubmitted(true);
       setTimeout(() => {
@@ -190,7 +200,8 @@ export default function ComplianceScorecard() {
         setSubmitted(false);
       }, 3000);
     } catch (err) {
-      console.error("Error:", err);
+      console.error("[Scorecard] Error:", err);
+      alert(`Error: ${err instanceof Error ? err.message : "Failed to send scorecard"}`);
     }
   };
 
