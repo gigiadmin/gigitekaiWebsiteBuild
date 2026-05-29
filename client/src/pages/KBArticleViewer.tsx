@@ -2,21 +2,28 @@ import { useState, useMemo } from "react";
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Loader2, ThumbsUp, ThumbsDown, Share2, Copy, ChevronRight, Clock, User, Eye, Star } from "lucide-react";
-import { Streamdown } from "streamdown";
+import {
+  Loader2, ThumbsUp, ThumbsDown, Share2, Copy,
+  ChevronRight, Clock, Eye, Star, ArrowLeft,
+  BookOpen, Tag, AlertCircle
+} from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 
 export default function KBArticleViewer() {
   const [, params] = useRoute("/kb/:id");
   const [, navigate] = useLocation();
   const [showCopied, setShowCopied] = useState(false);
-  const [userRating, setUserRating] = useState<number | null>(null);
+  const [userRating, setUserRating] = useState<"helpful" | "not_helpful" | null>(null);
 
   const articleId = params?.id ? parseInt(params.id) : null;
 
   // Fetch article
-  const { data: article, isLoading } = trpc.kb.get.useQuery(
+  const { data: article, isLoading, error } = trpc.kb.get.useQuery(
     { id: articleId! },
-    { enabled: !!articleId }
+    { enabled: !!articleId && !isNaN(articleId!) }
   );
 
   // Fetch related articles
@@ -25,13 +32,6 @@ export default function KBArticleViewer() {
     { enabled: !!articleId }
   );
 
-  // Rate article mutation
-  const rateArticleMutation = trpc.kb.rateArticle.useMutation({
-    onSuccess: (result) => {
-      setUserRating(result.rating);
-    },
-  });
-
   // Generate table of contents from markdown
   const tableOfContents = useMemo(() => {
     if (!article?.content) return [];
@@ -39,7 +39,7 @@ export default function KBArticleViewer() {
     return headings.map((heading) => {
       const level = heading.match(/^#+/)?.[0].length || 1;
       const text = heading.replace(/^#+\s/, "");
-      return { level, text, id: text.toLowerCase().replace(/\s+/g, "-") };
+      return { level, text, id: text.toLowerCase().replace(/[^a-z0-9]+/g, "-") };
     });
   }, [article?.content]);
 
@@ -49,27 +49,46 @@ export default function KBArticleViewer() {
     setTimeout(() => setShowCopied(false), 2000);
   };
 
-  const handleRate = (rating: number) => {
-    if (articleId) {
-      rateArticleMutation.mutate({ articleId, rating });
-    }
+  const handleRate = (type: "helpful" | "not_helpful") => {
+    if (!articleId || userRating) return;
+    setUserRating(type);
+    // Rating stored locally for now - rateArticle procedure to be added in Phase 5
+    console.log("Rating:", type, "for article", articleId);
   };
 
-  if (isLoading) {
+  if (!articleId || isNaN(articleId)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h2 className="text-white text-xl font-semibold mb-2">Invalid Article</h2>
+          <Button onClick={() => navigate("/kb")} className="bg-[#00D4FF] text-black hover:bg-[#00B8D9]">
+            Back to Knowledge Base
+          </Button>
+        </div>
       </div>
     );
   }
 
-  if (!article) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-4">Article Not Found</h1>
-          <p className="text-slate-300 mb-8">The article you're looking for doesn't exist.</p>
-          <Button className="bg-cyan-600 hover:bg-cyan-700" onClick={() => navigate("/kb")}>
+          <Loader2 className="w-10 h-10 text-[#00D4FF] animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !article) {
+    return (
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h2 className="text-white text-xl font-semibold mb-2">Article Not Found</h2>
+          <p className="text-white/60 mb-4">This article may have been moved or deleted.</p>
+          <Button onClick={() => navigate("/kb")} className="bg-[#00D4FF] text-black hover:bg-[#00B8D9]">
             Back to Knowledge Base
           </Button>
         </div>
@@ -78,175 +97,244 @@ export default function KBArticleViewer() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <div className="bg-slate-900/50 border-b border-slate-800 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Button variant="ghost" className="text-slate-300 hover:text-white" onClick={() => navigate("/kb")}>
-            ← Back to Knowledge Base
-          </Button>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-slate-300 hover:text-cyan-400"
-              onClick={handleCopyLink}
-            >
-              {showCopied ? "Copied!" : <Copy className="w-4 h-4" />}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-slate-300 hover:text-cyan-400">
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
+    <div className="min-h-screen bg-[#0A0E1A] text-white">
+      <SiteNavBar2024 />
+
+      {/* Breadcrumb */}
+      <div className="border-b border-white/10 bg-[#0D1220]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <nav className="flex items-center gap-2 text-sm text-white/50">
+            <button onClick={() => navigate("/")} className="hover:text-[#00D4FF] transition-colors">Home</button>
+            <ChevronRight className="w-3 h-3" />
+            <button onClick={() => navigate("/kb")} className="hover:text-[#00D4FF] transition-colors">Knowledge Base</button>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-white/80 truncate max-w-xs">{article.title}</span>
+          </nav>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex gap-8">
+          {/* Sidebar - Table of Contents */}
+          {tableOfContents.length > 0 && (
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+              <div className="sticky top-6">
+                <div className="bg-[#0D1220] border border-white/10 rounded-xl p-5">
+                  <h3 className="text-xs font-semibold text-[#00D4FF] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    On This Page
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {tableOfContents.map((item, i) => (
+                      <li key={i} style={{ paddingLeft: `${(item.level - 1) * 12}px` }}>
+                        <a
+                          href={`#${item.id}`}
+                          className="text-sm text-white/50 hover:text-[#00D4FF] transition-colors block py-0.5 leading-snug"
+                        >
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Back button */}
+                <button
+                  onClick={() => navigate("/kb")}
+                  className="mt-4 flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Knowledge Base
+                </button>
+              </div>
+            </aside>
+          )}
+
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <main className="flex-1 min-w-0">
             {/* Article Header */}
             <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="px-3 py-1 text-xs font-medium text-cyan-300 bg-cyan-500/10 rounded-full">
-                  {article.category}
-                </span>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {article.category && (
+                  <span className="px-3 py-1 bg-[#00D4FF]/10 text-[#00D4FF] text-xs font-medium rounded-full border border-[#00D4FF]/20">
+                    {article.category}
+                  </span>
+                )}
                 {article.difficulty && (
-                  <span className="px-3 py-1 text-xs font-medium text-amber-300 bg-amber-500/10 rounded-full">
+                  <span className="px-3 py-1 bg-white/5 text-white/50 text-xs rounded-full border border-white/10">
                     {article.difficulty}
                   </span>
                 )}
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{article.title}</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+                {article.title}
+              </h1>
 
-              {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400">
-                {article.createdBy && (
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span>By GigitekAI</span>
-                  </div>
-                )}
-                {article.viewCount && (
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4" />
-                    <span>{article.viewCount} views</span>
-                  </div>
-                )}
-                {article.estimatedResolutionTime && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>{article.estimatedResolutionTime}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+              {article.subcategory && (
+                <p className="text-lg text-white/60 leading-relaxed mb-6">{article.subcategory}</p>
+              )}
 
-            {/* Article Content */}
-            <div className="prose prose-invert max-w-none mb-12">
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-8">
-                <Streamdown>{article.content}</Streamdown>
-              </div>
-            </div>
-
-            {/* Rating Section */}
-            <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-8 mb-12">
-              <h3 className="text-lg font-semibold text-white mb-4">Was this article helpful?</h3>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => handleRate(star)}
-                      className={`p-2 rounded-lg transition-all ${
-                        userRating && userRating >= star
-                          ? "bg-cyan-600 text-white"
-                          : "bg-slate-700 text-slate-400 hover:bg-slate-600"
-                      }`}
-                    >
-                      <Star className="w-5 h-5" fill="currentColor" />
-                    </button>
-                  ))}
-                </div>
+              {/* Meta */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-white/40 pb-6 border-b border-white/10">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  {article.updatedAt
+                    ? new Date(article.updatedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+                    : "Recently updated"}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5" />
+                  {article.viewCount ?? 0} views
+                </span>
                 {article.averageRating && (
-                  <span className="text-sm text-slate-400">
-                    {article.averageRating.toFixed(1)} / 5 ({article.ratingCount} ratings)
+                  <span className="flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                    {Number(article.averageRating).toFixed(1)}
+                  </span>
+                )}
+                {/* Share buttons */}
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={handleCopyLink}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs transition-colors"
+                  >
+                    {showCopied ? <><Copy className="w-3.5 h-3.5 text-green-400" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Link</>}
+                  </button>
+                  <button
+                    onClick={() => { if (navigator.share) navigator.share({ title: article.title, url: window.location.href }); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs transition-colors"
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> Share
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Article Body */}
+            <div className="prose prose-invert prose-lg max-w-none
+              prose-headings:text-white prose-headings:font-bold
+              prose-h1:text-3xl prose-h2:text-2xl prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-2
+              prose-h3:text-xl prose-h3:text-[#00D4FF]
+              prose-p:text-white/75 prose-p:leading-relaxed
+              prose-a:text-[#00D4FF] prose-a:no-underline hover:prose-a:underline
+              prose-strong:text-white prose-strong:font-semibold
+              prose-code:text-[#00D4FF] prose-code:bg-white/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+              prose-pre:bg-[#0D1220] prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl
+              prose-blockquote:border-l-[#00D4FF] prose-blockquote:bg-[#00D4FF]/5 prose-blockquote:rounded-r-lg prose-blockquote:py-1
+              prose-ul:text-white/75 prose-ol:text-white/75
+              prose-li:marker:text-[#00D4FF]
+              prose-table:text-white/75 prose-th:text-white prose-th:bg-white/5
+              prose-hr:border-white/10
+              mb-10">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {article.content || "*No content available.*"}
+              </ReactMarkdown>
+            </div>
+
+            {/* Tags */}
+            {article.tags && (
+              <div className="flex flex-wrap items-center gap-2 mb-8 pt-4 border-t border-white/10">
+                <Tag className="w-4 h-4 text-white/40" />
+                {article.tags.split(',').filter(Boolean).map((tag: string, i: number) => (
+                  <span key={i} className="px-2.5 py-1 bg-white/5 text-white/50 text-xs rounded-full border border-white/10 hover:border-[#00D4FF]/40 hover:text-[#00D4FF] transition-colors cursor-pointer">
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Feedback Section */}
+            <div className="bg-[#0D1220] border border-white/10 rounded-2xl p-6 mb-8">
+              <h3 className="text-base font-semibold text-white mb-1">Was this article helpful?</h3>
+              <p className="text-sm text-white/50 mb-4">Your feedback helps us improve our knowledge base.</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleRate("helpful")}
+                  disabled={!!userRating}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                    userRating === "helpful"
+                      ? "bg-green-500/20 border-green-500/40 text-green-400"
+                      : "bg-white/5 border-white/10 text-white/60 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400"
+                  } disabled:cursor-not-allowed`}
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  Yes, helpful
+                </button>
+                <button
+                  onClick={() => handleRate("not_helpful")}
+                  disabled={!!userRating}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                    userRating === "not_helpful"
+                      ? "bg-red-500/20 border-red-500/40 text-red-400"
+                      : "bg-white/5 border-white/10 text-white/60 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+                  } disabled:cursor-not-allowed`}
+                >
+                  <ThumbsDown className="w-4 h-4" />
+                  Not helpful
+                </button>
+                {userRating && (
+                  <span className="text-sm text-white/40 italic">
+                    {userRating === "helpful" ? "Thanks for your feedback! 🎉" : "We'll work on improving this article."}
                   </span>
                 )}
               </div>
-
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="border-green-500/50 text-green-400 hover:bg-green-500/10"
-                  onClick={() => handleRate(5)}
-                >
-                  <ThumbsUp className="w-4 h-4 mr-2" />
-                  Helpful
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-red-500/50 text-red-400 hover:bg-red-500/10"
-                  onClick={() => handleRate(1)}
-                >
-                  <ThumbsDown className="w-4 h-4 mr-2" />
-                  Not Helpful
-                </Button>
-              </div>
             </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Table of Contents */}
-            {tableOfContents.length > 0 && (
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-6 mb-8 sticky top-24">
-                <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Table of Contents</h3>
-                <nav className="space-y-2">
-                  {tableOfContents.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`#${item.id}`}
-                      className={`block text-sm transition-colors hover:text-cyan-400 ${
-                        item.level === 1
-                          ? "text-slate-300 font-medium"
-                          : item.level === 2
-                          ? "text-slate-400 ml-4"
-                          : "text-slate-500 ml-8"
-                      }`}
-                    >
-                      {item.text}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            )}
 
             {/* Related Articles */}
             {relatedArticles.length > 0 && (
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-6">
-                <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Related Articles</h3>
-                <div className="space-y-3">
-                  {relatedArticles.slice(0, 3).map((related) => (
+              <div>
+                <h3 className="text-lg font-bold text-white mb-4">Related Articles</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {relatedArticles.filter((r: any) => r.id !== article.id).slice(0, 3).map((related: any) => (
                     <button
                       key={related.id}
                       onClick={() => navigate(`/kb/${related.id}`)}
-                      className="w-full text-left p-3 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-colors group"
+                      className="text-left p-4 bg-[#0D1220] border border-white/10 rounded-xl hover:border-[#00D4FF]/40 transition-all group"
                     >
-                      <p className="text-sm font-medium text-cyan-300 group-hover:text-cyan-200 flex items-center gap-2">
+                      {related.category && (
+                        <span className="text-xs text-[#00D4FF]/70 font-medium">{related.category}</span>
+                      )}
+                      <h4 className="text-sm font-semibold text-white mt-1 mb-2 group-hover:text-[#00D4FF] transition-colors line-clamp-2">
                         {related.title}
-                        <ChevronRight className="w-3 h-3" />
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">{related.category}</p>
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs text-white/40">
+                        <Eye className="w-3 h-3" />
+                        {related.viewCount ?? 0} views
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
             )}
-          </div>
+
+            {/* CTA */}
+            <div className="mt-10 p-6 bg-gradient-to-r from-[#00D4FF]/10 to-[#0066FF]/10 border border-[#00D4FF]/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-white">Still need help?</h3>
+                <p className="text-sm text-white/60">Our support team is available 24/7 to assist you.</p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => navigate("/support")}
+                  className="bg-[#00D4FF] text-black font-semibold hover:bg-[#00B8D9] text-sm"
+                >
+                  Create Support Ticket
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/kb")}
+                  className="border-white/20 text-white hover:bg-white/5 text-sm"
+                >
+                  Browse KB
+                </Button>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

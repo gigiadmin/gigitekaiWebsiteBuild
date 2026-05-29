@@ -66,19 +66,17 @@ export default function KBLanding() {
   // Fetch trending articles
   const { data: trendingArticles = [], isLoading: isLoadingTrending } = trpc.kb.getTrendingArticles.useQuery({ limit: 3 });
 
-  // Search mutation
-  const searchMutation = trpc.kb.search.useMutation({
-    onSuccess: (results) => {
-      if (results.length > 0) {
-        navigate(`/kb/article/${results[0].id}`);
-      }
-    },
-  });
+  // Search query (lazy - only runs when activeSearch is non-empty)
+  const [activeSearch, setActiveSearch] = useState("");
+  const { data: searchResults = [], isFetching: isSearching } = trpc.kb.search.useQuery(
+    { query: activeSearch },
+    { enabled: activeSearch.trim().length > 0 }
+  );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      searchMutation.mutate({ query: searchQuery, limit: 20 });
+      setActiveSearch(searchQuery.trim());
     }
   };
 
@@ -113,10 +111,10 @@ export default function KBLanding() {
                 />
                 <Button
                   type="submit"
-                  disabled={searchMutation.isPending}
+                  disabled={isSearching}
                   className="absolute right-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md px-4 py-2"
                 >
-                  {searchMutation.isPending ? (
+                  {isSearching ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <Search className="w-5 h-5" />
@@ -223,7 +221,7 @@ export default function KBLanding() {
                         <div
                           key={i}
                           className={`w-4 h-4 rounded-full ${
-                            i < Math.round(article.averageRating || 0)
+                            i < Math.round(parseFloat(String(article.averageRating || 0)))
                               ? "bg-cyan-500"
                               : "bg-slate-700"
                           }`}
@@ -231,7 +229,7 @@ export default function KBLanding() {
                       ))}
                     </div>
                     <span className="text-xs text-slate-400">
-                      {article.averageRating?.toFixed(1)} ({article.ratingCount} ratings)
+                      {parseFloat(String(article.averageRating || 0)).toFixed(1)} ({article.ratingCount} ratings)
                     </span>
                   </div>
                 )}
