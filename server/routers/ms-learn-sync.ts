@@ -35,6 +35,14 @@ const MS_LEARN_PRODUCTS = [
   "windows",
 ];
 
+// Categories that are NOT relevant to Tier 1/2 helpdesk — blocked from syncing
+const BLOCKED_MS_LEARN_CATEGORIES = new Set([
+  "azure-identity",
+  "security",
+  "power-platform",
+  "ai-copilot",
+]);
+
 // Category mapping from MS Learn products/subjects to GigitekAI KB categories
 function mapToCategory(products: string[], subjects: string[], roles: string[]): string {
   const all = [...products, ...subjects, ...roles].map(s => s.toLowerCase());
@@ -151,6 +159,12 @@ export async function runMsLearnSync(options: { maxModules?: number } = {}): Pro
     for (const module of modulesToProcess) {
       try {
         const category = mapToCategory(module.products ?? [], module.subjects ?? [], module.roles ?? []);
+
+        // Skip categories that are not relevant to Tier 1/2 helpdesk support
+        if (BLOCKED_MS_LEARN_CATEGORIES.has(category)) {
+          result.total = Math.max(0, result.total - 1);
+          continue;
+        }
         const tags = [
           ...(module.products ?? []).slice(0, 5),
           ...(module.roles ?? []).slice(0, 3),

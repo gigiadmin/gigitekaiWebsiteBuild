@@ -37,29 +37,66 @@ export const kbRouter = router({
       return article ?? null;
     }),
 
-  /** Search published KB articles by keyword */
+  /** Search published KB articles by keyword — multi-term relevance scoring */
   search: publicProcedure
-    .input(z.object({ query: z.string().min(1) }))
+    .input(z.object({ query: z.string().min(1), limit: z.number().int().min(1).max(50).default(20) }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-      const kw = `%${input.query}%`;
-      return db
+
+      // Split query into individual terms (ignore very short words)
+      const terms = input.query
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((t) => t.length >= 2)
+        .slice(0, 8); // cap at 8 terms
+
+      if (terms.length === 0) return [];
+
+      // Build OR conditions: any article matching ANY term in title/content/category/tags
+      const termConditions = terms.map((term) => {
+        const kw = `%${term}%`;
+        return or(
+          like(kbArticles.title, kw),
+          like(kbArticles.category, kw),
+          like(kbArticles.tags, kw),
+          like(kbArticles.content, kw)
+        );
+      });
+
+      const rows = await db
         .select()
         .from(kbArticles)
-        .where(
-          and(
-            eq(kbArticles.isPublished, 1),
+        .where(and(eq(kbArticles.isPublished, 1), or(...termConditions)))
+        .orderBy(desc(kbArticles.viewCount))
+        .limit(200); // fetch more, then re-rank in JS
 
-            or(
-              like(kbArticles.title, kw),
-              like(kbArticles.content, kw),
-              like(kbArticles.tags, kw)
-            )
-          )
-        )
-        .orderBy(desc(kbArticles.updatedAt))
-        .limit(10);
+      // Score each article: title match = 10pts, category/tags = 5pts, content = 1pt per term
+      const scored = rows.map((article) => {
+        let score = 0;
+        const titleLower = (article.title || "").toLowerCase();
+        const categoryLower = (article.category || "").toLowerCase();
+        const tagsLower = (article.tags || "").toLowerCase();
+        const contentLower = (article.content || "").toLowerCase();
+
+        for (const term of terms) {
+          if (titleLower.includes(term)) score += 10;
+          if (categoryLower.includes(term)) score += 5;
+          if (tagsLower.includes(term)) score += 5;
+          if (contentLower.includes(term)) score += 1;
+        }
+
+        // Bonus: exact full-query match in title
+        if (titleLower.includes(input.query.toLowerCase())) score += 20;
+
+        return { ...article, _score: score };
+      });
+
+      // Sort by score descending, then by viewCount
+      scored.sort((a, b) => b._score - a._score || (b.viewCount ?? 0) - (a.viewCount ?? 0));
+
+      // Strip internal _score field and return top N
+      return scored.slice(0, input.limit).map(({ _score, ...article }) => article);
     }),
 
   /** Create a new KB article (admin only) */
