@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Lock, Printer, Mail, Zap, Wifi, Cloud, ArrowRight, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 
 const COMMON_ISSUES = [
   {
@@ -98,6 +100,7 @@ export default function PublicKB() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SiteNavBar2024 />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Animated background */}
@@ -182,6 +185,9 @@ export default function PublicKB() {
                   onClick={() => {
                     if (dbIssue?.articleId) {
                       navigate(`/kb/${dbIssue.articleId}`);
+                    } else {
+                      // Fallback: search for the issue title if no articleId is linked
+                      setActiveSearch(issue.title);
                     }
                   }}
                 >
