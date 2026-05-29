@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { kbArticles } from "../../drizzle/schema";
+import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
 import { eq, like, or, desc, and } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { seedKBArticles } from "../kb-seeder";
@@ -130,6 +130,18 @@ export const kbRouter = router({
       return { success: true };
     }),
 
+  /** Get top 6 common issues for KB landing page */
+  getCommonIssues: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const issues = await db
+      .select()
+      .from(kbCommonIssues)
+      .orderBy(kbCommonIssues.orderNum)
+      .limit(6);
+    return issues;
+  }),
+
   /** Seed all 50 KB articles (admin only, one-time) */
   seed: adminProcedure
     .mutation(async () => {
@@ -203,6 +215,21 @@ export const kbRouter = router({
         total: input.articles.length,
         errors: errors.length > 0 ? errors : undefined,
       };
+    }),
+
+  /** Get trending articles for KB landing page */
+  getTrendingArticles: publicProcedure
+    .input(z.object({ limit: z.number().default(5) }).optional())
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const limit = input?.limit || 5;
+      return db
+        .select()
+        .from(kbArticles)
+        .where(eq(kbArticles.isPublished, 1))
+        .orderBy(desc(kbArticles.viewCount))
+        .limit(limit);
     }),
 
   /** Email a KB article to a recipient */

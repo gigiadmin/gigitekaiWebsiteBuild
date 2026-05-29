@@ -2,290 +2,300 @@ import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  Star,
-  Eye,
-  MessageCircle,
-  ChevronRight,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Loader2, Search, Lock, Printer, Mail, Zap, Wifi, Cloud, ArrowRight, TrendingUp } from "lucide-react";
+import { useLocation } from "wouter";
+
+const COMMON_ISSUES = [
+  {
+    id: 1,
+    title: "Password Lockout",
+    description: "Account locked or can't reset password",
+    icon: Lock,
+    color: "from-red-500/20 to-red-600/20",
+    borderColor: "border-red-500/30",
+  },
+  {
+    id: 2,
+    title: "Can't Print",
+    description: "Printer not responding or offline",
+    icon: Printer,
+    color: "from-orange-500/20 to-orange-600/20",
+    borderColor: "border-orange-500/30",
+  },
+  {
+    id: 3,
+    title: "Email Not Sending",
+    description: "Emails stuck in outbox or failing",
+    icon: Mail,
+    color: "from-yellow-500/20 to-yellow-600/20",
+    borderColor: "border-yellow-500/30",
+  },
+  {
+    id: 4,
+    title: "Windows Crashes",
+    description: "System crashes or blue screen errors",
+    icon: Zap,
+    color: "from-purple-500/20 to-purple-600/20",
+    borderColor: "border-purple-500/30",
+  },
+  {
+    id: 5,
+    title: "Network Issues",
+    description: "No internet or slow connection",
+    icon: Wifi,
+    color: "from-blue-500/20 to-blue-600/20",
+    borderColor: "border-blue-500/30",
+  },
+  {
+    id: 6,
+    title: "Device Sync",
+    description: "Files not syncing across devices",
+    icon: Cloud,
+    color: "from-cyan-500/20 to-cyan-600/20",
+    borderColor: "border-cyan-500/30",
+  },
+];
 
 export default function PublicKB() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"views" | "rating" | "newest">("views");
-  const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
+  const [, navigate] = useLocation();
 
-  // Fetch all published KB articles (public procedure)
-  const { data: articles, isLoading: articlesLoading } = trpc.kb.list.useQuery({});
+  // Fetch common issues from database
+  const { data: dbCommonIssues = [], isLoading: isLoadingIssues } = trpc.kb.getCommonIssues.useQuery();
 
-  // Fetch article detail when selected
-  const { data: articleDetail, isLoading: detailLoading } = trpc.kb.get.useQuery(
-    { id: selectedArticle! },
-    { enabled: !!selectedArticle }
-  );
+  // Fetch trending articles
+  const { data: trendingArticles = [], isLoading: isLoadingTrending } = trpc.kb.getTrendingArticles.useQuery({ limit: 3 });
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    if (!articles) return [];
-    const cats = new Set(articles.map((a) => a.category));
-    return Array.from(cats).sort();
-  }, [articles]);
+  // Fetch all articles for search
+  const { data: allArticles = [] } = trpc.kb.list.useQuery({});
 
-  // Filter and sort articles
+  // Search mutation
+  const searchMutation = trpc.kb.search.useMutation({
+    onSuccess: (results) => {
+      if (results.length > 0) {
+        navigate(`/kb/${results[0].id}`);
+      }
+    },
+  });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      searchMutation.mutate({ query: searchQuery, limit: 20 });
+    }
+  };
+
+  // Filter articles by search
   const filteredArticles = useMemo(() => {
-    if (!articles) return [];
-
-    let filtered = articles.filter((a) => a.isPublished);
-
-    // Filter by search query
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return allArticles.filter(
+      (a) =>
+        a.isPublished &&
+        (a.title.toLowerCase().includes(q) ||
           a.content.toLowerCase().includes(q) ||
-          (a.tags && a.tags.toLowerCase().includes(q))
-      );
-    }
-
-    // Filter by category
-    if (selectedCategory) {
-      filtered = filtered.filter((a) => a.category === selectedCategory);
-    }
-
-    // Sort
-    switch (sortBy) {
-      case "rating":
-        filtered.sort((a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0));
-        break;
-      case "newest":
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-      case "views":
-      default:
-        filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-    }
-
-    return filtered;
-  }, [articles, searchQuery, selectedCategory, sortBy]);
-
-  if (selectedArticle && articleDetail) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          {/* Back button */}
-          <Button
-            variant="ghost"
-            onClick={() => setSelectedArticle(null)}
-            className="mb-6"
-          >
-            ← Back to Knowledge Base
-          </Button>
-
-          {/* Article content */}
-          <article className="bg-card rounded-lg p-8 border border-border">
-            <h1 className="text-4xl font-bold mb-4 text-foreground">{articleDetail.title}</h1>
-
-            {/* Metadata */}
-            <div className="flex flex-wrap gap-6 mb-8 pb-8 border-b border-border text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                <span>{articleDetail.viewCount || 0} views</span>
-              </div>
-              {articleDetail.averageRating && (
-                <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span>{articleDetail.averageRating} ({articleDetail.ratingCount || 0} ratings)</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-4 h-4" />
-                <span>{articleDetail.commentCount || 0} comments</span>
-              </div>
-              <span className="text-xs">
-                Updated {new Date(articleDetail.updatedAt).toLocaleDateString()}
-              </span>
-            </div>
-
-            {/* Category and tags */}
-            <div className="mb-8">
-              <span className="inline-block bg-accent/10 text-accent px-3 py-1 rounded-full text-sm mr-2">
-                {articleDetail.category}
-              </span>
-              {articleDetail.tags && (
-                <>
-                  {articleDetail.tags.split(",").map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-block bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm mr-2"
-                    >
-                      {tag.trim()}
-                    </span>
-                  ))}
-                </>
-              )}
-            </div>
-
-            {/* Article body */}
-            <div className="prose prose-invert max-w-none mb-8">
-              <div
-                className="text-foreground leading-relaxed whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: articleDetail.content }}
-              />
-            </div>
-
-            {/* Helpful feedback */}
-            <div className="mt-12 pt-8 border-t border-border">
-              <h3 className="text-lg font-semibold mb-4">Was this helpful?</h3>
-              <div className="flex gap-2">
-                <Button variant="outline">👍 Yes</Button>
-                <Button variant="outline">👎 No</Button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
+          (a.tags && a.tags.toLowerCase().includes(q)))
     );
-  }
+  }, [searchQuery, allArticles]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-accent/10 to-accent/5 border-b border-border py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4 text-foreground">Knowledge Base</h1>
-          <p className="text-lg text-muted-foreground">
-            Find answers to common questions and troubleshooting guides
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 py-20">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+              Knowledge Base
+            </h1>
+            <p className="text-xl text-slate-300 mb-8">
+              Find instant solutions to common IT issues. Explore our comprehensive library of articles, guides, and troubleshooting steps.
+            </p>
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="relative">
+              <div className="relative flex items-center">
+                <Input
+                  type="text"
+                  placeholder="Search articles, guides, troubleshooting..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-6 py-4 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 text-lg"
+                />
+                <Button
+                  type="submit"
+                  disabled={searchMutation.isPending}
+                  className="absolute right-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md px-4 py-2"
+                >
+                  {searchMutation.isPending ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Search className="w-5 h-5" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Search Results Dropdown */}
+              {filteredArticles.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-cyan-500/30 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                  {filteredArticles.slice(0, 5).map((article) => (
+                    <div
+                      key={article.id}
+                      className="px-4 py-3 border-b border-slate-700 hover:bg-slate-700/50 cursor-pointer transition-colors"
+                      onClick={() => navigate(`/kb/${article.id}`)}
+                    >
+                      <p className="text-white font-medium text-sm">{article.title}</p>
+                      <p className="text-slate-400 text-xs mt-1">{article.category}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Search and filters */}
+      {/* Top 6 Common Issues Section */}
+      <div className="container mx-auto px-4 py-20">
         <div className="mb-12">
-          {/* Search bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-12 text-base"
-            />
-          </div>
-
-          {/* Category and sort filters */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                Category
-              </label>
-              <select
-                value={selectedCategory || ""}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="px-4 py-2 bg-card border border-border rounded-lg text-foreground"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                Sort by
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-2 bg-card border border-border rounded-lg text-foreground"
-              >
-                <option value="views">Most Viewed</option>
-                <option value="rating">Highest Rated</option>
-                <option value="newest">Newest</option>
-              </select>
-            </div>
-          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Top Issues</h2>
+          <p className="text-slate-300">Quick solutions to the most common problems our users face</p>
         </div>
 
-        {/* Results count */}
-        <div className="mb-6 text-sm text-muted-foreground">
-          {articlesLoading ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Loading articles...
-            </div>
-          ) : (
-            <span>
-              Showing {filteredArticles.length} of {articles?.length || 0} articles
-            </span>
-          )}
-        </div>
-
-        {/* Articles grid */}
-        {articlesLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-accent" />
-          </div>
-        ) : filteredArticles.length === 0 ? (
-          <div className="bg-card border border-border rounded-lg p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No articles found</h3>
-            <p className="text-muted-foreground">
-              Try adjusting your search or category filters
-            </p>
+        {isLoadingIssues ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <button
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {COMMON_ISSUES.map((issue) => {
+              const IconComponent = issue.icon;
+              const dbIssue = dbCommonIssues.find((i) => i.id === issue.id);
+
+              return (
+                <div
+                  key={issue.id}
+                  className={`group relative p-6 rounded-lg border ${issue.borderColor} bg-gradient-to-br ${issue.color} backdrop-blur-sm hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/20`}
+                  onClick={() => {
+                    if (dbIssue?.articleId) {
+                      navigate(`/kb/${dbIssue.articleId}`);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 bg-slate-800/50 rounded-lg group-hover:bg-slate-700/50 transition-colors">
+                      <IconComponent className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transform group-hover:translate-x-1 transition-all" />
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                    {issue.title}
+                  </h3>
+                  <p className="text-sm text-slate-300 mb-4">
+                    {issue.description}
+                  </p>
+
+                  <div className="pt-4 border-t border-slate-700/50">
+                    <span className="text-xs text-cyan-400 font-medium">View Solution →</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Trending Articles Section */}
+      <div className="container mx-auto px-4 py-20 border-t border-slate-800">
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-4">
+            <TrendingUp className="w-6 h-6 text-cyan-400" />
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Trending Articles</h2>
+          </div>
+          <p className="text-slate-300">Most viewed and helpful articles this week</p>
+        </div>
+
+        {isLoadingTrending ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {trendingArticles.map((article) => (
+              <div
                 key={article.id}
-                onClick={() => setSelectedArticle(article.id)}
-                className="bg-card border border-border rounded-lg p-6 hover:border-accent transition-colors text-left group"
+                className="p-6 rounded-lg bg-slate-800/50 border border-slate-700/50 hover:border-cyan-500/30 transition-all duration-300 cursor-pointer group"
+                onClick={() => navigate(`/kb/${article.id}`)}
               >
-                {/* Category badge */}
-                <div className="mb-3">
-                  <span className="inline-block bg-accent/10 text-accent px-2 py-1 rounded text-xs font-medium">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="px-3 py-1 text-xs font-medium text-cyan-300 bg-cyan-500/10 rounded-full">
                     {article.category}
                   </span>
+                  <span className="text-xs text-slate-400">{article.viewCount || 0} views</span>
                 </div>
 
-                {/* Title */}
-                <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-accent transition-colors line-clamp-2">
+                <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-cyan-300 transition-colors line-clamp-2">
                   {article.title}
                 </h3>
 
-                {/* Excerpt */}
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {article.content.substring(0, 120)}...
+                <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+                  {article.content?.substring(0, 100)}...
                 </p>
 
-                {/* Stats */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                  <div className="flex gap-3">
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {article.viewCount || 0}
+                {article.averageRating && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-4 h-4 rounded-full ${
+                            i < Math.round(article.averageRating || 0)
+                              ? "bg-cyan-500"
+                              : "bg-slate-700"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {article.averageRating?.toFixed(1)} ({article.ratingCount} ratings)
                     </span>
-                    {article.averageRating && (
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        {article.averageRating}
-                      </span>
-                    )}
                   </div>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </button>
+                )}
+              </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* CTA Section */}
+      <div className="container mx-auto px-4 py-20 border-t border-slate-800">
+        <div className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/30 rounded-lg p-12 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Can't find what you're looking for?</h2>
+          <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+            Our support team is ready to help. Create a ticket or contact us directly for personalized assistance.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg font-semibold"
+              onClick={() => navigate("/support")}
+            >
+              Create Support Ticket
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-3 rounded-lg font-semibold"
+              onClick={() => navigate("/contact")}
+            >
+              Contact Support
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

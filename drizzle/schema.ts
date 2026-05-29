@@ -1967,3 +1967,19 @@ export const ticketAttachments = mysqlTable("ticketAttachments", {
 
 export type TicketAttachment = typeof ticketAttachments.$inferSelect;
 export type InsertTicketAttachment = typeof ticketAttachments.$inferInsert;
+
+
+
+
+export const kbCommonIssues = mysqlTable("kbCommonIssues", {
+	id: int().autoincrement().notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: varchar({ length: 500 }),
+	icon: varchar({ length: 50 }),
+	articleId: int().references(() => kbArticles.id, { onDelete: "set null" }),
+	orderNum: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("kbCommonIssues_orderNum").on(table.orderNum),
+]);
