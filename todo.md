@@ -580,3 +580,12 @@
   - [ ] User acceptance testing
   - [ ] Deploy to production
   - [ ] Monitor performance and user engagement
+
+- [ ] Fix Admin OAuth login JSON parse error on production (Unexpected token '<', '<html>...' is not valid JSON)
+- [ ] Fix Voicemail AI analysis: LLM returning markdown-wrapped JSON causing parse failure and failed callLogs insert
+
+---
+
+## Dev Server Stability
+
+- [x] **Dual-React Crash Fix** — FIXED: Proxy between browser and Vite dev server was caching stale module responses. When Vite regenerated pre-bundled deps with new hashes, the proxy served old cached source files containing stale import URLs, causing two React instances to load simultaneously (`Cannot read properties of null (reading 'useState')`). Fix: PRE-middleware in vite.config.ts monkey-patches `res.end()` to rewrite all `/src/...` import paths with a unique-per-session `?cb=SESSION_ID` parameter, ensuring the proxy always fetches fresh responses.

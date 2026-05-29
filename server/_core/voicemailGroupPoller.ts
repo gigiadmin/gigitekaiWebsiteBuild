@@ -188,12 +188,34 @@ Priority guide:
   try {
     const response = await invokeLLM({
       messages: [
-        { role: "system", content: "You are a helpdesk ticket analyzer. Return only valid JSON." },
+        { role: "system", content: "You are a helpdesk ticket analyzer. Always respond with valid JSON only, no markdown." },
         { role: "user", content: prompt },
       ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "voicemail_analysis",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              summary: { type: "string" },
+              priority: { type: "string", enum: ["low", "medium", "high", "critical"] },
+              category: { type: "string" },
+              callerIntent: { type: "string" },
+              confidence: { type: "number" },
+            },
+            required: ["title", "summary", "priority", "category", "callerIntent", "confidence"],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
-    const text = (response.choices?.[0]?.message?.content as string) || "";
+    let text = (response.choices?.[0]?.message?.content as string) || "";
+    // Strip markdown code fences if LLM wraps JSON in ```json...```
+    text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
     const json = JSON.parse(text);
     return {
       title: json.title || "Voicemail",
@@ -319,6 +341,8 @@ async function processVoicemail(
 
     // Step 5: Create call log entry
     const startTime = new Date(receivedAt);
+    // TiDB requires MySQL-format timestamps: 'YYYY-MM-DD HH:MM:SS' not ISO strings
+    const toMysqlTs = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
     const [callLogResult] = await db.insert(callLogs).values({
       graphCallId,
       callerNumber,
@@ -327,8 +351,8 @@ async function processVoicemail(
       calleeUpn: "voicemail@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,
       direction: "inbound",
-      startedAt: startTime.toISOString(),
-      endedAt: startTime.toISOString(),
+      startedAt: toMysqlTs(startTime),
+      endedAt: toMysqlTs(startTime),
       durationSeconds: 0,
       hasTranscript: transcript ? 1 : 0,
       transcriptionStatus: transcript ? "done" : "failed",

@@ -1,3 +1,4 @@
+// tRPC React client — imports from pre-bundled @trpc/react-query
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "../../../server/routers";
 

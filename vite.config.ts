@@ -474,7 +474,92 @@ function vitePluginBootstrapFallback(): Plugin {
   };
 }
 
+/**
+ * Prevents the Manus proxy from caching stale pre-bundled dependency files
+ * AND rewrites source file imports to include a cache-busting query parameter.
+ * 
+ * Problem: The proxy between browser and Vite dev server caches module responses.
+ * When Vite regenerates deps with new hashes, the proxy serves old cached versions
+ * causing mismatched React instances → 'Cannot read properties of null (useState)' crash.
+ * 
+ * Solution: This PRE-middleware monkey-patches res.end() BEFORE Vite's
+ * transformMiddleware processes the request. When Vite calls res.end(body),
+ * our patched version rewrites /src/... import paths to include ?cb=SESSION_ID.
+ * The proxy has never seen these URLs, so it fetches fresh from the server.
+ */
+function vitePluginNoCacheNodeModules(): Plugin {
+  const SESSION_ID = Date.now().toString(36);
+  
+  return {
+    name: 'vite-plugin-no-cache-all',
+    enforce: 'pre',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Set no-cache headers (proxy may ignore these for already-cached URLs)
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        const url = req.url || '';
+        // Only rewrite source file responses
+        const shouldRewrite = (
+          (url.startsWith('/src/') || (url.includes('/shared/') && !url.includes('node_modules'))) &&
+          url.match(/\.(tsx?|jsx?|mjs)(\?|$)/)
+        );
+        
+        if (!shouldRewrite) return next();
+        
+        // Monkey-patch res.end to intercept the response body
+        const originalEnd = res.end;
+        
+        res.end = function(this: any, chunk?: any, encoding?: any, callback?: any) {
+          // Get the response body
+          let body = '';
+          if (typeof chunk === 'string') {
+            body = chunk;
+          } else if (Buffer.isBuffer(chunk)) {
+            body = chunk.toString('utf-8');
+          }
+          
+          if (body && body.includes('from ')) {
+            // Rewrite /src/... imports to include cache-bust param
+            const rewritten = body.replace(
+              /(from\s*["'])(\/src\/[^"'?\s]+)(["'])/g,
+              (match: string, prefix: string, importPath: string, suffix: string) => {
+                return `${prefix}${importPath}?cb=${SESSION_ID}${suffix}`;
+              }
+            ).replace(
+              /(from\s*["'])(\/\@fs\/[^"'?\s]*\/shared\/[^"'?\s]+)(["'])/g,
+              (match: string, prefix: string, importPath: string, suffix: string) => {
+                if (importPath.includes('node_modules')) return match;
+                return `${prefix}${importPath}?cb=${SESSION_ID}${suffix}`;
+              }
+            );
+            
+            // Update content-length and send rewritten body
+            const buf = Buffer.from(rewritten, 'utf-8');
+            res.setHeader('Content-Length', buf.length);
+            return originalEnd.call(this, buf, 'utf-8', callback);
+          }
+          
+          // Pass through unchanged
+          return originalEnd.call(this, chunk, encoding, callback);
+        } as any;
+        
+        next();
+      });
+    },
+  };
+}
+
+// vitePluginCacheBustImports is now merged into vitePluginNoCacheNodeModules above
+function vitePluginCacheBustImports(): Plugin {
+  return { name: 'vite-plugin-cache-bust-imports-noop' };
+}
+
 const plugins = [
+  vitePluginNoCacheNodeModules(),
+  vitePluginCacheBustImports(),
   react(),
   tailwindcss(),
   jsxLocPlugin(),
@@ -521,17 +606,12 @@ export default defineConfig({
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   optimizeDeps: {
-    // Force Vite to always re-bundle deps so React is never duplicated across chunks.
-    // Without this, clearing node_modules/.vite can leave the browser with stale
-    // pre-bundled chunks that use a different React instance than the main bundle.
-    force: true,
-    include: ["react", "react-dom", "react-dom/client"],
-    // CRITICAL: Exclude @trpc/react-query and @tanstack/react-query from pre-bundling.
-    // When pre-bundled, Vite wraps them in a CJS chunk with their own React copy.
-    // If that chunk gets a different browser hash than react-dom/client, two React
-    // instances exist → 'Cannot read properties of null (reading useState)' crash.
-    // Excluding forces native ESM imports → always same React instance, no hash mismatch.
-    exclude: ["@trpc/react-query", "@tanstack/react-query", "@tanstack/query-core"],
+    // Let Vite 7 handle dependency discovery and pre-bundling automatically.
+    // DO NOT add force:true or explicit include lists — Vite 7 uses per-file content hashes
+    // for ?v= cache busting, and explicit includes can cause hash inconsistencies where
+    // the same shared chunk (e.g., chunk-MO2SMAW5.js containing React) gets different
+    // ?v= hashes when referenced from different pre-bundled files, causing the browser
+    // to load it as two separate ES modules → two React instances → useState crash.
   },
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
