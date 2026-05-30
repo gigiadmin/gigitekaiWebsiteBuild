@@ -125,6 +125,7 @@ const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
+const InvestorPortal = lazy(() => import("./pages/InvestorPortal"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -171,7 +172,8 @@ function Router() {
       <main id="main-content" className="skip-target">
         <Switch>
           {/* ── Public ── */}
-          <Route path={"/"} component={Home} />
+          <Route path={"/investor-portal"} component={InvestorPortal} />
+          <Route path={""} component={Home} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/web-pricing"} component={WebPricingLandingPage} />

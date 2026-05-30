@@ -137,7 +137,8 @@ export const kbRouter = router({
         if (fullQueryMatch > 70) score += 100; // Strong bonus for full query match
 
         // Recency bonus (articles updated recently rank slightly higher)
-        const daysSinceUpdate = (Date.now() - (article.updatedAt?.getTime() ?? 0)) / (1000 * 60 * 60 * 24);
+        const updatedAtTime = article.updatedAt ? new Date(article.updatedAt).getTime() : 0;
+        const daysSinceUpdate = (Date.now() - updatedAtTime) / (1000 * 60 * 60 * 24);
         const recencyBonus = Math.max(0, 20 - Math.min(daysSinceUpdate, 20)); // 0-20 bonus
         score += recencyBonus;
 

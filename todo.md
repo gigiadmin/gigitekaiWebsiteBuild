@@ -631,3 +631,51 @@
   - [ ] Email report sent to user + support@gigitekai.com after submission
 
 - [x] **Rebuilt compliance scorecard with Fortune 500 quality** — Created professional HTML email report generator with executive summary, scoring methodology (0-100 scale with risk bands), compliance framework mapping (NIST 800-53, ISO 27001, SOC 2, HIPAA, PCI-DSS, CMMC), pass/fail control detail tables with remediation steps, and self-contained HTML styling. Wired emailDrip router to generate and send via Azure ACS (SendGrid fallback). Updated ComplianceScorecard component to calculate individual category scores and pass all data to mutation. Fixed TypeScript errors in support.ts and tsconfig.json (downlevelIteration, target ES2015).
+
+
+---
+
+## INVESTOR PORTAL BUILD (May 30, 2026)
+
+### Phase 1: Core Portal Structure & Defensibility Section
+- [x] Create /investor-portal route with invite-only access (email whitelist)
+- [x] Build InvestorPortal.tsx main component with navigation
+- [x] Add Defensibility section (proprietary orchestrator explanation)
+- [x] Add De-risking section (Phase 1-3 milestones with funding impact)
+- [x] Add Due Diligence section (Data Room, Performance Metrics, AI Insights)
+- [x] Test Phase 1 portal on dev server
+
+### Phase 2: Interactive Components
+- [x] Build Performance Metrics Dashboard (LTV:CAC, burn rate, pipeline KPIs)
+- [x] Create Data Room component (password-protected investor documents)
+- [x] Build AI Insights blog section (200-word thought leadership articles)
+- [x] Add Financial Projections Chart (interactive 3-year revenue forecast)
+- [x] Test Phase 2 components
+
+### Phase 3: Agent Demo & Newsletter Integration
+- [ ] Pull AI agent demo from main gigitekai.com site
+- [ ] Integrate agent demo into portal
+- [ ] Build investor newsletter archive section
+- [ ] Create newsletter subscription form
+- [ ] Test Phase 3 integration
+
+### Phase 4: SEO & Mobile Optimization
+- [ ] Add semantic SEO keywords ("agentic orchestration," "compliance-ready infrastructure")
+- [ ] Implement schema markup for investor relations
+- [ ] Test mobile-first responsiveness (data room, charts, metrics)
+- [ ] Verify all interactive elements work on mobile
+- [ ] Test Phase 4 optimization
+
+### Phase 5: Engagement Tracking & Analytics
+- [ ] Research Visible or Foundersuite integration options
+- [ ] Implement engagement tracking (document views, time spent)
+- [ ] Add investor analytics dashboard (admin-only)
+- [ ] Configure email tracking for newsletters
+- [ ] Test Phase 5 tracking
+
+### Phase 6: Final Testing & Deployment
+- [ ] End-to-end testing of all portal features
+- [ ] Security audit (email whitelist, data room access control)
+- [ ] Performance testing (load times, chart rendering)
+- [ ] Browser compatibility testing
+- [ ] Deploy to production and test on gigitekai.com
