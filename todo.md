@@ -138,6 +138,8 @@
 
 - [x] **Fixed scorecard email delivery** — Scorecard submissions were not sending emails. Updated emailDrip router to use Azure Communication Services (ACS) as primary email provider with SendGrid as fallback. Wired ComplianceScorecard component to call emailDrip.sendDripSequence mutation. Scorecard now sends 3-email drip sequence: (1) personalized roadmap immediately, (2) case study after 2 days, (3) Switch Program offer after 5 days. Installed @azure/communication-email package.
 
+- [x] **Add scoring legend to compliance scorecard** — Added clear 1-5 scale legend above questions with color-coded buttons and hover tooltips explaining each score (1=Not Implemented, 5=Optimized). Visual indicators help users understand the rating scale before answering.
+
 ---
 
 ## NOTES
