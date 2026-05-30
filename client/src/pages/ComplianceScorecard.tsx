@@ -123,8 +123,11 @@ export default function ComplianceScorecard() {
       setCompanyName("");
     },
     onError: (error) => {
+      console.error("[Scorecard] Mutation error object:", error);
+      console.error("[Scorecard] Error message:", error.message);
+      console.error("[Scorecard] Error data:", error.data);
+      console.error("[Scorecard] Error shape:", Object.keys(error));
       toast.error(error.message || "Failed to submit scorecard. Please try again.");
-      console.error("[Scorecard] Submit error:", error);
     },
   });
 
