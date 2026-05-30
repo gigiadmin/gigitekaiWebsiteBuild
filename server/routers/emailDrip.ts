@@ -9,6 +9,7 @@ import { z } from "zod";
 import { publicProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
+import { generateComplianceScorecardReport } from "../_core/complianceScorecardReportGenerator";
 
 // Email templates
 const EMAIL_TEMPLATES = {
@@ -74,14 +75,21 @@ const EMAIL_TEMPLATES = {
 };
 
 export const emailDripRouter = {
-  // Send email drip sequence for scorecard submission
+  // Send email drip sequence for scorecard submission with HTML report
   sendDripSequence: publicProcedure
     .input(
       z.object({
         email: z.string().email(),
-        name: z.string(),
-        score: z.number().min(0).max(100),
-        scoreBand: z.enum(["Critical", "At Risk", "Good", "Excellent"]),
+        firstName: z.string(),
+        lastName: z.string(),
+        companyName: z.string(),
+        emailSecurityScore: z.number().min(0).max(100),
+        endpointProtectionScore: z.number().min(0).max(100),
+        backupRecoveryScore: z.number().min(0).max(100),
+        identityManagementScore: z.number().min(0).max(100),
+        complianceScore: z.number().min(0).max(100),
+        overallScore: z.number().min(0).max(100),
+        riskLevel: z.string(),
       })
     )
     .mutation(async ({ input }) => {
@@ -91,27 +99,75 @@ export const emailDripRouter = {
           throw new Error(`Invalid email address: ${input.email}`);
         }
 
-        // Email 1: Personalized roadmap (sent immediately)
-        const email1 = EMAIL_TEMPLATES.roadmap(input.name, input.score, input.scoreBand);
-        await sendEmail(input.email, email1.subject, email1.html);
+        // Generate the Fortune 500-quality HTML report
+        const htmlReport = generateComplianceScorecardReport({
+          firstName: input.firstName,
+          lastName: input.lastName,
+          email: input.email,
+          companyName: input.companyName,
+          emailSecurityScore: input.emailSecurityScore,
+          endpointProtectionScore: input.endpointProtectionScore,
+          backupRecoveryScore: input.backupRecoveryScore,
+          identityManagementScore: input.identityManagementScore,
+          complianceScore: input.complianceScore,
+          overallScore: input.overallScore,
+          riskLevel: input.riskLevel,
+        });
+
+        // Email 1: Send the detailed HTML report immediately
+        await sendEmail(
+          input.email,
+          `Your IT Compliance Scorecard Report - ${input.companyName}`,
+          htmlReport
+        );
 
         // Email 2: Case study (sent after 2 days)
-        scheduleEmail(input.email, EMAIL_TEMPLATES.caseStudy(input.name), 2 * 24 * 60 * 60 * 1000);
+        scheduleEmail(
+          input.email,
+          EMAIL_TEMPLATES.caseStudy(`${input.firstName} ${input.lastName}`),
+          2 * 24 * 60 * 60 * 1000
+        );
 
         // Email 3: Switch Program offer (sent after 5 days)
         scheduleEmail(
           input.email,
-          EMAIL_TEMPLATES.switchOffer(input.name, input.score),
+          EMAIL_TEMPLATES.switchOffer(`${input.firstName} ${input.lastName}`, input.overallScore),
           5 * 24 * 60 * 60 * 1000
         );
 
-        // Notify owner of new scorecard submission
+        // Send lead notification to support
+        await sendEmail(
+          "support@gigitekai.com",
+          `New Scorecard Submission: ${input.companyName} (${input.overallScore}/100)`,
+          `
+            <p>New compliance scorecard submitted:</p>
+            <ul>
+              <li><strong>Company:</strong> ${input.companyName}</li>
+              <li><strong>Contact:</strong> ${input.firstName} ${input.lastName}</li>
+              <li><strong>Email:</strong> ${input.email}</li>
+              <li><strong>Overall Score:</strong> ${input.overallScore}/100</li>
+              <li><strong>Risk Level:</strong> ${input.riskLevel}</li>
+              <li><strong>Email Security:</strong> ${input.emailSecurityScore}/100</li>
+              <li><strong>Endpoint Protection:</strong> ${input.endpointProtectionScore}/100</li>
+              <li><strong>Backup & Recovery:</strong> ${input.backupRecoveryScore}/100</li>
+              <li><strong>Identity Management:</strong> ${input.identityManagementScore}/100</li>
+              <li><strong>Compliance:</strong> ${input.complianceScore}/100</li>
+            </ul>
+            <p>Follow up with the prospect to discuss remediation services and the Switch Program.</p>
+          `
+        );
+
+        // Notify owner
         await notifyOwner({
-          title: `New Compliance Scorecard Submission: ${input.name}`,
-          content: `Score: ${input.score}/100 (${input.scoreBand})\nEmail: ${input.email}\nDrip sequence initiated.`,
+          title: `New Compliance Scorecard: ${input.companyName} (${input.overallScore}/100)`,
+          content: `Contact: ${input.firstName} ${input.lastName} (${input.email})\nRisk Level: ${input.riskLevel}\nDrip sequence initiated.`,
         });
 
-        return { success: true, message: "Email drip sequence started" };
+        return {
+          success: true,
+          message: "Scorecard report sent successfully",
+          reportGenerated: true,
+        };
       } catch (err) {
         console.error("[EmailDrip] Error:", err);
         return { success: false, error: String(err) };
@@ -129,7 +185,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   // Try Azure Communication Services first
   try {
     console.log(`[Email] Attempting Azure send to ${to}: ${subject}`);
-    
+
     if (!process.env.ACS_CONNECTION_STRING) {
       console.warn("[Email] ACS_CONNECTION_STRING not configured, skipping Azure");
       throw new Error("ACS not configured");
@@ -162,7 +218,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   // Fallback to SendGrid
   try {
     console.log(`[Email] Attempting SendGrid send to ${to}: ${subject}`);
-    
+
     if (!process.env.SENDGRID_API_KEY) {
       throw new Error("SENDGRID_API_KEY not configured");
     }

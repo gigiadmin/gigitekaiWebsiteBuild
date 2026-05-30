@@ -1254,8 +1254,21 @@ export const securityAssessments = mysqlTable("securityAssessments", {
 	complianceScore: int().notNull(),
 	overallScore: int().notNull(),
 	riskLevel: varchar({ length: 20 }).notNull(),
+	// Compliance framework coverage percentages
+	nistCoverage: int().default(0),
+	isoCoverage: int().default(0),
+	soc2Coverage: int().default(0),
+	hipaaCoverage: int().default(0),
+	pciDssCoverage: int().default(0),
+	cmmcCoverage: int().default(0),
+	// Detailed findings (JSON array of findings with control, status, remediation)
+	findings: json().default(sql`'[]'`),
+	// Executive summary
+	executiveSummary: text(),
+	// Report generation
 	pdfGenerated: tinyint().default(0),
 	pdfUrl: varchar({ length: 500 }),
+	htmlReportUrl: varchar({ length: 500 }),
 	leadCaptured: tinyint().default(1),
 	emailSent: tinyint().default(0),
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),

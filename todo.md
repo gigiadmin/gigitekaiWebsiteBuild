@@ -597,3 +597,16 @@
 ## Dev Server Stability
 
 - [x] **Dual-React Crash Fix** — FIXED: Proxy between browser and Vite dev server was caching stale module responses. When Vite regenerated pre-bundled deps with new hashes, the proxy served old cached source files containing stale import URLs, causing two React instances to load simultaneously (`Cannot read properties of null (reading 'useState')`). Fix: PRE-middleware in vite.config.ts monkey-patches `res.end()` to rewrite all `/src/...` import paths with a unique-per-session `?cb=SESSION_ID` parameter, ensuring the proxy always fetches fresh responses.
+
+
+## In Progress - May 29, 2026
+
+- [ ] **Rebuild IT Compliance Scorecard to Fortune 500 quality** — Current scorecard is too basic. Need:
+  - [ ] Scoring methodology explanation (what scores mean, how calculations work)
+  - [ ] Compliance framework mapping (NIST 800-53, ISO 27001, SOC 2, HIPAA, PCI-DSS, CMMC, CIS)
+  - [ ] Pass/Fail detail tables with CIS control references
+  - [ ] Executive summary section
+  - [ ] Framework coverage percentages with drill-down
+  - [ ] Remediation recommendations for each finding
+  - [ ] Professional HTML email report (self-contained, embedded assets, dark mode, sortable tables)
+  - [ ] Email report sent to user + support@gigitekai.com after submission
