@@ -1,75 +1,83 @@
 /*
   Email Drip Sequence for Compliance Scorecard Submissions
-  Sends 3-email automation: (1) Personalized roadmap, (2) Case study, (3) Switch Program offer
-  Primary: Azure Communication Services (ACS)
-  Fallback: SendGrid
+  Sends 3-email automation: (1) Personalized HTML report immediately, (2) Case study after 2 days, (3) Switch Program offer after 5 days
+  Uses the proven Microsoft Graph sendEmail infrastructure already powering the site.
 */
 
 import { z } from "zod";
 import { publicProcedure } from "../_core/trpc";
-import { invokeLLM } from "../_core/llm";
+import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
 import { generateComplianceScorecardReport } from "../_core/complianceScorecardReportGenerator";
 
 // Email templates
 const EMAIL_TEMPLATES = {
-  roadmap: (name: string, score: number, scoreBand: string) => ({
-    subject: `Your ${score}/100 IT Compliance Roadmap — GigitekAI`,
-    html: `
-      <h2>Hi ${name},</h2>
-      <p>Thank you for completing the IT Compliance Scorecard. Your score: <strong>${score}/100 (${scoreBand})</strong></p>
-      <p>Based on your assessment, here's your personalized 90-day roadmap:</p>
-      <ul>
-        <li><strong>Month 1:</strong> Backup & Recovery infrastructure (RTO ≤ 4 hours)</li>
-        <li><strong>Month 2:</strong> Cloud & Sovereign infrastructure (multi-region deployment)</li>
-        <li><strong>Month 3:</strong> Security & Compliance (Zero Trust, FIPA compliance)</li>
-      </ul>
-      <p>Each phase includes specific actions, tools, and success metrics.</p>
-      <p><a href="https://gigitekai.com/switch-program">Learn about our 60-Day Migration Guarantee →</a></p>
-      <p>Best,<br/>The GigitekAI Team</p>
-    `,
-  }),
   caseStudy: (name: string) => ({
     subject: `Case Study: How a Florida Bank Achieved 99.9% Uptime — GigitekAI`,
     html: `
-      <h2>Hi ${name},</h2>
-      <p>We wanted to share a recent success story that might resonate with your organization.</p>
-      <p><strong>The Challenge:</strong> A regional bank in Tampa was running on legacy infrastructure with 12-hour RTO and no disaster recovery plan. Hurricane season was approaching.</p>
-      <p><strong>The Solution:</strong> GigitekAI implemented:</p>
-      <ul>
-        <li>Multi-region cloud deployment (Miami + Atlanta)</li>
-        <li>Automated failover (< 15 min RTO)</li>
-        <li>FIPA compliance automation</li>
-        <li>AI-powered monitoring & incident response</li>
-      </ul>
-      <p><strong>The Result:</strong> 99.9% uptime SLA, 280 hours/month freed from manual ops, 3-month payback period.</p>
-      <p><a href="https://gigitekai.com/case-studies">Read the full case study →</a></p>
-      <p>Best,<br/>The GigitekAI Team</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0A0E1A; color: #e0e0e0;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #00D4FF; font-size: 24px;">GigitekAI</h1>
+        </div>
+        <h2 style="color: #00D4FF;">Hi ${name},</h2>
+        <p>We wanted to share a recent success story that might resonate with your organization.</p>
+        <div style="background: #1a2035; border-left: 4px solid #00D4FF; padding: 20px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #00D4FF; margin-top: 0;">The Challenge</h3>
+          <p>A regional bank in Tampa was running on legacy infrastructure with a 12-hour RTO and no disaster recovery plan. Hurricane season was approaching.</p>
+          <h3 style="color: #00D4FF;">The Solution</h3>
+          <ul>
+            <li>Multi-region cloud deployment (Miami + Atlanta)</li>
+            <li>Automated failover (&lt; 15 min RTO)</li>
+            <li>FIPA compliance automation</li>
+            <li>AI-powered monitoring &amp; incident response</li>
+          </ul>
+          <h3 style="color: #00D4FF;">The Result</h3>
+          <ul>
+            <li>✅ 99.9% uptime SLA achieved</li>
+            <li>✅ 280 hours/month freed from manual ops</li>
+            <li>✅ 3-month payback period</li>
+          </ul>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://gigitekai.com/case-studies" style="background: #00D4FF; color: #0A0E1A; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Read the Full Case Study →</a>
+        </div>
+        <p>Could your organization benefit from similar results? Let's talk.</p>
+        <p>Best,<br/>Harry Henry-Santiago<br/>CEO, GigitekAI<br/><a href="tel:6096764483" style="color: #00D4FF;">(609) 676-4483</a></p>
+      </div>
     `,
   }),
   switchOffer: (name: string, score: number) => ({
-    subject: `Your 60-Day Migration Guarantee — Lock in Your Compliance Score Improvement`,
+    subject: `Your 60-Day Compliance Guarantee — Based on Your ${score}/100 Score`,
     html: `
-      <h2>Hi ${name},</h2>
-      <p>Based on your compliance score of ${score}/100, we're offering a limited-time <strong>60-Day Migration Guarantee</strong>:</p>
-      <p><strong>We guarantee:</strong></p>
-      <ul>
-        <li>Your compliance score reaches 85+ within 60 days</li>
-        <li>All infrastructure, migration, and implementation included</li>
-        <li>24/7 AI-powered support during transition</li>
-        <li>Zero downtime migration</li>
-      </ul>
-      <p><strong>What's included:</strong></p>
-      <ul>
-        <li>Free IT audit & gap analysis</li>
-        <li>Personalized remediation roadmap</li>
-        <li>Cloud infrastructure provisioning</li>
-        <li>Security hardening & compliance automation</li>
-        <li>Staff training & documentation</li>
-      </ul>
-      <p><strong>Limited availability:</strong> Only 5 spots this month.</p>
-      <p><a href="https://gigitekai.com/switch-program#audit-form">Book Your Free Consultation →</a></p>
-      <p>Best,<br/>Harry Henry-Santiago<br/>CEO, GigitekAI</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0A0E1A; color: #e0e0e0;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #00D4FF; font-size: 24px;">GigitekAI</h1>
+        </div>
+        <h2 style="color: #00D4FF;">Hi ${name},</h2>
+        <p>Based on your compliance score of <strong style="color: #00D4FF;">${score}/100</strong>, we're offering a limited-time <strong>60-Day Migration Guarantee</strong>:</p>
+        <div style="background: #1a2035; border: 2px solid #00D4FF; padding: 20px; margin: 20px 0; border-radius: 8px;">
+          <h3 style="color: #00D4FF; margin-top: 0;">We Guarantee:</h3>
+          <ul>
+            <li>✅ Your compliance score reaches 85+ within 60 days</li>
+            <li>✅ All infrastructure, migration, and implementation included</li>
+            <li>✅ 24/7 AI-powered support during transition</li>
+            <li>✅ Zero downtime migration</li>
+          </ul>
+          <h3 style="color: #00D4FF;">What's Included:</h3>
+          <ul>
+            <li>Free IT audit &amp; gap analysis</li>
+            <li>Personalized remediation roadmap</li>
+            <li>Cloud infrastructure provisioning</li>
+            <li>Security hardening &amp; compliance automation</li>
+            <li>Staff training &amp; documentation</li>
+          </ul>
+          <p style="color: #ff6b6b; font-weight: bold;">⚡ Limited availability: Only 5 spots this month.</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://gigitekai.com/switch-program#audit-form" style="background: #00D4FF; color: #0A0E1A; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Book Your Free Consultation →</a>
+        </div>
+        <p>Best,<br/>Harry Henry-Santiago<br/>CEO, GigitekAI<br/><a href="tel:6096764483" style="color: #00D4FF;">(609) 676-4483</a></p>
+      </div>
     `,
   }),
 };
@@ -93,173 +101,101 @@ export const emailDripRouter = {
       })
     )
     .mutation(async ({ input }) => {
-      console.log("[EmailDrip] sendDripSequence mutation started");
-      try {
-        console.log("[EmailDrip] sendDripSequence called with input:", JSON.stringify(input, null, 2));
-        // Validate email
-        if (!input.email || !input.email.includes("@")) {
-          throw new Error(`Invalid email address: ${input.email}`);
-        }
+      console.log("[EmailDrip] sendDripSequence called for:", input.email);
 
-        // Generate the Fortune 500-quality HTML report
-        const htmlReport = generateComplianceScorecardReport({
-          firstName: input.firstName,
-          lastName: input.lastName,
-          email: input.email,
-          companyName: input.companyName,
-          emailSecurityScore: input.emailSecurityScore,
-          endpointProtectionScore: input.endpointProtectionScore,
-          backupRecoveryScore: input.backupRecoveryScore,
-          identityManagementScore: input.identityManagementScore,
-          complianceScore: input.complianceScore,
-          overallScore: input.overallScore,
-          riskLevel: input.riskLevel,
+      const fullName = `${input.firstName} ${input.lastName}`;
+
+      // Generate the Fortune 500-quality HTML report
+      const htmlReport = generateComplianceScorecardReport({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email,
+        companyName: input.companyName,
+        emailSecurityScore: input.emailSecurityScore,
+        endpointProtectionScore: input.endpointProtectionScore,
+        backupRecoveryScore: input.backupRecoveryScore,
+        identityManagementScore: input.identityManagementScore,
+        complianceScore: input.complianceScore,
+        overallScore: input.overallScore,
+        riskLevel: input.riskLevel,
+      });
+
+      // Email 1: Send the detailed HTML report immediately to the prospect
+      console.log("[EmailDrip] Sending report to:", input.email);
+      const reportSent = await sendEmail({
+        to: input.email,
+        subject: `Your IT Compliance Scorecard Report — ${input.companyName} (${input.overallScore}/100)`,
+        html: htmlReport,
+        fromName: "GigitekAI",
+      });
+      console.log("[EmailDrip] Report sent to prospect:", reportSent);
+
+      // Notify support team immediately
+      console.log("[EmailDrip] Sending lead notification to support@gigitekai.com");
+      const supportSent = await sendEmail({
+        to: "support@gigitekai.com",
+        subject: `🎯 New Scorecard Lead: ${input.companyName} scored ${input.overallScore}/100`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #00D4FF;">New Compliance Scorecard Submission</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Company:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${input.companyName}</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Contact:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${fullName}</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Email:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;"><a href="mailto:${input.email}">${input.email}</a></td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Overall Score:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333; color: ${input.overallScore >= 70 ? '#00D4FF' : '#ff6b6b'};">${input.overallScore}/100 (${input.riskLevel})</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Email Security:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${input.emailSecurityScore}/100</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Backup &amp; Recovery:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${input.backupRecoveryScore}/100</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Identity Management:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${input.identityManagementScore}/100</td></tr>
+              <tr><td style="padding: 8px; border-bottom: 1px solid #333;"><strong>Compliance:</strong></td><td style="padding: 8px; border-bottom: 1px solid #333;">${input.complianceScore}/100</td></tr>
+            </table>
+            <p style="margin-top: 20px;"><strong>Action:</strong> Follow up within 24 hours to discuss remediation services and the Switch Program.</p>
+          </div>
+        `,
+        fromName: "GigitekAI Scorecard",
+      });
+      console.log("[EmailDrip] Support notification sent:", supportSent);
+
+      // Schedule Email 2: Case study (2 days later)
+      setTimeout(() => {
+        const caseStudy = EMAIL_TEMPLATES.caseStudy(fullName);
+        sendEmail({
+          to: input.email,
+          subject: caseStudy.subject,
+          html: caseStudy.html,
+          fromName: "GigitekAI",
+        }).then((ok) => {
+          console.log(`[EmailDrip] Case study email sent to ${input.email}:`, ok);
+        }).catch((err) => {
+          console.error(`[EmailDrip] Case study email failed for ${input.email}:`, err);
         });
+      }, 2 * 24 * 60 * 60 * 1000);
 
-        // Email 1: Send the detailed HTML report immediately
-        await sendEmail(
-          input.email,
-          `Your IT Compliance Scorecard Report - ${input.companyName}`,
-          htmlReport
-        );
-
-        // Email 2: Case study (sent after 2 days)
-        scheduleEmail(
-          input.email,
-          EMAIL_TEMPLATES.caseStudy(`${input.firstName} ${input.lastName}`),
-          2 * 24 * 60 * 60 * 1000
-        );
-
-        // Email 3: Switch Program offer (sent after 5 days)
-        scheduleEmail(
-          input.email,
-          EMAIL_TEMPLATES.switchOffer(`${input.firstName} ${input.lastName}`, input.overallScore),
-          5 * 24 * 60 * 60 * 1000
-        );
-
-        // Send lead notification to support
-        await sendEmail(
-          "support@gigitekai.com",
-          `New Scorecard Submission: ${input.companyName} (${input.overallScore}/100)`,
-          `
-            <p>New compliance scorecard submitted:</p>
-            <ul>
-              <li><strong>Company:</strong> ${input.companyName}</li>
-              <li><strong>Contact:</strong> ${input.firstName} ${input.lastName}</li>
-              <li><strong>Email:</strong> ${input.email}</li>
-              <li><strong>Overall Score:</strong> ${input.overallScore}/100</li>
-              <li><strong>Risk Level:</strong> ${input.riskLevel}</li>
-              <li><strong>Email Security:</strong> ${input.emailSecurityScore}/100</li>
-              <li><strong>Endpoint Protection:</strong> ${input.endpointProtectionScore}/100</li>
-              <li><strong>Backup & Recovery:</strong> ${input.backupRecoveryScore}/100</li>
-              <li><strong>Identity Management:</strong> ${input.identityManagementScore}/100</li>
-              <li><strong>Compliance:</strong> ${input.complianceScore}/100</li>
-            </ul>
-            <p>Follow up with the prospect to discuss remediation services and the Switch Program.</p>
-          `
-        );
-
-        // Notify owner
-        await notifyOwner({
-          title: `New Compliance Scorecard: ${input.companyName} (${input.overallScore}/100)`,
-          content: `Contact: ${input.firstName} ${input.lastName} (${input.email})\nRisk Level: ${input.riskLevel}\nDrip sequence initiated.`,
+      // Schedule Email 3: Switch Program offer (5 days later)
+      setTimeout(() => {
+        const switchOffer = EMAIL_TEMPLATES.switchOffer(fullName, input.overallScore);
+        sendEmail({
+          to: input.email,
+          subject: switchOffer.subject,
+          html: switchOffer.html,
+          fromName: "GigitekAI",
+        }).then((ok) => {
+          console.log(`[EmailDrip] Switch offer email sent to ${input.email}:`, ok);
+        }).catch((err) => {
+          console.error(`[EmailDrip] Switch offer email failed for ${input.email}:`, err);
         });
+      }, 5 * 24 * 60 * 60 * 1000);
 
-        return {
-          success: true,
-          message: "Scorecard report sent successfully",
-          reportGenerated: true,
-        };
-      } catch (err) {
-        console.error("[EmailDrip] Error in sendDripSequence:", err);
-        console.error("[EmailDrip] Error stack:", err instanceof Error ? err.stack : 'No stack');
-        throw err; // Re-throw so tRPC properly reports the error
-      }
+      // Notify owner via Manus notification
+      await notifyOwner({
+        title: `New Compliance Scorecard: ${input.companyName} (${input.overallScore}/100)`,
+        content: `Contact: ${fullName} (${input.email})\nRisk Level: ${input.riskLevel}\nReport sent: ${reportSent}\nSupport notified: ${supportSent}`,
+      });
+
+      return {
+        success: true,
+        message: "Scorecard report sent successfully",
+        reportSent,
+        supportNotified: supportSent,
+      };
     }),
 };
-
-// Helper: Send email via Azure first, fallback to SendGrid
-async function sendEmail(to: string, subject: string, html: string) {
-  // Validate email
-  if (!to || !to.includes("@")) {
-    throw new Error(`Invalid email address: ${to}`);
-  }
-
-  // Try Azure Communication Services first
-  try {
-    console.log(`[Email] Attempting Azure send to ${to}: ${subject}`);
-
-    if (!process.env.ACS_CONNECTION_STRING) {
-      console.warn("[Email] ACS_CONNECTION_STRING not configured, skipping Azure");
-      throw new Error("ACS not configured");
-    }
-
-    // Use ACS to send email
-    const { EmailClient } = await import("@azure/communication-email");
-    const client = new EmailClient(process.env.ACS_CONNECTION_STRING);
-
-    const emailMessage = {
-      senderAddress: "support@gigitekai.com",
-      content: {
-        subject,
-        html,
-      },
-      recipients: {
-        to: [{ address: to }],
-      },
-    };
-
-    const poller = await client.beginSend(emailMessage);
-    const result = await poller.pollUntilDone();
-
-    console.log(`[Email] ✓ Sent via Azure to ${to}: ${subject} (ID: ${result.id})`);
-    return;
-  } catch (azureErr) {
-    console.warn(`[Email] Azure send failed, trying SendGrid:`, azureErr);
-  }
-
-  // Fallback to SendGrid
-  try {
-    console.log(`[Email] Attempting SendGrid send to ${to}: ${subject}`);
-
-    if (!process.env.SENDGRID_API_KEY) {
-      throw new Error("SENDGRID_API_KEY not configured");
-    }
-
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
-      },
-      body: JSON.stringify({
-        personalizations: [{ to: [{ email: to }] }],
-        from: { email: "support@gigitekai.com", name: "GigitekAI" },
-        subject,
-        content: [{ type: "text/html", value: html }],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`SendGrid error: ${response.statusText} - ${errorText}`);
-    }
-
-    console.log(`[Email] ✓ Sent via SendGrid to ${to}: ${subject}`);
-    return;
-  } catch (sendgridErr) {
-    console.error(`[Email] ✗ Both Azure and SendGrid failed:`, sendgridErr);
-    throw new Error(`Email delivery failed: ${sendgridErr}`);
-  }
-}
-
-// Helper: Schedule email for later (using persistent job queue in production)
-function scheduleEmail(to: string, email: { subject: string; html: string }, delayMs: number) {
-  // In production, use a job queue (Bull, RabbitMQ, Heartbeat, etc.)
-  // For now, use setTimeout (not recommended for production)
-  setTimeout(() => {
-    sendEmail(to, email.subject, email.html).catch((err) => {
-      console.error(`[Email] Scheduled email failed for ${to}:`, err);
-    });
-  }, delayMs);
-}
