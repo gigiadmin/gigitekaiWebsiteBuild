@@ -137,6 +137,7 @@ export default function ComplianceScorecard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[Scorecard] Form submitted");
     if (!email || !name || !companyName) {
       toast.error("Please fill in all required fields");
       return;
@@ -149,6 +150,7 @@ export default function ComplianceScorecard() {
 
     setIsLoading(true);
     try {
+      console.log("[Scorecard] Starting submission...");
       // Calculate individual category scores
       const categoryScores = AUDIT_CATEGORIES.reduce((acc, category) => {
         const categoryQuestionScores = category.questions.map((_, idx) => scores[`${category.id}-${idx}`] || 0);
@@ -164,6 +166,18 @@ export default function ComplianceScorecard() {
       const lastName = nameParts.slice(1).join(" ") || "User";
 
       // Call tRPC mutation with correct payload
+      console.log("[Scorecard] Calling tRPC mutation with payload:", {
+        email,
+        firstName,
+        lastName,
+        companyName,
+        emailSecurityScore: categoryScores["email-security"]?.percentage || 0,
+        backupRecoveryScore: categoryScores["backup-recovery"]?.percentage || 0,
+        identityManagementScore: categoryScores["identity-management"]?.percentage || 0,
+        complianceScore: categoryScores["disaster-recovery"]?.percentage || 0,
+        overallScore: percentage,
+        riskLevel: scoreBand?.label || "Unknown",
+      });
       await sendScorecard.mutateAsync({
         email,
         firstName,
@@ -179,9 +193,11 @@ export default function ComplianceScorecard() {
       });
     } catch (error) {
       console.error("[Scorecard] Error:", error);
+      console.error("[Scorecard] Error details:", JSON.stringify(error, null, 2));
       toast.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
+      console.log("[Scorecard] Submit finished");
     }
   };
 
