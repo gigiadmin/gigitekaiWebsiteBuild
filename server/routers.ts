@@ -163,6 +163,7 @@ export const appRouter = router({
   kb: kbRouter,
   kbFeedback: kbFeedbackRouter,
   contact: contactFormRouter,
+  emailDrip: emailDripRouter,
   cannedResponses: cannedResponsesRouter,
   social: socialRouter,
   copilot: copilotRouter,
@@ -773,7 +774,6 @@ export const appRouter = router({
         };
       }),
    }),
-  emailDrip: emailDripRouter,
   smsCampaign: smsCampaignRouter,
 })
 export type AppRouter = typeof appRouter;

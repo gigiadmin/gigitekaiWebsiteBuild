@@ -82,10 +82,10 @@ async function testPageLinks(name: string, path: string): Promise<TestResult[]> 
     const response = await axios.get(url, { timeout: 10000 });
     const $ = cheerio.load(response.data);
     const links = $("a[href]")
-      .map((_, el) => $(el).attr("href"))
+      .map((_: number, el: any) => $(el).attr("href"))
       .get();
 
-    const uniqueLinks = [...new Set(links)].filter(
+    const uniqueLinks = Array.from(new Set(links)).filter(
       (link) => link && !link.startsWith("#") && !link.startsWith("javascript:")
     );
 
@@ -190,7 +190,7 @@ async function testFormExists(test: FormTest): Promise<TestResult> {
 // Main test runner
 async function runTests() {
   console.log(`\n🚀 Starting QA Test Suite for ${BASE_URL}\n`);
-  console.log("=" .repeat(60));
+  console.log("=".repeat(60));
 
   // Test critical pages
   console.log("\n📄 Testing Page Loads...");

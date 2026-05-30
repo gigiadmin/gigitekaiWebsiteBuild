@@ -10,10 +10,12 @@ import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { ArrowRight, CheckCircle, AlertTriangle, TrendingUp, Download, Mail } from "lucide-react";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 const AUDIT_CATEGORIES = [
   {
-    id: "backup",
+    id: "backup-recovery",
     title: "Backup & Recovery Infrastructure",
     weight: 1,
     questions: [
@@ -25,7 +27,7 @@ const AUDIT_CATEGORIES = [
     ],
   },
   {
-    id: "drp",
+    id: "disaster-recovery",
     title: "Disaster Recovery Plan",
     weight: 1,
     questions: [
@@ -37,7 +39,7 @@ const AUDIT_CATEGORIES = [
     ],
   },
   {
-    id: "cloud",
+    id: "cloud-infrastructure",
     title: "Cloud & Sovereign Infrastructure",
     weight: 1.2,
     questions: [
@@ -49,7 +51,7 @@ const AUDIT_CATEGORIES = [
     ],
   },
   {
-    id: "security",
+    id: "email-security",
     title: "Email Security & Compliance",
     weight: 1,
     questions: [
@@ -61,7 +63,7 @@ const AUDIT_CATEGORIES = [
     ],
   },
   {
-    id: "identity",
+    id: "identity-management",
     title: "Identity & Access Management",
     weight: 1.1,
     questions: [
@@ -99,33 +101,55 @@ export default function ComplianceScorecard() {
 
   useSEO({
     title: "IT Compliance Scorecard | GigitekAI",
-    description: "Interactive audit tool to assess your IT resiliency, FIPA compliance, and disaster recovery readiness. Get personalized recommendations.",
-    path: "/compliance-scorecard",
+    description: "Assess your organization's IT resilience, FIPA compliance, and disaster recovery readiness.",
   });
 
   const totalQuestions = AUDIT_CATEGORIES.reduce((sum, cat) => sum + cat.questions.length, 0);
-  const answeredQuestions = Object.values(scores).filter((v) => v !== undefined).length;
-  const totalScore = Object.values(scores).reduce((sum, v) => (v !== undefined ? sum + v : sum), 0);
-  const maxScore = answeredQuestions * 5;
-  const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
-  const scoreBand = SCORE_BANDS.find((band) => percentage >= band.min && percentage <= band.max);
+  const answeredQuestions = Object.keys(scores).length;
+  const percentage = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
 
-  const handleScore = (categoryId: string, questionIdx: number, value: number) => {
-    setScores({
-      ...scores,
-      [`${categoryId}-${questionIdx}`]: value,
-    });
+  const scoreBand = SCORE_BANDS.find(
+    (band) => percentage >= band.min && percentage <= band.max
+  );
+
+  // tRPC mutation for sending scorecard
+  const sendScorecard = trpc.emailDrip.sendDripSequence.useMutation({
+    onSuccess: () => {
+      toast.success("Scorecard submitted! Your personalized report is being sent to your email.");
+      setSubmitted(true);
+      setScores({});
+      setEmail("");
+      setName("");
+      setCompanyName("");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit scorecard. Please try again.");
+      console.error("[Scorecard] Submit error:", error);
+    },
+  });
+
+  const handleScoreChange = (categoryId: string, questionIndex: number, value: number) => {
+    setScores((prev) => ({
+      ...prev,
+      [`${categoryId}-${questionIndex}`]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !name || !companyName) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (answeredQuestions === 0) {
+      toast.error("Please answer at least one question");
       return;
     }
 
     setIsLoading(true);
     try {
+      // Calculate individual category scores
       const categoryScores = AUDIT_CATEGORIES.reduce((acc, category) => {
         const categoryQuestionScores = category.questions.map((_, idx) => scores[`${category.id}-${idx}`] || 0);
         const categoryTotal = categoryQuestionScores.reduce((sum, v) => sum + v, 0);
@@ -134,35 +158,27 @@ export default function ComplianceScorecard() {
         return acc;
       }, {} as Record<string, { title: string; percentage: number }>);
 
-      const response = await fetch("/api/trpc/emailDrip.sendDripSequence", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          json: {
-            email,
-            firstName: name,
-            companyName,
-            overallScore: percentage,
-            riskLevel: scoreBand?.label || "Unknown",
-            categoryScores,
-            totalQuestions,
-            answeredQuestions,
-          },
-        }),
-      });
+      // Split name into first and last
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ") || "User";
 
-      if (response.ok) {
-        setSubmitted(true);
-        setScores({});
-        setEmail("");
-        setName("");
-        setCompanyName("");
-      } else {
-        alert("Failed to submit scorecard. Please try again.");
-      }
+      // Call tRPC mutation with correct payload
+      await sendScorecard.mutateAsync({
+        email,
+        firstName,
+        lastName,
+        companyName,
+        emailSecurityScore: categoryScores["email-security"]?.percentage || 0,
+        endpointProtectionScore: 0, // Not in current categories, set to 0
+        backupRecoveryScore: categoryScores["backup-recovery"]?.percentage || 0,
+        identityManagementScore: categoryScores["identity-management"]?.percentage || 0,
+        complianceScore: categoryScores["disaster-recovery"]?.percentage || 0,
+        overallScore: percentage,
+        riskLevel: scoreBand?.label || "Unknown",
+      });
     } catch (error) {
-      console.error("Error submitting scorecard:", error);
-      alert("An error occurred. Please try again.");
+      console.error("[Scorecard] Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -170,174 +186,119 @@ export default function ComplianceScorecard() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] text-white">
+      <div className="min-h-screen flex flex-col bg-background">
         <SiteNavBar2024 />
-        <section className="py-20 px-4">
+        <main className="flex-1 container py-12">
           <div className="max-w-2xl mx-auto text-center">
-            <CheckCircle size={64} className="mx-auto mb-6 text-[#22C55E]" />
-            <h2 className="text-4xl font-bold mb-4">Scorecard Submitted!</h2>
-            <p className="text-xl text-gray-300 mb-8">
-              Your personalized compliance report has been sent to <span className="text-[#00D4FF]">{email}</span>
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-6" />
+            <h1 className="text-3xl font-bold mb-4">Scorecard Submitted!</h1>
+            <p className="text-lg text-muted-foreground mb-6">
+              Your personalized IT compliance report has been sent to <strong>{email}</strong>
             </p>
-            <p className="text-gray-400 mb-8">
-              Check your email for your detailed roadmap, compliance framework analysis, and next steps.
+            <p className="text-muted-foreground mb-8">
+              Check your email for your detailed assessment, remediation roadmap, and exclusive Switch Program offer.
             </p>
-            <button
-              onClick={() => setSubmitted(false)}
-              className="px-8 py-3 bg-[#00D4FF] text-black font-bold rounded hover:bg-cyan-400 transition"
-            >
-              Take Another Assessment
-            </button>
+            <Link href="/">
+              <a className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600">
+                Back to Home <ArrowRight className="w-4 h-4" />
+              </a>
+            </Link>
           </div>
-        </section>
+        </main>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] text-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <SiteNavBar2024 />
-
-      {/* Hero Section */}
-      <section className="py-16 px-4 border-b border-white/10">
+      <main className="flex-1 container py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
+          {/* Header */}
+          <div className="mb-12">
             <Link href="/">
-              <a className="inline-flex items-center gap-2 text-[#00D4FF] hover:text-cyan-400 transition">
-                <ArrowRight size={18} className="rotate-180" />
-                <span>Back to Home</span>
+              <a className="inline-flex items-center gap-2 text-cyan-500 hover:text-cyan-400 mb-6">
+                <ArrowRight className="w-4 h-4 rotate-180" /> Back to Home
               </a>
             </Link>
+            <h1 className="text-4xl font-bold mb-4">
+              IT Compliance <span className="text-cyan-500">Scorecard</span>
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Assess your organization's IT resiliency, FIPA compliance, and disaster recovery readiness. Get personalized recommendations based on your score.
+            </p>
           </div>
-
-          <h1 className="text-5xl font-bold mb-4 text-white">
-            IT Compliance <span className="text-[#00D4FF]">Scorecard</span>
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Assess your organization's IT resiliency, FIPA compliance, and disaster recovery readiness. Get personalized recommendations based on your score.
-          </p>
 
           {/* Progress */}
-          <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-lg border border-white/10 w-fit">
-            <TrendingUp size={20} className="text-[#00D4FF]" />
-            <span className="text-lg">
-              <span className="text-[#00D4FF] font-bold">{answeredQuestions}</span> of{" "}
-              <span className="text-gray-400">{totalQuestions} questions answered</span>
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* Scorecard Form */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Current Score Display */}
-          {answeredQuestions > 0 && (
-            <div
-              className="mb-12 p-8 rounded-lg border border-white/10"
-              style={{ backgroundColor: scoreBand?.bgColor }}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-gray-300 mb-2">Your Current Score</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-6xl font-bold" style={{ color: scoreBand?.color }}>
-                      {percentage}
-                    </span>
-                    <span className="text-2xl text-gray-400">/100</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-400 mb-2">Risk Level</p>
-                  <p
-                    className="text-2xl font-bold"
-                    style={{ color: scoreBand?.color }}
-                  >
-                    {scoreBand?.label}
-                  </p>
-                  {scoreBand?.label === "Critical" && (
-                    <p className="text-sm text-red-400 mt-2">Vulnerable; immediate intervention</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mt-6 bg-white/10 rounded-full h-2 overflow-hidden">
-                <div
-                  className="h-full transition-all duration-300"
-                  style={{ width: `${percentage}%`, backgroundColor: scoreBand?.color }}
-                />
-              </div>
+          <div className="bg-card rounded-lg p-6 mb-8 border border-border">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">Progress</h3>
+              <span className="text-2xl font-bold text-cyan-500">{percentage}%</span>
             </div>
-          )}
+            <div className="w-full bg-muted rounded-full h-2">
+              <div
+                className="bg-cyan-500 h-2 rounded-full transition-all"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {answeredQuestions} of {totalQuestions} questions answered
+            </p>
+          </div>
 
           {/* Scoring Legend */}
-          <div className="mb-12 p-6 bg-white/5 rounded-lg border border-white/10">
-            <h3 className="text-lg font-bold text-[#00D4FF] mb-6">How to Rate Each Control</h3>
+          <div className="bg-card rounded-lg p-6 mb-8 border border-border">
+            <h3 className="text-lg font-semibold mb-4 text-cyan-500">How to Rate Each Control</h3>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {RATING_SCALE.map((rating) => (
-                <div
-                  key={rating.value}
-                  className="p-4 rounded border border-white/10 hover:border-white/30 transition"
-                  style={{ borderLeftColor: rating.color, borderLeftWidth: "4px" }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className="w-8 h-8 rounded flex items-center justify-center font-bold text-white"
-                      style={{ backgroundColor: rating.color }}
-                    >
-                      {rating.value}
-                    </div>
-                    <span className="font-bold text-sm">{rating.label}</span>
-                  </div>
-                  <p className="text-xs text-gray-400">{rating.description}</p>
+              {RATING_SCALE.map((scale) => (
+                <div key={scale.value} className="text-center">
+                  <button
+                    type="button"
+                    className="w-12 h-12 rounded-lg font-bold text-white mx-auto mb-2 transition-transform hover:scale-110"
+                    style={{ backgroundColor: scale.color }}
+                    title={`${scale.value}: ${scale.label} - ${scale.description}`}
+                  >
+                    {scale.value}
+                  </button>
+                  <p className="text-xs font-semibold">{scale.label}</p>
+                  <p className="text-xs text-muted-foreground">{scale.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Audit Questions */}
+          {/* Questions */}
           <form onSubmit={handleSubmit} className="space-y-8">
             {AUDIT_CATEGORIES.map((category) => (
-              <div key={category.id} className="p-6 bg-white/5 rounded-lg border border-white/10">
-                <h3 className="text-xl font-bold text-[#00D4FF] mb-6">{category.title}</h3>
-
-                <div className="space-y-6">
+              <div key={category.id} className="bg-card rounded-lg p-6 border border-border">
+                <h3 className="text-lg font-semibold mb-4 text-cyan-500">{category.title}</h3>
+                <div className="space-y-4">
                   {category.questions.map((question, idx) => (
-                    <div key={idx}>
-                      <p className="text-gray-300 mb-3">{question}</p>
-                      <div className="flex gap-2">
-                        {RATING_SCALE.map((rating) => (
-                          <button
-                            key={rating.value}
-                            type="button"
-                            onClick={() => handleScore(category.id, idx, rating.value)}
-                            className="relative group"
-                            title={`${rating.value}: ${rating.label} - ${rating.description}`}
-                          >
-                            <div
-                              className={`w-10 h-10 rounded border transition-all ${
-                                scores[`${category.id}-${idx}`] === rating.value
-                                  ? "border-2 text-white font-bold"
-                                  : "border-white/20 text-gray-400 hover:border-white/50"
+                    <div key={idx} className="flex items-start gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium mb-2">{question}</p>
+                        <div className="flex gap-2">
+                          {RATING_SCALE.map((scale) => (
+                            <button
+                              key={scale.value}
+                              type="button"
+                              onClick={() => handleScoreChange(category.id, idx, scale.value)}
+                              className={`w-10 h-10 rounded font-bold transition-all ${
+                                scores[`${category.id}-${idx}`] === scale.value
+                                  ? "ring-2 ring-offset-2 ring-offset-background"
+                                  : "opacity-50 hover:opacity-75"
                               }`}
                               style={{
-                                backgroundColor: scores[`${category.id}-${idx}`] === rating.value ? rating.color : "transparent",
-                                borderColor: scores[`${category.id}-${idx}`] === rating.value ? rating.color : undefined,
+                                backgroundColor: scale.color,
+                                color: "white",
                               }}
+                              title={scale.label}
                             >
-                              {rating.value}
-                            </div>
-                            {/* Hover Tooltip */}
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                              <div className="bg-gray-900 border border-white/20 rounded px-3 py-2 text-xs whitespace-nowrap">
-                                <p className="font-bold" style={{ color: rating.color }}>{rating.label}</p>
-                                <p className="text-gray-300">{rating.description}</p>
-                              </div>
-                            </div>
-                          </button>
-                        ))}
+                              {scale.value}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -345,50 +306,66 @@ export default function ComplianceScorecard() {
               </div>
             ))}
 
-            {/* Submission Form */}
-            {answeredQuestions === totalQuestions && (
-              <div className="p-6 bg-white/5 rounded-lg border border-white/10">
-                <h3 className="text-xl font-bold text-[#00D4FF] mb-6">Get Your Personalized Report</h3>
-                <div className="space-y-4">
+            {/* Contact Info */}
+            <div className="bg-card rounded-lg p-6 border border-border">
+              <h3 className="text-lg font-semibold mb-4 text-cyan-500">Get Your Personalized Report</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Full Name</label>
                   <input
                     type="text"
-                    placeholder="Your Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    placeholder="Harry Henry-Santiago"
+                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Email Address</label>
                   <input
                     type="email"
-                    placeholder="Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    placeholder="harry@gigitekai.com"
+                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     required
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Company Name</label>
                   <input
                     type="text"
-                    placeholder="Company Name"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    placeholder="Acme Corp"
+                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     required
                   />
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full px-6 py-3 bg-[#00D4FF] text-black font-bold rounded hover:bg-cyan-400 transition disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <Mail size={18} />
-                    {isLoading ? "Sending..." : "Send My Report"}
-                  </button>
                 </div>
               </div>
-            )}
+
+              <button
+                type="submit"
+                disabled={isLoading || sendScorecard.isPending}
+                className="w-full mt-6 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed font-semibold flex items-center justify-center gap-2 transition-colors"
+              >
+                {isLoading || sendScorecard.isPending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4" />
+                    Send My Report
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
-      </section>
-
+      </main>
       <Footer />
     </div>
   );

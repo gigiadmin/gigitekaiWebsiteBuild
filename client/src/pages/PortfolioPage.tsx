@@ -202,7 +202,7 @@ export default function WebsitesPage() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [inquiryData, setInquiryData] = useState<InquiryForm>(DEFAULT_INQUIRY);
 
-  const submitInquiry = trpc.contactForm.submitWebsitePricingInquiry.useMutation({
+  const submitInquiry = trpc.contact.submitWebsitePricingInquiry.useMutation({
     onSuccess: () => {
       toast.success("Inquiry submitted! We'll be in touch within 24 hours.");
       setInquiryOpen(false);

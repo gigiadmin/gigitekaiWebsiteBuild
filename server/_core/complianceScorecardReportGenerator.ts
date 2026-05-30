@@ -4,8 +4,6 @@
  * Features: Executive summary, compliance framework mapping, pass/fail details, dark mode support
  */
 
-import { encode } from 'base64-arraybuffer';
-
 interface ScorecardData {
   firstName: string;
   lastName: string;

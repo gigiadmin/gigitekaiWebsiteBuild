@@ -140,6 +140,21 @@
 
 - [x] **Add scoring legend to compliance scorecard** — Added clear 1-5 scale legend above questions with color-coded buttons and hover tooltips explaining each score (1=Not Implemented, 5=Optimized). Visual indicators help users understand the rating scale before answering.
 
+- [x] **Fix compliance scorecard email delivery** — Fixed three critical issues:
+  - [x] Removed unused base64-arraybuffer import from complianceScorecardReportGenerator.ts
+  - [x] Added emailDripRouter to main appRouter export in server/routers.ts
+  - [x] Rewrote ComplianceScorecard.tsx to use tRPC mutation instead of raw fetch
+  - [x] Fixed payload mapping: frontend now sends individual category scores (emailSecurityScore, backupRecoveryScore, etc.) that match server schema
+  - [x] Added lastName field extraction from full name
+  - [x] Scorecard now successfully submits and sends HTML email reports via Azure ACS with SendGrid fallback
+
+- [x] **Fix remaining TypeScript errors** — Resolved:
+  - [x] Installed cheerio package for QA test runner
+  - [x] Fixed qa-test-runner.ts: typed Map callback parameters and used Array.from() for Set iteration
+  - [x] Fixed WebPricingLandingPage and PortfolioPage: changed contactForm to contact router reference
+  - [x] Removed duplicate emailDrip router entry from appRouter
+  - [x] Fixed ComplianceScorecard.tsx: removed invalid keywords prop and ringColor style
+
 ---
 
 ## NOTES

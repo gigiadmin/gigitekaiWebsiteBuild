@@ -70,7 +70,7 @@ export default function WebPricingLandingPage() {
     setDiscoveryData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const submitWebsitePricingInquiry = trpc.contactForm.submitWebsitePricingInquiry.useMutation({
+  const submitWebsitePricingInquiry = trpc.contact.submitWebsitePricingInquiry.useMutation({
     onSuccess: (data) => {
       toast.success("Inquiry submitted! We'll be in touch within 24 hours.");
       setDiscoveryFormOpen(false);
