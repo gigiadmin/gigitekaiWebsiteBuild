@@ -93,6 +93,7 @@ export const emailDripRouter = {
       })
     )
     .mutation(async ({ input }) => {
+      console.log("[EmailDrip] sendDripSequence mutation started");
       try {
         console.log("[EmailDrip] sendDripSequence called with input:", JSON.stringify(input, null, 2));
         // Validate email
@@ -170,8 +171,9 @@ export const emailDripRouter = {
           reportGenerated: true,
         };
       } catch (err) {
-        console.error("[EmailDrip] Error:", err);
-        return { success: false, error: String(err) };
+        console.error("[EmailDrip] Error in sendDripSequence:", err);
+        console.error("[EmailDrip] Error stack:", err instanceof Error ? err.stack : 'No stack');
+        throw err; // Re-throw so tRPC properly reports the error
       }
     }),
 };
