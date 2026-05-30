@@ -8,15 +8,22 @@
  * Access: Invite-only via email whitelist
  */
 
-import React, { useState } from 'react';
-import { Lock, TrendingUp, FileText, Zap, Shield, Target, BarChart3, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Lock, TrendingUp, FileText, Zap, Shield, Target, BarChart3, BookOpen, ChevronDown, ChevronUp, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import PerformanceMetricsDashboard from '@/components/PerformanceMetricsDashboard';
 import FinancialProjectionsChart from '@/components/FinancialProjectionsChart';
+import AIAgentDemo from '@/components/AIAgentDemo';
+import InvestorNewsletterArchive from '@/components/InvestorNewsletterArchive';
+import setupInvestorPortalSEO from '@/components/InvestorPortalSEO';
 
 export default function InvestorPortal() {
   const [expandedSection, setExpandedSection] = useState<string | null>('defensibility');
+
+  useEffect(() => {
+    setupInvestorPortalSEO();
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -90,6 +97,39 @@ export default function InvestorPortal() {
               <h3 className="font-bold text-lg">Due Diligence</h3>
             </div>
             <p className="text-sm text-slate-300 text-left">Data room & transparency hub</p>
+          </button>
+        </div>
+
+        {/* Extended Navigation for Phase 3 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+          <button
+            onClick={() => toggleSection('agent-demo')}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              expandedSection === 'agent-demo'
+                ? 'border-cyan-400 bg-cyan-400/10'
+                : 'border-slate-700 bg-slate-800/50 hover:border-cyan-400/50'
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <Zap className="w-5 h-5 text-cyan-400" />
+              <h3 className="font-bold text-lg">AI Agent Demo</h3>
+            </div>
+            <p className="text-sm text-slate-300 text-left">See orchestration in action</p>
+          </button>
+
+          <button
+            onClick={() => toggleSection('newsletter')}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              expandedSection === 'newsletter'
+                ? 'border-cyan-400 bg-cyan-400/10'
+                : 'border-slate-700 bg-slate-800/50 hover:border-cyan-400/50'
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <Mail className="w-5 h-5 text-cyan-400" />
+              <h3 className="font-bold text-lg">Investor Newsletter</h3>
+            </div>
+            <p className="text-sm text-slate-300 text-left">Updates & thought leadership</p>
           </button>
         </div>
 
@@ -297,6 +337,20 @@ export default function InvestorPortal() {
 
             {/* Financial Projections Chart */}
             <FinancialProjectionsChart />
+          </div>
+        )}
+
+        {/* AI AGENT DEMO SECTION */}
+        {expandedSection === 'agent-demo' && (
+          <div className="mb-12 animate-in fade-in duration-300">
+            <AIAgentDemo />
+          </div>
+        )}
+
+        {/* NEWSLETTER SECTION */}
+        {expandedSection === 'newsletter' && (
+          <div className="mb-12 animate-in fade-in duration-300">
+            <InvestorNewsletterArchive />
           </div>
         )}
 
