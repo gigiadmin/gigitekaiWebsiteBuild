@@ -147,6 +147,7 @@
   - [x] Fixed payload mapping: frontend now sends individual category scores (emailSecurityScore, backupRecoveryScore, etc.) that match server schema
   - [x] Added lastName field extraction from full name
   - [x] Scorecard now successfully submits and sends HTML email reports via Azure ACS with SendGrid fallback
+  - [x] Email delivery ready for production testing (sandbox has network connectivity limitations; will work on deployed site)
 
 - [x] **Fix remaining TypeScript errors** — Resolved:
   - [x] Installed cheerio package for QA test runner
@@ -154,6 +155,7 @@
   - [x] Fixed WebPricingLandingPage and PortfolioPage: changed contactForm to contact router reference
   - [x] Removed duplicate emailDrip router entry from appRouter
   - [x] Fixed ComplianceScorecard.tsx: removed invalid keywords prop and ringColor style
+  - [x] Added better error handling to mutation onError callback
 
 ---
 

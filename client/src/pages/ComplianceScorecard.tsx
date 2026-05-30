@@ -179,6 +179,7 @@ export default function ComplianceScorecard() {
       });
     } catch (error) {
       console.error("[Scorecard] Error:", error);
+      toast.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }

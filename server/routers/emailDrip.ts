@@ -94,6 +94,7 @@ export const emailDripRouter = {
     )
     .mutation(async ({ input }) => {
       try {
+        console.log("[EmailDrip] sendDripSequence called with input:", JSON.stringify(input, null, 2));
         // Validate email
         if (!input.email || !input.email.includes("@")) {
           throw new Error(`Invalid email address: ${input.email}`);
