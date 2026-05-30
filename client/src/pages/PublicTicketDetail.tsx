@@ -77,10 +77,10 @@ export default function PublicTicketDetail() {
     }
   };
 
-  const handleFiles = (files: FileList) => {
+  const handleFiles = (files: File[] | FileList) => {
+    const fileArray = Array.from(files);
     const newFiles: File[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    for (const file of fileArray) {
       if (file.size > MAX_FILE_SIZE) {
         alert(`File ${file.name} is too large (max 10MB)`);
         continue;
@@ -216,12 +216,7 @@ export default function PublicTicketDetail() {
           <h2 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Conversation History
           </h2>
-          {/* Display attachments if any */}
-          {ticketData?.ticket?.attachments && ticketData.ticket.attachments.length > 0 && (
-            <div className="mb-6 pb-6 border-b border-[rgba(0,212,255,0.1)]">
-              <AttachmentDisplay attachments={ticketData.ticket.attachments} />
-            </div>
-          )}
+          {/* Display attachments if any - attachments are stored per-reply */}
           <div className="space-y-4 max-h-96 overflow-y-auto mb-6">
             {replies.length === 0 ? (
               <p className="text-gray-400 text-sm text-center py-8">No messages yet. Be the first to reply!</p>

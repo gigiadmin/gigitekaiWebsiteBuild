@@ -584,7 +584,7 @@ export function generateComplianceScorecardReport(data: ScorecardData): string {
               <div class="unit">/100</div>
             </div>
             <div class="score-card">
-              <div class="label">Endpoint Protection</div>
+              <div class="label">Cloud Infrastructure</div>
               <div class="value" style="color: ${getScoreColor(data.endpointProtectionScore)};">${data.endpointProtectionScore}</div>
               <div class="unit">/100</div>
             </div>
@@ -602,7 +602,7 @@ export function generateComplianceScorecardReport(data: ScorecardData): string {
           
           <div class="risk-assessment">
             <div class="risk-item">
-              <div class="label">Compliance Score</div>
+              <div class="label">Disaster Recovery</div>
               <div class="value" style="background: ${getScoreColor(data.complianceScore)};">${data.complianceScore}/100</div>
             </div>
             <div class="risk-item">

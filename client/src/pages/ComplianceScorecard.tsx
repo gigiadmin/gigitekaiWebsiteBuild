@@ -106,7 +106,24 @@ export default function ComplianceScorecard() {
 
   const totalQuestions = AUDIT_CATEGORIES.reduce((sum, cat) => sum + cat.questions.length, 0);
   const answeredQuestions = Object.keys(scores).length;
-  const percentage = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+
+  // Calculate weighted overall score based on actual ratings (not just completion %)
+  const weightedScore = (() => {
+    let totalWeightedPoints = 0;
+    let totalMaxPoints = 0;
+    AUDIT_CATEGORIES.forEach((category) => {
+      const weight = category.weight || 1;
+      category.questions.forEach((_, idx) => {
+        const score = scores[`${category.id}-${idx}`] || 0;
+        totalWeightedPoints += score * weight;
+        totalMaxPoints += 5 * weight; // max score per question is 5
+      });
+    });
+    return totalMaxPoints > 0 ? Math.round((totalWeightedPoints / totalMaxPoints) * 100) : 0;
+  })();
+
+  // Use weighted score if questions have been answered, otherwise 0
+  const percentage = answeredQuestions > 0 ? weightedScore : 0;
 
   const scoreBand = SCORE_BANDS.find(
     (band) => percentage >= band.min && percentage <= band.max
@@ -168,29 +185,18 @@ export default function ComplianceScorecard() {
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(" ") || "User";
 
-      // Call tRPC mutation with correct payload
-      console.log("[Scorecard] Calling tRPC mutation with payload:", {
-        email,
-        firstName,
-        lastName,
-        companyName,
-        emailSecurityScore: categoryScores["email-security"]?.percentage || 0,
-        backupRecoveryScore: categoryScores["backup-recovery"]?.percentage || 0,
-        identityManagementScore: categoryScores["identity-management"]?.percentage || 0,
-        complianceScore: categoryScores["disaster-recovery"]?.percentage || 0,
-        overallScore: percentage,
-        riskLevel: scoreBand?.label || "Unknown",
-      });
+      // Call tRPC mutation with all 5 category scores
+      console.log("[Scorecard] Submitting scorecard for:", email, "overall:", percentage);
       await sendScorecard.mutateAsync({
         email,
         firstName,
         lastName,
         companyName,
         emailSecurityScore: categoryScores["email-security"]?.percentage || 0,
-        endpointProtectionScore: 0, // Not in current categories, set to 0
+        endpointProtectionScore: categoryScores["cloud-infrastructure"]?.percentage || 0, // Cloud & Sovereign Infrastructure
         backupRecoveryScore: categoryScores["backup-recovery"]?.percentage || 0,
         identityManagementScore: categoryScores["identity-management"]?.percentage || 0,
-        complianceScore: categoryScores["disaster-recovery"]?.percentage || 0,
+        complianceScore: categoryScores["disaster-recovery"]?.percentage || 0, // Disaster Recovery Plan
         overallScore: percentage,
         riskLevel: scoreBand?.label || "Unknown",
       });

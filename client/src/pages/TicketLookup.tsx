@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
+import { useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Search, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function TicketLookup() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const navigate = (path: string) => setLocation(path);
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"email" | "verify" | "results">("email");
