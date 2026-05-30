@@ -37,7 +37,7 @@ export const kbRouter = router({
       return article ?? null;
     }),
 
-  /** Search published KB articles by keyword — multi-term relevance scoring */
+  /** Search published KB articles with fuzzy matching and semantic relevance scoring */
   search: publicProcedure
     .input(z.object({ query: z.string().min(1), limit: z.number().int().min(1).max(50).default(20) }))
     .query(async ({ input }) => {
@@ -53,50 +53,109 @@ export const kbRouter = router({
 
       if (terms.length === 0) return [];
 
-      // Build OR conditions: any article matching ANY term in title/content/category/tags
-      const termConditions = terms.map((term) => {
-        const kw = `%${term}%`;
-        return or(
-          like(kbArticles.title, kw),
-          like(kbArticles.category, kw),
-          like(kbArticles.tags, kw),
-          like(kbArticles.content, kw)
-        );
-      });
-
+      // Fetch ALL published articles for client-side fuzzy matching
       const rows = await db
         .select()
         .from(kbArticles)
-        .where(and(eq(kbArticles.isPublished, 1), or(...termConditions)))
-        .orderBy(desc(kbArticles.viewCount))
-        .limit(200); // fetch more, then re-rank in JS
+        .where(eq(kbArticles.isPublished, 1))
+        .orderBy(desc(kbArticles.updatedAt))
+        .limit(500); // fetch all articles for comprehensive search
 
-      // Score each article: title match = 10pts, category/tags = 5pts, content = 1pt per term
+      // Levenshtein distance for fuzzy matching (handles typos and partial matches)
+      const levenshteinDistance = (a: string, b: string): number => {
+        const matrix: number[][] = [];
+        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= b.length; i++) {
+          for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+              matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+              matrix[i][j] = Math.min(
+                matrix[i - 1][j - 1] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j] + 1
+              );
+            }
+          }
+        }
+        return matrix[b.length][a.length];
+      };
+
+      // Fuzzy match: returns 0-100 similarity score
+      const fuzzyMatch = (haystack: string, needle: string): number => {
+        if (!haystack || !needle) return 0;
+        haystack = haystack.toLowerCase();
+        needle = needle.toLowerCase();
+        
+        // Exact match = 100
+        if (haystack === needle) return 100;
+        
+        // Substring match = 90
+        if (haystack.includes(needle)) return 90;
+        
+        // Word boundary match (e.g., "lock" matches "lockout")
+        const words = haystack.split(/\W+/);
+        if (words.some(w => w.startsWith(needle) || needle.startsWith(w))) return 80;
+        
+        // Levenshtein-based fuzzy match (typo tolerance)
+        const distance = levenshteinDistance(haystack, needle);
+        const maxLen = Math.max(haystack.length, needle.length);
+        const similarity = Math.max(0, 100 - (distance / maxLen) * 100);
+        return similarity > 50 ? similarity : 0; // Only return if >50% similar
+      };
+
+      // Score each article using fuzzy matching
       const scored = rows.map((article) => {
         let score = 0;
         const titleLower = (article.title || "").toLowerCase();
         const categoryLower = (article.category || "").toLowerCase();
         const tagsLower = (article.tags || "").toLowerCase();
         const contentLower = (article.content || "").toLowerCase();
+        const queryLower = input.query.toLowerCase();
 
+        // Fuzzy match each term
         for (const term of terms) {
-          if (titleLower.includes(term)) score += 10;
-          if (categoryLower.includes(term)) score += 5;
-          if (tagsLower.includes(term)) score += 5;
-          if (contentLower.includes(term)) score += 1;
+          // Title matches are weighted heavily (fuzzy)
+          const titleMatch = fuzzyMatch(titleLower, term);
+          if (titleMatch > 0) score += titleMatch * 2; // 0-200 points
+          
+          // Category/tags matches (fuzzy)
+          const categoryMatch = fuzzyMatch(categoryLower, term);
+          if (categoryMatch > 0) score += categoryMatch * 1.5; // 0-150 points
+          
+          const tagsMatch = fuzzyMatch(tagsLower, term);
+          if (tagsMatch > 0) score += tagsMatch * 1.5; // 0-150 points
+          
+          // Content matches (lower weight)
+          const contentMatch = fuzzyMatch(contentLower, term);
+          if (contentMatch > 50) score += contentMatch * 0.5; // 25-50 points
         }
 
-        // Bonus: exact full-query match in title
-        if (titleLower.includes(input.query.toLowerCase())) score += 20;
+        // Bonus: full query match in title (semantic relevance)
+        const fullQueryMatch = fuzzyMatch(titleLower, queryLower);
+        if (fullQueryMatch > 70) score += 100; // Strong bonus for full query match
+
+        // Recency bonus (articles updated recently rank slightly higher)
+        const daysSinceUpdate = (Date.now() - (article.updatedAt?.getTime() ?? 0)) / (1000 * 60 * 60 * 24);
+        const recencyBonus = Math.max(0, 20 - Math.min(daysSinceUpdate, 20)); // 0-20 bonus
+        score += recencyBonus;
+
+        // View count bonus (popular articles rank higher)
+        const viewBonus = Math.min((article.viewCount ?? 0) / 10, 30); // 0-30 bonus
+        score += viewBonus;
 
         return { ...article, _score: score };
       });
 
-      // Sort by score descending, then by viewCount
-      scored.sort((a, b) => b._score - a._score || (b.viewCount ?? 0) - (a.viewCount ?? 0));
+      // Filter out articles with score 0 (no match)
+      const filtered = scored.filter(a => a._score > 0);
+
+      // Sort by score descending
+      filtered.sort((a, b) => b._score - a._score);
 
       // Strip internal _score field and return top N
-      return scored.slice(0, input.limit).map(({ _score, ...article }) => article);
+      return filtered.slice(0, input.limit).map(({ _score, ...article }) => article);
     }),
 
   /** Create a new KB article (admin only) */
