@@ -49,103 +49,45 @@ const AUDIT_CATEGORIES = [
     ],
   },
   {
-    id: "physical",
-    title: "Physical Security & Facilities",
-    weight: 1,
-    questions: [
-      "UPS + generator (≥8 hour runtime)",
-      "Dual internet connections",
-      "Badge-controlled server room",
-      "Environmental monitoring & alerts",
-      "Fire suppression system (non-water)",
-    ],
-  },
-  {
     id: "security",
-    title: "Cybersecurity & Data Protection",
-    weight: 1.2,
-    questions: [
-      "Zero Trust with MFA on all remote access",
-      "TLS 1.2+ for all communications",
-      "AES-256 encryption at rest",
-      "Role-based access control (RBAC)",
-      "Centralized logging (12-month retention)",
-    ],
-  },
-  {
-    id: "compliance",
-    title: "Compliance & Regulatory",
-    weight: 1.3,
-    questions: [
-      "FIPA compliance (Florida data residency)",
-      "HIPAA/PCI/SOC 2 certifications current",
-      "Data retention policy documented",
-      "Incident response plan written",
-      "Annual third-party compliance audit",
-    ],
-  },
-  {
-    id: "bc",
-    title: "Business Continuity Operations",
+    title: "Email Security & Compliance",
     weight: 1,
     questions: [
-      "100% remote work capability",
-      "Redundant communication tools",
-      "All critical documents cloud-accessible",
-      "Vendor continuity & SLA guarantees",
-      "Quarterly BC drills documented",
+      "Email encryption (TLS, S/MIME)",
+      "DLP policies enforced",
+      "Advanced threat protection (ATP)",
+      "Phishing & malware detection",
+      "Email audit logs retained (≥1 year)",
     ],
   },
   {
-    id: "monitoring",
-    title: "Monitoring & Alerting",
+    id: "identity",
+    title: "Identity & Access Management",
     weight: 1.1,
     questions: [
-      "24/7 monitoring of critical systems",
-      "Automated alert escalation",
-      "Performance baselines established",
-      "AI-powered anomaly detection",
-      "Documented response SLAs",
-    ],
-  },
-  {
-    id: "ai",
-    title: "AI & Automation Readiness",
-    weight: 1.4,
-    questions: [
-      "AI agents handling routine tasks",
-      "Automated failover without manual intervention",
-      "ML models predicting failures",
-      "Self-healing infrastructure",
-      "System learning from past incidents",
-    ],
-  },
-  {
-    id: "hurricane",
-    title: "Hurricane Season Preparedness",
-    weight: 1.2,
-    questions: [
-      "Pre-hurricane seasonal checklist",
-      "Backup generator fuel verified",
-      "Dual carriers confirmed operational",
-      "Staff trained on emergency procedures",
-      "Critical hardware/software pre-positioned",
+      "MFA enforced for all users",
+      "Conditional access policies",
+      "Privileged access management (PAM)",
+      "Regular access reviews (quarterly)",
+      "Password policy enforced (14+ chars, complexity)",
     ],
   },
 ];
 
 const SCORE_BANDS = [
-  { min: 90, max: 100, label: "Excellent", color: "#00D4FF", desc: "Highly resilient and prepared" },
-  { min: 70, max: 89, label: "Good", color: "#7c3aed", desc: "Minor gaps; address within 90 days" },
-  { min: 50, max: 69, label: "At Risk", color: "#f59e0b", desc: "Multiple vulnerabilities; urgent action" },
-  { min: 0, max: 49, label: "Critical", color: "#ef4444", desc: "Vulnerable; immediate intervention" },
+  { min: 0, max: 39, label: "Critical", color: "#EF4444", bgColor: "rgba(239, 68, 68, 0.1)" },
+  { min: 40, max: 59, label: "At Risk", color: "#F97316", bgColor: "rgba(249, 115, 22, 0.1)" },
+  { min: 60, max: 79, label: "Good", color: "#EAB308", bgColor: "rgba(234, 179, 8, 0.1)" },
+  { min: 80, max: 100, label: "Excellent", color: "#22C55E", bgColor: "rgba(34, 197, 94, 0.1)" },
 ];
 
 export default function ComplianceScorecard() {
   const [scores, setScores] = useState<Record<string, number>>({});
-  const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useSEO({
     title: "IT Compliance Scorecard | GigitekAI",
@@ -166,24 +108,61 @@ export default function ComplianceScorecard() {
     setScores({ ...scores, [key]: value });
   };
 
+  // Calculate individual category scores
+  const calculateCategoryScore = (catId: string) => {
+    const catScores = Object.entries(scores)
+      .filter(([key]) => key.startsWith(catId))
+      .map(([, val]) => val);
+    return catScores.length > 0 ? Math.round((catScores.reduce((a, b) => a + b, 0) / catScores.length) * 100) / 100 : 0;
+  };
+
+  // Determine risk level
+  const getRiskLevel = (score: number) => {
+    if (score >= 80) return "Low";
+    if (score >= 60) return "Medium";
+    if (score >= 40) return "High";
+    return "Critical";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !name) return;
+    if (!email || !name || answeredQuestions === 0) return;
 
+    setIsLoading(true);
     try {
-      // Map percentage to score band
-      const scoreBandLabel = scoreBand?.label || "Unknown";
-      
-      // Call the emailDrip.sendDripSequence mutation
+      // Calculate individual category scores
+      const backupRecoveryScore = calculateCategoryScore("backup");
+      const drpScore = calculateCategoryScore("drp");
+      const cloudScore = calculateCategoryScore("cloud");
+      const emailSecurityScore = calculateCategoryScore("security");
+      const identityManagementScore = calculateCategoryScore("identity");
+
+      // Average of all categories for overall score
+      const overallScore = percentage;
+      const riskLevel = getRiskLevel(percentage);
+
+      // Parse first and last name
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts[0] || name;
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      // Call the emailDrip.sendDripSequence mutation with all scorecard data
       const response = await fetch("/api/trpc/emailDrip.sendDripSequence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           json: {
             email,
-            name,
-            score: percentage,
-            scoreBand: scoreBandLabel,
+            firstName,
+            lastName,
+            companyName: companyName || "Your Organization",
+            emailSecurityScore,
+            endpointProtectionScore: 0, // Not in current scorecard, can be added later
+            backupRecoveryScore,
+            identityManagementScore,
+            complianceScore: drpScore,
+            overallScore,
+            riskLevel,
           },
         }),
       });
@@ -197,11 +176,15 @@ export default function ComplianceScorecard() {
       setTimeout(() => {
         setEmail("");
         setName("");
+        setCompanyName("");
+        setScores({});
         setSubmitted(false);
       }, 3000);
     } catch (err) {
       console.error("[Scorecard] Error:", err);
       alert(`Error: ${err instanceof Error ? err.message : "Failed to send scorecard"}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -219,146 +202,175 @@ export default function ComplianceScorecard() {
                 <span>Back to Home</span>
               </Link>
             </div>
-          </div>
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+
+            <h1 className="text-5xl font-bold mb-4 text-white">
               IT Compliance <span className="text-[#00D4FF]">Scorecard</span>
             </h1>
-            <p className="text-gray-400 text-lg mb-6 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 mb-8">
               Assess your organization's IT resiliency, FIPA compliance, and disaster recovery readiness. Get personalized recommendations based on your score.
             </p>
-            <div className="inline-flex items-center gap-2 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-full px-4 py-2">
-              <TrendingUp size={16} className="text-[#00D4FF]" />
-              <span className="text-sm text-[#00D4FF]">
-                {answeredQuestions} of {totalQuestions} questions answered
+
+            {/* Progress */}
+            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-lg border border-white/10 w-fit">
+              <TrendingUp size={20} className="text-[#00D4FF]" />
+              <span className="text-lg">
+                <span className="text-[#00D4FF] font-bold">{answeredQuestions}</span> of{" "}
+                <span className="text-gray-400">{totalQuestions} questions answered</span>
               </span>
             </div>
           </div>
         </section>
 
-        {/* Scorecard */}
-        <section className="py-12 px-4">
+        {/* Scorecard Form */}
+        <section className="py-16 px-4">
           <div className="max-w-4xl mx-auto">
-            {/* Score Progress */}
+            {/* Current Score Display */}
             {answeredQuestions > 0 && (
-              <div className="mb-12 p-6 rounded-xl border border-[#00D4FF]/20 bg-[#00D4FF]/5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold">Your Current Score</h3>
+              <div
+                className="mb-12 p-8 rounded-lg border border-white/10"
+                style={{ backgroundColor: scoreBand?.bgColor }}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-gray-300 mb-2">Your Current Score</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-6xl font-bold" style={{ color: scoreBand?.color }}>
+                        {percentage}
+                      </span>
+                      <span className="text-2xl text-gray-400">/100</span>
+                    </div>
+                  </div>
                   <div className="text-right">
-                    <div className="text-4xl font-bold text-[#00D4FF]">{percentage}</div>
-                    <div className="text-sm text-gray-400">/100</div>
+                    <p className="text-sm text-gray-400 mb-2">Risk Level</p>
+                    <p
+                      className="text-2xl font-bold"
+                      style={{ color: scoreBand?.color }}
+                    >
+                      {scoreBand?.label}
+                    </p>
+                    {scoreBand?.label === "Critical" && (
+                      <p className="text-sm text-red-400 mt-2">Vulnerable; immediate intervention</p>
+                    )}
                   </div>
                 </div>
-                <div className="w-full bg-[#0D1528] rounded-full h-3 mb-4">
+
+                {/* Progress Bar */}
+                <div className="mt-6 bg-white/10 rounded-full h-2 overflow-hidden">
                   <div
-                    className="h-3 rounded-full transition-[opacity,transform]"
-                    style={{
-                      width: `${percentage}%`,
-                      backgroundColor: scoreBand?.color || "#00D4FF",
-                    }}
+                    className="h-full transition-all duration-300"
+                    style={{ width: `${percentage}%`, backgroundColor: scoreBand?.color }}
                   />
-                </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: scoreBand?.color || "#00D4FF" }}
-                  />
-                  <span className="font-semibold">{scoreBand?.label || "Unknown"}</span>
-                  <span className="text-gray-400">— {scoreBand?.desc}</span>
                 </div>
               </div>
             )}
 
-            {/* Questions */}
-            <div className="space-y-8">
+            {/* Audit Questions */}
+            <form onSubmit={handleSubmit} className="space-y-8">
               {AUDIT_CATEGORIES.map((category) => (
-                <div key={category.id} className="border border-white/5 rounded-xl p-6 bg-[#0D1528]/50">
-                  <h3 className="text-lg font-bold mb-4 text-[#00D4FF]">{category.title}</h3>
-                  <div className="space-y-3">
-                    {category.questions.map((question, idx) => {
-                      const key = `${category.id}-${idx}`;
-                      const value = scores[key];
-                      return (
-                        <div key={key} className="flex items-start gap-4">
-                          <div className="flex-1">
-                            <p className="text-gray-300 mb-2">{question}</p>
-                            <div className="flex gap-2">
-                              {[1, 2, 3, 4, 5].map((score) => (
-                                <button
-                                  key={score}
-                                  onClick={() => handleScore(category.id, idx, score)}
-                                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${ value === score
-                                      ? "bg-[#00D4FF] text-[#0A0E1A]"
-                                      : "bg-[#0A0E1A] border border-white/10 text-gray-400 hover:border-[#00D4FF]/50"
-                                    }`}
-                                >
-                                  {score}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                <div key={category.id} className="p-6 bg-white/5 rounded-lg border border-white/10">
+                  <h3 className="text-xl font-bold text-[#00D4FF] mb-6">{category.title}</h3>
+
+                  <div className="space-y-6">
+                    {category.questions.map((question, idx) => (
+                      <div key={idx}>
+                        <p className="text-gray-300 mb-3">{question}</p>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4, 5].map((value) => (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => handleScore(category.id, idx, value)}
+                              className={`w-10 h-10 rounded border transition-all ${
+                                scores[`${category.id}-${idx}`] === value
+                                  ? "bg-[#00D4FF] border-[#00D4FF] text-black font-bold"
+                                  : "border-white/20 text-gray-400 hover:border-[#00D4FF]"
+                              }`}
+                            >
+                              {value}
+                            </button>
+                          ))}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
-            </div>
 
-            {/* Results & CTA */}
-            {answeredQuestions > 0 && (
-              <div className="mt-12 p-6 rounded-xl border border-[#00D4FF]/20 bg-[#00D4FF]/5">
-                <h3 className="text-xl font-bold mb-4">Get Your Personalized Roadmap</h3>
-                <p className="text-gray-300 mb-6">
-                  Share your score and we'll send you a detailed remediation roadmap with prioritized actions for your organization.
-                </p>
-                <form onSubmit={handleSubmit} className="space-y-3 max-w-md">
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Your Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-4 py-2.5 bg-[#0A0E1A]/60 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF] transition-colors"
-                  />
+              {/* Submission Form */}
+              {answeredQuestions === totalQuestions && (
+                <div className="p-8 bg-gradient-to-r from-[#00D4FF]/10 to-transparent rounded-lg border border-[#00D4FF]/30">
+                  <h3 className="text-xl font-bold mb-6 text-white">Get Your Personalized Roadmap</h3>
+
+                  <div className="space-y-4 mb-6">
+                    <input
+                      type="text"
+                      placeholder="Your Full Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    />
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Company Name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00D4FF]"
+                    />
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-6 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 transition-colors"
+                    disabled={isLoading}
+                    className="w-full px-6 py-3 bg-[#00D4FF] text-black font-bold rounded hover:bg-[#00D4FF]/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {submitted ? "✓ Check Your Email" : "Get My Roadmap"} <ArrowRight size={18} />
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin">⏳</div>
+                        Sending Report...
+                      </>
+                    ) : (
+                      <>
+                        <Mail size={18} />
+                        Check Your Email
+                      </>
+                    )}
                   </button>
-                </form>
-              </div>
-            )}
+
+                  {submitted && (
+                    <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded flex items-center gap-3">
+                      <CheckCircle size={20} className="text-green-500" />
+                      <p className="text-green-400">
+                        ✓ Scorecard report sent! Check your email for your personalized roadmap.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </form>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-16 px-4 border-t border-white/5">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Ready to Close the Gaps?
-            </h2>
-            <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+        {/* CTA Section */}
+        <section className="py-16 px-4 bg-white/5 border-t border-white/10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">Ready to Close the Gaps?</h2>
+            <p className="text-gray-300 mb-8">
               GigitekAI's 60-Day Migration Guarantee covers all remediation and implementation. We'll bring your score to 85+ in 60 days or less.
             </p>
-            <Link
-              href="/switch-program"
-              className="inline-flex items-center gap-2 bg-[#00D4FF] text-[#0A0E1A] px-8 py-3 rounded-lg font-bold hover:bg-[#00D4FF]/90 transition-colors"
-            >
-              Learn About The Switch Program <ArrowRight size={18} />
+            <Link href="/switch-program" className="inline-block px-8 py-3 bg-[#00D4FF] text-black font-bold rounded hover:bg-[#00D4FF]/90 transition-all">
+              Learn About The Switch Program →
             </Link>
           </div>
         </section>
       </main>
+
       <Footer />
     </div>
   );

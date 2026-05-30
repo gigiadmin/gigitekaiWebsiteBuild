@@ -610,3 +610,5 @@
   - [ ] Remediation recommendations for each finding
   - [ ] Professional HTML email report (self-contained, embedded assets, dark mode, sortable tables)
   - [ ] Email report sent to user + support@gigitekai.com after submission
+
+- [x] **Rebuilt compliance scorecard with Fortune 500 quality** — Created professional HTML email report generator with executive summary, scoring methodology (0-100 scale with risk bands), compliance framework mapping (NIST 800-53, ISO 27001, SOC 2, HIPAA, PCI-DSS, CMMC), pass/fail control detail tables with remediation steps, and self-contained HTML styling. Wired emailDrip router to generate and send via Azure ACS (SendGrid fallback). Updated ComplianceScorecard component to calculate individual category scores and pass all data to mutation. Fixed TypeScript errors in support.ts and tsconfig.json (downlevelIteration, target ES2015).

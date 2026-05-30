@@ -141,7 +141,7 @@ export const supportRouter = router({
       verificationCodes.set(input.email, { code, expiresAt });
       
       // Clean up old codes
-      for (const [email, data] of verificationCodes.entries()) {
+      for (const [email, data] of Array.from(verificationCodes.entries())) {
         if (Date.now() > data.expiresAt) {
           verificationCodes.delete(email);
         }
@@ -295,7 +295,7 @@ export const supportRouter = router({
         isStaffReply: 0,
       });
 
-      return { success: true, replyId: result.insertId };
+      return { success: true, replyId: (result as any).insertId || 0 };
     }),
 
   // Attachment procedures
