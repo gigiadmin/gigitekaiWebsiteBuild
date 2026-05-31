@@ -49,6 +49,7 @@ import {
   Grid3X3,
   Home,
   FileCheck,
+  Star,
   Command,
 } from "lucide-react";
 
