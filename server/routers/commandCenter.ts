@@ -244,7 +244,7 @@ export const commandCenterRouter = router({
           "api_status",
         ]),
         title: z.string().min(1),
-        config: z.record(z.any()).optional(),
+        config: z.record(z.string(), z.unknown()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -491,7 +491,7 @@ export const commandCenterRouter = router({
         name: z.string().min(1),
         description: z.string().optional(),
         commandTemplate: z.string().min(1),
-        defaultEntities: z.record(z.any()).optional(),
+        defaultEntities: z.record(z.string(), z.unknown()).optional(),
         category: z.string().optional(),
       })
     )
