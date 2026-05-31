@@ -178,7 +178,6 @@ function Router() {
           <Route path="/admin" component={AdminApp} />
           {/* ── Public ── */}
           <Route path={"investor-portal"} component={InvestorPortal} />
-          <Route path={""} component={Home} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/web-pricing"} component={WebPricingLandingPage} />
@@ -285,6 +284,8 @@ function Router() {
           <Route path={"admin/search-index"} component={AdminSearchIndexPage} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
+          {/* Home page (MUST be after all specific routes) */}
+          <Route path={""} component={Home} />
           <Route component={NotFound} />
         </Switch>
       </main>

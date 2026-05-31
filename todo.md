@@ -8,11 +8,12 @@
 
 ## CRITICAL (Must Fix)
 
-- [x] **Admin Route Redirect Fixed** — FIXED: /admin was redirecting to home page
-  - [x] Added missing useEffect import to ApprovalGuard.tsx
-  - [x] Moved admin routes to TOP of Switch component (before empty route)
+- [x] **Route Precedence Fixed** — FIXED: All routes were redirecting to home page
+  - [x] Root cause: Empty route <Route path=""> was matching all paths before specific routes
+  - [x] Solution: Moved empty route to END of Switch (before 404 fallback)
+  - [x] Moved admin routes to TOP of Switch component
   - [x] Removed duplicate admin route definitions
-  - [x] /admin now correctly shows Admin Login page
+  - [x] Tested: /admin, /free-audit, /industries, /websites all working correctly
 
 - [x] **Admin Login Issue** — FIXED: ApprovalGuard now redirects to /admin/login (Azure AD). Visiting /admin redirects to Microsoft 365 sign-in page. Only harry@gigitekai.com allowed.
 
