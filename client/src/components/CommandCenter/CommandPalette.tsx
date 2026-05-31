@@ -180,7 +180,7 @@ export const CommandPalette: React.FC = () => {
           <div className="p-4 border-t border-slate-700 bg-slate-950">
             <p className="text-xs text-slate-400 mb-2">Saved Commands</p>
             <div className="grid grid-cols-2 gap-2">
-              {getSavedCommands.data.map((cmd) => (
+              {getSavedCommands.data.map((cmd: any) => (
                 <button
                   key={cmd.id}
                   onClick={() => {
