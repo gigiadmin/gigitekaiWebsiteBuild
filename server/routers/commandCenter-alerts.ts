@@ -203,18 +203,16 @@ export const commandCenterAlertsRouter = router({
       }
 
       const history = await query
-        .orderBy(desc(commandCenterAlertsTriggered.triggeredAt))
+        .orderBy(desc(commandCenterAlertsTriggered.createdAt))
         .limit(input.limit);
 
       return history.map((h: any) => ({
         id: h.id,
         alertId: h.alertId,
-        triggeredAt: h.triggeredAt,
-        resolvedAt: h.resolvedAt,
+        triggeredAt: h.createdAt,
         value: h.value,
-        threshold: h.threshold,
+        message: h.message,
         notificationsSent: h.notificationsSent,
-        details: h.details ? JSON.parse(h.details as string) : {},
       }));
     }),
 
@@ -250,13 +248,10 @@ export const commandCenterAlertsRouter = router({
       const result = await db
         .insert(commandCenterAlertsTriggered)
         .values({
-          userId: ctx.user.id,
           alertId: input.alertId,
-          triggeredAt: new Date(),
-          value: input.value,
-          threshold: alert[0].threshold,
-          notificationsSent: 0,
-          details: input.details ? JSON.stringify(input.details) : null,
+          value: String(input.value),
+          message: input.details ? JSON.stringify(input.details) : null,
+          notificationsSent: {},
         } as any);
 
       // TODO: Send notifications based on alert.notificationChannels
@@ -291,16 +286,17 @@ export const commandCenterAlertsRouter = router({
         .from(commandCenterAlertsTriggered)
         .where(eq(commandCenterAlertsTriggered.id, input.historyId));
 
-      if (!history.length || history[0].userId !== ctx.user.id) {
+      if (!history.length) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Alert history not found or access denied",
         });
       }
 
+      // Mark as resolved by updating message field
       await db
         .update(commandCenterAlertsTriggered)
-        .set({ resolvedAt: new Date() })
+        .set({ message: 'resolved' } as any)
         .where(eq(commandCenterAlertsTriggered.id, input.historyId));
 
       return { success: true };

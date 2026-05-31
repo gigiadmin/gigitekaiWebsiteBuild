@@ -45,21 +45,21 @@ interface CalendarEvent {
  */
 async function getMsGraphToken(): Promise<string | null> {
   try {
-    if (!ENV.MS_GRAPH_CLIENT_ID || !ENV.MS_GRAPH_CLIENT_SECRET || !ENV.MS_GRAPH_TENANT_ID) {
+    if (!process.env.MS_GRAPH_CLIENT_ID || !process.env.MS_GRAPH_CLIENT_SECRET || !process.env.MS_GRAPH_TENANT_ID) {
       console.warn("[MSGraph] Credentials not configured");
       return null;
     }
 
     const res = await fetch(
-      `https://login.microsoftonline.com/${ENV.MS_GRAPH_TENANT_ID}/oauth2/v2.0/token`,
+      `https://login.microsoftonline.com/${process.env.MS_GRAPH_TENANT_ID}/oauth2/v2.0/token`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          client_id: ENV.MS_GRAPH_CLIENT_ID,
-          client_secret: ENV.MS_GRAPH_CLIENT_SECRET,
+          client_id: process.env.MS_GRAPH_CLIENT_ID,
+          client_secret: process.env.MS_GRAPH_CLIENT_SECRET,
           scope: "https://graph.microsoft.com/.default",
           grant_type: "client_credentials",
         }).toString(),

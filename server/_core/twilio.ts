@@ -38,7 +38,7 @@ interface TwilioMetrics {
  */
 export async function getTwilioMetrics(): Promise<TwilioMetrics> {
   try {
-    if (!ENV.TWILIO_ACCOUNT_SID || !ENV.TWILIO_AUTH_TOKEN) {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
       console.warn("[Twilio] Credentials not configured");
       return {
         totalMessages: 0,
@@ -50,12 +50,12 @@ export async function getTwilioMetrics(): Promise<TwilioMetrics> {
     }
 
     const auth = Buffer.from(
-      `${ENV.TWILIO_ACCOUNT_SID}:${ENV.TWILIO_AUTH_TOKEN}`
+      `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
     ).toString("base64");
 
     // Get all messages
     const messagesRes = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${ENV.TWILIO_ACCOUNT_SID}/Messages.json`,
+      `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`,
       {
         headers: {
           Authorization: `Basic ${auth}`,
@@ -83,7 +83,7 @@ export async function getTwilioMetrics(): Promise<TwilioMetrics> {
 
     // Get all calls
     const callsRes = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${ENV.TWILIO_ACCOUNT_SID}/Calls.json`,
+      `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Calls.json`,
       {
         headers: {
           Authorization: `Basic ${auth}`,
@@ -131,16 +131,16 @@ export async function getTwilioMetrics(): Promise<TwilioMetrics> {
  */
 export async function getRecentMessages(limit: number = 10): Promise<TwilioMessage[]> {
   try {
-    if (!ENV.TWILIO_ACCOUNT_SID || !ENV.TWILIO_AUTH_TOKEN) {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
       return [];
     }
 
     const auth = Buffer.from(
-      `${ENV.TWILIO_ACCOUNT_SID}:${ENV.TWILIO_AUTH_TOKEN}`
+      `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
     ).toString("base64");
 
     const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${ENV.TWILIO_ACCOUNT_SID}/Messages.json?PageSize=${limit}`,
+      `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json?PageSize=${limit}`,
       {
         headers: {
           Authorization: `Basic ${auth}`,
@@ -165,16 +165,16 @@ export async function getRecentMessages(limit: number = 10): Promise<TwilioMessa
  */
 export async function getRecentCalls(limit: number = 10): Promise<TwilioCall[]> {
   try {
-    if (!ENV.TWILIO_ACCOUNT_SID || !ENV.TWILIO_AUTH_TOKEN) {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
       return [];
     }
 
     const auth = Buffer.from(
-      `${ENV.TWILIO_ACCOUNT_SID}:${ENV.TWILIO_AUTH_TOKEN}`
+      `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
     ).toString("base64");
 
     const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${ENV.TWILIO_ACCOUNT_SID}/Calls.json?PageSize=${limit}`,
+      `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Calls.json?PageSize=${limit}`,
       {
         headers: {
           Authorization: `Basic ${auth}`,
@@ -202,7 +202,7 @@ export async function sendSMS(
   message: string
 ): Promise<{ success: boolean; sid?: string; error?: string }> {
   try {
-    if (!ENV.TWILIO_ACCOUNT_SID || !ENV.TWILIO_AUTH_TOKEN || !ENV.TWILIO_PHONE_NUMBER) {
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
       return {
         success: false,
         error: "Twilio credentials not configured",
@@ -210,11 +210,11 @@ export async function sendSMS(
     }
 
     const auth = Buffer.from(
-      `${ENV.TWILIO_ACCOUNT_SID}:${ENV.TWILIO_AUTH_TOKEN}`
+      `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
     ).toString("base64");
 
     const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${ENV.TWILIO_ACCOUNT_SID}/Messages.json`,
+      `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`,
       {
         method: "POST",
         headers: {
@@ -222,7 +222,7 @@ export async function sendSMS(
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          From: ENV.TWILIO_PHONE_NUMBER,
+          From: process.env.TWILIO_PHONE_NUMBER,
           To: to,
           Body: message,
         }).toString(),
