@@ -285,3 +285,44 @@ export function getStatusColor(statusCode: number): string {
   };
   return colorMap[statusCode] || "#9CA3AF";
 }
+
+/**
+ * Alias functions for commandCenter-api.ts compatibility
+ */
+export async function getUptimeStatus() {
+  const monitors = await getUptimeMonitors();
+  const upMonitors = monitors.filter((m) => m.statusCode === 2);
+  const downMonitors = monitors.filter((m) => m.statusCode === 9 || m.statusCode === 8);
+  const avgUptime =
+    monitors.length > 0
+      ? monitors.reduce((sum, m) => sum + parseFloat(m.uptime30d || "0"), 0) / monitors.length
+      : 99.9;
+
+  return {
+    status: downMonitors.length === 0 ? "operational" : "degraded",
+    uptime: avgUptime,
+    monitorsUp: upMonitors.length,
+    monitorsDown: downMonitors.length,
+    totalMonitors: monitors.length,
+    lastIncident: downMonitors.length > 0 ? downMonitors[0].name : null,
+    activeIncidents: downMonitors.length,
+  };
+}
+
+export async function getMonitorIncidents(monitorId?: number) {
+  // Returns recent incidents (monitors that are down or seem down)
+  const monitors = await getUptimeMonitors();
+  const incidents = monitors
+    .filter((m) => m.statusCode === 9 || m.statusCode === 8)
+    .map((m) => ({
+      monitorId: m.id,
+      monitorName: m.name,
+      status: m.status,
+      startedAt: m.lastCheck ? new Date(m.lastCheck * 1000).toISOString() : null,
+    }));
+
+  if (monitorId) {
+    return incidents.filter((i) => i.monitorId === monitorId);
+  }
+  return incidents;
+}
