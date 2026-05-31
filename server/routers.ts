@@ -121,6 +121,7 @@ import { searchRouter } from "./routers/search";
 import { adminSearchIndexRouter } from "./routers/admin-search-index";
 import { supportRouter } from "./routers/support";
 import { investorTrackingRouter } from "./routers/investorTracking";
+import { emailAutomationRouter } from "./routers/email-automation";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -156,6 +157,7 @@ export const appRouter = router({
   adminAuth: adminAuthRouter,
   adminNotifications: adminNotificationsRouter,
   email: emailRouter,
+  emailAutomation: emailAutomationRouter,
   emailForwarding: emailForwardingRouter,
   emailGroups: emailRecipientGroupsRouter,
   webPush: webPushRouter,

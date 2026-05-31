@@ -706,3 +706,34 @@
 - ✅ Engagement tracking backend ready
 - ✅ Newsletter subscription active
 - ⏳ Newsletter modal (Read buttons) — deferred for next iteration
+
+
+---
+
+## NEW FEATURES - June 2026
+
+- [x] **Auto-Reply System for Low-Priority Emails** — COMPLETE: Detect and auto-respond to non-urgent/spam/marketing emails
+  - [x] Build email classification router (spam, marketing, low-priority detection)
+  - [x] Implement auto-reply templates (canned responses)
+  - [x] Wire to emailPoller for automatic processing
+  - [x] Test with sample emails
+
+- [x] **Meeting Extraction from Emails** — COMPLETE: Parse emails for meeting requests, extract attendees/times, create calendar entries
+  - [x] Build meeting parser (extract date, time, attendees from email body)
+  - [x] Integrate with Microsoft Graph Calendar API
+  - [x] Create calendar events automatically
+  - [x] Send confirmation emails to attendees
+  - [x] Test with sample meeting request emails
+
+- [x] **Weekly Executive Summary for Archer** — COMPLETE: Aggregate key metrics/alerts and send digest to Archer
+  - [x] Build metrics aggregation (tickets, uptime, revenue, alerts)
+  - [x] Create HTML email template for digest
+  - [x] Schedule weekly send (Monday 8am)
+  - [x] Test with sample data
+
+- [ ] **Fix PageSpeed Performance** — Improve mobile score from very low to 90+
+  - [ ] Analyze PageSpeed report at https://pagespeed.web.dev/analysis/https-gigitekai-com/uh6i9cvnet?form_factor=mobile
+  - [ ] Identify and fix critical issues (LCP, FID, CLS)
+  - [ ] Optimize images and lazy-load
+  - [ ] Minimize JavaScript bundle
+  - [ ] Test and verify improvement

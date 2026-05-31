@@ -1277,6 +1277,44 @@ async function processEmail(msgData: any): Promise<boolean> {
     const emailBody = cleanEmailBody(rawEmailBody);
     const classification = await classifyEmail(subject, emailBody);
 
+    // ── AUTO-REPLY SYSTEM: Check if email should receive auto-reply ──
+    const { classifyEmailForAutoReply, sendAutoReply, extractMeetingDetails, createCalendarEvent } = await import("../email-automation");
+    const autoReplyClassification = await classifyEmailForAutoReply(subject, emailBody, senderEmail);
+    
+    if (autoReplyClassification.shouldAutoReply && autoReplyClassification.category !== 'normal') {
+      const autoReplySent = await sendAutoReply(senderEmail, subject, autoReplyClassification.category as 'spam' | 'marketing' | 'low_priority');
+      if (autoReplySent) {
+        console.log(`[Email Poller] Auto-reply sent for ${autoReplyClassification.category} email from ${senderEmail}`);
+        // Mark email as read and skip ticket creation for low-priority emails
+        if (autoReplyClassification.category === 'low_priority' || autoReplyClassification.category === 'marketing') {
+          console.log(`[Email Poller] Skipping ticket creation for ${autoReplyClassification.category} email`);
+          return true;
+        }
+      }
+    }
+
+    // ── MEETING EXTRACTION: Check if email contains meeting request ──
+    const meetingDetails = await extractMeetingDetails(subject, emailBody, senderEmail);
+    if (meetingDetails.isMeetingRequest && meetingDetails.proposedDateTime && meetingDetails.confidence > 0.7) {
+      try {
+        const startDateTime = meetingDetails.proposedDateTime;
+        const endDateTime = new Date(new Date(startDateTime).getTime() + (meetingDetails.duration || 60) * 60 * 1000).toISOString();
+        const calendarCreated = await createCalendarEvent(
+          meetingDetails.title || subject,
+          startDateTime,
+          endDateTime,
+          meetingDetails.attendees,
+          meetingDetails.location,
+          meetingDetails.notes
+        );
+        if (calendarCreated) {
+          console.log(`[Email Poller] Calendar event created for meeting request from ${senderEmail}`);
+        }
+      } catch (calendarError) {
+        console.warn(`[Email Poller] Failed to create calendar event:`, calendarError);
+      }
+    }
+
     // Create ticket
     const ticket = await createTicket({
       userId: user.id,
