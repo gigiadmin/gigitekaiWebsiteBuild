@@ -171,8 +171,13 @@ function Router() {
     <Suspense fallback={<PageLoader />}>
       <main id="main-content" className="skip-target">
         <Switch>
+          {/* ── Admin Portal (MUST come before empty route) ── */}
+          <Route path="/admin/login" component={AdminLoginAzure} />
+          <Route path="/admin/unlock" component={AdminUnlock} />
+          <Route path="/admin/*" component={AdminApp} />
+          <Route path="/admin" component={AdminApp} />
           {/* ── Public ── */}
-          <Route path={"/investor-portal"} component={InvestorPortal} />
+          <Route path={"investor-portal"} component={InvestorPortal} />
           <Route path={""} component={Home} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
@@ -260,17 +265,12 @@ function Router() {
           <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
           {/* <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} /> */} {/* REMOVED: ROI page too complex for now */}
           {/* ── Auth ── */}
-          <Route path={"/accept-invite"} component={AcceptInvite} />
-          <Route path={"/logout"} component={LogoutConfirmation} />
-          <Route path={"/admin/login"} component={AdminLoginAzure} />
+          <Route path={"accept-invite"} component={AcceptInvite} />
+          <Route path={"logout"} component={LogoutConfirmation} />
           {/* Redirect bridge page handles /redirect.html for MSAL popup flow */}
-          <Route path={"/admin/unlock"} component={AdminUnlock} />
           {/* ── Meeting management ── */}
           <Route path={"/cancel-meeting/:token"} component={CancelMeeting} />
           <Route path={"/reschedule-meeting/:token"} component={RescheduleMeeting} />
-          {/* ── Admin Portal ── */}
-          <Route path="/admin/*" component={AdminApp} />
-          <Route path="/admin" component={AdminApp} />
           {/* M365 Health Pages */}
           <Route path={"/m365-status"} component={M365HealthPage} />
           <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
