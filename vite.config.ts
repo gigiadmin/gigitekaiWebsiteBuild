@@ -231,7 +231,7 @@ function vitePluginStripMsalStaticImport(): Plugin {
     writeBundle(options, bundle) {
       // Note: Don't check NODE_ENV here - Vite build always produces production output
       // but the shell environment may still say 'development'
-      const outDir = options.dir || 'dist/public';
+      const outDir = options.dir || path.resolve(import.meta.dirname, 'dist/public');
       // Find the msal chunk name
       const msalChunkName = Object.keys(bundle).find(name => name.startsWith('assets/msal-') && name.endsWith('.js'));
       if (!msalChunkName) return;
@@ -264,8 +264,17 @@ function vitePluginStripMsalStaticImport(): Plugin {
         chunkInfo.code = chunkInfo.code.replace(sideEffectPattern, '');
         if (chunkInfo.code !== original) {
           const filePath = path.join(outDir, chunkName);
-          fs.writeFileSync(filePath, chunkInfo.code);
-          stripped++;
+          try {
+            // Ensure directory exists before writing
+            const dir = path.dirname(filePath);
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+            fs.writeFileSync(filePath, chunkInfo.code);
+            stripped++;
+          } catch (err) {
+            console.error(`[strip-msal] Failed to write ${filePath}:`, err);
+          }
         }
       }
       if (stripped > 0) {

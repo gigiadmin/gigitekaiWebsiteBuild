@@ -10,7 +10,7 @@ import { getDb } from "../db";
 import {
   commandCenterCommands,
   commandCenterAuditLogs,
-  commandCenterAlertHistory,
+  commandCenterAlertsTriggered,
   users,
 } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
@@ -88,8 +88,8 @@ export const commandCenterAdminRouter = router({
 
       const alerts = await db
         .select()
-        .from(commandCenterAlertHistory)
-        .where(gte(commandCenterAlertHistory.triggeredAt, startDate));
+        .from(commandCenterAlertsTriggered)
+        .where(gte(commandCenterAlertsTriggered.triggeredAt, startDate));
 
       // Group by alert type
       const typeStats: Record<string, number> = {};
@@ -145,8 +145,8 @@ export const commandCenterAdminRouter = router({
     // Get recent alerts
     const recentAlerts = await db
       .select()
-      .from(commandCenterAlertHistory)
-      .where(gte(commandCenterAlertHistory.triggeredAt, last24h))
+      .from(commandCenterAlertsTriggered)
+      .where(gte(commandCenterAlertsTriggered.triggeredAt, last24h))
       .limit(100);
 
     // Get recent audit logs

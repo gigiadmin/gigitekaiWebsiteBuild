@@ -7,7 +7,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
 import { getDb } from "../db";
-import { commandCenterAlerts, commandCenterAlertHistory } from "../../drizzle/schema";
+import { commandCenterAlerts, commandCenterAlertsTriggered } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 
 export const commandCenterAlertsRouter = router({
@@ -193,17 +193,17 @@ export const commandCenterAlertsRouter = router({
 
       let query = db
         .select()
-        .from(commandCenterAlertHistory)
-        .where(eq(commandCenterAlertHistory.userId, ctx.user.id));
+        .from(commandCenterAlertsTriggered)
+        .where(eq(commandCenterAlertsTriggered.userId, ctx.user.id));
 
       if (input.alertId) {
         query = query.where(
-          eq(commandCenterAlertHistory.alertId, input.alertId)
+          eq(commandCenterAlertsTriggered.alertId, input.alertId)
         );
       }
 
       const history = await query
-        .orderBy(desc(commandCenterAlertHistory.triggeredAt))
+        .orderBy(desc(commandCenterAlertsTriggered.triggeredAt))
         .limit(input.limit);
 
       return history.map((h: any) => ({
@@ -248,7 +248,7 @@ export const commandCenterAlertsRouter = router({
 
       // Record alert trigger
       const result = await db
-        .insert(commandCenterAlertHistory)
+        .insert(commandCenterAlertsTriggered)
         .values({
           userId: ctx.user.id,
           alertId: input.alertId,
@@ -288,8 +288,8 @@ export const commandCenterAlertsRouter = router({
       // Verify ownership
       const history = await db
         .select()
-        .from(commandCenterAlertHistory)
-        .where(eq(commandCenterAlertHistory.id, input.historyId));
+        .from(commandCenterAlertsTriggered)
+        .where(eq(commandCenterAlertsTriggered.id, input.historyId));
 
       if (!history.length || history[0].userId !== ctx.user.id) {
         throw new TRPCError({
@@ -299,9 +299,9 @@ export const commandCenterAlertsRouter = router({
       }
 
       await db
-        .update(commandCenterAlertHistory)
+        .update(commandCenterAlertsTriggered)
         .set({ resolvedAt: new Date() })
-        .where(eq(commandCenterAlertHistory.id, input.historyId));
+        .where(eq(commandCenterAlertsTriggered.id, input.historyId));
 
       return { success: true };
     }),
