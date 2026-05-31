@@ -5,7 +5,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { getUptimeStatus, getMonitorIncidents } from "../_core/uptimerobot";
+import { getUptimeStatus, getMonitorIncidents } from "../_core/uptimeRobot";
 import { getEmailMetrics, getUpcomingEvents, getTeamsPresence } from "../_core/msgraph";
 import { getTwilioMetrics, getRecentMessages, getRecentCalls } from "../_core/twilio";
 

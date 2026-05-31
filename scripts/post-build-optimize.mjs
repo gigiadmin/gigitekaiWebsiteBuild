@@ -16,7 +16,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distHtml = path.join(__dirname, '../dist/public/index.html');
 
 if (!fs.existsSync(distHtml)) {
-  console.error('[post-build] ERROR: dist/public/index.html not found. Run vite build first.');
+  console.error('[post-build] ERROR: dist/public/index.html not found at', distHtml);
+  console.error('[post-build] Current directory:', process.cwd());
+  console.error('[post-build] __dirname:', __dirname);
+  const distDir = path.join(__dirname, '../dist');
+  console.error('[post-build] Contents of dist:', fs.existsSync(distDir) ? fs.readdirSync(distDir) : 'dist does not exist');
   process.exit(1);
 }
 
@@ -83,9 +87,16 @@ if (mainMatch && reactMatch) {
 }
 
 // ─── Write result ─────────────────────────────────────────────────────────────
-if (html !== original) {
-  fs.writeFileSync(distHtml, html, 'utf-8');
-  console.log(`[post-build] ✅ Optimized dist/public/index.html (${cssFixed} CSS links made async)`);
-} else {
-  console.log('[post-build] No changes needed (already optimized)');
+try {
+  if (html !== original) {
+    fs.writeFileSync(distHtml, html, 'utf-8');
+    console.log(`[post-build] ✅ Optimized dist/public/index.html (${cssFixed} CSS links made async)`);
+  } else {
+    console.log('[post-build] No changes needed (already optimized)');
+  }
+  console.log('[post-build] SUCCESS: Post-build optimization completed');
+  process.exit(0);
+} catch (err) {
+  console.error('[post-build] ERROR writing HTML:', err);
+  process.exit(1);
 }
