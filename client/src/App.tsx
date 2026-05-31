@@ -1,5 +1,6 @@
 import { Route, Switch, useLocation } from "wouter";
 import { lazy, Suspense, useState, useEffect } from "react";
+import { useDomainRouting } from "@/hooks/useDomainRouting";
 // PERF: Lazy-load TooltipProvider — removes @radix-ui/react-tooltip from critical path.
 // TooltipProvider is a context wrapper; lazy-loading it defers Radix UI parsing until after LCP.
 const TooltipProvider = lazy(() =>
@@ -298,6 +299,8 @@ export const HANDOFF_EVENT = "gigitekai:handoff-to-live-chat";
 
 function App() {
   const [location] = useLocation();
+  // Enable domain-based routing (gginfo.net → investor portal, gigitekai.com → main site)
+  useDomainRouting();
   // Defer heavy widgets until after first user interaction to reduce TBT
   const [widgetsReady, setWidgetsReady] = useState(false);
   useEffect(() => {
