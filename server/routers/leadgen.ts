@@ -307,7 +307,7 @@ export const leadgenRouter = router({
             phone: input.phone,
             companyName: input.companyName,
             employeeCount: input.employeeCount,
-            currentItSetup: input.currentITSetup,
+            currentITSetup: input.currentITSetup,
             needsCybersecurity: input.needsCybersecurity ? 1 : 0,
             needsCloud: input.needsCloud ? 1 : 0,
             needsHelpdesk: input.needsHelpdesk ? 1 : 0,

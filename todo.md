@@ -781,3 +781,18 @@
   - [x] Verify all feature links work (403 Forbidden = correct authentication)
   - [x] Fix any 404 or redirect issues (none found)
   - [x] Test admin workflows end-to-end (all routes protected correctly)
+
+
+---
+
+## NEW FEATURES - June 2026
+
+- [ ] **Command Center Dashboard** (Hybrid AI + Dashboard + Command Palette)
+  - [ ] Phase 1: Design data models and database schema
+  - [ ] Phase 2: Build Command Palette component and dashboard grid
+  - [ ] Phase 3: Build real-time monitoring widgets
+  - [ ] Phase 4: Implement AI Intent Parser with LLM
+  - [ ] Phase 5: Integrate external APIs (UptimeRobot, Teams, M365, Twilio)
+  - [ ] Phase 6: Build voice command interface and alerts
+  - [ ] Phase 7: Add audit logs, role-based access, saved commands
+  - [ ] Phase 8: Test and deploy to production

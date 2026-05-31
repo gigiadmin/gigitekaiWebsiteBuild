@@ -1015,7 +1015,7 @@ export const multiStepFormSubmissions = mysqlTable("multiStepFormSubmissions", {
 	phone: varchar({ length: 20 }).notNull(),
 	companyName: varchar({ length: 255 }).notNull(),
 	employeeCount: varchar({ length: 50 }),
-	currentItSetup: varchar({ length: 500 }),
+	currentITSetup: varchar({ length: 500 }),
 	needsCybersecurity: tinyint().default(0),
 	needsCloud: tinyint().default(0),
 	needsHelpdesk: tinyint().default(0),
@@ -1996,3 +1996,154 @@ export const kbCommonIssues = mysqlTable("kbCommonIssues", {
 (table) => [
 	index("kbCommonIssues_orderNum").on(table.orderNum),
 ]);
+
+
+// ============================================
+// COMMAND CENTER TABLES
+// ============================================
+
+export const commandCenterWidgets = mysqlTable("commandCenter_widgets", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	widgetType: mysqlEnum(['uptime', 'agents', 'email', 'tickets', 'alerts', 'api_status']).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	position: int().default(0).notNull(),
+	isVisible: tinyint().default(1).notNull(),
+	refreshInterval: int().default(30000).notNull(), // milliseconds
+	config: json(), // widget-specific settings
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("commandCenter_widgets_userId").on(table.userId),
+	index("commandCenter_widgets_widgetType").on(table.widgetType),
+]);
+
+export type CommandCenterWidget = typeof commandCenterWidgets.$inferSelect;
+export type InsertCommandCenterWidget = typeof commandCenterWidgets.$inferInsert;
+
+export const commandCenterCommands = mysqlTable("commandCenter_commands", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	rawInput: varchar({ length: 1000 }).notNull(), // "Show me website uptime"
+	intent: varchar({ length: 100 }).notNull(), // "query_uptime"
+	entities: json(), // {domain: "gigitekai.com", period: "7d"}
+	apiCalls: json(), // [{api: "uptimerobot", endpoint: "monitors", params: {...}}]
+	result: json(), // {uptime: 99.9, incidents: [...]}
+	executionTime: int(), // milliseconds
+	status: mysqlEnum(['success', 'partial', 'failed']).default('success').notNull(),
+	errorMessage: varchar({ length: 500 }),
+	isSaved: tinyint().default(0).notNull(),
+	commandName: varchar({ length: 255 }), // "Website Uptime Check"
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("commandCenter_commands_userId").on(table.userId),
+	index("commandCenter_commands_createdAt").on(table.createdAt),
+	index("commandCenter_commands_intent").on(table.intent),
+	index("commandCenter_commands_isSaved").on(table.isSaved),
+]);
+
+export type CommandCenterCommand = typeof commandCenterCommands.$inferSelect;
+export type InsertCommandCenterCommand = typeof commandCenterCommands.$inferInsert;
+
+export const commandCenterAlerts = mysqlTable("commandCenter_alerts", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	name: varchar({ length: 255 }).notNull(), // "Agent Offline Alert"
+	condition: varchar({ length: 500 }).notNull(), // "agent_status == 'offline'"
+	threshold: decimal({ precision: 10, scale: 2 }), // e.g., uptime < 95%
+	isActive: tinyint().default(1).notNull(),
+	notificationChannels: json(), // ["email", "teams", "sms"]
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("commandCenter_alerts_userId").on(table.userId),
+	index("commandCenter_alerts_isActive").on(table.isActive),
+]);
+
+export type CommandCenterAlert = typeof commandCenterAlerts.$inferSelect;
+export type InsertCommandCenterAlert = typeof commandCenterAlerts.$inferInsert;
+
+export const commandCenterAlertsTriggered = mysqlTable("commandCenter_alerts_triggered", {
+	id: int().autoincrement().notNull().primaryKey(),
+	alertId: int().notNull().references(() => commandCenterAlerts.id, { onDelete: "cascade" }),
+	value: decimal({ precision: 10, scale: 2 }), // actual value that triggered alert
+	message: varchar({ length: 500 }),
+	notificationsSent: json(), // {email: true, teams: true}
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("commandCenter_alerts_triggered_alertId").on(table.alertId),
+	index("commandCenter_alerts_triggered_createdAt").on(table.createdAt),
+]);
+
+export type CommandCenterAlertTriggered = typeof commandCenterAlertsTriggered.$inferSelect;
+export type InsertCommandCenterAlertTriggered = typeof commandCenterAlertsTriggered.$inferInsert;
+
+export const commandCenterAuditLogs = mysqlTable("commandCenter_audit_logs", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	action: varchar({ length: 100 }).notNull(), // "query_api", "create_alert", "execute_command"
+	resource: varchar({ length: 255 }), // "uptimerobot", "teams_agent_status"
+	details: json(),
+	result: varchar({ length: 50 }).notNull(), // "success", "failed"
+	errorMessage: varchar({ length: 500 }),
+	ipAddress: varchar({ length: 45 }),
+	userAgent: varchar({ length: 500 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("commandCenter_audit_logs_userId").on(table.userId),
+	index("commandCenter_audit_logs_createdAt").on(table.createdAt),
+	index("commandCenter_audit_logs_action").on(table.action),
+]);
+
+export type CommandCenterAuditLog = typeof commandCenterAuditLogs.$inferSelect;
+export type InsertCommandCenterAuditLog = typeof commandCenterAuditLogs.$inferInsert;
+
+export const commandCenterApiIntegrations = mysqlTable("commandCenter_api_integrations", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	apiName: varchar({ length: 100 }).notNull(), // "uptimerobot", "teams", "m365", "twilio"
+	apiKey: varchar({ length: 500 }).notNull(), // encrypted
+	apiSecret: varchar({ length: 500 }), // encrypted
+	baseUrl: varchar({ length: 255 }),
+	isActive: tinyint().default(1).notNull(),
+	lastSyncedAt: timestamp({ mode: 'string' }),
+	syncStatus: mysqlEnum(['success', 'failed', 'pending']).default('pending').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("commandCenter_api_integrations_userId").on(table.userId),
+	index("commandCenter_api_integrations_apiName").on(table.apiName),
+	// Unique constraint: one API per user per apiName
+	index("commandCenter_api_integrations_unique").on(table.userId, table.apiName),
+]);
+
+export type CommandCenterApiIntegration = typeof commandCenterApiIntegrations.$inferSelect;
+export type InsertCommandCenterApiIntegration = typeof commandCenterApiIntegrations.$inferInsert;
+
+export const commandCenterSavedCommands = mysqlTable("commandCenter_saved_commands", {
+	id: int().autoincrement().notNull().primaryKey(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	name: varchar({ length: 255 }).notNull(), // "Website Uptime Check"
+	description: text(), // "Check gigitekai.com uptime for last 7 days"
+	commandTemplate: varchar({ length: 1000 }).notNull(), // "Show me website uptime for {domain} in the last {period}"
+	defaultEntities: json(), // {domain: "gigitekai.com", period: "7d"}
+	category: varchar({ length: 100 }), // "monitoring", "alerts", "reporting"
+	isPublic: tinyint().default(0).notNull(), // share with team
+	usageCount: int().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("commandCenter_saved_commands_userId").on(table.userId),
+	index("commandCenter_saved_commands_category").on(table.category),
+	index("commandCenter_saved_commands_isPublic").on(table.isPublic),
+]);
+
+export type CommandCenterSavedCommand = typeof commandCenterSavedCommands.$inferSelect;
+export type InsertCommandCenterSavedCommand = typeof commandCenterSavedCommands.$inferInsert;
