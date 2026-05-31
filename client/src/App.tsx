@@ -353,7 +353,7 @@ function App() {
               {!hideWidgets && <AnnouncementBar />}
               {!hideWidgets && <FloatingContactDial />}
               {!hideWidgets && <MobileAIDemoCTA />}
-              <AIChatWidget />
+              {!hideWidgets && <AIChatWidget />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>
           )}
