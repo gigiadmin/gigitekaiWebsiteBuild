@@ -359,10 +359,21 @@ export default function InvestorPortal() {
           <h3 className="text-2xl font-bold mb-3">Ready to Invest?</h3>
           <p className="text-slate-300 mb-6">Contact our investor relations team to discuss the $1M seed round opportunity.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">
+            <Button 
+              className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
+              onClick={() => window.location.href = 'mailto:investors@gigitekai.com?subject=Schedule%20Investor%20Call'}
+            >
               Schedule Investor Call
             </Button>
-            <Button className="bg-slate-700 hover:bg-slate-600 text-white">
+            <Button 
+              className="bg-slate-700 hover:bg-slate-600 text-white"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = 'https://gigitekai.com/pitch-deck.pdf';
+                link.download = 'GigitekAI-Pitch-Deck.pdf';
+                link.click();
+              }}
+            >
               Download Pitch Deck
             </Button>
           </div>

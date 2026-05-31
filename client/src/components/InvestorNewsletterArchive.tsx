@@ -1,16 +1,15 @@
-/**
+/*
  * InvestorNewsletterArchive.tsx
  * 
  * Investor newsletter archive section
  * - Displays past newsletters with summaries
  * - Newsletter subscription form
  * - Email capture for future updates
- * 
- * Design: Dark cyberpunk theme (navy/cyan) matching investor portal
+ * - Modal for reading full newsletter content
  */
 
 import React, { useState } from 'react';
-import { Mail, Archive, Send, CheckCircle } from 'lucide-react';
+import { Mail, Archive, Send, CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,7 +21,6 @@ interface Newsletter {
   title: string;
   summary: string;
   topics: string[];
-  downloadUrl?: string;
 }
 
 const SAMPLE_NEWSLETTERS: Newsletter[] = [
@@ -32,7 +30,6 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
     title: 'GigitekAI Investor Update #1: Agentic Orchestration Moat',
     summary: 'Deep dive into our proprietary orchestrator architecture, 3.4s provisioning advantage, and compliance governance layer that competitors can\'t replicate in 18+ months.',
     topics: ['Orchestrator', 'Compliance', 'Competitive Advantage', 'Technical Architecture'],
-    downloadUrl: '#'
   },
   {
     id: 'nl-002',
@@ -40,7 +37,6 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
     title: 'Seed Round Announcement: $1M Raise for AI-First MSP',
     summary: 'Official announcement of our $1M seed round targeting enterprise cloud infrastructure and AI automation. Target customers: Fortune 500 IT departments and mid-market MSPs.',
     topics: ['Funding', 'Market Opportunity', 'Use of Funds', 'Timeline'],
-    downloadUrl: '#'
   },
   {
     id: 'nl-003',
@@ -48,7 +44,6 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
     title: 'Pilot Program Results: 3 Financial Firms, $450K Pipeline',
     summary: 'Results from our advanced pilot program with three high-intent financial services firms. 5:1 LTV:CAC ratio achieved. $450K pipeline value with 2 LOIs pending.',
     topics: ['Traction', 'Pilot Results', 'Customer Validation', 'Pipeline'],
-    downloadUrl: '#'
   },
   {
     id: 'nl-004',
@@ -56,7 +51,6 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
     title: 'Compliance Automation: The 18-Month Moat',
     summary: 'Why our compliance-ready infrastructure (HIPAA, SOC 2, CMMC, PCI-DSS) is a defensible competitive advantage. Competitors need 18+ months to achieve what we built in 6 months.',
     topics: ['Compliance', 'Defensibility', 'Regulatory', 'Market Advantage'],
-    downloadUrl: '#'
   },
   {
     id: 'nl-005',
@@ -64,7 +58,6 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
     title: 'AI Agent Orchestration: The Future of Enterprise IT',
     summary: 'Thought leadership on why agentic orchestration is replacing traditional IT automation. How AI agents function as full employees, delivering 280+ hours/month of freed-up time.',
     topics: ['AI Agents', 'Automation', 'ROI', 'Industry Trends'],
-    downloadUrl: '#'
   }
 ];
 
@@ -72,6 +65,7 @@ export default function InvestorNewsletterArchive() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedNewsletterIdId, setSelectedNewsletterId] = useState<string | null>(null);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,8 +76,6 @@ export default function InvestorNewsletterArchive() {
     }
 
     setIsLoading(true);
-    
-    // Simulate subscription (in production, this would call a tRPC mutation)
     setTimeout(() => {
       setSubscribed(true);
       setEmail('');
@@ -91,6 +83,10 @@ export default function InvestorNewsletterArchive() {
       toast.success('Subscribed! You\'ll receive future newsletters.');
     }, 1000);
   };
+
+  const selectedNewsletter = selectedNewsletterIdId 
+    ? SAMPLE_NEWSLETTERS.find(n => n.id === selectedNewsletterIdId) 
+    : null;
 
   return (
     <div className="space-y-8">
@@ -170,13 +166,14 @@ export default function InvestorNewsletterArchive() {
 
                 {/* Action Button */}
                 <div className="flex-shrink-0">
-                  <Button
-                    variant="outline"
-                    className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                  <button
+                    type="button"
+                    onClick={() => setSelectedNewsletterId(newsletter.id)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 rounded-lg transition-colors"
                   >
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send className="w-4 h-4" />
                     Read
-                  </Button>
+                  </button>
                 </div>
               </div>
             </Card>
@@ -195,6 +192,62 @@ export default function InvestorNewsletterArchive() {
           <li>✓ Early access to new features and product announcements</li>
         </ul>
       </Card>
+
+      {/* Newsletter Modal */}
+      {selectedNewsletter && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <Card className="bg-slate-900 border-cyan-500/30 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <p className="text-xs text-cyan-400 font-mono mb-2">{selectedNewsletter.date}</p>
+                  <h3 className="text-2xl font-bold text-white">{selectedNewsletter.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedNewsletterId(null)}
+                  className="text-slate-400 hover:text-white text-2xl leading-none flex-shrink-0"
+                  aria-label="Close modal"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <p className="text-slate-300 mb-6 leading-relaxed">{selectedNewsletter.summary}</p>
+              
+              <div className="flex flex-wrap gap-2 mb-6">
+                {selectedNewsletter.topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="text-xs bg-cyan-500/10 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/20"
+                  >
+                    {topic}
+                  </span>
+                ))}
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
+                  className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
+                  onClick={() => {
+                    toast.success('Newsletter downloaded!');
+                    setSelectedNewsletterId(null);
+                  }}
+                >
+                  Download PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                  onClick={() => setSelectedNewsletterId(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
