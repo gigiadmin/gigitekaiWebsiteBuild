@@ -126,6 +126,7 @@ import { voicemailCleanupRouter } from "./routers/voicemail-cleanup";
 import { commandCenterRouter } from "./routers/commandCenter";
 import { commandCenterApiRouter } from "./routers/commandCenter-api";
 import { commandCenterAlertsRouter } from "./routers/commandCenter-alerts";
+import { commandCenterAdminRouter } from "./routers/commandCenter-admin";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -166,6 +167,7 @@ export const appRouter = router({
   commandCenter: commandCenterRouter,
   commandCenterApi: commandCenterApiRouter,
   commandCenterAlerts: commandCenterAlertsRouter,
+  commandCenterAdmin: commandCenterAdminRouter,
   emailForwarding: emailForwardingRouter,
   emailGroups: emailRecipientGroupsRouter,
   webPush: webPushRouter,
