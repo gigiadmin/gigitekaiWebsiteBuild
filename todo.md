@@ -615,8 +615,16 @@
   - [ ] Deploy to production
   - [ ] Monitor performance and user engagement
 
-- [ ] Fix Admin OAuth login JSON parse error on production (Unexpected token '<', '<html>...' is not valid JSON)
-- [ ] Fix Voicemail AI analysis: LLM returning markdown-wrapped JSON causing parse failure and failed callLogs insert
+- [x] Fix Admin OAuth login JSON parse error on production (Unexpected token '<', '<html>...' is not valid JSON)
+  - [x] Added HTML error detection in exchangeCodeForToken
+  - [x] Added OAuth error response handling
+  - [x] Added validateStatus: () => true to prevent axios auto-throw
+  - [x] Tests: oauth-voicemail.test.ts (6/6 passing)
+
+- [x] Fix Voicemail AI analysis: LLM returning markdown-wrapped JSON causing parse failure and failed callLogs insert
+  - [x] Added markdown code block extraction regex
+  - [x] Added try-catch with detailed error logging
+  - [x] Tests: oauth-voicemail.test.ts (6/6 passing)
 
 ---
 

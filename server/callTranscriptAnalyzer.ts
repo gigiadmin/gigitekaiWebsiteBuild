@@ -89,7 +89,24 @@ export async function analyzeCallTranscript(transcript: CallTranscript): Promise
       throw new Error("No response from LLM");
     }
 
-    const analysis = JSON.parse(analysisText);
+    // Extract JSON from markdown code blocks if present
+    let jsonText = analysisText;
+    const jsonMatch = analysisText.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch && jsonMatch[1]) {
+      jsonText = jsonMatch[1].trim();
+    }
+
+    let analysis;
+    try {
+      analysis = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error("[CallAnalyzer] JSON parse failed:", {
+        originalText: analysisText.substring(0, 500),
+        jsonText: jsonText.substring(0, 500),
+        error: parseError instanceof Error ? parseError.message : String(parseError),
+      });
+      throw new Error(`Failed to parse LLM response as JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+    }
 
     // Find matching KB article based on key topics
     const db = await getDb();

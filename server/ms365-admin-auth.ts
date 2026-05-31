@@ -63,17 +63,42 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
         redirect_uri: redirectUri,
         grant_type: "authorization_code",
         scope: "openid profile email",
+      },
+      {
+        validateStatus: () => true,
       }
     );
+
+    if (typeof response.data === "string" && response.data.startsWith("<")) {
+      console.error("[MS365 Auth] Token endpoint returned HTML error page", {
+        status: response.status,
+        htmlSnippet: response.data.substring(0, 200),
+      });
+      throw new Error(
+        `Token endpoint returned HTML (status ${response.status}). Check Azure credentials.`
+      );
+    }
+
+    if (response.data.error) {
+      const errorDesc = response.data.error_description || response.data.error;
+      console.error("[MS365 Auth] OAuth error response:", {
+        error: response.data.error,
+        error_description: response.data.error_description,
+        status: response.status,
+      });
+      throw new Error(`OAuth error: ${errorDesc}`);
+    }
+
+    if (!response.data.access_token) {
+      throw new Error("No access_token in response");
+    }
 
     return response.data.access_token;
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    const errorData = error instanceof Error && 'response' in error ? (error as any).response?.data : null;
     console.error("[MS365 Auth] Token exchange failed:", {
       message: errorMsg,
       status: (error as any).response?.status,
-      data: errorData,
       tenantId,
       clientId,
     });
