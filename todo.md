@@ -747,3 +747,37 @@
   - [x] Implement dedup logic improvements (SHA256 hash + immediate recording)
   - [x] Add voicemail cleanup router with tRPC procedures (findDuplicates, removeDuplicates, getDedupStatus, cleanupExpiredEntries)
   - [x] Build successful, checkpoint saved (version 3e3ccdeb)
+
+- [x] **Fix Expert Resource Downloads** — COMPLETE: Create and deploy 5 professional PDFs
+  - [x] Create IT Security Checklist PDF (149 KB)
+  - [x] Create AI Implementation Roadmap PDF (123 KB)
+  - [x] Create Cloud Migration Template PDF (118 KB)
+  - [x] Create Helpdesk SLA Template PDF (132 KB)
+  - [x] Create Cybersecurity Assessment PDF (189 KB)
+  - [x] Upload all PDFs to S3 storage
+  - [x] Update LeadMagnetModal download URLs
+  - [x] Test downloads on dev server
+  - [x] Build successful, checkpoint saved (version bb19350d)
+
+---
+
+## REMAINING WORK (3 items)
+
+- [ ] **PageSpeed Performance Phase 2** — Optimize images and minimize JS bundle
+  - [ ] Lazy-load homepage sections using IntersectionObserver
+  - [ ] Remove unused imports from SiteNavBar2024 (SearchBar import)
+  - [ ] Optimize image assets (WebP, responsive srcSet)
+  - [ ] Code split vendor and React bundles
+  - [ ] Re-test PageSpeed Insights (target 90+ mobile)
+
+- [ ] **Fix Broken Public Site Links** — Audit and fix all broken links on gigitekai.com
+  - [ ] Crawl all public pages and identify broken links
+  - [ ] Fix internal routing issues
+  - [ ] Verify external links are valid
+  - [ ] Test on mobile and desktop
+
+- [ ] **Fix Admin Portal Links** — Audit and fix all admin dashboard links
+  - [ ] Test all navigation links in /admin
+  - [ ] Verify all feature links work
+  - [ ] Fix any 404 or redirect issues
+  - [ ] Test admin workflows end-to-end

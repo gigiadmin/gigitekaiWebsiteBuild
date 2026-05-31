@@ -7,9 +7,8 @@ import { LOGO_DATA_URL } from "@/lib/logoData";
 */
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar, Search } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { SearchBar } from "./SearchBar";
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
