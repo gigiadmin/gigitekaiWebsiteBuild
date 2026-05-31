@@ -820,7 +820,9 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     }
     
     // Compute transcript hash AFTER all transcription attempts (for accurate dedup)
-    const transcriptHash = transcript.substring(0, 50).trim();
+    // Use full transcript for better uniqueness (avoid false positives on similar voicemails)
+    const crypto = await import('crypto');
+    const transcriptHash = crypto.createHash('sha256').update(transcript).digest('hex').substring(0, 64);
     
     // Check persistent dedup AFTER transcription is complete
     if (callerNumber && transcriptHash && await isVoicemailDuplicate(callerNumber, transcriptHash)) {
@@ -1036,17 +1038,19 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         });
         
         console.log(`[Email Poller] Created DRAFT voicemail ticket from ${callerNumber || 'unknown'} - awaiting review`);
+        
+        // Record in dedup table IMMEDIATELY AFTER ticket creation (before returning)
+        // This prevents race condition where duplicate arrives before dedup is recorded
+        if (callerNumber && transcriptHash) {
+          await recordVoicemailDedup(callerNumber, transcriptHash, messageId);
+          console.log(`[Email Poller] Recorded voicemail dedup for ${callerNumber}`);
+        }
       }
     } catch (draftError) {
       console.error('[Email Poller] Failed to create draft voicemail ticket:', draftError);
       return false;
     }
     
-    // Record in dedup table to prevent future duplicates
-    if (callerNumber && transcriptHash) {
-      await recordVoicemailDedup(callerNumber, transcriptHash, messageId);
-    }
-
     // Send email notification to support@gigitekai.com
     try {
       const voicemailEmailBody = `
