@@ -740,3 +740,10 @@
   - [ ] Optimize images and lazy-load
   - [ ] Minimize JavaScript bundle
   - [ ] Test and verify improvement
+
+
+- [x] **Fix Voicemail Duplicate Issues** — COMPLETE: Remove invalid/duplicate voicemails from admin review queue
+  - [x] Identify root cause of duplicate voicemail creation (race condition in dedup recording)
+  - [x] Implement dedup logic improvements (SHA256 hash + immediate recording)
+  - [x] Add voicemail cleanup router with tRPC procedures (findDuplicates, removeDuplicates, getDedupStatus, cleanupExpiredEntries)
+  - [x] Build successful, checkpoint saved (version 3e3ccdeb)

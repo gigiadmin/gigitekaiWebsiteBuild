@@ -175,7 +175,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'IT Security Checklist',
     description: 'Essential security measures every MSP should implement',
     icon: 'pdf',
-    downloadUrl: '#',
+    downloadUrl: 'https://storage.manus.space/manus-storage/IT_Security_Checklist_fdb6954c.pdf',
     category: 'Security',
   },
   {
@@ -183,7 +183,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'AI Implementation Roadmap',
     description: '12-month plan for integrating AI into your IT operations',
     icon: 'pdf',
-    downloadUrl: '#',
+    downloadUrl: 'https://storage.manus.space/manus-storage/AI_Implementation_Roadmap_904b458f.pdf',
     category: 'AI & Automation',
   },
   {
@@ -191,7 +191,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Cloud Migration Template',
     description: 'Step-by-step guide for migrating to cloud infrastructure',
     icon: 'excel',
-    downloadUrl: '#',
+    downloadUrl: 'https://storage.manus.space/manus-storage/Cloud_Migration_Template_5257a16b.pdf',
     category: 'Cloud',
   },
   {
@@ -199,7 +199,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Helpdesk SLA Template',
     description: 'Professional SLA document for IT support services',
     icon: 'word',
-    downloadUrl: '#',
+    downloadUrl: 'https://storage.manus.space/manus-storage/Helpdesk_SLA_Template_cebe154b.pdf',
     category: 'Operations',
   },
   {
@@ -207,7 +207,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Cybersecurity Assessment',
     description: 'Comprehensive security audit checklist for your organization',
     icon: 'pdf',
-    downloadUrl: '#',
+    downloadUrl: 'https://storage.manus.space/manus-storage/Cybersecurity_Assessment_b284dc9b.pdf',
     category: 'Security',
   },
 ];
