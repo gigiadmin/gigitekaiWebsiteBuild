@@ -65,7 +65,7 @@ export default function InvestorNewsletterArchive() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedNewsletterIdId, setSelectedNewsletterId] = useState<string | null>(null);
+  const [selectedNewsletterId, setSelectedNewsletterId] = useState<string | null>(null);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,8 +84,8 @@ export default function InvestorNewsletterArchive() {
     }, 1000);
   };
 
-  const selectedNewsletter = selectedNewsletterIdId 
-    ? SAMPLE_NEWSLETTERS.find(n => n.id === selectedNewsletterIdId) 
+  const selectedNewsletter = selectedNewsletterId 
+    ? SAMPLE_NEWSLETTERS.find(n => n.id === selectedNewsletterId) 
     : null;
 
   return (
