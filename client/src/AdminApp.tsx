@@ -55,6 +55,7 @@ const AdminMsLearnSyncPage = lazy(() => import("./pages/AdminMsLearnSyncPage"));
 const AdminCallReviewPage = lazy(() => import("./pages/AdminCallReviewPage"));
 const AdminCallQualityPage = lazy(() => import("./pages/AdminCallQualityPage"));
 const AdminContactCenterDashboardWrapper = lazy(() => import("./pages/AdminContactCenterDashboardWrapper"));
+const CommandCenterAdminDashboard = lazy(() => import("./pages/CommandCenterAdminDashboard"));
 const AdminDemoLeadsPage = lazy(() => import("./pages/AdminDemoLeadsPage"));
 const AdminClientOnboarding = lazy(() => import("./pages/AdminClientOnboarding"));
 const AdminKBAnalytics = lazy(() => import("./pages/AdminKBAnalytics"));
@@ -189,6 +190,7 @@ export default function AdminApp() {
               <Route path="/admin/call-quality" component={withAdminLayout(AdminCallQualityPage, "Call Quality")} />
               <Route path="/admin/contact-center" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/contact-center-dashboard" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
+              <Route path="/admin/command-center" component={withAdminLayout(CommandCenterAdminDashboard, "Command Center")} />
               <Route path="/admin/free-audits" component={withAdminLayout(AdminClientOnboarding, "Free Audits")} />
               <Route path="/admin/roi" component={withAdminLayout(AdminROIDashboard, "ROI Dashboard")} />
 
