@@ -175,7 +175,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'IT Security Checklist',
     description: 'Essential security measures every MSP should implement',
     icon: 'pdf',
-    downloadUrl: 'https://storage.manus.space/manus-storage/IT_Security_Checklist_fdb6954c.pdf',
+    downloadUrl: '/manus-storage/IT_Security_Checklist_762136f5.pdf',
     category: 'Security',
   },
   {
@@ -183,7 +183,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'AI Implementation Roadmap',
     description: '12-month plan for integrating AI into your IT operations',
     icon: 'pdf',
-    downloadUrl: 'https://storage.manus.space/manus-storage/AI_Implementation_Roadmap_904b458f.pdf',
+    downloadUrl: '/manus-storage/AI_Implementation_Roadmap_c25c27bf.pdf',
     category: 'AI & Automation',
   },
   {
@@ -191,7 +191,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Cloud Migration Template',
     description: 'Step-by-step guide for migrating to cloud infrastructure',
     icon: 'excel',
-    downloadUrl: 'https://storage.manus.space/manus-storage/Cloud_Migration_Template_5257a16b.pdf',
+    downloadUrl: '/manus-storage/Cloud_Migration_Template_f04b8808.pdf',
     category: 'Cloud',
   },
   {
@@ -199,7 +199,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Helpdesk SLA Template',
     description: 'Professional SLA document for IT support services',
     icon: 'word',
-    downloadUrl: 'https://storage.manus.space/manus-storage/Helpdesk_SLA_Template_cebe154b.pdf',
+    downloadUrl: '/manus-storage/Helpdesk_SLA_Template_3a55e9ec.pdf',
     category: 'Operations',
   },
   {
@@ -207,7 +207,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
     title: 'Cybersecurity Assessment',
     description: 'Comprehensive security audit checklist for your organization',
     icon: 'pdf',
-    downloadUrl: 'https://storage.manus.space/manus-storage/Cybersecurity_Assessment_b284dc9b.pdf',
+    downloadUrl: '/manus-storage/Cybersecurity_Assessment_fcd05c07.pdf',
     category: 'Security',
   },
 ];
