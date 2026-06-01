@@ -143,8 +143,8 @@ export async function sendLocalNotification(payload: PushNotificationPayload): P
     const registration = await navigator.serviceWorker.ready;
     const options: NotificationOptions & { actions?: any[] } = {
       body: payload.body,
-      icon: payload.icon || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-192-mTgHQN36iurG8KJ64nHfAK.webp',
-      badge: payload.badge || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/icon-192-mTgHQN36iurG8KJ64nHfAK.webp',
+      icon: payload.icon || '/gigitekai-logo.jpg',
+      badge: payload.badge || '/gigitekai-logo.jpg',
       tag: payload.tag || 'notification',
       requireInteraction: payload.requireInteraction || false,
       data: payload.data || {},

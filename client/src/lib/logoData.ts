@@ -1,12 +1,13 @@
 /**
- * Logo Data — CDN URL instead of inline base64
- * 
- * PERFORMANCE: Previously this was a 51KB base64 PNG embedded directly in JavaScript.
- * This bloated every JS chunk that imported it (navbar, footer, admin layouts).
- * 
- * FIX: Use CDN URL instead. The browser will fetch it as a separate image asset,
- * which can be cached independently and won't block JS parsing.
- * 
- * This change saves ~51KB from the main JS bundle on initial page load.
+ * Logo Data — served from client/public as a static file
+ *
+ * PERMANENT: This path is served directly from the origin server with no expiry,
+ * no S3 signing, and no CDN dependency. The file lives at client/public/gigitekai-logo.jpg
+ * and is available at /gigitekai-logo.jpg on all domains.
+ *
+ * DO NOT use manus-storage.s3.us-east-1.amazonaws.com or signed CloudFront URLs —
+ * those expire and will cause the logo to break in production.
+ *
+ * To update the logo: replace client/public/gigitekai-logo.jpg and save a checkpoint.
  */
-export const LOGO_DATA_URL = "https://manus-storage.s3.us-east-1.amazonaws.com/gigitekai-logo-optimized_0b6c5e05(1)_2f33f309.jpg";
+export const LOGO_DATA_URL = "/gigitekai-logo.jpg";
