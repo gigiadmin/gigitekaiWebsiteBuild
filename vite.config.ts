@@ -159,7 +159,7 @@ function vitePluginManusDebugCollector(): Plugin {
  */
 function vitePluginNonBlockingCSS(): Plugin {
   // Chunks that should NOT be preloaded on public pages (admin-only)
-  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'charts-', 'tiptap-editor-'];
+  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'tiptap-editor-'];
 
   return {
     name: 'vite-plugin-non-blocking-css',
@@ -170,7 +170,7 @@ function vitePluginNonBlockingCSS(): Plugin {
       // Step 1: Remove modulepreload tags for admin-only chunks
       // These chunks are only needed on /admin routes, not public pages
       let result = html.replace(
-        /<link rel="modulepreload"[^>]*href="\/assets\/(msal-|syntax-highlight-|charts-)[^"]+"[^>]*>\n?/g,
+        /<link rel="modulepreload"[^>]*href="\/assets\/(msal-|syntax-highlight-)[^"]+"[^>]*>\n?/g,
         ''
       );
 
@@ -671,19 +671,10 @@ export default defineConfig({
           if (id.includes("@azure/msal-browser") || id.includes("@azure/msal-react") || id.includes("@azure/msal-common")) {
             return "msal";
           }
-          // Charts/data-viz — only needed in admin dashboards (recharts, d3, victory)
-          // Splitting saves ~200KB from the public page critical path
-          if (
-            id.includes("node_modules/recharts") ||
-            id.includes("node_modules/d3-") ||
-            id.includes("node_modules/d3/") ||
-            id.includes("node_modules/victory") ||
-            id.includes("node_modules/victory-") ||
-            id.includes("node_modules/internmap") ||
-            id.includes("node_modules/robust-predicates")
-          ) {
-            return "charts";
-          }
+          // NOTE: recharts/d3 are intentionally NOT split into a separate chunk.
+          // Recharts imports react-is and other vendor libs, creating a charts<->vendor
+          // circular chunk dependency that causes TDZ ReferenceErrors at runtime.
+          // These libs go into vendor where Rollup can resolve initialization order safely.
           // Syntax highlighting — only needed in blog/AI chat code blocks
           if (
             id.includes("node_modules/highlight.js") ||
