@@ -9,4 +9,4 @@
  * 
  * This change saves ~51KB from the main JS bundle on initial page load.
  */
-export const LOGO_DATA_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-logo-horizontal-white.png";
+export const LOGO_DATA_URL = "https://manus-storage.s3.us-east-1.amazonaws.com/gigitekai-logo-optimized_0b6c5e05(1)_2f33f309.jpg";
