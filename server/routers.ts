@@ -123,10 +123,13 @@ import { supportRouter } from "./routers/support";
 import { investorTrackingRouter } from "./routers/investorTracking";
 import { emailAutomationRouter } from "./routers/email-automation";
 import { voicemailCleanupRouter } from "./routers/voicemail-cleanup";
-import { commandCenterRouter } from "./routers/commandCenter";
-import { commandCenterApiRouter } from "./routers/commandCenter-api";
-import { commandCenterAlertsRouter } from "./routers/commandCenter-alerts";
-import { commandCenterAdminRouter } from "./routers/commandCenter-admin";
+// Command Center routers (DISABLED - schema mismatch issues)
+// import { commandCenterRouter } from "./routers/commandCenter";
+// import { commandCenterApiRouter } from "./routers/commandCenter-api";
+// import { commandCenterAlertsRouter } from "./routers/commandCenter-alerts";
+// import { commandCenterAdminRouter } from "./routers/commandCenter-admin";
+import { adminSearchRouter } from "./routers/adminSearch";
+import { dnsCheckerRouter } from "./routers/dnsChecker";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -164,10 +167,12 @@ export const appRouter = router({
   email: emailRouter,
   emailAutomation: emailAutomationRouter,
   voicemailCleanup: voicemailCleanupRouter,
-  commandCenter: commandCenterRouter,
-  commandCenterApi: commandCenterApiRouter,
-  commandCenterAlerts: commandCenterAlertsRouter,
-  commandCenterAdmin: commandCenterAdminRouter,
+  // commandCenter: commandCenterRouter,
+  // commandCenterApi: commandCenterApiRouter,
+  // commandCenterAlerts: commandCenterAlertsRouter,
+  // commandCenterAdmin: commandCenterAdminRouter,
+  adminSearch: adminSearchRouter,
+  dnsChecker: dnsCheckerRouter,
   emailForwarding: emailForwardingRouter,
   emailGroups: emailRecipientGroupsRouter,
   webPush: webPushRouter,

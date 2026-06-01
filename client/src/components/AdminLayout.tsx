@@ -51,6 +51,8 @@ import {
   FileCheck,
   Star,
   Command,
+  Search,
+  Globe,
 } from "lucide-react";
 
 interface NavItem {
@@ -86,7 +88,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Call Review", icon: <Phone size={16} />, href: "/admin/call-review" },
       { label: "Call Quality", icon: <Star size={16} />, href: "/admin/call-quality" },
       { label: "Contact Center", icon: <Headphones size={16} />, href: "/admin/contact-center" },
-      { label: "Command Center", icon: <Command size={16} />, href: "/admin/command-center" },
+      // { label: "Command Center", icon: <Command size={16} />, href: "/admin/command-center" }, // DISABLED
       { label: "Closed Tickets", icon: <CheckCircle2 size={16} />, href: "/admin/closed-tickets" },
       { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/helpdesk-metrics" },
       { label: "Agent Dashboard", icon: <TrendingUp size={16} />, href: "/admin/agent-dashboard" },
@@ -135,6 +137,8 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Tools",
     items: [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
+      { label: "Admin Search", icon: <Search size={16} />, href: "/admin/search" },
+      { label: "DNS Checker", icon: <Globe size={16} />, href: "/admin/dns-checker" },
     ],
   },
   {

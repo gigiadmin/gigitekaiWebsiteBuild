@@ -803,3 +803,35 @@
   - [x] Phase 6: Build alert creation/management — COMPLETE: 8 procedures, 5 notification channels, full audit trail
   - [x] Phase 7: Admin dashboard for command usage monitoring — COMPLETE: 8 admin procedures, system health, analytics, audit logs
   - [x] Phase 8: Test and deploy to production — COMPLETE: All routers registered, frontend components integrated, ready for live release
+
+
+## Admin Search Chat (Multi-Modal LLM)
+
+- [ ] **Phase 1: LLM Setup & Router**
+  - [ ] Request Claude API key via webdev_request_secrets
+  - [ ] Request Gemini API key via webdev_request_secrets
+  - [ ] Create adminSearch router with 3 procedures:
+    - [ ] searchWithClaude(query, scope)
+    - [ ] searchWithManus(query, scope)
+    - [ ] searchWithGemini(query, scope)
+  - [ ] Implement multi-source search helper (KB, tickets, system, docs, customers)
+
+- [ ] **Phase 2: Admin Chat UI**
+  - [ ] Create AdminSearchChat page component
+  - [ ] Add LLM model selector (Claude/Manus/Gemini dropdown)
+  - [ ] Add search scope checkboxes (KB, Tickets, System, Docs, Customers)
+  - [ ] Build chat message interface with model indicator
+  - [ ] Add save chat and clear chat buttons
+
+- [ ] **Phase 3: Multi-Source Search**
+  - [ ] Search KB articles by title/content
+  - [ ] Search tickets by subject/description
+  - [ ] Search system data (uptime, alerts, health)
+  - [ ] Search documentation
+  - [ ] Search customer accounts and history
+
+- [ ] **Phase 4: Testing & Deployment**
+  - [ ] Test all three LLM models
+  - [ ] Test search scope combinations
+  - [ ] Verify context injection into prompts
+  - [ ] Deploy to production

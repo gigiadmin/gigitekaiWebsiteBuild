@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+// import { useToast } from "@/components/ui/use-toast"; // Not available
 import { trpc } from "@/lib/trpc";
 
 interface VoiceCommandButtonProps {
@@ -19,7 +19,7 @@ export function VoiceCommandButton({ onCommand, isListening = false }: VoiceComm
   const [transcript, setTranscript] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -66,11 +66,7 @@ export function VoiceCommandButton({ onCommand, isListening = false }: VoiceComm
 
     recognition.onerror = (event: any) => {
       console.error("[VoiceCommand] Recognition error:", event.error);
-      toast({
-        title: "Voice Recognition Error",
-        description: event.error === "no-speech" ? "No speech detected. Please try again." : event.error,
-        variant: "destructive",
-      });
+      console.error("Voice Recognition Error:", event.error);
       setIsRecording(false);
     };
 
@@ -85,18 +81,14 @@ export function VoiceCommandButton({ onCommand, isListening = false }: VoiceComm
         recognitionRef.current.abort();
       }
     };
-  }, [onCommand, toast]);
+  }, [onCommand]);
 
   /**
    * Start listening for voice input
    */
   const startListening = () => {
     if (!recognitionRef.current) {
-      toast({
-        title: "Not Supported",
-        description: "Voice commands are not supported in your browser. Please use Chrome, Edge, or Safari.",
-        variant: "destructive",
-      });
+      console.error("Voice commands not supported in this browser");
       return;
     }
 
