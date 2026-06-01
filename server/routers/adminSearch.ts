@@ -1,6 +1,6 @@
-import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
+import { router, adminProcedure, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { invokeLLM } from "../_core/llm";
+import { callLLM, getAvailableModels } from "../_core/multiLLM";
 import { getDb } from "../db";
 import { eq, like, or } from "drizzle-orm";
 import { kbArticles, tickets } from "../../drizzle/schema";
@@ -94,36 +94,13 @@ ${context.join("\n\n")}
 
 Answer the user's question based on the available information. Be concise and actionable.`;
 
-      // Call the selected LLM
-      let response;
+      // Call the selected LLM using real multi-model routing
+      const llmResponse = await callLLM(input.model, [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: input.query },
+      ]);
 
-      if (input.model === "claude") {
-        response = await invokeLLM({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: input.query },
-          ],
-        });
-      } else if (input.model === "gemini") {
-        // Gemini through Manus LLM (same interface)
-        response = await invokeLLM({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: input.query },
-          ],
-        });
-      } else {
-        // Manus LLM (default)
-        response = await invokeLLM({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: input.query },
-          ],
-        });
-      }
-
-      const answer =
-        response.choices?.[0]?.message?.content || "No response from LLM";
+      const answer = llmResponse.content || "No response from LLM";
 
       return {
         query: input.query,
@@ -154,25 +131,10 @@ Answer the user's question based on the available information. Be concise and ac
   }),
 
   /**
-   * Get available LLM models
+   * Get available LLM models with real availability status
    */
   getModels: protectedProcedure.query(async () => {
-    return [
-      {
-        id: "claude",
-        name: "Claude (Anthropic)",
-        description: "Best for reasoning and complex queries",
-      },
-      {
-        id: "manus",
-        name: "Manus LLM",
-        description: "Built-in, optimized for GigitekAI context",
-      },
-      {
-        id: "gemini",
-        name: "Gemini (Google)",
-        description: "Fast and cost-effective",
-      },
-    ];
+    return getAvailableModels();
   }),
+
 });

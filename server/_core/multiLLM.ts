@@ -1,0 +1,183 @@
+/**
+ * Multi-Model LLM Router
+ * Supports Claude (Anthropic), Manus LLM (built-in), and Gemini (Google)
+ */
+
+import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { invokeLLM } from "./llm";
+
+export type LLMModel = "claude" | "manus" | "gemini";
+
+export interface LLMMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface LLMResponse {
+  content: string;
+  model: LLMModel;
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+  };
+}
+
+/**
+ * Call Claude (Anthropic) directly
+ */
+async function callClaude(messages: LLMMessage[]): Promise<LLMResponse> {
+  const apiKey = process.env.CLAUDE_API_KEY;
+  if (!apiKey) throw new Error("CLAUDE_API_KEY not configured");
+
+  const client = new Anthropic({ apiKey });
+
+  // Separate system message from conversation
+  const systemMsg = messages.find((m) => m.role === "system")?.content;
+  const conversationMsgs = messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    }));
+
+  const response = await client.messages.create({
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: 1024,
+    system: systemMsg,
+    messages: conversationMsgs,
+  });
+
+  const content =
+    response.content[0].type === "text" ? response.content[0].text : "";
+
+  return {
+    content,
+    model: "claude",
+    usage: {
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+    },
+  };
+}
+
+/**
+ * Call Gemini (Google) directly
+ */
+async function callGemini(messages: LLMMessage[]): Promise<LLMResponse> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  // Build prompt with system context
+  const systemMsg = messages.find((m) => m.role === "system")?.content || "";
+  const conversationMsgs = messages.filter((m) => m.role !== "system");
+
+  // Build chat history (all but last message)
+  const history = conversationMsgs.slice(0, -1).map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const chat = model.startChat({
+    history,
+    systemInstruction: systemMsg,
+  });
+
+  const lastMsg = conversationMsgs[conversationMsgs.length - 1];
+  const result = await chat.sendMessage(lastMsg?.content || "");
+  const content = result.response.text();
+
+  return {
+    content,
+    model: "gemini",
+    usage: {
+      inputTokens: result.response.usageMetadata?.promptTokenCount,
+      outputTokens: result.response.usageMetadata?.candidatesTokenCount,
+    },
+  };
+}
+
+/**
+ * Call Manus built-in LLM
+ */
+async function callManus(messages: LLMMessage[]): Promise<LLMResponse> {
+  const response = await invokeLLM({
+    messages: messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    })),
+  });
+
+  const content =
+    typeof response.choices?.[0]?.message?.content === "string"
+      ? response.choices[0].message.content
+      : "No response";
+
+  return {
+    content,
+    model: "manus",
+  };
+}
+
+/**
+ * Route to the appropriate LLM based on model selection
+ * Falls back to Manus if the selected model is unavailable
+ */
+export async function callLLM(
+  model: LLMModel,
+  messages: LLMMessage[]
+): Promise<LLMResponse> {
+  try {
+    switch (model) {
+      case "claude":
+        return await callClaude(messages);
+      case "gemini":
+        return await callGemini(messages);
+      case "manus":
+      default:
+        return await callManus(messages);
+    }
+  } catch (error) {
+    console.error(`[MultiLLM] ${model} failed, falling back to Manus:`, error);
+    // Fallback to Manus LLM
+    return await callManus(messages);
+  }
+}
+
+/**
+ * Get available models with their status
+ */
+export function getAvailableModels(): Array<{
+  id: LLMModel;
+  name: string;
+  description: string;
+  available: boolean;
+  badge?: string;
+}> {
+  return [
+    {
+      id: "claude",
+      name: "Claude 3.5 Sonnet",
+      description: "Best reasoning and analysis. Ideal for complex queries.",
+      available: !!process.env.CLAUDE_API_KEY,
+      badge: "Best",
+    },
+    {
+      id: "gemini",
+      name: "Gemini 1.5 Flash",
+      description: "Fast and cost-effective. Great for quick lookups.",
+      available: !!process.env.GEMINI_API_KEY,
+      badge: "Fast",
+    },
+    {
+      id: "manus",
+      name: "Manus LLM",
+      description: "Built-in AI. Always available, no external API needed.",
+      available: true,
+      badge: "Default",
+    },
+  ];
+}

@@ -9,6 +9,7 @@ import { AgentAssignmentModal } from "@/components/AgentAssignmentModal";
 import { TicketMergeModal } from "@/components/TicketMergeModal";
 import { SurveyModal } from "@/components/SurveyModal";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
+import TicketAIPanel from "@/components/TicketAIPanel";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
@@ -39,7 +40,11 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-export default function TicketDetail() {
+interface TicketDetailProps {
+  isAdminOverride?: boolean;
+}
+
+export default function TicketDetail({ isAdminOverride = false }: TicketDetailProps) {
   const { isAuthenticated, loading, user } = useAuth();
   const [, navigate] = useLocation();
   const { ticketId } = useParams<{ ticketId: string }>();
@@ -59,7 +64,7 @@ export default function TicketDetail() {
   const ticketIdNum = parseInt(ticketId || "0");
   const [showRecordings, setShowRecordings] = useState(false);
   const [previewRecUrl, setPreviewRecUrl] = useState<string | null>(null);
-  const isAdmin = user?.role === "admin";
+  const isAdmin = isAdminOverride || user?.role === "admin";
   const { data: recordingsData, refetch: refetchRecordings } = trpc.sessionRecording.getRecordings.useQuery(
     { ticketId: ticketIdNum },
     { enabled: isAdmin && ticketIdNum > 0 && showRecordings }
@@ -1071,6 +1076,12 @@ export default function TicketDetail() {
         {/* Admin Sidebar: Notes & Activity */}
         {isAdmin && (
           <div className="space-y-4">
+            {/* AI Analysis Panel */}
+            <TicketAIPanel
+              ticketId={ticketIdNum}
+              onDraftReply={(draft) => setReplyText(draft)}
+            />
+
             {/* Tab switcher */}
             <div className="flex gap-1 bg-[#141B2D]/60 border border-gray-800/40 rounded-xl p-1">
               <button

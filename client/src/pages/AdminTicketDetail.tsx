@@ -43,7 +43,8 @@ export default function AdminTicketDetail() {
     );
   }
 
-  // Render TicketDetail component
-  // The component will detect isAdmin=true from adminAuth context and render admin view
-  return <TicketDetail />;
+  // Render TicketDetail component with admin override so the AI panel and admin features show
+  // TicketDetail uses useAuth().user?.role === 'admin' for isAdmin, but admin panel uses
+  // a separate adminAuth session. We pass isAdminOverride=true to force admin view.
+  return <TicketDetail isAdminOverride={true} />;
 }
