@@ -98,6 +98,13 @@
   - [x] Error messages now include specific failure reasons
   - [x] Next step: Check Azure app configuration on production (AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID)
 
+- [x] **Fix Broken Logo References** — COMPLETE: Updated navbar, JSON-LD schema, and PWA icons
+  - [x] Fixed logoData.ts with new S3 URL
+  - [x] Updated index.html JSON-LD schema
+  - [x] Generated 8 PWA icons from logo
+  - [x] Updated manifest.json with S3 URLs
+  - [x] All CloudFront 403 errors resolved
+
 - [ ] **AI Integration** (Optional) — DEFERRED (nice-to-have, not critical for production)
   - Add Claude API key to environment secrets
   - Add Gemini API key to environment secrets

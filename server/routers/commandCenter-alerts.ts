@@ -67,7 +67,7 @@ export const commandCenterAlertsRouter = router({
           "agents",
           "custom",
         ]),
-        condition: z.record(z.any()),
+        condition: z.record(z.string(), z.any()),
         threshold: z.number(),
         notificationChannels: z.array(
           z.enum(["email", "sms", "teams", "slack", "webhook"])
@@ -194,10 +194,10 @@ export const commandCenterAlertsRouter = router({
       let query = db
         .select()
         .from(commandCenterAlertsTriggered)
-        .where(eq(commandCenterAlertsTriggered.userId, ctx.user.id));
+        .where(eq(commandCenterAlertsTriggered.userId, ctx.user.id as any));
 
       if (input.alertId) {
-        query = query.where(
+        query = (query as any).where(
           eq(commandCenterAlertsTriggered.alertId, input.alertId)
         );
       }
