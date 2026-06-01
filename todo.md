@@ -765,3 +765,11 @@
 - [x] **Phase 2: Admin Chat UI** — COMPLETE: AdminSearchChat.tsx with model selector, scope toggles, chat interface, save/clear.
 - [x] **Phase 3: Multi-Source Search** — COMPLETE: KB, tickets, system, docs, customers all searchable via adminSearch router.
 - [x] **Phase 4: Testing & Deployment** — COMPLETE: All three models tested, context injection working, production deployed.
+
+---
+
+## Production Hardening (June 2026)
+
+- [x] Cloudflare WAF rule: updated filter to allow /admin/login + /admin/unlock from any IP, allow authenticated sessions (MSAL cookie), block unauthenticated bots
+- [x] UptimeRobot: 10 monitors created (Homepage, Services, Pricing, Contact, Helpdesk, Support, Admin Login, KB, Status, API Health) — 5-min interval, all 3 alert contacts wired
+- [x] GitHub Actions smoke test: .github/workflows/smoke-test.yml — audits 25 pages on hh.gigitekai.com on every push to main, Teams notification on pass/fail
