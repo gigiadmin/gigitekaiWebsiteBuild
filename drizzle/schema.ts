@@ -2258,3 +2258,74 @@ export type Client = typeof clients.$inferSelect;
 export type InsertClient = typeof clients.$inferInsert;
 export type ClientTimelineEntry = typeof clientTimeline.$inferSelect;
 export type InsertClientTimelineEntry = typeof clientTimeline.$inferInsert;
+
+
+// ============================================================================
+// EMAIL DIAGNOSTICS SUITE
+// ============================================================================
+
+export const emailAnalysisHistory = mysqlTable("emailAnalysisHistory", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	domain: varchar({ length: 255 }).notNull(),
+	emailAddress: varchar({ length: 320 }),
+	analysisType: mysqlEnum(['header', 'dkim_spf_dmarc', 'deliverability', 'reverse_dns', 'mx_records', 'ssl_tls', 'bounce_rate', 'comprehensive']).notNull(),
+	rawInput: text(), // Raw email headers or domain
+	resultsJson: json().notNull(), // Full analysis results
+	headerAnalysis: json(), // Parsed header data
+	dkimSpfDmarcAnalysis: json(), // DKIM/SPF/DMARC validation
+	deliverabilityAnalysis: json(), // Blacklist and reputation checks
+	reverseDnsAnalysis: json(), // PTR records and reputation
+	mxRecordsAnalysis: json(), // MX record validation
+	sslTlsAnalysis: json(), // Certificate and encryption checks
+	bounceRateAnalysis: json(), // Delivery pattern analysis
+	overallScore: int(), // 0-100 score
+	status: mysqlEnum(['pass', 'warning', 'fail']).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("emailAnalysisHistory_user_idx").on(table.userId),
+	index("emailAnalysisHistory_domain_idx").on(table.domain),
+	index("emailAnalysisHistory_created_idx").on(table.createdAt),
+	index("emailAnalysisHistory_type_idx").on(table.analysisType),
+]);
+
+export const emailReports = mysqlTable("emailReports", {
+	id: int().autoincrement().notNull(),
+	analysisId: int().notNull().references(() => emailAnalysisHistory.id, { onDelete: "cascade" }),
+	reportType: mysqlEnum(['pdf', 'email', 'html']).notNull(),
+	fileName: varchar({ length: 255 }).notNull(),
+	fileUrl: varchar({ length: 500 }).notNull(), // S3 URL
+	fileSize: int(), // bytes
+	sentTo: json(), // Array of email addresses
+	sentAt: timestamp({ mode: 'string' }),
+	downloadCount: int().default(0).notNull(),
+	lastDownloadedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("emailReports_analysis_idx").on(table.analysisId),
+	index("emailReports_created_idx").on(table.createdAt),
+]);
+
+export const emailDiagnosticsCache = mysqlTable("emailDiagnosticsCache", {
+	id: int().autoincrement().notNull(),
+	cacheKey: varchar({ length: 255 }).notNull().unique(),
+	toolType: mysqlEnum(['header', 'dkim_spf_dmarc', 'deliverability', 'reverse_dns', 'mx_records', 'ssl_tls', 'bounce_rate']).notNull(),
+	domain: varchar({ length: 255 }).notNull(),
+	resultsJson: json().notNull(),
+	expiresAt: timestamp({ mode: 'string' }).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("emailDiagnosticsCache_key_idx").on(table.cacheKey),
+	index("emailDiagnosticsCache_expires_idx").on(table.expiresAt),
+]);
+
+export type EmailAnalysisHistory = typeof emailAnalysisHistory.$inferSelect;
+export type InsertEmailAnalysisHistory = typeof emailAnalysisHistory.$inferInsert;
+export type EmailReport = typeof emailReports.$inferSelect;
+export type InsertEmailReport = typeof emailReports.$inferInsert;
+export type EmailDiagnosticsCache = typeof emailDiagnosticsCache.$inferSelect;
+export type InsertEmailDiagnosticsCache = typeof emailDiagnosticsCache.$inferInsert;

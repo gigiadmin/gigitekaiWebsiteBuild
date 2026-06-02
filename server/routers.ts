@@ -58,6 +58,7 @@ import { kbSearchAnalyticsRouter } from "./routers/kb-search-analytics";
 import { kbGenerationRouter } from "./routers/kb-generation";
 import { customerPortalRouter } from "./routers/customer-portal";
 import { notificationsRouter } from "./routers/notifications";
+import { emailDiagnosticsRouter } from "./routers/emailDiagnostics";
 import { adminRolesRouter } from "./routers/admin-roles-permissions";
 import { adminMenuCustomizationRouter } from "./routers/admin-menu-customization";
 import { m365HealthRouter } from "./routers/m365-health";
@@ -188,6 +189,7 @@ export const appRouter = router({
   aiCommandSuggestions: aiCommandSuggestionsRouter,
   adminSearch: adminSearchRouter,
   dnsChecker: dnsCheckerRouter,
+  emailDiagnostics: emailDiagnosticsRouter,
   ticketAI: ticketAIRouter,
   emailForwarding: emailForwardingRouter,
   emailGroups: emailRecipientGroupsRouter,
