@@ -1,4 +1,3 @@
-import { LOGO_DATA_URL } from "@/lib/logoData";
 /*
   GigitekAI Navbar — Theme-aware navigation
   Two-tier navigation: top utility bar + main nav
@@ -112,16 +111,10 @@ export default function SiteNavBar2024() {
         <div className="container flex items-center justify-between h-[72px] sm:h-[80px] lg:h-[80px] gap-4">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group flex-shrink-0">
-            <img 
-              src={LOGO_DATA_URL} 
-              alt="GigitekAI logo" 
-              className="navbar-logo h-7 sm:h-8 lg:h-8 w-auto object-contain"
-              width="245"
-              height="70"
-              fetchPriority="high"
-              decoding="async"
-              style={{ maxWidth: '180px', minWidth: '100px' }}
-            />
+            <span className="font-bold text-xl sm:text-2xl" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.02em' }}>
+              <span className="text-white">Gigitek</span>
+              <span style={{ color: '#00D4FF' }}>AI</span>
+            </span>
           </a>
 
           {/* Desktop nav links */}
