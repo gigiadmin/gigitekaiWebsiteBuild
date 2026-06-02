@@ -14,7 +14,6 @@ export function usePushNotifications() {
 
   const subscribeMutation = trpc.webPush.subscribe.useMutation();
   const unsubscribeMutation = trpc.webPush.unsubscribe.useMutation();
-  const getSubscriptionsMutation = trpc.webPush.getSubscriptions.useQuery();
 
   // Check if browser supports Web Push
   useEffect(() => {
@@ -136,8 +135,8 @@ export function usePushNotifications() {
   return {
     isSupported,
     isSubscribed,
-    isLoading,
-    error,
+    isLoading: isLoading || subscribeMutation.isPending || unsubscribeMutation.isPending,
+    error: error || subscribeMutation.error?.message || unsubscribeMutation.error?.message || null,
     permission,
     subscribe,
     unsubscribe,

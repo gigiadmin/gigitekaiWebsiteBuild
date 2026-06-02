@@ -1477,3 +1477,7 @@
 - [x] Added listClients, getClient, updateStatus admin procedures
 - [x] Vitest: 6 tests passing for client-onboarding.test.ts
 - [x] Save checkpoint
+
+## Bug: /admin/preferences Push Notifications Stuck Loading (Jun 2026)
+
+- [ ] Fix Push Notifications section on /admin/preferences stuck on "Loading..." button
