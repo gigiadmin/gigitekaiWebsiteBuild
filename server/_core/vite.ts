@@ -141,7 +141,7 @@ export function serveStatic(app: Express) {
 
   // Serve static assets but NOT index.html — the catch-all below applies the
   // non-blocking CSS transform before sending index.html.
-  app.use(express.static(distPath, { index: false }));
+  app.use(express.static(distPath, { index: false, etag: true, maxAge: '1y', immutable: true }));
 
   // ── Serve static legal pages in production (pre-rendered HTML for SEO) ──────
   // These bypass the SPA catch-all so raw HTTP fetches return full HTML content.

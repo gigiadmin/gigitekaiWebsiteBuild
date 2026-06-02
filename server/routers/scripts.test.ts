@@ -5,11 +5,12 @@ import { eq } from "drizzle-orm";
 
 describe("Scripts Router", () => {
   let testScriptId: number;
-  const db = getDb();
+  let db: Awaited<ReturnType<typeof getDb>>;
 
   beforeAll(async () => {
+    db = await getDb();
     // Create a test script
-    const result = await db.insert(scripts).values({
+    const result = await db!.insert(scripts).values({
       name: "Test Script",
       description: "A test script for unit testing",
       category: "Teams",
@@ -30,14 +31,14 @@ describe("Scripts Router", () => {
   afterAll(async () => {
     // Clean up test data
     if (testScriptId) {
-      await db.delete(scriptFeedback).where(eq(scriptFeedback.script_id, testScriptId));
-      await db.delete(scriptExecutions).where(eq(scriptExecutions.script_id, testScriptId));
-      await db.delete(scripts).where(eq(scripts.id, testScriptId));
+      await db!.delete(scriptFeedback).where(eq(scriptFeedback.script_id, testScriptId));
+      await db!.delete(scriptExecutions).where(eq(scriptExecutions.script_id, testScriptId));
+      await db!.delete(scripts).where(eq(scripts.id, testScriptId));
     }
   });
 
   it("should create a script", async () => {
-    const result = await db.insert(scripts).values({
+    const result = await db!.insert(scripts).values({
       name: "New Test Script",
       description: "Another test script",
       category: "Azure",
@@ -56,7 +57,7 @@ describe("Scripts Router", () => {
     expect(result.insertId).toBeGreaterThan(0);
 
     // Clean up
-    await db.delete(scripts).where(eq(scripts.id, result.insertId));
+    await db!.delete(scripts).where(eq(scripts.id, result.insertId));
   });
 
   it("should retrieve a script by ID", async () => {
@@ -112,7 +113,7 @@ describe("Scripts Router", () => {
   });
 
   it("should log script execution", async () => {
-    const result = await db.insert(scriptExecutions).values({
+    const result = await db!.insert(scriptExecutions).values({
       script_id: testScriptId,
       user_id: 1,
       executed_at: new Date(),
@@ -134,11 +135,11 @@ describe("Scripts Router", () => {
     expect(execution[0].duration_ms).toBe(1500);
 
     // Clean up
-    await db.delete(scriptExecutions).where(eq(scriptExecutions.id, result.insertId));
+    await db!.delete(scriptExecutions).where(eq(scriptExecutions.id, result.insertId));
   });
 
   it("should submit script feedback", async () => {
-    const result = await db.insert(scriptFeedback).values({
+    const result = await db!.insert(scriptFeedback).values({
       script_id: testScriptId,
       user_id: 1,
       feedback_type: "Bug",
@@ -161,12 +162,12 @@ describe("Scripts Router", () => {
     expect(feedback[0].status).toBe("Open");
 
     // Clean up
-    await db.delete(scriptFeedback).where(eq(scriptFeedback.id, result.insertId));
+    await db!.delete(scriptFeedback).where(eq(scriptFeedback.id, result.insertId));
   });
 
   it("should update feedback status", async () => {
     // Create feedback
-    const feedbackResult = await db.insert(scriptFeedback).values({
+    const feedbackResult = await db!.insert(scriptFeedback).values({
       script_id: testScriptId,
       user_id: 1,
       feedback_type: "Feature Request",
@@ -191,7 +192,7 @@ describe("Scripts Router", () => {
     expect(updated[0].status).toBe("In Progress");
 
     // Clean up
-    await db.delete(scriptFeedback).where(eq(scriptFeedback.id, feedbackResult.insertId));
+    await db!.delete(scriptFeedback).where(eq(scriptFeedback.id, feedbackResult.insertId));
   });
 
   it("should filter scripts by category", async () => {
@@ -209,7 +210,7 @@ describe("Scripts Router", () => {
 
   it("should handle script deletion", async () => {
     // Create a script to delete
-    const createResult = await db.insert(scripts).values({
+    const createResult = await db!.insert(scripts).values({
       name: "Script to Delete",
       description: "This script will be deleted",
       category: "M365",
@@ -228,7 +229,7 @@ describe("Scripts Router", () => {
     const scriptToDelete = createResult.insertId;
 
     // Delete the script
-    await db.delete(scripts).where(eq(scripts.id, scriptToDelete));
+    await db!.delete(scripts).where(eq(scripts.id, scriptToDelete));
 
     // Verify it's deleted
     const result = await db
