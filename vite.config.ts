@@ -377,17 +377,16 @@ function vitePluginCriticalPreload(): Plugin {
       const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_-]+)\.js"/);
       const mainHash = mainMatch ? mainMatch[1] : null;
 
-      // Find react-core and vendor from the bundle output (since modulePreload is disabled,
+      // Find critical chunks from the bundle output (since modulePreload is disabled,
       // these chunks aren't referenced in HTML but ARE in the critical path via static imports)
-      let reactCoreFile = '';
+      // NOTE: react-core chunk was removed to fix circular dependency with recharts/react-smooth.
+      // React now lives in vendor chunk.
       let criticalUtilsFile = '';
       let trpcQueryFile = '';
       const bundle = ctx.bundle;
       if (bundle) {
         for (const [fileName] of Object.entries(bundle)) {
-          if (fileName.match(/react-core-[a-zA-Z0-9_-]+\.js$/)) {
-            reactCoreFile = '/' + fileName;
-          } else if (fileName.match(/critical-utils-[a-zA-Z0-9_-]+\.js$/)) {
+          if (fileName.match(/critical-utils-[a-zA-Z0-9_-]+\.js$/)) {
             criticalUtilsFile = '/' + fileName;
           } else if (fileName.match(/trpc-query-[a-zA-Z0-9_-]+\.js$/)) {
             trpcQueryFile = '/' + fileName;
@@ -407,7 +406,6 @@ function vitePluginCriticalPreload(): Plugin {
       // they are side-effect-only imports that can load after main renders.
       const preloadHints = [
         `<link rel="modulepreload" href="/assets/main-${mainHash}.js">`,
-        reactCoreFile ? `<link rel="modulepreload" href="${reactCoreFile}">` : '',
         criticalUtilsFile ? `<link rel="modulepreload" href="${criticalUtilsFile}">` : '',
         trpcQueryFile ? `<link rel="modulepreload" href="${trpcQueryFile}">` : '',
       ].filter(Boolean).join('\n    ');
@@ -647,10 +645,12 @@ export default defineConfig({
           // Previous config caused admin-heavy <-> utils cycle causing TDZ errors.
           // Now we use a flat, non-overlapping grouping strategy.
 
-          // React core — smallest possible initial chunk
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/") || id.includes("node_modules/scheduler/")) {
-            return "react-core";
-          }
+          // NOTE: react, react-dom, scheduler are intentionally NOT split into a separate
+          // react-core chunk. When recharts (in 'charts' chunk) uses react-smooth which calls
+          // React.forwardRef during module init, a circular dependency forms:
+          // react-core→charts→react-core causing "Cannot read properties of undefined
+          // (reading 'forwardRef')" crash. Letting React fall into 'vendor' resolves this
+          // because vendor has no circular imports.
           // Critical-path utilities — tiny libs needed by main chunk on every page load.
           // Splitting these from the 334KB vendor chunk means main only downloads ~15KB
           // instead of the entire vendor bundle on first paint.
@@ -782,18 +782,11 @@ export default defineConfig({
           ) {
             return "streamdown-heavy";
           }
-          // Recharts + D3 — only used in admin analytics pages
-          // Split into separate chunk to keep vendor.js smaller
-          // NOTE: recharts has react-is dependency; keep together to avoid circular deps
-          if (
-            id.includes("node_modules/recharts") ||
-            id.includes("node_modules/d3-") ||
-            id.includes("node_modules/d3/") ||
-            id.includes("node_modules/victory") ||
-            id.includes("node_modules/react-is")
-          ) {
-            return "charts";
-          }
+          // NOTE: recharts, d3, react-is, react-smooth are intentionally NOT split into
+          // a separate 'charts' chunk. Recharts uses react-smooth which calls React.forwardRef
+          // during module initialization. Splitting creates a vendor→charts→vendor circular
+          // dependency that causes TDZ crashes. All chart libs go into vendor where Rollup
+          // can safely resolve initialization order.
           // All other node_modules go into a single vendor chunk.
           if (id.includes("node_modules")) {
             return "vendor";
