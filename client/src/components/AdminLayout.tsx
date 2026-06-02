@@ -139,6 +139,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
       { label: "Admin Search", icon: <Search size={16} />, href: "/admin/search" },
       { label: "DNS Checker", icon: <Globe size={16} />, href: "/admin/dns-checker" },
+      { label: "Email Diagnostics", icon: <Mail size={16} />, href: "/admin/email-diagnostics" },
     ],
   },
   {

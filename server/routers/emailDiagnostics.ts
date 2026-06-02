@@ -39,9 +39,9 @@ async function analyzeEmailHeaders(rawHeaders: string) {
 
   // Parse authentication results
   const authResults = headers['Authentication-Results']?.[0] || '';
-  const spfPass = authResults.includes('spf=pass');
-  const dkimPass = authResults.includes('dkim=pass');
-  const dmarcPass = authResults.includes('dmarc=pass');
+  const spfStatus = authResults.includes('spf=pass') ? 'pass' : authResults.includes('spf=fail') ? 'fail' : 'neutral';
+  const dkimStatus = authResults.includes('dkim=pass') ? 'pass' : authResults.includes('dkim=fail') ? 'fail' : 'neutral';
+  const dmarcStatus = authResults.includes('dmarc=pass') ? 'pass' : authResults.includes('dmarc=fail') ? 'fail' : 'neutral';
 
   // Extract routing information
   const receivedHeaders = headers['Received'] || [];
@@ -50,18 +50,38 @@ async function analyzeEmailHeaders(rawHeaders: string) {
     return match ? match[1] : 'unknown';
   });
 
+  // Calculate overall score
+  let score = 100;
+  if (spfStatus !== 'pass') score -= 30;
+  if (dkimStatus !== 'pass') score -= 30;
+  if (dmarcStatus !== 'pass') score -= 20;
+  score = Math.max(0, score);
+
+  // Identify issues
+  const issues: string[] = [];
+  if (spfStatus !== 'pass') issues.push('SPF authentication failed or not configured');
+  if (dkimStatus !== 'pass') issues.push('DKIM signature verification failed or missing');
+  if (dmarcStatus !== 'pass') issues.push('DMARC policy check failed');
+
+  // Recommendations
+  const recommendations: string[] = [];
+  if (spfStatus === 'pass') recommendations.push('SPF is properly configured');
+  if (dkimStatus === 'pass') recommendations.push('DKIM signature is valid');
+  if (dmarcStatus === 'pass') recommendations.push('DMARC policy is enforced');
+  if (score < 80) recommendations.push('Consider implementing missing authentication protocols');
+
   return {
-    headers,
-    authentication: {
-      spf: spfPass ? 'PASS' : 'FAIL',
-      dkim: dkimPass ? 'PASS' : 'FAIL',
-      dmarc: dmarcPass ? 'PASS' : 'FAIL',
-    },
+    spf: { status: spfStatus, details: authResults.match(/spf=[^\s]+/)?.[0] || 'No SPF result' },
+    dkim: { status: dkimStatus, details: authResults.match(/dkim=[^\s]+/)?.[0] || 'No DKIM result' },
+    dmarc: { status: dmarcStatus, details: authResults.match(/dmarc=[^\s]+/)?.[0] || 'No DMARC result' },
     routingPath,
     fromAddress: headers['From']?.[0] || 'unknown',
     toAddress: headers['To']?.[0] || 'unknown',
     subject: headers['Subject']?.[0] || '(no subject)',
     timestamp: headers['Date']?.[0] || 'unknown',
+    overallScore: score,
+    issues,
+    recommendations,
   };
 }
 
@@ -462,6 +482,82 @@ export const emailDiagnosticsRouter = {
       } catch (e) {
         console.error('[Email Diagnostics] Failed to fetch history:', e);
         return [];
+      }
+    }),
+
+  exportReportPDF: adminProcedure
+    .input(z.object({ analysisId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new Error('Unauthorized');
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error('Database unavailable');
+
+        const analysis = await db
+          .select()
+          .from(emailAnalysisHistory)
+          .where(eq(emailAnalysisHistory.id, input.analysisId))
+          .limit(1);
+
+        if (!analysis.length) throw new Error('Analysis not found');
+
+        const { generateEmailDiagnosticsReport } = await import('../../server/_core/reportGenerator');
+
+        const reportData: any = {
+          domain: analysis[0].domain,
+          timestamp: analysis[0].createdAt,
+          overallScore: analysis[0].overallScore || 0,
+          status: (analysis[0].status as string).toUpperCase() as 'PASS' | 'WARNING' | 'FAIL',
+          tools: analysis[0].resultsJson || {},
+        };
+
+        const { url, fileName } = await generateEmailDiagnosticsReport(reportData, ctx.user.id);
+
+        return { success: true, url, fileName };
+      } catch (e) {
+        console.error('[Email Diagnostics] PDF export failed:', e);
+        throw new Error(`PDF export failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+      }
+    }),
+
+  sendReportEmail: adminProcedure
+    .input(z.object({ analysisId: z.number(), recipients: z.array(z.string().email()) }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) throw new Error('Unauthorized');
+
+      try {
+        const db = await getDb();
+        if (!db) throw new Error('Database unavailable');
+
+        const analysis = await db
+          .select()
+          .from(emailAnalysisHistory)
+          .where(eq(emailAnalysisHistory.id, input.analysisId))
+          .limit(1);
+
+        if (!analysis.length) throw new Error('Analysis not found');
+
+        const { generateEmailReport } = await import('../../server/_core/reportGenerator');
+
+        const reportData: any = {
+          domain: analysis[0].domain,
+          timestamp: analysis[0].createdAt,
+          overallScore: analysis[0].overallScore || 0,
+          status: (analysis[0].status as string).toUpperCase() as 'PASS' | 'WARNING' | 'FAIL',
+          tools: analysis[0].resultsJson || {},
+        };
+
+        const result = await generateEmailReport(reportData, ctx.user.id, input.recipients);
+
+        if (!result.success) throw new Error(result.message);
+
+        console.log(`[Email Diagnostics] Report sent to ${input.recipients.join(', ')}`);
+
+        return { success: true, message: `Report sent to ${input.recipients.length} recipient(s)` };
+      } catch (e) {
+        console.error('[Email Diagnostics] Email send failed:', e);
+        throw new Error(`Email send failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
       }
     }),
 };
