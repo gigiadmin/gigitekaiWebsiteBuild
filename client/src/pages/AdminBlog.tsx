@@ -613,6 +613,53 @@ export default function AdminBlog() {
         </DialogContent>
       </Dialog>
 
+      {/* ── Share via Email Dialog ──────────────────────────────────────── */}
+      <Dialog open={!!shareEmail} onOpenChange={(open) => { if (!open) { setShareEmail(null); setRecipientEmail(""); } }}>
+        <DialogContent className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">Share Blog Post via Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-gray-400 text-sm">
+              Share <strong className="text-white">"{shareEmail?.postTitle}"</strong> with a recipient.
+            </p>
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">Recipient Email</label>
+              <Input
+                type="email"
+                placeholder="recipient@example.com"
+                value={recipientEmail}
+                onChange={(e) => setRecipientEmail(e.target.value)}
+                className="bg-[#0A0E1A] border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => { setShareEmail(null); setRecipientEmail(""); }}
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!recipientEmail || !shareEmail) return;
+                sendBlogEmail.mutate({ postId: shareEmail.postId, recipientEmail });
+              }}
+              disabled={!recipientEmail || sendBlogEmail.isPending}
+              className="bg-[#00D4FF] hover:bg-[#00B8E0] text-[#0A0E1A] font-semibold"
+            >
+              {sendBlogEmail.isPending ? (
+                <><Loader2 size={14} className="animate-spin mr-2" /> Sending…</>
+              ) : (
+                <><Mail size={14} className="mr-2" /> Send Email</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent className="bg-[#141B2D] border-[rgba(0,212,255,0.2)] text-white">

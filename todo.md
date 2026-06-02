@@ -1458,3 +1458,7 @@
   - [x] vite.config.ts: added `charts` chunk for recharts/d3 (admin-only)
   - [x] Build verified: vendor.js 260KB gzip 94KB (was 12,350KB gzip 2,523KB)
   - [x] Deploy and re-run PageSpeed to verify score improvement
+
+## Bug Fix: Blog Management Send Email Button (Jun 2026)
+
+- [x] Fix send email button not working on /admin/blog page (envelope icon in Actions column) — added missing Share via Email dialog
