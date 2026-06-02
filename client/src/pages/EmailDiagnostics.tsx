@@ -384,9 +384,75 @@ export default function EmailDiagnostics() {
 
               {domainResult && (
                 <div className="space-y-4 mt-6 pt-6 border-t border-cyan-500/10">
-                  <pre className="bg-slate-900 p-4 rounded-lg text-xs text-slate-300 overflow-auto max-h-96">
-                    {JSON.stringify(domainResult, null, 2)}
-                  </pre>
+                  {/* Overall Score */}
+                  {domainResult.overallScore !== undefined && (
+                    <div className="bg-slate-800/50 p-4 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-slate-300 font-medium">Overall Health Score</span>
+                        <span className={`text-2xl font-bold ${getStatusColor(domainResult.overallScore >= 80 ? 'pass' : domainResult.overallScore >= 60 ? 'warning' : 'fail')}`}>
+                          {domainResult.overallScore}/100
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            domainResult.overallScore >= 80
+                              ? 'bg-green-500'
+                              : domainResult.overallScore >= 60
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
+                          }`}
+                          style={{ width: `${domainResult.overallScore}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Records Table */}
+                  {domainResult.records && domainResult.records.length > 0 && (
+                    <div className="bg-slate-800/50 p-4 rounded-lg">
+                      <h3 className="font-semibold text-slate-300 mb-3">Records</h3>
+                      <div className="space-y-2">
+                        {domainResult.records.map((record: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-slate-300">{record.label || record.name}</div>
+                              {record.details && <div className="text-xs text-slate-500 mt-1">{record.details}</div>}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(record.status)}
+                              <span className={`text-sm font-medium ${getStatusColor(record.status)}`}>
+                                {record.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Issues & Recommendations */}
+                  {domainResult.issues && domainResult.issues.length > 0 && (
+                    <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg">
+                      <h3 className="font-semibold text-red-400 mb-2">Issues Found</h3>
+                      <ul className="space-y-1">
+                        {domainResult.issues.map((issue: any, i: number) => (
+                          <li key={i} className="text-sm text-red-300">• {typeof issue === 'string' ? issue : issue.title || issue.message}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {domainResult.recommendations && domainResult.recommendations.length > 0 && (
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg">
+                      <h3 className="font-semibold text-yellow-400 mb-2">Recommendations</h3>
+                      <ul className="space-y-1">
+                        {domainResult.recommendations.map((rec: any, i: number) => (
+                          <li key={i} className="text-sm text-yellow-300">• {typeof rec === 'string' ? rec : rec.title || rec.message}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
