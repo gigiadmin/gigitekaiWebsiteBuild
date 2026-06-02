@@ -2208,3 +2208,53 @@ export type InsertScriptExecution = typeof scriptExecutions.$inferInsert;
 
 export type ScriptFeedback = typeof scriptFeedback.$inferSelect;
 export type InsertScriptFeedback = typeof scriptFeedback.$inferInsert;
+
+
+// ============================================================================
+// CLIENT ONBOARDING
+// ============================================================================
+
+export const clients = mysqlTable("clients", {
+	id: int().autoincrement().notNull(),
+	// Company Info
+	companyName: varchar({ length: 255 }).notNull(),
+	companyDomain: varchar({ length: 255 }).notNull(),
+	serviceType: varchar({ length: 100 }).notNull(),
+	annualContractValue: decimal({ precision: 12, scale: 2 }).notNull(),
+	// Primary Contact
+	contactFirstName: varchar({ length: 100 }).notNull(),
+	contactLastName: varchar({ length: 100 }).notNull(),
+	contactEmail: varchar({ length: 320 }).notNull(),
+	contactPhone: varchar({ length: 50 }).notNull(),
+	// Onboarding Status
+	status: mysqlEnum(['pending', 'onboarding', 'active', 'paused', 'churned']).default('pending').notNull(),
+	onboardingStep: mysqlEnum(['submitted', 'kickoff_scheduled', 'discovery', 'implementation', 'training', 'completed']).default('submitted').notNull(),
+	// Metadata
+	notes: text(),
+	kickoffMeetingDate: timestamp({ mode: 'string' }),
+	onboardingCompletedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("clients_company_domain_idx").on(table.companyDomain),
+	index("clients_status_idx").on(table.status),
+	index("clients_contact_email_idx").on(table.contactEmail),
+]);
+
+export const clientTimeline = mysqlTable("clientTimeline", {
+	id: int().autoincrement().notNull(),
+	clientId: int().notNull().references(() => clients.id, { onDelete: "cascade" }),
+	event: varchar({ length: 100 }).notNull(),
+	description: text(),
+	metadata: json(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("clientTimeline_client_idx").on(table.clientId),
+]);
+
+export type Client = typeof clients.$inferSelect;
+export type InsertClient = typeof clients.$inferInsert;
+export type ClientTimelineEntry = typeof clientTimeline.$inferSelect;
+export type InsertClientTimelineEntry = typeof clientTimeline.$inferInsert;

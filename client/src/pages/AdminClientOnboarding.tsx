@@ -116,13 +116,13 @@ export default function AdminClientOnboarding() {
                   </div>
 
                   <div>
-                    <Label htmlFor="companyEmail">Company Email Domain *</Label>
+                    <Label htmlFor="companyEmail">Company Domain *</Label>
                     <Input
                       id="companyEmail"
                       name="companyEmail"
                       value={formData.companyEmail}
                       onChange={handleChange}
-                      placeholder="acme.com"
+                      placeholder="acme.com or info@acme.com"
                       required
                     />
                   </div>

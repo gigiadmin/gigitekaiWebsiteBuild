@@ -3,8 +3,10 @@ import { z } from "zod";
 import { ENV } from "../_core/env";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
-import { invokeLLM } from "../_core/llm";
-import axios, { AxiosError } from "axios";
+import { getDb } from "../db";
+import { clients, clientTimeline } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
+import axios from "axios";
 
 // ============================================================================
 // TYPES & VALIDATION
@@ -12,7 +14,7 @@ import axios, { AxiosError } from "axios";
 
 const ClientOnboardingInput = z.object({
   companyName: z.string().min(1, "Company name required"),
-  companyEmail: z.string().email("Valid email domain required"),
+  companyEmail: z.string().min(1, "Company email domain required"),
   contactFirstName: z.string().min(1, "First name required"),
   contactLastName: z.string().min(1, "Last name required"),
   contactEmail: z.string().email("Valid email required"),
@@ -22,110 +24,53 @@ const ClientOnboardingInput = z.object({
 });
 
 // ============================================================================
-// HUBSPOT INTEGRATION
+// LOCAL DATABASE HELPERS
 // ============================================================================
 
-async function createHubSpotCompany(input: {
+async function createClientRecord(input: {
   companyName: string;
   companyEmail: string;
-  annualValue: number;
+  contactFirstName: string;
+  contactLastName: string;
+  contactEmail: string;
+  contactPhone: string;
   serviceType: string;
+  annualValue: number;
 }) {
-  try {
-    if (!process.env.HUBSPOT_API_KEY) {
-      throw new Error("HubSpot API key not configured");
-    }
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
 
-    const response = await axios.post(
-      "https://api.hubapi.com/crm/v3/objects/companies",
-      {
-        properties: {
-          name: input.companyName,
-          domain: input.companyEmail.split("@")[1] || input.companyEmail,
-          annualrevenue: input.annualValue,
-          industry: "Technology",
-          lifecyclestage: "customer",
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  // Extract domain from email or use as-is if it's already a domain
+  const domain = input.companyEmail.includes("@")
+    ? input.companyEmail.split("@")[1]
+    : input.companyEmail;
 
-    return response.data.id;
-  } catch (error: any) {
-    if (error instanceof Error) {
-      console.error("Error creating HubSpot company:", error.message);
-      if ((error as any).response) {
-        console.error("HubSpot Response:", (error as any).response.status, (error as any).response.data);
-      }
-    }
-    throw error;
-  }
+  const result = await db.insert(clients).values({
+    companyName: input.companyName,
+    companyDomain: domain,
+    serviceType: input.serviceType,
+    annualContractValue: input.annualValue.toFixed(2),
+    contactFirstName: input.contactFirstName,
+    contactLastName: input.contactLastName,
+    contactEmail: input.contactEmail,
+    contactPhone: input.contactPhone,
+    status: "onboarding",
+    onboardingStep: "submitted",
+  });
+
+  return result[0].insertId;
 }
 
-async function createHubSpotContact(input: {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  companyId: string;
-}) {
-  try {
-    if (!process.env.HUBSPOT_API_KEY) {
-      throw new Error("HubSpot API key not configured");
-    }
+async function addTimelineEvent(clientId: number, event: string, description: string, metadata?: Record<string, any>) {
+  const db = await getDb();
+  if (!db) return;
 
-    const response = await axios.post(
-      "https://api.hubapi.com/crm/v3/objects/contacts",
-      {
-        properties: {
-          firstname: input.firstName,
-          lastname: input.lastName,
-          email: input.email,
-          phone: input.phone,
-          lifecyclestage: "customer",
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const contactId = response.data.id;
-
-    // Associate contact with company
-    if (input.companyId) {
-      await axios.post(
-        `https://api.hubapi.com/crm/v4/objects/contacts/${contactId}/associations/companies/batch/create`,
-        {
-          inputs: [
-            {
-              id: input.companyId,
-              type: "company",
-            },
-          ],
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    return contactId;
-  } catch (error) {
-    console.error("Error creating HubSpot contact:", error);
-    throw error;
-  }
+  await db.insert(clientTimeline).values({
+    clientId,
+    event,
+    description,
+    metadata: metadata || null,
+  });
 }
 
 // ============================================================================
@@ -134,7 +79,6 @@ async function createHubSpotContact(input: {
 
 async function getGraphAccessToken(): Promise<string> {
   try {
-    // Microsoft OAuth token endpoint requires URL-encoded form data, NOT JSON
     const params = new URLSearchParams();
     params.append("grant_type", "client_credentials");
     params.append("client_id", ENV.msGraphClientId);
@@ -172,7 +116,6 @@ async function createOutlookCalendarEvent(input: {
     const endTime = new Date(startTime);
     endTime.setHours(11, 0, 0, 0);
 
-    // client_credentials flow cannot use /me/ - must use /users/{userId}
     const userEmail = "support@gigitekai.com";
     const response = await axios.post(
       `https://graph.microsoft.com/v1.0/users/${userEmail}/events`,
@@ -249,7 +192,7 @@ async function sendWelcomeEmail(input: {
       </head>
       <body>
         <div class="header">
-          <h1>Welcome to GigitekAI! 🚀</h1>
+          <h1>Welcome to GigitekAI!</h1>
         </div>
         
         <div class="content">
@@ -261,7 +204,7 @@ async function sendWelcomeEmail(input: {
             <h2>What's Next?</h2>
             <p>Your onboarding journey has begun! Here's what to expect:</p>
             <ul>
-              <li><strong>Kickoff Meeting:</strong> We'll schedule a meeting to discuss your requirements and timeline</li>
+              <li><strong>Kickoff Meeting:</strong> Scheduled for 2 days from now — check your calendar</li>
               <li><strong>Discovery Phase:</strong> Our team will assess your current infrastructure</li>
               <li><strong>Implementation:</strong> We'll deploy and configure your services</li>
               <li><strong>Training:</strong> Your team will receive comprehensive training</li>
@@ -273,13 +216,13 @@ async function sendWelcomeEmail(input: {
             <h2>Quick Links</h2>
             <ul>
               <li><a href="https://gigitekai.com/support">Support Portal</a></li>
-              <li><a href="https://gigitekai.com/documentation">Documentation</a></li>
-              <li><a href="https://gigitekai.com/faq">FAQ</a></li>
+              <li><a href="https://gigitekai.com/knowledge-base">Knowledge Base</a></li>
+              <li><a href="https://gigitekai.com/contact">Contact Us</a></li>
             </ul>
           </div>
           
           <div class="section">
-            <p><strong>Have questions?</strong> Contact our onboarding team at <a href="mailto:onboarding@gigitekai.com">onboarding@gigitekai.com</a></p>
+            <p><strong>Have questions?</strong> Contact our onboarding team at <a href="mailto:support@gigitekai.com">support@gigitekai.com</a> or call (727) 382-6909.</p>
           </div>
         </div>
         
@@ -291,7 +234,6 @@ async function sendWelcomeEmail(input: {
       </html>
     `;
 
-    // client_credentials flow cannot use /me/ - must use /users/{userId}
     const userEmail = "support@gigitekai.com";
     await axios.post(
       `https://graph.microsoft.com/v1.0/users/${userEmail}/sendMail`,
@@ -344,7 +286,8 @@ async function sendTeamsNotification(input: {
 }) {
   try {
     if (!process.env.TEAMS_WEBHOOK_URL) {
-      throw new Error("Teams webhook URL not configured");
+      console.warn("Teams webhook URL not configured — skipping Teams notification");
+      return;
     }
 
     const teamsMessage = {
@@ -363,7 +306,7 @@ async function sendTeamsNotification(input: {
                 items: [
                   {
                     type: "TextBlock",
-                    text: "🎉 NEW CLIENT ONBOARDING STARTED",
+                    text: "NEW CLIENT ONBOARDING STARTED",
                     size: "large",
                     weight: "bolder",
                     color: "good",
@@ -373,26 +316,11 @@ async function sendTeamsNotification(input: {
               {
                 type: "FactSet",
                 facts: [
-                  {
-                    name: "Company:",
-                    value: input.companyName,
-                  },
-                  {
-                    name: "Contact:",
-                    value: input.contactName,
-                  },
-                  {
-                    name: "Email:",
-                    value: input.contactEmail,
-                  },
-                  {
-                    name: "Service Type:",
-                    value: input.serviceType,
-                  },
-                  {
-                    name: "Annual Value:",
-                    value: `$${input.annualValue.toLocaleString()}`,
-                  },
+                  { name: "Company:", value: input.companyName },
+                  { name: "Contact:", value: input.contactName },
+                  { name: "Email:", value: input.contactEmail },
+                  { name: "Service Type:", value: input.serviceType },
+                  { name: "Annual Value:", value: `$${input.annualValue.toLocaleString()}` },
                   {
                     name: "Start Date:",
                     value: new Date().toLocaleDateString("en-US", {
@@ -405,7 +333,7 @@ async function sendTeamsNotification(input: {
               },
               {
                 type: "TextBlock",
-                text: "Next Steps: Schedule kickoff meeting, begin discovery phase",
+                text: "Next Steps: Kickoff meeting scheduled, begin discovery phase",
                 wrap: true,
                 spacing: "medium",
                 weight: "bolder",
@@ -419,7 +347,7 @@ async function sendTeamsNotification(input: {
     await axios.post(process.env.TEAMS_WEBHOOK_URL, teamsMessage);
   } catch (error) {
     console.error("Error sending Teams notification:", error);
-    throw error;
+    // Non-blocking — don't throw, just log
   }
 }
 
@@ -434,77 +362,155 @@ export const clientOnboardingRouter = router({
       try {
         console.log("Starting client onboarding for:", input.companyName);
 
-        // Step 1: Create HubSpot company
-        const companyId = await createHubSpotCompany({
-          companyName: input.companyName,
-          companyEmail: input.companyEmail,
-          annualValue: input.annualValue,
-          serviceType: input.serviceType,
-        });
-        console.log("HubSpot company created:", companyId);
+        // Step 1: Save client to local database
+        const clientId = await createClientRecord(input);
+        console.log("Client record created in DB, id:", clientId);
 
-        // Step 2: Create HubSpot contact
-        const contactId = await createHubSpotContact({
-          firstName: input.contactFirstName,
-          lastName: input.contactLastName,
-          email: input.contactEmail,
-          phone: input.contactPhone,
-          companyId,
-        });
-        console.log("HubSpot contact created:", contactId);
+        await addTimelineEvent(clientId, "onboarding_started", `Client onboarding initiated for ${input.companyName}`);
 
-        // Step 3: Get Graph access token
+        // Step 2: Get Graph access token for calendar + email
         const accessToken = await getGraphAccessToken();
         console.log("Graph access token obtained");
 
-        // Step 4: Create Outlook calendar event
-        const eventId = await createOutlookCalendarEvent({
-          companyName: input.companyName,
-          contactEmail: input.contactEmail,
-          accessToken,
-        });
-        console.log("Calendar event created:", eventId);
+        // Step 3: Create Outlook calendar kickoff event
+        let eventId: string | null = null;
+        try {
+          eventId = await createOutlookCalendarEvent({
+            companyName: input.companyName,
+            contactEmail: input.contactEmail,
+            accessToken,
+          });
+          console.log("Calendar event created:", eventId);
 
-        // Step 5: Send welcome email
-        await sendWelcomeEmail({
-          contactEmail: input.contactEmail,
-          contactName: `${input.contactFirstName} ${input.contactLastName}`,
-          companyName: input.companyName,
-          accessToken,
-        });
-        console.log("Welcome email sent");
+          // Update client record with kickoff date
+          const db = await getDb();
+          if (db) {
+            const kickoffDate = new Date();
+            kickoffDate.setDate(kickoffDate.getDate() + 2);
+            kickoffDate.setHours(10, 0, 0, 0);
+            await db.update(clients)
+              .set({ onboardingStep: "kickoff_scheduled", kickoffMeetingDate: kickoffDate.toISOString().slice(0, 19).replace("T", " ") })
+              .where(eq(clients.id, clientId));
+          }
 
-        // Step 6: Send Teams notification
-        await sendTeamsNotification({
-          companyName: input.companyName,
-          contactName: `${input.contactFirstName} ${input.contactLastName}`,
-          contactEmail: input.contactEmail,
-          serviceType: input.serviceType,
-          annualValue: input.annualValue,
-        });
-        console.log("Teams notification sent");
+          await addTimelineEvent(clientId, "kickoff_scheduled", "Kickoff meeting scheduled for 2 days from now", { eventId });
+        } catch (calErr: any) {
+          console.error("Calendar event creation failed (non-blocking):", calErr?.message);
+          await addTimelineEvent(clientId, "calendar_failed", `Calendar event creation failed: ${calErr?.message}`);
+        }
 
-        // Step 7: Notify owner
-        await notifyOwner({
-          title: `New Client Onboarding: ${input.companyName}`,
-          content: `Client onboarding started for ${input.companyName} (${input.contactEmail}). Service Type: ${input.serviceType}. Annual Value: $${input.annualValue}`,
-        });
+        // Step 4: Send welcome email via MS Graph
+        try {
+          await sendWelcomeEmail({
+            contactEmail: input.contactEmail,
+            contactName: `${input.contactFirstName} ${input.contactLastName}`,
+            companyName: input.companyName,
+            accessToken,
+          });
+          console.log("Welcome email sent");
+          await addTimelineEvent(clientId, "welcome_email_sent", `Welcome email sent to ${input.contactEmail}`);
+        } catch (emailErr: any) {
+          console.error("Welcome email failed (non-blocking):", emailErr?.message);
+          await addTimelineEvent(clientId, "email_failed", `Welcome email failed: ${emailErr?.message}`);
+        }
+
+        // Step 5: Send Teams notification (non-blocking)
+        try {
+          await sendTeamsNotification({
+            companyName: input.companyName,
+            contactName: `${input.contactFirstName} ${input.contactLastName}`,
+            contactEmail: input.contactEmail,
+            serviceType: input.serviceType,
+            annualValue: input.annualValue,
+          });
+          console.log("Teams notification sent");
+          await addTimelineEvent(clientId, "teams_notified", "Teams onboarding channel notified");
+        } catch (teamsErr: any) {
+          console.error("Teams notification failed (non-blocking):", teamsErr?.message);
+        }
+
+        // Step 6: Notify owner in Manus (non-blocking)
+        try {
+          await notifyOwner({
+            title: `New Client Onboarding: ${input.companyName}`,
+            content: `Client onboarding started for ${input.companyName} (${input.contactEmail}). Service Type: ${input.serviceType}. Annual Value: $${input.annualValue}. Client ID: ${clientId}`,
+          });
+        } catch (notifyErr: any) {
+          console.error("Owner notification failed:", notifyErr?.message);
+        }
 
         return {
           success: true,
-          companyId,
-          contactId,
+          clientId,
           eventId,
-          message: `Client onboarding initiated for ${input.companyName}`,
+          message: `Client onboarding initiated for ${input.companyName}. Record saved to database.`,
         };
       } catch (error: any) {
         console.error("Error during client onboarding:", error);
-        if (error instanceof Error && (error as any).response) {
-          console.error("Full API Response:", (error as any).response.status, (error as any).response.data);
-        }
         throw new Error(
           `Onboarding failed: ${error instanceof Error ? error.message : "Unknown error"}`
         );
       }
+    }),
+
+  // List all clients
+  listClients: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+
+    const allClients = await db
+      .select()
+      .from(clients)
+      .orderBy(desc(clients.createdAt));
+
+    return allClients;
+  }),
+
+  // Get single client with timeline
+  getClient: adminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.id, input.id))
+        .limit(1);
+
+      if (!client) throw new Error("Client not found");
+
+      const timeline = await db
+        .select()
+        .from(clientTimeline)
+        .where(eq(clientTimeline.clientId, input.id))
+        .orderBy(desc(clientTimeline.createdAt));
+
+      return { ...client, timeline };
+    }),
+
+  // Update client status
+  updateStatus: adminProcedure
+    .input(z.object({
+      id: z.number().int().positive(),
+      status: z.enum(["pending", "onboarding", "active", "paused", "churned"]),
+      onboardingStep: z.enum(["submitted", "kickoff_scheduled", "discovery", "implementation", "training", "completed"]).optional(),
+      notes: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const updateData: Record<string, any> = { status: input.status };
+      if (input.onboardingStep) updateData.onboardingStep = input.onboardingStep;
+      if (input.notes !== undefined) updateData.notes = input.notes;
+      if (input.status === "active") updateData.onboardingCompletedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+      await db.update(clients).set(updateData).where(eq(clients.id, input.id));
+
+      await addTimelineEvent(input.id, "status_updated", `Status changed to ${input.status}${input.onboardingStep ? `, step: ${input.onboardingStep}` : ""}`);
+
+      return { success: true };
     }),
 });

@@ -1462,3 +1462,18 @@
 ## Bug Fix: Blog Management Send Email Button (Jun 2026)
 
 - [x] Fix send email button not working on /admin/blog page (envelope icon in Actions column) — added missing Share via Email dialog
+
+## Refactor: Client Onboarding to Local Database (Jun 2026)
+
+- [x] Create `clients` table in drizzle schema (company info, contacts, service type, contract value, onboarding status, timeline)
+- [x] Create `clientTimeline` table for event tracking with FK to clients
+- [x] Push database migration (SQL executed directly)
+- [x] Refactor client-onboarding.ts to insert into local DB instead of HubSpot
+- [x] Keep email notifications (welcome email via MS Graph — non-blocking)
+- [x] Keep Teams notification to onboarding team (non-blocking)
+- [x] Keep calendar kickoff meeting creation (non-blocking)
+- [x] Keep owner notification in Manus (non-blocking)
+- [x] Updated frontend form label to "Company Domain" with flexible placeholder
+- [x] Added listClients, getClient, updateStatus admin procedures
+- [x] Vitest: 6 tests passing for client-onboarding.test.ts
+- [x] Save checkpoint
