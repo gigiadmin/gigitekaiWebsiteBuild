@@ -47,6 +47,7 @@ import { helpdeskAiTriageRouter } from "./routers/helpdesk-ai-triage";
 import { helpdeskAiRepliesRouter } from "./routers/helpdesk-ai-replies";
 import { helpdeskKbRouter } from "./routers/helpdesk-kb";
 import { helpdeskNotificationsRouter } from "./routers/helpdesk-notifications";
+import { dnsRouter } from "./routers/dns";
 import { buildContactFormResponseEmail } from "./contactFormTemplates";
 import { helpdeskDashboardMetricsRouter } from "./routers/helpdesk-dashboard-metrics";
 import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
@@ -205,6 +206,7 @@ export const appRouter = router({
   copilotStudio: copilotStudioRouter,
   pricing: pricingRouter,
   stripe: stripeRouter,
+  dns: dnsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

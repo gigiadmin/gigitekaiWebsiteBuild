@@ -17,4 +17,6 @@ export const ENV = {
   acsResourceId: process.env.ACS_RESOURCE_ID ?? "",
   xeroClientId: process.env.XERO_CLIENT_ID ?? "",
   xeroClientSecret: process.env.XERO_CLIENT_SECRET ?? "",
+  godaddyApiKey: process.env.GODADDY_API_KEY ?? "",
+  godaddyApiSecret: process.env.GODADDY_API_SECRET ?? "",
 };
