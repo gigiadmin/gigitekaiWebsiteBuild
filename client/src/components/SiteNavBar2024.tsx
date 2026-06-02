@@ -115,12 +115,12 @@ export default function SiteNavBar2024() {
             <img 
               src={LOGO_DATA_URL} 
               alt="GigitekAI logo" 
-              className="h-7 sm:h-8 lg:h-8 w-auto object-contain"
+              className="navbar-logo h-7 sm:h-8 lg:h-8 w-auto object-contain"
               width="245"
               height="70"
               fetchPriority="high"
               decoding="async"
-              style={{ maxWidth: '160px', minWidth: '100px', backgroundColor: '#0A0E1A', borderRadius: '2px' }}
+              style={{ maxWidth: '180px', minWidth: '100px' }}
             />
           </a>
 

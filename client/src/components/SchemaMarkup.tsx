@@ -11,7 +11,7 @@ export function SchemaMarkup() {
     "@type": "Organization",
     name: "GigitekAI",
     url: "https://gigitekai.com",
-    logo: "https://gigitekai.com/gigitekai-logo.jpg",
+    logo: "https://gigitekai.com/gigitekai-logo.png",
     description: "GigitekAI is an AI-first Managed Services Provider specializing in Microsoft 365 architecture, AI workflow automation, LLM integration, cybersecurity, and helpdesk services for SMBs.",
     sameAs: [
       "https://www.linkedin.com/company/gigitekai",
@@ -40,7 +40,7 @@ export function SchemaMarkup() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: "GigitekAI LLC",
-    image: "https://gigitekai.com/gigitekai-logo.jpg",
+    image: "https://gigitekai.com/gigitekai-logo.png",
     description: "AI-first Managed Services Provider for Microsoft 365, Cloud Infrastructure, and Cybersecurity",
     url: "https://gigitekai.com",
     telephone: "(727) 382-6909",

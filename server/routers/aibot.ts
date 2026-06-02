@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router, adminProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
@@ -1201,7 +1201,7 @@ export const aibotRouter = router({
       }
     }),
 
-  getPendingTakeovers: publicProcedure
+  getPendingTakeovers: adminProcedure
     .query(async () => {
       try {
         const requests = await getPendingAgentTakeoverRequests();
@@ -1212,7 +1212,7 @@ export const aibotRouter = router({
       }
     }),
 
-  acceptAgentTakeover: publicProcedure
+  acceptAgentTakeover: adminProcedure
     .input(z.object({
       requestId: z.number(),
       adminId: z.number().optional(),
@@ -1244,7 +1244,7 @@ export const aibotRouter = router({
       }
     }),
 
-  clearChatHistory: publicProcedure
+  clearChatHistory: adminProcedure
     .input(z.object({
       sessionId: z.string(),
     }))
@@ -1262,7 +1262,7 @@ export const aibotRouter = router({
       }
     }),
 
-  deleteMessage: publicProcedure
+  deleteMessage: adminProcedure
     .input(z.object({
       messageId: z.number(),
     }))

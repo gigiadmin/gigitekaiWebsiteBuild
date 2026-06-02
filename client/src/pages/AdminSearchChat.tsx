@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Send, Trash2, Download } from "lucide-react";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 interface Message {
   id: string;

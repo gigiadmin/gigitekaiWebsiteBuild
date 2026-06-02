@@ -13,6 +13,8 @@ import {
   verifyPassword,
   signAdminToken,
   verifyAdminToken,
+  signResetToken,
+  verifyResetToken,
   buildAdminSessionCookieHeader,
   clearAdminSessionCookieHeader,
   getAdminSessionCookie,
@@ -382,13 +384,12 @@ export const adminAuthRouter = router({
           return { success: true, message: 'If an account exists, a reset link will be sent' };
         }
 
-        // Generate reset token
-        const resetToken = await signAdminToken({
+        // Generate short-lived reset token (1 hour expiration)
+        const resetToken = await signResetToken({
           adminId: admin.id,
           email: admin.email,
           name: admin.name,
           role: admin.role,
-          isReset: true,
         });
 
         // Send reset email
@@ -424,9 +425,9 @@ export const adminAuthRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       try {
-        // Verify reset token
-        const payload = await verifyAdminToken(input.token);
-        if (!payload || !(payload as any).isReset) {
+        // Verify reset token using separate reset secret
+        const payload = await verifyResetToken(input.token);
+        if (!payload) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'Invalid or expired reset token'

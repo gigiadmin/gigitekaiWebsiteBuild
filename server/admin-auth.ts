@@ -9,11 +9,28 @@ import { getDb } from "./db";
 import { adminCredentials } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-const ADMIN_JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "admin-fallback-secret-change-in-prod"
-);
+// Validate JWT_SECRET is set at startup
+if (!process.env.JWT_SECRET) {
+  throw new Error(
+    "CRITICAL: JWT_SECRET environment variable is required for admin authentication. " +
+    "Please set this in your .env file or deployment configuration."
+  );
+}
+
+// Validate JWT_RESET_SECRET is set at startup
+if (!process.env.JWT_RESET_SECRET) {
+  throw new Error(
+    "CRITICAL: JWT_RESET_SECRET environment variable is required for password reset tokens. " +
+    "Please set this in your .env file or deployment configuration. " +
+    "IMPORTANT: This must be different from JWT_SECRET."
+  );
+}
+
+const ADMIN_JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+const ADMIN_RESET_SECRET = new TextEncoder().encode(process.env.JWT_RESET_SECRET);
 const ADMIN_SESSION_COOKIE = "admin_session";
 const SESSION_DURATION = "7d";
+const RESET_TOKEN_DURATION = "1h";
 
 // ── Password helpers ──────────────────────────────────────────────────────────
 
@@ -48,12 +65,51 @@ export async function signAdminToken(
     .sign(ADMIN_JWT_SECRET);
 }
 
+/**
+ * Sign a short-lived password reset token (1 hour expiration)
+ * Uses separate JWT_RESET_SECRET to prevent session token reuse
+ */
+export async function signResetToken(
+  payload: AdminTokenPayload
+): Promise<string> {
+  return new SignJWT({ ...payload, isReset: true })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(RESET_TOKEN_DURATION)
+    .sign(ADMIN_RESET_SECRET);
+}
+
+/**
+ * Verify a password reset token
+ * Uses separate JWT_RESET_SECRET
+ */
+export async function verifyResetToken(
+  token: string
+): Promise<AdminTokenPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, ADMIN_RESET_SECRET);
+    const tokenPayload = payload as unknown as AdminTokenPayload;
+    // Verify it's a reset token
+    if (!tokenPayload.isReset) {
+      return null;
+    }
+    return tokenPayload;
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyAdminToken(
   token: string
 ): Promise<AdminTokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, ADMIN_JWT_SECRET);
-    return payload as unknown as AdminTokenPayload;
+    const tokenPayload = payload as unknown as AdminTokenPayload;
+    // Reject if it's a reset token (should use verifyResetToken instead)
+    if (tokenPayload.isReset) {
+      return null;
+    }
+    return tokenPayload;
   } catch {
     return null;
   }
@@ -181,12 +237,20 @@ export async function ensureDefaultAdminExists() {
       return existing;
     }
 
+    // Validate ADMIN_BOOTSTRAP_PASSWORD is set
+    if (!process.env.ADMIN_BOOTSTRAP_PASSWORD) {
+      throw new Error(
+        "CRITICAL: ADMIN_BOOTSTRAP_PASSWORD environment variable is required to bootstrap admin account. " +
+        "Please set this in your .env file or deployment configuration."
+      );
+    }
+
     // Create default admin account
     console.log("[Admin Auth] Creating default admin account...");
     const admin = await createAdminAccount({
       email: "harry@gigitekai.com",
       name: "Harry Santiago",
-      password: "YGnali421!!!",
+      password: process.env.ADMIN_BOOTSTRAP_PASSWORD,
       role: "admin",
     });
     console.log("[Admin Auth] Default admin account created successfully");

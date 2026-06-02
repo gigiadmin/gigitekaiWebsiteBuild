@@ -2147,3 +2147,64 @@ export const commandCenterSavedCommands = mysqlTable("commandCenter_saved_comman
 
 export type CommandCenterSavedCommand = typeof commandCenterSavedCommands.$inferSelect;
 export type InsertCommandCenterSavedCommand = typeof commandCenterSavedCommands.$inferInsert;
+
+export const scripts = mysqlTable("scripts", {
+	id: int().autoincrement().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	category: varchar({ length: 50 }).notNull(),
+	version: varchar({ length: 20 }).notNull(),
+	author: varchar({ length: 100 }).notNull(),
+	created_at: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updated_at: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+	download_count: int().default(0).notNull(),
+	rating: decimal({ precision: 3, scale: 2 }).default('0'),
+	difficulty_level: mysqlEnum(['Beginner', 'Intermediate', 'Advanced']).default('Beginner').notNull(),
+	tags: json(),
+	documentation: text(),
+	github_url: varchar({ length: 500 }).notNull(),
+},
+(table) => [
+	index("scripts_category_idx").on(table.category),
+	index("scripts_name_idx").on(table.name),
+]);
+
+export const scriptExecutions = mysqlTable("scriptExecutions", {
+	id: int().autoincrement().notNull(),
+	script_id: int().notNull().references(() => scripts.id, { onDelete: "cascade" }),
+	user_id: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	executed_at: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	status: mysqlEnum(['Success', 'Failed', 'Running']).default('Running').notNull(),
+	duration_ms: int().default(0).notNull(),
+	error_message: text(),
+	result: json(),
+},
+(table) => [
+	index("scriptExecutions_script_id_idx").on(table.script_id),
+	index("scriptExecutions_user_id_idx").on(table.user_id),
+	index("scriptExecutions_executed_at_idx").on(table.executed_at),
+]);
+
+export const scriptFeedback = mysqlTable("scriptFeedback", {
+	id: int().autoincrement().notNull(),
+	script_id: int().notNull().references(() => scripts.id, { onDelete: "cascade" }),
+	user_id: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	feedback_type: mysqlEnum(['Bug', 'Feature Request', 'General']).default('General').notNull(),
+	message: text().notNull(),
+	created_at: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	status: mysqlEnum(['Open', 'In Progress', 'Resolved']).default('Open').notNull(),
+},
+(table) => [
+	index("scriptFeedback_script_id_idx").on(table.script_id),
+	index("scriptFeedback_user_id_idx").on(table.user_id),
+	index("scriptFeedback_status_idx").on(table.status),
+]);
+
+export type Script = typeof scripts.$inferSelect;
+export type InsertScript = typeof scripts.$inferInsert;
+
+export type ScriptExecution = typeof scriptExecutions.$inferSelect;
+export type InsertScriptExecution = typeof scriptExecutions.$inferInsert;
+
+export type ScriptFeedback = typeof scriptFeedback.$inferSelect;
+export type InsertScriptFeedback = typeof scriptFeedback.$inferInsert;

@@ -98,6 +98,7 @@ import { kbFinalFeaturesRouter } from "./routers/kb-final-features";
 import { kbCompletionRouter } from "./routers/kb-completion";
 import { kbSystemFinalRouter } from "./routers/kb-system-final";
 import { callRecordingRouter } from "./routers/phase2-callRecording";
+import { scriptsRouter } from "./routers/scripts";
 import { callTranscriptRouter } from "./routers/phase2-callTranscript";
 import { sentimentRoutingRouter } from "./routers/phase2-sentimentRouting";
 import { agentDashboardRouter } from "./routers/phase2-agentDashboard";
@@ -127,7 +128,13 @@ import { voicemailCleanupRouter } from "./routers/voicemail-cleanup";
 // import { commandCenterRouter } from "./routers/commandCenter";
 // import { commandCenterApiRouter } from "./routers/commandCenter-api";
 // import { commandCenterAlertsRouter } from "./routers/commandCenter-alerts";
-// import { commandCenterAdminRouter } from "./routers/commandCenter-admin";
+import { commandCenterAdminRouter } from "./routers/commandCenterAdmin";
+import { commandCenterStatusRouter } from "./routers/commandCenterStatus";
+import { alertManagementRouter } from "./routers/alertManagement";
+import { alertEscalationRouter } from "./routers/alertEscalation";
+import { commandExecutionRouter } from "./routers/commandExecution";
+import { auditAnalyticsRouter } from "./routers/auditAnalytics";
+import { aiCommandSuggestionsRouter } from "./routers/aiCommandSuggestions";
 import { adminSearchRouter } from "./routers/adminSearch";
 import { dnsCheckerRouter } from "./routers/dnsChecker";
 import { ticketAIRouter } from "./routers/ticketAI";
@@ -171,7 +178,13 @@ export const appRouter = router({
   // commandCenter: commandCenterRouter,
   // commandCenterApi: commandCenterApiRouter,
   // commandCenterAlerts: commandCenterAlertsRouter,
-  // commandCenterAdmin: commandCenterAdminRouter,
+  commandCenterAdmin: commandCenterAdminRouter,
+  commandCenterStatus: commandCenterStatusRouter,
+  alertManagement: alertManagementRouter,
+  alertEscalation: alertEscalationRouter,
+  commandExecution: commandExecutionRouter,
+  auditAnalytics: auditAnalyticsRouter,
+  aiCommandSuggestions: aiCommandSuggestionsRouter,
   adminSearch: adminSearchRouter,
   dnsChecker: dnsCheckerRouter,
   ticketAI: ticketAIRouter,
@@ -259,6 +272,9 @@ export const appRouter = router({
   emailDigest: emailDigestRouter,
   blog: blogRouter,
   newsletter: newsletterRouter,
+
+  // ── Scripts Portal ────────────────────────────────────────────────────
+  scripts: scriptsRouter,
 
   // ── Phase 2: Call Center Integration ────────────────────────────────
   callRecording: callRecordingRouter,

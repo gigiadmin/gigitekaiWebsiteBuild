@@ -223,8 +223,22 @@ export const auditRouter = router({
       return { success: true };
     }),
 
-  // ─── Admin: Delete Submission ─────────────────────────────────────────────
+    // ─── Public: Look Up Submission by Email ────────────────────────────────────
+  getByEmail: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [submission] = await db
+        .select()
+        .from(freeAuditSubmissions)
+        .where(eq(freeAuditSubmissions.contactEmail, input.email))
+        .orderBy(desc(freeAuditSubmissions.submittedAt))
+        .limit(1);
+      return submission ?? null;
+    }),
 
+  // ─── Admin: Delete Submission ─────────────────────────────────────────────
   delete: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {

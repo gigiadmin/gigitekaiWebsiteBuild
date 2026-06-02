@@ -21,9 +21,19 @@ import { eq, and } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
 import { createAdminNotification } from "./routers/adminNotifications";
+import crypto from "crypto";
 
 const TICKET_REF_RE = /#(\d+)/;
 const SUPPORT_EMAIL = "support@gigitekai.com";
+
+// Extend Express Request to include rawBody
+declare global {
+  namespace Express {
+    interface Request {
+      rawBody?: string;
+    }
+  }
+}
 
 function extractText(html: string): string {
   return html
@@ -55,6 +65,33 @@ function stripQuotedReplies(text: string): string {
 
 export async function handleEmailIngest(req: Request, res: Response) {
   try {
+    // Verify SendGrid webhook signature
+    const signature = req.headers["x-twilio-email-event-webhook-signature"] as string;
+    const timestamp = req.headers["x-twilio-email-event-webhook-timestamp"] as string;
+    
+    if (!signature || !timestamp) {
+      console.warn("[EmailIngest] Missing webhook signature or timestamp");
+      return res.status(403).json({ error: "Invalid webhook" });
+    }
+    
+    // Verify signature using SendGrid webhook secret
+    const webhookSecret = process.env.SENDGRID_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.warn("[EmailIngest] SENDGRID_WEBHOOK_SECRET not configured");
+      // Log warning but don't block - webhook secret may not be set up yet
+    } else {
+      const rawBody = (req as any).rawBody || JSON.stringify(req.body);
+      const expectedSignature = crypto
+        .createHmac("sha256", webhookSecret)
+        .update(`${timestamp}${rawBody}`)
+        .digest("base64");
+      
+      if (signature !== expectedSignature) {
+        console.warn("[EmailIngest] Invalid webhook signature - possible tampering");
+        return res.status(403).json({ error: "Invalid signature" });
+      }
+    }
+    
     // SendGrid sends multipart/form-data
     const from: string = req.body?.from ?? "";
     const subject: string = req.body?.subject ?? "(No Subject)";

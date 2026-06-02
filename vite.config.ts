@@ -763,11 +763,38 @@ export default defineConfig({
           if (id.includes("node_modules/@radix-ui")) {
             return "radix-ui";
           }
+          // Streamdown + its heavy deps (shiki 2MB, mermaid 65MB, katex 4MB) — ONLY needed
+          // in admin pages that use the full streamdown component. Since we've replaced all
+          // streamdown imports with GigitekMarkdown in public/client pages, this chunk
+          // will only be loaded when an admin page explicitly imports streamdown.
+          if (
+            id.includes("node_modules/streamdown") ||
+            id.includes("node_modules/shiki") ||
+            id.includes("node_modules/@shikijs") ||
+            id.includes("node_modules/mermaid") ||
+            id.includes("node_modules/@mermaid-js") ||
+            id.includes("node_modules/katex") ||
+            id.includes("node_modules/cytoscape") ||
+            id.includes("node_modules/cytoscape-fcose") ||
+            id.includes("node_modules/rehype-katex") ||
+            id.includes("node_modules/remark-math") ||
+            id.includes("node_modules/rehype-harden")
+          ) {
+            return "streamdown-heavy";
+          }
+          // Recharts + D3 — only used in admin analytics pages
+          // Split into separate chunk to keep vendor.js smaller
+          // NOTE: recharts has react-is dependency; keep together to avoid circular deps
+          if (
+            id.includes("node_modules/recharts") ||
+            id.includes("node_modules/d3-") ||
+            id.includes("node_modules/d3/") ||
+            id.includes("node_modules/victory") ||
+            id.includes("node_modules/react-is")
+          ) {
+            return "charts";
+          }
           // All other node_modules go into a single vendor chunk.
-          // NOTE: streamdown/shiki/mermaid cannot be split into a separate chunk because
-          // some node_module in vendor has a static import of streamdown, which would
-          // create a vendor→streamdown-deps static dependency (defeating the purpose).
-          // modulePreload:false still prevents eager browser preloading of vendor.
           if (id.includes("node_modules")) {
             return "vendor";
           }

@@ -9,6 +9,7 @@
  *  - Link emails to helpdesk tickets
  */
 import { useState, useEffect, useRef } from "react";
+import DOMPurify from "dompurify";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -337,7 +338,16 @@ export default function AdminEmailPage() {
               <div className="border-t border-slate-700 pt-4">
                 <div
                   className="text-sm text-slate-300 prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: selectedEmail.body || selectedEmail.bodyPreview || "(no content)" }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      selectedEmail.body || selectedEmail.bodyPreview || "(no content)",
+                      {
+                        ALLOWED_TAGS: ['p', 'a', 'div', 'span', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'img', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot'],
+                        ALLOWED_ATTR: ['href', 'title', 'src', 'alt', 'width', 'height', 'style'],
+                        KEEP_CONTENT: true,
+                      }
+                    )
+                  }}
                 />
               </div>
               <div className="flex gap-2 pt-2">

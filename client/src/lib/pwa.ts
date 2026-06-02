@@ -143,8 +143,8 @@ export async function sendLocalNotification(payload: PushNotificationPayload): P
     const registration = await navigator.serviceWorker.ready;
     const options: NotificationOptions & { actions?: any[] } = {
       body: payload.body,
-      icon: payload.icon || '/gigitekai-logo.jpg',
-      badge: payload.badge || '/gigitekai-logo.jpg',
+      icon: payload.icon || '/gigitekai-logo.png',
+      badge: payload.badge || '/gigitekai-logo.png',
       tag: payload.tag || 'notification',
       requireInteraction: payload.requireInteraction || false,
       data: payload.data || {},

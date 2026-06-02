@@ -13,6 +13,8 @@ import { trpc } from "@/lib/trpc";
 
 import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import Footer from "@/components/Footer";
 
 export default function FreeAuditLandingPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +81,26 @@ export default function FreeAuditLandingPage() {
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.contactEmail.trim())) {
+      toast.error("⚠️ Invalid Email", {
+        description: "Please enter a valid email address (e.g. name@company.com).",
+      });
+      return;
+    }
+
+    // Phone format validation (optional field but validate if provided)
+    if (formData.contactPhone.trim()) {
+      const phoneRegex = /^[\+]?[1-9][\d\s\-\(\)]{6,15}$/;
+      if (!phoneRegex.test(formData.contactPhone.trim())) {
+        toast.error("⚠️ Invalid Phone Number", {
+          description: "Please enter a valid phone number (e.g. (555) 123-4567).",
+        });
+        return;
+      }
+    }
+
     submitAudit.mutate(formData);
   };
 
@@ -98,7 +120,9 @@ export default function FreeAuditLandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex flex-col">
+      <SiteNavBar2024 />
+      <main className="flex-1">
       {/* Hero Section */}
       <div className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
@@ -328,6 +352,8 @@ export default function FreeAuditLandingPage() {
           </div>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -86,6 +86,9 @@ const KBPublic = lazy(() => import("./pages/KBPublic"));
 const PublicKB = lazy(() => import("./pages/PublicKB"));
 const KBArticleViewer = lazy(() => import("./pages/KBArticleViewer"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
+const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
+
+// ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
 // ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
 const SupportLanding = lazy(() => import("./pages/SupportLanding"));
@@ -248,6 +251,8 @@ function Router() {
           <Route path={"/kb/:id"} component={KBArticleViewer} />
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />
+          {/* Scripts Portal */}
+          <Route path={"/scripts"} component={ScriptsPortal} />
           {/* ── Helpdesk (customer-facing) ── */}
           <Route path={"/support"} component={SupportLanding} />
           <Route path={"/support/lookup"} component={TicketLookup} />
