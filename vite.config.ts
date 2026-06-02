@@ -174,39 +174,14 @@ function vitePluginNonBlockingCSS(): Plugin {
         ''
       );
 
-      // Step 2: Transform render-blocking CSS into non-blocking preload
-      // Vite injects two forms of CSS link:
-      //   a) <link rel="stylesheet" crossorigin href="/assets/main-XXX.css"> (initial Vite inject)
-      //   b) <link rel="stylesheet" href="/assets/main-XXX.css"> (sometimes added by other plugins)
-      // We convert form (a) to a preload, and remove form (b) as a duplicate.
-      
-      // First pass: convert the crossorigin form to non-blocking preload
-      const seenCssHrefs = new Set<string>();
+      // Step 2: Ensure CSS links are standard blocking stylesheets.
+      // NOTE: Async CSS preload (onload trick) was removed because the onload event
+      // was not firing reliably in production, causing a blank white page (CSS never loaded).
+      // Standard blocking stylesheet is the safe, reliable approach.
+      // The crossorigin attribute is unnecessary for same-origin assets, remove it.
       result = result.replace(
         /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
-        (_, cssHref) => {
-          seenCssHrefs.add(cssHref);
-          return [
-            `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
-            `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
-          ].join('\n    ');
-        }
-      );
-      
-      // Second pass: remove any remaining blocking stylesheet links for /assets/ CSS
-      // (these are duplicates added by other plugins after our preload was injected)
-      result = result.replace(
-        /<link rel="stylesheet" href="(\/assets\/[^"]+\.css)">/g,
-        (match, cssHref) => {
-          // Only remove if we already have a preload for this CSS file
-          if (seenCssHrefs.has(cssHref)) return '';
-          // If no preload exists yet, convert this one
-          seenCssHrefs.add(cssHref);
-          return [
-            `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
-            `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
-          ].join('\n    ');
-        }
+        (_, cssHref) => `<link rel="stylesheet" href="${cssHref}">`
       );
 
       return result;

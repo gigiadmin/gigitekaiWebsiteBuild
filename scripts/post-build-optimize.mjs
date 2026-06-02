@@ -27,9 +27,11 @@ if (!fs.existsSync(distHtml)) {
 let html = fs.readFileSync(distHtml, 'utf-8');
 const original = html;
 
-// ─── Fix 1: Convert blocking CSS to async preload ───────────────────────────
-// Pattern: <link rel="stylesheet" crossorigin href="/assets/main-HASH.css">
-// OR:      <link rel="stylesheet" href="/assets/main-HASH.css">
+// ─── Fix 1: Normalize CSS links to standard blocking stylesheets ─────────────
+// IMPORTANT: Async CSS preload (onload trick) was REMOVED because the onload
+// event does not fire reliably in production, causing a blank white page.
+// Standard blocking <link rel="stylesheet"> is the safe, reliable approach.
+// We only strip the unnecessary crossorigin attribute from same-origin assets.
 let cssFixed = 0;
 const seenCss = new Set();
 
@@ -43,11 +45,8 @@ html = html.replace(
     }
     seenCss.add(cssHref);
     cssFixed++;
-    console.log(`[post-build] Made async: ${cssHref}`);
-    return [
-      `<link rel="preload" as="style" href="${cssHref}" onload="this.onload=null;this.rel='stylesheet'">`,
-      `<noscript><link rel="stylesheet" href="${cssHref}"></noscript>`
-    ].join('\n    ');
+    console.log(`[post-build] Normalized CSS link: ${cssHref}`);
+    return `<link rel="stylesheet" href="${cssHref}">`;
   }
 );
 
