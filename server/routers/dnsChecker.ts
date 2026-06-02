@@ -124,6 +124,14 @@ export const dnsCheckerRouter = router({
         health.checks.NS = { status: "✗", error: e.message };
       }
 
+      // Check AAAA records (IPv6)
+      try {
+        const aaaaRecords = await dns.resolve6(input.domain);
+        health.checks.AAAA = { status: "✓", records: aaaaRecords };
+      } catch (e: any) {
+        health.checks.AAAA = { status: "✗", error: e.message };
+      }
+
       // Check TXT records (SPF, DKIM, DMARC)
       try {
         const txtRecords = await dns.resolveTxt(input.domain);

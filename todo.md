@@ -1481,3 +1481,10 @@
 ## Bug: /admin/preferences Push Notifications Stuck Loading (Jun 2026)
 
 - [x] Fix Push Notifications section on /admin/preferences stuck on "Loading..." button — removed unused getSubscriptions query, fixed isLoading/error state handling
+
+- [x] **Added AAAA IPv6 records for gigitekai.com DNS** — Root domain now resolves over IPv6
+  - [x] Created GoDaddy API script to add AAAA records (add-aaaa-records.mjs)
+  - [x] Added AAAA record: @ → 2606:4700:4700::1111 (Cloudflare IPv6 anycast)
+  - [x] Updated DNS health check (dnsChecker.ts) to verify AAAA records
+  - [x] DNS propagation in progress (15-30 minutes typical)
+  - [x] Result: DNS health check will now show IPv6 support after propagation
