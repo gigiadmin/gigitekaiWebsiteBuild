@@ -27,13 +27,13 @@ export default function EmailDiagnostics() {
   const [isLoading, setIsLoading] = useState(false);
   const [reportEmails, setReportEmails] = useState('');
 
-  const analyzeHeaders = trpc.emailDiagnostics.analyzeEmailHeaders.useMutation({
-    onSuccess: (data) => {
+  const analyzeHeaders = trpc.emailDiagnostics.analyzeHeaders.useMutation({
+    onSuccess: (data: any) => {
       setAnalysisResult(data as HeaderAnalysisResult);
       setIsLoading(false);
       toast.success('Email headers analyzed successfully!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsLoading(false);
       toast.error(`Analysis failed: ${error.message}`);
     },
@@ -46,7 +46,7 @@ export default function EmailDiagnostics() {
     }
 
     setIsLoading(true);
-    analyzeHeaders.mutate({ rawHeaders: emailHeaders.trim() });
+    analyzeHeaders.mutate({ rawHeaders: emailHeaders.trim() } as any);
   };
 
   const getStatusIcon = (status: string) => {

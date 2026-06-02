@@ -105,6 +105,9 @@ const PORTALS: Portal[] = [
   { name: "Speech Studio", description: "Speech services", domain: "speech.microsoft.com", url: "https://speech.microsoft.com", category: "AI & Copilot" },
   { name: "Video Indexer", description: "Video AI analysis", domain: "www.videoindexer.ai", url: "https://www.videoindexer.ai", category: "AI & Copilot" },
   { name: "Copilot Studio Estimator", description: "Usage cost estimator", domain: "microsoft.github.io", url: "https://microsoft.github.io/CopilotStudioSamples/", category: "AI & Copilot" },
+  // Tools (GigitekAI Internal)
+  { name: "DNS Checker", description: "Check DNS records, health, and IPv6 support", domain: "gigitekai.com", url: "/admin/dns-checker", category: "Tools" },
+  { name: "Email Diagnostics", description: "Analyze email headers, SPF/DKIM/DMARC, authentication", domain: "gigitekai.com", url: "/admin/email-diagnostics", category: "Tools" },
   // Developer
   { name: "Azure DevOps", description: "DevOps pipelines & repos", domain: "aex.dev.azure.com", url: "https://aex.dev.azure.com", category: "Developer" },
   { name: "Azure IoT Central", description: "IoT app platform", domain: "apps.azureiotcentral.com", url: "https://apps.azureiotcentral.com", category: "Developer" },
@@ -219,6 +222,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Licensing & Support": "bg-pink-500/20 text-pink-300 border-pink-500/30",
   "Governance & Purview": "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
   "Other & Utilities": "bg-slate-500/20 text-slate-300 border-slate-500/30",
+  "Tools": "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -235,6 +239,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   "Licensing & Support": "Lic",
   "Governance & Purview": "Gov",
   "Other & Utilities": "⚙",
+  "Tools": "🔧",
 };
 
 const FAVORITES_KEY = "gigitekai_admin_hub_favorites";
