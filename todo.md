@@ -1480,4 +1480,4 @@
 
 ## Bug: /admin/preferences Push Notifications Stuck Loading (Jun 2026)
 
-- [ ] Fix Push Notifications section on /admin/preferences stuck on "Loading..." button
+- [x] Fix Push Notifications section on /admin/preferences stuck on "Loading..." button — removed unused getSubscriptions query, fixed isLoading/error state handling
