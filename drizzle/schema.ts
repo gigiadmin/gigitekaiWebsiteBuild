@@ -251,8 +251,8 @@ export const voicemailDedup = mysqlTable("voicemailDedup", {
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 	},
 	(table) => [
+		uniqueIndex("voicemailDedup_phone_hash_unique").on(table.callerPhone, table.transcriptHash, table.source),
 		index("voicemailDedup_externalId_unique").on(table.externalId),
-		index("voicemailDedup_phone_hash").on(table.callerPhone, table.transcriptHash),
 		index("voicemailDedup_expiresAt").on(table.expiresAt),
 	]);
 

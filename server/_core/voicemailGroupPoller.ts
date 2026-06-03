@@ -14,6 +14,7 @@ import { eq, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "./llm";
 import { transcribeAudio } from "./voiceTranscription";
 import { storagePut } from "../storage";
+import { recordVoicemailDedup } from "./deduplication";
 
 const GRAPH_BASE = "https://graph.microsoft.com/v1.0";
 const GROUP_ID = "b70ef14d-68dc-4faa-b7f6-8324b43c99b5";
@@ -310,28 +311,16 @@ async function processVoicemail(
     // Step 3b: Record in voicemailDedup table IMMEDIATELY (before draft creation)
     // This prevents reprocessing even if an error occurs during draft creation
     const transcriptHash = transcript.substring(0, 50);
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24);
+    const isNewVoicemail = await recordVoicemailDedup({
+      callerPhone: callerNumber,
+      transcriptHash,
+      source: "group",
+      externalId: threadId,
+    });
     
-    try {
-      // Format date as MySQL-compatible string: 'YYYY-MM-DD HH:MM:SS'
-      const mysqlExpiresAt = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
-      await db.insert(voicemailDedup).values({
-        callerPhone: callerNumber,
-        transcriptHash,
-        externalId: threadId,
-        source: "group",
-        expiresAt: mysqlExpiresAt,
-      });
-      console.log(`[Voicemail Poller] ✅ Dedup entry recorded for threadId: ${threadId} (expires: ${mysqlExpiresAt})`);
-    } catch (err: any) {
-      if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate')) {
-        console.log(`[Voicemail Poller] Dedup entry already exists (race condition safe): ${threadId}`);
-        return false; // Already being processed
-      }
-      console.warn(`[Voicemail Poller] Failed to record dedup entry: ${err.message}`);
-      // DO NOT continue - if we can't record dedup, don't create draft to prevent duplicates
-      return false;
+    if (!isNewVoicemail) {
+      console.log(`[Voicemail Poller] Duplicate voicemail skipped: ${threadId}`);
+      return false; // Already being processed
     }
     
     const analysis = await analyzeVoicemail(transcript, callerNumber);
