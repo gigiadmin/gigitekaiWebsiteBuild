@@ -467,6 +467,39 @@ export default function EmailDiagnostics() {
                     </div>
                   )}
 
+                  {/* Complaint Details */}
+                  {domainResult.complaintDetails && domainResult.complaintDetails.length > 0 && (
+                    <div className="bg-slate-800/50 p-6 rounded-lg">
+                      <h3 className="font-semibold text-slate-200 text-lg mb-4">Spam Complaint Details</h3>
+                      <div className="space-y-3">
+                        {domainResult.complaintDetails.map((complaint: any, idx: number) => (
+                          <div key={idx} className="bg-slate-900/50 border border-red-500/20 p-4 rounded-lg">
+                            <div className="grid grid-cols-2 gap-4 mb-3">
+                              <div>
+                                <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">From</div>
+                                <div className="text-sm text-slate-200 font-mono mt-1">{complaint.sender}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">To</div>
+                                <div className="text-sm text-slate-200 font-mono mt-1">{complaint.recipient}</div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Reason</div>
+                                <div className="text-sm text-red-300 mt-1">{complaint.reason}</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Date</div>
+                                <div className="text-sm text-slate-200 mt-1">{new Date(complaint.timestamp).toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Issues & Recommendations */}
                   {domainResult.issues && domainResult.issues.length > 0 && (
                     <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg">
