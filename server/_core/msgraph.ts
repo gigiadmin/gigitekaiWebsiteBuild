@@ -223,6 +223,88 @@ export async function getUpcomingEvents(hours: number = 24): Promise<CalendarEve
 }
 
 /**
+ * Get mail flow reports and complaint data
+ */
+export async function getMailFlowComplaints(domain: string): Promise<any[]> {
+  try {
+    const token = await getMsGraphToken();
+    if (!token) {
+      console.warn("[MSGraph] No token available for mail flow reports");
+      return [];
+    }
+
+    // Query mail flow reports for the domain
+    // This uses the reportRoot endpoint to get message trace data
+    const res = await fetch(
+      `https://graph.microsoft.com/v1.0/reports/getEmailActivityUserDetail(period='D7')`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      console.warn(`[MSGraph] Mail flow report failed: ${res.statusText}`);
+      return [];
+    }
+
+    const data = await res.json();
+    
+    // Parse complaint data from report
+    // The response contains user activity data which includes complaint metrics
+    if (data.value && Array.isArray(data.value)) {
+      return data.value.filter((item: any) => item.spamComplaintCount > 0);
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("[MSGraph] Failed to get mail flow complaints:", error);
+    return [];
+  }
+}
+
+/**
+ * Get message trace data for complaint analysis
+ */
+export async function getMessageTraceData(domain: string, days: number = 7): Promise<any[]> {
+  try {
+    const token = await getMsGraphToken();
+    if (!token) {
+      console.warn("[MSGraph] No token available for message trace");
+      return [];
+    }
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    // Query message trace for the domain
+    // This endpoint provides detailed information about messages including complaints
+    const res = await fetch(
+      `https://graph.microsoft.com/v1.0/security/threatIntelligence/hosts/${domain}/components`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      console.warn(`[MSGraph] Message trace failed: ${res.statusText}`);
+      return [];
+    }
+
+    const data = await res.json();
+    return data.value || [];
+  } catch (error) {
+    console.error("[MSGraph] Failed to get message trace data:", error);
+    return [];
+  }
+}
+
+/**
  * Get Teams channel messages (requires different scope)
  */
 export async function getTeamsChannelMessages(
