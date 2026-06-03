@@ -310,20 +310,56 @@ export default function EmailDiagnostics() {
 
                   {/* Email Details */}
                   {headerResult.emailDetails && (
-                    <div className="bg-slate-800/50 p-4 rounded-lg space-y-2">
-                      <h3 className="font-semibold text-slate-300">Email Details</h3>
-                      {headerResult.emailDetails.from && (
-                        <div className="text-sm"><span className="text-slate-500">From:</span> {headerResult.emailDetails.from}</div>
-                      )}
-                      {headerResult.emailDetails.to && (
-                        <div className="text-sm"><span className="text-slate-500">To:</span> {headerResult.emailDetails.to}</div>
-                      )}
-                      {headerResult.emailDetails.subject && (
-                        <div className="text-sm"><span className="text-slate-500">Subject:</span> {headerResult.emailDetails.subject}</div>
-                      )}
-                      {headerResult.emailDetails.timestamp && (
-                        <div className="text-sm"><span className="text-slate-500">Timestamp:</span> {headerResult.emailDetails.timestamp}</div>
-                      )}
+                    <div className="bg-slate-800/50 p-6 rounded-lg space-y-4">
+                      <h3 className="font-semibold text-slate-200 text-lg">Email Details</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {headerResult.emailDetails.from && (
+                          <div className="border-l-2 border-cyan-500/40 pl-4 py-2">
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">From</div>
+                            <div className="text-sm text-slate-100 font-medium mt-2 break-all">{headerResult.emailDetails.from}</div>
+                          </div>
+                        )}
+                        {headerResult.emailDetails.to && (
+                          <div className="border-l-2 border-cyan-500/40 pl-4 py-2">
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">To</div>
+                            <div className="text-sm text-slate-100 font-medium mt-2 break-all">{headerResult.emailDetails.to}</div>
+                          </div>
+                        )}
+                        {headerResult.emailDetails.subject && (
+                          <div className="border-l-2 border-cyan-500/40 pl-4 py-2 col-span-2">
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Subject</div>
+                            <div className="text-sm text-slate-100 font-medium mt-2">{headerResult.emailDetails.subject}</div>
+                          </div>
+                        )}
+                        {headerResult.emailDetails.timestamp && (
+                          <div className="border-l-2 border-cyan-500/40 pl-4 py-2 col-span-2">
+                            <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Timestamp</div>
+                            <div className="text-sm text-slate-100 font-medium mt-2">{headerResult.emailDetails.timestamp}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Routing Path */}
+                  {headerResult.routingPath && headerResult.routingPath.length > 0 && (
+                    <div className="bg-slate-800/50 p-6 rounded-lg">
+                      <h3 className="font-semibold text-slate-200 text-lg mb-4">Email Routing Path</h3>
+                      <div className="space-y-3">
+                        {headerResult.routingPath.map((hop, idx) => (
+                          <div key={idx} className="flex items-start gap-3">
+                            <div className="flex items-center justify-center w-8 h-8 bg-cyan-500/20 rounded-full text-xs font-bold text-cyan-300 flex-shrink-0 mt-0.5">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm text-slate-200 font-mono break-all">{hop}</div>
+                            </div>
+                            {idx < headerResult.routingPath.length - 1 && (
+                              <div className="text-cyan-500/40 text-lg">↓</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
