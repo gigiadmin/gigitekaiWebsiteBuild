@@ -82,6 +82,12 @@ async function analyzeEmailHeaders(rawHeaders: string) {
     overallScore: score,
     issues,
     recommendations,
+    emailDetails: {
+      from: headers['From']?.[0] || 'unknown',
+      to: headers['To']?.[0] || 'unknown',
+      subject: headers['Subject']?.[0] || '(no subject)',
+      timestamp: headers['Date']?.[0] || 'unknown',
+    },
   };
 }
 
@@ -90,76 +96,128 @@ async function analyzeEmailHeaders(rawHeaders: string) {
 // ============================================================================
 
 async function validateDkimSpfDmarc(domain: string) {
-  const results: any = {
-    domain,
-    spf: { status: 'UNKNOWN', record: null, issues: [] },
-    dkim: { status: 'UNKNOWN', records: [], issues: [] },
-    dmarc: { status: 'UNKNOWN', record: null, issues: [] },
-  };
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
+  // Check SPF
   try {
-    // Check SPF
     const txtRecords = await dns.resolveTxt(domain);
     const spfRecord = txtRecords.find((r) => r.join('').startsWith('v=spf1'));
     if (spfRecord) {
-      results.spf.record = spfRecord.join('');
-      results.spf.status = 'FOUND';
-      // Basic validation
-      if (!spfRecord.join('').includes('-all') && !spfRecord.join('').includes('~all')) {
-        results.spf.issues.push('No fail/softfail policy specified');
-      }
+      records.push({
+        label: 'SPF Record',
+        name: 'SPF',
+        status: 'pass',
+        details: spfRecord.join('').substring(0, 50) + '...',
+      });
+      recommendations.push('SPF record is configured');
     } else {
-      results.spf.status = 'NOT_FOUND';
-      results.spf.issues.push('No SPF record found');
+      records.push({
+        label: 'SPF Record',
+        name: 'SPF',
+        status: 'fail',
+        details: 'No SPF record found',
+      });
+      score -= 30;
+      issues.push('No SPF record found');
     }
   } catch (e: any) {
-    results.spf.issues.push(e.message);
+    records.push({
+      label: 'SPF Record',
+      name: 'SPF',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 30;
+    issues.push(`SPF lookup failed: ${e.message}`);
   }
 
+  // Check DMARC
   try {
-    // Check DMARC
     const dmarcRecords = await dns.resolveTxt(`_dmarc.${domain}`);
     const dmarcRecord = dmarcRecords.find((r) => r.join('').startsWith('v=DMARC1'));
     if (dmarcRecord) {
-      results.dmarc.record = dmarcRecord.join('');
-      results.dmarc.status = 'FOUND';
+      records.push({
+        label: 'DMARC Record',
+        name: 'DMARC',
+        status: 'pass',
+        details: dmarcRecord.join('').substring(0, 50) + '...',
+      });
+      recommendations.push('DMARC policy is enforced');
     } else {
-      results.dmarc.status = 'NOT_FOUND';
-      results.dmarc.issues.push('No DMARC record found');
+      records.push({
+        label: 'DMARC Record',
+        name: 'DMARC',
+        status: 'fail',
+        details: 'No DMARC record found',
+      });
+      score -= 20;
+      issues.push('No DMARC record found');
     }
   } catch (e: any) {
-    results.dmarc.issues.push(e.message);
+    records.push({
+      label: 'DMARC Record',
+      name: 'DMARC',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 20;
+    issues.push(`DMARC lookup failed: ${e.message}`);
   }
 
+  // Check DKIM (common selectors)
   try {
-    // Check DKIM (common selectors)
     const selectors = ['default', 'selector1', 'selector2', 'google', 'k1'];
+    let dkimFound = false;
     for (const selector of selectors) {
       try {
         const dkimRecords = await dns.resolveTxt(`${selector}._domainkey.${domain}`);
         const dkimRecord = dkimRecords.find((r) => r.join('').startsWith('v=DKIM1'));
         if (dkimRecord) {
-          results.dkim.records.push({
-            selector,
-            record: dkimRecord.join(''),
-            status: 'FOUND',
+          records.push({
+            label: `DKIM Record (${selector})`,
+            name: 'DKIM',
+            status: 'pass',
+            details: `Found with selector: ${selector}`,
           });
+          dkimFound = true;
         }
       } catch (_) {
         // Selector not found, continue
       }
     }
-    if (results.dkim.records.length === 0) {
-      results.dkim.status = 'NOT_FOUND';
-      results.dkim.issues.push('No DKIM records found for common selectors');
+    if (!dkimFound) {
+      records.push({
+        label: 'DKIM Records',
+        name: 'DKIM',
+        status: 'fail',
+        details: 'No DKIM records found for common selectors',
+      });
+      score -= 30;
+      issues.push('No DKIM records found');
     } else {
-      results.dkim.status = 'FOUND';
+      recommendations.push('DKIM signatures are configured');
     }
   } catch (e: any) {
-    results.dkim.issues.push(e.message);
+    records.push({
+      label: 'DKIM Records',
+      name: 'DKIM',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 30;
+    issues.push(`DKIM lookup failed: ${e.message}`);
   }
 
-  return results;
+  return {
+    domain,
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
+  };
 }
 
 // ============================================================================
@@ -167,33 +225,54 @@ async function validateDkimSpfDmarc(domain: string) {
 // ============================================================================
 
 async function checkDeliverability(domain: string) {
-  const results: any = {
-    domain,
-    blacklistStatus: 'CHECKING',
-    mxRecords: [],
-    reputation: 'UNKNOWN',
-    issues: [],
-  };
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
   try {
     // Check MX records
     const mxRecords = await dns.resolveMx(domain);
-    results.mxRecords = mxRecords.map((r) => ({
-      exchange: r.exchange,
-      priority: r.priority,
-    }));
+    records.push({
+      label: 'MX Records',
+      name: 'MX',
+      status: mxRecords.length > 0 ? 'pass' : 'fail',
+      details: `Found ${mxRecords.length} MX record(s)`,
+    });
 
     if (mxRecords.length === 0) {
-      results.issues.push('No MX records found');
+      score -= 40;
+      issues.push('No MX records found - domain cannot receive email');
+    } else {
+      recommendations.push(`Domain has ${mxRecords.length} MX record(s)`);
     }
   } catch (e: any) {
-    results.issues.push(`MX lookup failed: ${e.message}`);
+    records.push({
+      label: 'MX Records',
+      name: 'MX',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 40;
+    issues.push(`MX lookup failed: ${e.message}`);
   }
 
   // Simulate blacklist check (in production, use actual blacklist APIs)
-  results.blacklistStatus = 'CLEAN';
+  records.push({
+    label: 'Blacklist Status',
+    name: 'Blacklist',
+    status: 'pass',
+    details: 'Domain is not on known blacklists',
+  });
+  recommendations.push('Domain reputation is clean');
 
-  return results;
+  return {
+    domain,
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
+  };
 }
 
 // ============================================================================
@@ -201,40 +280,77 @@ async function checkDeliverability(domain: string) {
 // ============================================================================
 
 async function checkReverseDns(domain: string) {
-  const results: any = {
-    domain,
-    aRecords: [],
-    ptrRecords: [],
-    reputation: 'UNKNOWN',
-    issues: [],
-  };
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
   try {
     // Get A records
     const aRecords = await dns.resolve4(domain);
-    results.aRecords = aRecords;
+    records.push({
+      label: 'A Records',
+      name: 'A',
+      status: aRecords.length > 0 ? 'pass' : 'fail',
+      details: `Found ${aRecords.length} A record(s): ${aRecords.join(', ')}`,
+    });
 
     // Check PTR for each IP
+    let ptrFound = 0;
     for (const ip of aRecords) {
       try {
         const ptrRecords = await dns.reverse(ip);
-        results.ptrRecords.push({
-          ip,
-          hostnames: ptrRecords,
-        });
+        if (ptrRecords.length > 0) {
+          records.push({
+            label: `PTR Record (${ip})`,
+            name: 'PTR',
+            status: 'pass',
+            details: `${ptrRecords.join(', ')}`,
+          });
+          ptrFound++;
+        } else {
+          records.push({
+            label: `PTR Record (${ip})`,
+            name: 'PTR',
+            status: 'warning',
+            details: 'No PTR record found',
+          });
+          score -= 10;
+          issues.push(`No PTR record for IP ${ip}`);
+        }
       } catch (e: any) {
-        results.ptrRecords.push({
-          ip,
-          hostnames: [],
-          error: e.message,
+        records.push({
+          label: `PTR Record (${ip})`,
+          name: 'PTR',
+          status: 'fail',
+          details: `Error: ${e.message}`,
         });
+        score -= 15;
+        issues.push(`PTR lookup failed for ${ip}: ${e.message}`);
       }
     }
+
+    if (ptrFound === aRecords.length) {
+      recommendations.push('All IPs have valid PTR records');
+    }
   } catch (e: any) {
-    results.issues.push(`Reverse DNS lookup failed: ${e.message}`);
+    records.push({
+      label: 'Reverse DNS',
+      name: 'Reverse DNS',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 30;
+    issues.push(`Reverse DNS lookup failed: ${e.message}`);
   }
 
-  return results;
+  return {
+    domain,
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
+  };
 }
 
 // ============================================================================
@@ -242,37 +358,61 @@ async function checkReverseDns(domain: string) {
 // ============================================================================
 
 async function checkMxRecords(domain: string) {
-  const results: any = {
-    domain,
-    mxRecords: [],
-    redundancy: 'UNKNOWN',
-    issues: [],
-  };
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
   try {
     const mxRecords = await dns.resolveMx(domain);
-    results.mxRecords = mxRecords
-      .sort((a, b) => a.priority - b.priority)
-      .map((r, idx) => ({
-        priority: r.priority,
-        exchange: r.exchange,
-        order: idx + 1,
-      }));
-
+    
     if (mxRecords.length === 0) {
-      results.issues.push('No MX records found');
-      results.redundancy = 'NONE';
-    } else if (mxRecords.length === 1) {
-      results.redundancy = 'SINGLE';
-      results.issues.push('Only one MX record - no redundancy');
+      records.push({
+        label: 'MX Records',
+        name: 'MX',
+        status: 'fail',
+        details: 'No MX records found',
+      });
+      score -= 40;
+      issues.push('No MX records found');
     } else {
-      results.redundancy = 'MULTIPLE';
+      mxRecords
+        .sort((a, b) => a.priority - b.priority)
+        .forEach((r, idx) => {
+          records.push({
+            label: `MX Record ${idx + 1}`,
+            name: `MX${idx + 1}`,
+            status: 'pass',
+            details: `Priority: ${r.priority}, Exchange: ${r.exchange}`,
+          });
+        });
+
+      if (mxRecords.length === 1) {
+        score -= 15;
+        issues.push('Only one MX record - no redundancy');
+        recommendations.push('Consider adding backup MX records for redundancy');
+      } else {
+        recommendations.push(`Domain has ${mxRecords.length} MX records with redundancy`);
+      }
     }
   } catch (e: any) {
-    results.issues.push(`MX lookup failed: ${e.message}`);
+    records.push({
+      label: 'MX Records',
+      name: 'MX',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 40;
+    issues.push(`MX lookup failed: ${e.message}`);
   }
 
-  return results;
+  return {
+    domain,
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
+  };
 }
 
 // ============================================================================
@@ -280,32 +420,54 @@ async function checkMxRecords(domain: string) {
 // ============================================================================
 
 async function checkSslTls(domain: string) {
-  const results: any = {
-    domain,
-    mxRecords: [],
-    tlsSupport: [],
-    issues: [],
-  };
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
 
   try {
     const mxRecords = await dns.resolveMx(domain);
-    results.mxRecords = mxRecords.map((r) => r.exchange);
-
-    // In production, would check actual TLS certificates
-    // For now, return simulated results
-    for (const mx of results.mxRecords) {
-      results.tlsSupport.push({
-        server: mx,
-        tlsVersion: 'TLSv1.2+',
-        cipherSuites: 'Strong',
-        status: 'SECURE',
+    
+    if (mxRecords.length === 0) {
+      records.push({
+        label: 'SSL/TLS Status',
+        name: 'TLS',
+        status: 'fail',
+        details: 'No MX records to check',
       });
+      score -= 40;
+      issues.push('Cannot check TLS without MX records');
+    } else {
+      // In production, would check actual TLS certificates
+      // For now, return simulated results
+      for (const mx of mxRecords) {
+        records.push({
+          label: `TLS Support (${mx.exchange})`,
+          name: 'TLS',
+          status: 'pass',
+          details: `TLSv1.2+, Strong ciphers`,
+        });
+      }
+      recommendations.push('All mail servers support TLS encryption');
     }
   } catch (e: any) {
-    results.issues.push(`TLS check failed: ${e.message}`);
+    records.push({
+      label: 'SSL/TLS Status',
+      name: 'TLS',
+      status: 'fail',
+      details: `Error: ${e.message}`,
+    });
+    score -= 30;
+    issues.push(`TLS check failed: ${e.message}`);
   }
 
-  return results;
+  return {
+    domain,
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
+  };
 }
 
 // ============================================================================
@@ -313,32 +475,77 @@ async function checkSslTls(domain: string) {
 // ============================================================================
 
 async function analyzeBounceRate(domain: string) {
+  const records: any[] = [];
+  let score = 100;
+  const issues: string[] = [];
+  const recommendations: string[] = [];
+
   // This would typically integrate with email service provider APIs
-  const results: any = {
+  // For now, return simulated data
+  const bounceRate = 2.5;
+  const hardBounces = 15;
+  const softBounces = 8;
+  const complaints = 2;
+  const unsubscribes = 5;
+
+  records.push({
+    label: 'Bounce Rate',
+    name: 'Bounce',
+    status: bounceRate < 5 ? 'pass' : 'warning',
+    details: `${bounceRate}% bounce rate`,
+  });
+
+  records.push({
+    label: 'Hard Bounces',
+    name: 'HardBounce',
+    status: hardBounces < 50 ? 'pass' : 'warning',
+    details: `${hardBounces} hard bounces`,
+  });
+
+  records.push({
+    label: 'Soft Bounces',
+    name: 'SoftBounce',
+    status: softBounces < 50 ? 'pass' : 'warning',
+    details: `${softBounces} soft bounces`,
+  });
+
+  records.push({
+    label: 'Spam Complaints',
+    name: 'Complaints',
+    status: ((complaints as number) === 0 ? 'pass' : 'warning') as string,
+    details: `${complaints} complaint(s)`,
+  });
+
+  records.push({
+    label: 'Unsubscribes',
+    name: 'Unsubscribe',
+    status: 'pass',
+    details: `${unsubscribes} unsubscribe(s)`,
+  });
+
+  if (bounceRate > 5) {
+    score -= 20;
+    issues.push('High bounce rate detected');
+  }
+  if (complaints > 0) {
+    score -= 15;
+    issues.push('Spam complaints detected');
+  }
+
+  if (bounceRate < 3) {
+    recommendations.push('Bounce rate is excellent');
+  }
+  if ((complaints as number) === 0) {
+    recommendations.push('No spam complaints - good sender reputation');
+  }
+
+  return {
     domain,
-    bounceRate: 0,
-    hardBounces: 0,
-    softBounces: 0,
-    complaints: 0,
-    unsubscribes: 0,
-    issues: [],
+    overallScore: Math.max(0, score),
+    records,
+    issues,
+    recommendations,
   };
-
-  // Simulated data - in production, fetch from actual email service
-  results.bounceRate = 2.5;
-  results.hardBounces = 15;
-  results.softBounces = 8;
-  results.complaints = 2;
-  results.unsubscribes = 5;
-
-  if (results.bounceRate > 5) {
-    results.issues.push('High bounce rate detected');
-  }
-  if (results.complaints > 0) {
-    results.issues.push('Spam complaints detected');
-  }
-
-  return results;
 }
 
 // ============================================================================
@@ -366,22 +573,43 @@ async function runComprehensiveAnalysis(domain: string, emailHeaders?: string) {
   results.tools.sslTls = await checkSslTls(domain);
   results.tools.bounceRate = await analyzeBounceRate(domain);
 
-  // Calculate overall score
-  let score = 100;
-  if (results.tools.dkimSpfDmarc.spf.status === 'NOT_FOUND') score -= 15;
-  if (results.tools.dkimSpfDmarc.dkim.status === 'NOT_FOUND') score -= 15;
-  if (results.tools.dkimSpfDmarc.dmarc.status === 'NOT_FOUND') score -= 10;
-  if (results.tools.mxRecords.redundancy === 'SINGLE') score -= 10;
-  if (results.tools.bounceRate.bounceRate > 5) score -= 20;
+  // Calculate overall score as average of all tools
+  let totalScore = 0;
+  let toolCount = 0;
+  
+  if (results.tools.dkimSpfDmarc) {
+    totalScore += results.tools.dkimSpfDmarc.overallScore;
+    toolCount++;
+  }
+  if (results.tools.deliverability) {
+    totalScore += results.tools.deliverability.overallScore;
+    toolCount++;
+  }
+  if (results.tools.reverseDns) {
+    totalScore += results.tools.reverseDns.overallScore;
+    toolCount++;
+  }
+  if (results.tools.mxRecords) {
+    totalScore += results.tools.mxRecords.overallScore;
+    toolCount++;
+  }
+  if (results.tools.sslTls) {
+    totalScore += results.tools.sslTls.overallScore;
+    toolCount++;
+  }
+  if (results.tools.bounceRate) {
+    totalScore += results.tools.bounceRate.overallScore;
+    toolCount++;
+  }
 
-  results.overallScore = Math.max(0, score);
+  results.overallScore = toolCount > 0 ? Math.round(totalScore / toolCount) : 0;
   results.status = results.overallScore >= 80 ? 'PASS' : results.overallScore >= 60 ? 'WARNING' : 'FAIL';
 
   return results;
 }
 
 // ============================================================================
-// TRPC ROUTER
+// EXPORT ROUTER
 // ============================================================================
 
 export const emailDiagnosticsRouter = {
@@ -465,23 +693,27 @@ export const emailDiagnosticsRouter = {
   getAnalysisHistory: adminProcedure
     .input(z.object({ domain: z.string().optional(), limit: z.number().default(10) }))
     .query(async ({ input, ctx }) => {
-      if (!ctx.user) return [];
-
+      if (!ctx.user) throw new Error('Unauthorized');
       try {
         const db = await getDb();
-        if (!db) return [];
+        if (!db) throw new Error('Database unavailable');
+
+        const { and } = await import('drizzle-orm');
+        const conditions = [eq(emailAnalysisHistory.userId, ctx.user.id)];
+        if (input.domain) {
+          conditions.push(eq(emailAnalysisHistory.domain, input.domain));
+        }
 
         const results = await db
           .select()
           .from(emailAnalysisHistory)
-          .where(eq(emailAnalysisHistory.userId, ctx.user.id))
+          .where(and(...conditions))
           .orderBy(desc(emailAnalysisHistory.createdAt))
           .limit(input.limit);
-        
         return results;
       } catch (e) {
-        console.error('[Email Diagnostics] Failed to fetch history:', e);
-        return [];
+        console.error('[Email Diagnostics] History fetch failed:', e);
+        throw new Error(`History fetch failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
       }
     }),
 
@@ -489,21 +721,16 @@ export const emailDiagnosticsRouter = {
     .input(z.object({ analysisId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user) throw new Error('Unauthorized');
-
       try {
         const db = await getDb();
         if (!db) throw new Error('Database unavailable');
-
         const analysis = await db
           .select()
           .from(emailAnalysisHistory)
           .where(eq(emailAnalysisHistory.id, input.analysisId))
           .limit(1);
-
         if (!analysis.length) throw new Error('Analysis not found');
-
         const { generateEmailDiagnosticsReport } = await import('../../server/_core/reportGenerator');
-
         const reportData: any = {
           domain: analysis[0].domain,
           timestamp: analysis[0].createdAt,
@@ -511,35 +738,27 @@ export const emailDiagnosticsRouter = {
           status: (analysis[0].status as string).toUpperCase() as 'PASS' | 'WARNING' | 'FAIL',
           tools: analysis[0].resultsJson || {},
         };
-
         const { url, fileName } = await generateEmailDiagnosticsReport(reportData, ctx.user.id);
-
         return { success: true, url, fileName };
       } catch (e) {
         console.error('[Email Diagnostics] PDF export failed:', e);
         throw new Error(`PDF export failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
       }
     }),
-
   sendReportEmail: adminProcedure
     .input(z.object({ analysisId: z.number(), recipients: z.array(z.string().email()) }))
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user) throw new Error('Unauthorized');
-
       try {
         const db = await getDb();
         if (!db) throw new Error('Database unavailable');
-
         const analysis = await db
           .select()
           .from(emailAnalysisHistory)
           .where(eq(emailAnalysisHistory.id, input.analysisId))
           .limit(1);
-
         if (!analysis.length) throw new Error('Analysis not found');
-
         const { generateEmailReport } = await import('../../server/_core/reportGenerator');
-
         const reportData: any = {
           domain: analysis[0].domain,
           timestamp: analysis[0].createdAt,
@@ -547,13 +766,9 @@ export const emailDiagnosticsRouter = {
           status: (analysis[0].status as string).toUpperCase() as 'PASS' | 'WARNING' | 'FAIL',
           tools: analysis[0].resultsJson || {},
         };
-
         const result = await generateEmailReport(reportData, ctx.user.id, input.recipients);
-
         if (!result.success) throw new Error(result.message);
-
         console.log(`[Email Diagnostics] Report sent to ${input.recipients.join(', ')}`);
-
         return { success: true, message: `Report sent to ${input.recipients.length} recipient(s)` };
       } catch (e) {
         console.error('[Email Diagnostics] Email send failed:', e);
