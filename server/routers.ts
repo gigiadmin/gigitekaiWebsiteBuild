@@ -78,6 +78,7 @@ import { slaComplianceReportsRouter } from "./routers/sla-compliance-reports";
 import { ticketAICategorizationRouter } from "./routers/ticket-ai-categorization";
 import { sessionInviteEmailRouter } from "./routers/session-invite-email";
 import { turnCredentialsRouter } from "./routers/turn-credentials";
+import { formSubmissionsRouter } from "./routers/formSubmissions";
 import { ticketRoutingRouter } from "./routers/ticket-routing";
 import { serviceHealthMonitoringRouter } from "./routers/service-health-monitoring";
 import { serviceHealthThresholdsRouter } from "./routers/service-health-thresholds";
@@ -816,5 +817,6 @@ export const appRouter = router({
       }),
    }),
   smsCampaign: smsCampaignRouter,
+  formSubmissions: formSubmissionsRouter,
 })
 export type AppRouter = typeof appRouter;
