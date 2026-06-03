@@ -205,4 +205,101 @@ export const userAccountMgmtRouter = router({
 
     return result || [];
   }),
+
+  /**
+   * Change user role (admin, technician, user)
+   */
+  changeUserRole: adminProcedure
+    .input(z.object({ 
+      userId: z.number(), 
+      newRole: z.enum(['admin', 'technician', 'user']) 
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const result = await db.execute(`
+        UPDATE users 
+        SET role = '${input.newRole}', updatedAt = NOW()
+        WHERE id = ${input.userId}
+      `);
+
+      return { 
+        success: true, 
+        message: `User role changed to ${input.newRole}` 
+      };
+    }),
+
+  /**
+   * Add a new user with specified role
+   */
+  addUser: adminProcedure
+    .input(z.object({ 
+      email: z.string().email(),
+      name: z.string(),
+      role: z.enum(['admin', 'technician', 'user']).default('user')
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      // Check if user already exists
+      const existingUser = await db.execute(`
+        SELECT id FROM users WHERE email = '${input.email}'
+      `);
+
+      if (existingUser && (existingUser as any).length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "User with this email already exists",
+        });
+      }
+
+      // Generate a temporary openId for the new user
+      const tempOpenId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      const result = await db.execute(`
+        INSERT INTO users (email, name, role, openId, loginMethod, isActive, approved, createdAt, updatedAt, lastSignedIn)
+        VALUES ('${input.email}', '${input.name}', '${input.role}', '${tempOpenId}', 'manual', 1, 1, NOW(), NOW(), NOW())
+      `);
+
+      return { 
+        success: true, 
+        message: `User ${input.name} added as ${input.role}`,
+        userId: (result as any).insertId
+      };
+    }),
+
+  /**
+   * Get role statistics
+   */
+  getRoleStats: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+
+    const result = await db.execute(`
+      SELECT 
+        role,
+        COUNT(*) as count
+      FROM users
+      WHERE deletedAt IS NULL
+      GROUP BY role
+    `);
+
+    const stats = {
+      admin: 0,
+      technician: 0,
+      user: 0,
+      total: 0
+    };
+
+    if (result && Array.isArray(result)) {
+      (result as any).forEach((row: any) => {
+        stats[row.role as keyof typeof stats] = row.count;
+        stats.total += row.count;
+      });
+    }
+
+    return stats;
+  }),
 });

@@ -18,6 +18,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertCircle,
@@ -27,6 +34,9 @@ import {
   Trash2,
   RotateCcw,
   Users,
+  Plus,
+  Shield,
+  Wrench,
 } from "lucide-react";
 
 export default function TeamMembersEnhanced() {
@@ -34,14 +44,21 @@ export default function TeamMembersEnhanced() {
   const [includeDeleted, setIncludeDeleted] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserRole, setNewUserRole] = useState<"admin" | "technician" | "user">("user");
+  const [selectedUserForRole, setSelectedUserForRole] = useState<number | null>(null);
+  const [selectedNewRole, setSelectedNewRole] = useState<"admin" | "technician" | "user">("user");
 
   // Queries
-  const { data: users = [], isLoading } = trpc.userAccountMgmt.getAllUsersWithStatus.useQuery({
+  const { data: users = [], isLoading, refetch: refetchUsers } = trpc.userAccountMgmt.getAllUsersWithStatus.useQuery({
     search,
     includeDeleted,
   });
 
   const { data: recoveryQueue = [] } = trpc.userAccountMgmt.getRecoveryQueue.useQuery();
+  const { data: roleStats = { admin: 0, technician: 0, user: 0, total: 0 } } = trpc.userAccountMgmt.getRoleStats.useQuery();
 
   // Mutations
   const disableUserMut = trpc.userAccountMgmt.disableUser.useMutation();
@@ -50,41 +67,77 @@ export default function TeamMembersEnhanced() {
   const restoreUserMut = trpc.userAccountMgmt.restoreUser.useMutation();
   const bulkDisableMut = trpc.userAccountMgmt.bulkDisableUsers.useMutation();
   const bulkEnableMut = trpc.userAccountMgmt.bulkEnableUsers.useMutation();
+  const addUserMut = trpc.userAccountMgmt.addUser.useMutation();
+  const changeRoleMut = trpc.userAccountMgmt.changeUserRole.useMutation();
 
   const handleDisable = async (userId: number) => {
     await disableUserMut.mutateAsync({ userId });
-    window.location.reload();
+    refetchUsers();
   };
 
   const handleEnable = async (userId: number) => {
     await enableUserMut.mutateAsync({ userId });
-    window.location.reload();
+    refetchUsers();
   };
 
   const handleDelete = async (userId: number) => {
     if (confirm("Delete this user account? It can be restored within 30 days.")) {
       await deleteUserMut.mutateAsync({ userId });
-      window.location.reload();
+      refetchUsers();
     }
   };
 
   const handleRestore = async (userId: number) => {
     await restoreUserMut.mutateAsync({ userId });
-    window.location.reload();
+    refetchUsers();
   };
 
   const handleBulkDisable = async () => {
     if (selectedUsers.length === 0) return;
     await bulkDisableMut.mutateAsync({ userIds: selectedUsers });
     setSelectedUsers([]);
-    window.location.reload();
+    refetchUsers();
   };
 
   const handleBulkEnable = async () => {
     if (selectedUsers.length === 0) return;
     await bulkEnableMut.mutateAsync({ userIds: selectedUsers });
     setSelectedUsers([]);
-    window.location.reload();
+    refetchUsers();
+  };
+
+  const handleAddUser = async () => {
+    if (!newUserEmail || !newUserName) {
+      alert("Please fill in all fields");
+      return;
+    }
+    try {
+      await addUserMut.mutateAsync({
+        email: newUserEmail,
+        name: newUserName,
+        role: newUserRole,
+      });
+      setNewUserEmail("");
+      setNewUserName("");
+      setNewUserRole("user");
+      setShowAddUser(false);
+      refetchUsers();
+    } catch (error) {
+      alert("Error adding user: " + (error as any).message);
+    }
+  };
+
+  const handleChangeRole = async (userId: number) => {
+    try {
+      await changeRoleMut.mutateAsync({
+        userId,
+        newRole: selectedNewRole,
+      });
+      setSelectedUserForRole(null);
+      refetchUsers();
+    } catch (error) {
+      alert("Error changing role: " + (error as any).message);
+    }
   };
 
   const toggleUserSelection = (userId: number) => {
@@ -100,13 +153,27 @@ export default function TeamMembersEnhanced() {
   return (
     <div className="space-y-6 p-6">
       {/* Header Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-5 gap-4">
         <div className="border border-border rounded-lg p-4 bg-card">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-5 h-5 text-cyan-500" />
             <span className="text-sm text-muted-foreground">Total Members</span>
           </div>
-          <div className="text-2xl font-bold">{users.length}</div>
+          <div className="text-2xl font-bold">{roleStats.total}</div>
+        </div>
+        <div className="border border-border rounded-lg p-4 bg-card">
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="w-5 h-5 text-cyan-500" />
+            <span className="text-sm text-muted-foreground">Admins</span>
+          </div>
+          <div className="text-2xl font-bold">{roleStats.admin}</div>
+        </div>
+        <div className="border border-border rounded-lg p-4 bg-card">
+          <div className="flex items-center gap-2 mb-2">
+            <Wrench className="w-5 h-5 text-purple-500" />
+            <span className="text-sm text-muted-foreground">Technicians</span>
+          </div>
+          <div className="text-2xl font-bold">{roleStats.technician}</div>
         </div>
         <div className="border border-border rounded-lg p-4 bg-card">
           <div className="flex items-center gap-2 mb-2">
@@ -114,13 +181,6 @@ export default function TeamMembersEnhanced() {
             <span className="text-sm text-muted-foreground">Active</span>
           </div>
           <div className="text-2xl font-bold">{activeCount}</div>
-        </div>
-        <div className="border border-border rounded-lg p-4 bg-card">
-          <div className="flex items-center gap-2 mb-2">
-            <Ban className="w-5 h-5 text-yellow-500" />
-            <span className="text-sm text-muted-foreground">Disabled</span>
-          </div>
-          <div className="text-2xl font-bold">{disabledCount}</div>
         </div>
         <div className="border border-border rounded-lg p-4 bg-card">
           <div className="flex items-center gap-2 mb-2">
@@ -132,7 +192,7 @@ export default function TeamMembersEnhanced() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center flex-wrap">
         <Input
           placeholder="Search by name or email..."
           value={search}
@@ -143,6 +203,87 @@ export default function TeamMembersEnhanced() {
           <Checkbox checked={includeDeleted} onCheckedChange={(checked) => setIncludeDeleted(checked as boolean)} />
           <span className="text-sm">Show deleted accounts</span>
         </label>
+
+        {/* Add User Dialog */}
+        <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+          <DialogTrigger asChild>
+            <Button className="bg-cyan-600 hover:bg-cyan-700 ml-auto">
+              <Plus className="w-4 h-4 mr-2" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New User</DialogTitle>
+              <DialogDescription>
+                Create a new team member with a specific role
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  placeholder="user@example.com"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  placeholder="Full Name"
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Role</label>
+                <Select value={newUserRole} onValueChange={(value: any) => setNewUserRole(value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4" />
+                        Admin
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="technician">
+                      <div className="flex items-center gap-2">
+                        <Wrench className="w-4 h-4" />
+                        Technician
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="user">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        User
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 justify-end pt-4">
+                <Button variant="outline" onClick={() => setShowAddUser(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddUser}
+                  disabled={addUserMut.isPending}
+                  className="bg-cyan-600 hover:bg-cyan-700"
+                >
+                  {addUserMut.isPending ? "Adding..." : "Add User"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Recovery Queue Dialog */}
         <Dialog open={showRecovery} onOpenChange={setShowRecovery}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
@@ -262,9 +403,71 @@ export default function TeamMembersEnhanced() {
                   <TableCell className="font-medium">{user.name || "—"}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <span className="px-2 py-1 rounded-full text-xs bg-cyan-500/20 text-cyan-300">
-                      {user.role}
-                    </span>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button
+                          className="px-2 py-1 rounded-full text-xs bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 cursor-pointer"
+                          onClick={() => {
+                            setSelectedUserForRole(user.id);
+                            setSelectedNewRole(user.role);
+                          }}
+                        >
+                          {user.role === "admin" && <Shield className="w-3 h-3 inline mr-1" />}
+                          {user.role === "technician" && <Wrench className="w-3 h-3 inline mr-1" />}
+                          {user.role}
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Change User Role</DialogTitle>
+                          <DialogDescription>
+                            Update the role for {user.name || user.email}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <Select value={selectedNewRole} onValueChange={(value: any) => setSelectedNewRole(value)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">
+                                <div className="flex items-center gap-2">
+                                  <Shield className="w-4 h-4" />
+                                  Admin
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="technician">
+                                <div className="flex items-center gap-2">
+                                  <Wrench className="w-4 h-4" />
+                                  Technician
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="user">
+                                <div className="flex items-center gap-2">
+                                  <Users className="w-4 h-4" />
+                                  User
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <div className="flex gap-2 justify-end pt-4">
+                            <Button
+                              variant="outline"
+                              onClick={() => setSelectedUserForRole(null)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={() => handleChangeRole(user.id)}
+                              disabled={changeRoleMut.isPending}
+                              className="bg-cyan-600 hover:bg-cyan-700"
+                            >
+                              {changeRoleMut.isPending ? "Updating..." : "Update Role"}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </TableCell>
                   <TableCell>
                     {user.deletedAt ? (
