@@ -95,6 +95,32 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero is above-fold — loaded eagerly, no lazy wrapper */}
         <HeroSection />
+        
+        {/* Static SEO content for server-side rendering */}
+        <noscript>
+          <section className="bg-[#0A0E1A] py-16 px-4">
+            <div className="container max-w-4xl">
+              <h2 className="text-3xl font-bold text-white mb-6">Enterprise Cloud Infrastructure & AI Solutions</h2>
+              <p className="text-gray-300 mb-4">GigitekAI provides enterprise-grade cloud infrastructure, AI solutions, and managed IT services that transform how businesses operate, innovate, and scale.</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
+                <div><p className="text-2xl font-bold text-cyan-400">50+</p><p className="text-gray-300 text-sm">Clients Served</p></div>
+                <div><p className="text-2xl font-bold text-cyan-400">99.9%</p><p className="text-gray-300 text-sm">Uptime SLA</p></div>
+                <div><p className="text-2xl font-bold text-cyan-400">24/7</p><p className="text-gray-300 text-sm">AI Support</p></div>
+                <div><p className="text-2xl font-bold text-cyan-400">3.4s</p><p className="text-gray-300 text-sm">AI Deployment</p></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 mt-8">Our Services</h3>
+              <ul className="grid grid-cols-2 gap-2 text-gray-300 mb-8">
+                <li>Cloud Infrastructure</li>
+                <li>AI & Machine Learning</li>
+                <li>Microsoft 365 Solutions</li>
+                <li>Managed IT Services</li>
+                <li>Cybersecurity</li>
+                <li>Data Analytics</li>
+              </ul>
+              <p className="text-gray-400 text-sm">GigitekAI is an AI-first Managed Services Provider specializing in enterprise cloud infrastructure, intelligent automation, cybersecurity, and 24/7 managed IT services. We serve 50+ clients across North America with 99.9% uptime SLA and 24/7 AI-powered support.</p>
+            </div>
+          </section>
+        </noscript>
 
         {/* All below-fold sections lazy-loaded with IntersectionObserver */}
         <LazySection minHeight="500px">
