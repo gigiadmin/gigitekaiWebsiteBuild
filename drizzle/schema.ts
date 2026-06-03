@@ -2329,3 +2329,69 @@ export type EmailReport = typeof emailReports.$inferSelect;
 export type InsertEmailReport = typeof emailReports.$inferInsert;
 export type EmailDiagnosticsCache = typeof emailDiagnosticsCache.$inferSelect;
 export type InsertEmailDiagnosticsCache = typeof emailDiagnosticsCache.$inferInsert;
+
+
+// ============================================================================
+// UPWORK INTEGRATION TABLES
+// ============================================================================
+
+export const upworkProposals = mysqlTable("upworkProposals", {
+	id: int().autoincrement().notNull().primaryKey(),
+	upworkProposalId: varchar({ length: 255 }).notNull().unique(),
+	upworkJobId: varchar({ length: 255 }).notNull(),
+	jobTitle: varchar({ length: 500 }).notNull(),
+	bidAmount: decimal({ precision: 10, scale: 2 }).notNull(),
+	coverLetter: text().notNull(),
+	status: mysqlEnum(['pending', 'accepted', 'rejected', 'withdrawn']).default('pending').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("upworkProposals_upworkProposalId_idx").on(table.upworkProposalId),
+	index("upworkProposals_upworkJobId_idx").on(table.upworkJobId),
+	index("upworkProposals_status_idx").on(table.status),
+	index("upworkProposals_created_idx").on(table.createdAt),
+]);
+
+export const upworkJobs = mysqlTable("upworkJobs", {
+	id: int().autoincrement().notNull().primaryKey(),
+	upworkJobId: varchar({ length: 255 }).notNull().unique(),
+	title: varchar({ length: 500 }).notNull(),
+	description: text().notNull(),
+	category: varchar({ length: 100 }).notNull(),
+	budget: decimal({ precision: 10, scale: 2 }),
+	duration: varchar({ length: 50 }),
+	clientRating: decimal({ precision: 3, scale: 1 }),
+	clientReviews: int(),
+	isRelevant: tinyint().default(0).notNull(),
+	relevanceScore: int(), // 0-100
+	appliedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("upworkJobs_upworkJobId_idx").on(table.upworkJobId),
+	index("upworkJobs_isRelevant_idx").on(table.isRelevant),
+	index("upworkJobs_created_idx").on(table.createdAt),
+]);
+
+export const upworkMessages = mysqlTable("upworkMessages", {
+	id: int().autoincrement().notNull().primaryKey(),
+	upworkProposalId: varchar({ length: 255 }).notNull(),
+	sender: varchar({ length: 255 }).notNull(),
+	message: text().notNull(),
+	messageType: mysqlEnum(['text', 'system']).default('text').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("upworkMessages_proposalId_idx").on(table.upworkProposalId),
+	index("upworkMessages_created_idx").on(table.createdAt),
+]);
+
+// Type exports
+export type UpworkProposal = typeof upworkProposals.$inferSelect;
+export type InsertUpworkProposal = typeof upworkProposals.$inferInsert;
+export type UpworkJob = typeof upworkJobs.$inferSelect;
+export type InsertUpworkJob = typeof upworkJobs.$inferInsert;
+export type UpworkMessage = typeof upworkMessages.$inferSelect;
+export type InsertUpworkMessage = typeof upworkMessages.$inferInsert;

@@ -928,6 +928,19 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       try {
         const parsed = JSON.parse(txt);
         ticketData = { ...ticketData, ...parsed };
+        // CRITICAL FIX: If transcript exists, override any LLM-generated urgency that mentions missing
+        // This prevents false alerts like voicemail content missing when transcript is actually present
+        if (transcript && ticketData.urgency && ticketData.urgency.toLowerCase().includes('missing')) {
+          console.warn(`[Email Poller] LLM incorrectly flagged transcript as missing when it exists. Overriding urgency.`);
+          // Determine urgency based on priority instead
+          const urgencyMap: Record<string, string> = {
+            'critical': 'Critical - Immediate action required',
+            'high': 'High - Needs prompt attention',
+            'medium': 'Medium - Standard handling',
+            'low': 'Low - Can be scheduled',
+          };
+          ticketData.urgency = urgencyMap[ticketData.priority] || 'Normal';
+        }
       } catch (_) {}
     }
 

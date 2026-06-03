@@ -1646,3 +1646,32 @@
   - [x] Includes name, URL, description, address, and contactPoint
   - [x] Schema appears in page source (rendered in App.tsx)
   - [x] Ready for Google Rich Results testing
+
+
+- [ ] **Upwork API Integration - Full Access Management**
+  - [ ] Create Upwork webhook endpoint (/api/upwork/webhook)
+  - [ ] Design database schema for proposals, jobs, and messages tracking
+  - [ ] Implement Upwork OAuth client with full API access
+  - [ ] Build job search and filtering system (Exchange/Outlook projects)
+  - [ ] Create auto-proposal system with custom cover letters
+  - [ ] Implement proposal tracking and success analytics
+  - [ ] Set up secure credential storage in webdev secrets
+  - [ ] Test webhook event delivery from Upwork
+  - [ ] Deploy and verify integration on production
+
+
+- [ ] **⏳ WAITING: Upwork API Integration - Awaiting API Key Approval**
+  - [ ] User to generate Upwork API key at: https://www.upwork.com/ab/account-security/api
+  - [ ] Callback URL: https://gigitekai.com/api/upwork/webhook
+  - [ ] Permissions: Full access (GraphQL)
+  - [ ] API Usage: 1-10 (or higher as needed)
+  - [ ] Once approved, integrate webhook endpoint and complete auto-proposal system
+  - [ ] Test webhook with Upwork test events
+  - [ ] Deploy to production
+
+
+- [ ] **BUG: False "Voicemail content missing" alert - transcription exists but not detected**
+  - [ ] Issue: Teams message shows "Voicemail content missing" in title and urgency, but transcript IS present in message body
+  - [ ] Root cause: Voicemail ticket generation incorrectly flagging transcription as missing
+  - [ ] Fix: Update voicemail validation logic to correctly detect when transcription exists
+  - [ ] Verify: Test with new voicemail and confirm alert no longer appears
