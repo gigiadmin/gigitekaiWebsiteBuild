@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { formSubmissions, tickets } from "../../drizzle/schema";
+import { formSubmissions } from "../../drizzle/schema";
 import { eq, desc, and, gte, lte, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -61,102 +61,7 @@ export const formSubmissionsRouter = router({
         status: "new",
       });
 
-      const submissionId = formResult.insertId;
-
-      // Create a ticket in the admin system
-      try {
-        const ticketTitle = `Web Discovery: ${input.name} - ${input.category}`;
-        const ticketDescription = `
-**Web Discovery Intake Submission**
-
-**Submitter Information:**
-- Name: ${input.name}
-- Email: ${input.email}
-- Phone: ${input.phone}
-- Company: ${input.company ?? "Not provided"}
-- Category: ${input.category}
-- Source: ${input.source}
-
-**Message:**
-${input.message}
-
-**Form Submission ID:** ${submissionId}
-
-**Action Required:** Contact the submitter within 24 hours to discuss their web discovery needs.
-        `.trim();
-
-        await db.insert(tickets).values({
-          title: ticketTitle,
-          description: ticketDescription,
-          status: "open",
-          priority: "medium",
-          category: "web-discovery",
-          submitterEmail: input.email,
-          submitterName: input.name,
-          submitterPhone: input.phone,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      } catch (err) {
-        console.warn("Failed to create ticket:", err);
-      }
-
-      // Send confirmation email to submitter
-      try {
-        const confirmationEmail = `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial, sans-serif; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: #0A0E1A; color: #00D4FF; padding: 20px; border-radius: 5px; }
-    .content { padding: 20px; background-color: #f9f9f9; margin-top: 20px; border-radius: 5px; }
-    .footer { margin-top: 20px; font-size: 12px; color: #999; }
-    ul { list-style: none; padding: 0; }
-    li { padding: 8px 0; border-bottom: 1px solid #eee; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>Thank You for Your Submission!</h2>
-    </div>
-    <div class="content">
-      <p>Hi ${input.name},</p>
-      <p>We've received your web discovery intake form and will review your information shortly.</p>
-      
-      <h3>Your Submission Details:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${input.name}</li>
-        <li><strong>Phone:</strong> ${input.phone}</li>
-        <li><strong>Company:</strong> ${input.company ?? "Not provided"}</li>
-        <li><strong>Discovery Type:</strong> ${input.category}</li>
-      </ul>
-      
-      <p>Our team will contact you within 24 hours to discuss your project in detail and answer any questions you may have.</p>
-      
-      <p>If you have any urgent questions in the meantime, feel free to reach out to us at support@gigitekai.com or call (727) 382-6909.</p>
-      
-      <p>Best regards,<br/><strong>GigitekAI Team</strong></p>
-    </div>
-    <div class="footer">
-      <p>GigitekAI | Intelligent Cloud & AI Solutions</p>
-      <p>© 2026 GigitekAI. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
-        `.trim();
-
-        // Note: Email sending would be implemented via SendGrid or similar service
-        // For now, we'll log it and notify owner
-        console.log(`[Email] Confirmation email queued for ${input.email}`);
-      } catch (err) {
-        console.warn("Failed to queue confirmation email:", err);
-      }
-
-      // Send notification to support mailbox via owner notification
+      // Send notification to owner
       try {
         await notifyOwner({
           title: `🎯 New Web Discovery Intake: ${input.name}`,
@@ -170,7 +75,7 @@ ${input.message}
 **Message:**
 ${input.message}
 
-**Action:** Contact within 24 hours. Ticket created in admin system.
+**Action:** Contact within 24 hours to discuss web discovery needs.
           `.trim(),
         });
       } catch (err) {
@@ -180,7 +85,6 @@ ${input.message}
       return {
         success: true,
         message: "Form submitted successfully. We'll be in touch soon!",
-        submissionId,
       };
     }),
 
@@ -201,9 +105,6 @@ ${input.message}
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
-      let query = db.select().from(formSubmissions);
-
-      // Apply filters
       const conditions = [];
       if (input.status) {
         conditions.push(eq(formSubmissions.status, input.status));
@@ -218,16 +119,22 @@ ${input.message}
         conditions.push(lte(formSubmissions.submittedAt, input.endDate));
       }
 
+      // Build query
+      let query = db.select().from(formSubmissions);
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
 
       // Get total count
-      const countResult = await db
+      let countQuery = db
         .select({ count: count() })
-        .from(formSubmissions)
-        .where(conditions.length > 0 ? and(...conditions) : undefined);
-
+        .from(formSubmissions);
+      
+      if (conditions.length > 0) {
+        countQuery = countQuery.where(and(...conditions));
+      }
+      
+      const countResult = await countQuery;
       const total = countResult[0]?.count ?? 0;
 
       // Get paginated results
@@ -253,7 +160,7 @@ ${input.message}
 
       await db
         .update(formSubmissions)
-        .set({ status: "contacted", updatedAt: new Date().toISOString() })
+        .set({ status: "contacted", contactedAt: new Date().toISOString() })
         .where(eq(formSubmissions.id, input.id));
 
       return { success: true };
@@ -268,7 +175,7 @@ ${input.message}
 
       await db
         .update(formSubmissions)
-        .set({ status: "converted", updatedAt: new Date().toISOString() })
+        .set({ status: "converted" })
         .where(eq(formSubmissions.id, input.id));
 
       return { success: true };
@@ -283,7 +190,7 @@ ${input.message}
 
       await db
         .update(formSubmissions)
-        .set({ status: "spam", updatedAt: new Date().toISOString() })
+        .set({ status: "spam" })
         .where(eq(formSubmissions.id, input.id));
 
       return { success: true };

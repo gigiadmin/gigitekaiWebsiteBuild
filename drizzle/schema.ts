@@ -2388,18 +2388,19 @@ export const upworkMessages = mysqlTable("upworkMessages", {
 	index("upworkMessages_created_idx").on(table.createdAt),
 ]);
 
-export const formSubmissions = mysqlTable("formSubmissions", {
-	id: int().autoincrement().notNull().primaryKey(),
-	email: varchar({ length: 320 }).notNull(),
-	name: varchar({ length: 255 }).notNull(),
-	company: varchar({ length: 255 }),
-	category: varchar({ length: 100 }).notNull(),
-	message: text().notNull(),
-	source: varchar({ length: 100 }).notNull(),
-	status: mysqlEnum(['new', 'contacted', 'converted', 'spam']).default('new').notNull(),
-	submittedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
-	contactedAt: timestamp({ mode: 'string' }),
-	notes: text(),
+	export const formSubmissions = mysqlTable("formSubmissions", {
+		id: int().autoincrement().notNull().primaryKey(),
+		email: varchar({ length: 320 }).notNull(),
+		name: varchar({ length: 255 }).notNull(),
+		phone: varchar({ length: 50 }).notNull(),
+		company: varchar({ length: 255 }),
+		category: varchar({ length: 100 }).notNull(),
+		message: text().notNull(),
+		source: varchar({ length: 100 }).notNull(),
+		status: mysqlEnum(['new', 'contacted', 'converted', 'spam']).default('new').notNull(),
+		submittedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+		contactedAt: timestamp({ mode: 'string' }),
+		notes: text(),
 },
 (table) => [
 	index("formSubmissions_email_idx").on(table.email),

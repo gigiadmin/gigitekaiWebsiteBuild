@@ -1,0 +1,1 @@
+ALTER TABLE `formSubmissions` DROP COLUMN `updatedAt`;
