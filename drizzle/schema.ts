@@ -251,8 +251,8 @@ export const voicemailDedup = mysqlTable("voicemailDedup", {
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 	},
 	(table) => [
+		uniqueIndex("voicemailDedup_phone_hash_unique").on(table.callerPhone, table.transcriptHash, table.source),
 		index("voicemailDedup_externalId_unique").on(table.externalId),
-		index("voicemailDedup_phone_hash").on(table.callerPhone, table.transcriptHash),
 		index("voicemailDedup_expiresAt").on(table.expiresAt),
 	]);
 
@@ -2388,6 +2388,26 @@ export const upworkMessages = mysqlTable("upworkMessages", {
 	index("upworkMessages_created_idx").on(table.createdAt),
 ]);
 
+export const formSubmissions = mysqlTable("formSubmissions", {
+	id: int().autoincrement().notNull().primaryKey(),
+	email: varchar({ length: 320 }).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	company: varchar({ length: 255 }),
+	category: varchar({ length: 100 }).notNull(),
+	message: text().notNull(),
+	source: varchar({ length: 100 }).notNull(),
+	status: mysqlEnum(['new', 'contacted', 'converted', 'spam']).default('new').notNull(),
+	submittedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	contactedAt: timestamp({ mode: 'string' }),
+	notes: text(),
+},
+(table) => [
+	index("formSubmissions_email_idx").on(table.email),
+	index("formSubmissions_category_idx").on(table.category),
+	index("formSubmissions_status_idx").on(table.status),
+	index("formSubmissions_submitted_idx").on(table.submittedAt),
+]);
+
 // Type exports
 export type UpworkProposal = typeof upworkProposals.$inferSelect;
 export type InsertUpworkProposal = typeof upworkProposals.$inferInsert;
@@ -2395,3 +2415,5 @@ export type UpworkJob = typeof upworkJobs.$inferSelect;
 export type InsertUpworkJob = typeof upworkJobs.$inferInsert;
 export type UpworkMessage = typeof upworkMessages.$inferSelect;
 export type InsertUpworkMessage = typeof upworkMessages.$inferInsert;
+export type FormSubmission = typeof formSubmissions.$inferSelect;
+export type InsertFormSubmission = typeof formSubmissions.$inferInsert;

@@ -48,6 +48,7 @@ import { helpdeskAiRepliesRouter } from "./routers/helpdesk-ai-replies";
 import { helpdeskKbRouter } from "./routers/helpdesk-kb";
 import { helpdeskNotificationsRouter } from "./routers/helpdesk-notifications";
 import { dnsRouter } from "./routers/dns";
+import { formSubmissionsRouter } from "./routers/formSubmissions";
 import { buildContactFormResponseEmail } from "./contactFormTemplates";
 import { helpdeskDashboardMetricsRouter } from "./routers/helpdesk-dashboard-metrics";
 import { teamsPresenceSyncRouter } from "./routers/teams-presence-sync";
@@ -209,6 +210,7 @@ export const appRouter = router({
   pricing: pricingRouter,
   stripe: stripeRouter,
   dns: dnsRouter,
+  formSubmissions: formSubmissionsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
