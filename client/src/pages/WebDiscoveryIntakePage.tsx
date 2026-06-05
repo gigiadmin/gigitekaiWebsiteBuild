@@ -13,6 +13,7 @@ export default function WebDiscoveryIntakePage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     company: "",
     category: "website-discovery",
     message: "",
@@ -28,6 +29,7 @@ export default function WebDiscoveryIntakePage() {
         setFormData({
           name: "",
           email: "",
+          phone: "",
           company: "",
           category: "website-discovery",
           message: "",
@@ -56,6 +58,7 @@ export default function WebDiscoveryIntakePage() {
       await submitMutation.mutateAsync({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         company: formData.company,
         category: formData.category,
         message: formData.message,
@@ -131,6 +134,25 @@ export default function WebDiscoveryIntakePage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="your.email@company.com"
+                className="w-full"
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Phone Field */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                Phone Number *
+              </label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                minLength={10}
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="(123) 456-7890"
                 className="w-full"
                 disabled={isSubmitting}
               />
