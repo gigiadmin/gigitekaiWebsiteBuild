@@ -4,18 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckCircle, AlertCircle, Copy } from "lucide-react";
+import { Loader2, CheckCircle, AlertCircle, Copy, Globe } from "lucide-react";
 
 export default function AdminDNSChecker() {
   const [domain, setDomain] = useState("");
   const [ip, setIp] = useState("");
   const [domains, setDomains] = useState("");
-  const [activeTab, setActiveTab] = useState("single");
+  const [activeTab, setActiveTab] = useState("global");
 
+  const checkDomainGlobalMutation = trpc.dnsChecker.checkDomainGlobal.useMutation();
   const checkDomainMutation = trpc.dnsChecker.checkDomain.useMutation();
   const healthCheckMutation = trpc.dnsChecker.checkDomainHealth.useMutation();
   const reverseLookupMutation = trpc.dnsChecker.reverseLookup.useMutation();
   const batchCheckMutation = trpc.dnsChecker.batchCheck.useMutation();
+
+  const handleCheckDomainGlobal = async () => {
+    if (!domain.trim()) return;
+    await checkDomainGlobalMutation.mutateAsync({
+      domain,
+      recordTypes: ["A", "AAAA", "MX", "TXT", "NS"],
+    });
+  };
 
   const handleCheckDomain = async () => {
     if (!domain.trim()) return;
@@ -49,26 +58,122 @@ export default function AdminDNSChecker() {
     navigator.clipboard.writeText(text);
   };
 
+  const renderRecordValue = (value: any) => {
+    if (!value) return "—";
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) {
+      if (value.length === 0) return "—";
+      if (typeof value[0] === "object") {
+        return JSON.stringify(value, null, 2);
+      }
+      return value.join(", ");
+    }
+    if (typeof value === "object" && value.error) {
+      return `❌ ${value.error}`;
+    }
+    return JSON.stringify(value, null, 2);
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">DNS Checker Tool</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <Globe className="w-8 h-8 text-cyan-400" />
+            <h1 className="text-3xl font-bold text-foreground">Global DNS Checker</h1>
+          </div>
           <p className="text-muted-foreground">
-            Check DNS records, domain health, and perform reverse lookups
+            Check DNS records across multiple global DNS servers (Google, Cloudflare, OpenDNS, Quad9, Verisign)
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="single">Single Domain</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="global">Global Check</TabsTrigger>
+            <TabsTrigger value="single">Single Server</TabsTrigger>
             <TabsTrigger value="health">Health Check</TabsTrigger>
             <TabsTrigger value="reverse">Reverse Lookup</TabsTrigger>
             <TabsTrigger value="batch">Batch Check</TabsTrigger>
           </TabsList>
 
-          {/* Single Domain Check */}
+          {/* Global DNS Check */}
+          <TabsContent value="global" className="space-y-4">
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-semibold text-foreground mb-2 block">
+                    Domain Name
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="example.com"
+                      value={domain}
+                      onChange={(e) => setDomain(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") handleCheckDomainGlobal();
+                      }}
+                    />
+                    <Button
+                      onClick={handleCheckDomainGlobal}
+                      disabled={checkDomainGlobalMutation.isPending || !domain.trim()}
+                      className="bg-cyan-500 hover:bg-cyan-600"
+                    >
+                      {checkDomainGlobalMutation.isPending && (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      )}
+                      Check Global
+                    </Button>
+                  </div>
+                </div>
+
+                {checkDomainGlobalMutation.data && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
+                      {Object.entries(checkDomainGlobalMutation.data.servers).map(
+                        ([serverName, serverData]: any) => (
+                          <Card key={serverName} className="p-4 bg-slate-900 border-cyan-500/20">
+                            <div className="mb-3">
+                              <h3 className="text-lg font-semibold text-cyan-400">
+                                {serverName}
+                              </h3>
+                              <p className="text-xs text-muted-foreground">{serverData.ip}</p>
+                            </div>
+
+                            <div className="space-y-3">
+                              {Object.entries(serverData.records).map(([recordType, records]: any) => (
+                                <div key={recordType} className="border-l-2 border-cyan-500/30 pl-3">
+                                  <div className="flex justify-between items-start mb-1">
+                                    <span className="font-mono text-sm font-semibold text-cyan-300">
+                                      {recordType}
+                                    </span>
+                                    {records.error && (
+                                      <AlertCircle className="w-4 h-4 text-red-400" />
+                                    )}
+                                  </div>
+                                  <div className="text-sm text-foreground bg-slate-800/50 p-2 rounded font-mono break-all">
+                                    {renderRecordValue(records)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {checkDomainGlobalMutation.error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
+                    Error: {(checkDomainGlobalMutation.error as any).message}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Single Server Check */}
           <TabsContent value="single" className="space-y-4">
             <Card className="p-6">
               <div className="space-y-4">
@@ -98,50 +203,30 @@ export default function AdminDNSChecker() {
                 </div>
 
                 {checkDomainMutation.data && (
-                  <div className="mt-6 space-y-4">
-                    <h3 className="font-semibold text-foreground">DNS Records</h3>
-                    {Object.entries(checkDomainMutation.data.records as Record<string, any>).map(([type, records]) => {
-                      const recordsData = records as any;
-                      return (
-                      <div key={type} className="bg-muted p-4 rounded-lg">
-                        <h4 className="font-medium text-foreground mb-2">{type} Records</h4>
-                        {recordsData.error ? (
-                          <p className="text-sm text-destructive flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4" />
-                            {recordsData.error}
-                          </p>
-                        ) : (
-                          <div className="space-y-1">
-                            {Array.isArray(recordsData) &&
-                              recordsData.map((record: any, idx: number) => (
-                                <div
-                                  key={idx}
-                                  className="text-sm text-muted-foreground flex items-center justify-between"
-                                >
-                                  <code className="bg-background px-2 py-1 rounded text-xs">
-                                    {typeof record === "string"
-                                      ? record
-                                      : JSON.stringify(record)}
-                                  </code>
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        typeof record === "string"
-                                          ? record
-                                          : JSON.stringify(record)
-                                      )
-                                    }
-                                    className="text-primary hover:text-primary/80"
-                                  >
-                                    <Copy className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ))}
+                  <div className="space-y-3">
+                    {Object.entries(checkDomainMutation.data.records).map(
+                      ([recordType, records]: any) => (
+                        <div key={recordType} className="border-l-2 border-cyan-500/30 pl-3">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-mono text-sm font-semibold text-cyan-300">
+                              {recordType} Records
+                            </span>
+                            {records.error && (
+                              <AlertCircle className="w-4 h-4 text-red-400" />
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                    })}
+                          <div className="text-sm text-foreground bg-slate-800/50 p-2 rounded font-mono break-all">
+                            {renderRecordValue(records)}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+
+                {checkDomainMutation.error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
+                    Error: {(checkDomainMutation.error as any).message}
                   </div>
                 )}
               </div>
@@ -172,42 +257,38 @@ export default function AdminDNSChecker() {
                       {healthCheckMutation.isPending && (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       )}
-                      Check
+                      Check Health
                     </Button>
                   </div>
                 </div>
 
                 {healthCheckMutation.data && (
-                  <div className="mt-6 space-y-4">
-                    <h3 className="font-semibold text-foreground">Domain Health</h3>
-                    {Object.entries(healthCheckMutation.data.checks as Record<string, any>).map(([check, result]) => {
-                      const resultData = result as any;
-                      return (
-                      <div key={check} className="bg-muted p-4 rounded-lg flex items-start gap-3">
-                        {resultData.status === "✓" ? (
-                          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        ) : (
-                          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-medium text-foreground">{check}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {resultData.error ? (
-                              resultData.error
+                  <div className="space-y-3">
+                    {Object.entries(healthCheckMutation.data.checks).map(
+                      ([checkType, checkResult]: any) => (
+                        <div key={checkType} className="flex items-start justify-between p-3 bg-slate-800/50 rounded border border-slate-700">
+                          <div>
+                            <span className="font-semibold text-cyan-300">{checkType}</span>
+                            {checkResult.status === "✓" ? (
+                              <CheckCircle className="w-5 h-5 text-green-400 inline ml-2" />
                             ) : (
-                              <div className="space-y-1">
-                                {Object.entries(resultData).map(([key, value]: [string, any]) => (
-                                  <div key={key}>
-                                    <span className="font-medium">{key}:</span> {String(value)}
-                                  </div>
-                                ))}
-                              </div>
+                              <AlertCircle className="w-5 h-5 text-red-400 inline ml-2" />
                             )}
-                          </p>
+                          </div>
+                          <div className="text-sm text-muted-foreground text-right">
+                            {checkResult.status === "✓"
+                              ? `${checkResult.records?.length || 0} records`
+                              : checkResult.error}
+                          </div>
                         </div>
-                      </div>
-                    );
-                    })}
+                      )
+                    )}
+                  </div>
+                )}
+
+                {healthCheckMutation.error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
+                    Error: {(healthCheckMutation.error as any).message}
                   </div>
                 )}
               </div>
@@ -244,30 +325,23 @@ export default function AdminDNSChecker() {
                 </div>
 
                 {reverseLookupMutation.data && (
-                  <div className="mt-6 bg-muted p-4 rounded-lg">
-                    <h3 className="font-semibold text-foreground mb-3">Results</h3>
-                    {reverseLookupMutation.data.status === "✓" ? (
-                      <div className="space-y-2">
-                        {reverseLookupMutation.data.hostnames.map((hostname, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between bg-background p-2 rounded"
-                          >
-                            <code className="text-sm">{hostname}</code>
-                            <button
-                              onClick={() => copyToClipboard(hostname)}
-                              className="text-primary hover:text-primary/80"
-                            >
-                              <Copy className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      {reverseLookupMutation.data.status === "✓"
+                        ? `${reverseLookupMutation.data.hostnames.length} hostname(s) found`
+                        : reverseLookupMutation.data.error}
+                    </p>
+                    {reverseLookupMutation.data.hostnames.map((hostname: string, idx: number) => (
+                      <div key={idx} className="p-2 bg-slate-800/50 rounded font-mono text-sm text-foreground">
+                        {hostname}
                       </div>
-                    ) : (
-                      <p className="text-sm text-destructive">
-                        {reverseLookupMutation.data.error}
-                      </p>
-                    )}
+                    ))}
+                  </div>
+                )}
+
+                {reverseLookupMutation.error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
+                    Error: {(reverseLookupMutation.error as any).message}
                   </div>
                 )}
               </div>
@@ -283,15 +357,15 @@ export default function AdminDNSChecker() {
                     Domains (one per line)
                   </label>
                   <textarea
-                    placeholder="example.com&#10;test.com&#10;sample.org"
+                    placeholder="example.com&#10;test.com&#10;another.com"
                     value={domains}
                     onChange={(e) => setDomains(e.target.value)}
-                    className="w-full h-32 px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm font-mono"
+                    className="w-full h-32 p-2 bg-slate-800 border border-slate-700 rounded text-foreground font-mono text-sm"
                   />
                   <Button
                     onClick={handleBatchCheck}
                     disabled={batchCheckMutation.isPending || !domains.trim()}
-                    className="mt-4"
+                    className="mt-2"
                   >
                     {batchCheckMutation.isPending && (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -301,38 +375,57 @@ export default function AdminDNSChecker() {
                 </div>
 
                 {batchCheckMutation.data && (
-                  <div className="mt-6 space-y-4">
-                    <div className="flex gap-4 text-sm">
-                      <div className="bg-green-500/10 text-green-700 px-3 py-2 rounded">
-                        ✓ Healthy: {batchCheckMutation.data.healthy}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-4 p-3 bg-slate-800/50 rounded">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Total</p>
+                        <p className="text-lg font-bold text-cyan-400">
+                          {batchCheckMutation.data.total}
+                        </p>
                       </div>
-                      <div className="bg-destructive/10 text-destructive px-3 py-2 rounded">
-                        ✗ Failed: {batchCheckMutation.data.failed}
+                      <div>
+                        <p className="text-xs text-muted-foreground">Healthy</p>
+                        <p className="text-lg font-bold text-green-400">
+                          {batchCheckMutation.data.healthy}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Failed</p>
+                        <p className="text-lg font-bold text-red-400">
+                          {batchCheckMutation.data.failed}
+                        </p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      {batchCheckMutation.data.results.map((result, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between bg-muted p-3 rounded"
-                        >
-                          <div className="flex items-center gap-2">
+                      {batchCheckMutation.data.results.map(
+                        (result: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="flex justify-between items-center p-2 bg-slate-800/50 rounded text-sm"
+                          >
+                            <span className="font-mono">{result.domain}</span>
                             {result.status === "✓" ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <div className="flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                                <span className="text-green-400">{result.ip}</span>
+                              </div>
                             ) : (
-                              <AlertCircle className="w-4 h-4 text-destructive" />
+                              <div className="flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4 text-red-400" />
+                                <span className="text-red-400 text-xs">{result.error}</span>
+                              </div>
                             )}
-                            <span className="text-sm font-medium">{result.domain}</span>
                           </div>
-                          {result.ip && (
-                            <code className="text-xs bg-background px-2 py-1 rounded">
-                              {result.ip}
-                            </code>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
+                  </div>
+                )}
+
+                {batchCheckMutation.error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm">
+                    Error: {(batchCheckMutation.error as any).message}
                   </div>
                 )}
               </div>

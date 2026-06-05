@@ -1,10 +1,119 @@
 import { router, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { promises as dns } from "dns";
+import { Resolver } from "dns";
+
+// Global DNS servers to query
+const DNS_SERVERS = [
+  { name: "Google", ip: "8.8.8.8" },
+  { name: "Cloudflare", ip: "1.1.1.1" },
+  { name: "OpenDNS", ip: "208.67.222.222" },
+  { name: "Quad9", ip: "9.9.9.9" },
+  { name: "Verisign", ip: "64.6.64.6" },
+  { name: "Local", ip: "default" }, // System default
+];
+
+/**
+ * Query a specific DNS server for records
+ */
+async function queryDNSServer(
+  domain: string,
+  recordType: string,
+  serverIp: string
+): Promise<any> {
+  try {
+    if (serverIp === "default") {
+      // Use system default resolver
+      const resolver = new dns.Resolver();
+      switch (recordType) {
+        case "A":
+          return await resolver.resolve4(domain);
+        case "AAAA":
+          return await resolver.resolve6(domain);
+        case "MX":
+          return await resolver.resolveMx(domain);
+        case "TXT":
+          return await resolver.resolveTxt(domain);
+        case "NS":
+          return await resolver.resolveNs(domain);
+        case "CNAME":
+          return await resolver.resolveCname(domain);
+        case "SOA":
+          return await resolver.resolveSoa(domain);
+        default:
+          return null;
+      }
+    } else {
+      // Query specific DNS server
+      const resolver = new dns.Resolver();
+      resolver.setServers([serverIp]);
+
+      switch (recordType) {
+        case "A":
+          return await resolver.resolve4(domain);
+        case "AAAA":
+          return await resolver.resolve6(domain);
+        case "MX":
+          return await resolver.resolveMx(domain);
+        case "TXT":
+          return await resolver.resolveTxt(domain);
+        case "NS":
+          return await resolver.resolveNs(domain);
+        case "CNAME":
+          return await resolver.resolveCname(domain);
+        case "SOA":
+          return await resolver.resolveSoa(domain);
+        default:
+          return null;
+      }
+    }
+  } catch (error: any) {
+    return { error: error.message || "DNS lookup failed", code: error.code };
+  }
+}
 
 export const dnsCheckerRouter = router({
   /**
-   * Check DNS records for a domain
+   * Check DNS records across multiple global DNS servers
+   */
+  checkDomainGlobal: adminProcedure
+    .input(
+      z.object({
+        domain: z.string().min(1).max(255),
+        recordTypes: z
+          .array(z.enum(["A", "AAAA", "MX", "TXT", "CNAME", "NS", "SOA"]))
+          .default(["A", "MX", "TXT", "NS"]),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const results: Record<string, any> = {
+        domain: input.domain,
+        timestamp: new Date().toISOString(),
+        servers: {},
+      };
+
+      // Query each DNS server
+      for (const server of DNS_SERVERS) {
+        results.servers[server.name] = {
+          ip: server.ip,
+          records: {},
+        };
+
+        for (const recordType of input.recordTypes) {
+          const records = await queryDNSServer(
+            input.domain,
+            recordType,
+            server.ip
+          );
+          results.servers[server.name].records[recordType] = records;
+        }
+      }
+
+      return results;
+    }),
+
+  /**
+   * Check DNS records for a domain (single server - system default)
    */
   checkDomain: adminProcedure
     .input(
