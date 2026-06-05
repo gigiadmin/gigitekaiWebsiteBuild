@@ -85,7 +85,7 @@ export default function HeroSection() {
 
           {/* Label */}
           <div className="section-label mb-6">
-            NEXT-GEN CLOUD & AI SOLUTIONS
+            SECURITY-FIRST MANAGED IT FOR TAMPA BAY
           </div>
 
           {/* Headline — visible immediately (no fade-in) to make it the LCP element */}
@@ -93,9 +93,7 @@ export default function HeroSection() {
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            Intelligent
-            <br />
-            Cloud & AI{" "}
+            Managed IT +{" "}
             <span
               style={{
                 background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
@@ -103,8 +101,10 @@ export default function HeroSection() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Solutions
+              Governed AI
             </span>
+            <br />
+            for Tampa Bay SMBs
           </h1>
 
           {/* Subtitle */}
@@ -113,7 +113,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            We architect enterprise-grade cloud infrastructure and AI systems that transform how businesses operate, innovate, and scale.
+            Security-first managed IT with AI done safely. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations—without the complexity.
           </p>
 
           {/* CTA Buttons */}
@@ -123,7 +123,7 @@ export default function HeroSection() {
             }`}
           >
             <a href="/contact" className="btn-cyan text-base px-6 py-3">
-              Start Your Transformation
+              Get Started in Tampa Bay
               <ArrowRight size={18} />
             </a>
             <a
@@ -142,10 +142,10 @@ export default function HeroSection() {
               }}
             >
               <Calendar size={18} />
-              Book a Free Demo
+              Schedule Free Audit
             </a>
             <a href="#services" className="btn-outline-cyan text-base px-6 py-3">
-              View Our Solutions
+              See Our Services
             </a>
           </div>
 
@@ -156,11 +156,11 @@ export default function HeroSection() {
             }`}
           >
             <a
-              href="tel:+1727-382-6909"
+              href="tel:+1609-676-4483"
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              (727) 382-6909
+              (609) 676-4483
             </a>
             <span className="text-gray-300 hidden sm:block">|</span>
             <a
@@ -180,7 +180,7 @@ export default function HeroSection() {
           >
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">50+</div>
-              <div className="text-sm text-gray-200">Clients Served</div>
+              <div className="text-sm text-gray-200">Tampa Bay Clients</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">99.9%</div>
@@ -188,7 +188,7 @@ export default function HeroSection() {
             </div>
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">24/7</div>
-              <div className="text-sm text-gray-200">AI Support</div>
+              <div className="text-sm text-gray-200">Local Support</div>
             </div>
           </div>
         </div>

@@ -1,62 +1,52 @@
 /*
-  GigitekAI Services Section — Theme-aware
-  Service cards with technology expertise
+  GigitekAI Services Section — Tampa Bay SMB Focus
+  4 clear service packages with SMB-friendly language
+  Emphasizes security, compliance, and risk reduction
 */
 
 import { useEffect, useRef, useState } from "react";
-import { Cloud, Brain, Shield, TrendingUp, Database, Cpu, ArrowRight } from "lucide-react";
-
-const CLOUD_IMG = "/manus-storage/cloud-services-opt_abb4dfe0.webp";
-const AI_IMG = "/manus-storage/ai-solutions-opt_e3d9fd1e.webp";
+import { Shield, Lock, Brain, Zap, ArrowRight } from "lucide-react";
 
 const services = [
   {
-    id: "cloud",
-    icon: Cloud,
-    title: "Cloud Infrastructure",
-    description: "Enterprise cloud migration and management services on AWS, Azure, and Google Cloud. Our cloud infrastructure solutions deliver scalable, resilient cloud computing with cost optimization and 24/7 support.",
-    href: "/services/cloud",
-    cta: "Explore Cloud Services",
-  },
-  {
-    id: "ai",
-    icon: Brain,
-    title: "AI & Machine Learning",
-    description: "AI implementation and machine learning solutions including predictive analytics, business automation, and custom AI models. Transform your business with AI-powered intelligence and intelligent automation.",
-    href: "/services/ai",
-    cta: "Explore AI Solutions",
-  },
-  {
-    id: "security",
+    id: "essential",
     icon: Shield,
-    title: "Cybersecurity",
-    description: "Enterprise cybersecurity solutions with cloud security services, threat detection, compliance management, and data protection frameworks for secure cloud infrastructure.",
-    href: "/services/security",
-    cta: "Explore Cybersecurity",
+    title: "Essential Security",
+    description: "Core managed IT + security for small teams. Includes 24/7 monitoring, backup, antivirus, and basic compliance support. Perfect for 10-50 person teams.",
+    features: ["24/7 Monitoring & Alerts", "Daily Backups", "Antivirus & Malware Protection", "User Support", "Basic Compliance"],
+    price: "Starting at $99/user/month",
+    href: "/pricing",
+    cta: "Learn More",
   },
   {
-    id: "strategy",
-    icon: TrendingUp,
-    title: "IT Strategy & Growth",
-    description: "Align technology investments with business goals through proactive planning, roadmapping, and vCIO advisory services.",
-    href: "/services/strategy",
-    cta: "Explore IT Strategy",
+    id: "professional",
+    icon: Lock,
+    title: "Professional Compliance",
+    description: "Advanced security + compliance for regulated industries. HIPAA, legal, construction compliance built-in. Includes security audits and policy management.",
+    features: ["Everything in Essential", "Compliance Management (HIPAA/Legal)", "Security Audits", "Policy Documentation", "Incident Response"],
+    price: "Starting at $149/user/month",
+    href: "/pricing",
+    cta: "Learn More",
   },
   {
-    id: "data",
-    icon: Database,
-    title: "Data & Analytics",
-    description: "Data analytics and business intelligence solutions with modern data warehousing, predictive analytics, and AI-powered insights for enterprise decision-making.",
-    href: "/services/data",
-    cta: "Explore Data Analytics",
+    id: "elite",
+    icon: Brain,
+    title: "Elite + Governed AI",
+    description: "Professional tier + managed Copilot for Microsoft 365. AI automation with governance, security, and compliance. For teams ready to work smarter.",
+    features: ["Everything in Professional", "Managed Copilot (M365)", "AI Governance & Oversight", "Automation Workflows", "Advanced Analytics"],
+    price: "Starting at $199/user/month",
+    href: "/pricing",
+    cta: "Learn More",
   },
   {
-    id: "managed",
-    icon: Cpu,
-    title: "Managed IT Services",
-    description: "Managed IT services and enterprise IT solutions with 24/7 monitoring, helpdesk support, and proactive maintenance for your cloud infrastructure and business systems.",
-    href: "/services/managed",
-    cta: "Explore Managed IT",
+    id: "enterprise",
+    icon: Zap,
+    title: "Enterprise Custom",
+    description: "Full-stack managed IT, security, AI, and infrastructure. Custom solutions for complex environments. Dedicated account team and strategic planning.",
+    features: ["Everything in Elite", "Custom Infrastructure", "Dedicated Account Team", "Strategic IT Planning", "Multi-system Integration"],
+    price: "Custom Quote",
+    href: "/contact",
+    cta: "Schedule Consultation",
   },
 ];
 
@@ -78,131 +68,110 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
     <div
       id={service.id}
       ref={ref}
-      className={`group bg-white dark:bg-[#141B2D] rounded-xl border border-gray-100 dark:border-[rgba(0,212,255,0.15)] p-6 shadow-sm hover:shadow-lg hover:border-[#00D4FF]/30 transition-[opacity,transform] duration-300 scroll-mt-24 ${
+      className={`group relative overflow-hidden rounded-xl border border-gray-700 bg-gradient-to-br from-gray-900 to-black p-8 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
-      style={{ transitionDelay: `${index * 80}ms` }}
+      style={{ transitionDelay: `${index * 100}ms` }}
     >
-      <div className="w-12 h-12 rounded-lg bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center mb-4 group-hover:bg-[#00D4FF]/15 transition-colors">
-        <Icon size={22} className="text-[#00D4FF]" />
+      {/* Background accent */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20 group-hover:from-cyan-500/20 transition-all duration-300" />
+
+      {/* Icon */}
+      <div className="relative z-10 mb-6">
+        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center group-hover:from-cyan-500/30 transition-all duration-300">
+          <Icon className="w-7 h-7 text-cyan-400" />
+        </div>
       </div>
-      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-        {service.title}
-      </h3>
-      <p className="text-gray-300 text-sm leading-relaxed mb-4">{service.description}</p>
-      <a
-        href={service.href}
-        className="inline-flex items-center gap-1 text-sm font-semibold text-[#00D4FF] hover:gap-2 transition-colors"
-        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-      >
-        {service.cta} <ArrowRight size={14} />
-      </a>
+
+      {/* Content */}
+      <div className="relative z-10">
+        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
+          {service.title}
+        </h3>
+        <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+          {service.description}
+        </p>
+
+        {/* Features list */}
+        <ul className="space-y-2 mb-6">
+          {service.features.map((feature, i) => (
+            <li key={i} className="text-sm text-gray-400 flex items-start gap-2">
+              <span className="text-cyan-400 mt-1">•</span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Price */}
+        <div className="mb-6 pb-6 border-t border-gray-700">
+          <p className="text-cyan-400 font-semibold text-sm mt-4">{service.price}</p>
+        </div>
+
+        {/* CTA */}
+        <a
+          href={service.href}
+          className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-semibold text-sm transition-colors group/link"
+        >
+          {service.cta}
+          <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+        </a>
+      </div>
     </div>
   );
 }
 
 export default function ServicesSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="services" className="py-20 bg-white dark:bg-[#0F1629]">
-      <div className="container">
+    <section id="services" className="relative py-20 bg-black overflow-hidden">
+      {/* Background grid */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0,212,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,212,255,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      <div className="container relative z-10">
         {/* Header */}
-        <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
-          <div ref={ref}>
-            <div className={`section-label transition-[opacity,transform] duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-              WHAT WE DO
-            </div>
-            <h2
-              className={`text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight transition-[opacity,transform] duration-700 delay-100 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        <div className="max-w-2xl mb-16">
+          <div className="section-label mb-4">OUR SERVICES</div>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Clear Pricing.{" "}
+            <span
+              style={{
+                background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
             >
-              Enterprise Solutions
-            </h2>
-          </div>
-          <div className={`transition-[opacity,transform] duration-700 delay-200 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-            <p className="text-gray-300 text-lg leading-relaxed mb-6">
-              GigitekAI provides enterprise cloud infrastructure, AI solutions, and machine learning services on AWS, Azure, and Google Cloud. Our cloud computing expertise includes cloud migration, digital transformation, and business automation to accelerate growth.
-            </p>
-            <a href="/services" className="btn-cyan text-sm">
-              Explore All Capabilities <ArrowRight size={16} />
-            </a>
-          </div>
+              No Surprises.
+            </span>
+          </h2>
+          <p className="text-lg text-gray-300">
+            Four service tiers designed for Tampa Bay businesses. From essential security to full-stack managed IT with AI. Pick what you need, scale as you grow.
+          </p>
         </div>
 
-        {/* Service Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {services.map((service, i) => (
-            <ServiceCard key={service.title} service={service} index={i} />
+        {/* Service cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {services.map((service, index) => (
+            <ServiceCard key={service.id} service={service} index={index} />
           ))}
         </div>
 
-        {/* Helpdesk Pricing CTA */}
-        <div className="mb-16 bg-gradient-to-r from-cyan-500/10 to-cyan-500/5 border border-cyan-500/30 rounded-lg p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">24/7 Managed Help Desk</h3>
-              <p className="text-gray-300 mb-4">Three pricing tiers: Essential ($69/user/month), Professional ($119/user/month), Elite ($189/user/month)</p>
-              <p className="text-sm text-gray-300">Volume discounts available • No hidden fees • Flat monthly rates</p>
-            </div>
-            <a href="/helpdesk-pricing" className="btn-cyan whitespace-nowrap">
-              View Pricing <ArrowRight size={16} />
-            </a>
-          </div>
-        </div>
-
-        {/* Visual showcase */}
-        <div className="grid md:grid-cols-2 gap-6 rounded-2xl overflow-hidden">
-          <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
-            <img
-              src={CLOUD_IMG}
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 596px"
-              alt="Cloud Infrastructure - AWS, Azure, Google Cloud services for enterprise digital transformation"
-              className="w-full h-full object-cover"
-              loading="lazy"
-              width="596"
-              height="320"
-              decoding="async"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
-              <div>
-                <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Cloud Infrastructure</p>
-                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Scalable. Resilient. Always On.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative h-64 md:h-80 overflow-hidden rounded-xl">
-            <img
-              src={AI_IMG}
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 596px"
-              alt="AI Solutions - Machine Learning, Artificial Intelligence, and predictive analytics for business automation"
-              className="w-full h-full object-cover"
-              loading="lazy"
-              width="596"
-              height="320"
-              decoding="async"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A]/80 to-transparent flex items-end p-6">
-              <div>
-                <p className="text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-1">Artificial Intelligence</p>
-                <p className="text-white font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Intelligent. Adaptive. Transformative.
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
+          <p className="text-gray-300 mb-6">
+            Not sure which tier is right for you?
+          </p>
+          <a href="/contact" className="btn-cyan inline-flex items-center gap-2">
+            Schedule a Free Audit
+            <ArrowRight size={18} />
+          </a>
         </div>
       </div>
     </section>

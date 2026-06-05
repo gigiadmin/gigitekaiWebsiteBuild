@@ -1675,3 +1675,69 @@
   - [ ] Root cause: Voicemail ticket generation incorrectly flagging transcription as missing
   - [ ] Fix: Update voicemail validation logic to correctly detect when transcription exists
   - [ ] Verify: Test with new voicemail and confirm alert no longer appears
+
+
+---
+
+## TAMPA BAY REPOSITIONING (June 5, 2026)
+
+**Goal:** Reposition GigitekAI as the AI-first security MSP for Tampa Bay SMBs (healthcare, legal, construction)
+
+**Competitive Positioning:** 
+- Security-first messaging (vs. AI-first hype)
+- SMB trust language (vs. enterprise-heavy)
+- AI as governed advantage (vs. AI innovation)
+- Local Tampa Bay presence (vs. national/generic)
+
+**Target Verticals:** Healthcare, Legal Services, Construction
+
+**Competitive Advantage vs. Top 5 Tampa MSPs:**
+- BCA IT: More AI, better automation, deeper engineering
+- Symmetric IT: Stronger AI governance + security
+- Atlas PS: AI-driven efficiency + local relationships
+- DGR Systems: Superior M365 + AI orchestration
+- Ridge IT: Managed Copilot + Zero Trust automation
+
+- [ ] **Phase 1: Update Homepage & Hero Section**
+  - [ ] Change headline to "Security-First Managed IT for Tampa Bay SMBs — with AI Done Safely"
+  - [ ] Update subheading to emphasize Tampa Bay local focus
+  - [ ] Add Tampa Bay location badge/callout
+  - [ ] Update CTA to "Get Started in Tampa Bay" or "Schedule Tampa Bay Demo"
+  - [ ] Change stats to Tampa Bay context (if applicable)
+
+- [ ] **Phase 2: Restructure Service Offerings into 4 Clear Packages**
+  - [ ] Create 4 service tiers (Essential, Professional, Elite, Enterprise)
+  - [ ] Use SMB-friendly language (no jargon, clear outcomes)
+  - [ ] Emphasize security + compliance + AI governance in each tier
+  - [ ] Add healthcare, legal, construction-specific callouts
+  - [ ] Update pricing page with Tampa Bay focus
+
+- [ ] **Phase 3: Add Tampa Bay Local Presence & Trust Signals**
+  - [ ] Add "Serving Tampa Bay Since [year]" messaging
+  - [ ] Create case studies for healthcare, legal, construction clients
+  - [ ] Add testimonials from Tampa Bay businesses
+  - [ ] Highlight local team/office location
+  - [ ] Add Tampa Bay-specific compliance badges (HIPAA, SOC 2, etc.)
+
+- [ ] **Phase 4: Implement AI Governance Messaging**
+  - [ ] Update "AI" messaging from "innovation" to "governed advantage"
+  - [ ] Emphasize Managed Copilot (not AI experimentation)
+  - [ ] Highlight security controls + compliance + audit trails
+  - [ ] Add "AI Safety First" positioning
+  - [ ] Create "Copilot Governance" section on security page
+
+- [ ] **Phase 5: Update All Pages with Tampa Bay Focus**
+  - [ ] Services page: Rewrite for SMB trust + Tampa Bay context
+  - [ ] Industries page: Emphasize healthcare, legal, construction
+  - [ ] About page: Highlight Tampa Bay operations + local team
+  - [ ] Contact page: Tampa Bay phone + address + local hours
+  - [ ] Footer: Update to Tampa Bay location + local contact info
+  - [ ] Navigation: Add "Tampa Bay" branding where appropriate
+  - [ ] Meta tags/SEO: Add Tampa Bay keywords throughout
+
+- [ ] **Phase 6: Test & Publish**
+  - [ ] Verify homepage loads correctly with new messaging
+  - [ ] Test all pages for Tampa Bay messaging consistency
+  - [ ] Check mobile responsiveness
+  - [ ] Verify local SEO keywords are present
+  - [ ] Create checkpoint and publish to production
