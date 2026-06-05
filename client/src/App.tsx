@@ -77,6 +77,7 @@ const PortfolioDivineSoundsDemo = lazy(() => import("./pages/PortfolioDivineSoun
 const FreeAuditLandingPage = lazy(() => import("./pages/FreeAuditLandingPage"));
 const AuditResults = lazy(() => import("./pages/AuditResultsDashboard"));
 const WebPricingLandingPage = lazy(() => import("./pages/WebPricingLandingPage"));
+const WebDiscoveryIntakePage = lazy(() => import("./pages/WebDiscoveryIntakePage"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -187,6 +188,7 @@ function Router() {
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/audit-results"} component={AuditResults} />
           <Route path={"/web-pricing"} component={WebPricingLandingPage} />
+          <Route path={"/web-discovery-intake"} component={WebDiscoveryIntakePage} />
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
           {/* <Route path={"/roi-calculator"} component={ROICalculatorPage} /> */} {/* REMOVED: ROI page too complex for now */}
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
