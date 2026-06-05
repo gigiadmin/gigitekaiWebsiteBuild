@@ -179,11 +179,7 @@ export const callQualityRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
-      // Convert to MySQL timestamp format (YYYY-MM-DD HH:MM:SS)
-      const fromDate = new Date(Date.now() - input.days * 86400000)
-        .toISOString()
-        .slice(0, 19)
-        .replace('T', ' ');
+      const fromDate = new Date(Date.now() - input.days * 86400000);
 
       const scores = await db
         .select({
@@ -199,7 +195,7 @@ export const callQualityRouter = router({
         })
         .from(callQualityScores)
         .innerJoin(callLogs, eq(callQualityScores.callLogId, callLogs.id))
-        .where(gte(callQualityScores.scoredAt, fromDate))
+        .where(gte(callQualityScores.scoredAt, fromDate.toISOString()))
         .orderBy(desc(callQualityScores.scoredAt))
         .limit(input.limit)
         .offset(input.offset);
@@ -214,11 +210,9 @@ export const callQualityRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
-      // Aggregate stats - convert to MySQL timestamp format (YYYY-MM-DD HH:MM:SS)
-      const fromDate = new Date(Date.now() - input.days * 86400000)
-        .toISOString()
-        .slice(0, 19)
-        .replace('T', ' ');
+      const fromDate = new Date(Date.now() - input.days * 86400000);
+
+      // Aggregate stats
       const [stats] = await db
         .select({
           totalScored: sql<number>`COUNT(*)`,
@@ -236,7 +230,7 @@ export const callQualityRouter = router({
           countF: sql<number>`SUM(CASE WHEN grade = 'F' THEN 1 ELSE 0 END)`,
         })
         .from(callQualityScores)
-        .where(gte(callQualityScores.scoredAt, fromDate));
+        .where(gte(callQualityScores.scoredAt, fromDate.toISOString()));
 
       // Agent leaderboard
       const leaderboard = await db
@@ -251,10 +245,10 @@ export const callQualityRouter = router({
           avgResolution: sql<number>`AVG(scoreResolution)`,
           avgCommunication: sql<number>`AVG(scoreCommunication)`,
           avgCompliance: sql<number>`AVG(scoreCompliance)`,
-          topGrade: sql<string>`(SELECT q2.grade FROM callQualityScores q2 WHERE q2.agentUpn = callQualityScores.agentUpn ORDER BY q2.totalScore DESC LIMIT 1)`,
+          topGrade: sql<string>`(SELECT grade FROM callQualityScores q2 WHERE q2.agentUpn = callQualityScores.agentUpn ORDER BY totalScore DESC LIMIT 1)`,
         })
         .from(callQualityScores)
-        .where(gte(callQualityScores.scoredAt, fromDate))
+        .where(gte(callQualityScores.scoredAt, fromDate.toISOString()))
         .groupBy(callQualityScores.agentUpn, callQualityScores.agentName)
         .orderBy(desc(sql`AVG(totalScore)`))
         .limit(20);
@@ -267,7 +261,7 @@ export const callQualityRouter = router({
           count: sql<number>`COUNT(*)`,
         })
         .from(callQualityScores)
-        .where(gte(callQualityScores.scoredAt, fromDate))
+        .where(gte(callQualityScores.scoredAt, fromDate.toISOString()))
         .groupBy(sql`DATE(scoredAt)`)
         .orderBy(sql`DATE(scoredAt)`);
 

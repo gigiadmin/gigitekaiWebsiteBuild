@@ -10,7 +10,6 @@ import { createTicket } from "../db";
 import { getDb } from "../db";
 import { eq, and, gt } from "drizzle-orm";
 import { emailMessages, voicemailDedup } from "../../drizzle/schema";
-import { recordVoicemailDedup } from "./deduplication";
 import { invokeLLM } from "./llm";
 import { sendEmail } from "./email";
 import { notifyOwner } from "./notification";
@@ -588,7 +587,7 @@ function getAudioExtension(mimeType: string): string {
 }
 
 /**
- * Check if a voicemail has already been processed
+ * Check if a voicemail has already been processed (persistent dedup)
  */
 async function isVoicemailDuplicate(callerNumber: string, transcriptHash: string): Promise<boolean> {
   try {
@@ -611,6 +610,29 @@ async function isVoicemailDuplicate(callerNumber: string, transcriptHash: string
   } catch (err) {
     console.warn('[Email Poller] Voicemail dedup check failed:', err);
     return false;
+  }
+}
+
+/**
+ * Record a voicemail in the dedup table
+ */
+async function recordVoicemailDedup(callerNumber: string, transcriptHash: string, messageId?: string): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) return;
+    
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24-hour window
+    
+    await db.insert(voicemailDedup).values({
+      callerPhone: callerNumber,
+      transcriptHash,
+      source: 'email',
+      externalId: messageId,
+      expiresAt: expiresAt.toISOString(),
+    });
+  } catch (err) {
+    console.warn('[Email Poller] Failed to record voicemail dedup:', err);
   }
 }
 
@@ -802,17 +824,8 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
     const crypto = await import('crypto');
     const transcriptHash = crypto.createHash('sha256').update(transcript).digest('hex').substring(0, 64);
     
-    // CRITICAL: Record dedup IMMEDIATELY BEFORE creating any tickets
-    // This atomic operation prevents race conditions where duplicates create multiple tickets
-    const dedupKey: any = {
-      callerPhone: callerNumber,
-      transcriptHash,
-      source: 'email',
-    };
-    if (messageId) dedupKey.externalId = messageId;
-    const isNewVoicemail = await recordVoicemailDedup(dedupKey);
-    
-    if (!isNewVoicemail) {
+    // Check persistent dedup AFTER transcription is complete
+    if (callerNumber && transcriptHash && await isVoicemailDuplicate(callerNumber, transcriptHash)) {
       console.log(`[Email Poller] DUPLICATE VOICEMAIL detected: ${callerNumber} with transcript "${transcriptHash}..."`);
       // Mark as read and skip
       if (messageId) {
@@ -1038,7 +1051,13 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         });
         
         console.log(`[Email Poller] Created DRAFT voicemail ticket from ${callerNumber || 'unknown'} - awaiting review`);
-        console.log(`[Email Poller] Dedup already recorded before ticket creation for ${callerNumber}`);
+        
+        // Record in dedup table IMMEDIATELY AFTER ticket creation (before returning)
+        // This prevents race condition where duplicate arrives before dedup is recorded
+        if (callerNumber && transcriptHash) {
+          await recordVoicemailDedup(callerNumber, transcriptHash, messageId);
+          console.log(`[Email Poller] Recorded voicemail dedup for ${callerNumber}`);
+        }
       }
     } catch (draftError) {
       console.error('[Email Poller] Failed to create draft voicemail ticket:', draftError);
