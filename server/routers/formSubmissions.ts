@@ -120,13 +120,13 @@ ${input.message}
       }
 
       // Build query
-      let query = db.select().from(formSubmissions);
+      let query: any = db.select().from(formSubmissions);
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
 
       // Get total count
-      let countQuery = db
+      let countQuery: any = db
         .select({ count: count() })
         .from(formSubmissions);
       
