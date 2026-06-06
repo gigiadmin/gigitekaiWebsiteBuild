@@ -338,6 +338,26 @@ ${input.message}
       };
     }),
 
+  // Admin: Update status
+  updateStatus: adminProcedure
+    .input(z.object({ id: z.number(), status: z.enum(["new", "contacted", "converted", "spam"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      const updateData: any = { status: input.status };
+      if (input.status === "contacted") {
+        updateData.contactedAt = new Date().toISOString();
+      }
+
+      await db
+        .update(formSubmissions)
+        .set(updateData)
+        .where(eq(formSubmissions.id, input.id));
+
+      return { success: true };
+    }),
+
   // Admin: Mark as contacted
   markAsContacted: adminProcedure
     .input(z.object({ id: z.number() }))

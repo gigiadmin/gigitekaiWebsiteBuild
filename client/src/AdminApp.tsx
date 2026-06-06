@@ -79,6 +79,7 @@ const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 const AdminSearchChat = lazy(() => import("./pages/AdminSearchChat"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
+const AdminFormSubmissions = lazy(() => import("./pages/AdminFormSubmissions"));
 
 function PageLoader() {
   return (
@@ -197,6 +198,7 @@ export default function AdminApp() {
               <Route path="/admin/search" component={withAdminLayout(AdminSearchChat, "Admin Search")} />
               <Route path="/admin/dns-checker" component={withAdminLayout(AdminDNSChecker, "DNS Checker")} />
               <Route path="/admin/email-diagnostics" component={withAdminLayout(AdminEmailDiagnostics, "Email Diagnostics")} />
+              <Route path="/admin/form-submissions" component={withAdminLayout(AdminFormSubmissions, "Form Submissions")} />
               <Route path="/admin/free-audits" component={withAdminLayout(AdminClientOnboarding, "Free Audits")} />
               <Route path="/admin/roi" component={withAdminLayout(AdminROIDashboard, "ROI Dashboard")} />
 
