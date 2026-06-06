@@ -410,6 +410,27 @@ export default function WebsitesPage() {
             </div>
           </div>
 
+          {/* ── WEB DISCOVERY INTAKE FORM CTA ── */}
+          <div className="my-16 px-8 py-12 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 max-w-3xl">
+              <div className="flex items-center gap-3 mb-4">
+                <Globe className="w-6 h-6" style={{ color: "#00D4FF" }} />
+                <span className="text-sm font-bold uppercase tracking-widest" style={{ color: "#00D4FF" }}>Discover Your Website Potential</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to Build Your Website?</h3>
+              <p className="text-slate-300 mb-6 leading-relaxed">
+                Start with our Web Discovery Intake Form — a quick 24-question assessment that helps us understand your business, goals, and technical needs. Get personalized recommendations and a custom project proposal.
+              </p>
+              <Link href="/web-discovery-intake">
+                <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-[opacity,transform] hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
+                  Start Web Discovery Form
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              </Link>
+            </div>
+          </div>
+
           {/* Demo Sites */}
           <div>
             <div className="flex items-center gap-3 mb-6">
