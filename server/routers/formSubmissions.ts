@@ -140,80 +140,36 @@ ${input.message}
         console.warn("Failed to send confirmation email to requester:", err);
       }
 
-      // Send Teams notification
+      // Send Power Automate workflow notification
       try {
-        const webhookUrl = resolveWebhookUrl(input.category);
-        const payload = {
-          type: "message",
-          attachments: [
-            {
-              contentType: "application/vnd.microsoft.card.adaptive",
-              contentUrl: null,
-              content: {
-                $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-                type: "AdaptiveCard",
-                version: "1.4",
-                body: [
-                  {
-                    type: "Container",
-                    style: "emphasis",
-                    items: [
-                      {
-                        type: "TextBlock",
-                        text: "🎯 New Web Discovery Intake",
-                        weight: "bolder",
-                        size: "large",
-                        color: "accent",
-                      },
-                    ],
-                  },
-                  {
-                    type: "Container",
-                    items: [
-                      {
-                        type: "FactSet",
-                        facts: [
-                          { name: "Name", value: input.name },
-                          { name: "Email", value: input.email },
-                          { name: "Phone", value: input.phone },
-                          { name: "Company", value: input.company || "N/A" },
-                          { name: "Category", value: input.category },
-                        ],
-                      },
-                      {
-                        type: "TextBlock",
-                        text: "Message:",
-                        weight: "bolder",
-                        spacing: "medium",
-                      },
-                      {
-                        type: "TextBlock",
-                        text: input.message.substring(0, 300),
-                        wrap: true,
-                        spacing: "small",
-                      },
-                    ],
-                  },
-                ],
-                actions: [
-                  {
-                    type: "Action.OpenUrl",
-                    title: "View in Admin",
-                    url: "https://gigitekai.com/admin/form-submissions",
-                  },
-                ],
-              },
-            },
-          ],
-        };
-
-        await sendToTeamsWithRetry(
-          webhookUrl,
-          payload,
-          `Web Discovery Intake from ${input.name}`
-        );
+        const powerAutomateUrl = process.env.POWER_AUTOMATE_WEBHOOK_URL;
+        if (!powerAutomateUrl) {
+          console.warn("Power Automate webhook URL not configured");
+        } else {
+          // Send to Power Automate workflow
+          const response = await fetch(powerAutomateUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: input.name,
+              email: input.email,
+              phone: input.phone,
+              company: input.company,
+              category: input.category,
+              message: input.message,
+              source: input.source,
+              submittedAt: new Date().toISOString(),
+            }),
+          });
+          
+          if (!response.ok) {
+            console.warn(`Power Automate webhook returned ${response.status}: ${response.statusText}`);
+          } else {
+            console.log("Power Automate workflow triggered successfully");
+          }
+        }
       } catch (err) {
-        console.warn("Failed to send Teams notification:", err);
+        console.warn("Failed to send Power Automate notification:", err);
       }
 
       // Send notification email to support
