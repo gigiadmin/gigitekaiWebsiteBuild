@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZGEWJDEOH",
-    "secret_access_key": "ppNyocHQHWrmQifz3MJtwZ/K8M1wR/XIYb0KQZHI",
-    "session_token": "IQoJb3JpZ2luX2VjEGUaCXVzLWVhc3QtMSJHMEUCIBwWjWsIDHZo/83bRhBpdaxKqiPjrNY0XMs/hbv2seyIAiEA1ie/2FC2fJ6WjF70avrFhKOKthoPpzlruS5K+YcR1Kkq9gMILhAEGgw2NjUzODYwOTg4NjYiDARU7Of17ykwlaSzNyrTA2xgrMM7sn1yybEWrbYCZ7XS3iVsrvBUEOti0UHsWNR/OzM2olMh9+9Exk0crbKzC5ncgC+3LPdQ+S3YR/Iw6xaAE5leYaDU6BPlVP6Xcs4Pb8YRhz6XZSjnpBHO/dHLJgXyac3vBN1eronxDPwjqs2doqf2irBa+eXj6gDWjw+/12HtadONPZAOgeGrrS/Je8IiXlhXoiokR2sh/r+sdnS3mRScKHxLTEb1JF66I9D3f7u7kaMVtCsurHa8L22HMqMryblhXi9wP1xnywd8urufqfm+EM8dmFmh63KOOXuJtalPB6rUATs8C3ReCkUc4pJZOxqvqpMoeGY9CUQMPxRFPFp0lpKu2JAjYTlx83rQ1LfjPDInnNBIjHbz+76fuzHWetbCZkNFPDAmaqp48jQQdH8Qe36AEejzxgdmlHh5epb0IV2GbXxppW9STKY02r41M39vXpoUTGpHqOYPmtPY794a1pmb2bvxlqK+av6VEhexJwAvXe8QiW4qlOaxwIzf8hruqQKAsmiEnVG90zSPnr75Jq0juzvUXIzv/RpigMUvgUXcOE8WGgcYfljtIib31Y1iZsZCF8xolFKGrjLN5/ZESmA5jRdZVecYn/1DHO36MMD5/NAGOp0BPv6VPDsJX/Up6pTx+Qxv481r3urGG6Slj5JLN2l90/QfTVf0X4BtbXLR/EJpYx+X+DzYr4ClY9DN3TD22RotSl/pfoU8lXP+wUCBaK38So+YPvFL2EoKRUeSLHkYxZs9G19IhzhxvXo4Sf9bOwszIn9JwTDtkyDmBPnmhUmygMXz5KwOpM+uRyuTe/+uFO9OuKl2bHh/4u6DZFjivQ==",
-    "expiration": "2026-06-03T08:27:44.000Z"
+    "access_key_id": "ASIAZV3A2ECZLP3F2RWA",
+    "secret_access_key": "wPQf/rVF1TeTA40NNzKOGm+hkbplhq5nT8iatb8G",
+    "session_token": "IQoJb3JpZ2luX2VjELb//////////wEaCXVzLWVhc3QtMSJGMEQCIGAobWi7SSJgn1omHL/z8UmG3Sf2fznsPwKmR5gWplMPAiA9QlG6MUl8dWSIihst/yw13R2+npaXxsC9mASpU1Ta6Sr2Awh/EAQaDDY2NTM4NjA5ODg2NiIM3gt2NW5tFATCoxe7KtMDwU1ZZz6M2w65w7yT1B6piAvfP5o14KFgU1scECfGN90pNSulZ9MO+r85Ym70B4cXAWann1c5HU+1M+qFtduiFM0nfIkqah3ygjf6NzVK+hm4I/NDdvzrMbnk6IhxsGw2DIHEDzyjQwawnzeDQdTIp0kGU98xDesTPJHsfnYo8T2n3wcufDJdoXWGfNtTcB9AbIuWa6KVstXaGm3XDUJUYNyz1vVvEi2V9Q2k7lCDuEwpQNceB0jqO3F72VGOlKHe3XVPXqba0OxigMDdkwwoqxmI95Zdabvqx9mzlpDyVik0smVHKIPoKFhEpMo7hhg5+mlKwMTJ11rKsTFq8/VPQgWxUYlkwCU7gzOXkxikkv8fVjZGurwsnsFTE5FHCOsGeVpI/loWfmgHf67HNDwZznt9Cqckc9nibDL+99ZTO5eAzHsF1OGGxmzOEFuSgam92vwgnDKZclOsbb/P6bKEgisQDJy9NHj4K1c8ELbV3BFm7+x3hVweCLHgcC3Da83ykBATubl8q4mYzVXym/621SgrHuXyHb0o/zsic0+Q2Iq3JGmoqinyL7tvHyhs4lHh0PPK4UO2c31jIfX+/l9HHjNvnp3+PDY6XCDfMq8yxX35Va8w7+aO0QY6ngH+L04EYUWl3ddtDpN9Ss3H4PEOW69HMIpCsEyjxFNL85AyF2VkvSKpj1dT3W2nvQYVnv3OZnYyeR8FJw3z+AEp3Yi0X1operk+69I/IduSYxm7egwaANnkhS2Yh6zpqvFBPbuhix2zLQlho+lk6WjnZ74/mKNNLmUMdMfxRuklfXyS0kGgo8BKTGUn2YUkuAEzL+28gQiK59m4XLVnZg==",
+    "expiration": "2026-06-06T17:43:11.000Z"
   },
   "name": "gigitekai",
   "path": "/home/ubuntu/gigitekai",
@@ -64,6 +64,7 @@
     "SENDGRID_API_KEY": "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",
     "STRIPE_SECRET_KEY": "sk_test_51TWH0XAE5ZRhlImJcXiw42gfmkBKLFcEEIu3srUiveYZlGITW0OReH4QAybcKdFTMaimF2reAAmxJ2yH3OqAXi1t00WLcB86nz",
     "STRIPE_WEBHOOK_SECRET": "whsec_JdpdanxcuqVouwBiH1Uu2GBJgD2TE5RU",
+    "SUPPORT_EMAIL": "support@gigitekai.com",
     "TEAMS_BOT_APP_ID": "590cc67a-d9c2-47f8-ae3f-d2bb3a290e64",
     "TEAMS_BOT_CHANNEL_ID": "19:3XsCBwsjQciq2UpxPI7wvMEAQTqj2T3jAgzDu6iFKbo1@thread.tacv2",
     "TEAMS_BOT_CLIENT_SECRET": "ATw8Q~KkSrw1FDyF8p7qCvwiTZpCY-zaXHpnvbdg",

@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { formSubmissions } from "../../drizzle/schema";
 import { eq, desc, and, gte, lte, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
+import { sendEmailViaGraph } from "../_core/emailService";
 
 export const formSubmissionsRouter = router({
   // Public: Submit a form
@@ -80,6 +81,115 @@ ${input.message}
         });
       } catch (err) {
         console.warn("Failed to send owner notification:", err);
+      }
+
+      // Send confirmation email to requester
+      try {
+        await sendEmailViaGraph({
+          to: [{ emailAddress: { address: input.email } }],
+          subject: "We Received Your Web Discovery Intake Form",
+          bodyContent: `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #00D4FF 0%, #0066FF 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .content { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .footer { color: #666; font-size: 12px; text-align: center; padding-top: 20px; border-top: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Thank You, ${input.name}!</h1>
+      <p>We've received your Web Discovery Intake Form</p>
+    </div>
+    
+    <div class="content">
+      <p>Hi ${input.name},</p>
+      
+      <p>Thank you for submitting your IT Discovery intake form. We're excited to learn about your business and IT needs!</p>
+      
+      <h3>What Happens Next</h3>
+      <ul>
+        <li>Our team will review your responses within 24 hours</li>
+        <li>We'll contact you at <strong>${input.phone}</strong> or <strong>${input.email}</strong></li>
+        <li>We'll discuss your transformation goals and create a personalized plan</li>
+      </ul>
+      
+      <h3>Your Submission Details</h3>
+      <p><strong>Company:</strong> ${input.company || "Not provided"}</p>
+      <p><strong>Category:</strong> ${input.category}</p>
+      <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+    </div>
+    
+    <div class="footer">
+      <p>Questions? Contact us at support@gigitekai.com or call (609) 676-4483</p>
+      <p>&copy; 2026 GigitekAI. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+            `.trim(),
+        });
+        console.log("Confirmation email sent to:", input.email);
+      } catch (err) {
+        console.warn("Failed to send confirmation email to requester:", err);
+      }
+
+      // Send notification email to support
+      try {
+        await sendEmailViaGraph({
+          to: [{ emailAddress: { address: process.env.SUPPORT_EMAIL || "support@gigitekai.com" } }],
+          subject: `🎯 New Web Discovery Intake: ${input.name} from ${input.company || "Unknown Company"}`,
+          bodyContent: `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #00D4FF 0%, #0066FF 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .details { background: #f0f8ff; padding: 15px; border-left: 4px solid #00D4FF; margin-bottom: 15px; }
+    .message-box { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+    .footer { color: #666; font-size: 12px; text-align: center; padding-top: 20px; border-top: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Web Discovery Intake Submission</h1>
+      <p>Action Required: Contact within 24 hours</p>
+    </div>
+    
+    <div class="details">
+      <p><strong>Name:</strong> ${input.name}</p>
+      <p><strong>Email:</strong> <a href="mailto:${input.email}">${input.email}</a></p>
+      <p><strong>Phone:</strong> <a href="tel:${input.phone}">${input.phone}</a></p>
+      <p><strong>Company:</strong> ${input.company || "Not provided"}</p>
+      <p><strong>Category:</strong> ${input.category}</p>
+      <p><strong>Source:</strong> ${input.source}</p>
+      <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+    </div>
+    
+    <div class="message-box">
+      <h3>Submission Message:</h3>
+      <p>${input.message.replace(/\n/g, "<br>")}</p>
+    </div>
+    
+    <div class="footer">
+      <p>This is an automated notification. Please respond to the requester within 24 hours.</p>
+    </div>
+  </div>
+</body>
+</html>
+            `.trim(),
+        });
+        console.log("Support notification email sent to:", process.env.SUPPORT_EMAIL || "support@gigitekai.com");
+      } catch (err) {
+        console.warn("Failed to send support notification email:", err);
       }
 
       return {

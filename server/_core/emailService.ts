@@ -159,6 +159,66 @@ async function sendViaSendGrid(options: EmailOptions): Promise<boolean> {
 }
 
 /**
+ * Send email via Microsoft Graph API with detailed options
+ */
+export async function sendEmailViaGraph(options: {
+  to: Array<{ emailAddress: { address: string; name?: string } }>;
+  subject: string;
+  bodyContent: string;
+  cc?: Array<{ emailAddress: { address: string; name?: string } }>;
+  bcc?: Array<{ emailAddress: { address: string; name?: string } }>;
+  replyTo?: Array<{ emailAddress: { address: string; name?: string } }>;
+}): Promise<void> {
+  try {
+    const accessToken = await getM365AccessToken();
+    if (!accessToken) {
+      throw new Error("Failed to get M365 access token");
+    }
+
+    const message = {
+      subject: options.subject,
+      body: {
+        contentType: "HTML",
+        content: options.bodyContent,
+      },
+      toRecipients: options.to,
+      ccRecipients: options.cc || [],
+      bccRecipients: options.bcc || [],
+      replyToAddresses: options.replyTo || [],
+    };
+
+    const response = await fetch(
+      `https://graph.microsoft.com/v1.0/users/${process.env.OWNER_OPEN_ID}/sendMail`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          saveToSentItems: true,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to send email: ${response.status} - ${errorText}`
+      );
+    }
+
+    console.log(
+      `[Email] Sent via Graph API to: ${options.to.map((r) => r.emailAddress.address).join(", ")}`
+    );
+  } catch (error) {
+    console.error("[Email Graph Error]", error);
+    throw error;
+  }
+}
+
+/**
  * Get M365 access token
  */
 async function getM365AccessToken(): Promise<string | null> {
