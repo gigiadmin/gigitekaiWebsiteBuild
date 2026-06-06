@@ -175,7 +175,7 @@ export async function sendEmailViaGraph(options: {
       throw new Error("Failed to get M365 access token");
     }
 
-    const message = {
+    const message: Record<string, unknown> = {
       subject: options.subject,
       body: {
         contentType: "HTML",
@@ -184,8 +184,12 @@ export async function sendEmailViaGraph(options: {
       toRecipients: options.to,
       ccRecipients: options.cc || [],
       bccRecipients: options.bcc || [],
-      replyTo: options.replyTo || [],
     };
+
+    // Only add replyToAddresses if provided (Microsoft Graph uses 'replyToAddresses', not 'replyTo')
+    if (options.replyTo && options.replyTo.length > 0) {
+      message.replyToAddresses = options.replyTo;
+    }
 
     const response = await fetch(
       `https://graph.microsoft.com/v1.0/users/support@gigitekai.com/sendMail`,

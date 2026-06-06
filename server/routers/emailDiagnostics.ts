@@ -522,7 +522,7 @@ async function analyzeBounceRate(domain: string) {
       complaintDetails = [
         {
           id: 'complaint-001',
-          sender: 'newsletter@' + domain,
+          sender: 'support@' + domain,
           recipient: 'user1@example.com',
           reason: 'Unsolicited email',
           timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -530,7 +530,7 @@ async function analyzeBounceRate(domain: string) {
         },
         {
           id: 'complaint-002',
-          sender: 'marketing@' + domain,
+          sender: 'support@' + domain,
           recipient: 'user2@example.com',
           reason: 'Spam content',
           timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -556,7 +556,7 @@ async function analyzeBounceRate(domain: string) {
     complaintDetails = [
       {
         id: 'complaint-001',
-        sender: 'newsletter@' + domain,
+        sender: 'support@' + domain,
         recipient: 'user1@example.com',
         reason: 'Unsolicited email',
         timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -564,7 +564,7 @@ async function analyzeBounceRate(domain: string) {
       },
       {
         id: 'complaint-002',
-        sender: 'marketing@' + domain,
+        sender: 'support@' + domain,
         recipient: 'user2@example.com',
         reason: 'Spam content',
         timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
