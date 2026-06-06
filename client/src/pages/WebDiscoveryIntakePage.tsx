@@ -1,55 +1,113 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, Loader2 } from "lucide-react";
 
+const STORAGE_KEY = "web-discovery-form-data";
+const STORAGE_SECTION_KEY = "web-discovery-current-section";
+
+const getDefaultFormData = () => ({
+  // Section 1: Contact & Organization
+  contactName: "",
+  contactEmail: "",
+  contactPhone: "",
+  companyName: "",
+  companySize: "",
+  industry: "",
+
+  // Section 2: Current Situation
+  currentChallenges: "",
+  currentSystems: "",
+  mainPainPoint: "",
+
+  // Section 3: IT Infrastructure
+  cloudUsage: "",
+  securityConcerns: "",
+  dataBackup: "",
+
+  // Section 4: Goals & Priorities
+  topPriority: "",
+  desiredOutcome: "",
+  timeline: "",
+
+  // Section 5: AI & Automation
+  aiInterest: "",
+  automationNeeds: "",
+  costSavingsGoal: "",
+
+  // Section 6: Support & Services
+  currentSupport: "",
+  supportIssues: "",
+  budgetRange: "",
+
+  // Section 7: Additional Info
+  additionalInfo: "",
+});
+
+const getInitialFormData = () => {
+  if (typeof window === "undefined") return getDefaultFormData();
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (err) {
+    console.warn("Failed to load form data from localStorage", err);
+  }
+
+  return getDefaultFormData();
+};
+
+const getInitialSection = () => {
+  if (typeof window === "undefined") return 0;
+  try {
+    const saved = localStorage.getItem(STORAGE_SECTION_KEY);
+    return saved ? parseInt(saved, 10) : 0;
+  } catch {
+    return 0;
+  }
+};
+
 export default function WebDiscoveryIntakePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [currentSection, setCurrentSection] = useState(0);
+  const [currentSection, setCurrentSection] = useState(getInitialSection());
+  const [formData, setFormData] = useState(getInitialFormData());
 
-  const [formData, setFormData] = useState({
-    // Section 1: Contact & Organization
-    contactName: "",
-    contactEmail: "",
-    contactPhone: "",
-    companyName: "",
-    companySize: "",
-    industry: "",
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    } catch (err) {
+      console.warn("Failed to save form data to localStorage", err);
+    }
+  }, [formData]);
 
-    // Section 2: Current Situation
-    currentChallenges: "",
-    currentSystems: "",
-    mainPainPoint: "",
+  // Save current section to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_SECTION_KEY, currentSection.toString());
+    } catch (err) {
+      console.warn("Failed to save section to localStorage", err);
+    }
+  }, [currentSection]);
 
-    // Section 3: IT Infrastructure
-    cloudUsage: "",
-    securityConcerns: "",
-    dataBackup: "",
-
-    // Section 4: Goals & Priorities
-    topPriority: "",
-    desiredOutcome: "",
-    timeline: "",
-
-    // Section 5: AI & Automation
-    aiInterest: "",
-    automationNeeds: "",
-    costSavingsGoal: "",
-
-    // Section 6: Support & Services
-    currentSupport: "",
-    supportIssues: "",
-    budgetRange: "",
-
-    // Section 7: Additional Info
-    additionalInfo: "",
-  });
+  // Clear localStorage after successful submission
+  const clearSavedData = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_SECTION_KEY);
+    } catch (err) {
+      console.warn("Failed to clear localStorage", err);
+    }
+  };
 
   const submitMutation = trpc.formSubmissions.submitForm.useMutation({
     onSuccess: () => {
+      clearSavedData();
       setSubmitted(true);
       setIsSubmitting(false);
     },
@@ -63,7 +121,15 @@ export default function WebDiscoveryIntakePage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: typeof formData) => ({ ...prev, [name]: value }));
+  };
+
+  const handleClearForm = () => {
+    if (confirm("Are you sure you want to clear all form data? This cannot be undone.")) {
+      setFormData(getDefaultFormData());
+      setCurrentSection(0);
+      clearSavedData();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,24 +218,9 @@ ${formData.additionalInfo}
     {
       title: "Current Situation",
       fields: [
-        {
-          name: "currentChallenges",
-          label: "What are your main IT challenges right now? *",
-          type: "textarea",
-          placeholder: "e.g., Managing multiple systems, security concerns, slow performance...",
-        },
-        {
-          name: "currentSystems",
-          label: "What systems or tools are you currently using? *",
-          type: "textarea",
-          placeholder: "e.g., Microsoft 365, on-premise servers, cloud services, etc.",
-        },
-        {
-          name: "mainPainPoint",
-          label: "What's your biggest pain point? *",
-          type: "textarea",
-          placeholder: "What keeps you up at night about your IT?",
-        },
+        { name: "currentChallenges", label: "What are your main IT challenges? *", type: "textarea" },
+        { name: "currentSystems", label: "What systems are you currently using? *", type: "textarea" },
+        { name: "mainPainPoint", label: "What's your biggest pain point? *", type: "textarea" },
       ],
     },
     {
@@ -177,55 +228,35 @@ ${formData.additionalInfo}
       fields: [
         {
           name: "cloudUsage",
-          label: "Are you using cloud services? *",
+          label: "Current Cloud Usage *",
           type: "select",
           options: [
-            { value: "", label: "Select an option" },
-            { value: "not-using", label: "Not using cloud services" },
-            { value: "some-cloud", label: "Using some cloud services" },
-            { value: "mostly-cloud", label: "Mostly cloud-based" },
-            { value: "hybrid", label: "Mix of cloud and on-premise" },
+            { value: "", label: "Select cloud usage" },
+            { value: "none", label: "Not using cloud" },
+            { value: "some", label: "Using some cloud services" },
+            { value: "hybrid", label: "Hybrid cloud setup" },
+            { value: "full", label: "Full cloud migration" },
           ],
         },
-        {
-          name: "securityConcerns",
-          label: "What are your top security concerns? *",
-          type: "textarea",
-          placeholder: "e.g., Data protection, compliance requirements, cyber threats...",
-        },
-        {
-          name: "dataBackup",
-          label: "How do you currently back up your data? *",
-          type: "textarea",
-          placeholder: "e.g., Local backups, cloud backups, not sure...",
-        },
+        { name: "securityConcerns", label: "Security & Compliance Concerns *", type: "textarea" },
+        { name: "dataBackup", label: "Current Data Backup Strategy *", type: "textarea" },
       ],
     },
     {
       title: "Goals & Priorities",
       fields: [
-        {
-          name: "topPriority",
-          label: "What's your top IT priority for the next 12 months? *",
-          type: "textarea",
-          placeholder: "e.g., Improve security, migrate to cloud, reduce IT costs...",
-        },
-        {
-          name: "desiredOutcome",
-          label: "What would success look like for your organization? *",
-          type: "textarea",
-          placeholder: "e.g., 99.9% uptime, faster employee productivity, reduced security incidents...",
-        },
+        { name: "topPriority", label: "What's your top priority? *", type: "textarea" },
+        { name: "desiredOutcome", label: "What outcome do you want to achieve? *", type: "textarea" },
         {
           name: "timeline",
-          label: "What's your timeline for making changes? *",
+          label: "Timeline for Implementation *",
           type: "select",
           options: [
             { value: "", label: "Select timeline" },
-            { value: "immediate", label: "Immediate (next 30 days)" },
-            { value: "soon", label: "Soon (next 3 months)" },
-            { value: "medium", label: "Medium-term (3-6 months)" },
-            { value: "long", label: "Long-term (6+ months)" },
+            { value: "immediate", label: "Immediate (0-3 months)" },
+            { value: "short", label: "Short-term (3-6 months)" },
+            { value: "medium", label: "Medium-term (6-12 months)" },
+            { value: "long", label: "Long-term (12+ months)" },
           ],
         },
       ],
@@ -235,68 +266,34 @@ ${formData.additionalInfo}
       fields: [
         {
           name: "aiInterest",
-          label: "Are you interested in AI-powered automation? *",
+          label: "Interest in AI Solutions *",
           type: "select",
           options: [
-            { value: "", label: "Select an option" },
-            { value: "very-interested", label: "Very interested" },
-            { value: "somewhat-interested", label: "Somewhat interested" },
-            { value: "not-sure", label: "Not sure" },
-            { value: "not-interested", label: "Not interested" },
+            { value: "", label: "Select interest level" },
+            { value: "exploring", label: "Just exploring" },
+            { value: "interested", label: "Very interested" },
+            { value: "urgent", label: "Urgent need" },
           ],
         },
-        {
-          name: "automationNeeds",
-          label: "What tasks or processes would you like to automate? *",
-          type: "textarea",
-          placeholder: "e.g., Customer support, ticket routing, report generation...",
-        },
-        {
-          name: "costSavingsGoal",
-          label: "How much could you save by automating these tasks? *",
-          type: "select",
-          options: [
-            { value: "", label: "Select estimated savings" },
-            { value: "10-20", label: "10-20% of IT budget" },
-            { value: "20-30", label: "20-30% of IT budget" },
-            { value: "30-40", label: "30-40% of IT budget" },
-            { value: "40+", label: "40%+ of IT budget" },
-          ],
-        },
+        { name: "automationNeeds", label: "What processes need automation? *", type: "textarea" },
+        { name: "costSavingsGoal", label: "Cost Savings Goal *", type: "textarea" },
       ],
     },
     {
       title: "Support & Services",
       fields: [
-        {
-          name: "currentSupport",
-          label: "Do you currently have IT support? *",
-          type: "select",
-          options: [
-            { value: "", label: "Select an option" },
-            { value: "in-house", label: "In-house IT team" },
-            { value: "current-msp", label: "Current managed services provider" },
-            { value: "ad-hoc", label: "Ad-hoc/freelance support" },
-            { value: "none", label: "No dedicated support" },
-          ],
-        },
-        {
-          name: "supportIssues",
-          label: "What issues are you having with your current support? *",
-          type: "textarea",
-          placeholder: "e.g., Slow response times, limited expertise, high costs...",
-        },
+        { name: "currentSupport", label: "Current IT Support Model *", type: "textarea" },
+        { name: "supportIssues", label: "Issues with Current Support *", type: "textarea" },
         {
           name: "budgetRange",
-          label: "What's your budget range for IT services? *",
+          label: "Budget Range *",
           type: "select",
           options: [
             { value: "", label: "Select budget range" },
             { value: "under-5k", label: "Under $5,000/month" },
             { value: "5-10k", label: "$5,000 - $10,000/month" },
             { value: "10-25k", label: "$10,000 - $25,000/month" },
-            { value: "25-50k", label: "$25,000 - $50,000/month" },
-            { value: "50k+", label: "$50,000+/month" },
+            { value: "25k+", label: "$25,000+/month" },
           ],
         },
       ],
@@ -306,9 +303,9 @@ ${formData.additionalInfo}
       fields: [
         {
           name: "additionalInfo",
-          label: "Anything else you'd like us to know?",
+          label: "Anything else we should know?",
           type: "textarea",
-          placeholder: "Share any other details about your business or IT needs...",
+          placeholder: "Share any additional information that would help us understand your needs...",
         },
       ],
     },
@@ -316,144 +313,102 @@ ${formData.additionalInfo}
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
-          <CheckCircle className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Thank You!</h2>
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <CheckCircle className="w-16 h-16 text-cyan-400 mx-auto mb-6" />
+          <h1 className="text-3xl font-bold text-white mb-4">Thank You!</h1>
           <p className="text-slate-300 mb-6">
-            We've received your IT discovery form. Our team will review your information and reach out within 24 hours to discuss how we can help transform your IT infrastructure.
+            Your IT Discovery intake form has been submitted successfully. Our team will review your responses and contact you within 24 hours to discuss your transformation plan.
           </p>
-          <a href="/" className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-6 rounded">
-            Back to Home
-          </a>
+          <Button
+            onClick={() => (window.location.href = "/")}
+            className="bg-cyan-500 hover:bg-cyan-600 text-slate-950"
+          >
+            Return to Home
+          </Button>
         </div>
       </div>
     );
   }
 
   const currentSectionData = sections[currentSection];
-  const totalSections = sections.length;
-  const progressPercent = ((currentSection + 1) / totalSections) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">IT Discovery Intake</h1>
-          <p className="text-slate-300 text-lg">
+          <h1 className="text-4xl font-bold text-white mb-3">IT Discovery Intake</h1>
+          <p className="text-slate-400 text-lg">
             Tell us about your business and IT needs. We'll use this to create a personalized transformation plan.
           </p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-semibold text-slate-300">
-              Section {currentSection + 1} of {totalSections}
-            </span>
-            <span className="text-sm font-semibold text-cyan-400">{Math.round(progressPercent)}%</span>
+          <div className="flex justify-between mb-3">
+            <span className="text-sm font-medium text-cyan-400">Section {currentSection + 1} of {sections.length}</span>
+            <span className="text-sm font-medium text-slate-400">{Math.round(((currentSection + 1) / sections.length) * 100)}%</span>
           </div>
-          <div className="w-full bg-slate-700 rounded-full h-2">
+          <div className="w-full bg-slate-800 rounded-full h-2">
             <div
-              className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
-            ></div>
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
+            />
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-slate-800 rounded-lg shadow-xl p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg p-8 mb-8">
           {/* Section Title */}
-          <div>
-            <h2 className="text-2xl font-bold text-cyan-400 mb-6">{currentSectionData.title}</h2>
-          </div>
+          <h2 className="text-2xl font-bold text-white mb-8 pb-4 border-b border-slate-700">
+            {currentSectionData.title}
+          </h2>
 
-          {/* Section Fields */}
-          <div className="space-y-6">
+          {/* Form Fields */}
+          <div className="space-y-6 mb-8">
             {currentSectionData.fields.map((field) => (
               <div key={field.name}>
-                <label className="block text-white font-semibold mb-2">{field.label}</label>
+                <label htmlFor={field.name} className="block text-sm font-medium text-slate-200 mb-2">
+                  {field.label}
+                </label>
 
-                {field.type === "text" || field.type === "email" || field.type === "tel" ? (
-                  <Input
-                    type={field.type}
-                    name={field.name}
-                    value={formData[field.name as keyof typeof formData]}
-                    onChange={handleChange}
-                    placeholder={field.placeholder}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-cyan-500 focus:outline-none"
-                    required={field.label.includes("*")}
-                  />
-                ) : field.type === "textarea" ? (
-                  <Textarea
-                    name={field.name}
-                    value={formData[field.name as keyof typeof formData]}
-                    onChange={handleChange}
-                    placeholder={field.placeholder}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-cyan-500 focus:outline-none min-h-[100px] resize-none"
-                    required={field.label.includes("*")}
-                  />
-                ) : field.type === "select" ? (
+                {field.type === "select" ? (
                   <select
+                    id={field.name}
                     name={field.name}
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-2 bg-slate-700 text-white rounded border border-slate-600 focus:border-cyan-500 focus:outline-none"
-                    required={field.label.includes("*")}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   >
-                    {field.options?.map((option) => (
+                    {(field.options || []).map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
                     ))}
                   </select>
-                ) : null}
+                ) : field.type === "textarea" ? (
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={formData[field.name as keyof typeof formData]}
+                    onChange={handleChange}
+                    placeholder={"placeholder" in field ? field.placeholder : ""}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none h-24"
+                  />
+                ) : (
+                  <Input
+                    id={field.name}
+                    type={field.type}
+                    name={field.name}
+                    value={formData[field.name as keyof typeof formData]}
+                    onChange={handleChange}
+                    placeholder={"placeholder" in field ? field.placeholder : ""}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  />
+                )}
               </div>
             ))}
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex gap-4 pt-8">
-            {currentSection > 0 && (
-              <Button
-                type="button"
-                onClick={() => setCurrentSection(currentSection - 1)}
-                disabled={isSubmitting}
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded"
-              >
-                Previous
-              </Button>
-            )}
-
-            {currentSection < totalSections - 1 ? (
-              <Button
-                type="button"
-                onClick={() => setCurrentSection(currentSection + 1)}
-                disabled={isSubmitting}
-                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded"
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 text-white font-semibold py-2 px-4 rounded flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Discovery Form"
-                )}
-              </Button>
-            )}
           </div>
 
           {/* Info Text */}
@@ -461,6 +416,55 @@ ${formData.additionalInfo}
             * Required fields. We'll contact you within 24 hours to discuss your needs.
           </p>
         </form>
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-4 justify-between items-center">
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              onClick={() => setCurrentSection(Math.max(0, currentSection - 1))}
+              disabled={currentSection === 0}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+            >
+              ← Previous
+            </Button>
+
+            {currentSection < sections.length - 1 ? (
+              <Button
+                type="button"
+                onClick={() => setCurrentSection(Math.min(sections.length - 1, currentSection + 1))}
+                className="bg-cyan-500 hover:bg-cyan-600 text-slate-950"
+              >
+                Next →
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-green-500 hover:bg-green-600 text-white"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Form"
+                )}
+              </Button>
+            )}
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleClearForm}
+            variant="ghost"
+            className="text-slate-400 hover:text-red-400 hover:bg-red-950/20"
+          >
+            Clear Form
+          </Button>
+        </div>
       </div>
     </div>
   );
