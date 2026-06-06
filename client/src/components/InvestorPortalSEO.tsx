@@ -67,16 +67,16 @@ export function setupInvestorPortalSEO() {
     ],
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': '609-676-4483',
-      'addressRegion': 'NJ',
-      'postalCode': '08260',
+      'streetAddress': 'Tampa Bay, FL',
+      'addressRegion': 'FL',
+      'postalCode': '33602',
       'addressCountry': 'US'
     },
     'contactPoint': {
       '@type': 'ContactPoint',
       'contactType': 'Investor Relations',
       'email': 'support@gigitekai.com',
-      'telephone': '609-676-4483'
+      'telephone': '+1-727-382-6909'
     },
     'sameAs': [
       'https://www.linkedin.com/company/gigitekai',
