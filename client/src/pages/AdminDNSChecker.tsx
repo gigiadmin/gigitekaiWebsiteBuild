@@ -89,12 +89,12 @@ export default function AdminDNSChecker() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="global">Global Check</TabsTrigger>
-            <TabsTrigger value="single">Single Server</TabsTrigger>
-            <TabsTrigger value="health">Health Check</TabsTrigger>
-            <TabsTrigger value="reverse">Reverse Lookup</TabsTrigger>
-            <TabsTrigger value="batch">Batch Check</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 gap-1 h-auto p-1">
+            <TabsTrigger value="global" className="text-xs sm:text-sm px-2 py-2 truncate">Global Check</TabsTrigger>
+            <TabsTrigger value="single" className="text-xs sm:text-sm px-2 py-2 truncate">Single Server</TabsTrigger>
+            <TabsTrigger value="health" className="text-xs sm:text-sm px-2 py-2 truncate">Health Check</TabsTrigger>
+            <TabsTrigger value="reverse" className="text-xs sm:text-sm px-2 py-2 truncate">Reverse Lookup</TabsTrigger>
+            <TabsTrigger value="batch" className="text-xs sm:text-sm px-2 py-2 truncate">Batch Check</TabsTrigger>
           </TabsList>
 
           {/* Global DNS Check */}
