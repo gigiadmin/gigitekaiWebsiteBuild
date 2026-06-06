@@ -150,13 +150,13 @@ export default function AdminEmailPage() {
     // Sync on first mount
     if (!autoSyncRef.current) {
       autoSyncRef.current = true;
-      syncInboxMutation.mutate({ limit: 50 });
+      syncInboxMutation.mutate({ limit: 200 }); // Increased from 50 to 200 for better coverage
     }
 
     // Set up periodic sync every 2 minutes
     const interval = setInterval(() => {
       if (!isSyncing) {
-        syncInboxMutation.mutate({ limit: 50 });
+        syncInboxMutation.mutate({ limit: 200 }); // Increased from 50 to 200 for better coverage
       }
     }, 120_000);
 
@@ -212,7 +212,7 @@ export default function AdminEmailPage() {
   async function handleSync() {
     setIsSyncing(true);
     try {
-      await syncInboxMutation.mutateAsync({ limit: 50 });
+      await syncInboxMutation.mutateAsync({ limit: 200 }); // Increased from 50 to 200 for better coverage
     } finally {
       setIsSyncing(false);
     }
