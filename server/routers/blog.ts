@@ -315,6 +315,56 @@ export const blogRouter = router({
       );
     }),
 
+  /** Admin: Generate a daily AI blog post */
+  generateDaily: protectedProcedure.mutation(async ({ ctx }) => {
+    requireAdmin(ctx.user.role);
+    try {
+      const { generateDailyAIBlogPost, saveBlogPost } = await import("../services/dailyAIBlogGenerator");
+      const post = await generateDailyAIBlogPost();
+      await saveBlogPost(post);
+      return {
+        success: true,
+        post,
+        message: `Blog post created: "${post.title}"`,
+      };
+    } catch (error) {
+      console.error("[Blog] Generation failed:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to generate blog post",
+      });
+    }
+  }),
+
+  /** Admin: Send blog post to all newsletter subscribers */
+  sendToSubscribers: protectedProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        excerpt: z.string(),
+        slug: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      requireAdmin(ctx.user.role);
+      try {
+        const { sendBlogToSubscribers } = await import("../services/dailyAIBlogGenerator");
+        const result = await sendBlogToSubscribers(input);
+        return {
+          success: true,
+          sent: result.sent,
+          failed: result.failed,
+          message: `Sent to ${result.sent} subscribers (${result.failed} failed)`,
+        };
+      } catch (error) {
+        console.error("[Blog] Send to subscribers failed:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send blog post to subscribers",
+        });
+      }
+    }),
+
   /** Send blog post via email (admin only) */
   sendBlogEmail: protectedProcedure
     .input(

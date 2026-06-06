@@ -1741,3 +1741,14 @@
   - [ ] Check mobile responsiveness
   - [ ] Verify local SEO keywords are present
   - [ ] Create checkpoint and publish to production
+
+
+## Daily AI Blog Post System (Mon-Fri at 1 PM)
+- [x] Set up AI news aggregation from top tech outlets (TechCrunch, VentureBeat, Forbes, etc.) — LLM-based research
+- [x] Create daily blog post generator with LLM (non-technical, SMB-focused) — dailyAIBlogGenerator.ts
+- [ ] Build blog post scheduler (Mon-Fri 1 PM only) — wire into aiNewsScheduler pattern
+- [ ] Create email distribution to subscribers — use existing newsletterSubscribers table
+- [x] Build admin interface at /admin/blog — already exists (AdminBlog.tsx)
+- [x] Add subscriber management system — use existing newsletterSubscribers table
+- [ ] Test daily generation and email sending
+- [ ] Deploy and monitor system
