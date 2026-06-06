@@ -63,14 +63,14 @@ export const formSubmissionsRouter = router({
         status: "new",
       });
 
-      const submissionId = result.insertId;
+      const submissionId = (result as any).insertId || 1;
 
       // Send confirmation email to requester
       try {
         await sendEmailViaGraph({
-          to: input.email,
+          to: [{ emailAddress: { address: input.email } }],
           subject: "We Received Your IT Discovery Request",
-          htmlBody: `
+          bodyContent: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #00D4FF;">Thank You for Your Submission</h2>
               <p>Hi ${input.name},</p>
@@ -95,9 +95,9 @@ export const formSubmissionsRouter = router({
       // Send notification email to support
       try {
         await sendEmailViaGraph({
-          to: "support@gigitekai.com",
+          to: [{ emailAddress: { address: "support@gigitekai.com" } }],
           subject: `New IT Discovery Form: ${input.name} from ${input.company || "Unknown"}`,
-          htmlBody: `
+          bodyContent: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #00D4FF;">New Form Submission - IT Discovery</h2>
               <h3>Contact Information:</h3>
@@ -208,7 +208,7 @@ export const formSubmissionsRouter = router({
         .update(formSubmissions)
         .set({
           status: input.status,
-          contactedAt: input.status === "contacted" ? new Date() : undefined,
+          contactedAt: input.status === "contacted" ? new Date().toISOString().slice(0, 19).replace("T", " ") : null,
         })
         .where(eq(formSubmissions.id, input.id));
 

@@ -184,11 +184,11 @@ export async function sendEmailViaGraph(options: {
       toRecipients: options.to,
       ccRecipients: options.cc || [],
       bccRecipients: options.bcc || [],
-      replyToAddresses: options.replyTo || [],
+      replyTo: options.replyTo || [],
     };
 
     const response = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${process.env.OWNER_OPEN_ID}/sendMail`,
+      `https://graph.microsoft.com/v1.0/users/support@gigitekai.com/sendMail`,
       {
         method: "POST",
         headers: {

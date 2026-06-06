@@ -27,7 +27,7 @@ export default function AdminFormSubmissions() {
   }, [isAuthenticated, user?.role, navigate]);
 
   // Fetch submissions
-  const { data: submissions, isLoading, refetch } = trpc.formSubmissions.getSubmissions.useQuery(filters);
+  const { data: submissions, isLoading, refetch } = trpc.formSubmissions.getAll.useQuery();
   const updateStatusMutation = trpc.formSubmissions.updateStatus.useMutation({
     onSuccess: () => refetch(),
   });
