@@ -302,7 +302,7 @@ export const teamsChannelsRouter = router({
             $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
             type: "AdaptiveCard",
             version: "1.4",
-            body: [{ type: "TextBlock", text: "🟢 GigitekAI Helpdesk — webhook health OK", isSubtle: true, size: "Small" }],
+            body: [{ type: "TextBlock", text: "", isSubtle: true, size: "Small", spacing: "none" }],
           },
         }],
       };
