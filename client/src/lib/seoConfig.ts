@@ -159,9 +159,9 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "Tampa Bay's trusted managed IT provider. 24/7 support, cloud migration, cybersecurity, and Microsoft 365 for local businesses. Free IT assessment — (727) 382-6909.",
   },
   "/hh": {
-    title: "Contact Harry Henry Santiago | GigitekAI Founder",
+    title: "Contact Harry Henry | GigitekAI Founder",
     description:
-      "Connect with Harry Henry Santiago, Microsoft 365 Architect and founder of GigitekAI. Schedule a consultation or get in touch directly.",
+      "Connect with Harry Henry, Microsoft 365 Architect and founder of GigitekAI. Schedule a consultation or get in touch directly.",
   },
 };
 

@@ -82,7 +82,7 @@ export default function AboutUs() {
             <div className="grid md:grid-cols-3 gap-8 items-start">
               <div className="md:col-span-2 space-y-4 text-gray-300 text-lg leading-relaxed">
                 <p>
-                  <strong className="text-cyan-400">Harry Henry Santiago</strong> and Brenda Henry bring over 40 years of combined industry experience to GigitekAI. With deep expertise in enterprise IT, cloud infrastructure, and business operations, they founded GigitekAI with a clear mission: build an AI-first MSP where intelligent agents function as full employees — replacing manual workflows with automation and intelligence.
+                  <strong className="text-cyan-400">Harry Henry</strong> and Brenda Henry bring over 40 years of combined industry experience to GigitekAI. With deep expertise in enterprise IT, cloud infrastructure, and business operations, they founded GigitekAI with a clear mission: build an AI-first MSP where intelligent agents function as full employees — replacing manual workflows with automation and intelligence.
                 </p>
                 <p>
                   Harry has 20+ years designing, securing, and modernizing enterprise messaging environments for global organizations. His core focus areas include Exchange Online, email security (Proofpoint, SPF/DKIM/DMARC), multi-tenant Azure AD administration, hybrid migrations, and PowerShell/Graph API automation. He has supported environments ranging from 100,000+ user global deployments to mid-size businesses transitioning to the cloud. Career highlights include serving as a <strong className="text-white">Sr. Microsoft Escalation Engineer at Microsoft</strong> (Premier Support), a <strong className="text-white">Global Messaging Consultant at HCL America</strong> supporting 100k+ users across multiple continents, and currently as <strong className="text-white">Senior Consultant (Senior M365 Engineer) at large global consulting firm</strong>.
@@ -108,7 +108,7 @@ export default function AboutUs() {
                     loading="lazy"
                   />
                 </div>
-                <p className="text-cyan-400 font-semibold mt-4">Harry Henry Santiago & Brenda Henry</p>
+                <p className="text-cyan-400 font-semibold mt-4">Harry Henry & Brenda Henry</p>
                 <p className="text-gray-400 text-sm mt-1">Founders & CEOs</p>
                 <p className="text-gray-500 text-sm mt-2">U.S. Army Veteran</p>
                 <p className="text-gray-500 text-sm">📍 Tampa, Florida</p>
