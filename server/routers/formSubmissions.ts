@@ -5,6 +5,7 @@ import { formSubmissions } from "../../drizzle/schema";
 import { eq, desc, and, gte, lte, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmailViaGraph } from "../_core/emailService";
+import { sendToTeamsWithRetry, resolveWebhookUrl } from "../_core/teamsWebhookUtils";
 
 export const formSubmissionsRouter = router({
   // Public: Submit a form
@@ -137,6 +138,82 @@ ${input.message}
         console.log("Confirmation email sent to:", input.email);
       } catch (err) {
         console.warn("Failed to send confirmation email to requester:", err);
+      }
+
+      // Send Teams notification
+      try {
+        const webhookUrl = resolveWebhookUrl(input.category);
+        const payload = {
+          type: "message",
+          attachments: [
+            {
+              contentType: "application/vnd.microsoft.card.adaptive",
+              contentUrl: null,
+              content: {
+                $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                type: "AdaptiveCard",
+                version: "1.4",
+                body: [
+                  {
+                    type: "Container",
+                    style: "emphasis",
+                    items: [
+                      {
+                        type: "TextBlock",
+                        text: "🎯 New Web Discovery Intake",
+                        weight: "bolder",
+                        size: "large",
+                        color: "accent",
+                      },
+                    ],
+                  },
+                  {
+                    type: "Container",
+                    items: [
+                      {
+                        type: "FactSet",
+                        facts: [
+                          { name: "Name", value: input.name },
+                          { name: "Email", value: input.email },
+                          { name: "Phone", value: input.phone },
+                          { name: "Company", value: input.company || "N/A" },
+                          { name: "Category", value: input.category },
+                        ],
+                      },
+                      {
+                        type: "TextBlock",
+                        text: "Message:",
+                        weight: "bolder",
+                        spacing: "medium",
+                      },
+                      {
+                        type: "TextBlock",
+                        text: input.message.substring(0, 300),
+                        wrap: true,
+                        spacing: "small",
+                      },
+                    ],
+                  },
+                ],
+                actions: [
+                  {
+                    type: "Action.OpenUrl",
+                    title: "View in Admin",
+                    url: "https://gigitekai.com/admin/form-submissions",
+                  },
+                ],
+              },
+            },
+          ],
+        };
+
+        await sendToTeamsWithRetry(
+          webhookUrl,
+          payload,
+          `Web Discovery Intake from ${input.name}`
+        );
+      } catch (err) {
+        console.warn("Failed to send Teams notification:", err);
       }
 
       // Send notification email to support
