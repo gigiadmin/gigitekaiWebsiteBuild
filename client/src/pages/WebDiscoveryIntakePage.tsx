@@ -118,6 +118,7 @@ ${formData.additionalInfo}
         company: formData.companyName,
         category: "IT Discovery",
         message: message,
+        source: "web-discovery-form",
       });
     } catch (error) {
       // Error is handled by onError callback
