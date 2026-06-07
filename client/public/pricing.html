@@ -4,81 +4,297 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pricing | GigitekAI</title>
-    <meta name="description" content="GigitekAI pricing plans for cloud infrastructure, managed IT services, and AI automation. Flexible plans for businesses of all sizes.">
+    <meta name="description" content="GigitekAI pricing plans for helpdesk, managed IT services, and AI automation. Flexible plans starting at $99/month.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://gigitekai.com/pricing">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0A0E1A; color: #e0e0e0; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        h1 { font-size: 3rem; font-weight: bold; margin-bottom: 1rem; color: #fff; }
-        h2 { font-size: 1.5rem; font-weight: bold; margin-top: 2rem; margin-bottom: 1rem; color: #fff; }
-        p { margin-bottom: 1rem; color: #b0b0b0; }
-        .pricing-card { background: #161B22; padding: 2rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #00D4FF; }
-        .plan-name { font-size: 1.3rem; font-weight: 600; color: #00D4FF; margin-bottom: 0.5rem; }
-        .plan-price { font-size: 2rem; font-weight: bold; color: #fff; margin-bottom: 1rem; }
-        .plan-description { color: #b0b0b0; margin-bottom: 1rem; }
-        ul { margin-left: 2rem; margin-bottom: 1rem; }
-        li { margin-bottom: 0.5rem; color: #b0b0b0; }
-        a { color: #00D4FF; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #0A0E1A 0%, #161B22 100%); 
+            color: #e0e0e0; 
+            line-height: 1.6; 
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 3rem 2rem; 
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            margin-bottom: 1rem; 
+            color: #fff; 
+            background: linear-gradient(135deg, #00D4FF, #00FF88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .pricing-card { 
+            background: linear-gradient(135deg, #161B22 0%, #1a1f2e 100%);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 2px solid #00D4FF;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: #00FF88;
+        }
+        .pricing-card.popular {
+            border-color: #00FF88;
+            background: linear-gradient(135deg, #1a1f2e 0%, #1f2633 100%);
+            transform: scale(1.05);
+        }
+        .pricing-card.popular::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #00D4FF, #00FF88);
+            color: #0A0E1A;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .plan-name { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: #00D4FF; 
+            margin-bottom: 0.5rem; 
+        }
+        .plan-price { 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            color: #fff; 
+            margin-bottom: 0.5rem;
+        }
+        .plan-price-period {
+            color: #b0b0b0;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .plan-description { 
+            color: #b0b0b0; 
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .features-list {
+            list-style: none;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+        .features-list li { 
+            margin-bottom: 1rem; 
+            color: #d0d0d0;
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.95rem;
+        }
+        .features-list li::before {
+            content: "✓";
+            color: #00FF88;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        .get-started-btn {
+            background: linear-gradient(135deg, #00D4FF, #00FF88);
+            color: #0A0E1A;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        .get-started-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+        .get-started-btn:active {
+            transform: scale(0.98);
+        }
+        .features-section {
+            background: linear-gradient(135deg, #161B22 0%, #1a1f2e 100%);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            border: 1px solid #00D4FF;
+            margin-top: 3rem;
+        }
+        .features-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+        .features-section ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .features-section li {
+            display: flex;
+            align-items: center;
+            color: #d0d0d0;
+        }
+        .features-section li::before {
+            content: "→";
+            color: #00FF88;
+            margin-right: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 3rem;
+            color: #b0b0b0;
+        }
+        .footer-text a {
+            color: #00D4FF;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-text a:hover {
+            color: #00FF88;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+            .container {
+                padding: 2rem 1rem;
+            }
+            .plan-price {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Pricing Plans</h1>
-        <p>Flexible pricing designed for businesses of all sizes. Custom enterprise plans available.</p>
+        <div class="header">
+            <h1>Simple, Transparent Pricing</h1>
+            <p class="subtitle">Choose the perfect plan for your business. All plans include 24/7 support and 99.9% uptime SLA.</p>
+        </div>
 
-        <div class="pricing-card">
-            <div class="plan-name">Starter</div>
-            <div class="plan-price">Custom Quote</div>
-            <div class="plan-description">Perfect for small businesses getting started with cloud infrastructure.</div>
+        <div class="pricing-grid">
+            <!-- Basic Plan -->
+            <div class="pricing-card">
+                <div class="plan-name">Basic</div>
+                <div class="plan-price">$99<span style="font-size: 1rem;">/mo</span></div>
+                <div class="plan-price-period">Billed monthly</div>
+                <div class="plan-description">Perfect for small teams getting started with helpdesk automation.</div>
+                <ul class="features-list">
+                    <li>Up to 10 users</li>
+                    <li>Basic helpdesk ticketing</li>
+                    <li>Email support</li>
+                    <li>Ticket automation</li>
+                    <li>Basic reporting</li>
+                    <li>1 AI agent</li>
+                </ul>
+                <button class="get-started-btn" onclick="contactSales('Basic')">Get Started</button>
+            </div>
+
+            <!-- Standard Plan (Most Popular) -->
+            <div class="pricing-card popular">
+                <div class="plan-name">Standard</div>
+                <div class="plan-price">$199<span style="font-size: 1rem;">/mo</span></div>
+                <div class="plan-price-period">Billed monthly</div>
+                <div class="plan-description">For growing businesses needing advanced automation and support.</div>
+                <ul class="features-list">
+                    <li>Up to 50 users</li>
+                    <li>Advanced helpdesk ticketing</li>
+                    <li>24/7 phone & email support</li>
+                    <li>AI-powered automation</li>
+                    <li>Advanced reporting & analytics</li>
+                    <li>5 AI agents</li>
+                    <li>Custom workflows</li>
+                    <li>Knowledge base integration</li>
+                </ul>
+                <button class="get-started-btn" onclick="contactSales('Standard')">Get Started</button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="pricing-card">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">$299<span style="font-size: 1rem;">/mo</span></div>
+                <div class="plan-price-period">Billed monthly</div>
+                <div class="plan-description">Enterprise-grade solution with unlimited capabilities and priority support.</div>
+                <ul class="features-list">
+                    <li>Unlimited users</li>
+                    <li>Full helpdesk suite</li>
+                    <li>24/7 priority support</li>
+                    <li>Advanced AI automation</li>
+                    <li>Custom reporting & dashboards</li>
+                    <li>Unlimited AI agents</li>
+                    <li>Advanced workflows & integrations</li>
+                    <li>Dedicated account manager</li>
+                    <li>Custom SLA agreements</li>
+                </ul>
+                <button class="get-started-btn" onclick="contactSales('Premium')">Get Started</button>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>What's Included in All Plans</h2>
             <ul>
-                <li>Cloud infrastructure setup</li>
-                <li>Basic monitoring & support</li>
-                <li>Up to 10 users</li>
-                <li>Email support</li>
+                <li>99.9% uptime SLA</li>
+                <li>Multi-cloud support (AWS, Azure, Google Cloud)</li>
+                <li>Compliance-ready infrastructure (HIPAA, SOC 2, PCI-DSS)</li>
+                <li>Proactive monitoring & alerting</li>
+                <li>Regular security audits</li>
+                <li>Automated backup & disaster recovery</li>
+                <li>API access for integrations</li>
+                <li>Mobile app access</li>
             </ul>
         </div>
 
-        <div class="pricing-card">
-            <div class="plan-name">Professional</div>
-            <div class="plan-price">Custom Quote</div>
-            <div class="plan-description">For growing businesses needing managed IT and AI automation.</div>
-            <ul>
-                <li>All Starter features</li>
-                <li>24/7 help desk support</li>
-                <li>AI agent automation</li>
-                <li>Up to 50 users</li>
-                <li>Phone & email support</li>
-            </ul>
+        <div class="footer-text">
+            <p>Need a custom plan? <a href="https://gigitekai.com/contact">Contact our sales team</a> for enterprise pricing.</p>
+            <p style="margin-top: 1rem;"><a href="https://gigitekai.com">← Back to GigitekAI</a></p>
         </div>
-
-        <div class="pricing-card">
-            <div class="plan-name">Enterprise</div>
-            <div class="plan-price">Custom Quote</div>
-            <div class="plan-description">For large organizations with advanced security and compliance needs.</div>
-            <ul>
-                <li>All Professional features</li>
-                <li>Dedicated account manager</li>
-                <li>Advanced security & compliance</li>
-                <li>Unlimited users</li>
-                <li>24/7 priority support</li>
-                <li>Custom SLA agreements</li>
-            </ul>
-        </div>
-
-        <h2>What's Included</h2>
-        <ul>
-            <li>99.9% uptime SLA</li>
-            <li>Multi-cloud support (AWS, Azure, Google Cloud)</li>
-            <li>Compliance-ready infrastructure</li>
-            <li>Proactive monitoring & alerting</li>
-            <li>Regular security audits</li>
-        </ul>
-
-        <p style="margin-top: 2rem;">Ready to get started? <a href="https://gigitekai.com/contact">Contact us</a> for a custom quote.</p>
-        <p><a href="https://gigitekai.com">← Back to GigitekAI</a></p>
     </div>
+
+    <script>
+        function contactSales(plan) {
+            // Redirect to contact page with plan parameter
+            window.location.href = `https://gigitekai.com/contact?plan=${encodeURIComponent(plan)}`;
+        }
+    </script>
 </body>
 </html>
