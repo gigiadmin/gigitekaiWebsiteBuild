@@ -49,7 +49,9 @@ export default function Pricing() {
       name: "Basic",
       description: "Perfect for small teams",
       users: "~50 users",
+      monthlyPrice: 99,
       price: 99,
+      isPopular: false,
       features: [
         "Up to 10 users",
         "Basic helpdesk ticketing",
@@ -66,7 +68,9 @@ export default function Pricing() {
       name: "Standard",
       description: "Most popular choice",
       users: "~100 users",
+      monthlyPrice: 199,
       price: 199,
+      isPopular: true,
       features: [
         "Up to 50 users",
         "Advanced helpdesk ticketing",
@@ -84,7 +88,9 @@ export default function Pricing() {
       name: "Premium",
       description: "For mission-critical operations",
       users: "~200 users",
+      monthlyPrice: 299,
       price: 299,
+      isPopular: false,
       features: [
         "Unlimited users",
         "Full helpdesk suite",
