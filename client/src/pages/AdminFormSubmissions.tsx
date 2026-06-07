@@ -181,30 +181,30 @@ export default function AdminFormSubmissions() {
         </div>
 
         {/* Stats */}
-        {submissions && submissions.submissions && submissions.submissions.length > 0 && (
+        {submissions && Array.isArray(submissions) && submissions.length > 0 && (
           <div className="mt-6 bg-[#0F1629] border border-cyan-500/20 rounded-lg p-6">
             <h2 className="text-xl font-bold mb-4">Quick Stats</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-[#0A0E1A] p-4 rounded-lg">
                 <p className="text-gray-400 text-sm">Total Submissions</p>
-                <p className="text-2xl font-bold text-cyan-400">{submissions.total}</p>
+                <p className="text-2xl font-bold text-cyan-400">{submissions.length}</p>
               </div>
               <div className="bg-[#0A0E1A] p-4 rounded-lg">
                 <p className="text-gray-400 text-sm">New</p>
                 <p className="text-2xl font-bold text-blue-400">
-                  {submissions.submissions.filter((s: any) => s.status === "new").length}
+                  {submissions.filter((s: any) => s.status === "new").length}
                 </p>
               </div>
               <div className="bg-[#0A0E1A] p-4 rounded-lg">
                 <p className="text-gray-400 text-sm">Contacted</p>
                 <p className="text-2xl font-bold text-yellow-400">
-                  {submissions.submissions.filter((s: any) => s.status === "contacted").length}
+                  {submissions.filter((s: any) => s.status === "contacted").length}
                 </p>
               </div>
               <div className="bg-[#0A0E1A] p-4 rounded-lg">
                 <p className="text-gray-400 text-sm">Converted</p>
                 <p className="text-2xl font-bold text-green-400">
-                  {submissions.submissions.filter((s: any) => s.status === "converted").length}
+                  {submissions.filter((s: any) => s.status === "converted").length}
                 </p>
               </div>
             </div>
