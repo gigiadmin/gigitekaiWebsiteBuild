@@ -85,7 +85,7 @@ export default function AdminFormSubmissions() {
             <div className="p-8 text-center">
               <p className="text-gray-400">Loading submissions...</p>
             </div>
-          ) : submissions && submissions.submissions && submissions.submissions.length > 0 ? (
+          ) : submissions && Array.isArray(submissions) && submissions.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-[#0A0E1A] border-b border-cyan-500/20">
@@ -100,7 +100,7 @@ export default function AdminFormSubmissions() {
                   </tr>
                 </thead>
                 <tbody>
-                  {submissions.submissions.map((submission: any) => (
+                  {submissions.map((submission: any) => (
                     <tr
                       key={submission.id}
                       className="border-b border-cyan-500/10 hover:bg-[#0A0E1A]/50 transition-colors"
