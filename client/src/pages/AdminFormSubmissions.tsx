@@ -1,30 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle, Phone, Mail, Building2, FileText } from "lucide-react";
-import { useLocation } from "wouter";
 
 export default function AdminFormSubmissions() {
-  const { user, isAuthenticated } = useAuth();
-  const [, navigate] = useLocation();
   const [filters, setFilters] = useState({
     status: "new" as const,
     search: "",
     limit: 50,
     offset: 0,
   });
-
-  // Redirect if not authenticated or not admin
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/");
-    } else if (user?.role !== "admin") {
-      navigate("/");
-    }
-  }, [isAuthenticated, user?.role, navigate]);
 
   // Fetch submissions
   const { data: submissions, isLoading, refetch } = trpc.formSubmissions.getAll.useQuery();
@@ -46,9 +33,7 @@ export default function AdminFormSubmissions() {
     spam: <AlertCircle className="w-4 h-4" />,
   };
 
-  if (!isAuthenticated || user?.role !== "admin") {
-    return null;
-  }
+
 
   return (
     <div className="min-h-screen bg-[#0A0E1A] text-white p-6">
