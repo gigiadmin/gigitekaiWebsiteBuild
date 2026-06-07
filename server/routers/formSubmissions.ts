@@ -228,4 +228,24 @@ export const formSubmissionsRouter = router({
 
       return { success: true };
     }),
+
+  // Admin: Bulk delete submissions
+  bulkDelete: adminProcedure
+    .input(z.object({ ids: z.array(z.number()) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+
+      if (input.ids.length === 0) {
+        throw new Error("No submissions selected for deletion");
+      }
+
+      for (const id of input.ids) {
+        await db
+          .delete(formSubmissions)
+          .where(eq(formSubmissions.id, id));
+      }
+
+      return { success: true, deletedCount: input.ids.length };
+    }),
 });

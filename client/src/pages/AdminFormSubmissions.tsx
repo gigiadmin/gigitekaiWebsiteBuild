@@ -13,12 +13,45 @@ export default function AdminFormSubmissions() {
     offset: 0,
   });
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
   // Fetch submissions
   const { data: submissions, isLoading, refetch } = trpc.formSubmissions.getAll.useQuery();
   const updateStatusMutation = trpc.formSubmissions.updateStatus.useMutation({
     onSuccess: () => refetch(),
   });
+  const bulkDeleteMutation = trpc.formSubmissions.bulkDelete.useMutation({
+    onSuccess: () => {
+      setSelectedRows(new Set());
+      refetch();
+    },
+  });
+
+  const toggleSelectRow = (id: number) => {
+    const newSelected = new Set(selectedRows);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (!submissions) return;
+    if (selectedRows.size === submissions.length) {
+      setSelectedRows(new Set());
+    } else {
+      setSelectedRows(new Set(submissions.map((s: any) => s.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedRows.size === 0) return;
+    if (confirm(`Delete ${selectedRows.size} submission(s)? This cannot be undone.`)) {
+      bulkDeleteMutation.mutate({ ids: Array.from(selectedRows) });
+    }
+  };
 
   const statusColors = {
     new: "bg-blue-100 text-blue-800",
@@ -80,6 +113,30 @@ export default function AdminFormSubmissions() {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {selectedRows.size > 0 && (
+          <div className="mb-6 bg-[#0F1629] border border-red-500/30 rounded-lg p-4 flex items-center justify-between">
+            <div className="text-white">
+              <p className="font-semibold">{selectedRows.size} submission(s) selected</p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setSelectedRows(new Set())}
+                variant="outline"
+              >
+                Clear Selection
+              </Button>
+              <Button
+                onClick={handleBulkDelete}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={bulkDeleteMutation.isPending}
+              >
+                {bulkDeleteMutation.isPending ? "Deleting..." : "Delete Selected"}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Submissions Table */}
         <div className="bg-[#0F1629] border border-cyan-500/20 rounded-lg overflow-hidden">
           {isLoading ? (
@@ -91,6 +148,14 @@ export default function AdminFormSubmissions() {
               <table className="w-full">
                 <thead className="bg-[#0A0E1A] border-b border-cyan-500/20">
                   <tr>
+                    <th className="px-6 py-3 text-left text-sm font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={submissions && selectedRows.size === submissions.length && submissions.length > 0}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                    </th>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Company</th>
@@ -104,10 +169,17 @@ export default function AdminFormSubmissions() {
                   {submissions.map((submission: any) => (
                     <tr
                       key={submission.id}
-                      onClick={() => setSelectedSubmission(submission)}
-                      className="border-b border-cyan-500/10 hover:bg-[#0A0E1A]/50 transition-colors cursor-pointer"
+                      className="border-b border-cyan-500/10 hover:bg-[#0A0E1A]/50 transition-colors"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.has(submission.id)}
+                          onChange={() => toggleSelectRow(submission.id)}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </td>
+                      <td className="px-6 py-4 cursor-pointer" onClick={() => setSelectedSubmission(submission)}>
                         <div className="font-medium">{submission.name}</div>
                       </td>
                       <td className="px-6 py-4">
