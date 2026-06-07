@@ -12,6 +12,7 @@ export default function AdminFormSubmissions() {
     limit: 50,
     offset: 0,
   });
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
 
   // Fetch submissions
   const { data: submissions, isLoading, refetch } = trpc.formSubmissions.getAll.useQuery();
@@ -103,7 +104,8 @@ export default function AdminFormSubmissions() {
                   {submissions.map((submission: any) => (
                     <tr
                       key={submission.id}
-                      className="border-b border-cyan-500/10 hover:bg-[#0A0E1A]/50 transition-colors"
+                      onClick={() => setSelectedSubmission(submission)}
+                      className="border-b border-cyan-500/10 hover:bg-[#0A0E1A]/50 transition-colors cursor-pointer"
                     >
                       <td className="px-6 py-4">
                         <div className="font-medium">{submission.name}</div>
@@ -206,6 +208,136 @@ export default function AdminFormSubmissions() {
                 <p className="text-2xl font-bold text-green-400">
                   {submissions.filter((s: any) => s.status === "converted").length}
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Detail Modal */}
+        {selectedSubmission && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-[#0F1629] border border-cyan-500/20 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-[#0A0E1A] border-b border-cyan-500/20 p-6 flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Form Submission Details</h2>
+                <button
+                  onClick={() => setSelectedSubmission(null)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Personal Information */}
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Personal Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">Name</label>
+                      <p className="text-white font-medium">{selectedSubmission.name}</p>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Email</label>
+                      <a href={`mailto:${selectedSubmission.email}`} className="text-cyan-400 hover:text-cyan-300">
+                        {selectedSubmission.email}
+                      </a>
+                    </div>
+                    {selectedSubmission.phone && (
+                      <div>
+                        <label className="text-gray-400 text-sm">Phone</label>
+                        <a href={`tel:${selectedSubmission.phone}`} className="text-cyan-400 hover:text-cyan-300">
+                          {selectedSubmission.phone}
+                        </a>
+                      </div>
+                    )}
+                    {selectedSubmission.company && (
+                      <div>
+                        <label className="text-gray-400 text-sm">Company</label>
+                        <p className="text-white font-medium">{selectedSubmission.company}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Submission Details */}
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Submission Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-gray-400 text-sm">Category</label>
+                      <Badge variant="outline">{selectedSubmission.category}</Badge>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Status</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        {statusIcons[selectedSubmission.status as keyof typeof statusIcons]}
+                        <Badge className={statusColors[selectedSubmission.status as keyof typeof statusColors]}>
+                          {selectedSubmission.status.charAt(0).toUpperCase() + selectedSubmission.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-gray-400 text-sm">Submitted</label>
+                      <p className="text-white">{new Date(selectedSubmission.submittedAt).toLocaleString()}</p>
+                    </div>
+                    {selectedSubmission.contactedAt && (
+                      <div>
+                        <label className="text-gray-400 text-sm">Contacted</label>
+                        <p className="text-white">{new Date(selectedSubmission.contactedAt).toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div>
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-4">Message</h3>
+                  <div className="bg-[#0A0E1A] border border-cyan-500/20 rounded p-4">
+                    <p className="text-gray-300 whitespace-pre-wrap">{selectedSubmission.message}</p>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {selectedSubmission.notes && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-cyan-400 mb-4">Notes</h3>
+                    <div className="bg-[#0A0E1A] border border-cyan-500/20 rounded p-4">
+                      <p className="text-gray-300 whitespace-pre-wrap">{selectedSubmission.notes}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-4 border-t border-cyan-500/20">
+                  {selectedSubmission.status !== "contacted" && (
+                    <Button
+                      onClick={() => {
+                        updateStatusMutation.mutate({ id: selectedSubmission.id, status: "contacted" });
+                        setSelectedSubmission(null);
+                      }}
+                      className="bg-yellow-600 hover:bg-yellow-700"
+                    >
+                      Mark as Contacted
+                    </Button>
+                  )}
+                  {selectedSubmission.status !== "converted" && (
+                    <Button
+                      onClick={() => {
+                        updateStatusMutation.mutate({ id: selectedSubmission.id, status: "converted" });
+                        setSelectedSubmission(null);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Mark as Converted
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => setSelectedSubmission(null)}
+                    variant="outline"
+                  >
+                    Close
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
