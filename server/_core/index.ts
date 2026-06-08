@@ -380,7 +380,8 @@ async function startServer() {
     // Start Teams daily digest scheduler (8 AM EST)
     startTeamsDigestScheduler();
     // Start Teams SLA breach alert scheduler (every 30 minutes)
-    startSlaAlertScheduler();
+    // DISABLED: SLA alerts were posting too frequently
+    // startSlaAlertScheduler();
     // Start Social post scheduler (every 5 minutes)
     startSocialScheduler();
     // Start Social engagement poller (every hour)
