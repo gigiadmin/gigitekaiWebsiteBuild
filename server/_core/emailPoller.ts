@@ -470,6 +470,9 @@ function isTransactionalEmail(subject: string, senderEmail: string, body: string
     /build (failed|passed|succeeded)/i,
     /deployment (failed|succeeded|started)/i,
     /cron job|scheduled task/i,
+    /you've joined|joined the .*(group|channel|team)/i,
+    /academy|training|course|learning/i,
+    /group (notification|membership|added)/i,
   ];
 
   for (const pattern of blockedSubjectPatterns) {
@@ -479,9 +482,11 @@ function isTransactionalEmail(subject: string, senderEmail: string, body: string
     }
   }
 
-  // ── Blocked body patterns (unsubscribe links = marketing email) ──
-  if (bodyLower.includes('unsubscribe') && bodyLower.includes('click here')) {
-    console.log(`[Email Poller] TRANSACTIONAL FILTER: Detected marketing email (unsubscribe link) from ${senderEmail}`);
+  // ── Blocked body patterns (unsubscribe links = marketing email, group notifications) ──
+  if ((bodyLower.includes('unsubscribe') && bodyLower.includes('click here')) ||
+      (bodyLower.includes('joined') && bodyLower.includes('group')) ||
+      (bodyLower.includes('academy') && bodyLower.includes('member'))) {
+    console.log(`[Email Poller] TRANSACTIONAL FILTER: Detected system notification (group/academy) from ${senderEmail}`);
     return true;
   }
 
