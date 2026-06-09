@@ -29,4 +29,5 @@ export const LOGIN_REQUEST: RedirectRequest = {
 // Allowed admin emails — only these can access the admin portal
 export const ALLOWED_ADMIN_EMAILS = [
   "harry@gigitekai.com",
+  "nas@gigitekai.com",
 ];
