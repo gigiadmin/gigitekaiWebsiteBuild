@@ -516,7 +516,7 @@ export const adminAuthRouter = router({
       const verifiedEmail = (graphUser.mail || graphUser.userPrincipalName || "").toLowerCase();
 
       // Allowed admin emails — only these M365 accounts can access the admin portal
-      const ALLOWED_ADMINS = ["harry@gigitekai.com"];
+      const ALLOWED_ADMINS = ["harry@gigitekai.com", "nas@gigitekai.com"];
       if (!ALLOWED_ADMINS.includes(verifiedEmail)) {
         throw new TRPCError({
           code: "FORBIDDEN",
