@@ -29,4 +29,4 @@ export const LOGIN_REQUEST: RedirectRequest = {
 // Allowed admin emails — only these can access the admin portal
 // This is read from the ADMIN_EMAILS environment variable at build time
 const adminEmailsStr = import.meta.env.VITE_ADMIN_EMAILS || "harry@gigitekai.com,nas@gigitekai.com";
-export const ALLOWED_ADMIN_EMAILS = adminEmailsStr.split(",").map(e => e.trim().toLowerCase());
+export const ALLOWED_ADMIN_EMAILS = adminEmailsStr.split(",").map((e: string) => e.trim().toLowerCase());
