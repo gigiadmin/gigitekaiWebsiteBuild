@@ -85,6 +85,44 @@ async function getDynamics365Token(): Promise<string | null> {
   }
 }
 
+/**
+ * Test Teams Webhook connectivity
+ */
+async function testTeamsWebhook(webhookUrl: string): Promise<boolean> {
+  try {
+    const testCard = {
+      type: "message",
+      attachments: [
+        {
+          contentType: "application/vnd.microsoft.card.adaptive",
+          content: {
+            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+            type: "AdaptiveCard",
+            version: "1.4",
+            body: [
+              {
+                type: "TextBlock",
+                text: "Health Check",
+                weight: "Bolder",
+              },
+            ],
+          },
+        },
+      ],
+    };
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(testCard),
+    });
+
+    return response.ok || response.status === 200;
+  } catch (err: any) {
+    return false;
+  }
+}
+
 async function getGraphAccessToken(): Promise<string> {
   const tenantId = process.env.MS_GRAPH_TENANT_ID;
   const clientId = process.env.MS_GRAPH_CLIENT_ID;
@@ -326,13 +364,20 @@ export const contactCenterRouter = router({
         lastChecked: new Date().toISOString(),
       });
 
-      // 2. Teams Webhook
+      // 2. Teams Webhook — Test connectivity
+      let teamsWebhookStatus: "healthy" | "degraded" | "error" | "not_configured" = "not_configured";
+      let teamsWebhookDetails = "TEAMS_WEBHOOK_URL not set";
+      if (teamsWebhookUrl) {
+        const isHealthy = await testTeamsWebhook(teamsWebhookUrl);
+        teamsWebhookStatus = isHealthy ? "healthy" : "degraded";
+        teamsWebhookDetails = isHealthy
+          ? "Webhook configured · Last check: healthy"
+          : "Webhook configured but POST failed · Check webhook URL and Teams permissions";
+      }
       services.push({
         service: "Teams Webhook",
-        status: teamsWebhookUrl ? "healthy" : "not_configured",
-        details: teamsWebhookUrl
-          ? "Webhook configured · Last check: never"
-          : "TEAMS_WEBHOOK_URL not set",
+        status: teamsWebhookStatus,
+        details: teamsWebhookDetails,
         lastChecked: new Date().toISOString(),
       });
 
