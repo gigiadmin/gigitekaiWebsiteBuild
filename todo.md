@@ -1752,3 +1752,13 @@
 - [x] Add subscriber management system — use existing newsletterSubscribers table
 - [x] Test daily generation and email sending
 - [x] Deploy and monitor system
+
+
+## Voicemail Import Behavior - Prevent Re-Import of Dismissed Voicemails
+- [x] Phase 1: Create voicemailSourceTombstones database table
+- [x] Phase 2: Update voicemail poller to check tombstones before importing
+- [x] Phase 3: Update delete/reject draft mutations to create tombstones
+- [ ] Phase 4: Update admin UI labels and behavior
+- [ ] Phase 5: Add comprehensive tests for tombstone behavior
+- [ ] Phase 6: Create data migration script for existing duplicates
+- [ ] Phase 7: Deploy and verify production readiness

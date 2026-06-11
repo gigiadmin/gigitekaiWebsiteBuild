@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { router, adminProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { callLogs, callDraftTickets, tickets, users } from "../../drizzle/schema";
+import { callLogs, callDraftTickets, tickets, users, voicemailSourceTombstones } from "../../drizzle/schema";
 import { eq, desc, and, gte, inArray } from "drizzle-orm";
 import { getCallPollerStatus, triggerCallPollerRun } from "../_core/callPoller";
 import { createTicket } from "../db";
@@ -372,15 +372,37 @@ export const callsRouter = router({
         ids: z.array(z.number()),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       if (!input.ids.length) throw new Error("No IDs provided");
 
-      await db
-        .delete(callDraftTickets)
-        .where(inArray(callDraftTickets.id, input.ids));
+      const drafts = await db.select().from(callDraftTickets).where(inArray(callDraftTickets.id, input.ids));
 
+      for (const draft of drafts) {
+        if (draft.callLogId) {
+          try {
+            const callLog = await db.select().from(callLogs).where(eq(callLogs.id, draft.callLogId)).limit(1);
+            if (callLog.length > 0 && callLog[0].graphCallId?.startsWith('voicemail-')) {
+              const threadId = callLog[0].graphCallId.replace('voicemail-', '');
+              await db.insert(voicemailSourceTombstones).values({
+                source: 'm365-group',
+                groupId: 'b70ef14d-68dc-4faa-b7f6-8324b43c99b5',
+                threadId,
+                callLogId: draft.callLogId,
+                draftTicketId: draft.id,
+                action: 'deleted',
+                reason: 'Draft deleted by admin',
+                createdBy: ctx.user?.email || 'system',
+              });
+            }
+          } catch (err: any) {
+            console.warn(`[Calls Router] Tombstone failed for draft ${draft.id}: ${err.message}`);
+          }
+        }
+      }
+
+      await db.delete(callDraftTickets).where(inArray(callDraftTickets.id, input.ids));
       return { success: true, deleted: input.ids.length };
     }),
 

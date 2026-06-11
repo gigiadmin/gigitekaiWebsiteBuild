@@ -2409,6 +2409,24 @@ export const upworkMessages = mysqlTable("upworkMessages", {
 	index("formSubmissions_submitted_idx").on(table.submittedAt),
 ]);
 
+export const voicemailSourceTombstones = mysqlTable("voicemailSourceTombstones", {
+	id: int().autoincrement().notNull(),
+	source: varchar({ length: 50 }).default("m365-group").notNull(),
+	groupId: varchar({ length: 255 }).notNull(),
+	threadId: varchar({ length: 255 }).notNull(),
+	postId: varchar({ length: 255 }),
+	callLogId: int(),
+	draftTicketId: int(),
+	action: mysqlEnum(["deleted", "rejected", "dismissed"]).notNull(),
+	reason: text(),
+	createdBy: varchar({ length: 320 }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("voicemailSourceTombstones_groupId_threadId").on(table.groupId, table.threadId),
+	index("voicemailSourceTombstones_callLogId").on(table.callLogId),
+]);
+
 // Type exports
 export type UpworkProposal = typeof upworkProposals.$inferSelect;
 export type InsertUpworkProposal = typeof upworkProposals.$inferInsert;
@@ -2418,3 +2436,5 @@ export type UpworkMessage = typeof upworkMessages.$inferSelect;
 export type InsertUpworkMessage = typeof upworkMessages.$inferInsert;
 export type FormSubmission = typeof formSubmissions.$inferSelect;
 export type InsertFormSubmission = typeof formSubmissions.$inferInsert;
+export type VoicemailSourceTombstone = typeof voicemailSourceTombstones.$inferSelect;
+export type InsertVoicemailSourceTombstone = typeof voicemailSourceTombstones.$inferInsert;
