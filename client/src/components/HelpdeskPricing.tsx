@@ -13,8 +13,8 @@ export default function HelpdeskPricing() {
   const { user } = useAuth();
 
   const handleSelectPlan = (planName: string) => {
-    setSelectedPlan(planName);
-    setShowContactForm(true);
+    // Navigate to contact page with plan info in URL
+    window.location.href = `/contact?plan=${encodeURIComponent(planName)}&users=${userCount}&billing=${isAnnual ? 'annual' : 'monthly'}`;
   };
   const ANNUAL_DISCOUNT = 0.1; // 10% discount for annual prepayment
   const VOLUME_DISCOUNT_THRESHOLD = 25; // 8% discount for 25+ users
