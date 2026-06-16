@@ -60,9 +60,9 @@ export default function Footer() {
               <img 
                 src={LOGO_DATA_URL} 
                 alt="GigitekAI logo" 
-                className="h-10 w-auto object-contain"
-                width="200"
-                height="57"
+                className="h-12 w-auto object-contain"
+                width="490"
+                height="140"
                 decoding="async"
               />
             </a>
