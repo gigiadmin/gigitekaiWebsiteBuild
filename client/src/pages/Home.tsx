@@ -16,7 +16,7 @@ import HeroSection from "@/components/HeroSection";
 
 // ── Below-fold sections — lazy loaded to minimize initial bundle ──────────
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
-const TampaBayPresenceSection = lazy(() => import("@/components/TampaBayPresenceSection"));
+const WhyChooseUsSection = lazy(() => import("@/components/WhyChooseUsSection"));
 const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
 const StatsSection = lazy(() => import("@/components/StatsSection"));
 const WhoWeServeSection = lazy(() => import("@/components/WhoWeServeSection"));
@@ -125,7 +125,7 @@ export default function Home() {
 
         {/* Critical sections for SEO — rendered immediately (not lazy-loaded) */}
         <ServicesSection />
-        <TampaBayPresenceSection />
+        <WhyChooseUsSection />
         <BenefitsSection />
         <StatsSection />
 
