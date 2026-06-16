@@ -1,10 +1,9 @@
 /*
-  GigitekAI Testimonial Section — Upgraded
-  Features: star ratings, avatar initials, company info, prev/next arrows,
-  auto-rotate carousel, fade-in animation, summary stats bar
+  GigitekAI Testimonial Section — Placeholder
+  Testimonials will be added once real client reviews are collected.
 */
 import { useEffect, useRef, useState } from "react";
-import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Quote, Star } from "lucide-react";
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -20,50 +19,11 @@ function StarRating({ count }: { count: number }) {
   );
 }
 
-const testimonials = [
-  {
-    quote: "GigitekAI transformed our entire cloud infrastructure in under 90 days. Their AI-driven monitoring caught and resolved issues before they ever impacted our customers. It's not just a vendor relationship — they're a true technology partner.",
-    name: "Sarah Chen",
-    title: "CTO",
-    company: "NovaBridge Financial",
-    initials: "SC",
-    rating: 5,
-    accentClass: "from-cyan-500/20 to-blue-600/20",
-  },
-  {
-    quote: "We went from a fragmented, on-premise setup to a fully managed multi-cloud environment with AI analytics. Our operational costs dropped 35% in the first year. GigitekAI delivered exactly what they promised.",
-    name: "Marcus Williams",
-    title: "VP of Technology",
-    company: "HealthPath Systems",
-    initials: "MW",
-    rating: 5,
-    accentClass: "from-purple-500/20 to-cyan-600/20",
-  },
-  {
-    quote: "The AI automation GigitekAI implemented eliminated 60% of our manual data processing tasks. Our team now focuses on strategy instead of firefighting. The ROI was evident within the first quarter.",
-    name: "Priya Sharma",
-    title: "Director of Operations",
-    company: "LogiCore Inc.",
-    initials: "PS",
-    rating: 5,
-    accentClass: "from-emerald-500/20 to-cyan-600/20",
-  },
-  {
-    quote: "Their Microsoft 365 architecture expertise is unmatched. They migrated our 200-person organization with zero downtime and set up security policies that actually work. Our compliance team was thrilled.",
-    name: "David Okafor",
-    title: "IT Director",
-    company: "Meridian Legal Group",
-    initials: "DO",
-    rating: 5,
-    accentClass: "from-orange-500/20 to-cyan-600/20",
-  },
-];
+const testimonials: any[] = [];
 
 export default function TestimonialSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,18 +34,12 @@ export default function TestimonialSection() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (paused) return;
-    const interval = setInterval(() => {
-      setActive((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [paused]);
+  // Return empty if no testimonials
+  if (testimonials.length === 0) {
+    return null;
+  }
 
-  const prev = () => { setPaused(true); setActive((a) => (a - 1 + testimonials.length) % testimonials.length); };
-  const next = () => { setPaused(true); setActive((a) => (a + 1) % testimonials.length); };
-
-  const t = testimonials[active];
+  const t = testimonials[0];
 
   return (
     <section
@@ -122,67 +76,31 @@ export default function TestimonialSection() {
             </div>
 
             {/* Stars */}
-            <div className="mb-4"><StarRating count={t.rating} /></div>
+            <div className="mb-4"><StarRating count={t?.rating || 5} /></div>
 
             {/* Quote text */}
             <blockquote
-              key={active}
               className="text-lg md:text-xl text-white font-medium leading-relaxed mb-8"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              "{t.quote}"
+              "{t?.quote || "Client testimonials coming soon..."}"
             </blockquote>
 
             {/* Person row */}
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-12 h-12 rounded-full bg-gradient-to-br ${t.accentClass} border border-[#00D4FF]/30 flex items-center justify-center text-[#00D4FF] font-bold text-sm shrink-0`}
+                  className={`w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-[#00D4FF]/30 flex items-center justify-center text-[#00D4FF] font-bold text-sm shrink-0`}
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {t.initials}
+                  {t?.initials || "GG"}
                 </div>
                 <div>
-                  <p className="text-white font-bold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.name}</p>
-                  <p className="text-gray-300 text-xs">{t.title}, {t.company}</p>
+                  <p className="text-white font-bold text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t?.name || "Coming Soon"}</p>
+                  <p className="text-gray-300 text-xs">{t?.title || ""}, {t?.company || ""}</p>
                 </div>
               </div>
-              {/* Nav arrows */}
-              <div className="flex items-center gap-2">
-                <button onClick={prev} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-colors" aria-label="Previous testimonial">
-                  <ChevronLeft size={16} />
-                </button>
-                <button onClick={next} className="w-8 h-8 rounded-lg border border-white/10 flex items-center justify-center text-gray-300 hover:text-white hover:border-[#00D4FF]/40 transition-colors" aria-label="Next testimonial">
-                  <ChevronRight size={16} />
-                </button>
-              </div>
             </div>
-          </div>
-
-          {/* Dot indicators */}
-          <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { setPaused(true); setActive(i); }}
-                className={`h-1.5 rounded-full transition-[opacity,transform] duration-300 ${i === active ? "bg-[#00D4FF] w-8" : "bg-white/20 w-2 hover:bg-white/40"}`}
-                aria-label={`Go to testimonial ${i + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Summary bar */}
-          <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-            {[
-              { value: "24/7", label: "Support Coverage" },
-              { value: "99.9%", label: "Uptime SLA" },
-              { value: "<15min", label: "Response Time" },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white/3 border border-white/5 rounded-xl py-3 px-2">
-                <p className="text-[#00D4FF] font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{stat.value}</p>
-                <p className="text-gray-300 text-xs mt-0.5">{stat.label}</p>
-              </div>
-            ))}
           </div>
         </div>
       </div>

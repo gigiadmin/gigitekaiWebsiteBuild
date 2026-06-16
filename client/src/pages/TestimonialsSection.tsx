@@ -13,35 +13,7 @@ interface Testimonial {
   image?: string;
 }
 
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    quote:
-      "GigitekAI transformed our IT operations. We reduced downtime by 85% and our team can now focus on strategic initiatives instead of firefighting.",
-    author: "Sarah Johnson",
-    company: "Tech Solutions Inc.",
-    metric: "Uptime Improvement",
-    metricValue: "85%",
-  },
-  {
-    id: "2",
-    quote:
-      "The AI automation features alone saved us thousands per month. Their helpdesk integration is seamless and their support team is incredibly responsive.",
-    author: "Mike Chen",
-    company: "Growth Ventures LLC",
-    metric: "Cost Reduction",
-    metricValue: "40%",
-  },
-  {
-    id: "3",
-    quote:
-      "We were overwhelmed managing multiple vendors. GigitekAI consolidated everything into one unified platform. Best decision we made for our infrastructure.",
-    author: "Jennifer Martinez",
-    company: "Enterprise Services Corp",
-    metric: "Vendor Consolidation",
-    metricValue: "6→1",
-  },
-];
+const testimonials: Testimonial[] = [];
 
 export default function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -54,105 +26,89 @@ export default function TestimonialsSection() {
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
   };
 
+  // Return empty if no testimonials
+  if (testimonials.length === 0) {
+    return (
+      <section className="py-20 bg-[#0A0E1A]">
+        <div className="container">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Client Testimonials</h2>
+            <p className="text-gray-300 text-lg">Real client testimonials coming soon. We're collecting feedback from our growing customer base.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <div className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-gray-900/20">
-      <div className="max-w-4xl mx-auto">
+    <section className="py-20 bg-[#0A0E1A]">
+      <div className="container">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">What Our Clients Say</h2>
-          <p className="text-gray-400 text-lg">
-            See how GigitekAI is helping businesses like yours transform their IT operations
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">What Our Clients Say</h2>
+          <p className="text-gray-300">Real results from organizations using GigitekAI</p>
         </div>
 
-        {/* Testimonial Carousel */}
-        <Card className="bg-[#0F1419]/60 border-gray-800/40 p-8 sm:p-12">
-          <div className="flex items-start gap-6 mb-8">
-            {/* Avatar Placeholder */}
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00D4FF] to-purple-500 flex-shrink-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">
-                {currentTestimonial.author.charAt(0)}
-              </span>
-            </div>
-
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-br from-[#0F1629] to-[#0A0E1A] border-[#00D4FF]/20 p-8">
             {/* Stars */}
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className="w-5 h-5 fill-[#00D4FF] text-[#00D4FF]"
-                />
+            <div className="flex gap-1 mb-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
               ))}
             </div>
-          </div>
 
-          {/* Quote */}
-          <blockquote className="text-xl text-gray-300 mb-8 leading-relaxed">
-            "{currentTestimonial.quote}"
-          </blockquote>
+            {/* Quote */}
+            <p className="text-white text-lg mb-6 leading-relaxed">"{currentTestimonial.quote}"</p>
 
-          {/* Author Info */}
-          <div className="flex items-center justify-between mb-8 pb-8 border-b border-gray-800/40">
-            <div>
-              <p className="font-bold text-white">{currentTestimonial.author}</p>
+            {/* Author */}
+            <div className="mb-6">
+              <p className="text-white font-semibold">{currentTestimonial.author}</p>
               <p className="text-gray-400 text-sm">{currentTestimonial.company}</p>
             </div>
 
             {/* Metric */}
-            <div className="text-right bg-[#00D4FF]/10 px-4 py-3 rounded-lg border border-[#00D4FF]/30">
-              <p className="text-3xl font-bold text-[#00D4FF]">
-                {currentTestimonial.metricValue}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {currentTestimonial.metric}
-              </p>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              {testimonials.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`w-2 h-2 rounded-full transition-[opacity,transform] ${
-                    idx === currentIndex
-                      ? "bg-[#00D4FF] w-8"
-                      : "bg-gray-700/40 hover:bg-gray-600/60"
-                  }`}
-                  aria-label={`Go to testimonial ${idx + 1}`}
-                />
-              ))}
+            <div className="bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg p-4 mb-6">
+              <p className="text-gray-300 text-sm">{currentTestimonial.metric}</p>
+              <p className="text-[#00D4FF] text-2xl font-bold">{currentTestimonial.metricValue}</p>
             </div>
 
-            <div className="flex gap-2">
+            {/* Navigation */}
+            <div className="flex justify-center gap-4">
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={goToPrevious}
-                className="border-gray-800/40 hover:bg-gray-900/40"
+                className="border-[#00D4FF]/30 hover:border-[#00D4FF]"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft size={20} />
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={goToNext}
-                className="border-gray-800/40 hover:bg-gray-900/40"
+                className="border-[#00D4FF]/30 hover:border-[#00D4FF]"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight size={20} />
               </Button>
             </div>
-          </div>
+          </Card>
 
-          {/* Counter */}
-          <div className="text-center mt-6 text-sm text-gray-500">
-            {currentIndex + 1} / {testimonials.length}
+          {/* Pagination dots */}
+          <div className="flex justify-center gap-2 mt-6">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentIndex ? "bg-[#00D4FF]" : "bg-gray-600"
+                }`}
+              />
+            ))}
           </div>
-        </Card>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
