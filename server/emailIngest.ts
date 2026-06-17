@@ -16,7 +16,7 @@
  */
 import { Request, Response } from "express";
 import { getDb } from "./db";
-import { tickets, ticketReplies, users } from "../drizzle/schema";
+import { tickets, ticketReplies, users, emailMessages } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
@@ -123,10 +123,31 @@ export async function handleEmailIngest(req: Request, res: Response) {
       return res.status(200).send("OK");
     }
 
+    // Generate a deterministic message ID from email content
+    // This allows dedup even if SendGrid doesn't provide a message ID
+    const contentHash = crypto
+      .createHash('sha256')
+      .update(`${senderEmail}|${subject}|${cleanBody.slice(0, 500)}`)
+      .digest('hex')
+      .substring(0, 64);
+    const messageId = `sendgrid-${contentHash}`;
+
     const db = await getDb();
     if (!db) {
       console.error("[EmailIngest] Database not available");
       return res.status(500).send("DB error");
+    }
+
+    // Check for duplicates
+    const existingEmail = await db
+      .select({ id: emailMessages.id })
+      .from(emailMessages)
+      .where(eq(emailMessages.messageId, messageId))
+      .limit(1);
+
+    if (existingEmail.length > 0) {
+      console.log(`[EmailIngest] DUPLICATE EMAIL detected: ${messageId} — skipping`);
+      return res.status(200).send("OK"); // Return 200 to prevent retries
     }
 
     // Check for ticket reference in subject or body
@@ -192,6 +213,26 @@ export async function handleEmailIngest(req: Request, res: Response) {
 
     const newTicketId = (insertResult as any).insertId;
     console.log(`[EmailIngest] Created ticket #${newTicketId} from ${senderEmail}`);
+
+    // Record this email as processed
+    try {
+      await db.insert(emailMessages).values({
+        direction: 'inbound',
+        from: senderEmail,
+        to: SUPPORT_EMAIL,
+        subject: cleanSubject,
+        body: cleanBody.slice(0, 5000),
+        messageId,
+        linkedTicketId: newTicketId,
+        status: 'received',
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      // Ignore errors — this is just for dedup tracking
+      if ((err as any)?.code !== 'ER_DUP_ENTRY') {
+        console.warn('[EmailIngest] Failed to record email:', err);
+      }
+    }
 
     // Notify owner
     await notifyOwner({

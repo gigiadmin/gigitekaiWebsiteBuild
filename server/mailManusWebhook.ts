@@ -15,7 +15,7 @@
 
 import { Request, Response } from "express";
 import { getDb, createTicket, addTicketReply, getTicketById } from "./db";
-import { users } from "../drizzle/schema";
+import { users, emailMessages } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendEmail } from "./_core/email";
 import { invokeLLM } from "./_core/llm";
@@ -224,6 +224,56 @@ async function findOrCreateUser(
 }
 
 /**
+ * Check if an email has already been processed (dedup by message ID)
+ */
+async function isEmailProcessed(messageId: string): Promise<boolean> {
+  try {
+    const db = await getDb();
+    if (!db) return false;
+
+    const existing = await db
+      .select({ id: emailMessages.id })
+      .from(emailMessages)
+      .where(eq(emailMessages.messageId, messageId))
+      .limit(1);
+
+    return existing.length > 0;
+  } catch (err) {
+    console.warn('[Mail Manus] Dedup check failed:', err);
+    return false;
+  }
+}
+
+/**
+ * Record an email as processed
+ */
+async function recordEmailProcessed(messageId: string, senderEmail: string, subject: string, ticketId?: number): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) return;
+
+    await db.insert(emailMessages).values({
+      direction: 'inbound',
+      from: senderEmail,
+      to: SUPPORT_EMAIL,
+      subject,
+      body: `[Mail Manus] Inbound email processed${ticketId ? ` and created ticket #${ticketId}` : ''}`,
+      messageId,
+      linkedTicketId: ticketId || undefined,
+      status: 'received',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    // Ignore duplicate key errors — another process may have inserted it
+    if ((err as any)?.code === 'ER_DUP_ENTRY') {
+      console.log('[Mail Manus] Email already recorded by another process');
+    } else {
+      console.warn('[Mail Manus] Failed to record email:', err);
+    }
+  }
+}
+
+/**
  * Create a support ticket from email
  */
 async function createTicketFromEmail(
@@ -231,10 +281,17 @@ async function createTicketFromEmail(
   senderName: string,
   subject: string,
   body: string,
+  messageId?: string,
   isReply: boolean = false,
   replyToTicketId?: number
 ): Promise<{ ticketId: number | null; success: boolean }> {
   try {
+    // Check for duplicates if messageId is provided
+    if (messageId && await isEmailProcessed(messageId)) {
+      console.log(`[Mail Manus] DUPLICATE EMAIL detected: ${messageId} — skipping`);
+      return { ticketId: null, success: true }; // Return success to avoid retries
+    }
+
     // Find or create user
     const user = await findOrCreateUser(senderEmail, senderName);
     if (!user) {
@@ -313,6 +370,11 @@ async function createTicketFromEmail(
 
     if (!ticketId) {
       return { ticketId: null, success: false };
+    }
+
+    // Record this email as processed
+    if (messageId) {
+      await recordEmailProcessed(messageId, senderEmail, subject, ticketId);
     }
 
     // Send branded confirmation email to customer
@@ -473,6 +535,7 @@ export async function handleMailManusWebhook(
       senderName,
       subject,
       emailBody,
+      messageId,
       isReply,
       replyToTicketId
     );
