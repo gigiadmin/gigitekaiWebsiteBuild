@@ -104,7 +104,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold text-white mb-6">Enterprise Cloud Infrastructure & AI Solutions</h2>
               <p className="text-gray-300 mb-4">GigitekAI provides enterprise-grade cloud infrastructure, AI solutions, and managed IT services that transform how businesses operate, innovate, and scale.</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
-                <div><p className="text-2xl font-bold text-cyan-400">30+</p><p className="text-gray-300 text-sm">ClientServe</p></div>
+                <div><p className="text-2xl font-bold text-cyan-400">30+</p><p className="text-gray-300 text-sm">Clients Served</p></div>
                 <div><p className="text-2xl font-bold text-cyan-400">99.9%</p><p className="text-gray-300 text-sm">Uptime SLA</p></div>
                 <div><p className="text-2xl font-bold text-cyan-400">24/7</p><p className="text-gray-300 text-sm">AI Support</p></div>
                 <div><p className="text-2xl font-bold text-cyan-400">3.4s</p><p className="text-gray-300 text-sm">AI Deployment</p></div>
