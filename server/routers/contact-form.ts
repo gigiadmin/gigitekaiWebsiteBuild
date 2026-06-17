@@ -143,7 +143,7 @@ export const contactFormRouter = router({
         company: z.string().optional().default(""),
         phone: z.string().optional().default(""),
         subject: z.string().min(5, "Subject must be at least 5 characters").optional(),
-        message: z.string().min(10, "Message must be at least 10 characters"),
+        message: z.string().min(10, "Please enter a message with at least 10 characters"),
         pricingTier: z.string().optional().default(""),
         companySize: z.string().optional().default(""),
         smsOptIn: z.boolean().optional().default(false),
