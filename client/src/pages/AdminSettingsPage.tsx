@@ -1,8 +1,9 @@
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
-import { Settings, Mail, Shield, Globe, Bell, Database, ChevronRight, Trash2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Settings, Mail, Shield, Globe, Bell, Database, ChevronRight, Trash2, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+
 
 interface SettingSection {
   icon: React.ComponentType<{ className?: string }>;
@@ -46,6 +47,9 @@ const settingSections: SettingSection[] = [
 export default function AdminSettingsPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [lastClearResult, setLastClearResult] = useState<{ emailsDeleted: number; metricsDeleted: number } | null>(null);
+  const [cleanupDryRun, setCleanupDryRun] = useState(false);
+  const [cleanupPreview, setCleanupPreview] = useState<any>(null);
+  const [confirmCleanup, setConfirmCleanup] = useState(false);
 
   const clearTestData = trpc.maintenance.clearTestData.useMutation({
     onSuccess: (data) => {
@@ -60,6 +64,35 @@ export default function AdminSettingsPage() {
       setConfirmClear(false);
     },
   });
+
+  const cleanupDuplicates = trpc.adminCleanup.deleteDuplicateTickets.useMutation({
+    onSuccess: (data) => {
+      if (data.dryRun) {
+        setCleanupPreview(data);
+        setCleanupDryRun(true);
+      } else {
+        setConfirmCleanup(false);
+        setCleanupDryRun(false);
+        setCleanupPreview(null);
+        toast.success("Duplicate tickets cleaned up", {
+          description: `Deleted ${data.deleted} duplicate tickets.`,
+        });
+      }
+    },
+    onError: (err) => {
+      toast.error("Cleanup failed", { description: err.message });
+      setConfirmCleanup(false);
+      setCleanupDryRun(false);
+    },
+  });
+
+  const handlePreviewCleanup = () => {
+    cleanupDuplicates.mutate({ dryRun: true });
+  };
+
+  const handleExecuteCleanup = () => {
+    cleanupDuplicates.mutate({ dryRun: false });
+  };
 
   const handleFeatureClick = (item: string) => {
     toast("Feature coming soon", {
@@ -80,6 +113,94 @@ export default function AdminSettingsPage() {
               <h1 className="text-2xl font-bold text-white font-['Space_Grotesk']">Settings</h1>
               <p className="text-gray-500 text-sm">System configuration &amp; administration</p>
             </div>
+          </div>
+        </div>
+
+        {/* ── Duplicate Ticket Cleanup Panel ─────────────────────────────── */}
+        <div className="mb-6 bg-[#0F1419] border border-[#00D4FF]/30 rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#00D4FF]/20 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#00D4FF]/10">
+              <Zap className="w-4 h-4 text-[#00D4FF]" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-sm">Duplicate Ticket Cleanup</h3>
+              <p className="text-gray-500 text-xs">Remove duplicate tickets created by multiple email pipelines</p>
+            </div>
+          </div>
+
+          <div className="px-5 py-4">
+            {/* Preview Results */}
+            {cleanupPreview && cleanupDryRun && (
+              <div className="mb-4 bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-lg px-4 py-3">
+                <p className="text-[#00D4FF] text-sm font-medium mb-2">Preview: Tickets to be deleted</p>
+                <p className="text-gray-300 text-sm mb-3">
+                  Found <strong>{cleanupPreview.deleted}</strong> duplicate tickets that will be removed.
+                </p>
+                {cleanupPreview.ticketsToDelete && cleanupPreview.ticketsToDelete.length > 0 && (
+                  <div className="bg-[#0A0E1A] border border-gray-800/40 rounded px-3 py-2 mb-3">
+                    <p className="text-xs text-gray-500 mb-1">Ticket IDs:</p>
+                    <p className="text-xs text-gray-300 font-mono break-all">
+                      {cleanupPreview.ticketsToDelete.slice(0, 20).join(", ")}
+                      {cleanupPreview.ticketsToDelete.length > 20 && ` ... and ${cleanupPreview.ticketsToDelete.length - 20} more`}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Action buttons */}
+            {!cleanupDryRun && !confirmCleanup ? (
+              <button
+                onClick={handlePreviewCleanup}
+                disabled={cleanupDuplicates.isPending}
+                className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 border border-[#00D4FF]/30 text-[#00D4FF] rounded-lg text-sm hover:bg-[#00D4FF]/20 transition-[opacity,transform] disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4" />
+                {cleanupDuplicates.isPending ? "Analyzing..." : "Preview Cleanup"}
+              </button>
+            ) : cleanupDryRun && !confirmCleanup ? (
+              <div className="flex items-center gap-3 bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-lg px-4 py-3">
+                <CheckCircle2 className="w-4 h-4 text-[#00D4FF] flex-shrink-0" />
+                <p className="text-[#00D4FF] text-sm flex-1">Ready to delete {cleanupPreview?.deleted} duplicate tickets</p>
+                <button
+                  onClick={() => setConfirmCleanup(true)}
+                  className="px-3 py-1.5 bg-[#00D4FF] text-[#0A0E1A] rounded text-sm font-medium hover:bg-[#00D4FF]/90 transition-[opacity,transform]"
+                >
+                  Execute Cleanup
+                </button>
+                <button
+                  onClick={() => {
+                    setCleanupDryRun(false);
+                    setCleanupPreview(null);
+                  }}
+                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-[opacity,transform]"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : confirmCleanup ? (
+              <div className="flex items-center gap-3 bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-3">
+                <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                <p className="text-orange-300 text-sm flex-1">This will permanently delete {cleanupPreview?.deleted} duplicate tickets. Are you sure?</p>
+                <button
+                  onClick={handleExecuteCleanup}
+                  disabled={cleanupDuplicates.isPending}
+                  className="px-3 py-1.5 bg-orange-500 text-white rounded text-sm font-medium hover:bg-orange-600 disabled:opacity-50 transition-[opacity,transform]"
+                >
+                  {cleanupDuplicates.isPending ? "Deleting..." : "Yes, Delete Now"}
+                </button>
+                <button
+                  onClick={() => {
+                    setConfirmCleanup(false);
+                    setCleanupDryRun(false);
+                    setCleanupPreview(null);
+                  }}
+                  className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded text-sm hover:bg-gray-600 transition-[opacity,transform]"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
