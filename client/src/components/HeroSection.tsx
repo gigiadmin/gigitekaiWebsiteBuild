@@ -179,8 +179,8 @@ export default function HeroSection() {
             }`}
           >
             <div>
-              <div className="text-3xl font-bold text-[#00D4FF]">50+</div>
-              <div className="text-sm text-gray-200">Tampa Bay Clients</div>
+              <div className="text-3xl font-bold text-[#00D4FF]">30+</div>
+              <div className="text-sm text-gray-200">ClientServe</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-[#00D4FF]">99.9%</div>
