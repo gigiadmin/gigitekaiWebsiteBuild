@@ -157,8 +157,8 @@ export const adminAuthRouter = router({
   login: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
-        password: z.string().min(1),
+        email: z.string().email("Please enter a valid email address"),
+        password: z.string().min(1, "Password is required"),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -255,9 +255,9 @@ export const adminAuthRouter = router({
   register: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
-        name: z.string().min(2),
-        password: z.string().min(8),
+        email: z.string().email("Please enter a valid email address"),
+        name: z.string().min(2, "Name must be at least 2 characters"),
+        password: z.string().min(8, "Password must be at least 8 characters"),
         role: z.enum(["admin", "agent", "viewer"]).default("agent"),
         adminSecret: z.string(), // Simple secret to prevent unauthorized registration
       })
@@ -314,10 +314,10 @@ export const adminAuthRouter = router({
     .input(
       z.object({
         id: z.number(),
-        name: z.string().min(2).optional(),
+        name: z.string().min(2, "Name must be at least 2 characters").optional(),
         role: z.enum(["admin", "agent", "viewer"]).optional(),
         isActive: z.boolean().optional(),
-        password: z.string().min(8).optional(),
+        password: z.string().min(8, "Password must be at least 8 characters").optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -347,7 +347,7 @@ export const adminAuthRouter = router({
   changePassword: publicProcedure
     .input(
       z.object({
-        currentPassword: z.string().min(1),
+        currentPassword: z.string().min(1, "Current password is required"),
         newPassword: z.string().min(8, "Password must be at least 8 characters"),
       })
     )
@@ -373,7 +373,7 @@ export const adminAuthRouter = router({
   // Forgot password - send reset link via email
   forgotPassword: publicProcedure
     .input(z.object({
-      email: z.string().email(),
+      email: z.string().email("Please enter a valid email address"),
     }))
     .mutation(async ({ input }) => {
       try {
@@ -421,7 +421,7 @@ export const adminAuthRouter = router({
   resetPassword: publicProcedure
     .input(z.object({
       token: z.string(),
-      newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+      newPassword: z.string().min(8, "Password must be at least 8 characters"),
     }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -451,9 +451,9 @@ export const adminAuthRouter = router({
   createAccount: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
-        name: z.string().min(2),
-        password: z.string().min(8),
+        email: z.string().email("Please enter a valid email address"),
+        name: z.string().min(2, "Name must be at least 2 characters"),
+        password: z.string().min(8, "Password must be at least 8 characters"),
         role: z.enum(["admin", "agent", "viewer"]).default("agent"),
       })
     )
@@ -492,8 +492,8 @@ export const adminAuthRouter = router({
     .input(
       z.object({
         accessToken: z.string(),
-        email: z.string().email(),
-        name: z.string(),
+        email: z.string().email("Please enter a valid email address"),
+        name: z.string().min(1, "Name is required"),
       })
     )
     .mutation(async ({ input, ctx }) => {

@@ -42,11 +42,11 @@ export const contactFormRouter = router({
     .input(
       z.object({
         businessName: z.string().min(2, "Business name must be at least 2 characters"),
-        industry: z.string().min(1, "Industry is required"),
+        industry: z.string().min(1, "Please select an industry"),
         description: z.string().min(10, "Business description must be at least 10 characters"),
         targetAudience: z.string().optional().default(""),
-        currentWebsite: z.string().url("Invalid URL").optional().default(""),
-        email: z.string().email("Invalid email address"),
+        currentWebsite: z.string().url("Please enter a valid website URL").optional().default(""),
+        email: z.string().email("Please enter a valid email address"),
         phone: z.string().optional().default(""),
         pricingTier: z.enum(["starter", "growth", "pro"]).optional(),
       })
@@ -139,7 +139,7 @@ export const contactFormRouter = router({
     .input(
       z.object({
         name: z.string().min(2, "Name must be at least 2 characters"),
-        email: z.string().email("Invalid email address"),
+        email: z.string().email("Please enter a valid email address"),
         company: z.string().optional().default(""),
         phone: z.string().optional().default(""),
         subject: z.string().min(5, "Subject must be at least 5 characters").optional(),

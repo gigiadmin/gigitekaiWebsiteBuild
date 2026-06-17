@@ -394,7 +394,7 @@ export const aibotRouter = router({
     .input(z.object({
       sessionId: z.string().optional(),
       visitorName: z.string().optional(),
-      visitorEmail: z.string().email().optional(),
+      visitorEmail: z.string().email("Please enter a valid email address").optional(),
       visitorCompany: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
@@ -419,7 +419,7 @@ export const aibotRouter = router({
   sendMessage: publicProcedure
     .input(z.object({
       sessionId: z.string(),
-      message: z.string().min(1),
+      message: z.string().min(1, "Please enter a message"),
     }))
     .mutation(async ({ input }) => {
       let { sessionId, message } = input;
@@ -836,8 +836,8 @@ export const aibotRouter = router({
   captureLead: publicProcedure
     .input(z.object({
       sessionId: z.string(),
-      name: z.string().min(1),
-      email: z.string().email(),
+      name: z.string().min(1, "Name is required"),
+      email: z.string().email("Please enter a valid email address"),
       phone: z.string().optional(),
       company: z.string().optional(),
       interest: z.string().optional(),
@@ -1045,7 +1045,7 @@ export const aibotRouter = router({
   emailTranscript: publicProcedure
     .input(z.object({
       sessionId: z.string(),
-      email: z.string().email(),
+      email: z.string().email("Please enter a valid email address"),
       name: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
@@ -1167,7 +1167,7 @@ export const aibotRouter = router({
     .input(z.object({
       sessionId: z.string(),
       visitorName: z.string().optional(),
-      visitorEmail: z.string().email().optional(),
+      visitorEmail: z.string().email("Please enter a valid email address").optional(),
       visitorPhone: z.string().optional(),
       reason: z.string().optional(),
     }))
@@ -1323,7 +1323,7 @@ export const aibotRouter = router({
   // Pre-emptive KB suggestions while user is typing (Phase 2)
   getProactiveKBSuggestions: publicProcedure
     .input(z.object({
-      query: z.string().min(1).max(500),
+      query: z.string().min(1, "Please enter a search query").max(500, "Search query must be less than 500 characters"),
     }))
     .query(async ({ input }) => {
       try {
@@ -1533,7 +1533,7 @@ export const aibotRouter = router({
   adminSendAriaMessage: publicProcedure
     .input(z.object({
       sessionId: z.string(),
-      message: z.string().min(1),
+      message: z.string().min(1, "Please enter a message"),
     }))
     .mutation(async ({ input, ctx }) => {
       // Verify admin access
