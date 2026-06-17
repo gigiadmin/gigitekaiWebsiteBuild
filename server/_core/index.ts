@@ -215,9 +215,16 @@ async function startServer() {
   app.get("/api/webhooks/teams/health", handleTeamsHealthCheck);
   
   // Mail Manus webhook for automated email-to-ticket creation
-  // Configure in Manus: Mail Manus → Settings → Webhook → POST to https://gigitekai.com/api/webhooks/mail-manus
-  app.post("/api/webhooks/mail-manus", handleMailManusWebhook);
-  app.get("/api/webhooks/mail-manus/health", handleMailManusHealthCheck);
+  // DISABLED: Using M365 Graph Email Poller as primary pipeline to prevent duplicates
+  // M365 poller has better dedup logic and is more reliable
+  // If you need to re-enable, uncomment below and disable M365 poller in emailPoller.ts
+  // app.post("/api/webhooks/mail-manus", handleMailManusWebhook);
+  // app.get("/api/webhooks/mail-manus/health", handleMailManusHealthCheck);
+  
+  // Health check endpoint only (for monitoring)
+  app.get("/api/webhooks/mail-manus/health", (req, res) => {
+    res.json({ status: "disabled", message: "Mail Manus webhook is disabled. Using M365 Graph Email Poller instead." });
+  });
   
   // Email-to-Ticket: Using Microsoft Graph (Azure) for email ingestion
   app.post("/api/email-ingest", handleEmailIngest);

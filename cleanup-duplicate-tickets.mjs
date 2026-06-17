@@ -132,6 +132,7 @@ async function main() {
 
   } catch (error) {
     console.error('❌ Error:', error.message);
+    console.error('Full error:', error);
     process.exit(1);
   } finally {
     if (connection) {
