@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZIAH7BB3Q",
-    "secret_access_key": "7YRNNloceNgbeRb+lVj7pJx+eyJqEcM16MFC6Xb3",
-    "session_token": "IQoJb3JpZ2luX2VjEBYaCXVzLWVhc3QtMSJHMEUCIDTkj0EOZncrR+UKgbLs8lNzQqYtMhWbbBk0pnznh6IWAiEA9ICHP9tw16NVOZd6oZRYZq5buivgFXDTEX7aLOmDGnUq/wMI3///////////ARAEGgw2NjUzODYwOTg4NjYiDPij0RFbwFqC/l1eCirTAzIDZCS/UgQlaeRYmxspLGpBVKP61e3XAXFpvBwwQ+JsI5aOXCzi2OdeG8h8Y/ZTbfKt/qoVnJaglncg6zifkKXSfDwpgB3G1QZW68QxIW9M1SqSlAlYmScLBfnKjXDgWt2mR3Be3DSBl1UFaXWxytP5iDo3Gyh/7F56PdkN1icTN7eM+fSX6idKZyed4ypEvvLA/24OTttUR3rmmu3toeIFfT9BLWXHUrx059xywQXQ9mlXCmr4ZVHFC3WwWaV/UJdQkb+IHcUSCU+82bzIO3Xikp0y2tuWzmKY80e47jlPKnM/+aflQZ2PSFUtAoZwncj2W15PAAGJ64Yu0LOhTrwyxJ+erexZdQDF3jJ7rZ+JudgEPJWAW6r2v/tt7A52E5hvSPhebgnllEVFAA4n1njj2lzj0bNSjDYsXJTm/EFsDspuKkrg5HbT3ZCacw8WKe9hQU6j1ZR4FkzrwLGijaIKZPpt5YT4/Bs2wumpy8S2r3jyKAlXen3deUdCtzpU/BnEJcTVMnC/zwASYSwAFEK03igvlBDfZnzGFnMYA+EvaU7QtXZKvTmKRD/5fQAsm0IEs2QAdpmJOMS2GhaVnM8auH+G+hfWK/x8BxLVxLzyqPqyMMb8o9EGOp0B/l1lLgqHvsWMugF40IqyWmnodtqUbMEjXY7Wgqh8CXwepyw3xyo24ftVatCM4vOLoOd/yp606vEAspCxymdLyaRHlNdg6ByAGw0GZKEoxIyf6ktqaq0m+dXNkvmaxCBafTV3eYrMiUKm5B/4rKYLxd2neYz7DXjqEdWRSQlLME1IhqDKsntBQlOWKgkI2nBAqmMPvbWlot7TZaiH5w==",
-    "expiration": "2026-06-10T18:03:50.000Z"
+    "access_key_id": "ASIAZV3A2ECZHD5KSAWW",
+    "secret_access_key": "cdEMsahZ+3Fub0vh4M9sNcdSgE0f6//kpkwaWTGk",
+    "session_token": "IQoJb3JpZ2luX2VjEN7//////////wEaCXVzLWVhc3QtMSJGMEQCIHZDLlP1GAd6saVFYEzJFEs/Gz9PJEns4tOnUL8b1oO3AiBGDyBmFGNH9pLLBHLS50k0g3Tz4PYUc6DK4/NURSWNVir/Awin//////////8BEAQaDDY2NTM4NjA5ODg2NiIMtups1QmPOU8qor54KtMDbsuk8aCg+B0HiURyNLvXH/X3aJRW1l28NuQC2EKbhu77sn/bsN5cJWIGsYP0uV+K6QscCu3d+NnNLa7zWvsKH8KRClpKZKiTlSyIMNL3ZLTNKHBEd9yQyZlAz0wWcHGmnId8NZLKiAPmphykBM3o72AA2tZBG1Yd5nIUoNhbs4i0ap7mfoqtpT2iYOwDu3HrlvN98ZqxtmMsO9iF5srNpsczL8LmxXhcHJRgF31Og8rQIQk0wzgIXyLemhI6nYR1iSlGWPXtq9hDs7rjKwvgoWWEr3xCmokWJf7hlg4FeffCBYHngF1QLF4FVWVTOM2HXZV3GTi5BwzJkXCZrpaOzR4dEHaPgP1J6QDq0C0h8EwC4tNWVjUnMK/B7jyVwNqYBvl1mwP71Oxdp/srtF4oXIVkZtbTqDm2GEpA4udmK98ZMJHWOMCAgsyNLpsWKAAMSZVirys/HANFXZQuXWwJG5LfrgxDb1aNimaeZ+D8aKWTcNLo/xFbXzVFSuHr2B9Qr21MxQ15sTPMvPRVk2pZiG1JyFgcdD04p9gamjL6C+rvWDEhWmVgWvkNLqn8FjecD00vQ98fnC7q58oiUrmsZ6jHEXgCpGG2y+6uTp/07p0XMSUwhufP0QY6ngFOtCGk0vaGvNkWChqr7b2rlKrtBF+Di/fxcSEmo5IZ96zrbDpeBsaT2OOVMlFzYTaBJeMpkr3ViW6Wys6UlkfFGo1/twdPGRWRF3kqU57j964n0wQ6r87kYLcbeamas2WwmEIyscIOOoC5eFFUM18HiBUBDHSAbW5YPuV/mnI9DKMKCRAdol+R1f0rB8drRUBJ+wE+CI/LpBpAQUNfVA==",
+    "expiration": "2026-06-19T01:32:54.000Z"
   },
   "name": "gigitekai",
   "path": "/home/ubuntu/gigitekai",
@@ -58,6 +58,7 @@
     "MS_GRAPH_CLIENT_SECRET": "RJO8Q~wWDAexs_b-T4r1Rfs-s5Zt4u_dfmAVAb.O",
     "MS_GRAPH_TENANT_ID": "b7595a11-d451-46a6-aff1-c98ee3bda4f9",
     "NEWSLETTER_AUTO_POST_KEY": "JNwwIk3uxLymXQ4UDtX-Z9ZOGm5sjOQyqrWuZAA4Lvo",
+    "NEWS_API_KEY": "6410b4a908c942e0a4494d7de5335de1",
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "Harry Henry-Santiago",
     "OWNER_OPEN_ID": "SWeQLymsWtTW9mPAXzS3SK",

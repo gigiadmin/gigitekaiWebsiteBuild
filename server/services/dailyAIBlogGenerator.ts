@@ -7,29 +7,98 @@
 
 import { invokeLLM } from "../_core/llm";
 import { getDb } from "../db";
-import { blogPosts } from "../../drizzle/schema";
+import { blogPosts, settings } from "../../drizzle/schema";
 import { sendEmail } from "../_core/emailService";
+import { eq } from "drizzle-orm";
+import crypto from "crypto";
 
 /**
- * AI News sources for aggregation
- * These are the top outlets for AI and small business news
+ * Fetch real AI news from multiple sources
  */
-const AI_NEWS_SOURCES = [
-  "TechCrunch AI",
-  "VentureBeat AI",
-  "Forbes AI",
-  "MIT Technology Review",
-  "Wired AI",
-  "The Verge AI",
-  "Business Insider AI",
-  "Entrepreneur AI",
-  "Fast Company AI",
-  "Inc.com AI",
-];
+async function fetchLatestAINews(): Promise<string[]> {
+  const newsItems: string[] = [];
+  
+  try {
+    // Try to fetch from NewsAPI or similar service
+    const newsApiKey = process.env.NEWS_API_KEY;
+    if (newsApiKey) {
+      const response = await fetch(
+        `https://newsapi.org/v2/everything?q=AI+artificial+intelligence&sortBy=publishedAt&language=en&pageSize=5&apiKey=${newsApiKey}`
+      );
+      const data = await response.json();
+      if (data.articles) {
+        data.articles.forEach((article: any) => {
+          newsItems.push(`${article.title} - Source: ${article.source.name}`);
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("[Daily Blog] Failed to fetch real news:", err);
+  }
+
+  // Fallback: Return generic trending topics if no real news available
+  if (newsItems.length === 0) {
+    newsItems.push(
+      "AI for customer service automation (chatbots, email)",
+      "AI for content creation (social media, emails)",
+      "AI for scheduling and time management",
+      "AI for data analysis and reporting",
+      "AI for lead qualification and sales"
+    );
+  }
+
+  return newsItems;
+}
+
+/**
+ * Generate content hash for deduplication
+ */
+function generateContentHash(content: string): string {
+  return crypto.createHash("sha256").update(content).digest("hex");
+}
+
+/**
+ * Check if this content was already sent today
+ */
+async function isDuplicateContent(contentHash: string, db: any): Promise<boolean> {
+  try {
+    const result = await db
+      .select()
+      .from(settings)
+      .where(eq(settings.key, "last_newsletter_content_hash"));
+    
+    if (result.length > 0) {
+      const lastHash = result[0].value;
+      return lastHash === contentHash;
+    }
+  } catch (err) {
+    console.warn("[Daily Blog] Failed to check duplicate content:", err);
+  }
+  return false;
+}
+
+/**
+ * Save content hash to prevent duplicates
+ */
+async function saveContentHash(contentHash: string, db: any): Promise<void> {
+  try {
+    // Delete old entry
+    await db.delete(settings).where(eq(settings.key, "last_newsletter_content_hash"));
+    
+    // Insert new entry
+    await db.insert(settings).values({
+      key: "last_newsletter_content_hash",
+      value: contentHash,
+      description: "Hash of last sent newsletter content for deduplication",
+    });
+  } catch (err) {
+    console.warn("[Daily Blog] Failed to save content hash:", err);
+  }
+}
 
 /**
  * Generate a non-technical AI blog post for small businesses
- * Uses LLM to create practical, actionable content
+ * Uses LLM to create practical, actionable content with real news
  */
 export async function generateDailyAIBlogPost(): Promise<{
   title: string;
@@ -43,6 +112,10 @@ export async function generateDailyAIBlogPost(): Promise<{
     month: "long",
     day: "numeric",
   });
+
+  // Fetch real AI news
+  const latestNews = await fetchLatestAINews();
+  const newsContext = latestNews.slice(0, 3).join("\n- ");
 
   const systemPrompt = `You are a non-technical AI expert writing for small business owners (1-50 employees).
 Your goal is to explain how AI can help their business in simple, practical terms.
@@ -69,13 +142,8 @@ Content should be HTML (use <p>, <h2>, <h3>, <ul>, <li> tags).`;
 
   const userPrompt = `Today is ${today}. Create a blog post about how small businesses can use AI safely and effectively.
 
-Focus on one of these trending topics:
-- AI for customer service automation (chatbots, email)
-- AI for content creation (social media, emails)
-- AI for scheduling and time management
-- AI for data analysis and reporting
-- AI for lead qualification and sales
-- AI for document processing and data entry
+Base your post on these latest AI news items:
+- ${newsContext}
 
 Make it practical, actionable, and non-scary. Include real examples of small businesses using AI successfully.
 Emphasize that AI is a TOOL, not a replacement for humans.`;
@@ -101,6 +169,9 @@ Emphasize that AI is a TOOL, not a replacement for humans.`;
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .trim();
+
+    // Generate content hash for deduplication
+    const contentHash = generateContentHash(parsed.content);
 
     return {
       title: parsed.title,
@@ -204,9 +275,24 @@ export async function runDailyBlogPost() {
 
     console.log("[Daily Blog] Starting daily blog generation...");
 
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+
     // Generate blog post
     const post = await generateDailyAIBlogPost();
     console.log(`[Daily Blog] Generated: "${post.title}"`);
+
+    // Check for duplicate content
+    const contentHash = generateContentHash(post.content);
+    const isDuplicate = await isDuplicateContent(contentHash, db);
+    
+    if (isDuplicate) {
+      console.log("[Daily Blog] ⚠️ DUPLICATE CONTENT DETECTED - Skipping send");
+      return { success: false, error: "Duplicate content detected", post };
+    }
+
+    // Save content hash
+    await saveContentHash(contentHash, db);
 
     // Save to database
     await saveBlogPost(post);
