@@ -228,8 +228,11 @@ export default function AdminAgents() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-white">
-                          Agent #{agent.userId}
+                          {allUsers.find(u => u.id === agent.userId)?.name || `Agent #${agent.userId}`}
                         </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {allUsers.find(u => u.id === agent.userId)?.email || "Unknown email"}
+                        </p>
                         {agent.specialization && (
                           <p className="text-sm text-gray-400">
                             {agent.specialization}
