@@ -75,7 +75,7 @@ export async function runDailyBlogScheduler(): Promise<void> {
       lastRunTimestamp = now;
       await saveLastRunTimestampToDb(now);
       console.log(
-        `[Daily Blog Scheduler] ✅ Done — Blog: "${result.post.title}" | Subscribers: ${result.subscribers.sent}/${result.subscribers.sent + result.subscribers.failed} delivered`
+        `[Daily Blog Scheduler] ✅ Done — Blog: "${result.post.title}" | Subscribers: ${result.subscribers?.sent ?? 0}/${(result.subscribers?.sent ?? 0) + (result.subscribers?.failed ?? 0)} delivered`
       );
     } else {
       console.error("[Daily Blog Scheduler] Blog generation failed:", result?.error);
