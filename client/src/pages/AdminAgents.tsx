@@ -54,7 +54,10 @@ export default function AdminAgents() {
   // Update agent mutation
   const updateAgentMutation = trpc.agents.updateAgent.useMutation({
     onSuccess: () => {
-      toast.success("Agent updated successfully");
+      const agentName = allUsers.find(u => u.id === agents.find(a => a.id === editingAgentId)?.userId)?.name || "Agent";
+      toast.success(`${agentName}'s details updated successfully`, {
+        description: editSpecialization ? `Specialization: ${editSpecialization}` : undefined,
+      });
       setShowEditAgent(false);
       setEditingAgentId(null);
       setEditSpecialization("");
