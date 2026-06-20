@@ -64,7 +64,20 @@ export default function AdminAgents() {
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update agent");
+      const agentName = allUsers.find(u => u.id === agents.find(a => a.id === editingAgentId)?.userId)?.name || "Agent";
+      const errorMessage = error.message || "Failed to update agent details";
+      
+      console.error("[AdminAgents] Update failed:", {
+        agentId: editingAgentId,
+        agentName,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      });
+      
+      toast.error(`Failed to update ${agentName}`, {
+        description: errorMessage,
+        duration: 5000,
+      });
     },
   });
 
