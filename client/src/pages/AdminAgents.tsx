@@ -7,15 +7,18 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Users, Plus, Trash2, Activity, ChevronsUpDown, Check } from "lucide-react";
+import { Users, Plus, Trash2, Activity, ChevronsUpDown, Check, Edit2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function AdminAgents() {
   const [showAddAgent, setShowAddAgent] = useState(false);
+  const [showEditAgent, setShowEditAgent] = useState(false);
+  const [editingAgentId, setEditingAgentId] = useState<number | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [userSearchOpen, setUserSearchOpen] = useState(false);
   const [newAgentSpecialization, setNewAgentSpecialization] = useState("");
+  const [editSpecialization, setEditSpecialization] = useState("");
 
   // Fetch all users for the dropdown
   const { data: allUsers = [] } = trpc.agents.getUsers.useQuery();
@@ -48,6 +51,20 @@ export default function AdminAgents() {
     },
   });
 
+  // Update agent mutation
+  const updateAgentMutation = trpc.agents.updateAgent.useMutation({
+    onSuccess: () => {
+      toast.success("Agent updated successfully");
+      setShowEditAgent(false);
+      setEditingAgentId(null);
+      setEditSpecialization("");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update agent");
+    },
+  });
+
   const handleAddAgent = async () => {
     if (!selectedUserId) {
       toast.error("Please select a user");
@@ -64,6 +81,20 @@ export default function AdminAgents() {
     if (confirm("Are you sure you want to delete this agent?")) {
       deleteAgentMutation.mutate({ agentId });
     }
+  };
+
+  const handleEditAgent = (agent: any) => {
+    setEditingAgentId(agent.id);
+    setEditSpecialization(agent.specialization || "");
+    setShowEditAgent(true);
+  };
+
+  const handleUpdateAgent = async () => {
+    if (!editingAgentId) return;
+    updateAgentMutation.mutate({
+      agentId: editingAgentId,
+      specialization: editSpecialization || undefined,
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -289,15 +320,25 @@ export default function AdminAgents() {
                     </div>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteAgent(agent.id)}
-                    disabled={deleteAgentMutation.isPending}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditAgent(agent)}
+                      className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteAgent(agent.id)}
+                      disabled={deleteAgentMutation.isPending}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -344,6 +385,51 @@ export default function AdminAgents() {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Agent Dialog */}
+      <Dialog open={showEditAgent} onOpenChange={setShowEditAgent}>
+        <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Edit Agent</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update agent specialization and details
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Specialization
+              </label>
+              <Input
+                placeholder="e.g., Technical Support, Billing, General Support"
+                value={editSpecialization}
+                onChange={(e) => setEditSpecialization(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white"
+              />
+            </div>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditAgent(false);
+                  setEditingAgentId(null);
+                  setEditSpecialization("");
+                }}
+                className="border-slate-600 text-gray-300 hover:bg-slate-800"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpdateAgent}
+                disabled={updateAgentMutation.isPending}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
+              >
+                {updateAgentMutation.isPending ? "Updating..." : "Update Agent"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

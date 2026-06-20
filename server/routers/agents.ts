@@ -8,6 +8,7 @@ import {
   createAgent,
   getAgentByUserId,
   getAllAgents,
+  updateAgent,
   updateAgentStatus,
   updateAgentTicketCount,
   getAgentMetrics,
@@ -292,6 +293,31 @@ export const agentsRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to update schedule",
+        });
+      }
+    }),
+
+  /**
+   * Update agent details
+   */
+  updateAgent: adminProcedure
+    .input(
+      z.object({
+        agentId: z.number(),
+        specialization: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        await updateAgent(input.agentId, {
+          specialization: input.specialization,
+        });
+        return { success: true };
+      } catch (error) {
+        console.error("[Agents] Failed to update agent:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update agent",
         });
       }
     }),

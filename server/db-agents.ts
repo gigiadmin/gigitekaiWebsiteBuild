@@ -48,6 +48,23 @@ export async function getAllAgents() {
 }
 
 /**
+ * Update agent details (specialization, max concurrent tickets, etc.)
+ */
+export async function updateAgent(agentId: number, updates: { specialization?: string; maxConcurrentTickets?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = {};
+  if (updates.specialization !== undefined) updateData.specialization = updates.specialization;
+  if (updates.maxConcurrentTickets !== undefined) updateData.maxConcurrentTickets = updates.maxConcurrentTickets;
+  
+  return db
+    .update(agents)
+    .set(updateData)
+    .where(eq(agents.id, agentId));
+}
+
+/**
  * Update agent status
  */
 export async function updateAgentStatus(agentId: number, status: "available" | "busy" | "offline" | "on-break") {
