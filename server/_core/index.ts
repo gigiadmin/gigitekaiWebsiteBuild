@@ -414,9 +414,11 @@ async function startServer() {
     startCallPoller();
     // M365 Group voicemail poller — polls voicemailbox@gigitekai.com group for new voicemails
     // Transcribes audio via Whisper and creates draft tickets for admin review
-    import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
-      startVoicemailGroupPoller();
-    }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+    // DISABLED: Power Automate workflow handles voicemail posting to prevent duplicates
+    // import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
+    //   startVoicemailGroupPoller();
+    // }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+
     // Teams forwarding disabled - requires Mail.ReadWrite permission in Azure AD
     // To enable: Add Mail.ReadWrite permission to MS Graph app registration
     // initializeTeamsForwarding().catch(err => {
