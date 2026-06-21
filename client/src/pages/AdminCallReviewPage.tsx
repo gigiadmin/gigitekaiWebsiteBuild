@@ -365,6 +365,10 @@ export default function AdminCallReviewPage() {
   const [selectedDraft, setSelectedDraft] = useState<any | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
+  const [duplicateData, setDuplicateData] = useState<any[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const utils = trpc.useUtils();
 
