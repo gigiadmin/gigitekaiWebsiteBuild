@@ -30,6 +30,7 @@ import {
   Mic,
   MicOff,
   Activity,
+  Trash2,
 } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -369,6 +370,9 @@ export default function AdminCallReviewPage() {
   const [duplicateData, setDuplicateData] = useState<any[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [voicemailCleanupDryRun, setVoicemailCleanupDryRun] = useState(false);
+  const [voicemailCleanupPreview, setVoicemailCleanupPreview] = useState<any>(null);
+  const [confirmVoicemailCleanup, setConfirmVoicemailCleanup] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -462,6 +466,49 @@ export default function AdminCallReviewPage() {
     onError: (err) => toast.error(`Failed to delete: ${err.message}`),
   });
 
+  // Voicemail duplicate cleanup mutations
+  const findVoicemailDuplicates = trpc.voicemailCleanup.findDuplicates.useQuery(undefined, {
+    enabled: false,
+  });
+
+  const triggerFindDuplicates = async () => {
+    try {
+      const data = await findVoicemailDuplicates.refetch();
+      if (data.data) {
+        setVoicemailCleanupPreview(data.data);
+        setVoicemailCleanupDryRun(true);
+      }
+    } catch (err: any) {
+      toast.error(`Failed to scan: ${err.message}`);
+    }
+  };
+
+  const removeVoicemailDuplicates = trpc.voicemailCleanup.removeDuplicates.useMutation({
+    onSuccess: (data) => {
+      setConfirmVoicemailCleanup(false);
+      setVoicemailCleanupDryRun(false);
+      setVoicemailCleanupPreview(null);
+      toast.success(`Deleted ${data.totalDeleted} duplicate voicemail(s)`, {
+        description: `Removed ${data.duplicateGroups} duplicate group(s).`,
+      });
+      utils.calls.getDraftTickets.invalidate();
+      utils.calls.getStats.invalidate();
+    },
+    onError: (err) => {
+      toast.error(`Cleanup failed: ${err.message}`);
+      setConfirmVoicemailCleanup(false);
+      setVoicemailCleanupDryRun(false);
+    },
+  });
+
+  const handlePreviewVoicemailCleanup = () => {
+    triggerFindDuplicates();
+  };
+
+  const handleExecuteVoicemailCleanup = () => {
+    removeVoicemailDuplicates.mutate();
+  };
+
   const handleSelectAll = (items: any[] | undefined) => {
     if (!items) return;
     if (selectedIds.size === items.length) {
@@ -517,15 +564,26 @@ export default function AdminCallReviewPage() {
               <h1 className="text-lg font-semibold">Call Ticket Review</h1>
             </div>
           </div>
-          <Button
-            onClick={() => triggerPoll.mutate()}
-            disabled={triggerPoll.isPending || pollerStatus?.isRunning}
-            size="sm"
-            className="bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/30 hover:bg-[#00D4FF]/20"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${triggerPoll.isPending ? "animate-spin" : ""}`} />
-            {triggerPoll.isPending ? "Polling..." : "Poll Now"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => triggerPoll.mutate()}
+              disabled={triggerPoll.isPending || pollerStatus?.isRunning}
+              size="sm"
+              className="bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/30 hover:bg-[#00D4FF]/20"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${triggerPoll.isPending ? "animate-spin" : ""}`} />
+              {triggerPoll.isPending ? "Polling..." : "Poll Now"}
+            </Button>
+            <Button
+              onClick={handlePreviewVoicemailCleanup}
+              disabled={findVoicemailDuplicates.isLoading}
+              size="sm"
+              className="bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20"
+            >
+              <Trash2 className={`w-4 h-4 mr-2 ${findVoicemailDuplicates.isLoading ? "animate-spin" : ""}`} />
+              {findVoicemailDuplicates.isLoading ? "Scanning..." : "Delete Duplicates"}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -848,6 +906,127 @@ export default function AdminCallReviewPage() {
           </div>
         )}
       </div>
+
+      {/* Voicemail Duplicate Cleanup Dialog */}
+      <Dialog open={voicemailCleanupDryRun || confirmVoicemailCleanup} onOpenChange={(open) => {
+        if (!open) {
+          setVoicemailCleanupDryRun(false);
+          setConfirmVoicemailCleanup(false);
+          setVoicemailCleanupPreview(null);
+        }
+      }}>
+        <DialogContent className="bg-[#0D1117] border-white/10 max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-orange-400" />
+              Delete Duplicate Voicemails
+            </DialogTitle>
+          </DialogHeader>
+
+          {voicemailCleanupDryRun && !confirmVoicemailCleanup && voicemailCleanupPreview && (
+            <div className="space-y-4">
+              {/* Preview Results */}
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-3">
+                <p className="text-orange-300 text-sm font-medium mb-2">Preview: Duplicates Found</p>
+                <p className="text-gray-300 text-sm">
+                  Found <strong>{voicemailCleanupPreview.length}</strong> duplicate group(s) that will be cleaned up.
+                </p>
+              </div>
+
+              {/* Duplicate Groups List */}
+              {voicemailCleanupPreview && voicemailCleanupPreview.length > 0 && (
+                <div className="bg-[#0A0E1A] border border-gray-800/40 rounded-lg max-h-96 overflow-y-auto">
+                  <div className="space-y-3 p-3">
+                    {voicemailCleanupPreview.map((group: any, idx: number) => {
+                      const ids = group.ids ? group.ids.split(',').map(Number) : [];
+                      return (
+                        <div key={idx} className="bg-white/5 border border-white/10 rounded p-3">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-400 mb-1">Title:</p>
+                              <p className="text-sm text-white font-mono truncate">{group.title}</p>
+                            </div>
+                            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 ml-2">
+                              {group.count} copies
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">IDs to delete: {ids.slice(1).join(', ')}</p>
+                          <p className="text-xs text-gray-500">Keeping ID: {ids[0]}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <DialogFooter className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setVoicemailCleanupDryRun(false);
+                    setVoicemailCleanupPreview(null);
+                  }}
+                  className="border-white/10 text-gray-400 hover:text-white"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => setConfirmVoicemailCleanup(true)}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  Proceed to Delete
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {confirmVoicemailCleanup && voicemailCleanupPreview && (
+            <div className="space-y-4">
+              {/* Final Confirmation */}
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-red-300 text-sm font-medium mb-1">Permanent Action</p>
+                    <p className="text-gray-300 text-sm">
+                      This will permanently delete <strong>{voicemailCleanupPreview.length}</strong> duplicate group(s). This action cannot be undone.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <DialogFooter className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setConfirmVoicemailCleanup(false);
+                    setVoicemailCleanupDryRun(true);
+                  }}
+                  className="border-white/10 text-gray-400 hover:text-white"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleExecuteVoicemailCleanup}
+                  disabled={removeVoicemailDuplicates.isPending}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {removeVoicemailDuplicates.isPending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Yes, Delete Now"
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

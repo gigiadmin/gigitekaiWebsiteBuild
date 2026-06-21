@@ -1762,3 +1762,21 @@
 - [ ] Phase 5: Add comprehensive tests for tombstone behavior
 - [ ] Phase 6: Create data migration script for existing duplicates
 - [ ] Phase 7: Deploy and verify production readiness
+
+## Recent Fixes - June 20-21, 2026
+- [x] Fixed duplicate email ingestion
+- [x] Disabled Mail Manus webhook
+- [x] Fixed duplicate tickets cleanup
+- [x] Fixed duplicate newsletter sends
+- [x] Disabled daily blog scheduler
+- [x] Disabled voicemail poller
+- [x] Fixed contact form validation
+- [x] Standardized all form validation
+- [x] Added Nas Crespo as second agent
+- [x] Added edit button to agents
+- [x] Updated homepage stats
+- [x] Added podcast.thehypecave.net to portfolio
+- [x] Fixed live sites grid alignment
+- [ ] Complete Delete Duplicates button UI
+- [ ] Push Hype Cave podcast dual player to GitHub
+- [ ] Complete voicemail tombstone phases 4-7
