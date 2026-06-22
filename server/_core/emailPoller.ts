@@ -1506,6 +1506,19 @@ export async function runEmailPoller(): Promise<void> {
       const emailBody = typeof msg.body === 'object' && msg.body?.content
         ? msg.body.content
         : (typeof msg.body === 'string' ? msg.body : (msg.bodyPreview || ''));
+      
+      // Skip old emails (older than 48 hours) to prevent re-processing
+      if (msg.receivedDateTime) {
+        const receivedTime = new Date(msg.receivedDateTime).getTime();
+        const now = Date.now();
+        const ageInHours = (now - receivedTime) / (1000 * 60 * 60);
+        if (ageInHours > 48) {
+          console.log(`[Email Poller] SKIPPING OLD EMAIL (${ageInHours.toFixed(1)}h old): "${subject}"`);
+          if (msg.id) await markMessageAsRead(msg.id).catch(() => {});
+          skippedCount++;
+          continue;
+        }
+      }
 
       // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemail@gigitekai.com
       // appear as sent from support@gigitekai.com, so we MUST check voicemail
