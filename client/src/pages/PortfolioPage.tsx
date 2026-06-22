@@ -107,7 +107,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🌱",
     color: "#22C55E",
     bgGradient: "from-green-900/40 to-emerald-900/40",
-    href: "https://www.handydandylawns.com",
+    href: "https://hdl-chatbot-redesign.pages.dev",
     isReal: true,
     external: true,
     tags: ["Landscaping", "Service Management", "AI Scheduling"],
@@ -366,14 +366,14 @@ export default function WebsitesPage() {
                   href={site.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block h-full"
+                  className="group block"
                 >
                   <div
-                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden h-full flex flex-col`}
+                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
                     style={{ borderColor: site.color + "44" }}
                   >
                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
-                    <div className="relative z-10 flex flex-col h-full">
+                    <div className="relative z-10">
                       <div className="flex items-start justify-between mb-4">
                         <span className="text-5xl">{site.icon}</span>
                         <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
@@ -382,13 +382,13 @@ export default function WebsitesPage() {
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
                       <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
-                      <p className="text-slate-300 text-sm leading-relaxed mb-5 flex-grow">{site.description}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
                       <div className="flex flex-wrap gap-2 mb-5">
                         {site.tags.map((tag) => (
                           <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 font-semibold text-sm transition-[opacity,transform] group-hover:gap-3 mt-auto" style={{ color: site.color }}>
+                      <div className="flex items-center gap-2 font-semibold text-sm transition-[opacity,transform] group-hover:gap-3" style={{ color: site.color }}>
                         Visit Live Site <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>

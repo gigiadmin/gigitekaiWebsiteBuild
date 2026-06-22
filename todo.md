@@ -1758,10 +1758,10 @@
 - [x] Phase 1: Create voicemailSourceTombstones database table
 - [x] Phase 2: Update voicemail poller to check tombstones before importing
 - [x] Phase 3: Update delete/reject draft mutations to create tombstones
-- [x] Phase 4: Update admin UI labels and behavior
-- [x] Phase 5: Add comprehensive tests for tombstone behavior
-- [x] Phase 6: Create data migration script for existing duplicates
-- [x] Phase 7: Deploy and verify production readiness
+- [ ] Phase 4: Update admin UI labels and behavior
+- [ ] Phase 5: Add comprehensive tests for tombstone behavior
+- [ ] Phase 6: Create data migration script for existing duplicates
+- [ ] Phase 7: Deploy and verify production readiness
 
 ## Recent Fixes - June 20-21, 2026
 - [x] Fixed duplicate email ingestion
@@ -1777,8 +1777,6 @@
 - [x] Updated homepage stats
 - [x] Added podcast.thehypecave.net to portfolio
 - [x] Fixed live sites grid alignment
-- [x] Complete Delete Duplicates button UI
-- [x] Update Handy Dandy Lawns URL on Featured Sites
-- [x] Make Featured Sites boxes same size
+- [ ] Complete Delete Duplicates button UI
 - [ ] Push Hype Cave podcast dual player to GitHub
-- [x] Complete voicemail tombstone phases 4-7
+- [ ] Complete voicemail tombstone phases 4-7
