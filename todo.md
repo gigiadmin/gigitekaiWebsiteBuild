@@ -1777,6 +1777,6 @@
 - [x] Updated homepage stats
 - [x] Added podcast.thehypecave.net to portfolio
 - [x] Fixed live sites grid alignment
-- [ ] Complete Delete Duplicates button UI
+- [x] Complete Delete Duplicates button UI
 - [ ] Push Hype Cave podcast dual player to GitHub
 - [ ] Complete voicemail tombstone phases 4-7
