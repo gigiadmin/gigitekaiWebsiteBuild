@@ -579,9 +579,10 @@ export default function AdminCallReviewPage() {
               disabled={findVoicemailDuplicates.isLoading}
               size="sm"
               className="bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20"
+              title="Marks duplicate voicemails as dismissed. They won't re-import if the poller runs again."
             >
               <Trash2 className={`w-4 h-4 mr-2 ${findVoicemailDuplicates.isLoading ? "animate-spin" : ""}`} />
-              {findVoicemailDuplicates.isLoading ? "Scanning..." : "Delete Duplicates"}
+              {findVoicemailDuplicates.isLoading ? "Scanning..." : "Mark as Dismissed"}
             </Button>
           </div>
         </div>
@@ -975,7 +976,7 @@ export default function AdminCallReviewPage() {
                   onClick={() => setConfirmVoicemailCleanup(true)}
                   className="bg-orange-600 hover:bg-orange-700 text-white"
                 >
-                  Proceed to Delete
+                  Proceed to Mark as Dismissed
                 </Button>
               </DialogFooter>
             </div>
@@ -990,7 +991,7 @@ export default function AdminCallReviewPage() {
                   <div>
                     <p className="text-red-300 text-sm font-medium mb-1">Permanent Action</p>
                     <p className="text-gray-300 text-sm">
-                      This will permanently delete <strong>{voicemailCleanupPreview.length}</strong> duplicate group(s). This action cannot be undone.
+                      This will mark <strong>{voicemailCleanupPreview.length}</strong> duplicate group(s) as dismissed. They won't re-import if the poller runs again. This action cannot be undone.
                     </p>
                   </div>
                 </div>
@@ -1016,10 +1017,10 @@ export default function AdminCallReviewPage() {
                   {removeVoicemailDuplicates.isPending ? (
                     <>
                       <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Deleting...
+                      Marking as Dismissed...
                     </>
                   ) : (
-                    "Yes, Delete Now"
+                    "Yes, Mark as Dismissed"
                   )}
                 </Button>
               </DialogFooter>
