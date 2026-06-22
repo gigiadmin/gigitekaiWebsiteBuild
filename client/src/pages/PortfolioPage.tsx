@@ -1,5 +1,5 @@
-/**
- * WebsitesPage.tsx — GigitekAI Website Building Capabilities Showcase
+/*
+ * PortfolioPage.tsx — GigitekAI Website Building Capabilities Showcase
  * Displays 9 featured sites (2 real + 7 industry demos)
  * Designed to convert visitors into leads for GigitekAI web development services
  */
@@ -33,6 +33,7 @@ interface FeaturedSite {
   isReal?: boolean;
   external?: boolean;
   tags: string[];
+  previewImage?: string;
 }
 
 const DEFAULT_INQUIRY: InquiryForm = {
@@ -111,91 +112,59 @@ const FEATURED_SITES: FeaturedSite[] = [
     isReal: true,
     external: true,
     tags: ["Landscaping", "Service Management", "AI Scheduling"],
+    previewImage: "/manus-storage/hdl-chatbot-redesign_2026-06-22_18-42-13_7741_6199e92b.webp",
   },
   {
     id: "finance",
     name: "Meridian Capital",
     category: "Financial Services",
-    description: "Full-service digital banking platform with real-time transactions, AI fraud detection, robo-advisory, and PCI-DSS compliance. Includes pricing tiers, case study, and process workflow.",
+    description: "Investment portfolio management and financial advisory platform with real-time analytics and secure client portals.",
     icon: "💰",
-    color: "#00D97E",
-    bgGradient: "from-green-900/40 to-emerald-900/40",
-    href: "/portfolio/finance",
-    tags: ["FinTech", "Banking", "AI Analytics", "Compliance", "Pricing"],
-  },
-  {
-    id: "legal",
-    name: "Sterling & Associates",
-    category: "Legal Services",
-    description: "Am Law 200-style firm site with AI document review, M&A case studies, litigation results, flexible billing tiers, and a full FAQ section for prospective clients.",
-    icon: "⚖️",
-    color: "#818CF8",
-    bgGradient: "from-indigo-900/40 to-purple-900/40",
-    href: "/portfolio/legal",
-    tags: ["Corporate Law", "AI Docs", "M&A", "Pricing Tiers"],
-  },
-  {
-    id: "insurance",
-    name: "Pinnacle Insurance Group",
-    category: "Insurance",
-    description: "Modern InsurTech platform with AI risk assessment, instant quoting, 24-hour claims resolution, multi-line coverage tiers, and a manufacturing case study.",
-    icon: "🛡️",
     color: "#FBBF24",
-    bgGradient: "from-amber-900/40 to-orange-900/40",
-    href: "/portfolio/insurance",
-    tags: ["InsurTech", "AI Claims", "Health", "Property", "Pricing"],
+    bgGradient: "from-amber-900/40 to-yellow-900/40",
+    href: "/portfolio/finance",
+    tags: ["Finance", "Analytics", "Security"],
   },
   {
-    id: "vc",
-    name: "Apex Ventures",
-    category: "Venture Capital",
-    description: "Sand Hill Road-caliber VC site with deal flow process, portfolio case study ($0→$4.2M ARR), fund performance metrics, and Seed/Series A/Growth investment tiers.",
-    icon: "📈",
-    color: "#F472B6",
-    bgGradient: "from-rose-900/40 to-pink-900/40",
-    href: "/portfolio/vc",
-    tags: ["VC", "Startups", "Seed Funding", "Portfolio", "Deal Flow"],
-  },
-  {
-    id: "health",
-    name: "Vitara Health",
-    category: "Healthcare",
-    description: "HIPAA-compliant telemedicine platform with AI provider matching, <5 min wait times, corporate wellness case study, and Individual/Family/Enterprise pricing.",
+    id: "healthcare",
+    name: "MediCare Plus",
+    category: "Healthcare & Wellness",
+    description: "Patient management system with appointment scheduling, telemedicine integration, and secure health records.",
     icon: "🏥",
-    color: "#F87171",
+    color: "#EF4444",
     bgGradient: "from-red-900/40 to-rose-900/40",
-    href: "/portfolio/health",
-    tags: ["HealthTech", "Telemedicine", "HIPAA", "Wellness", "Pricing"],
+    href: "/portfolio/healthcare",
+    tags: ["Healthcare", "Telemedicine", "HIPAA"],
   },
   {
-    id: "consulting",
-    name: "Stratford Advisory",
-    category: "Management Consulting",
-    description: "McKinsey-caliber consulting site with diagnostic-to-results methodology, $8B AUM digital transformation case study, and Advisory/Transformation/Enterprise tiers.",
-    icon: "🎯",
-    color: "#A78BFA",
-    bgGradient: "from-violet-900/40 to-purple-900/40",
-    href: "/portfolio/consulting",
-    tags: ["Strategy", "Operations", "Transformation", "Case Study"],
+    id: "ecommerce",
+    name: "TrendHub Store",
+    category: "E-Commerce & Retail",
+    description: "Full-featured online store with inventory management, payment processing, and customer analytics.",
+    icon: "🛍️",
+    color: "#EC4899",
+    bgGradient: "from-pink-900/40 to-rose-900/40",
+    href: "/portfolio/ecommerce",
+    tags: ["E-Commerce", "Payments", "Inventory"],
   },
   {
-    id: "tech",
-    name: "NovaTech Solutions",
-    category: "Technology",
-    description: "Enterprise SaaS & cloud infrastructure site with agile development process, 150K+ concurrent user case study, and Startup/Scale/Enterprise engagement tiers.",
-    icon: "💻",
-    color: "#60A5FA",
-    bgGradient: "from-blue-900/40 to-cyan-900/40",
-    href: "/portfolio/tech",
-    tags: ["SaaS", "Cloud", "DevOps", "Custom Dev", "Pricing"],
+    id: "saas",
+    name: "CloudSync Pro",
+    category: "SaaS & Software",
+    description: "Collaboration platform with real-time sync, team management, and enterprise-grade security.",
+    icon: "☁️",
+    color: "#3B82F6",
+    bgGradient: "from-blue-900/40 to-indigo-900/40",
+    href: "/portfolio/saas",
+    tags: ["SaaS", "Collaboration", "Enterprise"],
   },
 ];
 
-const CAPABILITIES = [
+const FEATURES = [
   {
-    icon: <Globe className="w-6 h-6" />,
-    title: "Industry-Specific Design",
-    desc: "Custom websites tailored to your industry's unique needs, compliance requirements, and target audience.",
+    icon: <MessageCircle className="w-6 h-6" />,
+    title: "AI Chat Integration",
+    desc: "Embedded AI chatbots trained on your business data — available 24/7 to qualify leads and support customers.",
   },
   {
     icon: <Cpu className="w-6 h-6" />,
@@ -297,46 +266,7 @@ export default function WebsitesPage() {
               href="#demos"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-base border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-[opacity,transform]"
             >
-              View Demo Sites
-            </a>
-          </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 pt-12 border-t border-cyan-500/20">
-            {[
-              { value: "9+", label: "Industries Served" },
-              { value: "50+", label: "Websites Delivered" },
-              { value: "99.9%", label: "Uptime SLA" },
-              { value: "24/7", label: "AI Support" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold mb-1" style={{ color: "#00D4FF" }}>{s.value}</div>
-                <div className="text-xs text-slate-400 uppercase tracking-wider">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CAPABILITIES ── */}
-      <section className="py-20 px-4 border-b border-cyan-500/20" style={{ backgroundColor: "#00D4FF08" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">What We Build Into Every Site</h2>
-            <p className="text-slate-400 max-w-xl mx-auto">Every website we deliver is engineered for performance, security, and conversion — not just aesthetics.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CAPABILITIES.map((cap) => (
-              <div key={cap.title} className="flex gap-4 p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:border-cyan-500/40 transition-colors">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-cyan-300" style={{ backgroundColor: "#00D4FF22" }}>
-                  {cap.icon}
-                </div>
-                <div>
-                  <h3 className="font-bold text-white mb-1">{cap.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">{cap.desc}</p>
-                </div>
-              </div>
-            ))}
+              View Demo Sites</a>
           </div>
         </div>
       </section>
@@ -369,27 +299,42 @@ export default function WebsitesPage() {
                   className="group block"
                 >
                   <div
-                    className={`relative rounded-2xl border p-8 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
+                    className={`relative rounded-2xl border bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
                     style={{ borderColor: site.color + "44" }}
                   >
-                    <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
-                    <div className="relative z-10">
-                      <div className="flex items-start justify-between mb-4">
-                        <span className="text-5xl">{site.icon}</span>
-                        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
-                          ✓ Live Site
-                        </span>
+                    {/* Preview Image with Overlay */}
+                    {site.previewImage && (
+                      <div className="relative h-48 overflow-hidden rounded-t-xl">
+                        <img
+                          src={site.previewImage}
+                          alt={site.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 transition-opacity duration-300 group-hover:opacity-40" />
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
-                      <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
-                      <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-5">
-                        {site.tags.map((tag) => (
-                          <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 font-semibold text-sm transition-[opacity,transform] group-hover:gap-3" style={{ color: site.color }}>
-                        Visit Live Site <ArrowRight className="w-4 h-4" />
+                    )}
+                    
+                    {/* Content Section */}
+                    <div className={`${site.previewImage ? 'p-6' : 'p-8'}`}>
+                      <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between mb-4">
+                          <span className="text-5xl">{site.icon}</span>
+                          <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
+                            ✓ Live Site
+                          </span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
+                        <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
+                        <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
+                        <div className="flex flex-wrap gap-2 mb-5">
+                          {site.tags.map((tag) => (
+                            <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 font-semibold text-sm transition-all duration-300 group-hover:gap-3" style={{ color: site.color }}>
+                          Visit Live Site <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -419,43 +364,39 @@ export default function WebsitesPage() {
             </div>
           </div>
 
-          {/* Demo Sites */}
-          <div>
+          {/* Demo Sites Grid */}
+          <div className="mb-12">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-px flex-1 bg-cyan-500/20" />
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-3">Industry Demo Sites — Click to Explore</span>
+              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest px-3">Industry Demo Sites</span>
               <div className="h-px flex-1 bg-cyan-500/20" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {FEATURED_SITES.filter((s) => !s.isReal).map((site) => (
                 <Link key={site.id} href={site.href}>
-                  <a className="group block h-full">
+                  <a className="group block">
                     <div
-                      className={`relative h-full rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-[opacity,transform] duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
-                      style={{ borderColor: site.color + "33" }}
+                      className={`relative rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden h-full`}
+                      style={{ borderColor: site.color + "44" }}
                     >
-                      <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-15 transition-opacity" style={{ backgroundColor: site.color }} />
-                      <div className="relative z-10 flex flex-col h-full">
-                        <div className="flex items-start justify-between mb-4">
+                      <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between mb-3">
                           <span className="text-4xl">{site.icon}</span>
-                          <span className="text-xs font-semibold px-2 py-1 rounded-full text-slate-400 bg-white/5 border border-white/10">Demo Site</span>
+                          <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
+                            Demo
+                          </span>
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-1">{site.name}</h3>
-                        <p className="text-xs font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
-                        <p className="text-slate-400 text-sm leading-relaxed mb-4 flex-1">{site.description}</p>
-                        <div className="flex flex-wrap gap-1.5 mb-5">
-                          {site.tags.map((tag) => (
-                            <span key={tag} className="text-xs px-2 py-0.5 rounded-md text-slate-400" style={{ backgroundColor: site.color + "12" }}>{tag}</span>
+                        <h3 className="text-lg font-bold text-white mb-1">{site.name}</h3>
+                        <p className="text-xs font-medium mb-2" style={{ color: site.color }}>{site.category}</p>
+                        <p className="text-slate-300 text-xs leading-relaxed mb-4">{site.description}</p>
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          {site.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="text-xs px-1.5 py-0.5 rounded text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
                           ))}
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: site.color + "22" }}>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                            <MessageCircle className="w-3.5 h-3.5" style={{ color: site.color }} />
-                            AI Chat Included
-                          </div>
-                          <div className="flex items-center gap-1.5 text-sm font-semibold transition-[opacity,transform] group-hover:gap-2" style={{ color: site.color }}>
-                            View Demo <ArrowRight className="w-4 h-4" />
-                          </div>
+                        <div className="flex items-center gap-2 font-semibold text-xs transition-all duration-300 group-hover:gap-2.5" style={{ color: site.color }}>
+                          View Demo <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
                         </div>
                       </div>
                     </div>
@@ -464,268 +405,174 @@ export default function WebsitesPage() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── WHAT'S INCLUDED ── */}
-      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ backgroundColor: "#00D4FF05" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Every Site We Build Includes</h2>
-          <p className="text-slate-400 mb-12">No hidden fees. No cookie-cutter templates. Every project is custom-scoped and priced accordingly.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left mb-12">
-            {[
-              "Custom design aligned with your brand",
-              "Mobile-first, responsive layout",
-              "AI chat widget (Copilot Studio powered)",
-              "Lead capture & contact forms",
-              "SEO optimization & Core Web Vitals",
-              "Analytics & conversion tracking",
-              "SSL, CDN & 99.9% uptime hosting",
-              "Admin dashboard & content management",
-              "Microsoft 365 & CRM integrations",
-              "Ongoing support & monthly updates",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-3 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5">
-                <CheckCircle className="w-5 h-5 flex-shrink-0 text-cyan-400" />
-                <span className="text-slate-300 text-sm">{item}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-slate-500 text-sm mb-8">
-            Pricing is custom-quoted based on project scope, complexity, and required integrations. Contact us for a free consultation.
-          </p>
-        </div>
-      </section>
-
-      {/* ── WEBSITE PACKAGES ── */}
-      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ backgroundColor: "#00D4FF08" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Website Packages</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Choose the perfect package for your business. All include ongoing support and monthly updates.</p>
-            <div className="inline-block bg-green-900/20 border border-green-700/50 rounded-lg px-6 py-3 mt-6">
-              <p className="text-green-300 font-semibold">🎁 Limited Time: 50% OFF + 1 Month FREE on 1-Year Commitment</p>
+          {/* Features Grid */}
+          <div className="my-20">
+            <h3 className="text-3xl font-bold text-white text-center mb-12">Why Choose GigitekAI for Your Website?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {FEATURES.map((feature, i) => (
+                <div key={i} className="p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors">
+                  <div className="text-cyan-400 mb-3">{feature.icon}</div>
+                  <h4 className="text-lg font-bold text-white mb-2">{feature.title}</h4>
+                  <p className="text-slate-400 text-sm">{feature.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Starter",
-                price: "$199",
-                setup: "$499 one-time",
-                description: "Perfect for businesses just getting started",
-                features: ["Up to 3 pages", "Mobile responsive", "Basic AI chatbot", "Contact form", "SSL & hosting included", "Email support"],
-                color: "#00D4FF"
-              },
-              {
-                name: "Growth",
-                price: "$399",
-                setup: "$999 one-time",
-                description: "For scaling businesses ready to leverage AI",
-                features: ["Up to 7 pages", "Advanced AI chatbot", "Blog/content section", "Monthly performance report", "SEO optimization", "Priority support"],
-                color: "#9D4EDD",
-                popular: true
-              },
-              {
-                name: "Pro",
-                price: "$799",
-                setup: "$1,999 one-time",
-                description: "Complete web solutions with custom integrations & dedicated support",
-                features: ["Unlimited pages", "E-commerce ready", "Custom integrations", "Advanced AI features", "Custom migrations", "Priority support"],
-                color: "#00D97E"
-              }
-            ].map((pkg, idx) => (
-              <div key={idx} className={`relative rounded-2xl border p-8 transition-[opacity,transform] duration-300 hover:scale-[1.02] ${
-                pkg.popular ? "border-purple-500/60 bg-gradient-to-br from-purple-900/40 to-purple-900/20 ring-2 ring-purple-500/30" : "border-cyan-500/20 bg-gradient-to-br from-cyan-900/20 to-blue-900/20"
-              }`}>
-                {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white px-4 py-1 rounded-full text-xs font-bold">MOST POPULAR</div>
-                )}
-                <h3 className="text-2xl font-bold text-white mb-2">{pkg.name}</h3>
-                <p className="text-sm text-slate-400 mb-4">{pkg.description}</p>
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold" style={{ color: pkg.color }}>{pkg.price}</span>
-                    <span className="text-sm text-slate-500">/month</span>
-                  </div>
-                  {pkg.setup && <p className="text-xs text-slate-400 mt-1">{pkg.setup}</p>}
-                </div>
-                <div className="space-y-2 mb-6">
-                  {pkg.features.map((feature, fidx) => (
-                    <div key={fidx} className="flex items-start gap-2 text-sm text-slate-300">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={() => openInquiry(pkg.name.toLowerCase() as "starter" | "growth" | "pro")}
-                  className="w-full py-3 rounded-lg font-semibold transition-[opacity,transform] hover:opacity-90 hover:scale-[1.02]"
-                  style={{
-                    backgroundColor: pkg.popular ? pkg.color : pkg.color + "22",
-                    color: pkg.popular ? "#000" : pkg.color,
-                    border: pkg.popular ? "none" : `1px solid ${pkg.color}44`
-                  }}
-                >
-                  Get Started
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── FREE AUDIT CTA BANNER ── */}
-      <section className="py-20 px-4 border-t border-cyan-500/20" style={{ background: "linear-gradient(135deg, #0A0E1A 0%, #0d1a2e 50%, #0A0E1A 100%)" }}>
-        <div className="max-w-4xl mx-auto">
-          {/* Main CTA card */}
-          <div className="relative rounded-2xl overflow-hidden border border-cyan-500/30 p-10 sm:p-14 text-center" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(157,78,221,0.08) 100%)" }}>
-            {/* Glow accents */}
-            <div className="absolute top-0 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          {/* Pricing Section */}
+          <div className="my-20 py-16 px-8 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-6 border border-green-500/40 bg-green-500/10 text-green-300">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                🎁 Limited Time Offer — 50% OFF + 1 Month FREE
+              <div className="text-center mb-12">
+                <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">Website Pricing Tiers</h3>
+                <p className="text-slate-300 max-w-2xl mx-auto">
+                  All prices are custom-quoted based on your project scope, features, and complexity. These are starting points for different business needs.
+                </p>
               </div>
-              <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-                Get Your <span style={{ color: "#00D4FF" }}>Free Website Audit</span> Today
-              </h2>
-              <p className="text-lg sm:text-xl text-slate-300 mb-4 max-w-2xl mx-auto leading-relaxed">
-                Find out exactly what's holding your website back — SEO gaps, speed issues, conversion leaks — and get a custom roadmap to fix it. <strong className="text-white">No cost, no commitment.</strong>
-              </p>
-              <p className="text-sm text-slate-400 mb-10">
-                Then lock in <span className="text-green-300 font-semibold">50% off</span> our professional web design &amp; SEO packages on a 1-year commitment.
-              </p>
-              {/* Primary CTA */}
-              <Link href="/free-audit">
-                <a className="inline-flex items-center gap-3 px-10 py-5 rounded-xl font-bold text-black text-lg transition-[opacity,transform] hover:opacity-90 hover:scale-105 shadow-lg shadow-cyan-500/20" style={{ backgroundColor: "#00D4FF" }}>
-                  <span>🚀 Claim My Free Audit</span>
-                  <ArrowRight className="w-5 h-5" />
-                </a>
-              </Link>
-              {/* Secondary links */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-                <Link href="/contact">
-                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-[opacity,transform]">
-                    Talk to Our Team
-                  </a>
-                </Link>
-                <Link href="/web-pricing">
-                  <a className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border border-slate-600/40 text-slate-400 hover:bg-slate-500/10 transition-[opacity,transform]">
-                    View Full Pricing
-                  </a>
-                </Link>
-              </div>
-              {/* Trust signals */}
-              <div className="flex flex-wrap gap-6 justify-center mt-10 pt-8 border-t border-cyan-500/10">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { icon: "⚡", text: "Audit delivered in 24–48 hrs" },
-                  { icon: "🔒", text: "No credit card required" },
-                  { icon: "🏆", text: "50+ websites delivered" },
-                  { icon: "📞", text: "Free strategy call included" },
-                ].map((t) => (
-                  <div key={t.text} className="flex items-center gap-2 text-sm text-slate-400">
-                    <span>{t.icon}</span>
-                    <span>{t.text}</span>
+                  { tier: "Starter", price: "$2,500", features: ["5-8 Pages", "Basic AI Chat", "Mobile Responsive", "SSL Certificate", "Email Support"] },
+                  { tier: "Growth", price: "$7,500", features: ["15-20 Pages", "Advanced AI Chat", "CRM Integration", "Analytics Dashboard", "Priority Support"], highlight: true },
+                  { tier: "Pro", price: "$15,000+", features: ["Unlimited Pages", "Full AI Suite", "Custom Integrations", "Advanced Analytics", "Dedicated Manager"] },
+                ].map((plan, i) => (
+                  <div
+                    key={i}
+                    className={`p-8 rounded-2xl border transition-all duration-300 ${
+                      plan.highlight
+                        ? "border-cyan-400/60 bg-gradient-to-br from-cyan-500/20 to-blue-500/10 scale-105 shadow-2xl"
+                        : "border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10"
+                    }`}
+                  >
+                    {plan.highlight && <div className="text-xs font-bold text-cyan-300 uppercase mb-2">Most Popular</div>}
+                    <h4 className="text-2xl font-bold text-white mb-2">{plan.tier}</h4>
+                    <div className="text-3xl font-bold text-cyan-400 mb-6">{plan.price}</div>
+                    <ul className="space-y-3 mb-8">
+                      {plan.features.map((feature, j) => (
+                        <li key={j} className="flex items-center gap-2 text-slate-300">
+                          <CheckCircle className="w-4 h-4 text-cyan-400" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      onClick={() => openInquiry(plan.tier.toLowerCase() as "starter" | "growth" | "pro")}
+                      className="w-full py-3 rounded-lg font-bold transition-all duration-300"
+                      style={{
+                        backgroundColor: plan.highlight ? "#00D4FF" : "transparent",
+                        color: plan.highlight ? "#000" : "#00D4FF",
+                        border: plan.highlight ? "none" : "1px solid #00D4FF",
+                      }}
+                    >
+                      Get Started
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <h3 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Online Presence?</h3>
+            <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
+              Let's discuss your project requirements and create a custom proposal tailored to your business goals.
+            </p>
+            <Link href="/contact">
+              <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-[opacity,transform] hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
+                Schedule a Consultation
+                <ArrowRight className="w-5 h-5" />
+              </a>
+            </Link>
+          </div>
         </div>
       </section>
-      </main>
 
       {/* Inquiry Modal */}
       {inquiryOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0F1428] border-2 border-cyan-500/50 rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-2xl font-bold text-white">Get Started</h3>
-                {inquiryData.pricingTier && (
-                  <p className="text-cyan-400 text-sm mt-1 capitalize">{inquiryData.pricingTier} Package Selected</p>
-                )}
-              </div>
-              <button onClick={() => setInquiryOpen(false)} className="text-gray-400 hover:text-white transition">
-                <X size={24} />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-cyan-500/30">
+            <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
+              <h3 className="text-2xl font-bold text-white">Website Pricing Inquiry</h3>
+              <button onClick={() => setInquiryOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-6 h-6" />
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Business Name *</label>
-                  <input type="text" name="businessName" value={inquiryData.businessName} onChange={handleChange} required disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                    placeholder="Your business name" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Email *</label>
-                  <input type="email" name="email" value={inquiryData.email} onChange={handleChange} required disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                    placeholder="your@email.com" />
-                </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="businessName"
+                  placeholder="Business Name"
+                  value={inquiryData.businessName}
+                  onChange={handleChange}
+                  required
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={inquiryData.email}
+                  onChange={handleChange}
+                  required
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Phone</label>
-                  <input type="tel" name="phone" value={inquiryData.phone} onChange={handleChange} disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                    placeholder="(727) 382-6909" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Industry *</label>
-                  <select name="industry" value={inquiryData.industry} onChange={handleChange} required disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:border-cyan-400 disabled:opacity-50">
-                    <option value="">Select industry</option>
-                    <option value="retail">Retail</option>
-                    <option value="services">Services</option>
-                    <option value="consulting">Consulting</option>
-                    <option value="healthcare">Healthcare</option>
-                    <option value="tech">Technology</option>
-                    <option value="legal">Legal</option>
-                    <option value="finance">Finance</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone"
+                  value={inquiryData.phone}
+                  onChange={handleChange}
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                />
+                <select
+                  name="industry"
+                  value={inquiryData.industry}
+                  onChange={handleChange}
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-cyan-500"
+                >
+                  <option value="">Select Industry</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="finance">Finance</option>
+                  <option value="retail">Retail</option>
+                  <option value="technology">Technology</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Business Description *</label>
-                <textarea name="description" value={inquiryData.description} onChange={handleChange} required rows={3} disabled={submitInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="What does your business do?" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Target Audience</label>
-                  <input type="text" name="targetAudience" value={inquiryData.targetAudience} onChange={handleChange} disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                    placeholder="Who are your customers?" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Current Website</label>
-                  <input type="text" name="currentWebsite" value={inquiryData.currentWebsite} onChange={handleChange} disabled={submitInquiry.isPending}
-                    className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                    placeholder="https://example.com (optional)" />
-                </div>
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button type="submit" disabled={submitInquiry.isPending}
-                  className="flex-1 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                  {submitInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
-                </button>
-                <button type="button" onClick={() => setInquiryOpen(false)} disabled={submitInquiry.isPending}
-                  className="flex-1 px-6 py-3 border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 font-bold rounded-lg transition disabled:opacity-50">
+              <textarea
+                name="description"
+                placeholder="Describe your project"
+                value={inquiryData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              />
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setInquiryOpen(false)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-700 text-white hover:bg-slate-800 transition-colors"
+                >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitInquiry.isPending}
+                  className="flex-1 px-4 py-2 rounded-lg font-bold text-black transition-opacity hover:opacity-90 disabled:opacity-50"
+                  style={{ backgroundColor: "#00D4FF" }}
+                >
+                  {submitInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 }
