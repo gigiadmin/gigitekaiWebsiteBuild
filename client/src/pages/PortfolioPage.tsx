@@ -107,7 +107,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🌱",
     color: "#22C55E",
     bgGradient: "from-green-900/40 to-emerald-900/40",
-    href: "https://hdl-chatbot-redesign.pages.dev",
+    href: "https://handydandylawns.com",
     isReal: true,
     external: true,
     tags: ["Landscaping", "Service Management", "AI Scheduling"],
