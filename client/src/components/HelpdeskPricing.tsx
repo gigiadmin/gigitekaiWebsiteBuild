@@ -214,28 +214,40 @@ export default function HelpdeskPricing() {
               key={index}
               className={`relative rounded-lg border transition-all ${
                 tier.popular
-                  ? 'border-cyan-500 bg-card shadow-lg shadow-cyan-500/20'
-                  : 'border-border bg-card'
+                  ? 'border-cyan-500 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 shadow-2xl shadow-cyan-500/30 scale-105 lg:scale-110'
+                  : 'border-border bg-card hover:shadow-lg transition-shadow'
               }`}
             >
               {tier.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-cyan-500 text-background px-3 py-1 rounded-full text-xs font-bold">
-                    MOST POPULAR
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                  <span className="bg-gradient-to-r from-cyan-400 to-cyan-500 text-background px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-cyan-500/50 animate-pulse">
+                    ⭐ MOST POPULAR ⭐
                   </span>
                 </div>
               )}
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">{tier.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
+              <div className={`p-6 ${tier.popular ? 'pt-10' : ''}`}>
+                <h3 className={`font-bold mb-2 ${
+                  tier.popular
+                    ? 'text-2xl text-cyan-400'
+                    : 'text-xl text-foreground'
+                }`}>{tier.name}</h3>
+                <p className={`mb-4 ${
+                  tier.popular
+                    ? 'text-base text-cyan-100'
+                    : 'text-sm text-muted-foreground'
+                }`}>{tier.description}</p>
 
                 {tier.price !== null ? (
-                  <div className="mb-6">
-                    <div className="text-4xl font-bold text-cyan-400">
+                  <div className={`mb-6 ${tier.popular ? 'bg-cyan-500/10 p-4 rounded-lg' : ''}`}>
+                    <div className={`font-bold ${
+                      tier.popular
+                        ? 'text-5xl text-cyan-300'
+                        : 'text-4xl text-cyan-400'
+                    }`}>
                       ${calculatePrice(tier.price)}
                     </div>
-                    <p className="text-sm text-muted-foreground">/user/month</p>
+                    <p className={tier.popular ? 'text-base text-cyan-200' : 'text-sm text-muted-foreground'}>/user/month</p>
                   </div>
                 ) : (
                   <div className="mb-6">
@@ -245,9 +257,9 @@ export default function HelpdeskPricing() {
 
                 <Button
                   onClick={() => handleSelectPlan(tier.name)}
-                  className={`w-full mb-6 ${
+                  className={`w-full mb-6 font-bold text-lg py-3 transition-all ${
                     tier.popular
-                      ? 'bg-cyan-500 hover:bg-cyan-600 text-background'
+                      ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black shadow-lg shadow-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/70 hover:scale-105'
                       : 'bg-gray-700 hover:bg-gray-600 text-foreground'
                   }`}
                 >
@@ -255,7 +267,11 @@ export default function HelpdeskPricing() {
                 </Button>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold text-foreground">What's Included:</p>
+                  <p className={`font-semibold ${
+                    tier.popular
+                      ? 'text-base text-cyan-300'
+                      : 'text-sm text-foreground'
+                  }`}>What's Included:</p>
                   {tier.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
                       <Check className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />

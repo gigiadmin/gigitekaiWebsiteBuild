@@ -1790,3 +1790,12 @@
   - [x] Fixed `bulkRejectDrafts` to create tombstones for all rejected calls
   - [x] Tombstone system now covers ALL call types (PSTN + voicemail), not just voicemail-prefixed calls
   - [x] To clear existing 8 pending calls: delete them via admin UI — new code will tombstone them permanently
+
+- [x] **PRICING CONSISTENCY UPDATE - June 24, 2026** — All pricing tiers updated across all touchpoints:
+  - [x] Updated HelpdeskPricing component: $99, $149, $199 (+ Enterprise Custom)
+  - [x] Fixed 4 TypeScript errors in HelpdeskPricing.tsx (null checks, property access)
+  - [x] Updated PricingFAQ with new tier names and descriptions
+  - [x] Updated Aria AI assistant pricing in aibot.ts
+  - [x] All tier names standardized: Essential Security, Professional Compliance, Elite + Governed AI, Enterprise Custom
+  - [x] Verified consistency across homepage, pricing page, FAQ, and AI chat
+  - [x] Build status: No TypeScript errors, dev server running
