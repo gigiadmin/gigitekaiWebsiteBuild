@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZMXBAOM44",
-    "secret_access_key": "RdiQv92l7UxPsfGWqZ5C2vm2tQnDHphHtoH7me7N",
-    "session_token": "IQoJb3JpZ2luX2VjEP///////////wEaCXVzLWVhc3QtMSJHMEUCIGTnZQSGiRKXQbVCM+DJ0FySyh3mlvlaAStFnAGsJPYYAiEAnyjktj31V92ZcLQGJIM/VvlOqCniBQ1p3Weso1K7oSoq/wMIx///////////ARAEGgw2NjUzODYwOTg4NjYiDHdGOCdFZbXeMbWg3yrTA90qjpNzLj+Nc+Px4B5bRerohWAXXZIbyZUyU1GuiZhozP4DCitMc+tb2NIZRwo9i/35gBTW5G0uTilOdhKxDAHLmGtPA3T18VTjzct4o3HiS0nfod0KuQcdRYqG4EAuMb7aL+57I4+qW0LDYyLJ0O6l9hGsytb+BdDYI7ne3VDE5Xce7YMS7vDiUHkDqF3UFzBfYeXK4WaFAsrnkqHWqYwAykkbbs4LtK0ZKugiM62+77gfIOgdIdk5DhmpFh3UePELAgm1nfpLqoZ9mHx0dgXexvgFspfA3S8xmfRx6gMdKWAs+3RZ5mH9s7WdPMlBSlscZjzKeZhAARYqVaRYCF5qTutH89rRYJlrNC9o9qReljE/aWXSNk6J7x81MfAtzkKLR4SgAcfhd/zR5HmV1DdXXmU3wBRBv8gNcKp98A8kqBEL4G/KsMEUGm4KMqD3l+KLR3oO62BgRYYFSp6jqA+sijXW1q09wjVSnSM1uZkasN0ClWmy8kCqqGlDvpHukzTkdILlMJfHAOnRwg6KNd9V4szwo0dSGOd+qQV4eEQSQ3gEhrjaIW0hydJg2g2gu7nDyAsC/UhSS88CWwFwh3V3Xbm/sxzGgWO2xt5xVy5QX1m9MKT61tEGOp0BM9Bs3GJWk4p94z2f9nWZjgbCrQm7Uljlq2p/tO+gQ8rnbb9gyzBDo3m/19yS49zRvTwFp7zWVV0Q76xqgZAvujLD95e4Sy9lJDcmyB18ip4rA0JjJhcNp49x6x2i6VpKGWOCfcqXJJqOik8PquY1oZPE4+w9ggAMdOtBestdXr9VHfPhsB92p1IBEYOLw3FfZc18QtPrtdm2lVLE2Q==",
-    "expiration": "2026-06-20T10:05:24.000Z",
+    "access_key_id": "ASIAZV3A2ECZH5JZXRQ5",
+    "secret_access_key": "cU/UUARHvfV1su6cExExvomyIs1dwkcjiGFjdcUa",
+    "session_token": "IQoJb3JpZ2luX2VjEGQaCXVzLWVhc3QtMSJIMEYCIQD5WpUxV2Ir0m6AR+dSQ2YE5pcUKYR/DDubhdY1M6CMVQIhAMyiHxgJiosXkxAdzXwEnaDAgfLozPu2bPnnivB+GkeXKvYDCC0QBBoMNjY1Mzg2MDk4ODY2IgzeRkj6jmuXWTF3Ij4q0wNcQvv7xCSYZTusnF6wqlVSdoTBEJK2/yaBBk2hJ0AR/94fHtRiJ8b7DSUDrtpqibnYGmGsEU5YOSZ/sA2t9OeiUW0Bki1Ia3WkZiKjfs4zIzSCWIew8KXg2QEMnYjVZzrQTma41hRTq2yCQFqf1t+Xc2QkQwD2+bTNZ3jVo9FhV1/tBpa5M49mGmhES9W0G3SYFMOrsyt+LXbPqqwDrJhG4t30+ybxRiXoaQibyX3IxzpKe0xnmsBZl2v4asWFiQTMfhhv70rknbEBwfbIFlUvg0U/ZnkYagfGYEqRFbwTSjHZc3x5qyTVGqCZDe749NcutP29spHgZA/FpPl4P9IVN6ldmlXEDPZcpTdn5X1XaVi7WyR9lWVxqZT1QR9u4X1unmMvgHLkNnAuYF7Tcb8uRSz5SbrcmbXoIXC0W//CHMF/Q+76Iu2TMxS/gYhmQro5+GwLDV4wufZcJfX6+/1ZDQtGiSCNnRcZOsy4QucxKtxDQoEmkjP+sDopPOd4k9vGm6khrwIafiN/EK4pKRvz4UYgIzUfRVI7kYf+7R5eqYVGJYgiXfPZqXfJxmD1yIabBiiAQ7i+Q28sl+nhIBJl8aqtP2nTX24PgZeNJurDQIegaTDto+3RBjqcAUbLCaKKbHu4ecfmiOFWzIG3Ru2RQkHYjtxrRDta5ZrhmklEvwEp+b0109RNnIsPtBTCTiITCdRqNBVXNVanANSeL3V7jfWEcGuk0MIo/CTPPF+w7zpNv5+moYWbR8t7EJbx319vp0VZeHIejeM13uiI8qO86NB+cvf84SibM/gfRnE/bhQ52gfVuL1hCOa0bcm4HraI3IAKAkAAqA==",
+    "expiration": "2026-06-24T15:41:33.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "gigitekai",
@@ -24,7 +24,7 @@
   "port": 3000,
   "secrets": {
     "ACS_CONNECTION_STRING": "endpoint=https://acs-d365-voice-v2.unitedstates.communication.azure.com/;accesskey=CVhl0mLmbgTwsleH7pBvulvEfM4A7CKqqjZl5hXsDkOhvFavEkmuJQQJ99CDACULyCpIWx2bAAAAAZCSSymG",
-    "ADMIN_EMAILS": "harry@gigitekai.com,nas@gigitekai.com;harry@gigitekai.com,nas@gigitekai.com;,Sumanth.Mukka@gigitekai.com",
+    "ADMIN_EMAILS": "harry@gigitekai.com,nas@gigitekai.com",
     "ATLASSIAN_API_TOKEN": "ATATT3xFfGF0W8Zgskl2lWNetn4ZbPGerN1nTq5PF6Sfvuay7chNZzFRVcVyuC1rrmoz0c7V9c8L33a54RxW97uqcj4FP1jW0bYcyZIea5R9oKpt2QBAA53-Tt73h9j8cP0prPUhk1-lvIf6gFlyDzIzAprqANCe5xV_3GGhjdukBX1WPPMm0Eg=990E5776",
     "ATLASSIAN_EMAIL": "harry@gigitekai.com",
     "ATLASSIAN_ORG_ID": "d0a4f498-b699-4218-b8a4-92c7ceb9a309",

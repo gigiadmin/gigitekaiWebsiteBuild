@@ -516,14 +516,16 @@ export const adminAuthRouter = router({
       const verifiedEmail = (graphUser.mail || graphUser.userPrincipalName || "").toLowerCase();
 
       // Allowed admin emails — only these M365 accounts can access the admin portal
-      const adminEmailsEnv = process.env.ADMIN_EMAILS || "harry@gigitekai.com,nas@gigitekai.com";
-      const ALLOWED_ADMINS = adminEmailsEnv.split(",").map(e => e.trim().toLowerCase());
+      const ALLOWED_ADMINS = ["harry@gigitekai.com", "nas@gigitekai.com"].map(e => e.toLowerCase());
+      console.log("[Admin Auth Debug]", { verifiedEmail, ALLOWED_ADMINS, isAllowed: ALLOWED_ADMINS.includes(verifiedEmail) });
       if (!ALLOWED_ADMINS.includes(verifiedEmail)) {
+        console.log("[Admin Auth] Access DENIED for:", verifiedEmail, "Allowed:", ALLOWED_ADMINS);
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Access denied. ${verifiedEmail} is not authorized to access this portal.`,
         });
       }
+      console.log("[Admin Auth] Access GRANTED for:", verifiedEmail);
 
       // Find or auto-create the admin account (first-time Azure AD login)
       let admin = await findAdminByEmail(verifiedEmail);
