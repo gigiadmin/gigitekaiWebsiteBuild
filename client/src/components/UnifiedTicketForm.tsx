@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 
@@ -44,7 +43,7 @@ export default function UnifiedTicketForm({
   showPriority = false,
   showCategory = false,
 }: UnifiedTicketFormProps) {
-  const { user } = useAuth();
+
   const [formData, setFormData] = useState<TicketFormData>({
     name: "",
     email: "",
@@ -56,16 +55,9 @@ export default function UnifiedTicketForm({
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-fill from auth context when user is logged in
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name || "",
-        email: user.email || "",
-      }));
-    }
-  }, [user]);
+  // NOTE: Do NOT auto-fill name/email from auth context on public-facing forms.
+  // This prevents logged-in admin data from appearing for clients on shared devices.
+  // The form always starts blank for privacy.
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -105,8 +97,8 @@ export default function UnifiedTicketForm({
       // Reset form after 3 seconds
       setTimeout(() => {
         setFormData({
-          name: user?.name || "",
-          email: user?.email || "",
+          name: "",
+          email: "",
           subject: "",
           category: "General Inquiry",
           priority: "Medium",
@@ -160,6 +152,7 @@ export default function UnifiedTicketForm({
             value={formData.name}
             onChange={handleChange}
             placeholder="Your name"
+            autoComplete="off"
             className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             disabled={isLoading}
           />
@@ -176,6 +169,7 @@ export default function UnifiedTicketForm({
             value={formData.email}
             onChange={handleChange}
             placeholder="your@email.com"
+            autoComplete="off"
             className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             disabled={isLoading}
           />
