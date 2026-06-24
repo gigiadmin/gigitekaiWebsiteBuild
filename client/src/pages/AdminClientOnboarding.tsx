@@ -219,7 +219,7 @@ export default function AdminClientOnboarding() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="font-semibold text-blue-900 mb-2">✨ What Gets Automated:</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>✓ HubSpot company and contact creation</li>
+                  <li>✓ Dynamics 365 account and contact creation</li>
                   <li>✓ Outlook calendar kickoff meeting (2 days from now)</li>
                   <li>✓ Welcome email sent to contact</li>
                   <li>✓ Teams notification to onboarding team</li>
