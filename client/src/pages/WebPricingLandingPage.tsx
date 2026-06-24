@@ -20,7 +20,7 @@ export default function WebPricingLandingPage() {
   });
 
   useEffect(() => {
-    document.title = "3-Page Website + AI Chatbot — $300 | GigitekAI";
+    document.title = "Professional Websites Starting at $2,997 | GigitekAI";
     const updateMetaTag = (name: string, content: string) => {
       let tag = document.querySelector(`meta[name="${name}"]`);
       if (!tag) {
@@ -30,7 +30,7 @@ export default function WebPricingLandingPage() {
       }
       tag.setAttribute("content", content);
     };
-    updateMetaTag("description", "Get a professional 3-page website with AI-powered chatbot for just $300. Hosting, updates, and support included at $100/month. Perfect for small businesses.");
+    updateMetaTag("description", "Professional websites with AI chatbot starting at $2,997 + $149/mo. Custom design, SEO, CRM integration, and dedicated support. Built by GigitekAI.");
     updateMetaTag("keywords", "website design, small business website, AI chatbot, web development, affordable website, GigitekAI");
   }, []);
 
@@ -205,13 +205,13 @@ export default function WebPricingLandingPage() {
           {/* Left: Text */}
           <div className="order-2 md:order-1">
             <div className="inline-block px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-full mb-6">
-              <span className="text-cyan-400 text-sm font-semibold">Limited Time Offer</span>
+              <span className="text-cyan-400 text-sm font-semibold">AI-Powered Web Development</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
               Professional Website Made <span className="text-cyan-400">Simple</span>
             </h1>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Get a stunning 3-page website with AI-powered chatbot for just <span className="text-cyan-400 font-bold">$300</span>. Hosting, updates, and support included at <span className="text-cyan-400 font-bold">$100/month</span>.
+              Custom-built websites with AI chatbot starting at <span className="text-cyan-400 font-bold">$2,997</span> + <span className="text-cyan-400 font-bold">$149/mo</span> for hosting, maintenance, and support.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
@@ -392,18 +392,18 @@ export default function WebPricingLandingPage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500 rounded-full blur-3xl"></div>
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-block bg-red-600/30 border border-red-500/60 rounded-full px-6 py-2 mb-6">
-            <p className="text-red-300 font-bold text-sm">⏰ LIMITED TIME OFFER - ENDS SOON</p>
+          <div className="inline-block bg-cyan-600/30 border border-cyan-500/60 rounded-full px-6 py-2 mb-6">
+            <p className="text-cyan-300 font-bold text-sm">🚀 READY TO TRANSFORM YOUR BUSINESS?</p>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">Get Your Website for Just <span className="text-cyan-400">$300</span></h2>
-          <p className="text-2xl text-gray-200 mb-2">+ <span className="text-cyan-400 font-bold">$100/month</span> for hosting & maintenance</p>
-          <p className="text-lg text-gray-300 mb-8">Perfect 3-page website with AI chatbot, SEO, and 24/7 support</p>
+          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">Your Website, <span className="text-cyan-400">Built Right</span></h2>
+          <p className="text-2xl text-gray-200 mb-2">Starting at <span className="text-cyan-400 font-bold">$2,997</span> + <span className="text-cyan-400 font-bold">$149/mo</span></p>
+          <p className="text-lg text-gray-300 mb-8">Custom design, AI chatbot, SEO, CRM integration, and dedicated support</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => setDiscoveryFormOpen(true)}
               className="px-10 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold text-lg rounded-lg transition transform hover:scale-105 shadow-lg shadow-red-500/50"
             >
-              🚀 Claim Your Website Now
+              🚀 Get Started Today
             </button>
             <button
               onClick={() => scrollToSection("pricing")}
@@ -431,10 +431,10 @@ export default function WebPricingLandingPage() {
             <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
               <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Starter</p>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-cyan-400">$199</span>
-                <span className="text-gray-400 text-lg">/mo</span>
+                <span className="text-4xl font-bold text-cyan-400">$2,997</span>
+                <span className="text-gray-400 text-sm"> one-time</span>
               </div>
-              <p className="text-sm text-gray-400 mb-6">$499 one-time setup</p>
+              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $149/mo maintenance</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -445,20 +445,36 @@ export default function WebPricingLandingPage() {
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Up to 3 pages</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">5–8 custom pages</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Mobile responsive</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Mobile responsive design</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Basic AI chatbot</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Basic AI Chatbot</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Hosting & SSL included</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">SSL Certificate & Security</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Contact forms + Google Maps</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Basic SEO setup</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">2 rounds of revisions</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Monthly maintenance (up to 2 hrs)</span>
                 </li>
               </ul>
             </div>
@@ -469,10 +485,10 @@ export default function WebPricingLandingPage() {
               <div className="bg-[#131B2E] border-2 border-cyan-500/60 rounded-xl p-8 hover:border-cyan-400/80 transition shadow-lg shadow-cyan-500/10">
                 <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Growth</p>
                 <div className="mb-2">
-                  <span className="text-5xl font-bold text-cyan-400">$399</span>
-                  <span className="text-gray-400 text-lg">/mo</span>
+                  <span className="text-4xl font-bold text-cyan-400">$6,997</span>
+                  <span className="text-gray-400 text-sm"> one-time</span>
                 </div>
-                <p className="text-sm text-gray-400 mb-6">$999 one-time setup</p>
+                <p className="text-sm text-cyan-300 font-semibold mb-6">+ $249/mo maintenance</p>
 
                 <button
                   onClick={() => setDiscoveryFormOpen(true)}
@@ -483,20 +499,40 @@ export default function WebPricingLandingPage() {
 
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">+</span>
-                    <span className="text-gray-300">Up to 7 pages</span>
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">12–20 custom pages</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">+</span>
-                    <span className="text-gray-300">Advanced AI chatbot</span>
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Advanced AI Chatbot with business knowledge</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">+</span>
-                    <span className="text-gray-300">Blog / content section</span>
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">CRM Integration (HubSpot, Salesforce)</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">+</span>
-                    <span className="text-gray-300">Monthly performance report</span>
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Analytics Dashboard</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Blog/News section ready</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Advanced SEO optimization</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Social media integration</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Priority support & faster turnaround</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-cyan-400">✓</span>
+                    <span className="text-gray-300">Monthly maintenance (up to 5 hrs)</span>
                   </li>
                 </ul>
               </div>
@@ -506,10 +542,10 @@ export default function WebPricingLandingPage() {
             <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
               <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Pro</p>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-cyan-400">$799</span>
-                <span className="text-gray-400 text-lg">/mo</span>
+                <span className="text-4xl font-bold text-cyan-400">$12,997</span>
+                <span className="text-gray-400 text-sm"> one-time</span>
               </div>
-              <p className="text-sm text-gray-400 mb-6">$1,999 one-time setup</p>
+              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $399/mo maintenance</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -520,20 +556,40 @@ export default function WebPricingLandingPage() {
 
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
+                  <span className="text-cyan-400">✓</span>
                   <span className="text-gray-300">Unlimited pages</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">E-commerce ready</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Full AI Suite (chatbot + automation)</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Custom integrations</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Custom integrations & API connections</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">+</span>
-                  <span className="text-gray-300">Priority support</span>
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Advanced Analytics + Reporting</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Dedicated Account Manager</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Ongoing SEO & Performance Optimization</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">E-commerce capability (if needed)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Monthly maintenance (up to 10 hrs)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-cyan-400">✓</span>
+                  <span className="text-gray-300">Priority updates & emergency support</span>
                 </li>
               </ul>
             </div>
@@ -548,7 +604,7 @@ export default function WebPricingLandingPage() {
                 onClick={() => setDiscoveryFormOpen(true)}
                 className="px-10 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold text-lg rounded-lg transition transform hover:scale-105 shadow-lg shadow-red-500/50"
               >
-                🚀 Start Your $300 Website
+                🚀 Start Your Project
               </button>
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -562,7 +618,7 @@ export default function WebPricingLandingPage() {
               <div>✓ <span className="text-cyan-300">No Setup Fees</span> Ever</div>
               <div>✓ <span className="text-cyan-300">Cancel Anytime</span> (Monthly)</div>
             </div>
-            <p className="text-xs text-gray-300 mt-6">⏰ <span className="text-red-400 font-bold">Limited spots available</span> - Only 5 websites at $300 this month</p>
+            <p className="text-xs text-gray-300 mt-6">✓ <span className="text-cyan-300">Custom built</span> • ✓ <span className="text-cyan-300">AI-powered</span> • ✓ <span className="text-cyan-300">Ongoing support</span></p>
           </div>
         </div>
       </section>

@@ -1799,3 +1799,5 @@
   - [x] All tier names standardized: Essential Security, Professional Compliance, Elite + Governed AI, Enterprise Custom
   - [x] Verified consistency across homepage, pricing page, FAQ, and AI chat
   - [x] Build status: No TypeScript errors, dev server running
+
+- [x] Update website pricing page: Starter $2,997 + $149/mo, Growth $6,997 + $249/mo (Most Popular), Pro $12,997 + $399/mo with full feature lists
