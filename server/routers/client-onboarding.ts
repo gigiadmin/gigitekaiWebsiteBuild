@@ -24,6 +24,105 @@ const ClientOnboardingInput = z.object({
 });
 
 // ============================================================================
+// DYNAMICS 365 INTEGRATION
+// ============================================================================
+
+async function getDynamics365AccessToken(): Promise<string> {
+  try {
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", process.env.D365_CLIENT_ID || "");
+    params.append("client_secret", process.env.D365_CLIENT_SECRET || "");
+    params.append("resource", process.env.D365_ORG_URL || "");
+
+    const response = await axios.post(
+      `https://login.microsoftonline.com/${process.env.D365_TENANT_ID}/oauth2/token`,
+      params,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data.access_token;
+  } catch (error: any) {
+    console.error("Error getting D365 access token:", error?.response?.data || error?.message);
+    throw new Error("Failed to authenticate with Dynamics 365");
+  }
+}
+
+async function createDynamics365Account(input: {
+  companyName: string;
+  companyEmail: string;
+  contactFirstName: string;
+  contactLastName: string;
+  contactEmail: string;
+  contactPhone: string;
+  serviceType: string;
+  annualValue: number;
+  accessToken: string;
+}): Promise<string | null> {
+  try {
+    if (!process.env.D365_ORG_URL) {
+      console.warn("D365_ORG_URL not configured — skipping D365 account creation");
+      return null;
+    }
+
+    // Create account in D365
+    const accountResponse = await axios.post(
+      `${process.env.D365_ORG_URL}/api/data/v9.2/accounts`,
+      {
+        name: input.companyName,
+        websiteurl: `https://${input.companyEmail}`,
+        telephone1: input.contactPhone,
+        "ownerid@odata.bind": "/systemusers(00000000-0000-0000-0000-000000000001)", // Default owner
+        description: `Service Type: ${input.serviceType}. Annual Value: $${input.annualValue}`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${input.accessToken}`,
+          "Content-Type": "application/json",
+          "OData-MaxVersion": "4.0",
+          "OData-Version": "4.0",
+        },
+      }
+    );
+
+    const accountId = accountResponse.headers["odata-entityid"]?.split("(")[1]?.split(")")[0];
+    console.log("D365 Account created:", accountId);
+
+    // Create contact in D365
+    if (accountId) {
+      await axios.post(
+        `${process.env.D365_ORG_URL}/api/data/v9.2/contacts`,
+        {
+          firstname: input.contactFirstName,
+          lastname: input.contactLastName,
+          emailaddress1: input.contactEmail,
+          telephone1: input.contactPhone,
+          "parentcustomerid_account@odata.bind": `/accounts(${accountId})`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${input.accessToken}`,
+            "Content-Type": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+          },
+        }
+      );
+      console.log("D365 Contact created for account:", accountId);
+    }
+
+    return accountId || null;
+  } catch (error: any) {
+    console.error("Error creating D365 account:", error?.response?.data || error?.message);
+    return null; // Non-blocking — don't throw
+  }
+}
+
+// ============================================================================
 // LOCAL DATABASE HELPERS
 // ============================================================================
 
@@ -414,7 +513,24 @@ export const clientOnboardingRouter = router({
           await addTimelineEvent(clientId, "email_failed", `Welcome email failed: ${emailErr?.message}`);
         }
 
-        // Step 5: Send Teams notification (non-blocking)
+        // Step 5: Create Dynamics 365 account (non-blocking)
+        let d365AccountId: string | null = null;
+        try {
+          const d365Token = await getDynamics365AccessToken();
+          d365AccountId = await createDynamics365Account({
+            ...input,
+            accessToken: d365Token,
+          });
+          if (d365AccountId) {
+            console.log("D365 account created:", d365AccountId);
+            await addTimelineEvent(clientId, "d365_account_created", `Dynamics 365 account created: ${d365AccountId}`, { d365AccountId });
+          }
+        } catch (d365Err: any) {
+          console.error("D365 account creation failed (non-blocking):", d365Err?.message);
+          await addTimelineEvent(clientId, "d365_failed", `D365 account creation failed: ${d365Err?.message}`);
+        }
+
+        // Step 6: Send Teams notification (non-blocking)
         try {
           await sendTeamsNotification({
             companyName: input.companyName,
@@ -429,7 +545,7 @@ export const clientOnboardingRouter = router({
           console.error("Teams notification failed (non-blocking):", teamsErr?.message);
         }
 
-        // Step 6: Notify owner in Manus (non-blocking)
+        // Step 7: Notify owner in Manus (non-blocking)
         try {
           await notifyOwner({
             title: `New Client Onboarding: ${input.companyName}`,
@@ -513,4 +629,60 @@ export const clientOnboardingRouter = router({
 
       return { success: true };
     }),
+
+  // Get new clients from last 30 days (for dashboard)
+  getNewClientsLast30Days: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().slice(0, 19).replace("T", " ");
+
+    const newClients = await db
+      .select()
+      .from(clients)
+      .orderBy(desc(clients.createdAt))
+      .limit(100);
+
+    // Filter in memory for simplicity
+    return newClients.filter(c => c.createdAt >= thirtyDaysAgoStr);
+  }),
+
+  // Get onboarding dashboard data (real-time)
+  getOnboardingDashboard: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().slice(0, 19).replace("T", " ");
+
+    // Get all new clients from last 30 days
+    const allClients = await db
+      .select()
+      .from(clients)
+      .orderBy(desc(clients.createdAt))
+      .limit(100);
+
+    const newClients = allClients.filter(c => c.createdAt >= thirtyDaysAgoStr);
+
+    // Enrich with timeline data
+    const clientsWithTimeline = await Promise.all(
+      newClients.map(async (client) => {
+        const timeline = await db
+          .select()
+          .from(clientTimeline)
+          .where(eq(clientTimeline.clientId, client.id))
+          .orderBy(desc(clientTimeline.createdAt));
+        return { ...client, timeline };
+      })
+    );
+
+    return {
+      totalNewClients: newClients.length,
+      clients: clientsWithTimeline,
+      lastUpdated: new Date().toISOString(),
+    };
+  }),
 });
