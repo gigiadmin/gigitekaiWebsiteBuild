@@ -1,10 +1,11 @@
-import { useState } from "react";
+/**
+ * ARIA Command Intelligence — Master AI Operations Brain
+ * Premium redesign with live stats, suggested queries, and full-width chat
+ */
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Send, Trash2, Download } from "lucide-react";
+import { Loader2, Send, Trash2, Download, Zap, Activity, Ticket, BookOpen, Users, Phone, Globe, FileText, ChevronRight, Bot, User, RefreshCw } from "lucide-react";
 import { Streamdown } from "@/components/GigitekMarkdown";
 
 interface Message {
@@ -13,33 +14,66 @@ interface Message {
   content: string;
   model?: string;
   timestamp: Date;
+  stats?: Record<string, any>;
 }
+
+const SUGGESTED_QUERIES = [
+  { icon: "🎫", label: "Open tickets", query: "How many open tickets do we have right now? Show me a breakdown by priority." },
+  { icon: "📊", label: "System status", query: "Give me a full system status report including website uptime and ticket summary." },
+  { icon: "📬", label: "New leads", query: "How many new leads and contact submissions came in this week?" },
+  { icon: "🔴", label: "Critical issues", query: "Show me all critical and high priority open tickets." },
+  { icon: "📚", label: "KB articles", query: "How many knowledge base articles do we have? What are the most recent ones?" },
+  { icon: "📈", label: "Resolution rate", query: "What is our current ticket resolution rate and overall helpdesk performance?" },
+  { icon: "🏢", label: "Client list", query: "Show me our current client roster and their service tiers." },
+  { icon: "📞", label: "Call logs", query: "How many calls have we handled in the last 30 days?" },
+];
+
+const SCOPE_OPTIONS = [
+  { key: "tickets", label: "Tickets", icon: Ticket, color: "text-cyan-400" },
+  { key: "kb", label: "Knowledge Base", icon: BookOpen, color: "text-blue-400" },
+  { key: "leads", label: "Leads", icon: Users, color: "text-green-400" },
+  { key: "system", label: "Uptime", icon: Globe, color: "text-yellow-400" },
+  { key: "customers", label: "Clients", icon: Users, color: "text-purple-400" },
+  { key: "calls", label: "Calls", icon: Phone, color: "text-orange-400" },
+  { key: "blog", label: "Blog", icon: FileText, color: "text-pink-400" },
+];
 
 export default function AdminSearchChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [query, setQuery] = useState("");
-  const [selectedModel, setSelectedModel] = useState<"claude" | "manus" | "gemini">("manus");
+  const [selectedModel, setSelectedModel] = useState<"claude" | "manus" | "gemini">("claude");
   const [scope, setScope] = useState({
     kb: true,
     tickets: true,
-    system: false,
+    system: true,
     docs: false,
-    customers: false,
+    customers: true,
+    leads: true,
+    calls: false,
+    blog: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const searchMutation = trpc.adminSearch.search.useMutation();
   const modelsQuery = trpc.adminSearch.getModels.useQuery();
-  const scopesQuery = trpc.adminSearch.getScopes.useQuery();
+  const quickStatsQuery = trpc.adminSearch.getQuickStats.useQuery(undefined, {
+    refetchInterval: 60000, // refresh every minute
+  });
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    // Add user message
+  const handleSearch = async (overrideQuery?: string) => {
+    const q = overrideQuery ?? query;
+    if (!q.trim()) return;
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: query,
+      content: q,
       timestamp: new Date(),
     };
 
@@ -49,7 +83,7 @@ export default function AdminSearchChat() {
 
     try {
       const result = await searchMutation.mutateAsync({
-        query,
+        query: q,
         model: selectedModel,
         scope,
       });
@@ -57,9 +91,10 @@ export default function AdminSearchChat() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: typeof result.answer === 'string' ? result.answer : JSON.stringify(result.answer),
+        content: typeof result.answer === "string" ? result.answer : JSON.stringify(result.answer),
         model: selectedModel,
         timestamp: new Date(),
+        stats: result.stats,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -67,199 +102,286 @@ export default function AdminSearchChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `Error: ${error instanceof Error ? error.message : "Search failed"}`,
+        content: `⚠️ **Error:** ${error instanceof Error ? error.message : "Request failed. Please try again."}`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      inputRef.current?.focus();
     }
   };
 
-  const handleClearChat = () => {
-    setMessages([]);
-  };
+  const handleClearChat = () => setMessages([]);
 
   const handleSaveChat = () => {
-    const chatContent = messages
-      .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
-      .join("\n\n");
-
+    const chatContent = messages.map((m) => `[${m.timestamp.toLocaleString()}] ${m.role.toUpperCase()}: ${m.content}`).join("\n\n---\n\n");
     const element = document.createElement("a");
     element.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(chatContent)}`);
-    element.setAttribute("download", `admin-search-${new Date().toISOString()}.txt`);
+    element.setAttribute("download", `aria-session-${new Date().toISOString().split("T")[0]}.txt`);
     element.style.display = "none";
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
   };
 
+  const stats = quickStatsQuery.data;
+
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Admin Search Chat</h1>
-          <p className="text-muted-foreground">
-            Search across KB, tickets, system data, and more using AI
-          </p>
+    <div className="min-h-screen bg-[#080c14] text-white flex flex-col">
+      {/* ── Header ── */}
+      <div className="border-b border-white/10 bg-[#0a0f1e]/80 backdrop-blur-sm px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">ARIA Command Intelligence</h1>
+              <p className="text-xs text-cyan-400/80">Master AI Operations Brain · Live Data Access</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs text-green-400 font-medium">Live</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => quickStatsQuery.refetch()} className="text-white/50 hover:text-white">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Controls Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="p-4 space-y-4">
-              {/* Model Selection */}
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  AI Model
-                </label>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value as any)}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
-                >
-                  {modelsQuery.data?.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
-                {modelsQuery.data && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {modelsQuery.data.find((m) => m.id === selectedModel)?.description}
-                  </p>
-                )}
+      {/* ── Live Stats Bar ── */}
+      {stats && (
+        <div className="border-b border-white/5 bg-[#0d1220]/60 px-6 py-3">
+          <div className="max-w-7xl mx-auto grid grid-cols-4 lg:grid-cols-7 gap-3">
+            {[
+              { label: "Open Tickets", value: stats.openTickets, color: "text-cyan-400", icon: "🎫" },
+              { label: "Critical", value: stats.criticalTickets, color: "text-red-400", icon: "🔴" },
+              { label: "Total Tickets", value: stats.totalTickets, color: "text-blue-400", icon: "📋" },
+              { label: "Resolution Rate", value: `${stats.resolutionRate}%`, color: "text-green-400", icon: "✅" },
+              { label: "KB Articles", value: stats.kbArticles, color: "text-purple-400", icon: "📚" },
+              { label: "New Leads (7d)", value: stats.newLeads, color: "text-yellow-400", icon: "📬" },
+              { label: "Resolved", value: stats.resolvedTickets, color: "text-emerald-400", icon: "🏆" },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center justify-center bg-white/5 rounded-lg px-3 py-2 border border-white/5">
+                <span className="text-xs text-white/40 mb-0.5">{stat.label}</span>
+                <span className={`text-lg font-bold ${stat.color}`}>{stat.value}</span>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              {/* Search Scope */}
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  Search Scope
-                </label>
-                <div className="space-y-2">
-                  {scopesQuery.data &&
-                    Object.entries(scopesQuery.data).map(([key, value]) => (
-                      <label key={key} className="flex items-center space-x-2 cursor-pointer">
-                        <Checkbox
-                          checked={scope[key as keyof typeof scope]}
-                          onCheckedChange={(checked) =>
-                            setScope((prev) => ({
-                              ...prev,
-                              [key]: checked,
-                            }))
-                          }
-                          disabled={!value.enabled}
-                        />
-                        <span className="text-sm text-foreground">{value.label}</span>
-                      </label>
-                    ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="space-y-2 pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSaveChat}
-                  disabled={messages.length === 0}
-                  className="w-full justify-start"
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex max-w-7xl mx-auto w-full px-6 py-4 gap-4" style={{ minHeight: 0 }}>
+        {/* ── Left Sidebar ── */}
+        <div className="w-64 flex-shrink-0 flex flex-col gap-4">
+          {/* Model Selection */}
+          <div className="bg-[#0d1220] border border-white/10 rounded-xl p-4">
+            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 block">AI Model</label>
+            <div className="space-y-1.5">
+              {(modelsQuery.data ?? [{ id: "claude", name: "Claude" }, { id: "manus", name: "Manus LLM" }, { id: "gemini", name: "Gemini" }]).map((model: any) => (
+                <button
+                  key={model.id}
+                  onClick={() => setSelectedModel(model.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                    selectedModel === model.id
+                      ? "bg-cyan-500/20 border border-cyan-500/40 text-cyan-300"
+                      : "text-white/60 hover:bg-white/5 border border-transparent"
+                  }`}
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Save Chat
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearChat}
-                  disabled={messages.length === 0}
-                  className="w-full justify-start"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Clear Chat
-                </Button>
-              </div>
-            </Card>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${selectedModel === model.id ? "bg-cyan-400" : "bg-white/20"}`} />
+                    {model.name}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Chat Area */}
-          <div className="lg:col-span-3">
-            <Card className="h-[600px] flex flex-col">
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-center">
-                    <div>
-                      <p className="text-muted-foreground mb-2">No messages yet</p>
-                      <p className="text-sm text-muted-foreground">
-                        Start by asking a question about your KB, tickets, or system
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+          {/* Data Scope */}
+          <div className="bg-[#0d1220] border border-white/10 rounded-xl p-4">
+            <label className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 block">Data Scope</label>
+            <div className="space-y-1.5">
+              {SCOPE_OPTIONS.map(({ key, label, icon: Icon, color }) => (
+                <button
+                  key={key}
+                  onClick={() => setScope((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
+                    scope[key as keyof typeof scope]
+                      ? "bg-white/8 border border-white/15 text-white"
+                      : "text-white/30 border border-transparent hover:bg-white/5"
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${scope[key as keyof typeof scope] ? color : "text-white/20"}`} />
+                  {label}
+                  {scope[key as keyof typeof scope] && (
+                    <div className={`ml-auto w-1.5 h-1.5 rounded-full ${color.replace("text-", "bg-")}`} />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="bg-[#0d1220] border border-white/10 rounded-xl p-4 space-y-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSaveChat}
+              disabled={messages.length === 0}
+              className="w-full justify-start text-white/50 hover:text-white hover:bg-white/5 text-xs"
+            >
+              <Download className="w-3.5 h-3.5 mr-2" />
+              Export Session
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearChat}
+              disabled={messages.length === 0}
+              className="w-full justify-start text-white/50 hover:text-red-400 hover:bg-red-500/5 text-xs"
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-2" />
+              Clear Chat
+            </Button>
+          </div>
+        </div>
+
+        {/* ── Chat Area ── */}
+        <div className="flex-1 flex flex-col min-h-0 bg-[#0d1220] border border-white/10 rounded-xl overflow-hidden">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            {messages.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center">
+                {/* Welcome state */}
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/20 flex items-center justify-center mb-4">
+                  <Bot className="w-8 h-8 text-cyan-400" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-1">ARIA is ready</h2>
+                <p className="text-white/40 text-sm mb-8 text-center max-w-sm">
+                  Ask anything about your helpdesk, clients, leads, uptime, or knowledge base. I have live access to all your systems.
+                </p>
+                {/* Suggested queries */}
+                <div className="grid grid-cols-2 gap-2 w-full max-w-2xl">
+                  {SUGGESTED_QUERIES.map((sq) => (
+                    <button
+                      key={sq.label}
+                      onClick={() => handleSearch(sq.query)}
+                      className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/30 transition-all text-left group"
                     >
-                      <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-foreground"
-                        }`}
-                      >
-                        {message.role === "assistant" ? (
+                      <span className="text-lg">{sq.icon}</span>
+                      <span className="text-sm text-white/70 group-hover:text-white transition-colors">{sq.label}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-white/20 ml-auto group-hover:text-cyan-400 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {message.role === "assistant" && (
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-cyan-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Bot className="w-4 h-4 text-cyan-400" />
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+                        message.role === "user"
+                          ? "bg-cyan-500/20 border border-cyan-500/30 text-white rounded-tr-sm"
+                          : "bg-white/5 border border-white/10 text-white/90 rounded-tl-sm"
+                      }`}
+                    >
+                      {message.role === "assistant" ? (
+                        <div className="prose prose-invert prose-sm max-w-none">
                           <Streamdown>{message.content}</Streamdown>
-                        ) : (
-                          <p className="text-sm">{message.content}</p>
-                        )}
+                        </div>
+                      ) : (
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
+                        <span className="text-xs text-white/25">
+                          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </span>
                         {message.model && (
-                          <p className="text-xs opacity-70 mt-1">via {message.model}</p>
+                          <span className="text-xs text-cyan-400/50 ml-auto">via {message.model}</span>
                         )}
                       </div>
                     </div>
-                  ))
-                )}
+                    {message.role === "user" && (
+                      <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <User className="w-4 h-4 text-white/60" />
+                      </div>
+                    )}
+                  </div>
+                ))}
                 {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted text-foreground px-4 py-2 rounded-lg">
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                  <div className="flex gap-3 justify-start">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
+                        <span className="text-sm text-white/40">Querying live systems...</span>
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
 
-              {/* Input */}
-              <div className="border-t border-border p-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ask a question..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter" && !isLoading) {
-                        handleSearch();
-                      }
-                    }}
+          {/* Input Bar */}
+          <div className="border-t border-white/10 p-4 bg-[#080c14]/50">
+            {/* Quick suggestions (when chat is active) */}
+            {messages.length > 0 && (
+              <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+                {SUGGESTED_QUERIES.slice(0, 4).map((sq) => (
+                  <button
+                    key={sq.label}
+                    onClick={() => handleSearch(sq.query)}
                     disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button
-                    onClick={handleSearch}
-                    disabled={isLoading || !query.trim()}
-                    size="icon"
+                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/30 transition-all text-xs text-white/50 hover:text-white"
                   >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
+                    <span>{sq.icon}</span>
+                    {sq.label}
+                  </button>
+                ))}
               </div>
-            </Card>
+            )}
+            <div className="flex gap-2">
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Ask ARIA anything — tickets, uptime, clients, leads..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !isLoading) {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                disabled={isLoading}
+                className="flex-1 bg-white/5 border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-cyan-500/50 focus:bg-white/8 transition-all"
+              />
+              <Button
+                onClick={() => handleSearch()}
+                disabled={isLoading || !query.trim()}
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border-0 rounded-xl px-4 shadow-lg shadow-cyan-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
