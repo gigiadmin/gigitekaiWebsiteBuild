@@ -168,84 +168,101 @@ export const helpdeskRouter = router({
 
         if (!ticket) throw new Error("Failed to create ticket");
 
-      // Send confirmation email
-      if (ctx.user?.email) {
-        try {
-          const emailContent = buildTicketConfirmationEmail({
-            firstName: ctx.user.name || "Customer",
-            ticketNumber: ticket.id,
-            ticketTitle: ticket.title,
-            category: formatCategory(ticket.category),
-            priority: getPriorityDetails(ticket.priority).label,
-            channel: formatChannel(ticket.source),
-            receivedAt: formatReceivedAt(ticket.createdAt),
-            slaWindow: getPriorityDetails(ticket.priority).sla,
-            ticketUrl: `${process.env.VITE_APP_URL || ""}/helpdesk/ticket/${ticket.id}`,
+        // Return success immediately - all other operations are async/fire-and-forget
+        // This prevents user-facing errors from async operations that happen after ticket creation
+        const response = { success: true, ...ticket };
+
+        // ── Send confirmation email (async, non-blocking) ──────────────────────
+        if (ctx.user?.email) {
+          setImmediate(async () => {
+            try {
+              const emailContent = buildTicketConfirmationEmail({
+                firstName: ctx.user.name || "Customer",
+                ticketNumber: ticket.id,
+                ticketTitle: ticket.title,
+                category: formatCategory(ticket.category),
+                priority: getPriorityDetails(ticket.priority).label,
+                channel: formatChannel(ticket.source),
+                receivedAt: formatReceivedAt(ticket.createdAt),
+                slaWindow: getPriorityDetails(ticket.priority).sla,
+                ticketUrl: `${process.env.VITE_APP_URL || ""}/helpdesk/ticket/${ticket.id}`,
+              });
+              if (ctx.user.email) {
+                await sendEmail({
+                  to: ctx.user.email,
+                  subject: `Ticket Created: #${ticket.id}`,
+                  html: emailContent,
+                });
+              }
+            } catch (e) {
+              console.error("[Helpdesk] Failed to send confirmation email:", e);
+            }
           });
-          await sendEmail({
-            to: ctx.user.email,
-            subject: `Ticket Created: #${ticket.id}`,
-            html: emailContent,
-          });
-        } catch (e) {
-          console.error("[Helpdesk] Failed to send confirmation email:", e);
         }
-      }
 
-
-      // ── GigitekAI Ticket Classification Agent (Phase 1, 2 & 3) ──────────────
-      // Runs async so it never blocks ticket creation response
-      setImmediate(async () => {
-        try {
-          const classification = await classifyTicket(
-            ticket.title,
-            ticket.description,
-            ticket.stepsAttempted ?? undefined
-          );
-          await saveClassificationToTicket(ticket.id, classification);
-          await sendClassificationEmail(ticket.id, ticket.title, classification);
-          console.log(`[Helpdesk] Ticket #${ticket.id} classified as "${classification.category}" (${classification.confidence}% confidence)`);
-          
-          // ── Phase 3: Auto-Routing by AI Category ──────────────────────────────
-          // Automatically assign ticket to appropriate team based on AI category
-          const assignedAgentId = await autoAssignTicket(ticket.id, classification.category);
-          if (assignedAgentId) {
-            console.log(`[Helpdesk] Ticket #${ticket.id} auto-assigned to agent ${assignedAgentId}`);
+        // ── GigitekAI Ticket Classification Agent (Phase 1, 2 & 3) ──────────────
+        // Runs async so it never blocks ticket creation response
+        setImmediate(async () => {
+          try {
+            const classification = await classifyTicket(
+              ticket.title,
+              ticket.description,
+              ticket.stepsAttempted ?? undefined
+            );
+            await saveClassificationToTicket(ticket.id, classification);
+            await sendClassificationEmail(ticket.id, ticket.title, classification);
+            console.log(`[Helpdesk] Ticket #${ticket.id} classified as "${classification.category}" (${classification.confidence}% confidence)`);
+            
+            // ── Phase 3: Auto-Routing by AI Category ──────────────────────────────
+            // Automatically assign ticket to appropriate team based on AI category
+            const assignedAgentId = await autoAssignTicket(ticket.id, classification.category);
+            if (assignedAgentId) {
+              console.log(`[Helpdesk] Ticket #${ticket.id} auto-assigned to agent ${assignedAgentId}`);
+            }
+          } catch (e) {
+            console.error("[Helpdesk] Classification agent error:", e);
           }
-        } catch (e) {
-          console.error("[Helpdesk] Classification agent error:", e);
-        }
-      });
-      // Send Teams notification
-      try {
-        await sendTicketNotificationToTeams(ticket);
-      } catch (e) {
-        console.error("[Helpdesk] Failed to send Teams notification:", e);
-      }
+        });
 
-      // Notify owner
-      await notifyOwner({
-        title: "New Ticket Created",
-        content: `Ticket #${ticket.id}: ${ticket.title}`,
-      });
+        // ── Send Teams notification (async, non-blocking) ──────────────────────
+        setImmediate(async () => {
+          try {
+            await sendTicketNotificationToTeams(ticket);
+          } catch (e) {
+            console.error("[Helpdesk] Failed to send Teams notification:", e);
+          }
+        });
 
-      // Send push notification to owner about new ticket
-      try {
-        const ownerId = Number(process.env.OWNER_OPEN_ID);
-        if (ownerId) {
-          // This will be handled by the webPush router
-          // In production, call: await trpc.webPush.sendToUser.mutate(...)
-          console.log(`[Helpdesk] New ticket #${ticket.id} created - push notification queued for owner`);
-        }
-      } catch (e) {
-        console.error("[Helpdesk] Failed to queue push notification:", e);
-      }
+        // ── Notify owner (async, non-blocking) ──────────────────────────────────
+        setImmediate(async () => {
+          try {
+            await notifyOwner({
+              title: "New Ticket Created",
+              content: `Ticket #${ticket.id}: ${ticket.title}`,
+            });
+          } catch (e) {
+            console.error("[Helpdesk] Failed to notify owner:", e);
+          }
+        });
 
-        return { success: true, ...ticket };
+        // ── Send push notification to owner (async, non-blocking) ────────────────
+        setImmediate(async () => {
+          try {
+            const ownerId = Number(process.env.OWNER_OPEN_ID);
+            if (ownerId) {
+              console.log(`[Helpdesk] New ticket #${ticket.id} created - push notification queued for owner`);
+            }
+          } catch (e) {
+            console.error("[Helpdesk] Failed to queue push notification:", e);
+          }
+        });
+
+        return response;
       } catch (error) {
         console.error(`[Helpdesk] Ticket creation error for user ${ctx.user.email}:`, error);
         throw new Error(`Failed to create ticket: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
+      
     }),
 
   getTicketsByUserId: protectedProcedure
