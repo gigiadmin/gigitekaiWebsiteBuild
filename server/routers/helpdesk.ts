@@ -1,4 +1,4 @@
-import { approvedProcedure, adminProcedure, router } from "../_core/trpc";
+import { approvedProcedure, adminProcedure, router, protectedProcedure } from "../_core/trpc";
 import { createTicket, getTicketsByUserId, getTicketById, updateTicketStatus, addTicketReply, getTicketReplies, getAllTickets, getAllTicketFeedback, getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
@@ -101,7 +101,7 @@ async function autoAssignTicket(
 }
 
 export const helpdeskRouter = router({
-  createTicket: approvedProcedure
+  createTicket: protectedProcedure
     .input(
       z.object({
         title: z.string().min(5, "Title must be at least 5 characters"),
@@ -113,29 +113,60 @@ export const helpdeskRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Resolve userId - admin users may not exist in users table, fall back to system user (1)
+      // Resolve userId - admin users may not exist in users table, so we create/upsert them
       const db = await getDb();
       let resolvedUserId = ctx.user.id;
-      if (db) {
+      
+      if (db && ctx.user.loginMethod === "admin") {
+        // For admin users, try to find existing user or create one
+        const userExists = await db.select({ id: users.id }).from(users).where(eq(users.email, ctx.user.email || "")).limit(1);
+        if (userExists.length > 0) {
+          resolvedUserId = userExists[0].id;
+        } else if (ctx.user.email) {
+          // Create a new user record for this admin
+          try {
+            const result = await db.insert(users).values({
+              openId: ctx.user.openId || `admin-${ctx.user.id}`,
+              email: ctx.user.email,
+              name: ctx.user.name || null,
+              role: ctx.user.role || "user",
+              approved: 1,
+              loginMethod: "admin",
+              lastSignedIn: new Date().toISOString(),
+            });
+            const insertedId = (result as any).insertId;
+            if (insertedId) {
+              resolvedUserId = insertedId;
+              console.log(`[Helpdesk] Created user record for admin ${ctx.user.email} with ID ${insertedId}`);
+            }
+          } catch (e) {
+            console.error(`[Helpdesk] Failed to create user record for admin:`, e);
+            // Fall back to using the admin ID as-is
+            resolvedUserId = ctx.user.id;
+          }
+        }
+      } else if (db) {
+        // For OAuth users, verify they exist in users table
         const userExists = await db.select({ id: users.id }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
         if (!userExists.length) {
-          // Admin user not in users table - use system user ID 1
-          resolvedUserId = 1;
+          // User not found - this shouldn't happen for OAuth users, but handle gracefully
+          console.warn(`[Helpdesk] OAuth user ${ctx.user.email} not found in database`);
         }
       }
-      const ticket = await createTicket({
-        title: input.title,
-        description: input.description,
-        stepsAttempted: input.stepsAttempted,
-        category: input.category,
-        priority: input.priority,
-        source: input.channel,
-        userId: resolvedUserId,
-        requesterName: ctx.user.name || undefined,
-        requesterEmail: ctx.user.email || undefined,
-      });
+      try {
+        const ticket = await createTicket({
+          title: input.title,
+          description: input.description,
+          stepsAttempted: input.stepsAttempted,
+          category: input.category,
+          priority: input.priority,
+          source: input.channel,
+          userId: resolvedUserId,
+          requesterName: ctx.user.name || undefined,
+          requesterEmail: ctx.user.email || undefined,
+        });
 
-      if (!ticket) throw new Error("Failed to create ticket");
+        if (!ticket) throw new Error("Failed to create ticket");
 
       // Send confirmation email
       if (ctx.user?.email) {
@@ -210,27 +241,31 @@ export const helpdeskRouter = router({
         console.error("[Helpdesk] Failed to queue push notification:", e);
       }
 
-      return { success: true, ...ticket };
+        return { success: true, ...ticket };
+      } catch (error) {
+        console.error(`[Helpdesk] Ticket creation error for user ${ctx.user.email}:`, error);
+        throw new Error(`Failed to create ticket: ${error instanceof Error ? error.message : "Unknown error"}`);
+      }
     }),
 
-  getTicketsByUserId: approvedProcedure
+  getTicketsByUserId: protectedProcedure
     .input(z.object({ userId: z.number() }))
     .query(async ({ input }) => {
       return await getTicketsByUserId(input.userId);
     }),
 
-  getMyTickets: approvedProcedure
+  getMyTickets: protectedProcedure
     .query(async ({ ctx }) => {
       return await getTicketsByUserId(ctx.user.id);
     }),
 
-  getTicketById: approvedProcedure
+  getTicketById: protectedProcedure
     .input(z.object({ ticketId: z.number() }))
     .query(async ({ input }) => {
       return await getTicketById(input.ticketId);
     }),
 
-  getTicket: approvedProcedure
+  getTicket: protectedProcedure
     .input(z.object({ ticketId: z.number() }))
     .query(async ({ input }) => {
       const ticket = await getTicketById(input.ticketId);
