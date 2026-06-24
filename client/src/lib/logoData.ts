@@ -1,7 +1,10 @@
 /**
- * Logo Data — served from S3 CDN
+ * Logo Data — served from client/public as a static file
  *
- * Updated to use the new GigitekAI logo with cyan/electric blue styling
- * The logo is stored in S3 and served via CDN for optimal performance
+ * PERMANENT: This path is served directly from the origin server with no expiry,
+ * no S3 signing, and no CDN dependency. The file lives at client/public/
+ * and is available at /gigitekai-admin-logo.jpg on all domains.
+ *
+ * To update the logo: replace client/public/gigitekai-admin-logo.jpg and save a checkpoint.
  */
-export const LOGO_DATA_URL = "https://webdev-storage.manus.space/manus-storage/ezQNW_04a8a6dd.jpg";
+export const LOGO_DATA_URL = "/gigitekai-admin-logo.jpg";
