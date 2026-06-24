@@ -53,8 +53,10 @@ export default function AdminSearchChat() {
     blog: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const searchMutation = trpc.adminSearch.search.useMutation();
   const modelsQuery = trpc.adminSearch.getModels.useQuery();
@@ -64,7 +66,26 @@ export default function AdminSearchChat() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loadingPhase]);
+
+  // Cycle through loading phases for smooth animation
+  useEffect(() => {
+    if (isLoading) {
+      setLoadingPhase(0);
+      loadingIntervalRef.current = setInterval(() => {
+        setLoadingPhase((prev) => (prev + 1) % 4);
+      }, 1800);
+    } else {
+      if (loadingIntervalRef.current) {
+        clearInterval(loadingIntervalRef.current);
+        loadingIntervalRef.current = null;
+      }
+      setLoadingPhase(0);
+    }
+    return () => {
+      if (loadingIntervalRef.current) clearInterval(loadingIntervalRef.current);
+    };
+  }, [isLoading]);
 
   const handleSearch = async (overrideQuery?: string) => {
     const q = overrideQuery ?? query;
@@ -325,12 +346,45 @@ export default function AdminSearchChat() {
                 {isLoading && (
                   <div className="flex gap-3 justify-start">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-cyan-400" />
+                      <Bot className="w-4 h-4 text-cyan-400 animate-pulse" />
                     </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-cyan-400 animate-pulse" />
-                        <span className="text-sm text-white/40">Querying live systems...</span>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-4 min-w-[280px]">
+                      {/* Typing dots */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                        <span className="text-sm text-white/50 font-medium">ARIA is thinking</span>
+                      </div>
+                      {/* Progress steps */}
+                      <div className="space-y-1.5">
+                        {[
+                          { label: "Connecting to live systems", icon: "🔌" },
+                          { label: "Querying databases", icon: "🗄️" },
+                          { label: "Analyzing data", icon: "📊" },
+                          { label: "Composing response", icon: "✍️" },
+                        ].map((step, idx) => (
+                          <div
+                            key={step.label}
+                            className={`flex items-center gap-2 text-xs transition-all duration-500 ${
+                              idx < loadingPhase
+                                ? "text-green-400/80"
+                                : idx === loadingPhase
+                                ? "text-cyan-400"
+                                : "text-white/20"
+                            }`}
+                          >
+                            <span className="w-4 text-center">
+                              {idx < loadingPhase ? "✓" : idx === loadingPhase ? step.icon : "○"}
+                            </span>
+                            <span>{step.label}</span>
+                            {idx === loadingPhase && (
+                              <Loader2 className="w-3 h-3 animate-spin ml-auto" />
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
