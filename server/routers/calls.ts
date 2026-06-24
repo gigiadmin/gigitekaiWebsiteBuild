@@ -227,9 +227,34 @@ export const callsRouter = router({
         draftId: z.number(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
+
+      // Create tombstone BEFORE deleting to prevent re-import
+      const draft = await db.select().from(callDraftTickets).where(eq(callDraftTickets.id, input.draftId)).limit(1);
+      if (draft.length > 0 && draft[0].callLogId) {
+        try {
+          const callLog = await db.select().from(callLogs).where(eq(callLogs.id, draft[0].callLogId)).limit(1);
+          if (callLog.length > 0) {
+            const graphCallId = callLog[0].graphCallId || '';
+            const threadId = graphCallId.startsWith('voicemail-') ? graphCallId.replace('voicemail-', '') : graphCallId;
+            await db.insert(voicemailSourceTombstones).values({
+              source: graphCallId.startsWith('voicemail-') ? 'm365-group' : 'pstn-call',
+              groupId: 'b70ef14d-68dc-4faa-b7f6-8324b43c99b5',
+              threadId,
+              callLogId: draft[0].callLogId,
+              draftTicketId: draft[0].id,
+              action: 'deleted',
+              reason: 'Draft deleted by admin',
+              createdBy: ctx.user?.email || 'system',
+            }).onDuplicateKeyUpdate({ set: { action: 'deleted' } });
+            console.log(`[Calls Router] Tombstone created for call ${graphCallId}`);
+          }
+        } catch (err: any) {
+          console.warn(`[Calls Router] Tombstone failed for draft ${input.draftId}: ${err.message}`);
+        }
+      }
 
       // Delete the draft ticket
       await db
@@ -517,10 +542,36 @@ export const callsRouter = router({
         reason: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       if (!input.draftIds.length) throw new Error("No draft IDs provided");
+
+      // Create tombstones for all rejected drafts to prevent re-import
+      const drafts = await db.select().from(callDraftTickets).where(inArray(callDraftTickets.id, input.draftIds));
+      for (const draft of drafts) {
+        if (draft.callLogId) {
+          try {
+            const callLog = await db.select().from(callLogs).where(eq(callLogs.id, draft.callLogId)).limit(1);
+            if (callLog.length > 0) {
+              const graphCallId = callLog[0].graphCallId || '';
+              const threadId = graphCallId.startsWith('voicemail-') ? graphCallId.replace('voicemail-', '') : graphCallId;
+              await db.insert(voicemailSourceTombstones).values({
+                source: graphCallId.startsWith('voicemail-') ? 'm365-group' : 'pstn-call',
+                groupId: 'b70ef14d-68dc-4faa-b7f6-8324b43c99b5',
+                threadId,
+                callLogId: draft.callLogId,
+                draftTicketId: draft.id,
+                action: 'rejected',
+                reason: input.reason ?? 'Bulk rejected by admin',
+                createdBy: ctx.user?.email || 'system',
+              }).onDuplicateKeyUpdate({ set: { action: 'rejected' } });
+            }
+          } catch (err: any) {
+            console.warn(`[Calls Router] Tombstone failed for draft ${draft.id}: ${err.message}`);
+          }
+        }
+      }
 
       await db
         .update(callDraftTickets)

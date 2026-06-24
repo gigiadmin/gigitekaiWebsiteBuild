@@ -11,7 +11,7 @@
 
 import { invokeLLM } from "./llm";
 import { getDb } from "../db";
-import { callLogs, callDraftTickets, users } from "../../drizzle/schema";
+import { callLogs, callDraftTickets, users, voicemailSourceTombstones } from "../../drizzle/schema";
 import { eq, desc, and, gte } from "drizzle-orm";
 import { startAcsRecording } from "../acsRecordingService";
 
@@ -286,9 +286,30 @@ async function processCall(pstnRow: any): Promise<void> {
   const graphCallId = pstnRow.id || pstnRow.callId;
   if (!graphCallId) return;
 
-  // Skip if already processed
+  // Skip if already processed (callLog exists)
   const existing = await db.select().from(callLogs).where(eq(callLogs.graphCallId, graphCallId)).limit(1);
-  if (existing.length > 0) return;
+  if (existing.length > 0) {
+    // Even if callLog exists, check if a draft still needs to be created
+    const existingLog = existing[0];
+    // Check if tombstoned (admin deleted/rejected this call before)
+    const tombstone = await db.select().from(voicemailSourceTombstones)
+      .where(eq(voicemailSourceTombstones.callLogId, existingLog.id))
+      .limit(1);
+    if (tombstone.length > 0) {
+      console.log(`[Call Poller] TOMBSTONED - skipping re-import of call ${graphCallId} (action: ${tombstone[0].action})`);
+      return;
+    }
+    // Check if a pending draft already exists for this call log
+    const existingDraft = await db.select().from(callDraftTickets)
+      .where(eq(callDraftTickets.callLogId, existingLog.id))
+      .limit(1);
+    if (existingDraft.length > 0) {
+      console.log(`[Call Poller] Draft already exists for call ${graphCallId} (status: ${existingDraft[0].reviewStatus}) - skipping`);
+      return;
+    }
+    // callLog exists but no draft and not tombstoned - skip (already handled)
+    return;
+  }
 
   // Only process inbound calls (customer calling us)
   const direction = pstnRow.callType?.includes("_in") ? "inbound" : "outbound";

@@ -1780,3 +1780,13 @@
 - [x] Complete Delete Duplicates button UI — Implemented and working
 - [x] Push Hype Cave podcast dual player to GitHub — Added to portfolio (GitHub push blocked by workflow permissions)
 - [x] Complete voicemail tombstone phases 4-7 — All phases complete with tests, migration, and deployment guide
+
+## CRITICAL BUG FIX - June 24, 2026
+
+- [x] **FIXED: Deleted calls reappearing in Call Ticket Review** — Root cause: `voicemailSourceTombstones` table was never created in production database. Fixed:
+  - [x] Created `voicemailSourceTombstones` table directly in production DB via SQL
+  - [x] Fixed `callPoller.ts` to check tombstones before creating new drafts (was only checking callLog existence, not tombstones)
+  - [x] Fixed `deleteDraft` (single) to create tombstone before deleting
+  - [x] Fixed `bulkRejectDrafts` to create tombstones for all rejected calls
+  - [x] Tombstone system now covers ALL call types (PSTN + voicemail), not just voicemail-prefixed calls
+  - [x] To clear existing 8 pending calls: delete them via admin UI — new code will tombstone them permanently
