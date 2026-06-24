@@ -49,72 +49,6 @@ const DEFAULT_INQUIRY: InquiryForm = {
 
 const FEATURED_SITES: FeaturedSite[] = [
   {
-    id: "gigitekai",
-    name: "GigitekAI",
-    category: "Cloud & AI Solutions",
-    description: "Enterprise-grade cloud infrastructure, AI automation, and managed IT services for modern businesses.",
-    icon: "🚀",
-    color: "#00D4FF",
-    bgGradient: "from-cyan-900/40 to-blue-900/40",
-    href: "https://gigitekai.com",
-    isReal: true,
-    external: true,
-    tags: ["AI/ML", "Cloud", "MSP", "Enterprise"],
-  },
-  {
-    id: "divinesounds",
-    name: "Divine Sounds",
-    category: "Audio & Sound Services",
-    description: "Professional audio production, sound engineering, and music services for creators and businesses.",
-    icon: "🎵",
-    color: "#FF6B9D",
-    bgGradient: "from-pink-900/40 to-purple-900/40",
-    href: "https://divinesounds.info",
-    isReal: true,
-    external: true,
-    tags: ["Creative", "Audio", "Production"],
-  },
-  {
-    id: "thehypecave",
-    name: "The Hype Cave Podcast",
-    category: "Podcast & Media",
-    description: "Professional podcast platform with episode management, listener engagement, and integrated media streaming.",
-    icon: "🎙️",
-    color: "#FF6B35",
-    bgGradient: "from-orange-900/40 to-red-900/40",
-    href: "https://podcast.thehypecave.net",
-    isReal: true,
-    external: true,
-    tags: ["Podcast", "Media", "Streaming"],
-  },
-  {
-    id: "karilife",
-    name: "Kari & Co.",
-    category: "Health & Wellness Coaching",
-    description: "Holistic life and business coaching helping clients heal, transform, and build a life they love through HealThy Life & Business programs.",
-    icon: "🌿",
-    color: "#A78B6F",
-    bgGradient: "from-amber-900/30 to-stone-900/40",
-    href: "https://karilife-yujvfmqf.manus.space",
-    isReal: true,
-    external: true,
-    tags: ["Wellness", "Life Coaching", "Business Coaching", "Podcast"],
-  },
-  {
-    id: "handydandylawns",
-    name: "Handy Dandy Lawns",
-    category: "Lawn & Landscaping Services",
-    description: "Professional lawn care and landscaping services with AI-powered scheduling, customer portal, and service management.",
-    icon: "🌱",
-    color: "#22C55E",
-    bgGradient: "from-green-900/40 to-emerald-900/40",
-    href: "https://handydandylawns.com",
-    isReal: true,
-    external: true,
-    tags: ["Landscaping", "Service Management", "AI Scheduling"],
-    previewImage: "/manus-storage/hdl-chatbot-redesign_2026-06-22_18-42-13_7741_6199e92b.webp",
-  },
-  {
     id: "finance",
     name: "Meridian Capital",
     category: "Financial Services",
@@ -281,67 +215,7 @@ export default function WebsitesPage() {
             </p>
           </div>
 
-          {/* Live Client Sites */}
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-px flex-1 bg-cyan-500/20" />
-              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest px-3">Live Client Sites</span>
-              <div className="h-px flex-1 bg-cyan-500/20" />
-            </div>
-            {/* All live client sites in responsive grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              {FEATURED_SITES.filter((s) => s.isReal).map((site) => (
-                <a
-                  key={site.id}
-                  href={site.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block"
-                >
-                  <div
-                    className={`relative rounded-2xl border bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden`}
-                    style={{ borderColor: site.color + "44" }}
-                  >
-                    {/* Preview Image with Overlay */}
-                    {site.previewImage && (
-                      <div className="relative h-48 overflow-hidden rounded-t-xl">
-                        <img
-                          src={site.previewImage}
-                          alt={site.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 transition-opacity duration-300 group-hover:opacity-40" />
-                      </div>
-                    )}
-                    
-                    {/* Content Section */}
-                    <div className={`${site.previewImage ? 'p-6' : 'p-8'}`}>
-                      <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
-                      <div className="relative z-10">
-                        <div className="flex items-start justify-between mb-4">
-                          <span className="text-5xl">{site.icon}</span>
-                          <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
-                            ✓ Live Site
-                          </span>
-                        </div>
-                        <h3 className="text-2xl font-bold text-white mb-1">{site.name}</h3>
-                        <p className="text-sm font-medium mb-3" style={{ color: site.color }}>{site.category}</p>
-                        <p className="text-slate-300 text-sm leading-relaxed mb-5">{site.description}</p>
-                        <div className="flex flex-wrap gap-2 mb-5">
-                          {site.tags.map((tag) => (
-                            <span key={tag} className="text-xs px-2 py-1 rounded-md text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-2 font-semibold text-sm transition-all duration-300 group-hover:gap-3" style={{ color: site.color }}>
-                          Visit Live Site <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
+
 
           {/* ── WEB DISCOVERY INTAKE FORM CTA ── */}
           <div className="my-16 px-8 py-12 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 relative overflow-hidden">
