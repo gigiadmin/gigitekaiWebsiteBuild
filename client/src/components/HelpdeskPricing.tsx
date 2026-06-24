@@ -1,4 +1,5 @@
-import { useState } from "react";
+'use client';
+import { useState, useEffect } from "react";
 import { Check, X, AlertCircle, TrendingUp, Clock, Shield, Headphones, Zap, HardDrive, Lock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateTicketModal from "./CreateTicketModal";
@@ -13,51 +14,43 @@ export default function HelpdeskPricing() {
   const { user } = useAuth();
 
   const handleSelectPlan = (planName: string) => {
-    // Navigate to contact page with plan info in URL
     window.location.href = `/contact?plan=${encodeURIComponent(planName)}&users=${userCount}&billing=${isAnnual ? 'annual' : 'monthly'}`;
   };
-  const ANNUAL_DISCOUNT = 0.1; // 10% discount for annual prepayment
-  const VOLUME_DISCOUNT_THRESHOLD = 25; // 8% discount for 25+ users
-  const VOLUME_DISCOUNT = 0.08; // 8% volume discount
+  
+  const ANNUAL_DISCOUNT = 0.1;
+  const VOLUME_DISCOUNT_THRESHOLD = 25;
+  const VOLUME_DISCOUNT = 0.08;
+  
   const calculatePrice = (monthlyPrice: number) => {
     if (isAnnual) {
       const annualPrice = monthlyPrice * 12 * (1 - ANNUAL_DISCOUNT);
-      return Math.round(annualPrice / 12 * 100) / 100; // Round to 2 decimals
+      return Math.round(annualPrice / 12 * 100) / 100;
     }
     return monthlyPrice;
   };
 
-  const calculateTotalPrice = (monthlyPrice: number) => {
+  const calculateTotalPrice = (monthlyPrice: number | null) => {
+    if (monthlyPrice === null) return 0;
     let price = monthlyPrice * userCount;
-    
-    // Apply volume discount if applicable
     if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
       price *= (1 - VOLUME_DISCOUNT);
     }
-    
-    // Apply annual discount if applicable
     if (isAnnual) {
       price *= 12 * (1 - ANNUAL_DISCOUNT);
     } else {
-      price *= 12; // Annual total for display
+      price *= 12;
     }
-    
     return Math.round(price * 100) / 100;
   };
 
   const calculateMonthlyCost = (monthlyPrice: number) => {
     let price = monthlyPrice;
-    
-    // Apply volume discount if applicable
     if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
       price *= (1 - VOLUME_DISCOUNT);
     }
-    
-    // Apply annual discount if applicable
     if (isAnnual) {
       price *= (1 - ANNUAL_DISCOUNT);
     }
-    
     return Math.round(price * 100) / 100;
   };
 
@@ -65,29 +58,26 @@ export default function HelpdeskPricing() {
     if (!isAnnual) return 0;
     const regularPrice = monthlyPrice * userCount * 12;
     let discountedPrice = regularPrice;
-    
     if (userCount >= VOLUME_DISCOUNT_THRESHOLD) {
       discountedPrice *= (1 - VOLUME_DISCOUNT);
     }
     discountedPrice *= (1 - ANNUAL_DISCOUNT);
-    
     return Math.round((regularPrice - discountedPrice) * 100) / 100;
   };
 
   const tiers = [
     {
-      name: "Essential",
-      price: 69,
-      description: "Perfect for small teams getting started",
+      name: "Essential Security",
+      price: 99,
+      description: "Core managed IT + security for small teams",
       popular: false,
-      cta: "Get Started",
+      cta: "Learn More",
       features: [
-        "8am–6pm support (business hours)",
-        "Remote support & troubleshooting",
-        "Automated patch management",
-        "Endpoint security & antivirus",
-        "24/7 system monitoring",
-        "4-hour critical response SLA",
+        "24/7 Monitoring & Alerts",
+        "Daily Backups",
+        "Antivirus & Malware Protection",
+        "User Support",
+        "Basic Compliance",
       ],
       notIncluded: [
         "24/7 live help desk",
@@ -96,40 +86,47 @@ export default function HelpdeskPricing() {
       ],
     },
     {
-      name: "Professional",
-      price: 119,
-      description: "Our most popular plan - best value",
+      name: "Professional Compliance",
+      price: 149,
+      description: "Advanced security + compliance for regulated industries",
       popular: true,
       cta: "Get Quote",
       features: [
-        { text: "24/7 live help desk support", icon: Headphones },
-        { text: "Remote support & troubleshooting", icon: Zap },
-        { text: "Automated patch management", icon: Award },
-        { text: "Endpoint security & antivirus", icon: Shield },
-        { text: "24/7 system monitoring", icon: Clock },
-        { text: "Backup & disaster recovery included", icon: HardDrive },
-        { text: "15-minute critical response SLA", icon: TrendingUp },
-        { text: "Included at no extra cost", icon: Check },
+        "Everything in Essential",
+        "Compliance Management (HIPAA/Legal)",
+        "Security Audits",
+        "Policy Documentation",
+        "Incident Response",
       ],
-      notIncluded: ["Advanced threat detection / SOC", "vCIO consulting"],
+      notIncluded: ["Advanced threat detection / SOC", "Managed Copilot (M365)"],
     },
     {
-      name: "Elite",
-      price: 189,
-      description: "Enterprise-grade support with advanced security",
+      name: "Elite + Governed AI",
+      price: 199,
+      description: "Professional tier + managed Copilot for Microsoft 365",
       popular: false,
       cta: "Contact Sales",
       features: [
-        "24/7 live help desk support",
-        "Remote support & troubleshooting",
-        "Automated patch management",
-        "Endpoint security & antivirus",
-        "24/7 system monitoring",
-        "Immutable backup & disaster recovery",
-        "Advanced threat detection / SOC",
-        "vCIO strategic consulting (quarterly)",
-        "Compliance support (HIPAA/SOC2)",
-        "15-minute critical response SLA",
+        "Everything in Professional",
+        "Managed Copilot (M365)",
+        "AI Governance & Oversight",
+        "Automation Workflows",
+        "Advanced Analytics",
+      ],
+      notIncluded: [],
+    },
+    {
+      name: "Enterprise Custom",
+      price: null,
+      description: "Full-stack managed IT, security, AI, and infrastructure",
+      popular: false,
+      cta: "Schedule Consultation",
+      features: [
+        "Everything in Elite",
+        "Custom Infrastructure",
+        "Dedicated Account Team",
+        "Strategic IT Planning",
+        "Multi-system integration",
       ],
       notIncluded: [],
     },
@@ -164,7 +161,6 @@ export default function HelpdeskPricing() {
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                 isAnnual ? 'bg-cyan-500' : 'bg-gray-600'
               }`}
-              aria-label="Toggle annual pricing"
             >
               <span
                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -173,193 +169,109 @@ export default function HelpdeskPricing() {
               />
             </button>
             <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Annual
+              Annual (Save 10%)
             </span>
-            {isAnnual && (
-              <span className="ml-2 inline-block bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">
-                Save 10%
-              </span>
-            )}
           </div>
-          
-          <div className="mt-8 flex flex-wrap gap-6 justify-center text-sm">
-            <div className="flex items-center gap-2 text-cyan-400">
-              <TrendingUp className="w-5 h-5" />
-              <span>Predictable Costs</span>
-            </div>
-            <div className="flex items-center gap-2 text-cyan-400">
-              <Clock className="w-5 h-5" />
-              <span>24/7 Support Available</span>
-            </div>
-            <div className="flex items-center gap-2 text-cyan-400">
-              <Shield className="w-5 h-5" />
-              <span>Enterprise Security</span>
-            </div>
-          </div>
-          
-          {/* User Count Calculator */}
-          <div className="mt-8 bg-card border border-border rounded-lg p-6 max-w-md mx-auto">
-            <label className="block text-sm font-semibold text-foreground mb-3">
+        </div>
+
+        {/* User Count Selector */}
+        <div className="flex justify-center mb-12">
+          <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Number of Users
             </label>
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="number"
-                min="10"
-                max="1000"
-                value={userCountInput}
-                onChange={(e) => {
-                  setUserCountInput(e.target.value);
-                  const parsed = parseInt(e.target.value);
-                  if (!isNaN(parsed) && parsed >= 10) setUserCount(parsed);
-                }}
-                onBlur={() => {
-                  const parsed = parseInt(userCountInput);
-                  const clamped = isNaN(parsed) || parsed < 10 ? 10 : Math.min(parsed, 1000);
-                  setUserCount(clamped);
-                  setUserCountInput(String(clamped));
-                }}
-                className="flex-1 px-3 py-2 bg-background border border-border rounded text-foreground text-center"
-              />
-              <span className="text-sm text-muted-foreground">users</span>
-            </div>
-            {userCount >= 25 && (
-              <div className="text-xs text-cyan-400 mb-3">
-                ✓ Volume discount (8%) applied at {userCount} users
-              </div>
-            )}
-            <div className="text-sm text-muted-foreground">
-              <p className="mb-2">Professional Plan Total:</p>
-              <p className="text-lg font-bold text-cyan-400">
-                ${(calculateTotalPrice(119)).toLocaleString('en-US', { maximumFractionDigits: 0 })}/year
+            <input
+              type="number"
+              value={userCountInput}
+              onChange={(e) => {
+                setUserCountInput(e.target.value);
+                const num = parseInt(e.target.value) || 10;
+                setUserCount(Math.max(10, num));
+              }}
+              className="w-full bg-background border border-border rounded px-3 py-2 text-foreground mb-4"
+              min="10"
+            />
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                {tiers[1].name} Plan Total:
               </p>
-              {isAnnual && calculateSavings(119) > 0 && (
-                <p className="text-xs text-green-400 mt-2">
-                  Save ${calculateSavings(119).toLocaleString('en-US', { maximumFractionDigits: 2 })} annually
+              <p className="text-3xl font-bold text-cyan-400">
+                ${calculateTotalPrice(tiers[1].price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}/year
+              </p>
+              {(tiers[1].price !== null && calculateSavings(tiers[1].price) > 0) && (
+                <p className="text-sm text-green-400 mt-2">
+                  Save ${calculateSavings(tiers[1].price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} with annual billing
                 </p>
               )}
             </div>
-            {userCount >= 50 && (
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs text-muted-foreground mb-3">
-                  For deployments of 50+ users, let's discuss custom pricing and volume discounts.
-                </p>
-                <Button
-                  onClick={() => {
-                    window.location.href = '/contact';
-                  }}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
-                >
-                  Request a Quote
-                </Button>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {tiers.map((tier, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {tiers.map((tier, index) => (
             <div
-              key={idx}
-              className={`relative rounded-xl border transition-[opacity,transform] overflow-hidden ${
+              key={index}
+              className={`relative rounded-lg border transition-all ${
                 tier.popular
-                  ? "border-2 border-cyan-500 bg-gradient-to-b from-cyan-500/20 via-background to-background shadow-2xl shadow-cyan-500/40 md:scale-105 ring-1 ring-cyan-500/60"
-                  : "border border-border bg-card hover:border-cyan-500/50"
+                  ? 'border-cyan-500 bg-card shadow-lg shadow-cyan-500/20'
+                  : 'border-border bg-card'
               }`}
             >
-              {/* Popular Ribbon & Accents */}
               {tier.popular && (
-                <>
-                  {/* Gradient Top Border Accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-                  
-                  {/* Ribbon Banner */}
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 text-black px-6 py-2 rounded-lg text-xs font-bold tracking-widest shadow-lg flex items-center gap-2 whitespace-nowrap border border-cyan-300">
-                      <span className="text-lg">⭐</span>
-                      <span>MOST POPULAR</span>
-                      <span className="text-lg">⭐</span>
-                    </div>
-                  </div>
-                  
-                  {/* Decorative Corner Accents */}
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-cyan-500 rounded-full opacity-70 blur-sm"></div>
-                  <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-cyan-500/50 rounded-full opacity-50 blur-sm"></div>
-                  <div className="absolute top-1/4 -right-1 w-1 h-12 bg-gradient-to-b from-cyan-500/60 to-transparent rounded-full"></div>
-                </>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-cyan-500 text-background px-3 py-1 rounded-full text-xs font-bold">
+                    MOST POPULAR
+                  </span>
+                </div>
               )}
 
-              <div className="p-8">
-                {/* Tier Name */}
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                  {tier.name}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {tier.description}
-                </p>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">{tier.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
 
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-cyan-500">
+                {tier.price !== null ? (
+                  <div className="mb-6">
+                    <div className="text-4xl font-bold text-cyan-400">
                       ${calculatePrice(tier.price)}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {isAnnual ? '/user/month (annual)' : '/user/month'}
-                    </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">/user/month</p>
                   </div>
-                  {isAnnual ? (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      ${(calculatePrice(tier.price) * 12).toFixed(2)}/user/year • Minimum 10 users
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Minimum 10 users • Billed monthly
-                    </p>
-                  )}
-                </div>
+                ) : (
+                  <div className="mb-6">
+                    <div className="text-2xl font-bold text-cyan-400">Custom Quote</div>
+                  </div>
+                )}
 
-                {/* CTA Button */}
                 <Button
-                  className={`w-full mb-8 ${
-                    tier.popular
-                      ? "bg-cyan-500 hover:bg-cyan-600 text-black font-bold"
-                      : "bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/50"
-                  }`}
                   onClick={() => handleSelectPlan(tier.name)}
+                  className={`w-full mb-6 ${
+                    tier.popular
+                      ? 'bg-cyan-500 hover:bg-cyan-600 text-background'
+                      : 'bg-gray-700 hover:bg-gray-600 text-foreground'
+                  }`}
                 >
                   {tier.cta}
                 </Button>
 
-                {/* Features */}
-                <div className="space-y-4">
-                  <p className="text-sm font-semibold text-foreground">
-                    What's Included:
-                  </p>
-                  {tier.features.map((feature, i) => {
-                    const isObject = typeof feature === 'object' && feature !== null;
-                    const text = isObject ? feature.text : feature;
-                    const IconComponent = isObject ? feature.icon : Check;
-                    return (
-                      <div key={i} className="flex gap-3">
-                        <IconComponent className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground leading-relaxed">{text}</span>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-foreground">What's Included:</p>
+                  {tier.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
 
                   {tier.notIncluded.length > 0 && (
                     <>
-                      <p className="text-sm font-semibold text-foreground mt-6">
-                        Not Included:
-                      </p>
-                      {tier.notIncluded.map((feature, i) => (
-                        <div key={i} className="flex gap-3 opacity-50">
-                          <X className="w-4 h-4 text-red-500/50 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-muted-foreground">
-                            {feature}
-                          </span>
+                      <p className="text-sm font-semibold text-foreground mt-4">Not Included:</p>
+                      {tier.notIncluded.map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <X className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-gray-500">{item}</span>
                         </div>
                       ))}
                     </>
@@ -370,323 +282,42 @@ export default function HelpdeskPricing() {
           ))}
         </div>
 
-        {/* Discounts & Terms */}
+        {/* Discounts Section */}
         <div className="bg-card border border-border rounded-lg p-8 mb-12">
-          <h3 className="text-2xl font-bold text-foreground mb-2">
-            Volume Pricing & Special Offers
-          </h3>
-          <p className="text-muted-foreground mb-6">
-            Save more with volume discounts and annual prepayment options.
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
+          <h3 className="text-2xl font-bold text-foreground mb-6">Volume & Annual Discounts</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {discounts.map((discount, idx) => (
-              <div key={idx} className="flex justify-between items-center">
-                <span className="text-foreground font-semibold">
-                  {discount.label}
-                </span>
-                <span className="text-cyan-400">{discount.value}</span>
+              <div key={idx} className="text-center">
+                <p className="text-sm font-semibold text-muted-foreground mb-2">{discount.label}</p>
+                <p className="text-lg font-bold text-cyan-400">{discount.value}</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Pricing Calculation Explanation */}
-        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg p-4 mb-6">
-          <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm text-foreground font-semibold mb-2">Understanding Annual Pricing</p>
-              <p className="text-sm text-muted-foreground">
-                The annual costs shown in the table are calculated for <strong>10 users</strong> (the minimum). For example, Professional plan: <strong>$119/user/month × 12 months × 10 users = $14,280/year</strong>. When you toggle to annual billing, an additional <strong>10% discount</strong> is applied, reducing this to <strong>$12,852/year</strong>. For custom deployments with different user counts, contact our sales team for a tailored quote.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Comparison Table */}
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-background/50">
-                  <th className="px-6 py-4 text-left font-semibold text-foreground">
-                    Feature
-                  </th>
-                  <th className="px-6 py-4 text-center font-semibold text-foreground">
-                    <div>Essential</div>
-                    <div className="text-xs font-normal text-muted-foreground mt-1">
-                      ${calculatePrice(69)}{isAnnual ? '/mo' : ''}
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center font-semibold text-cyan-400">
-                    <div>Professional</div>
-                    <div className="text-xs font-normal text-cyan-400 mt-1">
-                      ${calculatePrice(119)}{isAnnual ? '/mo' : ''}
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center font-semibold text-foreground">
-                    <div>Elite</div>
-                    <div className="text-xs font-normal text-muted-foreground mt-1">
-                      ${calculatePrice(189)}{isAnnual ? '/mo' : ''}
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { category: "Support & Response", isCategory: true },
-                  {
-                    feature: "Remote Support Hours",
-                    essential: "8am–6pm",
-                    professional: "24/7",
-                    elite: "24/7",
-                  },
-                  {
-                    feature: "Live Help Desk",
-                    essential: "No",
-                    professional: "Yes",
-                    elite: "Yes",
-                  },
-                  {
-                    feature: "Critical Response SLA",
-                    essential: "4 hours",
-                    professional: "15 minutes",
-                    elite: "15 minutes",
-                  },
-                  {
-                    feature: "Ticket-Based Support",
-                    essential: "Yes",
-                    professional: "Yes",
-                    elite: "Yes",
-                  },
-                  { category: "Infrastructure & Security", isCategory: true },
-                  {
-                    feature: "Endpoint Security & Antivirus",
-                    essential: "Yes",
-                    professional: "Yes",
-                    elite: "Yes",
-                  },
-                  {
-                    feature: "24/7 System Monitoring",
-                    essential: "Yes",
-                    professional: "Yes",
-                    elite: "Yes",
-                  },
-                  {
-                    feature: "Automated Patch Management",
-                    essential: "Yes",
-                    professional: "Yes",
-                    elite: "Yes",
-                  },
-                  {
-                    feature: "Backup & Disaster Recovery",
-                    essential: "No",
-                    professional: "Yes",
-                    elite: "Yes (Immutable)",
-                  },
-                  {
-                    feature: "Advanced Threat Detection",
-                    essential: "No",
-                    professional: "No",
-                    elite: "Yes",
-                  },
-                  { category: "Strategic Services", isCategory: true },
-                  {
-                    feature: "vCIO Consulting",
-                    essential: "No",
-                    professional: "No",
-                    elite: "Quarterly",
-                  },
-                  {
-                    feature: "Compliance Support",
-                    essential: "No",
-                    professional: "No",
-                    elite: "HIPAA/SOC2",
-                  },
-                  {
-                    feature: "Security Assessments",
-                    essential: "No",
-                    professional: "No",
-                    elite: "Yes",
-                  },
-                  { category: "Pricing", isCategory: true },
-                  {
-                    feature: "Monthly Cost per User",
-                    essential: `$${calculatePrice(69)}`,
-                    professional: `$${calculatePrice(119)}`,
-                    elite: `$${calculatePrice(189)}`,
-                  },
-                  {
-                    feature: "Annual Cost (10 users)",
-                    essential: isAnnual ? `$${(calculatePrice(69) * 12 * 10).toFixed(0)}` : `$${(69 * 12 * 10).toFixed(0)}`,
-                    professional: isAnnual ? `$${(calculatePrice(119) * 12 * 10).toFixed(0)}` : `$${(119 * 12 * 10).toFixed(0)}`,
-                    elite: isAnnual ? `$${(calculatePrice(189) * 12 * 10).toFixed(0)}` : `$${(189 * 12 * 10).toFixed(0)}`,
-                  },
-                  {
-                    feature: "Minimum Users",
-                    essential: "10 users",
-                    professional: "10 users",
-                    elite: "10 users",
-                  },
-                ].map((row, idx) => {
-                  if (row.isCategory) {
-                    return (
-                      <tr key={idx} className="bg-cyan-500/10 border-b-2 border-cyan-500/30">
-                        <td colSpan={4} className="px-6 py-3 font-bold text-cyan-400 text-sm tracking-wide uppercase">
-                          {row.category}
-                        </td>
-                      </tr>
-                    );
-                  }
-                  const isPricingRow = ['Annual Cost (10 users)', 'Monthly Cost per User'].includes(row.feature || '');
-                  return (
-                    <tr
-                      key={idx}
-                      className={`border-b border-border hover:bg-background/50 transition-colors ${
-                        isPricingRow ? 'bg-cyan-500/5 font-semibold' : ''
-                      }`}
-                    >
-                      <td className={`px-6 py-4 font-medium ${
-                        isPricingRow ? 'text-cyan-400' : 'text-foreground'
-                      }`}>
-                        {row.feature}
-                      </td>
-                      <td className={`px-6 py-4 text-center ${
-                        isPricingRow
-                          ? 'text-cyan-400 font-semibold'
-                          : row.essential === 'Yes' ? 'text-green-400' : 'text-muted-foreground'
-                      }`}>
-                        {row.essential === 'Yes' ? <Check className="w-5 h-5 inline" /> : row.essential === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.essential}
-                      </td>
-                      <td className={`px-6 py-4 text-center font-semibold ${
-                        isPricingRow ? 'text-cyan-300' : 'text-cyan-400'
-                      }`}>
-                        {row.professional === 'Yes' ? <Check className="w-5 h-5 inline text-cyan-400" /> : row.professional === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.professional}
-                      </td>
-                      <td className={`px-6 py-4 text-center ${
-                        isPricingRow
-                          ? 'text-cyan-400 font-semibold'
-                          : row.elite === 'Yes' ? 'text-green-400' : 'text-foreground'
-                      }`}>
-                        {row.elite === 'Yes' ? <Check className="w-5 h-5 inline" /> : row.elite === 'No' ? <X className="w-5 h-5 inline text-red-400" /> : row.elite}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         {/* FAQ Section */}
-        <div className="mt-20 mb-16">
-          <h3 className="text-3xl font-bold text-foreground mb-8 text-center">
-            Frequently Asked Questions
-          </h3>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
+          <h3 className="text-2xl font-bold text-foreground mb-6 text-center">Frequently Asked Questions</h3>
+          <div className="space-y-4">
             <div className="bg-card border border-border rounded-lg p-6">
-              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-cyan-500" />
-                Can I change plans anytime?
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Yes. You can upgrade, downgrade, or cancel your plan with 30 days' notice. No long-term contracts required.
-              </p>
+              <h4 className="font-semibold text-foreground mb-2">What's the minimum number of users?</h4>
+              <p className="text-muted-foreground">Minimum is 10 users. For smaller teams, contact our sales team for custom pricing.</p>
             </div>
             <div className="bg-card border border-border rounded-lg p-6">
-              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-cyan-500" />
-                What's included in support hours?
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Phone, email, remote support, and ticket-based troubleshooting. Emergency support available 24/7 for all plans.
-              </p>
+              <h4 className="font-semibold text-foreground mb-2">Can I change plans mid-year?</h4>
+              <p className="text-muted-foreground">Yes, you can upgrade or downgrade anytime. Changes take effect the next billing cycle.</p>
             </div>
             <div className="bg-card border border-border rounded-lg p-6">
-              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-cyan-500" />
-                Do you offer custom pricing?
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Absolutely. For organizations with 100+ users or specialized needs, we provide tailored quotes. Contact our sales team.
-              </p>
+              <h4 className="font-semibold text-foreground mb-2">Do you offer onboarding support?</h4>
+              <p className="text-muted-foreground">Yes, onboarding is $50/user (waived for 25+ seats). We handle full setup and training.</p>
             </div>
             <div className="bg-card border border-border rounded-lg p-6">
-              <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-cyan-500" />
-                Is there a setup or onboarding fee?
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Standard onboarding is $50/user (waived for 25+ seats). This covers initial setup, training, and system configuration.
-              </p>
+              <h4 className="font-semibold text-foreground mb-2">What's your SLA?</h4>
+              <p className="text-muted-foreground">Essential: 4-hour response. Professional: 15-minute response. Elite: 15-minute response with dedicated support.</p>
             </div>
           </div>
-        </div>
-
-        {/* Why Choose GigitekAI */}
-        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-lg p-12 mb-16">
-          <h3 className="text-3xl font-bold text-foreground mb-8 text-center">
-            Why Choose GigitekAI?
-          </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cyan-500 mb-2">99.9%</div>
-              <p className="text-foreground font-semibold mb-2">Uptime SLA</p>
-              <p className="text-sm text-muted-foreground">
-                Enterprise-grade infrastructure with redundancy and failover systems.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cyan-500 mb-2">&lt;15min</div>
-              <p className="text-foreground font-semibold mb-2">Critical Response</p>
-              <p className="text-sm text-muted-foreground">
-                Immediate response to critical issues on Professional and Elite plans.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-cyan-500 mb-2">15+</div>
-              <p className="text-foreground font-semibold mb-2">Vendor Partnerships</p>
-              <p className="text-sm text-muted-foreground">
-                Integrated solutions from Microsoft, ConnectSecure, Commvault, and more.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div id="contact" className="text-center mt-16">
-          <h3 className="text-2xl font-bold text-foreground mb-4">
-            Ready to get started?
-          </h3>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Schedule a discovery call today to get a custom quote based on your exact user count, infrastructure, and compliance needs. All plans can be tailored to your environment.
-          </p>
-          <Button 
-            onClick={() => {
-              window.location.href = '/contact';
-            }}
-            className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 text-lg cursor-pointer"
-          >
-            Schedule a Discovery Call
-          </Button>
         </div>
       </div>
-
-      {/* Contact Form Modal */}
-      {showContactForm && (
-        <CreateTicketModal
-          open={showContactForm}
-          onClose={() => {
-            setShowContactForm(false);
-            setSelectedPlan(null);
-          }}
-          mode="user"
-          prefillData={selectedPlan ? {
-            subject: `Inquiry: ${selectedPlan} Plan - Helpdesk Pricing`,
-            description: `I'm interested in the ${selectedPlan} helpdesk plan for ${userCount} users. ${isAnnual ? '(Annual billing)' : '(Monthly billing)'}`
-          } : undefined}
-        />
-      )}
     </div>
   );
 }

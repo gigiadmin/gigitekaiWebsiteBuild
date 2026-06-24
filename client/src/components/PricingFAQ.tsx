@@ -10,12 +10,14 @@ interface FAQItem {
 const faqData: FAQItem[] = [
   {
     category: "Tier Comparison",
-    question: "What's the difference between Essential, Professional, and Elite?",
-    answer: `Essential ($69/user/month): Business hours support (8am–6pm), remote troubleshooting, patch management, 24/7 monitoring, 4-hour critical SLA.
+    question: "What's the difference between Essential Security, Professional Compliance, Elite + Governed AI, and Enterprise Custom?",
+    answer: `Essential Security ($99/user/month): 24/7 Monitoring & Alerts, Daily Backups, Antivirus & Malware Protection, User Support, Basic Compliance.
 
-Professional ($119/user/month - MOST POPULAR): 24/7 live support, remote troubleshooting, patch management, 24/7 monitoring, backup & disaster recovery included, 15-minute critical SLA.
+Professional Compliance ($149/user/month - MOST POPULAR): Everything in Essential + Compliance Management (HIPAA/Legal), Security Audits, Policy Documentation, Incident Response.
 
-Elite ($189/user/month): 24/7 live support, immutable backup & disaster recovery, advanced threat detection/SOC, vCIO strategic consulting (quarterly), compliance support (HIPAA/SOC2), 15-minute critical SLA.`,
+Elite + Governed AI ($199/user/month): Everything in Professional + Managed Copilot (M365), AI Governance & Oversight, Automation Workflows, Advanced Analytics.
+
+Enterprise Custom (Custom Quote): Everything in Elite + Custom Infrastructure, Dedicated Account Team, Strategic IT Planning, Multi-system integration.`,
   },
   {
     category: "Pricing & Discounts",
@@ -25,50 +27,50 @@ Elite ($189/user/month): 24/7 live support, immutable backup & disaster recovery
 • 50+ users: 10% discount
 • Annual pre-pay: Additional 10% discount (can combine with volume discount)
 
-Example: 50 users on Professional tier with annual pre-pay saves 20%!`,
+Example: 50 users on Professional Compliance tier with annual pre-pay saves 20%!`,
   },
   {
     category: "Pricing & Discounts",
     question: "What about onboarding costs?",
-    answer: `Onboarding is $50 per user, but it's waived for companies with 25+ seats. This covers account setup, device enrollment, user training, and initial security baseline.`,
+    answer: `Onboarding is $50 per user, but it's waived for companies with 25+ seats. This covers account setup, device enrollment, user training, initial security baseline, and compliance configuration (for Professional Compliance and above).`,
   },
   {
     category: "Pricing & Discounts",
     question: "Are there any hidden fees?",
-    answer: `No. Our pricing is completely transparent with flat monthly rates per user (no per-ticket charges). All features are included in your tier with no surprise add-ons. Custom quotes available for unique requirements.`,
+    answer: `No. Our pricing is completely transparent with flat monthly rates per user (no per-ticket charges). All features are included in your tier with no surprise add-ons. Only onboarding ($50/user, waived for 25+) is separate. Custom quotes available for Enterprise Custom deployments.`,
   },
   {
     category: "Service Details",
     question: "What's included in 24/7 support?",
-    answer: `Our 24/7 support includes live chat, email, and phone support; remote desktop troubleshooting; account and access issue resolution; software installation and configuration; performance optimization; and vendor coordination.`,
+    answer: `Our 24/7 support includes live chat, email, and phone support; remote desktop troubleshooting; account and access issue resolution; software installation and configuration; performance optimization; vendor coordination; and for Elite + Governed AI, dedicated account management and AI governance oversight.`,
   },
   {
     category: "Service Details",
     question: "What's the difference between SLAs?",
-    answer: `Essential: 4-hour critical SLA (business hours only)
-Professional & Elite: 15-minute critical SLA (24/7)
+    answer: `Essential Security: 4-hour critical SLA (business hours only)
+Professional Compliance & Elite + Governed AI: 15-minute critical SLA (24/7)
 
 Critical issues = complete system outage or security incident.`,
   },
   {
     category: "Service Details",
     question: "Does your helpdesk cover Microsoft 365 Copilot?",
-    answer: `Yes! All tiers include support for Copilot deployment, licensing, user training, adoption, and troubleshooting. For advanced Copilot consulting, we offer our separate Copilot Launch Package.`,
+    answer: `Yes! Professional Compliance and Elite + Governed AI tiers include support for Copilot deployment, licensing, user training, adoption, and troubleshooting. Elite + Governed AI includes managed Copilot with AI Governance & Oversight.`,
   },
   {
     category: "Getting Started",
     question: "What's the minimum number of users?",
-    answer: `All helpdesk tiers require a minimum of 10 users. For companies with fewer than 10 users, we offer custom pricing. Contact our sales team for a quote.`,
+    answer: `All helpdesk tiers require a minimum of 10 users. For companies with fewer than 10 users or custom requirements, we offer Enterprise Custom pricing. Contact our sales team for a quote.`,
   },
   {
     category: "Getting Started",
     question: "Can I switch tiers mid-year?",
-    answer: `Yes! You can upgrade or downgrade at any time. Changes take effect on your next billing cycle. Most customers start with Professional and scale as needed.`,
+    answer: `Yes! You can upgrade or downgrade at any time. Changes take effect on your next billing cycle. Most customers start with Professional Compliance and scale as needed.`,
   },
   {
     category: "Getting Started",
     question: "How quickly can we get started?",
-    answer: `Typically 1–2 weeks: Contract signed → Onboarding (1 week) → Go-live and 24/7 support begins.`,
+    answer: `Typically 1–2 weeks: Contract signed → Onboarding (1 week, $50/user or waived for 25+ seats) → Go-live and 24/7 support begins.`,
   },
 ];
 
@@ -84,8 +86,8 @@ export default function PricingFAQ() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Pricing FAQ</h2>
-          <p className="text-xl text-slate-400">Find answers to common questions about our helpdesk tiers and pricing</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Managed IT & Helpdesk Pricing FAQ</h2>
+          <p className="text-xl text-slate-400">Find answers to common questions about our service tiers and pricing</p>
         </div>
 
         {/* Category Filter */}
@@ -138,8 +140,8 @@ export default function PricingFAQ() {
 
         {/* CTA Section */}
         <div className="mt-16 p-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg text-center">
-          <h3 className="text-2xl font-bold text-white mb-3">Still have questions?</h3>
-          <p className="text-slate-300 mb-6">Chat with Aria, our AI assistant, or contact our sales team for a custom quote.</p>
+          <h3 className="text-2xl font-bold text-white mb-3">Ready to get started?</h3>
+          <p className="text-slate-300 mb-6">Schedule a free IT assessment or contact our sales team for a custom quote tailored to your business.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="px-6 py-3 bg-cyan-500 text-black font-semibold rounded-lg hover:bg-cyan-400 transition-colors">
               Chat with Aria
