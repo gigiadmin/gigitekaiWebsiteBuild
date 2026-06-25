@@ -74,6 +74,7 @@ const PortfolioConsultingDemo = lazy(() => import("./pages/PortfolioConsultingDe
 const PortfolioTechDemo = lazy(() => import("./pages/PortfolioTechDemo"));
 const PortfolioGigitekDemo = lazy(() => import("./pages/PortfolioGigitekDemo"));
 const PortfolioDivineSoundsDemo = lazy(() => import("./pages/PortfolioDivineSoundsDemo"));
+const PortfolioEcommerceDemo = lazy(() => import("./pages/PortfolioEcommerceDemo"));
 const FreeAuditLandingPage = lazy(() => import("./pages/FreeAuditLandingPage"));
 const AuditResults = lazy(() => import("./pages/AuditResultsDashboard"));
 const WebPricingLandingPage = lazy(() => import("./pages/WebPricingLandingPage"));
@@ -218,6 +219,8 @@ function Router() {
           <Route path={"/portfolio/gigitekai"} component={PortfolioGigitekDemo} />
           <Route path={"/websites/divinesounds"} component={PortfolioDivineSoundsDemo} />
           <Route path={"/portfolio/divinesounds"} component={PortfolioDivineSoundsDemo} />
+          <Route path={"/websites/ecommerce"} component={PortfolioEcommerceDemo} />
+          <Route path={"/portfolio/ecommerce"} component={PortfolioEcommerceDemo} />
           <Route path={"/blog"} component={Blog} />
           <Route path={"/insights"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
@@ -332,7 +335,7 @@ function App() {
   const isAdminPage = location.startsWith("/admin");
   const isHelpdeskPage = location.startsWith("/helpdesk");
   // Hide global widgets on portfolio demo pages so they look like standalone sites
-  const isPortfolioDemoPage = /^\/(portfolio|websites)\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds)/.test(location);
+  const isPortfolioDemoPage = /^\/(portfolio|websites)\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds|ecommerce)/.test(location);
   // Note: /web-pricing shows AI chat widget but hides other global widgets
   const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
 

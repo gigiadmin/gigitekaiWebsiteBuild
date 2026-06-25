@@ -78,7 +78,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🛍️",
     color: "#EC4899",
     bgGradient: "from-pink-900/40 to-rose-900/40",
-    href: "/portfolio/consulting",
+    href: "/portfolio/ecommerce",
     tags: ["E-Commerce", "Payments", "Inventory"],
   },
   {
@@ -245,16 +245,16 @@ export default function WebsitesPage() {
               <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest px-3">Industry Demo Sites</span>
               <div className="h-px flex-1 bg-cyan-500/20" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
               {FEATURED_SITES.filter((s) => !s.isReal).map((site) => (
                 <Link key={site.id} href={site.href}>
-                  <a className="group block">
+                  <a className="group flex h-full">
                     <div
-                      className={`relative rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden h-full`}
+                      className={`relative rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden flex flex-col w-full`}
                       style={{ borderColor: site.color + "44" }}
                     >
                       <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />
-                      <div className="relative z-10">
+                      <div className="relative z-10 flex flex-col flex-1">
                         <div className="flex items-start justify-between mb-3">
                           <span className="text-4xl">{site.icon}</span>
                           <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: site.color + "22", color: site.color, border: `1px solid ${site.color}44` }}>
@@ -263,7 +263,7 @@ export default function WebsitesPage() {
                         </div>
                         <h3 className="text-lg font-bold text-white mb-1">{site.name}</h3>
                         <p className="text-xs font-medium mb-2" style={{ color: site.color }}>{site.category}</p>
-                        <p className="text-slate-300 text-xs leading-relaxed mb-4">{site.description}</p>
+                        <p className="text-slate-300 text-xs leading-relaxed mb-4 flex-1">{site.description}</p>
                         <div className="flex flex-wrap gap-1 mb-4">
                           {site.tags.slice(0, 2).map((tag) => (
                             <span key={tag} className="text-xs px-1.5 py-0.5 rounded text-slate-300" style={{ backgroundColor: site.color + "15" }}>{tag}</span>
