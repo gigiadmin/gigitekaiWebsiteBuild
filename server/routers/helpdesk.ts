@@ -12,7 +12,7 @@ import {
 import { sendTicketNotificationToTeams, sendReplyNotificationToTeams, sendStatusUpdateToTeams, sendAssignmentNotificationToTeams } from "../teamsBot";
 import { classifyTicket, saveClassificationToTicket, sendClassificationEmail, type GigitekAICategory } from "./gigitekai-ticket-classifier";
 import { customerFeedback, users } from "../../drizzle/schema";
-import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, or, desc, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 
 // ─── Auto-Routing Configuration ───────────────────────────────────────────────
@@ -896,8 +896,16 @@ export const helpdeskRouter = router({
       const db = await getDb();
       if (!db) return [];
       const { users } = await import("../../drizzle/schema");
+      // Return only the three designated agents
       return await db.select({ id: users.id, name: users.name, email: users.email })
         .from(users)
-        .where(eq(users.role, "admin"));
+        .where(
+          or(
+            eq(users.name, "Harry Henry-Santiago"),
+            eq(users.name, "Nas Crespo"),
+            eq(users.email, "support@gigitekai.com")
+          )
+        )
+        .orderBy(users.name);
     }),
 });
