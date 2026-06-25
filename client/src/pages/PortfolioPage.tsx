@@ -101,9 +101,9 @@ const FEATURES = [
     desc: "Embedded AI chatbots trained on your business data — available 24/7 to qualify leads and support customers.",
   },
   {
-    icon: <Cpu className="w-6 h-6" />,
-    title: "AI Chat Integration",
-    desc: "Embedded AI chatbots trained on your business data — available 24/7 to qualify leads and support customers.",
+    icon: <Zap className="w-6 h-6" />,
+    title: "Conversion Optimization",
+    desc: "A/B testing, heat mapping, and user behavior analytics built-in to maximize ROI and reduce bounce rates.",
   },
   {
     icon: <Shield className="w-6 h-6" />,
@@ -250,7 +250,7 @@ export default function WebsitesPage() {
                 <Link key={site.id} href={site.href}>
                   <a className="group flex h-full">
                     <div
-                      className={`relative rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl overflow-hidden flex flex-col w-full`}
+                      className={`relative rounded-2xl border p-6 bg-gradient-to-br ${site.bgGradient} transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_20px_40px_rgba(0,212,255,0.15)] overflow-hidden flex flex-col w-full`}
                       style={{ borderColor: site.color + "44" }}
                     >
                       <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20" style={{ backgroundColor: site.color }} />

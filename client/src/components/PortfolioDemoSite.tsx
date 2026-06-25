@@ -54,8 +54,16 @@ export default function PortfolioDemoSite({ site }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const [comparePlansMode, setComparePlansMode] = useState<'monthly' | 'annual'>('monthly');
 
   const accent = site.accentColor;
+
+  function scrollToPricing() {
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
   function handleChatSend() {
     if (!chatInput.trim()) return;
@@ -117,10 +125,17 @@ export default function PortfolioDemoSite({ site }: Props) {
               <a href="#services" className="hover:text-white transition-colors">Services</a>
               <a href="#process" className="hover:text-white transition-colors">Process</a>
               <a href="#results" className="hover:text-white transition-colors">Results</a>
-              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+              <button onClick={scrollToPricing} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0">Pricing</button>
               <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
               <a href="#contact" className="hover:text-white transition-colors">Contact</a>
               <a href="/websites" className="text-xs text-gray-500 hover:text-gray-300">← Websites</a>
+              <button
+                onClick={scrollToPricing}
+                className="px-4 py-2 rounded-lg font-semibold text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: accent }}
+              >
+                Book a Demo
+              </button>
               <a
                 href="#contact"
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-[opacity,transform] hover:opacity-90 shadow-sm"
@@ -411,6 +426,21 @@ export default function PortfolioDemoSite({ site }: Props) {
               <p className="text-gray-500 text-lg leading-relaxed">
                 Transparent pricing with no hidden fees. Choose the plan that fits your needs.
               </p>
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <span className={`text-sm font-semibold ${comparePlansMode === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>Monthly</span>
+                <button
+                  onClick={() => setComparePlansMode(comparePlansMode === 'monthly' ? 'annual' : 'monthly')}
+                  className="relative inline-flex h-8 w-14 items-center rounded-full transition-colors"
+                  style={{ backgroundColor: comparePlansMode === 'annual' ? accent : '#e5e7eb' }}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      comparePlansMode === 'annual' ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+                <span className={`text-sm font-semibold ${comparePlansMode === 'annual' ? 'text-gray-900' : 'text-gray-500'}`}>Annual</span>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {site.pricingTiers.map((tier) => (
