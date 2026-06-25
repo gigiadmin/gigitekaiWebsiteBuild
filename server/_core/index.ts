@@ -237,6 +237,10 @@ async function startServer() {
 
   // Cron job endpoints
   app.use("/api/cron", cronEndpoints);
+  
+  // Scheduled handlers (Manus Heartbeat)
+  const { registerScheduledHandlers } = await import("../scheduled-handlers/register-handlers");
+  registerScheduledHandlers(app);
 
   // Newsletter auto-post API (used by daily AI recap scheduled task)
   app.use("/api/newsletter", newsletterAutoPost);
