@@ -2,7 +2,7 @@ import { protectedProcedure, adminProcedure, publicProcedure, router } from "../
 import { z } from "zod";
 import { getDb } from "../db";
 import { tickets, ticketReplies, users } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const helpdeskDashboardMetricsRouter = router({
@@ -85,7 +85,13 @@ export const helpdeskDashboardMetricsRouter = router({
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
-    const allAgents = await db.select().from(users).where(eq(users.role, "admin"));
+    // Only return the two designated agents
+    const allAgents = await db.select().from(users).where(
+      or(
+        eq(users.email, "nas@gigitekai.com"),
+        eq(users.email, "harry@gigitekai.com")
+      )
+    );
     const allTickets = await db.select().from(tickets);
 
     const agentMetrics = allAgents.map((agent) => {
