@@ -67,7 +67,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🏥",
     color: "#EF4444",
     bgGradient: "from-red-900/40 to-rose-900/40",
-    href: "/portfolio/healthcare",
+    href: "/portfolio/health",
     tags: ["Healthcare", "Telemedicine", "HIPAA"],
   },
   {
@@ -78,7 +78,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🛍️",
     color: "#EC4899",
     bgGradient: "from-pink-900/40 to-rose-900/40",
-    href: "/portfolio/ecommerce",
+    href: "/portfolio/consulting",
     tags: ["E-Commerce", "Payments", "Inventory"],
   },
   {
@@ -89,7 +89,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "☁️",
     color: "#3B82F6",
     bgGradient: "from-blue-900/40 to-indigo-900/40",
-    href: "/portfolio/saas",
+    href: "/portfolio/tech",
     tags: ["SaaS", "Collaboration", "Enterprise"],
   },
 ];
