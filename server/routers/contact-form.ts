@@ -10,6 +10,7 @@ import { contactSubmissions, callDraftTickets } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
+import { sendToTeamsWithRetry, resolveWebhookUrl } from "../_core/teamsWebhookUtils";
 import { sql } from "drizzle-orm";
 
 // ─── Rate Limiting ──────────────────────────────────────────────────────────
@@ -233,6 +234,67 @@ export const contactFormRouter = router({
           });
         } catch (emailError) {
           console.warn("[Contact Form] Failed to send confirmation email:", emailError);
+        }
+
+        // Send Teams notification to helpdesk channel
+        try {
+          const webhookUrl = resolveWebhookUrl("general_support");
+          const teamsPayload = {
+            type: "message",
+            attachments: [
+              {
+                contentType: "application/vnd.microsoft.card.adaptive",
+                contentUrl: null,
+                content: {
+                  $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                  type: "AdaptiveCard",
+                  version: "1.4",
+                  body: [
+                    {
+                      type: "TextBlock",
+                      text: "📬 New Website Contact Form Submission",
+                      weight: "bolder",
+                      size: "large",
+                      color: "accent",
+                    },
+                    {
+                      type: "FactSet",
+                      facts: [
+                        { name: "Name:", value: input.name },
+                        { name: "Email:", value: input.email },
+                        { name: "Company:", value: input.company || "Not provided" },
+                        { name: "Phone:", value: input.phone || "Not provided" },
+                        { name: "Subject:", value: input.subject || "Website Contact Form" },
+                      ],
+                    },
+                    {
+                      type: "TextBlock",
+                      text: "Message:",
+                      weight: "bolder",
+                      spacing: "medium",
+                    },
+                    {
+                      type: "TextBlock",
+                      text: input.message,
+                      wrap: true,
+                      spacing: "small",
+                    },
+                  ],
+                  actions: [
+                    {
+                      type: "Action.OpenUrl",
+                      title: "View Ticket",
+                      url: `https://gigitekai.com/admin/tickets`,
+                    },
+                  ],
+                },
+              },
+            ],
+          };
+          await sendToTeamsWithRetry(webhookUrl, teamsPayload, `Contact form submission from ${input.email}`);
+          console.log(`[Contact Form] Teams notification sent for submission #${submissionId}`);
+        } catch (teamsError) {
+          console.warn(`[Contact Form] Failed to send Teams notification:`, teamsError);
         }
 
         // Notify owner via Manus notification system
