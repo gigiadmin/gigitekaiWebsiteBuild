@@ -9,6 +9,7 @@ import { Clock, CheckCircle2, TrendingUp, AlertCircle, Users2, Loader2 } from "l
 import { toast } from "sonner";
 import Breadcrumb from "@/components/Breadcrumb";
 import { AdminLayoutWithSidebar } from "@/components/AdminLayoutWithSidebar";
+import { AdminAgentCleanup } from "@/components/AdminAgentCleanup";
 
 interface AgentMetrics {
   agentId: number;
@@ -177,6 +178,14 @@ export default function AdminAgentDashboardPage() {
           {metrics.agentName} — Performance metrics for the last {daysRange} days
         </p>
       </div>
+
+      {/* Agent Cleanup Section - Only show to admins */}
+      {user?.role === "admin" && (
+        <div className="border-t border-slate-700/50 pt-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Agent Account Management</h2>
+          <AdminAgentCleanup />
+        </div>
+      )}
 
       {/* Agent Selector */}
       {agents.length > 1 && (
