@@ -158,9 +158,13 @@ async function fetchServiceIssuesFromGraph(
     });
   }
 
+  const RESOLVED_STATUSES = ["serviceRestored", "falsePositive", "postIncidentReviewPublished"];
+
   try {
+    // Use /issues?$filter=service eq 'ServiceName' — the healthOverviews/{id}/issues endpoint returns 404
+    const encodedFilter = encodeURIComponent(`service eq '${serviceId}'`);
     const response = await fetch(
-      `https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/healthOverviews/${serviceId}/issues`,
+      `https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/issues?$filter=${encodedFilter}`,
       {
         method: "GET",
         headers: {
@@ -177,10 +181,23 @@ async function fetchServiceIssuesFromGraph(
     }
 
     const data = (await response.json()) as {
-      value: ServiceHealthIssue[];
+      value: any[];
     };
 
-    return data.value || [];
+    // Filter out resolved statuses and map to our type
+    return (data.value || [])
+      .filter((issue: any) => !RESOLVED_STATUSES.includes(issue.status))
+      .map((issue: any) => ({
+        id: issue.id,
+        title: issue.title || "Untitled Issue",
+        description: issue.impactDescription || issue.classification || "No description available",
+        startDateTime: issue.startDateTime || new Date().toISOString(),
+        endDateTime: issue.endDateTime || undefined,
+        lastModifiedDateTime: issue.lastModifiedDateTime || new Date().toISOString(),
+        severity: getSeverityFromStatus(issue.status as ServiceHealthStatus),
+        status: issue.status as ServiceHealthStatus,
+        affectedServices: [serviceId],
+      }));
   } catch (error) {
     console.error("[M365 Health] Error fetching service issues:", error);
     return [];

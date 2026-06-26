@@ -34,6 +34,7 @@ export default function M365HealthPage() {
   const { data: healthSummary } = trpc.m365Health.getHealthSummary.useQuery();
 
   // Fetch issues for selected service
+  // selectedService stores the service.service (full name like "Exchange Online") for the Graph API filter
   const { data: serviceIssues = [], isLoading: issuesLoading } = trpc.m365Health.getServiceIssues.useQuery(
     { serviceId: selectedService || "" },
     { enabled: !!selectedService }
@@ -45,10 +46,6 @@ export default function M365HealthPage() {
   // Fetch M365 incidents from Microsoft API
   const { data: m365IncidentsData = { incidents: [], advisories: [] }, isLoading: incidentsLoading, refetch: refetchIncidents } = trpc.m365Incidents.getIncidents.useQuery();
   
-  // Debug: log incidents data
-  console.log('[M365 Incidents] Data:', m365IncidentsData);
-  console.log('[M365 Incidents] Incidents count:', m365IncidentsData?.incidents?.length);
-
   // Auto-refresh incidents every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -216,9 +213,9 @@ export default function M365HealthPage() {
                 <Card
                   key={service.id}
                   className={`bg-slate-800 border-slate-700 cursor-pointer hover:border-slate-600 transition ${
-                    selectedService === service.id ? "border-cyan-500/50 ring-1 ring-cyan-500/30" : ""
+                    selectedService === service.service ? "border-cyan-500/50 ring-1 ring-cyan-500/30" : ""
                   }`}
-                  onClick={() => setSelectedService(service.id)}
+                  onClick={() => setSelectedService(service.service)}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
@@ -245,7 +242,7 @@ export default function M365HealthPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>
-                      {services.find((s) => s.id === selectedService)?.service}
+                      {selectedService}
                     </CardTitle>
                     <Button
                       size="sm"
