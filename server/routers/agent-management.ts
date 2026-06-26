@@ -11,13 +11,13 @@ export const agentManagementRouter = {
    * Get list of unauthorized agents
    */
   getUnauthorizedAgents: adminProcedure.query(async () => {
-    const unauthorizedAgents = await db.getDb()
+      const unauthorizedAgents = await db.getDb()
       .select()
       .from(users)
       .where(ne(users.email, null))
-      .then((allUsers) =>
+      .then((allUsers: any[]) =>
         allUsers.filter(
-          (user) =>
+          (user: any) =>
             user.email &&
             !AUTHORIZED_AGENTS.includes(user.email) &&
             user.role === "admin"
@@ -26,7 +26,7 @@ export const agentManagementRouter = {
 
     return {
       count: unauthorizedAgents.length,
-      agents: unauthorizedAgents.map((u) => ({
+      agents: unauthorizedAgents.map((u: any) => ({
         id: u.id,
         email: u.email,
         name: u.name,
@@ -41,9 +41,11 @@ export const agentManagementRouter = {
   removeAllUnauthorizedAgents: adminProcedure.mutation(async ({ ctx }) => {
     try {
       // Get unauthorized agents
-      const allUsers = await db.getDb().select().from(users);
+      const database = await db.getDb();
+      if (!database) throw new Error("Database connection failed");
+      const allUsers = await database.select().from(users);
       const unauthorizedAgents = allUsers.filter(
-        (user) =>
+        (user: any) =>
           user.email &&
           !AUTHORIZED_AGENTS.includes(user.email) &&
           user.role === "admin"
@@ -58,12 +60,13 @@ export const agentManagementRouter = {
       }
 
       // Delete unauthorized agents
-      const unauthorizedIds = unauthorizedAgents.map((u) => u.id);
-      await db.getDb().delete(users).where((u) => unauthorizedIds.includes(u.id));
+      const unauthorizedIds = unauthorizedAgents.map((u: any) => u.id);
+      if (!database) throw new Error("Database connection failed");
+      await database.delete(users).where((u: any) => unauthorizedIds.includes(u.id));
 
       // Log audit event
       const removedEmails = unauthorizedAgents
-        .map((u) => u.email)
+        .map((u: any) => u.email)
         .join(", ");
       const auditMessage = `Removed ${unauthorizedAgents.length} unauthorized agent(s): ${removedEmails}`;
 
@@ -81,7 +84,7 @@ export const agentManagementRouter = {
         success: true,
         removed: unauthorizedAgents.length,
         message: `Removed ${unauthorizedAgents.length} unauthorized agent(s)`,
-        removedAgents: unauthorizedAgents.map((u) => u.email),
+        removedAgents: unauthorizedAgents.map((u: any) => u.email),
       };
     } catch (error) {
       console.error("[Agent Management] Error removing unauthorized agents:", error);

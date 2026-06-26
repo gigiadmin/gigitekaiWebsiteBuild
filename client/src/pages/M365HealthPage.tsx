@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { useState, useMemo, useEffect } from "react";
 
 export default function M365HealthPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +42,17 @@ export default function M365HealthPage() {
 
   // Fetch subscriptions
   const { data: subscriptions = [] } = trpc.m365Health.getNotificationSubscriptions.useQuery();
+
+  // Fetch M365 incidents from Microsoft API
+  const { data: m365IncidentsData = { incidents: [], advisories: [] }, refetch: refetchIncidents } = trpc.m365Incidents.getIncidents.useQuery();
+
+  // Auto-refresh incidents every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchIncidents();
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [refetchIncidents]);
 
   // Filter services based on search and status
   const filteredServices = useMemo(() => {
@@ -296,8 +308,102 @@ export default function M365HealthPage() {
             )}
           </TabsContent>
 
-          {/* Incidents Tab */}
+          {/* Incidents Tab - Real M365 Incidents */}
           <TabsContent value="incidents" className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Microsoft 365 Incidents</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => refetchIncidents()}
+                className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+              >
+                <RefreshCw size={16} className="mr-2" />
+                Refresh
+              </Button>
+            </div>
+
+            {m365IncidentsData?.incidents && m365IncidentsData.incidents.length > 0 ? (
+              <div className="space-y-3">
+                {m365IncidentsData.incidents.map((incident: any) => (
+                  <Card key={incident.id} className={`border-l-4 ${
+                    incident.severity === "Critical"
+                      ? "bg-red-900/20 border-red-700/30 border-l-red-500"
+                      : incident.severity === "Major"
+                      ? "bg-orange-900/20 border-orange-700/30 border-l-orange-500"
+                      : "bg-yellow-900/20 border-yellow-700/30 border-l-yellow-500"
+                  }`}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <CardTitle className={`flex items-center gap-2 ${
+                            incident.severity === "Critical"
+                              ? "text-red-400"
+                              : incident.severity === "Major"
+                              ? "text-orange-400"
+                              : "text-yellow-400"
+                          }`}>
+                            <AlertCircle size={18} />
+                            {incident.title}
+                          </CardTitle>
+                          <CardDescription className="text-slate-300 mt-1">
+                            {incident.impactDescription}
+                          </CardDescription>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={`${
+                            incident.status === "Resolved"
+                              ? "bg-green-900/30 text-green-400 border-green-700/30"
+                              : incident.status === "Monitoring"
+                              ? "bg-blue-900/30 text-blue-400 border-blue-700/30"
+                              : "bg-red-900/30 text-red-400 border-red-700/30"
+                          }`}
+                        >
+                          {incident.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="text-sm text-slate-400 space-y-1">
+                        <p>Started: {formatDistanceToNow(new Date(incident.startTime), { addSuffix: true })}</p>
+                        <p>Last Updated: {formatDistanceToNow(new Date(incident.lastUpdated), { addSuffix: true })}</p>
+                      </div>
+                      {incident.updates && incident.updates.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-slate-700/50">
+                          <p className="text-xs font-semibold text-slate-300 mb-2">Recent Updates:</p>
+                          <div className="space-y-2">
+                            {incident.updates.slice(0, 3).map((update: any, idx: number) => (
+                              <div key={idx} className="text-xs text-slate-400 bg-slate-900/30 p-2 rounded">
+                                <p className="font-semibold text-slate-300">{update.status}</p>
+                                <p>{update.message}</p>
+                                <p className="text-slate-500 mt-1">{formatDistanceToNow(new Date(update.timestamp), { addSuffix: true })}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-green-900/20 border-green-700/30">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle size={20} className="text-green-400" />
+                    <div>
+                      <p className="font-semibold text-green-400">All Microsoft 365 Services Operational</p>
+                      <p className="text-sm text-green-300">No active incidents. Data from Microsoft 365 Service Communications API.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Legacy Incidents Tab */}
+          <TabsContent value="legacy-incidents" className="space-y-4">
             {criticalIssues.length === 0 ? (
               <Card className="bg-green-900/20 border-green-700/30">
                 <CardContent className="pt-6">
