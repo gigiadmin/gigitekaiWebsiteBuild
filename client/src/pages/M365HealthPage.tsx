@@ -43,7 +43,11 @@ export default function M365HealthPage() {
   const { data: subscriptions = [] } = trpc.m365Health.getNotificationSubscriptions.useQuery();
 
   // Fetch M365 incidents from Microsoft API
-  const { data: m365IncidentsData = { incidents: [], advisories: [] }, refetch: refetchIncidents } = trpc.m365Incidents.getIncidents.useQuery();
+  const { data: m365IncidentsData = { incidents: [], advisories: [] }, isLoading: incidentsLoading, refetch: refetchIncidents } = trpc.m365Incidents.getIncidents.useQuery();
+  
+  // Debug: log incidents data
+  console.log('[M365 Incidents] Data:', m365IncidentsData);
+  console.log('[M365 Incidents] Incidents count:', m365IncidentsData?.incidents?.length);
 
   // Auto-refresh incidents every 5 minutes
   useEffect(() => {
@@ -322,7 +326,13 @@ export default function M365HealthPage() {
               </Button>
             </div>
 
-            {m365IncidentsData?.incidents && m365IncidentsData.incidents.length > 0 ? (
+            {incidentsLoading ? (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="pt-6">
+                  <p className="text-slate-400">Loading incidents...</p>
+                </CardContent>
+              </Card>
+            ) : m365IncidentsData?.incidents && m365IncidentsData.incidents.length > 0 ? (
               <div className="space-y-3">
                 {m365IncidentsData.incidents.map((incident: any) => (
                   <Card key={incident.id} className={`border-l-4 ${
@@ -364,24 +374,13 @@ export default function M365HealthPage() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="text-sm text-slate-400 space-y-1">
-                        <p>Started: {formatDistanceToNow(new Date(incident.startTime), { addSuffix: true })}</p>
-                        <p>Last Updated: {formatDistanceToNow(new Date(incident.lastUpdated), { addSuffix: true })}</p>
+                      <div className="text-sm text-slate-300 space-y-2">
+                        <p className="text-xs text-slate-400">Started: {formatDistanceToNow(new Date(incident.startTime), { addSuffix: true })}</p>
+                        <p className="text-xs text-slate-400">Last Updated: {formatDistanceToNow(new Date(incident.lastUpdated), { addSuffix: true })}</p>
+                        {incident.affectedServices && incident.affectedServices.length > 0 && (
+                          <p className="text-xs text-slate-400">Affected: {incident.affectedServices.join(", ")}</p>
+                        )}
                       </div>
-                      {incident.updates && incident.updates.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-slate-700/50">
-                          <p className="text-xs font-semibold text-slate-300 mb-2">Recent Updates:</p>
-                          <div className="space-y-2">
-                            {incident.updates.slice(0, 3).map((update: any, idx: number) => (
-                              <div key={idx} className="text-xs text-slate-400 bg-slate-900/30 p-2 rounded">
-                                <p className="font-semibold text-slate-300">{update.status}</p>
-                                <p>{update.message}</p>
-                                <p className="text-slate-500 mt-1">{formatDistanceToNow(new Date(update.timestamp), { addSuffix: true })}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 ))}

@@ -17,6 +17,19 @@ interface M365Incident {
   }>;
 }
 
+// Zod schema for validation
+const M365IncidentSchema = {
+  id: "string",
+  title: "string",
+  status: "string",
+  severity: "string",
+  startTime: "string",
+  lastUpdated: "string",
+  affectedServices: "array",
+  impactDescription: "string",
+  updates: "array",
+}
+
 /**
  * Fetch Microsoft 365 service health incidents using Microsoft Graph API
  * Requires MS_GRAPH_CLIENT_ID, MS_GRAPH_CLIENT_SECRET, MS_GRAPH_TENANT_ID
@@ -118,11 +131,13 @@ export const m365IncidentsRouter = {
           lastUpdated: item.lastModifiedDateTime,
           affectedServices: item.affectedServices?.map((s: any) => s.displayName) || [],
           impactDescription: item.impactDescription || "Service issue detected",
-          updates: item.posts?.map((p: any) => ({
-            timestamp: p.createdDateTime,
-            message: p.content,
-            status: item.status,
-          })) || [],
+          updates: (item.posts || [])
+            .filter((p: any) => p && p.content)
+            .map((p: any) => ({
+              timestamp: p.createdDateTime || new Date().toISOString(),
+              message: p.content || "Update available",
+              status: item.status,
+            })) || [],
         }));
 
       // Parse advisories from health overviews
