@@ -104,13 +104,16 @@ export const m365IncidentsRouter = {
       }
 
       // Parse incidents from issues
+      // Microsoft statuses: serviceRestored, postIncidentReviewPublished, serviceDegradation,
+      // serviceInterruption, restoringService, investigating, extendedRecovery
+      const RESOLVED_STATUSES = ["serviceRestored", "falsePositive"];
       const incidents: M365Incident[] = issues
-        .filter((item: any) => item.status !== "Resolved")
+        .filter((item: any) => !RESOLVED_STATUSES.includes(item.status))
         .map((item: any) => ({
           id: item.id,
           title: item.title,
-          status: item.status,
-          severity: getSeverity(item.severity),
+          status: formatIncidentStatus(item.status),
+          severity: getSeverity(item.classification || item.severity),
           startTime: item.startDateTime,
           lastUpdated: item.lastModifiedDateTime,
           affectedServices: item.affectedServices?.map((s: any) => s.displayName) || [],
@@ -201,16 +204,38 @@ export const m365IncidentsRouter = {
 };
 
 /**
+ * Format Microsoft incident status to human-readable string
+ */
+function formatIncidentStatus(status: string): "Investigating" | "Identified" | "Monitoring" | "Resolved" {
+  switch (status) {
+    case "serviceDegradation":
+    case "serviceInterruption":
+    case "extendedRecovery":
+      return "Investigating";
+    case "restoringService":
+      return "Monitoring";
+    case "postIncidentReviewPublished":
+      return "Resolved";
+    default:
+      return "Investigating";
+  }
+}
+
+/**
  * Map Microsoft status to severity level
  */
 function getSeverity(
   status: string
 ): "Critical" | "Major" | "Minor" {
-  switch (status) {
-    case "ServiceDegradation":
-      return "Major";
-    case "ServiceInterruption":
+  switch (status?.toLowerCase()) {
+    case "servicedegradation":
+    case "serviceinterruption":
+    case "extendedrecovery":
+    case "incident":
       return "Critical";
+    case "advisory":
+    case "restoringservice":
+      return "Major";
     default:
       return "Minor";
   }
