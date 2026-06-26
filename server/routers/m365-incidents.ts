@@ -119,7 +119,7 @@ export const m365IncidentsRouter = {
       // Parse incidents from issues
       // Microsoft statuses: serviceRestored, postIncidentReviewPublished, serviceDegradation,
       // serviceInterruption, restoringService, investigating, extendedRecovery
-      const RESOLVED_STATUSES = ["serviceRestored", "falsePositive"];
+      const RESOLVED_STATUSES = ["serviceRestored", "falsePositive", "postIncidentReviewPublished"];
       const incidents: M365Incident[] = issues
         .filter((item: any) => !RESOLVED_STATUSES.includes(item.status))
         .map((item: any) => ({
