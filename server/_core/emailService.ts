@@ -1,6 +1,6 @@
 /**
  * Email Service
- * Sends emails via Microsoft 365 (primary) with SendGrid fallback
+ * Sends emails exclusively via Microsoft 365 (MS Graph)
  */
 
 // Use global fetch (available in Node.js 18+)
@@ -15,24 +15,17 @@ export interface EmailOptions {
 }
 
 /**
- * Send email via Microsoft 365 or SendGrid
+ * Send email via Microsoft 365 (MS Graph)
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
-    // Try Microsoft 365 first
-    if (process.env.MS_GRAPH_CLIENT_ID && process.env.MS_GRAPH_CLIENT_SECRET) {
-      const success = await sendViaM365(options);
-      if (success) return true;
+    if (!process.env.MS_GRAPH_CLIENT_ID || !process.env.MS_GRAPH_CLIENT_SECRET) {
+      console.error("[Email] MS Graph credentials not configured");
+      return false;
     }
 
-    // Fallback to SendGrid
-    if (process.env.SENDGRID_API_KEY) {
-      const success = await sendViaSendGrid(options);
-      if (success) return true;
-    }
-
-    console.warn("[Email] No email service configured");
-    return false;
+    const success = await sendViaM365(options);
+    return success;
   } catch (error) {
     console.error("[Email Error]", error);
     return false;
@@ -92,71 +85,6 @@ async function sendViaM365(options: EmailOptions): Promise<boolean> {
   }
 }
 
-/**
- * Send via SendGrid
- */
-async function sendViaSendGrid(options: EmailOptions): Promise<boolean> {
-  try {
-    const apiKey = process.env.SENDGRID_API_KEY;
-    if (!apiKey) return false;
-
-    const recipients = Array.isArray(options.to)
-      ? options.to
-      : [options.to];
-
-    const payload: any = {
-      personalizations: [
-        {
-          to: recipients.map((email) => ({ email })),
-        },
-      ],
-      from: {
-        email: options.from || "noreply@gigitekai.com",
-        name: "GigitekAI Support",
-      },
-      subject: options.subject,
-      content: [
-        {
-          type: "text/plain",
-          value: options.body,
-        },
-      ],
-    };
-
-    if (options.html) {
-      payload.content.push({
-        type: "text/html",
-        value: options.html,
-      });
-    }
-
-    if (options.replyTo) {
-      payload.reply_to = { email: options.replyTo };
-    }
-
-    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (response.ok || response.status === 202) {
-      console.log(`[Email] Sent via SendGrid to ${recipients.join(", ")}`);
-      return true;
-    }
-
-    console.error(
-      `[Email SendGrid Error] ${response.status}: ${await response.text()}`
-    );
-    return false;
-  } catch (error) {
-    console.error("[Email SendGrid Error]", error);
-    return false;
-  }
-}
 
 /**
  * Send email via Microsoft Graph API with detailed options
