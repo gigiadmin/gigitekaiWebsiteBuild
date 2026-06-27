@@ -197,9 +197,9 @@ export default function AdminSearchChat() {
       )}
 
       {/* ── Main Content ── */}
-      <div className="flex-1 flex max-w-7xl mx-auto w-full px-6 py-4 gap-4" style={{ minHeight: 0 }}>
+      <div className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 lg:px-6 py-4 lg:gap-4 gap-0" style={{ minHeight: 0 }}>
         {/* ── Left Sidebar ── */}
-        <div className="w-64 flex-shrink-0 flex flex-col gap-4">
+        <div className="w-full lg:w-64 lg:flex-shrink-0 flex flex-col gap-4 mb-4 lg:mb-0">
           {/* Model Selection */}
           <div className="bg-[#0d1220] border border-white/10 rounded-xl p-4">
             <label className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 block">AI Model</label>
@@ -273,9 +273,9 @@ export default function AdminSearchChat() {
         </div>
 
         {/* ── Chat Area ── */}
-        <div className="flex-1 flex flex-col min-h-0 bg-[#0d1220] border border-white/10 rounded-xl overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 h-full lg:min-h-screen bg-[#0d1220] border border-white/10 rounded-xl overflow-hidden">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 lg:p-5 space-y-4">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center">
                 {/* Welcome state */}
@@ -395,7 +395,7 @@ export default function AdminSearchChat() {
           </div>
 
           {/* Input Bar */}
-          <div className="border-t border-white/10 p-4 bg-[#080c14]/50">
+          <div className="flex-shrink-0 border-t border-white/10 p-3 lg:p-4 bg-[#080c14]/50">
             {/* Quick suggestions (when chat is active) */}
             {messages.length > 0 && (
               <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">

@@ -150,21 +150,28 @@ async function fetchServiceHealthFromGraph(): Promise<ServiceHealth[]> {
 async function fetchServiceIssuesFromGraph(
   serviceId: string
 ): Promise<ServiceHealthIssue[]> {
+  console.log("\n========== [M365 Health] fetchServiceIssuesFromGraph START ==========");
+  console.log("[M365 Health] serviceId:", JSON.stringify(serviceId));
+  console.log("[M365 Health] serviceId type:", typeof serviceId);
   const token = await getMsGraphToken();
   if (!token) {
+    console.error("[M365 Health] No token available");
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Unable to authenticate with Microsoft Graph",
     });
   }
+  console.log("[M365 Health] Token: OK");
 
   const RESOLVED_STATUSES = ["serviceRestored", "falsePositive", "postIncidentReviewPublished"];
 
   try {
     // Use /issues?$filter=service eq 'ServiceName' — the healthOverviews/{id}/issues endpoint returns 404
     const encodedFilter = encodeURIComponent(`service eq '${serviceId}'`);
+    const url = `https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/issues?$filter=${encodedFilter}`;
+    console.log("[M365 Health] URL:", url);
     const response = await fetch(
-      `https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/issues?$filter=${encodedFilter}`,
+      url,
       {
         method: "GET",
         headers: {
@@ -174,6 +181,7 @@ async function fetchServiceIssuesFromGraph(
       }
     );
 
+    console.log("[M365 Health] HTTP Status:", response.status);
     if (!response.ok) {
       const error = await response.text();
       console.error("[M365 Health] Graph API error:", response.status, error);
@@ -184,10 +192,19 @@ async function fetchServiceIssuesFromGraph(
       value: any[];
     };
 
+    console.log("[M365 Health] Total issues from API:", data.value?.length || 0);
+    if (data.value && data.value.length > 0) {
+      console.log("[M365 Health] First issue status:", data.value[0].status);
+    }
+
     // Filter out resolved statuses and map to our type
-    return (data.value || [])
+    const filtered = (data.value || [])
       .filter((issue: any) => !RESOLVED_STATUSES.includes(issue.status))
-      .map((issue: any) => ({
+    
+    console.log("[M365 Health] After filtering:", filtered.length, "active issues");
+    console.log("========== [M365 Health] fetchServiceIssuesFromGraph END ==========\n");
+    
+    return filtered.map((issue: any) => ({
         id: issue.id,
         title: issue.title || "Untitled Issue",
         description: issue.impactDescription || issue.classification || "No description available",

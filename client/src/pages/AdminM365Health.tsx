@@ -237,7 +237,7 @@ export default function AdminM365Health() {
     toast.success("Service health updated");
   };
 
-  const selectedServiceData = services?.find(s => s.id === selectedService);
+  const selectedServiceData = services?.find(s => s.service === selectedService);
   // Check if we're showing demo data (permissions not yet granted)
   const isDemo = services && services.length > 0 && (services[0] as any)._demo === true;
 
@@ -643,7 +643,7 @@ export default function AdminM365Health() {
                   } ${isCritical ? "ring-1 ring-red-500/50" : ""}`}
                   onClick={() => {
                     if (isCritical) {
-                      setSelectedService(service.id);
+                      setSelectedService(service.service);
                     } else {
                       setExpandedService(isExpanded ? null : service.id);
                     }

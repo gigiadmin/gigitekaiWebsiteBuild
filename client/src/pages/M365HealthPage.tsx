@@ -215,7 +215,10 @@ export default function M365HealthPage() {
                   className={`bg-slate-800 border-slate-700 cursor-pointer hover:border-slate-600 transition ${
                     selectedService === service.service ? "border-cyan-500/50 ring-1 ring-cyan-500/30" : ""
                   }`}
-                  onClick={() => setSelectedService(service.service)}
+                  onClick={() => {
+                    console.log('[M365 Health] Service card clicked:', service.service);
+                    setSelectedService(service.service);
+                  }}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
