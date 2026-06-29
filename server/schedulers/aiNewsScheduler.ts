@@ -2,10 +2,12 @@
  * AI News Daily Recap Scheduler
  *
  * Runs every day at 9:00 AM ET.
- * Fetches the latest AI news, generates a branded HTML recap,
- * then calls the newsletter auto-post endpoint to:
- *   1. Publish a blog post on gigitekai.com
- *   2. Send the recap to all active newsletter subscribers
+ * Fetches REAL live news from NewsAPI across 3 categories:
+ *   - AI & Technology (2 stories)
+ *   - Business (1 story)
+ *   - General Tech (1 story)
+ * Deduplicates by tracking seen article URLs in the database.
+ * Generates a branded HTML recap, then calls the newsletter auto-post endpoint.
  */
 
 import { invokeLLM } from "../_core/llm";
@@ -17,70 +19,168 @@ interface NewsItem {
   summary: string;
   source: string;
   url: string;
+  category: string;
+}
+
+interface NewsApiArticle {
+  title: string;
+  description: string;
+  content: string;
+  url: string;
+  source: { name: string };
+  publishedAt: string;
+}
+
+// ─── Deduplication Helpers ────────────────────────────────────────────────────
+
+/** Load seen article URLs from DB (persisted across restarts) */
+async function getSeenUrls(): Promise<Set<string>> {
+  try {
+    const { getSetting } = await import("../db");
+    const raw = await getSetting("ai_news_seen_urls");
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as string[];
+    return new Set(parsed);
+  } catch {
+    return new Set();
+  }
+}
+
+/** Save seen article URLs to DB, keeping only the last 200 to avoid bloat */
+async function saveSeenUrls(urls: Set<string>): Promise<void> {
+  try {
+    const { setSetting } = await import("../db");
+    const arr = Array.from(urls).slice(-200);
+    await setSetting("ai_news_seen_urls", JSON.stringify(arr), "URLs of articles already sent in daily recap");
+  } catch (err) {
+    console.warn("[AI News Scheduler] Failed to save seen URLs:", err);
+  }
 }
 
 // ─── News Fetching ────────────────────────────────────────────────────────────
 
-/**
- * Uses the built-in LLM to research and return today's top AI news items.
- */
-async function fetchAiNews(): Promise<NewsItem[]> {
+/** Fetch articles from NewsAPI for a given query */
+async function fetchFromNewsApi(query: string, pageSize: number): Promise<NewsApiArticle[]> {
+  const apiKey = process.env.NEWS_API_KEY;
+  if (!apiKey) return [];
+
   try {
-    const today = new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-    const response = await invokeLLM({
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI news researcher. Return ONLY a valid JSON object with an "items" array containing the 4 most impactful AI business news items from the past 48 hours (as of ${today}). Focus on: enterprise AI deployments, AI agent automation, Microsoft/OpenAI/Anthropic/Google AI updates, AI ROI for businesses. Each item must have: title, summary (2-3 sentences), source (publication name), url (real URL if known, otherwise use https://gigitekai.com/blog). Return ONLY raw JSON, no markdown code blocks, no explanation.`,
-        },
-        {
-          role: "user",
-          content: `Give me the top 4 AI business news items for ${today} as a JSON object: {"items": [{"title": "...", "summary": "...", "source": "...", "url": "..."}]}`,
-        },
-      ],
-    });
-
-    const raw = response?.choices?.[0]?.message?.content;
-    if (!raw || typeof raw !== "string") return getFallbackNews();
-
-    // Strip markdown code fences if present
-    const cleaned = raw.replace(/^```[\w]*\n?/m, "").replace(/\n?```$/m, "").trim();
-    const parsed = JSON.parse(cleaned);
-    const items: NewsItem[] = parsed.items ?? parsed;
-    if (!Array.isArray(items) || items.length === 0) return getFallbackNews();
-    return items.slice(0, 4);
+    const from = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString().split("T")[0];
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&language=en&pageSize=${pageSize}&from=${from}&apiKey=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json() as { articles?: NewsApiArticle[]; status?: string; message?: string };
+    if (data.status !== "ok" || !data.articles) {
+      console.warn(`[AI News Scheduler] NewsAPI returned: ${data.message ?? "unknown error"}`);
+      return [];
+    }
+    return data.articles.filter(
+      (a) => a.title && a.title !== "[Removed]" && a.url && a.description
+    );
   } catch (err) {
-    console.error("[AI News Scheduler] Error fetching AI news via LLM:", err);
-    return getFallbackNews();
+    console.warn(`[AI News Scheduler] NewsAPI fetch failed for "${query}":`, err);
+    return [];
   }
 }
 
-/** Fallback news items if LLM call fails */
+/** Use LLM to write a clean 2-3 sentence summary of a raw article */
+async function summarizeArticle(article: NewsApiArticle): Promise<string> {
+  try {
+    const res = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: "You are a business news editor. Write a concise 2-3 sentence summary of the article for a business executive audience. Focus on the business impact. Return only the summary text, no quotes or labels.",
+        },
+        {
+          role: "user",
+          content: `Title: ${article.title}\nDescription: ${article.description ?? ""}\nContent: ${(article.content ?? "").slice(0, 500)}`,
+        },
+      ],
+    });
+    const content = res?.choices?.[0]?.message?.content;
+    return (typeof content === "string" ? content.trim() : "") || article.description || "";
+  } catch {
+    return article.description ?? "";
+  }
+}
+
+/**
+ * Fetch a mixed set of real news: 2 AI/tech + 1 business + 1 general tech.
+ * Skips any URLs already seen in previous recaps.
+ */
+async function fetchMixedNews(seenUrls: Set<string>): Promise<NewsItem[]> {
+  const results: NewsItem[] = [];
+
+  // Define the 3 category queries
+  const categories: { query: string; label: string; count: number }[] = [
+    { query: "artificial intelligence enterprise AI agent automation", label: "AI & Technology", count: 2 },
+    { query: "business technology digital transformation cloud", label: "Business & Tech", count: 1 },
+    { query: "cybersecurity Microsoft 365 productivity software", label: "Tech & Security", count: 1 },
+  ];
+
+  for (const cat of categories) {
+    const articles = await fetchFromNewsApi(cat.query, 10);
+    let added = 0;
+
+    for (const article of articles) {
+      if (added >= cat.count) break;
+      if (seenUrls.has(article.url)) continue; // skip duplicates
+
+      const summary = await summarizeArticle(article);
+      results.push({
+        title: article.title,
+        summary,
+        source: article.source.name,
+        url: article.url,
+        category: cat.label,
+      });
+      seenUrls.add(article.url);
+      added++;
+    }
+
+    // If NewsAPI returned nothing new for this category, skip it
+    if (added === 0) {
+      console.warn(`[AI News Scheduler] No fresh articles for category: ${cat.label}`);
+    }
+  }
+
+  return results;
+}
+
+/** Fallback news items if NewsAPI is unavailable */
 function getFallbackNews(): NewsItem[] {
   return [
     {
       title: "AI Agents Are Reshaping Enterprise Operations",
-      summary:
-        "Organizations are rapidly deploying AI agents to automate Tier 1 and Tier 2 workflows, reducing operational costs by up to 40% and freeing hundreds of hours monthly.",
+      summary: "Organizations are rapidly deploying AI agents to automate Tier 1 and Tier 2 workflows, reducing operational costs by up to 40% and freeing hundreds of hours monthly.",
       source: "GigitekAI Insights",
       url: "https://gigitekai.com/blog",
+      category: "AI & Technology",
     },
     {
       title: "Microsoft 365 Copilot Adoption Accelerates Across SMBs",
-      summary:
-        "Microsoft 365 Copilot is seeing record adoption among small and mid-sized businesses, with early adopters reporting significant productivity gains in email management, meeting summaries, and document generation.",
+      summary: "Microsoft 365 Copilot is seeing record adoption among small and mid-sized businesses, with early adopters reporting significant productivity gains in email, meetings, and documents.",
       source: "GigitekAI Insights",
       url: "https://gigitekai.com/blog",
+      category: "Business & Tech",
+    },
+    {
+      title: "Zero Trust Security Becomes the New Standard for Remote Work",
+      summary: "As hybrid work becomes permanent, organizations are adopting Zero Trust frameworks to protect distributed workforces. Security-first MSPs are seeing 3x demand for Zero Trust assessments.",
+      source: "GigitekAI Insights",
+      url: "https://gigitekai.com/blog",
+      category: "Tech & Security",
     },
   ];
 }
 
 // ─── HTML Generation ──────────────────────────────────────────────────────────
+
+const categoryIcons: Record<string, string> = {
+  "AI & Technology": "🤖",
+  "Business & Tech": "💼",
+  "Tech & Security": "🔐",
+};
 
 function generateNewsletterHtml(newsItems: NewsItem[]): string {
   const dateStr = new Date().toLocaleDateString("en-US", {
@@ -93,8 +193,11 @@ function generateNewsletterHtml(newsItems: NewsItem[]): string {
     .map(
       (item, index) => `
     <div style="margin-bottom:24px;padding:16px;background:#f8fafc;border-left:4px solid #00D4FF;border-radius:4px;">
-      <h3 style="margin-top:0;color:#0A0E1A;">${index + 1}. ${item.title}</h3>
-      <p style="color:#1a202c;line-height:1.6;">${item.summary}</p>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#00D4FF;letter-spacing:0.05em;margin-bottom:6px;">
+        ${categoryIcons[item.category] ?? "📰"} ${item.category}
+      </div>
+      <h3 style="margin-top:0;margin-bottom:8px;color:#0A0E1A;font-size:16px;">${index + 1}. ${item.title}</h3>
+      <p style="color:#1a202c;line-height:1.6;margin-bottom:8px;">${item.summary}</p>
       <p style="margin-bottom:0;font-size:13px;"><em>Source: <a href="${item.url}" style="color:#00D4FF;text-decoration:none;">${item.source}</a></em></p>
     </div>`
     )
@@ -108,9 +211,9 @@ function generateNewsletterHtml(newsItems: NewsItem[]): string {
   </div>
 
   <div style="padding:32px;background:#ffffff;">
-    <p style="font-size:16px;color:#4a5568;">Welcome to your daily briefing on the most impactful AI developments shaping business. At GigitekAI, we cut through the noise to bring you actionable insights on how AI agents and tech giants are redefining enterprise operations.</p>
+    <p style="font-size:16px;color:#4a5568;">Your daily briefing on AI, business, and technology — curated to keep you ahead of the curve. Today's recap covers the most impactful developments shaping enterprise operations.</p>
 
-    <h2 style="color:#0A0E1A;border-bottom:2px solid #00D4FF;padding-bottom:8px;">📰 Top AI News &amp; Strategic Moves</h2>
+    <h2 style="color:#0A0E1A;border-bottom:2px solid #00D4FF;padding-bottom:8px;">📰 Today's Top Stories</h2>
     ${newsHtml}
 
     <div style="margin-top:40px;padding:24px;background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);color:#ffffff;border-radius:8px;text-align:center;">
@@ -167,18 +270,31 @@ export async function runAiNewsRecap(): Promise<void> {
     return;
   }
 
-  // Also check database in case server restarted
   const dbLastRunDate = await getLastRunDateFromDb();
   if (dbLastRunDate === todayET) {
-    lastRunDate = todayET; // Update memory
+    lastRunDate = todayET;
     console.log(`[AI News Scheduler] Already ran today (${todayET}) per database — skipping duplicate`);
     return;
   }
 
-  console.log("[AI News Scheduler] Starting daily AI news recap generation...");
+  console.log("[AI News Scheduler] Starting daily mixed news recap generation...");
 
   try {
-    const newsItems = await fetchAiNews();
+    // Load seen URLs for deduplication
+    const seenUrls = await getSeenUrls();
+
+    // Fetch real mixed news (AI + Business + Tech)
+    let newsItems = await fetchMixedNews(seenUrls);
+
+    // Fall back if we couldn't get enough real news
+    if (newsItems.length < 2) {
+      console.warn("[AI News Scheduler] Not enough real news articles — using fallback");
+      newsItems = getFallbackNews();
+    }
+
+    // Save updated seen URLs to prevent future duplicates
+    await saveSeenUrls(seenUrls);
+
     const bodyHtml = generateNewsletterHtml(newsItems);
 
     const dateStr = new Date().toLocaleDateString("en-US", {
@@ -186,7 +302,7 @@ export async function runAiNewsRecap(): Promise<void> {
       day: "numeric",
       year: "numeric",
     });
-    const subject = `🚀 GigitekAI Daily Recap: The Future of Work is Here (${dateStr})`;
+    const subject = `🚀 GigitekAI Daily Recap: AI, Business & Tech — ${dateStr}`;
 
     // Call the auto-post endpoint (creates blog post + sends newsletter)
     const apiKey = process.env.NEWSLETTER_AUTO_POST_KEY;
@@ -223,7 +339,7 @@ export async function runAiNewsRecap(): Promise<void> {
       return;
     }
 
-    // Mark run as successful for today (in memory and database)
+    // Mark run as successful for today
     lastRunDate = todayET;
     await saveLastRunDateToDb(todayET);
     console.log(
@@ -255,20 +371,18 @@ export function startAiNewsScheduler(): void {
   const hours = (ms / 3_600_000).toFixed(1);
   console.log(`[AI News Scheduler] Scheduled — first run in ${hours}h (9:00 AM ET daily)`);
 
-  // Schedule the next run
   const scheduleNextRun = () => {
     const delayMs = msUntilNext9amET();
     const nextHours = (delayMs / 3_600_000).toFixed(1);
     console.log(`[AI News Scheduler] Next run scheduled in ${nextHours}h (9:00 AM ET)`);
-    
+
     _intervalId = setTimeout(() => {
       runAiNewsRecap()
         .catch((e) => console.error("[AI News Scheduler] Scheduled run failed:", e))
-        .finally(() => scheduleNextRun()); // Reschedule after run completes
+        .finally(() => scheduleNextRun());
     }, delayMs);
   };
 
-  // Start the scheduler
   scheduleNextRun();
 }
 
