@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Mail, CheckCircle2, Loader2 } from "lucide-react";
 
 interface NewsletterSignupProps {
-  /** Visual variant — "banner" for full-width section, "compact" for inline card */
-  variant?: "banner" | "compact";
+  /** Visual variant — "banner" for full-width section, "compact" for inline card, "inline" for subtle bottom-of-post */
+  variant?: "banner" | "compact" | "inline";
   /** Source page to record with the subscription */
   source?: string;
 }
@@ -49,6 +49,47 @@ export default function NewsletterSignup({
     });
   }
 
+  if (variant === "inline") {
+    return (
+      <div className="bg-white dark:bg-[#0F1520] rounded-lg border border-gray-200 dark:border-white/5 p-5 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 dark:text-gray-400 mb-2">📧 Stay Updated</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+          Get AI, cloud, and cybersecurity insights delivered weekly.
+        </p>
+        {submitted ? (
+          <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium">
+            <CheckCircle2 size={16} />
+            Thanks for subscribing!
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 max-w-sm mx-auto">
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="flex-1 bg-gray-50 dark:bg-[#141B2D] border-gray-300 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-[#00D4FF] h-9 text-sm"
+              disabled={subscribe.isPending}
+            />
+            <Button
+              type="submit"
+              disabled={subscribe.isPending}
+              className="bg-[#00D4FF] hover:bg-[#00B8E0] text-[#0A0E1A] font-semibold h-9 px-4 text-sm whitespace-nowrap"
+            >
+              {subscribe.isPending ? (
+                <><Loader2 size={12} className="mr-1 animate-spin" />Subscribing…</>
+              ) : (
+                "Subscribe"
+              )}
+            </Button>
+          </form>
+        )}
+        {error && <p className="text-red-500 dark:text-red-400 text-xs mt-2">{error}</p>}
+        <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">No spam, ever. Unsubscribe anytime.</p>
+      </div>
+    );
+  }
+
   if (variant === "compact") {
     return (
       <div className="bg-gradient-to-br from-[#0A0E1A] to-[#0F1A30] rounded-2xl border border-[rgba(0,212,255,0.2)] p-6">
@@ -68,7 +109,7 @@ export default function NewsletterSignup({
           Stay ahead of the curve
         </h3>
         <p className="text-gray-400 text-sm mb-4">
-          AI, cloud, and cybersecurity insights delivered to your inbox.
+          AI, cloud, and cybersecurity insights delivered to your inbox. No spam — just actionable intelligence.
         </p>
         {submitted ? (
           <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
@@ -94,9 +135,10 @@ export default function NewsletterSignup({
               {subscribe.isPending ? (
                 <><Loader2 size={14} className="mr-2 animate-spin" />Subscribing…</>
               ) : (
-                "Subscribe"
+                "Subscribe Free"
               )}
             </Button>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">No spam, ever. Unsubscribe anytime.</p>
           </form>
         )}
       </div>

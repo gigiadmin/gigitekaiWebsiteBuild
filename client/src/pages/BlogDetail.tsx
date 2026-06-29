@@ -305,10 +305,10 @@ export default function BlogDetail() {
           </div>
         </section>
 
-        {/* Newsletter signup — below article */}
-        <section className="py-10 bg-gray-50 dark:bg-[#141B2D]">
+        {/* Newsletter signup — subtle inline form below article */}
+        <section className="py-8 bg-transparent">
           <div className="container max-w-3xl">
-            <NewsletterSignup variant="compact" source={typeof window !== 'undefined' ? window.location.pathname : '/blog'} />
+            <NewsletterSignup variant="inline" source={typeof window !== 'undefined' ? window.location.pathname : '/blog'} />
           </div>
         </section>
       </main>
