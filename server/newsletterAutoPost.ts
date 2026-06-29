@@ -141,9 +141,14 @@ router.post("/auto-post", async (req, res) => {
 
     // ── 1. Create Blog Post ──────────────────────────────────────────────
     if (!skipBlog) {
-      const dateStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      let baseSlug = slugify(subject);
-      let slug = `${baseSlug}-${dateStr}`;
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+      // Use a short, clean slug: daily-recap-YYYY-MM-DD
+      // For non-recap posts, use a truncated subject slug
+      const isRecap = subject.toLowerCase().includes('recap') || subject.toLowerCase().includes('daily');
+      let slug = isRecap
+        ? `daily-recap-${dateStr}`
+        : `${slugify(subject).slice(0, 60)}-${dateStr}`;
 
       // Ensure unique slug
       const [existing] = await db
@@ -153,7 +158,8 @@ router.post("/auto-post", async (req, res) => {
         .limit(1);
 
       if (existing) {
-        slug = `${baseSlug}-${dateStr}-${Date.now().toString(36)}`;
+        // Already ran today — append hour to make unique
+        slug = `${slug}-${now.getHours().toString().padStart(2, '0')}`;
       }
 
       // Extract first ~200 chars as excerpt
