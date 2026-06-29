@@ -93,22 +93,26 @@ export default function PortfolioDemoSite({ site }: Props) {
       <nav className="sticky top-0 z-40 bg-gray-900 border-b border-gray-800 shadow-lg">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
-            <div className="flex items-center gap-3">
-              <img
-                src={site.logoUrl}
-                alt={`${site.companyName} logo`}
-                className="h-10 w-10 object-contain flex-shrink-0"
-              />
-              <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {site.companyName}
-              </span>
+            <div className="flex items-center gap-4">
+              <a href="/websites" className="hidden md:flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-cyan-400 transition-colors border border-gray-700 hover:border-cyan-500 rounded-md px-2.5 py-1.5 whitespace-nowrap">
+                ← Websites
+              </a>
+              <div className="flex items-center gap-3">
+                <img
+                  src={site.logoUrl}
+                  alt={`${site.companyName} logo`}
+                  className="h-10 w-10 object-contain flex-shrink-0"
+                />
+                <span className="text-white font-bold text-lg tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  {site.companyName}
+                </span>
+              </div>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
               <a href="#services" className="hover:text-white transition-colors">Services</a>
               <a href="#about" className="hover:text-white transition-colors">About</a>
               <a href="#team" className="hover:text-white transition-colors">Team</a>
               <a href="#contact" className="hover:text-white transition-colors">Contact</a>
-              <a href="/websites" className="text-xs text-gray-500 hover:text-gray-300">← Websites</a>
               <a
                 href="#contact"
                 className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 shadow-sm"
