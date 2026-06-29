@@ -82,26 +82,76 @@ async function fetchFromNewsApi(query: string, pageSize: number): Promise<NewsAp
   }
 }
 
-/** Use LLM to write a clean 2-3 sentence summary of a raw article */
-async function summarizeArticle(article: NewsApiArticle): Promise<string> {
+interface ArticleAnalysis {
+  summary: string;
+  keyTakeaways: string[];
+  gigitekAiAngle: string;
+  readMoreText: string;
+}
+
+/** Use LLM to write a deep, engaging analysis of an article for blog readers */
+async function analyzeArticle(article: NewsApiArticle, category: string): Promise<ArticleAnalysis> {
   try {
     const res = await invokeLLM({
       messages: [
         {
           role: "system",
-          content: "You are a business news editor. Write a concise 2-3 sentence summary of the article for a business executive audience. Focus on the business impact. Return only the summary text, no quotes or labels.",
+          content: `You are a senior technology analyst and content writer for GigitekAI, an AI-first Managed Services Provider. 
+Write a rich, engaging analysis of this news article for a blog post targeting IT decision-makers, business owners, and tech executives.
+
+Return a JSON object with these exact fields:
+- summary: A compelling 3-4 paragraph analysis (200-250 words) that explains what happened, why it matters, and the broader industry implications. Write in an authoritative, engaging tone — not just a summary, but real insight.
+- keyTakeaways: An array of exactly 3 specific, actionable bullet points (each 15-25 words) that a business leader should take away from this story.
+- gigitekAiAngle: 2-3 sentences explaining how GigitekAI helps clients navigate this specific trend or challenge. Be specific, not generic.
+- readMoreText: A compelling 1-sentence call-to-action to read the original article.
+
+Return ONLY valid JSON, no markdown code blocks.`,
         },
         {
           role: "user",
-          content: `Title: ${article.title}\nDescription: ${article.description ?? ""}\nContent: ${(article.content ?? "").slice(0, 500)}`,
+          content: `Category: ${category}\nTitle: ${article.title}\nDescription: ${article.description ?? ""}\nContent: ${(article.content ?? "").slice(0, 800)}\nSource: ${article.source.name}`,
         },
       ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "article_analysis",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              keyTakeaways: { type: "array", items: { type: "string" } },
+              gigitekAiAngle: { type: "string" },
+              readMoreText: { type: "string" },
+            },
+            required: ["summary", "keyTakeaways", "gigitekAiAngle", "readMoreText"],
+            additionalProperties: false,
+          },
+        },
+      },
     });
     const content = res?.choices?.[0]?.message?.content;
-    return (typeof content === "string" ? content.trim() : "") || article.description || "";
-  } catch {
-    return article.description ?? "";
+    if (typeof content === "string") {
+      const parsed = JSON.parse(content) as ArticleAnalysis;
+      return parsed;
+    }
+  } catch (err) {
+    console.warn("[AI News Scheduler] LLM analysis failed:", err);
   }
+  // Fallback
+  return {
+    summary: article.description ?? "",
+    keyTakeaways: ["Stay informed on this developing story.", "Consider how this impacts your business operations.", "Consult with your IT team on implications."],
+    gigitekAiAngle: "GigitekAI helps businesses navigate technology changes with expert guidance and AI-powered solutions.",
+    readMoreText: "Read the full article for more details.",
+  };
+}
+
+/** Use LLM to write a clean 2-3 sentence summary of a raw article (kept for backwards compat) */
+async function summarizeArticle(article: NewsApiArticle): Promise<string> {
+  const analysis = await analyzeArticle(article, "General");
+  return analysis.summary;
 }
 
 /**
@@ -182,7 +232,11 @@ const categoryIcons: Record<string, string> = {
   "Tech & Security": "🔐",
 };
 
-function generateNewsletterHtml(newsItems: NewsItem[]): string {
+interface EnrichedNewsItem extends NewsItem {
+  analysis?: ArticleAnalysis;
+}
+
+function generateNewsletterHtml(newsItems: EnrichedNewsItem[]): string {
   const dateStr = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -191,43 +245,88 @@ function generateNewsletterHtml(newsItems: NewsItem[]): string {
 
   const newsHtml = newsItems
     .map(
-      (item, index) => `
-    <div style="margin-bottom:24px;padding:16px;background:#f8fafc;border-left:4px solid #00D4FF;border-radius:4px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#00D4FF;letter-spacing:0.05em;margin-bottom:6px;">
-        ${categoryIcons[item.category] ?? "📰"} ${item.category}
+      (item, index) => {
+        const analysis = item.analysis;
+        const takeaways = analysis?.keyTakeaways ?? [];
+        const takeawaysHtml = takeaways.length > 0
+          ? `<div style="background:#f0fffe;border:1px solid #b2f5ea;border-radius:6px;padding:16px;margin:16px 0;">
+              <p style="margin:0 0 8px;font-weight:700;color:#0A0E1A;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;">🎯 Key Takeaways</p>
+              <ul style="margin:0;padding-left:20px;">
+                ${takeaways.map(t => `<li style="color:#1a202c;line-height:1.7;margin-bottom:4px;">${t}</li>`).join("")}
+              </ul>
+            </div>`
+          : "";
+
+        const gigitekAngleHtml = analysis?.gigitekAiAngle
+          ? `<div style="background:#fffbeb;border-left:4px solid #f6ad55;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;">
+              <p style="margin:0;font-size:13px;color:#744210;"><strong>💡 GigitekAI Perspective:</strong> ${analysis.gigitekAiAngle}</p>
+            </div>`
+          : "";
+
+        const summaryParagraphs = (analysis?.summary ?? item.summary)
+          .split(/\n+/)
+          .filter(p => p.trim())
+          .map(p => `<p style="color:#2d3748;line-height:1.8;margin-bottom:14px;font-size:15px;">${p.trim()}</p>`)
+          .join("");
+
+        return `
+    <article style="margin-bottom:48px;padding-bottom:48px;border-bottom:1px solid #e2e8f0;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:#00a3bf;letter-spacing:0.08em;background:#e6f9fc;padding:3px 10px;border-radius:20px;">
+          ${categoryIcons[item.category] ?? "📰"} ${item.category}
+        </span>
+        <span style="font-size:12px;color:#a0aec0;">Story ${index + 1} of ${newsItems.length}</span>
       </div>
-      <h3 style="margin-top:0;margin-bottom:8px;color:#0A0E1A;font-size:16px;">${index + 1}. ${item.title}</h3>
-      <p style="color:#1a202c;line-height:1.6;margin-bottom:8px;">${item.summary}</p>
-      <p style="margin-bottom:0;font-size:13px;"><em>Source: <a href="${item.url}" style="color:#00D4FF;text-decoration:none;">${item.source}</a></em></p>
-    </div>`
+      <h2 style="margin:0 0 16px;color:#0A0E1A;font-size:20px;line-height:1.4;font-weight:700;">${item.title}</h2>
+      ${summaryParagraphs}
+      ${takeawaysHtml}
+      ${gigitekAngleHtml}
+      <p style="margin:12px 0 0;font-size:13px;color:#718096;">
+        📰 Source: <a href="${item.url}" style="color:#0078d4;text-decoration:none;font-weight:600;">${item.source}</a>
+        &nbsp;·&nbsp; <a href="${item.url}" style="color:#0078d4;text-decoration:none;">${analysis?.readMoreText ?? "Read the full article →"}</a>
+      </p>
+    </article>`;
+      }
     )
     .join("");
 
   return `
-<div style="font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;color:#1a202c;">
-  <div style="background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);padding:32px;border-radius:8px 8px 0 0;text-align:center;">
-    <h1 style="color:#00D4FF;margin:0;font-size:24px;">🚀 GigitekAI Daily Recap</h1>
-    <p style="color:#cbd5e0;margin:8px 0 0;">The Future of Work is Here &mdash; ${dateStr}</p>
+<div style="font-family:'Segoe UI',Arial,sans-serif;max-width:680px;margin:0 auto;background:#ffffff;color:#1a202c;">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);padding:40px 32px;text-align:center;">
+    <p style="color:#00D4FF;margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;">GigitekAI Intelligence</p>
+    <h1 style="color:#ffffff;margin:0 0 8px;font-size:28px;font-weight:800;">🚀 Daily Recap</h1>
+    <p style="color:#94a3b8;margin:0;font-size:15px;">AI, Business &amp; Tech — ${dateStr}</p>
+    <div style="margin-top:20px;height:2px;background:linear-gradient(90deg,transparent,#00D4FF,transparent);"></div>
   </div>
 
-  <div style="padding:32px;background:#ffffff;">
-    <p style="font-size:16px;color:#4a5568;">Your daily briefing on AI, business, and technology — curated to keep you ahead of the curve. Today's recap covers the most impactful developments shaping enterprise operations.</p>
+  <!-- Intro -->
+  <div style="padding:32px 40px 0;background:#ffffff;">
+    <p style="font-size:16px;color:#4a5568;line-height:1.8;margin:0 0 8px;">Good morning. Here's your curated briefing on the most important developments in AI, business technology, and cybersecurity — everything you need to stay ahead of the curve today.</p>
+    <p style="font-size:13px;color:#a0aec0;border-bottom:1px solid #e2e8f0;padding-bottom:24px;margin:0;">📅 ${dateStr} &nbsp;·&nbsp; ${newsItems.length} stories &nbsp;·&nbsp; ~${newsItems.length * 3} min read</p>
+  </div>
 
-    <h2 style="color:#0A0E1A;border-bottom:2px solid #00D4FF;padding-bottom:8px;">📰 Today's Top Stories</h2>
+  <!-- Stories -->
+  <div style="padding:32px 40px;background:#ffffff;">
     ${newsHtml}
-
-    <div style="margin-top:40px;padding:24px;background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);color:#ffffff;border-radius:8px;text-align:center;">
-      <h2 style="color:#00D4FF;margin-top:0;">💡 Why This Matters for Your Business</h2>
-      <p style="color:#cbd5e0;">The shift from "AI-enhanced" to "AI-first" operations is happening now. The bottleneck is no longer the technology — it's the expertise to integrate it securely and effectively.</p>
-      <p style="color:#e2e8f0;"><strong>Are your Tier 1 and Tier 2 workflows still manual?</strong></p>
-      <p style="color:#cbd5e0;">GigitekAI specializes in replacing manual processes with intelligent AI agents, reducing operational costs by up to 40% and freeing hundreds of hours monthly.</p>
-      <a href="https://gigitekai.com/contact" style="display:inline-block;background:#00D4FF;color:#0A0E1A;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:700;margin-top:16px;">👉 Schedule Your Free AI Strategy Call</a>
-    </div>
-
-    <p style="margin-top:32px;text-align:center;color:#718096;font-size:14px;">
-      <em>Stay ahead of the curve. See you tomorrow for the next GigitekAI Daily Recap.</em>
-    </p>
   </div>
+
+  <!-- CTA Block -->
+  <div style="margin:0 40px 40px;padding:32px;background:linear-gradient(135deg,#0A0E1A 0%,#0F1A30 100%);border-radius:12px;text-align:center;">
+    <h2 style="color:#00D4FF;margin:0 0 12px;font-size:20px;">💡 Is Your Business AI-Ready?</h2>
+    <p style="color:#cbd5e0;margin:0 0 12px;line-height:1.7;">The shift from <em>AI-enhanced</em> to <em>AI-first</em> operations is happening now. Organizations that act today will outpace competitors by 3–5x within 18 months.</p>
+    <p style="color:#e2e8f0;margin:0 0 20px;"><strong>Are your Tier 1 and Tier 2 workflows still manual?</strong></p>
+    <a href="https://gigitekai.com/contact" style="display:inline-block;background:#00D4FF;color:#0A0E1A;padding:14px 36px;border-radius:6px;text-decoration:none;font-weight:800;font-size:15px;">👉 Schedule Your Free AI Strategy Call</a>
+    <p style="color:#718096;font-size:12px;margin:16px 0 0;">No commitment required · 30-minute session · Immediate value</p>
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:24px 40px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+    <p style="color:#718096;font-size:13px;margin:0 0 8px;">You're receiving this because you subscribed to GigitekAI Daily Recap.</p>
+    <p style="color:#a0aec0;font-size:12px;margin:0;">© ${new Date().getFullYear()} GigitekAI LLC · <a href="https://gigitekai.com" style="color:#0078d4;">gigitekai.com</a></p>
+  </div>
+
 </div>`;
 }
 
@@ -283,8 +382,20 @@ export async function runAiNewsRecap(): Promise<void> {
     // Load seen URLs for deduplication
     const seenUrls = await getSeenUrls();
 
-    // Fetch real mixed news (AI + Business + Tech)
-    let newsItems = await fetchMixedNews(seenUrls);
+    // Fetch real mixed news (AI + Business + Tech) with deep analysis
+    let newsItems: EnrichedNewsItem[] = await fetchMixedNews(seenUrls) as EnrichedNewsItem[];
+    // Enrich each article with LLM analysis
+    for (const item of newsItems) {
+      const rawArticle: NewsApiArticle = {
+        title: item.title,
+        description: item.summary,
+        content: item.summary,
+        url: item.url,
+        source: { name: item.source },
+        publishedAt: new Date().toISOString(),
+      };
+      item.analysis = await analyzeArticle(rawArticle, item.category);
+    }
 
     // Fall back if we couldn't get enough real news
     if (newsItems.length < 2) {
