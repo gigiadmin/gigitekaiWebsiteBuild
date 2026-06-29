@@ -14,6 +14,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 const STORAGE_KEY = "gigitekai_lead_popup_dismissed";
+const COOLDOWN_DAYS = 7; // Show at most once every 7 days
 
 interface LeadCapturePopupProps {
   /** Context hint shown in the popup headline, e.g. "Cloud Infrastructure" */
@@ -27,13 +28,17 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
 
   const dismiss = useCallback(() => {
     setVisible(false);
-    try { sessionStorage.setItem(STORAGE_KEY, "1"); } catch (_) {}
+    try { localStorage.setItem(STORAGE_KEY, Date.now().toString()); } catch (_) {}
   }, []);
 
   useEffect(() => {
-    // Don't show if already dismissed this session
+    // Don't show if dismissed within the cooldown period
     try {
-      if (sessionStorage.getItem(STORAGE_KEY)) return;
+      const lastDismissed = localStorage.getItem(STORAGE_KEY);
+      if (lastDismissed) {
+        const daysSince = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
+        if (daysSince < COOLDOWN_DAYS) return;
+      }
     } catch (_) {}
 
     let timerFired = false;
@@ -48,11 +53,11 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
       setVisible(true);
     };
 
-    // Condition 1: 30 seconds
+    // Condition 1: 60 seconds (increased from 30s to reduce annoyance)
     const timer = setTimeout(() => {
       timerFired = true;
       show();
-    }, 30_000);
+    }, 60_000);
 
     // Condition 2: 50% scroll depth
     const handleScroll = () => {
@@ -67,11 +72,11 @@ export default function LeadCapturePopup({ context }: LeadCapturePopupProps) {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Condition 3: Exit-intent — mouse leaves toward browser chrome
-    // Only fires after user has been on page for at least 5 seconds
+    // Only fires after user has been on page for at least 30 seconds
     let pageAgeMs = 0;
     const pageAgeInterval = setInterval(() => { pageAgeMs += 500; }, 500);
     const handleMouseLeave = (e: MouseEvent) => {
-      if (pageAgeMs < 5000) return; // ignore if user just landed
+      if (pageAgeMs < 30_000) return; // ignore if user hasn't spent 30s on page
       if (e.clientY <= 20) show("exit-intent"); // heading toward top chrome
     };
     document.addEventListener("mouseleave", handleMouseLeave);
