@@ -19,6 +19,7 @@ import js from "highlight.js/lib/languages/javascript";
 import ts from "highlight.js/lib/languages/typescript";
 import bash from "highlight.js/lib/languages/bash";
 import { useCallback, useEffect, useState } from "react";
+import { marked } from "marked";
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3,
@@ -152,6 +153,35 @@ export default function RichTextEditor({
       attributes: {
         class: "prose prose-invert prose-sm max-w-none focus:outline-none p-4",
         style: `min-height: ${minHeight}`,
+      },
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData("text/plain") || "";
+        const html = event.clipboardData?.getData("text/html") || "";
+        
+        // If HTML is available, use it directly
+        if (html && html.trim()) {
+          event.preventDefault();
+          editor?.commands.insertContent(html);
+          return true;
+        }
+        
+        // If plain text looks like Markdown, convert and insert
+        if (text && text.trim() && /[#*_\-\[\(]/.test(text)) {
+          event.preventDefault();
+          try {
+            // Convert Markdown to HTML
+            const htmlContent = marked(text);
+            // Insert as HTML content
+            editor?.commands.insertContent(htmlContent);
+            return true;
+          } catch (err) {
+            console.warn("Markdown conversion failed", err);
+            return false;
+          }
+        }
+        
+        // Default paste behavior
+        return false;
       },
     },
   });

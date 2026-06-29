@@ -106,7 +106,7 @@ export const teamsChannelsRouter = router({
     .input(z.object({
       name: z.string().min(2).max(255),
       domain: z.string().optional(),
-      contactEmail: z.string().email().optional(),
+      contactEmail: z.union([z.string().email(), z.literal("")]).optional(),
       contactPhone: z.string().optional(),
       industry: z.string().optional(),
       tier: z.enum(["starter", "professional", "enterprise"]).default("starter"),
@@ -130,6 +130,21 @@ export const teamsChannelsRouter = router({
       const insertId = (result as any).insertId;
       const [company] = await db.select().from(companies).where(eq(companies.id, insertId));
       return company;
+    }),
+
+  // Delete a company
+  deleteCompany: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Delete from teamsClientChannels first (foreign key constraint)
+      await db.delete(teamsClientChannels).where(eq(teamsClientChannels.companyId, input.id));
+      
+      // Delete the company
+      await db.delete(companies).where(eq(companies.id, input.id));
+      return { success: true };
     }),
 
   // Update a company
@@ -188,6 +203,26 @@ export const teamsChannelsRouter = router({
       });
 
       const teamsChannelId = channelData.id as string;
+      const channelWebUrl = channelData.webUrl as string;
+      
+      // Log the creation details
+      console.log(`[Teams] Channel created: Team=${teamsTeamId}, Channel=${teamsChannelId}, Name=${channelName}, URL=${channelWebUrl}`);
+      
+      // Verify the channel actually exists via GET request
+      try {
+        const verifyResponse = await graphRequest("GET", `/teams/${teamsTeamId}/channels/${teamsChannelId}`);
+        if (verifyResponse && verifyResponse.id === teamsChannelId) {
+          console.log(`[Teams] ✅ Channel verified to exist in Teams`);
+        } else {
+          throw new Error("Channel verification returned unexpected data");
+        }
+      } catch (verifyErr) {
+        console.error(`[Teams] ❌ Channel verification FAILED: ${verifyErr}. Channel may not exist in Teams.`);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Channel creation may have failed. Verification error: ${verifyErr instanceof Error ? verifyErr.message : String(verifyErr)}. Check that TEAMS_BOT_TEAM_ID is correct.`,
+        });
+      }
 
       // Store in DB
       await db.insert(teamsClientChannels).values({
@@ -204,6 +239,7 @@ export const teamsChannelsRouter = router({
       await db.update(companies).set({
         teamsChannelId,
         teamsChannelName: channelName,
+        teamsChannelWebhookUrl: channelWebUrl,
         teamsChannelCreatedAt: new Date().toISOString(),
       }).where(eq(companies.id, company.id));
 

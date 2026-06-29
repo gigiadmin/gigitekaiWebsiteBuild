@@ -158,14 +158,20 @@ export const blogRouter = router({
       }
       // If publishing for the first time, set publishedAt
       const publishedAt =
-        fields.published === true && !existing.published ? new Date() : undefined;
-      const mappedFields = { ...fields, ...(fields.published !== undefined && { published: fields.published ? 1 : 0 }) };
+        fields.published === true && existing.published === 0 ? new Date().toISOString() : undefined;
+      
+      // Build update object
+      const updateObj: any = { ...fields };
+      if (fields.published !== undefined) {
+        updateObj.published = fields.published ? 1 : 0;
+      }
+      if (publishedAt !== undefined) {
+        updateObj.publishedAt = publishedAt;
+      }
+      
       await db
         .update(blogPosts)
-        .set({
-          ...(mappedFields as any),
-          ...(publishedAt !== undefined ? { publishedAt: publishedAt ? new Date(publishedAt as any).toISOString() : null } : {}),
-        })
+        .set(updateObj)
         .where(eq(blogPosts.id, id));
       return { success: true };
     }),

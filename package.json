@@ -87,6 +87,7 @@
     "jose": "6.1.0",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.453.0",
+    "marked": "^18.0.5",
     "multer": "^2.1.1",
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",

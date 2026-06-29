@@ -85,6 +85,15 @@ toast.success("Dead-letter queue cleared");
     },
   });
 
+  const deleteCompany = trpc.teamsChannels.deleteCompany.useMutation({
+    onSuccess: () => {
+      utils.teamsChannels.listCompanies.invalidate();
+      utils.teamsChannels.listChannels.invalidate();
+      toast.success("Company deleted");
+    },
+    onError: (err) => toast.error(`Delete failed: ${err.message}`),
+  });
+
   const tierColor: Record<string, string> = {
     starter: "bg-slate-500/20 text-slate-300 border-slate-500/30",
     professional: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
@@ -228,18 +237,30 @@ toast.success("Dead-letter queue cleared");
                         </Button>
                       </div>
                     ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCompanyId(company.id);
-                          setChannelNameOverride(`Support - ${company.name}`);
-                          setShowProvisionDialog(true);
-                        }}
-                        className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 text-xs h-7"
-                      >
-                        <Radio className="w-3 h-3 mr-1" />
-                        Provision Channel
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedCompanyId(company.id);
+                            setChannelNameOverride(`Support - ${company.name}`);
+                            setShowProvisionDialog(true);
+                          }}
+                          className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 text-xs h-7"
+                        >
+                          <Radio className="w-3 h-3 mr-1" />
+                          Provision Channel
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteCompany.mutate({ id: company.id })}
+                          disabled={deleteCompany.isPending}
+                          className="border-red-500/30 text-red-300 hover:bg-red-500/10 text-xs h-7"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
