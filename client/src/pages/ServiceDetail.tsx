@@ -8,7 +8,6 @@ import { useParams, useLocation } from "wouter";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import LeadCapturePopup from "@/components/LeadCapturePopup";
 import Breadcrumb from "@/components/Breadcrumb";
 import HelpdeskPricing from "@/components/HelpdeskPricing";
 import { ArrowRight, ArrowLeft, CheckCircle2, Cloud, Brain, Shield, TrendingUp, Database, Cpu, Monitor } from "lucide-react";
@@ -481,7 +480,7 @@ export default function ServiceDetail() {
         </section>
       </main>
       <Footer />
-      <LeadCapturePopup context={service?.title} />
+      
       <ScrollToTop />
     </div>
   );
