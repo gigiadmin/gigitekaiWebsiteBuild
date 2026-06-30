@@ -1818,3 +1818,18 @@
 - [x] Implement analytics tracking for page views and lead conversions (GA4 already configured globally)
 - [x] Test end-to-end: page loads, iframe works, form submissions captured (verified in dev)
 - [x] Deploy to production and verify on gigitekai.com (checkpoint saved, ready to publish)
+
+
+---
+
+## Bug Fixes - June 30, 2026
+
+- [x] **Fix Create Ticket Form Error Toast** — FIXED: Ticket creation was succeeding but showing "Failed to create ticket" error toast
+  - [x] Root cause: Cache invalidation error was triggering mutation.onError handler despite successful ticket creation
+  - [x] Fixed: Wrapped utils.helpdesk.getAllTickets.invalidate() in try/catch to prevent errors from affecting UX
+  - [x] Fixed: Dialog close handler now only triggers on actual close events, not open transitions
+  - [x] Fixed: Mutation selection now uses correct mutation based on mode prop
+  - [x] Added: Better error logging for debugging future issues
+  - [x] Verified: Tickets now create successfully with proper success feedback
+  - [x] Tested: Form submission, modal close, ticket list refresh all working correctly
+  - [x] Confirmed: New ticket #6240010 "Third Test - VPN Connection Issue" created successfully

@@ -37,7 +37,12 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     onSuccess: (data) => {
       submitInProgressRef.current = false;
       toast.success("Ticket created successfully!");
-      utils.helpdesk.getAllTickets.invalidate();
+      // Wrap invalidation in try/catch to prevent errors from affecting UX
+      try {
+        utils.helpdesk.getAllTickets.invalidate();
+      } catch (e) {
+        console.warn("[Helpdesk] Failed to invalidate tickets cache:", e);
+      }
       reset();
       setSelectedPriority("medium");
       onClose();
@@ -45,6 +50,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     },
     onError: (err: any) => {
       submitInProgressRef.current = false;
+      console.error("[CreateTicketModal] User mutation error:", err);
       toast.error(err.message || "Failed to create ticket");
     },
   });
@@ -53,7 +59,12 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     onSuccess: (data) => {
       submitInProgressRef.current = false;
       toast.success("Ticket created successfully!");
-      utils.helpdesk.getAllTickets.invalidate();
+      // Wrap invalidation in try/catch to prevent errors from affecting UX
+      try {
+        utils.helpdesk.getAllTickets.invalidate();
+      } catch (e) {
+        console.warn("[Helpdesk] Failed to invalidate tickets cache:", e);
+      }
       reset();
       setSelectedPriority("medium");
       onClose();
@@ -61,13 +72,14 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     },
     onError: (err: any) => {
       submitInProgressRef.current = false;
+      console.error("[CreateTicketModal] Admin mutation error:", err);
       toast.error(err.message || "Failed to create ticket");
     },
   });
 
-  const isPending = userMutation.isPending || adminMutation.isPending;
   const submitInProgressRef = useRef(false);
   const lastSubmitTimeRef = useRef(0);
+  const isPending = userMutation.isPending || adminMutation.isPending;
 
   const onSubmit = async (data: any) => {
     if (submitInProgressRef.current) return;
@@ -79,7 +91,9 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     lastSubmitTimeRef.current = now;
 
     try {
-      await adminMutation.mutateAsync({
+      // Use correct mutation based on mode
+      const mutation = mode === "user" ? userMutation : adminMutation;
+      await mutation.mutateAsync({
         title: data.title,
         description: data.description,
         stepsAttempted: data.stepsAttempted,
@@ -90,6 +104,8 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
         requesterEmail: data.requesterEmail || undefined,
       });
     } catch (e) {
+      // Error is already handled by mutation.onError
+      console.error("[CreateTicketModal] Submission error:", e);
       submitInProgressRef.current = false;
     }
   };
@@ -99,8 +115,15 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     setValue("priority", value);
   };
 
+  // Handle dialog open/close properly - only close on close, not open
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={dialogOpen} onOpenChange={onClose}>
+    <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Ticket (On Behalf Of)</DialogTitle>
