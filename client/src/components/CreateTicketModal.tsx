@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface CreateTicketModalProps {
   mode?: "user" | "admin";
@@ -20,8 +20,11 @@ interface CreateTicketModalProps {
 export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuccess }: CreateTicketModalProps) {
   const dialogOpen = open ?? isOpen ?? false;
   const utils = trpc.useUtils();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const [selectedPriority, setSelectedPriority] = useState("medium");
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     defaultValues: {
+      requesterName: "",
+      requesterEmail: "",
       title: "",
       description: "",
       stepsAttempted: "",
@@ -33,15 +36,15 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const userMutation = trpc.helpdesk.createTicket.useMutation({
     onSuccess: (data) => {
       submitInProgressRef.current = false;
-      console.log("[CreateTicketModal] userCreateTicket success:", data);
       toast.success("Ticket created successfully!");
       utils.helpdesk.getAllTickets.invalidate();
       reset();
+      setSelectedPriority("medium");
       onClose();
+      onSuccess?.();
     },
     onError: (err: any) => {
       submitInProgressRef.current = false;
-      console.error("[CreateTicketModal] userCreateTicket error:", err);
       toast.error(err.message || "Failed to create ticket");
     },
   });
@@ -49,16 +52,15 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const adminMutation = trpc.helpdesk.adminCreateTicket.useMutation({
     onSuccess: (data) => {
       submitInProgressRef.current = false;
-      console.log("[CreateTicketModal] adminCreateTicket success:", data);
-      // Just show success and close - don't try to extract ID
       toast.success("Ticket created successfully!");
       utils.helpdesk.getAllTickets.invalidate();
       reset();
+      setSelectedPriority("medium");
       onClose();
+      onSuccess?.();
     },
     onError: (err: any) => {
       submitInProgressRef.current = false;
-      console.error("[CreateTicketModal] adminCreateTicket error:", err);
       toast.error(err.message || "Failed to create ticket");
     },
   });
@@ -68,24 +70,15 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const lastSubmitTimeRef = useRef(0);
 
   const onSubmit = async (data: any) => {
-    // Prevent concurrent submissions
-    if (submitInProgressRef.current) {
-      console.warn("[CreateTicketModal] Submission already in progress, ignoring");
-      return;
-    }
+    if (submitInProgressRef.current) return;
 
-    // Debounce: prevent rapid re-submissions
     const now = Date.now();
-    if (now - lastSubmitTimeRef.current < 1000) {
-      console.warn("[CreateTicketModal] Submission rate-limited, ignoring");
-      return;
-    }
+    if (now - lastSubmitTimeRef.current < 1000) return;
 
     submitInProgressRef.current = true;
     lastSubmitTimeRef.current = now;
 
     try {
-      // Try admin mutation first
       await adminMutation.mutateAsync({
         title: data.title,
         description: data.description,
@@ -93,11 +86,17 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
         category: data.category,
         priority: data.priority,
         channel: "web",
+        requesterName: data.requesterName || undefined,
+        requesterEmail: data.requesterEmail || undefined,
       });
     } catch (e) {
-      console.error("[CreateTicketModal] Admin mutation failed:", e);
       submitInProgressRef.current = false;
     }
+  };
+
+  const handlePrioritySelect = (value: string) => {
+    setSelectedPriority(value);
+    setValue("priority", value);
   };
 
   return (
@@ -109,6 +108,32 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Customer / Requester Info */}
+          <div className="border border-slate-700 rounded-lg p-4 space-y-3">
+            <Label className="text-cyan-400 text-sm font-semibold">Customer / Requester Info</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="requesterName" className="text-slate-300 text-xs">Customer Name (optional)</Label>
+                <Input
+                  id="requesterName"
+                  placeholder="Customer's full name"
+                  {...register("requesterName")}
+                  className="bg-slate-900 border-slate-700 text-white placeholder-slate-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="requesterEmail" className="text-slate-300 text-xs">Customer Email (optional)</Label>
+                <Input
+                  id="requesterEmail"
+                  type="email"
+                  placeholder="customer@example.com"
+                  {...register("requesterEmail")}
+                  className="bg-slate-900 border-slate-700 text-white placeholder-slate-500"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Subject / Title */}
           <div>
             <Label htmlFor="title" className="text-cyan-400">Subject / Title *</Label>
@@ -119,7 +144,6 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
               className="bg-slate-900 border-slate-700 text-white placeholder-slate-500"
             />
             {errors.title && <span className="text-red-500 text-sm">{errors.title.message}</span>}
-            <span className="text-slate-400 text-sm">35 chars (min 5)</span>
           </div>
 
           {/* Issue Description */}
@@ -133,7 +157,6 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
               rows={4}
             />
             {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
-            <span className="text-slate-400 text-sm">35 chars (min 10)</span>
           </div>
 
           {/* Steps Already Tried */}
@@ -151,20 +174,20 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
           {/* Category */}
           <div>
             <Label htmlFor="category" className="text-slate-300">Category</Label>
-            <Select defaultValue="general_support" onValueChange={(value) => register("category").onChange({ target: { value } })}>
+            <Select defaultValue="general_support" onValueChange={(value) => setValue("category", value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-slate-900 border-slate-700">
-                <SelectItem value="bug_report">Bug Report</SelectItem>
-                <SelectItem value="feature_request">Feature Request</SelectItem>
-                <SelectItem value="general_support">General Support</SelectItem>
-                <SelectItem value="billing">Billing</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="printer">Printer</SelectItem>
-                <SelectItem value="internet">Internet</SelectItem>
-                <SelectItem value="network">Network</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="general_support">💬 General Support</SelectItem>
+                <SelectItem value="email">📧 Email</SelectItem>
+                <SelectItem value="printer">🖨️ Printer</SelectItem>
+                <SelectItem value="internet">🌐 Internet</SelectItem>
+                <SelectItem value="network">🔗 Network</SelectItem>
+                <SelectItem value="bug_report">🐛 Bug Report</SelectItem>
+                <SelectItem value="feature_request">💡 Feature Request</SelectItem>
+                <SelectItem value="billing">💳 Billing</SelectItem>
+                <SelectItem value="other">❓ Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -172,18 +195,22 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
           {/* Priority Level */}
           <div>
             <Label className="text-slate-300">Priority Level</Label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-2">
               {[
-                { value: "low", label: "Low", color: "bg-green-600" },
-                { value: "medium", label: "Medium", color: "bg-yellow-600" },
-                { value: "high", label: "High", color: "bg-orange-600" },
-                { value: "critical", label: "Critical", color: "bg-red-600" },
+                { value: "low", label: "Low", color: "bg-green-600", ring: "ring-green-400" },
+                { value: "medium", label: "Medium", color: "bg-yellow-600", ring: "ring-yellow-400" },
+                { value: "high", label: "High", color: "bg-orange-600", ring: "ring-orange-400" },
+                { value: "critical", label: "Critical", color: "bg-red-600", ring: "ring-red-400" },
               ].map((p) => (
                 <button
                   key={p.value}
                   type="button"
-                  onClick={() => register("priority").onChange({ target: { value: p.value } })}
-                  className={`px-4 py-2 rounded text-sm font-medium transition ${p.color} hover:opacity-80`}
+                  onClick={() => handlePrioritySelect(p.value)}
+                  className={`px-4 py-2 rounded text-sm font-medium transition-all ${p.color} hover:opacity-90 ${
+                    selectedPriority === p.value
+                      ? `ring-2 ${p.ring} ring-offset-2 ring-offset-slate-900 scale-105 opacity-100`
+                      : "opacity-50"
+                  }`}
                 >
                   {p.label}
                 </button>
@@ -194,7 +221,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
           {/* Info Box */}
           <div className="bg-slate-800 border border-slate-700 rounded p-3 text-sm text-slate-300">
             <p className="font-semibold text-cyan-400">What happens next?</p>
-            <p>The ticket will be created immediately, classified by AI, and routed to the appropriate team. Teams will be notified via Slack/Teams.</p>
+            <p>The ticket will be created immediately, classified by AI, and routed to the appropriate team. Teams will be notified.</p>
           </div>
 
           {/* Buttons */}
@@ -220,3 +247,6 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     </Dialog>
   );
 }
+
+// Default export for backward compatibility
+export default CreateTicketModal;
