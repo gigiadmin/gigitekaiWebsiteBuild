@@ -10,12 +10,15 @@ import { trpc } from "@/lib/trpc";
 import { useRef } from "react";
 
 interface CreateTicketModalProps {
-  isOpen: boolean;
+  mode?: "user" | "admin";
+  open?: boolean;
+  isOpen?: boolean;
   onClose: () => void;
-  onSuccess?: (ticketId: number) => void;
+  onSuccess?: (ticketId?: number) => void;
 }
 
-export function CreateTicketModal({ isOpen, onClose, onSuccess }: CreateTicketModalProps) {
+export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuccess }: CreateTicketModalProps) {
+  const dialogOpen = open ?? isOpen ?? false;
   const utils = trpc.useUtils();
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
@@ -98,7 +101,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }: CreateTicketMo
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={dialogOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Ticket (On Behalf Of)</DialogTitle>

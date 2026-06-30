@@ -58,7 +58,7 @@ import { SurveyAnalyticsDashboard } from "@/components/SurveyAnalyticsDashboard"
 import { AgentWorkloadOptimizer } from "@/components/AgentWorkloadOptimizer";
 import AdminM365Health from "./AdminM365Health";
 import AdminServiceHealthMonitoring from "./AdminServiceHealthMonitoring";
-import CreateTicketModal from "@/components/CreateTicketModal";
+import { CreateTicketModal } from "@/components/CreateTicketModal";
 
 type AdminTab = "tickets" | "users";
 

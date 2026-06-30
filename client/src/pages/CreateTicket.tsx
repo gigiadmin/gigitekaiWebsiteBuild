@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import HelpdeskNav from "@/components/HelpdeskNav";
-import CreateTicketModal from "@/components/CreateTicketModal";
+import { CreateTicketModal } from "@/components/CreateTicketModal";
 
 export default function CreateTicket() {
   const { isAuthenticated, loading } = useAuth();
