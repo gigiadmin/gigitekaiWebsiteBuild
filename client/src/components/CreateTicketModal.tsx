@@ -9,7 +9,7 @@
  * Admin-only extras: requesterName, requesterEmail, channel selector
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -112,6 +112,7 @@ export default function CreateTicketModal({
 
   const userMutation = trpc.helpdesk.createTicket.useMutation({
     onSuccess: (data) => {
+      submitInProgressRef.current = false;
       toast.success(`Ticket #${data.id} created!`, {
         description: "Our support team will review your request shortly.",
       });
@@ -120,26 +121,48 @@ export default function CreateTicketModal({
       onClose();
       onSuccess?.(data.id);
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create ticket"),
+    onError: (err: any) => {
+      submitInProgressRef.current = false;
+      toast.error(err.message || "Failed to create ticket");
+    },
   });
 
   const adminMutation = trpc.helpdesk.adminCreateTicket.useMutation({
     onSuccess: (data) => {
+      submitInProgressRef.current = false;
       toast.success(`Ticket #${data?.id ?? ""} created!`);
       utils.helpdesk.getAllTickets.invalidate();
       reset();
       onClose();
       onSuccess?.(data?.id ?? 0);
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create ticket"),
+    onError: (err: any) => {
+      submitInProgressRef.current = false;
+      toast.error(err.message || "Failed to create ticket");
+    },
   });
 
   const isPending = userMutation.isPending || adminMutation.isPending;
+  const submitInProgressRef = useRef(false);
+  const lastSubmitTimeRef = useRef(0);
 
   // ── Validation & submit ──────────────────────────────────────────────────────
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent double-submission (debounce)
+    if (submitInProgressRef.current) {
+      console.warn("[CreateTicketModal] Submission already in progress, ignoring duplicate click");
+      return;
+    }
+
+    // Prevent rapid re-submissions within 1 second
+    const now = Date.now();
+    if (now - lastSubmitTimeRef.current < 1000) {
+      console.warn("[CreateTicketModal] Submission too soon, ignoring");
+      return;
+    }
 
     if (form.title.trim().length < (isAdmin ? 5 : 10)) {
       toast.error(`Subject must be at least ${isAdmin ? 5 : 10} characters`);
@@ -153,6 +176,10 @@ export default function CreateTicketModal({
       toast.error("Please describe at least 20 characters of steps you've already tried");
       return;
     }
+
+    // Mark submission as in progress
+    submitInProgressRef.current = true;
+    lastSubmitTimeRef.current = now;
 
     if (isAdmin) {
       adminMutation.mutate({
