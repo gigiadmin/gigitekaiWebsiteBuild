@@ -127,6 +127,23 @@ export default function HeroSection() {
               <ArrowRight size={18} />
             </a>
             <a
+              href="/smart-home"
+              className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-[opacity,transform] duration-200"
+              style={{
+                background: "rgba(0,212,255,0.08)",
+                border: "1.5px solid rgba(0,212,255,0.45)",
+                color: "#00D4FF",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.18)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.08)";
+              }}
+            >
+              Explore Smart Home
+            </a>
+            <a
               href="/contact"
               className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-[opacity,transform] duration-200"
               style={{
