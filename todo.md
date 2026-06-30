@@ -1833,3 +1833,34 @@
   - [x] Verified: Tickets now create successfully with proper success feedback
   - [x] Tested: Form submission, modal close, ticket list refresh all working correctly
   - [x] Confirmed: New ticket #6240010 "Third Test - VPN Connection Issue" created successfully
+
+
+---
+
+## CRITICAL BUGS - Ticket Creation (Client-Facing) - Jun 30
+
+- [ ] **BUG: Error toast appears on successful ticket creation** — Shows "Failed to create ticket" even though ticket is created in database
+  - [ ] Root cause: Mutation error handler being triggered despite successful creation
+  - [ ] Fix: Investigate and fix error handling in CreateTicketModal mutation
+  - [ ] Fix: Ensure onSuccess handler properly resets state and closes modal
+  - [ ] Fix: Remove or fix cache invalidation error that triggers onError
+
+- [ ] **BUG: Customer name and email not displaying in ticket detail view** — Fields added to component but not rendering
+  - [ ] Root cause: Component code exists but fields not showing in UI
+  - [ ] Fix: Verify tRPC response includes requesterName and requesterEmail fields
+  - [ ] Fix: Debug React rendering to ensure conditional display works
+  - [ ] Fix: Test with multiple tickets to confirm display works
+
+- [ ] **BUG: Form validation issues with optional fields** — Empty strings vs undefined causing validation errors
+  - [ ] Fix: Ensure backend schema properly accepts empty strings for optional fields
+  - [ ] Fix: Ensure frontend sends consistent empty string values
+  - [ ] Fix: Add validation tests to verify all field combinations work
+
+- [ ] **TESTING: Comprehensive ticket creation flow testing** — Verify all scenarios work correctly
+  - [ ] Test: Create ticket with all fields filled
+  - [ ] Test: Create ticket with only required fields (empty optional fields)
+  - [ ] Test: Verify success toast shows (not error toast)
+  - [ ] Test: Verify modal closes after successful creation
+  - [ ] Test: Verify new ticket appears in list with correct data
+  - [ ] Test: Verify customer info displays in ticket detail view
+  - [ ] Test: Verify no duplicate tickets created on retry

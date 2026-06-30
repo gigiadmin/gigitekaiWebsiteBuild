@@ -394,6 +394,20 @@ export default function TicketDetail({ isAdminOverride = false }: TicketDetailPr
                   </span>
                 }
               />
+              {ticket.requesterName && (
+                <MetaItem
+                  icon={<User className="w-4 h-4" />}
+                  label="Customer Name"
+                  value={<span className="text-white font-medium">{ticket.requesterName}</span>}
+                />
+              )}
+              {ticket.requesterEmail && (
+                <MetaItem
+                  icon={<Mail className="w-4 h-4" />}
+                  label="Customer Email"
+                  value={<span className="text-white font-medium truncate">{ticket.requesterEmail}</span>}
+                />
+              )}
 
             </div>
 

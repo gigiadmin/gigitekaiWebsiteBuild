@@ -168,9 +168,15 @@ export const helpdeskRouter = router({
 
         if (!ticket) throw new Error("Failed to create ticket");
 
-        // Return success immediately - all other operations are async/fire-and-forget
-        // This prevents user-facing errors from async operations that happen after ticket creation
-        const response = { success: true, ...ticket };
+        // Return minimal JSON-safe response immediately - all other operations are async/fire-and-forget
+        // Avoid spreading the full Drizzle row which contains Date/BigInt that can cause serialization issues
+        const response = {
+          success: true,
+          id: Number(ticket.id),
+          title: ticket.title,
+          status: ticket.status,
+          priority: ticket.priority,
+        };
 
         // ── Send confirmation email (async, non-blocking) ──────────────────────
         if (ctx.user?.email) {
@@ -429,40 +435,50 @@ export const helpdeskRouter = router({
       priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
       channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
       userId: z.number().optional(),
-      requesterName: z.string().optional(),
-      requesterEmail: z.string().email().optional().or(z.literal("")),
+      requesterName: z.union([z.string(), z.literal(""), z.undefined()]).optional(),
+      requesterEmail: z.union([z.string().email(), z.literal(""), z.undefined()]).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const combinedDescription = input.stepsAttempted
-        ? `ISSUE DESCRIPTION:\n${input.description}\n\nSTEPS ALREADY ATTEMPTED:\n${input.stepsAttempted}`
-        : input.description;
-      const ticket = await createTicket({
-        title: input.title,
-        description: combinedDescription,
-        stepsAttempted: input.stepsAttempted,
-        category: input.category,
-        priority: input.priority,
-        source: input.channel,
-        userId: input.userId || ctx.user.id,
-        requesterName: input.requesterName,
-        requesterEmail: input.requesterEmail || undefined,
-      });
-      if (!ticket) {
-        console.error("[Helpdesk] createTicket returned null");
-        throw new Error("Failed to create ticket");
-      }
-      console.log(`[Helpdesk] Ticket #${ticket.id} created successfully by admin`);
-      
-      // Send Teams notification (non-blocking)
       try {
-        await sendTicketNotificationToTeams(ticket);
-        console.log(`[Helpdesk] Teams notification sent for ticket #${ticket.id}`);
-      } catch (e) {
-        console.error("[Helpdesk] Admin ticket Teams notification failed:", e);
-        // Don't throw - Teams notification failure shouldn't fail the ticket creation
+        const combinedDescription = input.stepsAttempted
+          ? `ISSUE DESCRIPTION:\n${input.description}\n\nSTEPS ALREADY ATTEMPTED:\n${input.stepsAttempted}`
+          : input.description;
+        const ticket = await createTicket({
+          title: input.title,
+          description: combinedDescription,
+          stepsAttempted: input.stepsAttempted,
+          category: input.category,
+          priority: input.priority,
+          source: input.channel,
+          userId: input.userId || ctx.user.id,
+          requesterName: input.requesterName || undefined,
+          requesterEmail: input.requesterEmail && input.requesterEmail.trim() ? input.requesterEmail : undefined,
+        });
+        if (!ticket) {
+          console.error("[Helpdesk] createTicket returned null");
+          throw new Error("Failed to create ticket");
+        }
+        console.log(`[Helpdesk] Ticket #${ticket.id} created successfully by admin`);
+        
+        // Send Teams notification (non-blocking) - don't await, schedule for later
+        setImmediate(() => {
+          sendTicketNotificationToTeams(ticket)
+            .then(() => console.log(`[Helpdesk] Teams notification sent for ticket #${ticket.id}`))
+            .catch(e => console.error("[Helpdesk] Admin ticket Teams notification failed:", e));
+        });
+        
+        // Return minimal, JSON-safe response to avoid serialization issues
+        return {
+          success: true,
+          id: ticket.id,
+          title: ticket.title,
+          status: ticket.status,
+          priority: ticket.priority,
+        };
+      } catch (error) {
+        console.error("[Helpdesk] adminCreateTicket error:", error);
+        throw error;
       }
-      
-      return ticket;
     }),
 
   snoozeSlaBreach: adminProcedure

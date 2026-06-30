@@ -100,8 +100,8 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
         category: data.category,
         priority: data.priority,
         channel: "web",
-        requesterName: data.requesterName || undefined,
-        requesterEmail: data.requesterEmail || undefined,
+        requesterName: data.requesterName || "",
+        requesterEmail: data.requesterEmail || "",
       });
     } catch (e) {
       // Error is already handled by mutation.onError
