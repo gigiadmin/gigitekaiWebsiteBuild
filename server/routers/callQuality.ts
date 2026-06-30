@@ -12,7 +12,7 @@ import { eq, desc, isNotNull, sql, and, gte } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
 // ── Voicemail detection ───────────────────────────────────────────────────────
-const VOICEMAIL_UPNS = ['voicemail@gigitekai.com', 'voicemail@gigitek.com'];
+const VOICEMAIL_UPNS = ['voicemailbox@gigitekai.com', 'voicemail@gigitek.com'];
 const AUTO_ATTENDANT_NAMES = ['auto attendant', 'voicemail', 'main line auto attendant'];
 
 function isVoicemailCall(call: { calleeUpn?: string | null; calleeDisplayName?: string | null; durationSeconds?: number | null }): boolean {
@@ -273,7 +273,7 @@ export const callQualityRouter = router({
           and(
             isNotNull(callLogs.transcriptText),
             sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
-            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemailbox@gigitekai.com', 'voicemail@gigitek.com'))`,
             sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
           )
         );
@@ -301,7 +301,7 @@ export const callQualityRouter = router({
             isNotNull(callLogs.transcriptText),
             sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
             // Exclude voicemail/auto-attendant calls — no agent interaction to score
-            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+            sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemailbox@gigitekai.com', 'voicemail@gigitek.com'))`,
             sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
           )
         )
@@ -324,7 +324,7 @@ export const callQualityRouter = router({
           isNotNull(callLogs.transcriptText),
           sql`callLogs.id NOT IN (SELECT callLogId FROM callQualityScores)`,
           // Exclude voicemail/auto-attendant calls
-          sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemail@gigitekai.com', 'voicemail@gigitek.com'))`,
+          sql`(callLogs.calleeUpn IS NULL OR callLogs.calleeUpn NOT IN ('voicemailbox@gigitekai.com', 'voicemail@gigitek.com'))`,
           sql`(callLogs.calleeDisplayName IS NULL OR callLogs.calleeDisplayName NOT LIKE '%Auto Attendant%')`
         )
       )

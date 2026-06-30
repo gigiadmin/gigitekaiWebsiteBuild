@@ -1,6 +1,6 @@
 /*
  * Voicemail Group Poller
- * Directly polls the voicemail@gigitekai.com M365 Group for new voicemail audio.
+ * Directly polls the voicemailbox@gigitekai.com M365 Group for new voicemail audio.
  * Bypasses Power Automate dependency — fetches audio.mp3 directly from the group,
  * transcribes via Whisper, and creates call log entries + draft tickets for admin review.
  *
@@ -348,7 +348,7 @@ async function processVoicemail(
       callerNumber,
       calleeNumber: "+17273825776",
       calleeDisplayName: "GigitekAI Main Line Auto Attendant",
-      calleeUpn: "voicemail@gigitekai.com",
+      calleeUpn: "voicemailbox@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,
       direction: "inbound",
       startedAt: toMysqlTs(startTime),

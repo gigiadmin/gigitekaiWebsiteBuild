@@ -496,7 +496,7 @@ function isTransactionalEmail(subject: string, senderEmail: string, body: string
 /**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
- * When forwarded from voicemail@gigitekai.com, subject may be "FW: Voice Message from..."
+ * When forwarded from voicemailbox@gigitekai.com, subject may be "FW: Voice Message from..."
  * Also detects Microsoft Teams voicemail body patterns
  */
 function isVoicemailEmail(subject: string, body: string): boolean {
@@ -751,7 +751,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         }
       }
       
-      // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemail@gigitekai.com)
+      // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemailbox@gigitekai.com)
       // The voicemail group is a Unified Group with ID b70ef14d-68dc-4faa-b7f6-8324b43c99b5
       // Teams deposits voicemails there with audio attachments
       // IMPORTANT: Must use $expand=attachments on posts query — the separate /attachments endpoint returns empty
@@ -1520,7 +1520,7 @@ export async function runEmailPoller(): Promise<void> {
         }
       }
 
-      // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemail@gigitekai.com
+      // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemailbox@gigitekai.com
       // appear as sent from support@gigitekai.com, so we MUST check voicemail
       // BEFORE the own-system-email filter to prevent them from being silently skipped ──
       // BUT: exclude our own "[VOICEMAIL] New Ticket #..." notification emails to prevent feedback loop
