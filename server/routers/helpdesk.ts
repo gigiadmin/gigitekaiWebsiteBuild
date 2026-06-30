@@ -435,8 +435,8 @@ export const helpdeskRouter = router({
       priority: z.enum(["low", "medium", "high", "critical"]).default("medium"),
       channel: z.enum(["email", "chat", "phone", "web"]).default("web"),
       userId: z.number().optional(),
-      requesterName: z.union([z.string(), z.literal(""), z.undefined()]).optional(),
-      requesterEmail: z.union([z.string().email(), z.literal(""), z.undefined()]).optional(),
+      requesterName: z.union([z.literal(""), z.string(), z.undefined()]).optional(),
+      requesterEmail: z.union([z.literal(""), z.string().email(), z.undefined()]).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       try {

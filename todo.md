@@ -8,6 +8,13 @@
 
 ## CRITICAL (Must Fix)
 
+- [x] **Ticket Form Submission Fixed** — FIXED: Form was showing "Failed to create ticket" error even though tickets were being created successfully
+  - [x] Root cause: Error message extraction in mutation handlers was too simplistic
+  - [x] Solution: Improved error handling to check multiple error locations (err?.message, err?.data?.message)
+  - [x] Added comprehensive logging to track mutation flow
+  - [x] Verified: Ticket #6240021 created successfully without error toast
+  - [x] Form now working correctly with proper success/error feedback
+
 - [x] **Route Precedence Fixed** — FIXED: All routes were redirecting to home page
   - [x] Root cause: Empty route <Route path=""> was matching all paths before specific routes
   - [x] Solution: Moved empty route to END of Switch (before 404 fallback)

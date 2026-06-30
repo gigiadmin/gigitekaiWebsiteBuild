@@ -36,6 +36,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const userMutation = trpc.helpdesk.createTicket.useMutation({
     onSuccess: (data) => {
       submitInProgressRef.current = false;
+      console.log("[CreateTicketModal] User mutation succeeded:", data);
       toast.success("Ticket created successfully!");
       // Wrap invalidation in try/catch to prevent errors from affecting UX
       try {
@@ -51,13 +52,15 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     onError: (err: any) => {
       submitInProgressRef.current = false;
       console.error("[CreateTicketModal] User mutation error:", err);
-      toast.error(err.message || "Failed to create ticket");
+      const errorMessage = err?.message || err?.data?.message || "Failed to create ticket";
+      toast.error(errorMessage);
     },
   });
 
   const adminMutation = trpc.helpdesk.adminCreateTicket.useMutation({
     onSuccess: (data) => {
       submitInProgressRef.current = false;
+      console.log("[CreateTicketModal] Admin mutation succeeded:", data);
       toast.success("Ticket created successfully!");
       // Wrap invalidation in try/catch to prevent errors from affecting UX
       try {
@@ -73,7 +76,8 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     onError: (err: any) => {
       submitInProgressRef.current = false;
       console.error("[CreateTicketModal] Admin mutation error:", err);
-      toast.error(err.message || "Failed to create ticket");
+      const errorMessage = err?.message || err?.data?.message || "Failed to create ticket";
+      toast.error(errorMessage);
     },
   });
 
@@ -82,10 +86,17 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const isPending = userMutation.isPending || adminMutation.isPending;
 
   const onSubmit = async (data: any) => {
-    if (submitInProgressRef.current) return;
+    console.log("[CreateTicketModal] onSubmit called", { mode, data });
+    if (submitInProgressRef.current) {
+      console.log("[CreateTicketModal] Submission already in progress, ignoring");
+      return;
+    }
 
     const now = Date.now();
-    if (now - lastSubmitTimeRef.current < 1000) return;
+    if (now - lastSubmitTimeRef.current < 1000) {
+      console.log("[CreateTicketModal] Throttled - last submit was", now - lastSubmitTimeRef.current, "ms ago");
+      return;
+    }
 
     submitInProgressRef.current = true;
     lastSubmitTimeRef.current = now;
@@ -93,7 +104,10 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
     try {
       // Use correct mutation based on mode
       const mutation = mode === "user" ? userMutation : adminMutation;
-      await mutation.mutateAsync({
+      console.log("[CreateTicketModal] Using mutation:", mode === "user" ? "userMutation" : "adminMutation");
+      console.log("[CreateTicketModal] Mutation object exists:", !!mutation);
+      
+      const result = await mutation.mutateAsync({
         title: data.title,
         description: data.description,
         stepsAttempted: data.stepsAttempted,
@@ -103,6 +117,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
         requesterName: data.requesterName || "",
         requesterEmail: data.requesterEmail || "",
       });
+      console.log("[CreateTicketModal] Mutation succeeded with result:", result);
     } catch (e) {
       // Error is already handled by mutation.onError
       console.error("[CreateTicketModal] Submission error:", e);
