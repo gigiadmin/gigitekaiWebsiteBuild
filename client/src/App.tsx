@@ -91,6 +91,7 @@ const PublicKB = lazy(() => import("./pages/PublicKB"));
 const KBArticleViewer = lazy(() => import("./pages/KBArticleViewer"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
 const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
+const SmartHomeServices = lazy(() => import("./pages/SmartHomeServices"));
 
 // ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
@@ -230,6 +231,7 @@ function Router() {
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />
           <Route path={"/services/:slug"} component={ServiceDetail} />
+          <Route path={"/smart-home"} component={SmartHomeServices} />
           <Route path={"/managed-it-services-tampa"} component={ManagedITTampa} />
           <Route path={"/managed-it-services-miami"} component={ManagedITMiami} />
           <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />

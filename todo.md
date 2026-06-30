@@ -1801,3 +1801,20 @@
   - [x] Build status: No TypeScript errors, dev server running
 
 - [x] Update website pricing page: Starter $2,997 + $149/mo, Growth $6,997 + $249/mo (Most Popular), Pro $12,997 + $399/mo with full feature lists
+
+
+---
+
+## NEW: Smart Home Installation & Automation Service (June 30, 2026)
+
+- [x] Create dedicated `/smart-home` page with hero, value props, and lead capture
+  - [x] Hero section with headline "Enterprise Smart Home & Automation Solutions"
+  - [x] 3-pillar value proposition (Integration, Speed, Support)
+  - [x] Embedded Manus app iframe (https://manus.im/app/bb96YZovyyHH2nJepD4KZe)
+  - [x] Lead capture form (Name, Email, Phone, Company, Service Interest)
+  - [x] Trust section with social proof and compliance badges
+  - [x] CTA footer with "Schedule Consultation" button
+- [x] Add Smart Home to Services menu navigation
+- [ ] Implement analytics tracking for page views and lead conversions
+- [ ] Test end-to-end: page loads, iframe works, form submissions captured
+- [ ] Deploy to production and verify on gigitekai.com

@@ -35,6 +35,7 @@ export default function SiteNavBar2024() {
     { label: "Cybersecurity", href: "/services/security" },
     { label: "Data Analytics", href: "/services/data" },
     { label: "IT Strategy", href: "/services/strategy" },
+    { label: "Smart Home & Automation", href: "/smart-home" },
   ];
 
   useEffect(() => {
