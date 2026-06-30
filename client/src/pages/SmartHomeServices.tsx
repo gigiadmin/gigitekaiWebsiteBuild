@@ -61,6 +61,21 @@ export default function SmartHomeServices() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A]">
+      {/* Back to Home Button */}
+      <div className="sticky top-0 z-40 bg-gradient-to-b from-[#0A0E1A] to-transparent pt-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-300 hover:text-cyan-400 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Home
+          </a>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-20 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 opacity-30">
