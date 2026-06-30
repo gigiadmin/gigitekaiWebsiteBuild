@@ -574,26 +574,20 @@ export default defineConfig({
       // Force all packages to use the SAME React instance from node_modules.
       // This prevents the dual-React crash where manus-runtime or @trpc/react-query
       // loads its own React copy, causing 'Cannot read properties of null (reading useState)'.
-      // The alias ensures every import of 'react' resolves to the same physical file.
       "react": path.resolve(import.meta.dirname, "node_modules", "react"),
       "react-dom": path.resolve(import.meta.dirname, "node_modules", "react-dom"),
       "react-dom/client": path.resolve(import.meta.dirname, "node_modules", "react-dom", "client.js"),
     },
     // Deduplicate React to prevent multiple instances when MSAL chunk or manus-runtime loads separately.
-    // Without this, @azure/msal-react or @trpc/react-query uses a different React copy than the app,
-    // causing 'Cannot read properties of null (reading useState/useEffect)' crash.
     dedupe: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   optimizeDeps: {
-    // Let Vite 7 handle dependency discovery and pre-bundling automatically.
-    // DO NOT add force:true or explicit include lists — Vite 7 uses per-file content hashes
-    // for ?v= cache busting, and explicit includes can cause hash inconsistencies where
-    // the same shared chunk (e.g., chunk-MO2SMAW5.js containing React) gets different
-    // ?v= hashes when referenced from different pre-bundled files, causing the browser
-    // to load it as two separate ES modules → two React instances → useState crash.
+    // Let Vite handle dependency discovery and pre-bundling automatically.
+    // The useRef/useState crash in dev preview is a known Vite 7 + React 19 CJS interop issue
+    // that does NOT affect production builds (Rollup handles CJS correctly).
   },
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),

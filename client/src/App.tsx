@@ -1,19 +1,16 @@
 import { Route, Switch, useLocation } from "wouter";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useDomainRouting } from "@/hooks/useDomainRouting";
-// PERF: Lazy-load TooltipProvider — removes @radix-ui/react-tooltip from critical path.
-// TooltipProvider is a context wrapper; lazy-loading it defers Radix UI parsing until after LCP.
-const TooltipProvider = lazy(() =>
-  import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider }))
-);
+// TooltipProvider must be eagerly loaded — lazy-loading context providers causes React hooks crash
+import { TooltipProvider } from "@/components/ui/tooltip";
 // PERF: Lazy-load NotFound — removes Button -> @radix-ui/react-slot from critical path.
 // NotFound is only rendered on 404 errors, never on the homepage.
 const NotFound = lazy(() => import("@/pages/NotFound"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SchemaMarkup } from "./components/SchemaMarkup";
-// Toaster lazy-loaded to reduce initial bundle and JS execution time before first paint
-const ToasterComponent = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+// Toaster must be eagerly loaded — lazy-loading causes React hooks crash in dev
+import { Toaster as ToasterComponent } from "@/components/ui/sonner";
 // make sure to consider if you need authentication for certain routes
 // ── Critical pages — loaded eagerly (part of initial bundle) ────────────
 import Home from "./pages/Home";
@@ -352,7 +349,7 @@ function App() {
           >
             Skip to main content
           </a>
-          <Suspense fallback={null}><ToasterComponent /></Suspense>
+          <ToasterComponent />
           {typeof window !== 'undefined' && window.location.hostname === 'hh.gigitekai.com' && (
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, background: '#ff6b00', color: '#fff', textAlign: 'center', padding: '6px 16px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em' }}>
               ⚠️ STAGING ENVIRONMENT — hh.gigitekai.com — Changes here are NOT live on gigitekai.com
