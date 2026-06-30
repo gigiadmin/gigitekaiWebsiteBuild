@@ -447,13 +447,21 @@ export const helpdeskRouter = router({
         requesterName: input.requesterName,
         requesterEmail: input.requesterEmail || undefined,
       });
-      if (!ticket) throw new Error("Failed to create ticket");
-      // Send Teams notification
+      if (!ticket) {
+        console.error("[Helpdesk] createTicket returned null");
+        throw new Error("Failed to create ticket");
+      }
+      console.log(`[Helpdesk] Ticket #${ticket.id} created successfully by admin`);
+      
+      // Send Teams notification (non-blocking)
       try {
         await sendTicketNotificationToTeams(ticket);
+        console.log(`[Helpdesk] Teams notification sent for ticket #${ticket.id}`);
       } catch (e) {
         console.error("[Helpdesk] Admin ticket Teams notification failed:", e);
+        // Don't throw - Teams notification failure shouldn't fail the ticket creation
       }
+      
       return ticket;
     }),
 

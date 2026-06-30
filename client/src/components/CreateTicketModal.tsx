@@ -130,14 +130,21 @@ export default function CreateTicketModal({
   const adminMutation = trpc.helpdesk.adminCreateTicket.useMutation({
     onSuccess: (data) => {
       submitInProgressRef.current = false;
-      toast.success(`Ticket #${data?.id ?? ""} created!`);
+      console.log("[CreateTicketModal] adminCreateTicket success:", data);
+      if (!data || !data.id) {
+        console.error("[CreateTicketModal] Invalid response data:", data);
+        toast.error("Ticket created but response invalid. Please refresh.");
+        return;
+      }
+      toast.success(`Ticket #${data.id} created!`);
       utils.helpdesk.getAllTickets.invalidate();
       reset();
       onClose();
-      onSuccess?.(data?.id ?? 0);
+      onSuccess?.(data.id);
     },
     onError: (err: any) => {
       submitInProgressRef.current = false;
+      console.error("[CreateTicketModal] adminCreateTicket error:", err);
       toast.error(err.message || "Failed to create ticket");
     },
   });
