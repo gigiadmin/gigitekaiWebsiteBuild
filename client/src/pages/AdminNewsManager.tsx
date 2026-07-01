@@ -2,18 +2,17 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Loader2, Archive, Trash2, Plus, Eye } from "lucide-react";
+import { Loader2, Archive, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminNewsManager() {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState("");
   const [offset, setOffset] = useState(0);
   const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
 
   // Fetch articles
-  const { data: articlesData, isLoading: articlesLoading, refetch } = trpc.aiNews.listArticles.useQuery({
+  const { data: articlesData, isLoading, refetch } = trpc.aiNews.listArticles.useQuery({
     search,
     category: category || undefined,
     offset,
@@ -23,19 +22,13 @@ export default function AdminNewsManager() {
   // Fetch stats
   const { data: stats } = trpc.aiNews.getStats.useQuery();
 
-  // Fetch article details
-  const { data: articleDetail } = trpc.aiNews.getArticle.useQuery(
-    { id: selectedArticle! },
-    { enabled: !!selectedArticle }
-  ) as any;
-
   // Mutations
   const archiveMutation = trpc.aiNews.archiveArticle.useMutation({
     onSuccess: () => {
       toast.success("Article archived");
       refetch();
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err: any) => toast.error(err?.message || "Error archiving article"),
   });
 
   const deleteMutation = trpc.aiNews.deleteArticle.useMutation({
@@ -43,78 +36,52 @@ export default function AdminNewsManager() {
       toast.success("Article deleted");
       refetch();
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err: any) => toast.error(err?.message || "Error deleting article"),
   });
 
-  const includeNewsletter = trpc.aiNews.includeInNewsletter.useMutation({
+  const toggleNewsletterMutation = trpc.aiNews.includeInNewsletter.useMutation({
     onSuccess: () => {
-      toast.success("Article added to newsletter");
+      toast.success("Newsletter status updated");
       refetch();
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err: any) => toast.error(err?.message || "Error updating newsletter status"),
   });
-
-  const excludeNewsletter = trpc.aiNews.excludeFromNewsletter.useMutation({
-    onSuccess: () => {
-      toast.success("Article removed from newsletter");
-      refetch();
-    },
-    onError: (err) => toast.error(err.message),
-  });
-
-  const handleArchive = (id: number) => {
-    archiveMutation.mutate({ id });
-  };
-
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this article?")) {
-      deleteMutation.mutate({ id });
-    }
-  };
-
-  const handleToggleNewsletter = (id: number, included: number) => {
-    if (included === 1) {
-      excludeNewsletter.mutate({ id });
-    } else {
-      includeNewsletter.mutate({ id });
-    }
-  };
 
   const articles = articlesData?.articles || [];
   const total = articlesData?.total || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">AI News Manager</h1>
-        <p className="text-gray-600">Manage collected AI industry news and newsletter content</p>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-white">AI News Manager</h1>
+        <p className="text-gray-400">Manage collected AI industry news and newsletter content</p>
       </div>
 
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Total Articles</div>
-            <div className="text-2xl font-bold">{stats.totalArticles}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Total Engagements</div>
-            <div className="text-2xl font-bold">{stats.totalEngagements}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Newsletters Sent</div>
-            <div className="text-2xl font-bold">{stats.totalNewsletters}</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Categories</div>
-            <div className="text-2xl font-bold">{stats.categoryCounts?.length || 0}</div>
-          </Card>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <p className="text-gray-400 text-sm">Total Articles</p>
+            <p className="text-2xl font-bold text-cyan-400">{stats.totalArticles || 0}</p>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <p className="text-gray-400 text-sm">Total Engagements</p>
+            <p className="text-2xl font-bold text-cyan-400">{stats.totalEngagements || 0}</p>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <p className="text-gray-400 text-sm">Newsletters Sent</p>
+            <p className="text-2xl font-bold text-cyan-400">{stats.totalNewsletters || 0}</p>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+            <p className="text-gray-400 text-sm">Categories</p>
+            <p className="text-2xl font-bold text-cyan-400">{stats.categoryCounts?.length || 0}</p>
+          </div>
         </div>
       )}
 
-      {/* Search and Filter */}
-      <div className="flex gap-4 flex-wrap">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
         <Input
           placeholder="Search articles..."
           value={search}
@@ -122,7 +89,7 @@ export default function AdminNewsManager() {
             setSearch(e.target.value);
             setOffset(0);
           }}
-          className="flex-1 min-w-[200px]"
+          className="bg-gray-900 border-gray-800 text-white placeholder-gray-500"
         />
         <select
           value={category}
@@ -130,189 +97,159 @@ export default function AdminNewsManager() {
             setCategory(e.target.value);
             setOffset(0);
           }}
-          className="px-4 py-2 border rounded-md"
+          className="bg-gray-900 border border-gray-800 text-white rounded-md px-3 py-2"
         >
           <option value="">All Categories</option>
-          <option value="AI & Technology">AI & Technology</option>
-          <option value="Business & Tech">Business & Tech</option>
-          <option value="Tech & Security">Tech & Security</option>
+          {stats?.categoryCounts?.map((cat: any) => (
+            <option key={cat.category} value={cat.category}>
+              {cat.category}
+            </option>
+          ))}
         </select>
-        <Button variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Manual Article
-        </Button>
       </div>
 
       {/* Articles List */}
-      <div className="space-y-4">
-        {articlesLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin" />
+      <div className="space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="animate-spin text-cyan-400" />
           </div>
         ) : articles.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No articles found
-          </div>
+          <div className="text-center py-12 text-gray-400">No articles found</div>
         ) : (
-          <div className="space-y-3">
-            {articles.map((article: any) => (
-              <div key={article.id} className="p-4 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedArticle(article.id)}>
-                    <h3 className="font-semibold text-lg text-white">{article.title}</h3>
-                    <p className="text-sm text-gray-400 mt-1">{article.summary?.substring(0, 150)}...</p>
-                    <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                      <span>{article.category}</span>
-                      <span>{article.source}</span>
-                      <span>Views: {article.viewCount || 0}</span>
-                      <span>Clicks: {article.clickCount || 0}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedArticle(article.id);
-                      }}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={article.includedInNewsletter === 1 ? "default" : "outline"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleNewsletter(article.id, article.includedInNewsletter);
-                      }}
-                    >
-                      Newsletter
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleArchive(article.id);
-                      }}
-                    >
-                      <Archive className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(article.id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+          articles.map((article: any) => (
+            <div
+              key={article.id}
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-white truncate">{article.title}</h3>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">
+                    {article.category}
+                  </span>
+                  <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
+                    {article.source}
+                  </span>
+                  {article.includedInNewsletter === 1 && (
+                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                      In Newsletter
+                    </span>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2 md:flex-nowrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelectedArticle(article.id)}
+                  className="flex-1 md:flex-none"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  View
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    toggleNewsletterMutation.mutate({ id: article.id });
+                  }}
+                  className="flex-1 md:flex-none"
+                  disabled={toggleNewsletterMutation.isPending}
+                >
+                  {article.includedInNewsletter === 1 ? "Remove" : "Add"} Newsletter
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    archiveMutation.mutate({ id: article.id });
+                  }}
+                  className="flex-1 md:flex-none"
+                  disabled={archiveMutation.isPending}
+                >
+                  <Archive className="w-4 h-4 mr-1" />
+                  Archive
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    if (confirm("Delete this article?")) {
+                      deleteMutation.mutate({ id: article.id });
+                    }
+                  }}
+                  className="flex-1 md:flex-none"
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
       {/* Pagination */}
-      {articles.length > 0 && (
+      {total > 20 && (
         <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-600">
-            Showing {offset + 1}-{Math.min(offset + 20, total)} of {total}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setOffset(Math.max(0, offset - 20))}
-              disabled={offset === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setOffset(offset + 20)}
-              disabled={offset + 20 >= total}
-            >
-              Next
-            </Button>
-          </div>
+          <Button
+            onClick={() => setOffset(Math.max(0, offset - 20))}
+            disabled={offset === 0}
+            variant="outline"
+          >
+            Previous
+          </Button>
+          <span className="text-gray-400">
+            {offset + 1} - {Math.min(offset + 20, total)} of {total}
+          </span>
+          <Button
+            onClick={() => setOffset(offset + 20)}
+            disabled={offset + 20 >= total}
+            variant="outline"
+          >
+            Next
+          </Button>
         </div>
       )}
 
       {/* Article Detail Modal */}
-      {selectedArticle && articleDetail && (
-        <Card className="p-6 bg-blue-50 border-blue-200">
-          <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl font-bold">{articleDetail.article.title}</h2>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedArticle(null)}
-            >
-              Close
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-2">Summary</h3>
-              <p className="text-sm text-gray-700">{articleDetail.article.summary}</p>
+      {selectedArticle && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-xl font-bold text-white">Article Details</h2>
+              <button
+                onClick={() => setSelectedArticle(null)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
             </div>
-
-            {articleDetail.article.keyTakeaways && (
-              <div>
-                <h3 className="font-semibold mb-2">Key Takeaways</h3>
-                <ul className="text-sm space-y-1">
-                  {(() => {
-                    const takeaways = articleDetail.article.keyTakeaways;
-                    if (typeof takeaways === 'string') {
-                      try {
-                        const parsed = JSON.parse(takeaways) as string[];
-                        return (<>{parsed.map((t: string, i: number) => (
-                          <li key={i} className="text-gray-700">• {t}</li>
-                        ))}</>);
-                      } catch {
-                        return <li className="text-gray-700">• {takeaways}</li>;
-                      }
-                    } else if (Array.isArray(takeaways)) {
-                      return (<>{(takeaways as string[]).map((t: string, i: number) => (
-                        <li key={i} className="text-gray-700">• {t}</li>
-                      ))}</>);
-                    }
-                    return null;
-                  })()}
-                </ul>
+            {articles.find((a: any) => a.id === selectedArticle) && (
+              <div className="space-y-4 text-gray-300">
+                <div>
+                  <p className="text-sm text-gray-400">Title</p>
+                  <p className="font-semibold">{articles.find((a: any) => a.id === selectedArticle)?.title}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Summary</p>
+                  <p>{articles.find((a: any) => a.id === selectedArticle)?.summary}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Source</p>
+                  <p>{articles.find((a: any) => a.id === selectedArticle)?.source}</p>
+                </div>
               </div>
             )}
-
-            <div>
-              <h3 className="font-semibold mb-2">GigitekAI Angle</h3>
-              <p className="text-sm text-gray-700">{articleDetail.article.gigitekAiAngle}</p>
-            </div>
-
-            <div className="flex gap-4 pt-4">
-              <Button
-                onClick={() => handleToggleNewsletter(articleDetail.article.id, articleDetail.article.includedInNewsletter as number)}
-              >
-                {articleDetail.article.includedInNewsletter === 1 ? 'Remove from Newsletter' : 'Add to Newsletter'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleArchive(articleDetail.article.id)}
-              >
-                Archive
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => handleDelete(articleDetail.article.id)}
-              >
-                Delete
-              </Button>
-            </div>
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );

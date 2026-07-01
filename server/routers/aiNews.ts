@@ -71,7 +71,7 @@ export const aiNewsRouter = router({
 
       // Get total count
       const countResult = await db
-        .select({ count: aiNewsArticles.id })
+        .select()
         .from(aiNewsArticles)
         .where(whereClause);
 
@@ -216,15 +216,15 @@ export const aiNewsRouter = router({
     if (!db) return null;
 
     // Total articles
-    const [{ count: totalArticles }] = await db
-      .select({ count: aiNewsArticles.id })
+    const totalArticlesResult = await db
+      .select()
       .from(aiNewsArticles);
+    const totalArticles = totalArticlesResult.length;
 
     // Articles by category
     const categoryCounts = await db
       .select({
         category: aiNewsArticles.category,
-        count: aiNewsArticles.id,
       })
       .from(aiNewsArticles)
       .groupBy(aiNewsArticles.category);
@@ -233,21 +233,22 @@ export const aiNewsRouter = router({
     const sourceCounts = await db
       .select({
         source: aiNewsArticles.source,
-        count: aiNewsArticles.id,
       })
       .from(aiNewsArticles)
       .groupBy(aiNewsArticles.source);
 
     // Engagement summary
-    const [{ count: totalEngagements }] = await db
-      .select({ count: newsEngagementMetrics.id })
+    const totalEngagementsResult = await db
+      .select()
       .from(newsEngagementMetrics);
+    const totalEngagements = totalEngagementsResult.length;
 
     // Total newsletters sent
-    const [{ count: totalNewsletters }] = await db
-      .select({ count: newsletterSends.id })
+    const totalNewslettersResult = await db
+      .select()
       .from(newsletterSends)
       .where(eq(newsletterSends.status, 'sent'));
+    const totalNewsletters = totalNewslettersResult.length;
 
     return {
       totalArticles,
