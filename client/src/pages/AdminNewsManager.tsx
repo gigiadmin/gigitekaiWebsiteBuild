@@ -2,193 +2,196 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Archive, Trash2, Eye } from "lucide-react";
+import { Loader2, Archive, Trash2, Eye, Mail, MailX } from "lucide-react";
 import { toast } from "sonner";
+
+type Article = {
+  id: number;
+  title: string;
+  summary: string | null;
+  category: string | null;
+  source: string | null;
+  url: string | null;
+  publishedAt: string | null;
+  includedInNewsletter: number;
+  isArchived: number;
+  viewCount: number;
+  clickCount: number;
+};
 
 export default function AdminNewsManager() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [offset, setOffset] = useState(0);
-  const [selectedArticle, setSelectedArticle] = useState<number | null>(null);
+  const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
 
-  // Fetch articles
   const { data: articlesData, isLoading, refetch } = trpc.aiNews.listArticles.useQuery({
-    search,
+    search: search || undefined,
     category: category || undefined,
     offset,
     limit: 20,
   });
 
-  // Fetch stats
   const { data: stats } = trpc.aiNews.getStats.useQuery();
 
-  // Mutations
   const archiveMutation = trpc.aiNews.archiveArticle.useMutation({
-    onSuccess: () => {
-      toast.success("Article archived");
-      refetch();
-    },
-    onError: (err: any) => toast.error(err?.message || "Error archiving article"),
+    onSuccess: () => { toast.success("Article archived"); refetch(); },
+    onError: (err: any) => toast.error(err?.message || "Error"),
   });
 
   const deleteMutation = trpc.aiNews.deleteArticle.useMutation({
-    onSuccess: () => {
-      toast.success("Article deleted");
-      refetch();
-    },
-    onError: (err: any) => toast.error(err?.message || "Error deleting article"),
+    onSuccess: () => { toast.success("Article deleted"); refetch(); },
+    onError: (err: any) => toast.error(err?.message || "Error"),
   });
 
-  const toggleNewsletterMutation = trpc.aiNews.includeInNewsletter.useMutation({
-    onSuccess: () => {
-      toast.success("Newsletter status updated");
-      refetch();
-    },
-    onError: (err: any) => toast.error(err?.message || "Error updating newsletter status"),
+  const includeMutation = trpc.aiNews.includeInNewsletter.useMutation({
+    onSuccess: () => { toast.success("Added to newsletter"); refetch(); },
+    onError: (err: any) => toast.error(err?.message || "Error"),
   });
 
-  const articles = articlesData?.articles || [];
+  const excludeMutation = trpc.aiNews.excludeFromNewsletter.useMutation({
+    onSuccess: () => { toast.success("Removed from newsletter"); refetch(); },
+    onError: (err: any) => toast.error(err?.message || "Error"),
+  });
+
+  const articles: Article[] = (articlesData?.articles as Article[]) || [];
   const total = articlesData?.total || 0;
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
+    <div className="w-full p-4 md:p-6 space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-white">AI News Manager</h1>
-        <p className="text-gray-400">Manage collected AI industry news and newsletter content</p>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold text-white">AI News Manager</h1>
+        <p className="text-gray-400 text-sm mt-1">Manage collected AI industry news and newsletter content</p>
       </div>
 
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Total Articles</p>
-            <p className="text-2xl font-bold text-cyan-400">{stats.totalArticles || 0}</p>
-          </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Total Engagements</p>
-            <p className="text-2xl font-bold text-cyan-400">{stats.totalEngagements || 0}</p>
-          </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Newsletters Sent</p>
-            <p className="text-2xl font-bold text-cyan-400">{stats.totalNewsletters || 0}</p>
-          </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Categories</p>
-            <p className="text-2xl font-bold text-cyan-400">{stats.categoryCounts?.length || 0}</p>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Total Articles", value: stats.totalArticles || 0 },
+            { label: "Engagements", value: stats.totalEngagements || 0 },
+            { label: "Newsletters Sent", value: stats.totalNewsletters || 0 },
+            { label: "Categories", value: stats.categoryCounts?.length || 0 },
+          ].map((s) => (
+            <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+              <p className="text-gray-400 text-xs">{s.label}</p>
+              <p className="text-xl font-bold text-cyan-400">{s.value}</p>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Input
           placeholder="Search articles..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setOffset(0);
-          }}
-          className="bg-gray-900 border-gray-800 text-white placeholder-gray-500"
+          onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
+          className="bg-gray-900 border-gray-700 text-white placeholder-gray-500"
         />
         <select
           value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            setOffset(0);
-          }}
-          className="bg-gray-900 border border-gray-800 text-white rounded-md px-3 py-2"
+          onChange={(e) => { setCategory(e.target.value); setOffset(0); }}
+          className="bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 text-sm"
         >
           <option value="">All Categories</option>
-          {stats?.categoryCounts?.map((cat: any) => (
-            <option key={cat.category} value={cat.category}>
-              {cat.category}
-            </option>
+          {(stats?.categoryCounts || []).map((cat: any) => (
+            <option key={cat.category} value={cat.category}>{cat.category}</option>
           ))}
         </select>
       </div>
 
-      {/* Articles List */}
+      {/* Articles */}
       <div className="space-y-3">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="animate-spin text-cyan-400" />
+            <Loader2 className="animate-spin text-cyan-400 w-8 h-8" />
           </div>
         ) : articles.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">No articles found</div>
+          <div className="text-center py-12 text-gray-400 bg-gray-900 border border-gray-800 rounded-lg">
+            No articles found
+          </div>
         ) : (
-          articles.map((article: any) => (
-            <div
-              key={article.id}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-            >
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white truncate">{article.title}</h3>
+          articles.map((article) => (
+            <div key={article.id} className="bg-gray-900 border border-gray-800 rounded-lg p-4 space-y-3">
+              {/* Article Info */}
+              <div>
+                <h3 className="font-semibold text-white text-sm leading-snug">{article.title}</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">
-                    {article.category}
-                  </span>
-                  <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
-                    {article.source}
-                  </span>
+                  {article.category && (
+                    <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded">
+                      {article.category}
+                    </span>
+                  )}
+                  {article.source && (
+                    <span className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded">
+                      {article.source}
+                    </span>
+                  )}
                   {article.includedInNewsletter === 1 && (
-                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">
                       In Newsletter
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 md:flex-nowrap">
+              {/* Buttons — stacked on mobile, row on desktop */}
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setSelectedArticle(article.id)}
-                  className="flex-1 md:flex-none"
+                  className="text-xs"
+                  onClick={() => setViewingArticle(article)}
                 >
-                  <Eye className="w-4 h-4 mr-1" />
-                  View
+                  <Eye className="w-3 h-3 mr-1" /> View
                 </Button>
+
+                {article.includedInNewsletter === 1 ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs border-orange-500/50 text-orange-400 hover:bg-orange-500/10"
+                    disabled={excludeMutation.isPending}
+                    onClick={() => excludeMutation.mutate({ id: article.id })}
+                  >
+                    <MailX className="w-3 h-3 mr-1" /> Remove
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs border-green-500/50 text-green-400 hover:bg-green-500/10"
+                    disabled={includeMutation.isPending}
+                    onClick={() => includeMutation.mutate({ id: article.id })}
+                  >
+                    <Mail className="w-3 h-3 mr-1" /> Newsletter
+                  </Button>
+                )}
 
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    toggleNewsletterMutation.mutate({ id: article.id });
-                  }}
-                  className="flex-1 md:flex-none"
-                  disabled={toggleNewsletterMutation.isPending}
-                >
-                  {article.includedInNewsletter === 1 ? "Remove" : "Add"} Newsletter
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    archiveMutation.mutate({ id: article.id });
-                  }}
-                  className="flex-1 md:flex-none"
+                  className="text-xs"
                   disabled={archiveMutation.isPending}
+                  onClick={() => archiveMutation.mutate({ id: article.id })}
                 >
-                  <Archive className="w-4 h-4 mr-1" />
-                  Archive
+                  <Archive className="w-3 h-3 mr-1" /> Archive
                 </Button>
 
                 <Button
                   size="sm"
                   variant="destructive"
+                  className="text-xs"
+                  disabled={deleteMutation.isPending}
                   onClick={() => {
-                    if (confirm("Delete this article?")) {
+                    if (window.confirm("Delete this article?")) {
                       deleteMutation.mutate({ id: article.id });
                     }
                   }}
-                  className="flex-1 md:flex-none"
-                  disabled={deleteMutation.isPending}
                 >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Delete
+                  <Trash2 className="w-3 h-3 mr-1" /> Delete
                 </Button>
               </div>
             </div>
@@ -198,56 +201,59 @@ export default function AdminNewsManager() {
 
       {/* Pagination */}
       {total > 20 && (
-        <div className="flex justify-between items-center">
-          <Button
-            onClick={() => setOffset(Math.max(0, offset - 20))}
-            disabled={offset === 0}
-            variant="outline"
-          >
+        <div className="flex justify-between items-center pt-2">
+          <Button onClick={() => setOffset(Math.max(0, offset - 20))} disabled={offset === 0} variant="outline" size="sm">
             Previous
           </Button>
-          <span className="text-gray-400">
-            {offset + 1} - {Math.min(offset + 20, total)} of {total}
-          </span>
-          <Button
-            onClick={() => setOffset(offset + 20)}
-            disabled={offset + 20 >= total}
-            variant="outline"
-          >
+          <span className="text-gray-400 text-sm">{offset + 1}–{Math.min(offset + 20, total)} of {total}</span>
+          <Button onClick={() => setOffset(offset + 20)} disabled={offset + 20 >= total} variant="outline" size="sm">
             Next
           </Button>
         </div>
       )}
 
       {/* Article Detail Modal */}
-      {selectedArticle && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
+      {viewingArticle && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
+          onClick={() => setViewingArticle(null)}
+        >
+          <div
+            className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl font-bold text-white">Article Details</h2>
-              <button
-                onClick={() => setSelectedArticle(null)}
-                className="text-gray-400 hover:text-white"
-              >
-                ✕
-              </button>
+              <h2 className="text-lg font-bold text-white pr-4">{viewingArticle.title}</h2>
+              <button onClick={() => setViewingArticle(null)} className="text-gray-400 hover:text-white text-xl leading-none">✕</button>
             </div>
-            {articles.find((a: any) => a.id === selectedArticle) && (
-              <div className="space-y-4 text-gray-300">
+            <div className="space-y-3 text-sm text-gray-300">
+              {viewingArticle.summary && (
                 <div>
-                  <p className="text-sm text-gray-400">Title</p>
-                  <p className="font-semibold">{articles.find((a: any) => a.id === selectedArticle)?.title}</p>
+                  <p className="text-gray-500 text-xs mb-1">Summary</p>
+                  <p>{viewingArticle.summary}</p>
+                </div>
+              )}
+              <div className="flex gap-4">
+                <div>
+                  <p className="text-gray-500 text-xs">Source</p>
+                  <p>{viewingArticle.source || "—"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">Summary</p>
-                  <p>{articles.find((a: any) => a.id === selectedArticle)?.summary}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Source</p>
-                  <p>{articles.find((a: any) => a.id === selectedArticle)?.source}</p>
+                  <p className="text-gray-500 text-xs">Category</p>
+                  <p>{viewingArticle.category || "—"}</p>
                 </div>
               </div>
-            )}
+              {viewingArticle.url && (
+                <a
+                  href={viewingArticle.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:underline text-xs block"
+                >
+                  Read original article →
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
