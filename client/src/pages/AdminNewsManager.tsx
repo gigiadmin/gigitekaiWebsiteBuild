@@ -27,7 +27,7 @@ export default function AdminNewsManager() {
   const { data: articleDetail } = trpc.aiNews.getArticle.useQuery(
     { id: selectedArticle! },
     { enabled: !!selectedArticle }
-  );
+  ) as any;
 
   // Mutations
   const archiveMutation = trpc.aiNews.archiveArticle.useMutation({
@@ -270,16 +270,16 @@ export default function AdminNewsManager() {
                     if (typeof takeaways === 'string') {
                       try {
                         const parsed = JSON.parse(takeaways) as string[];
-                        return parsed.map((t: string, i: number) => (
+                        return (<>{parsed.map((t: string, i: number) => (
                           <li key={i} className="text-gray-700">• {t}</li>
-                        ));
+                        ))}</>);
                       } catch {
                         return <li className="text-gray-700">• {takeaways}</li>;
                       }
                     } else if (Array.isArray(takeaways)) {
-                      return (takeaways as string[]).map((t: string, i: number) => (
+                      return (<>{(takeaways as string[]).map((t: string, i: number) => (
                         <li key={i} className="text-gray-700">• {t}</li>
-                      ));
+                      ))}</>);
                     }
                     return null;
                   })()}
