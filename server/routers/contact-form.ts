@@ -49,7 +49,7 @@ export const contactFormRouter = router({
         currentWebsite: z.string().url("Please enter a valid website URL").optional().default(""),
         email: z.string().email("Please enter a valid email address"),
         phone: z.string().optional().default(""),
-        pricingTier: z.enum(["starter", "growth", "pro"]).optional(),
+        pricingTier: z.enum(["intro / express", "starter", "growth", "pro"]).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {

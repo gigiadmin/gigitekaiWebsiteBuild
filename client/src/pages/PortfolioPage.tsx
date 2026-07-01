@@ -18,7 +18,7 @@ interface InquiryForm {
   description: string;
   targetAudience: string;
   currentWebsite: string;
-  pricingTier: "starter" | "growth" | "pro" | "";
+  pricingTier: "intro / express" | "starter" | "growth" | "pro" | "";
 }
 
 interface FeaturedSite {
@@ -156,11 +156,11 @@ export default function WebsitesPage() {
       description: inquiryData.description,
       targetAudience: inquiryData.targetAudience,
       currentWebsite: inquiryData.currentWebsite,
-      pricingTier: inquiryData.pricingTier as "starter" | "growth" | "pro" | undefined,
+      pricingTier: inquiryData.pricingTier as "intro / express" | "starter" | "growth" | "pro" | undefined,
     });
   };
 
-  const openInquiry = (tier: "starter" | "growth" | "pro") => {
+  const openInquiry = (tier: "intro / express" | "starter" | "growth" | "pro") => {
     setInquiryData(prev => ({ ...prev, pricingTier: tier }));
     setInquiryOpen(true);
   };
@@ -305,11 +305,12 @@ export default function WebsitesPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                  { tier: "Starter", price: "$2,500", features: ["5-8 Pages", "Basic AI Chat", "Mobile Responsive", "SSL Certificate", "Email Support"] },
-                  { tier: "Growth", price: "$7,500", features: ["15-20 Pages", "Advanced AI Chat", "CRM Integration", "Analytics Dashboard", "Priority Support"], highlight: true },
-                  { tier: "Pro", price: "$15,000+", features: ["Unlimited Pages", "Full AI Suite", "Custom Integrations", "Advanced Analytics", "Dedicated Manager"] },
+                  { tier: "Intro / Express", price: "$500", features: ["3 Pages", "Mobile Responsive", "Lead Capture Form", "Standard Email Support"] },
+                  { tier: "Starter", price: "$1,250", features: ["5–8 Pages", "Basic AI Chat", "Mobile Responsive", "SSL Certificate", "Email Support"] },
+                  { tier: "Growth", price: "$3,500", features: ["15–20 Pages", "Advanced AI Chat", "CRM Integration", "Analytics Dashboard", "Priority Support"], highlight: true },
+                  { tier: "Pro", price: "$7,500+", features: ["Unlimited Pages", "Full AI Suite", "Custom Integrations", "Advanced Analytics", "Dedicated Manager"] },
                 ].map((plan, i) => (
                   <div
                     key={i}
@@ -331,7 +332,7 @@ export default function WebsitesPage() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => openInquiry(plan.tier.toLowerCase() as "starter" | "growth" | "pro")}
+                      onClick={() => openInquiry(plan.tier.toLowerCase() as "intro / express" | "starter" | "growth" | "pro")}
                       className="w-full py-3 rounded-lg font-bold transition-all duration-300"
                       style={{
                         backgroundColor: plan.highlight ? "#00D4FF" : "transparent",
