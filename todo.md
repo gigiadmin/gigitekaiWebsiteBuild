@@ -1844,30 +1844,36 @@
 
 ---
 
-## CRITICAL BUGS - Ticket Creation (Client-Facing) - Jun 30
+## CRITICAL BUGS - Ticket Creation (Client-Facing) - Jun 30 [ALL FIXED]
 
-- [ ] **BUG: Error toast appears on successful ticket creation** — Shows "Failed to create ticket" even though ticket is created in database
-  - [ ] Root cause: Mutation error handler being triggered despite successful creation
-  - [ ] Fix: Investigate and fix error handling in CreateTicketModal mutation
-  - [ ] Fix: Ensure onSuccess handler properly resets state and closes modal
-  - [ ] Fix: Remove or fix cache invalidation error that triggers onError
+- [x] **BUG: Error toast appears on successful ticket creation** — FIXED in checkpoint 6ec5980c
+  - [x] Root cause: Mutation error handler being triggered despite successful creation
+  - [x] Fix: Investigate and fix error handling in CreateTicketModal mutation
+  - [x] Fix: Ensure onSuccess handler properly resets state and closes modal
+  - [x] Fix: Remove or fix cache invalidation error that triggers onError
 
-- [ ] **BUG: Customer name and email not displaying in ticket detail view** — Fields added to component but not rendering
-  - [ ] Root cause: Component code exists but fields not showing in UI
-  - [ ] Fix: Verify tRPC response includes requesterName and requesterEmail fields
-  - [ ] Fix: Debug React rendering to ensure conditional display works
-  - [ ] Fix: Test with multiple tickets to confirm display works
+- [x] **BUG: Customer name and email not displaying in ticket detail view** — FIXED in checkpoint f2503697
+  - [x] Root cause: Component code exists but fields not showing in UI
+  - [x] Fix: Verify tRPC response includes requesterName and requesterEmail fields
+  - [x] Fix: Debug React rendering to ensure conditional display works
+  - [x] Fix: Test with multiple tickets to confirm display works
 
-- [ ] **BUG: Form validation issues with optional fields** — Empty strings vs undefined causing validation errors
-  - [ ] Fix: Ensure backend schema properly accepts empty strings for optional fields
-  - [ ] Fix: Ensure frontend sends consistent empty string values
-  - [ ] Fix: Add validation tests to verify all field combinations work
+- [x] **BUG: Form validation issues with optional fields** — FIXED in checkpoint f2503697
+  - [x] Fix: Ensure backend schema properly accepts empty strings for optional fields
+  - [x] Fix: Ensure frontend sends consistent empty string values
+  - [x] Fix: Add validation tests to verify all field combinations work
 
-- [ ] **TESTING: Comprehensive ticket creation flow testing** — Verify all scenarios work correctly
-  - [ ] Test: Create ticket with all fields filled
-  - [ ] Test: Create ticket with only required fields (empty optional fields)
-  - [ ] Test: Verify success toast shows (not error toast)
-  - [ ] Test: Verify modal closes after successful creation
-  - [ ] Test: Verify new ticket appears in list with correct data
-  - [ ] Test: Verify customer info displays in ticket detail view
-  - [ ] Test: Verify no duplicate tickets created on retry
+- [x] **TESTING: Comprehensive ticket creation flow testing** — VERIFIED in checkpoint 6ec5980c
+  - [x] Test: Create ticket with all fields filled
+  - [x] Test: Create ticket with only required fields (empty optional fields)
+  - [x] Test: Verify success toast shows (not error toast)
+  - [x] Test: Verify modal closes after successful creation
+  - [x] Test: Verify new ticket appears in list with correct data
+  - [x] Test: Verify customer info displays in ticket detail view
+  - [x] Test: Verify no duplicate tickets created on retry
+
+## Voicemail Notifications - Jul 1, 2026
+
+- [x] **Added Manus notifyOwner() to voicemailGroupPoller.ts** — Step 8b sends push notification after Teams alert
+- [x] **Added email alert to support@gigitekai.com** — Step 8c sends HTML email via M365/MS Graph with transcript, priority, and CTA buttons
+- [x] **Fixed AdminNewsManager TypeScript error** — keyTakeaways json() type cast resolved
