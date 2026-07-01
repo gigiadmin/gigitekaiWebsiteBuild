@@ -46,8 +46,12 @@ export const aiNewsRouter = router({
       if (input.includedInNewsletter !== undefined) {
         conditions.push(eq(aiNewsArticles.includedInNewsletter, input.includedInNewsletter ? 1 : 0));
       }
-      if (input.isArchived !== undefined) {
-        conditions.push(eq(aiNewsArticles.isArchived, input.isArchived ? 1 : 0));
+      // Only filter by archived if explicitly requested
+      if (input.isArchived === true) {
+        conditions.push(eq(aiNewsArticles.isArchived, 1));
+      } else if (input.isArchived === false) {
+        // Show active articles by default
+        conditions.push(eq(aiNewsArticles.isArchived, 0));
       }
       if (input.search) {
         conditions.push(
