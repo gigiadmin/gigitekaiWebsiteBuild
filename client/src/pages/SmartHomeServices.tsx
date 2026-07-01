@@ -170,18 +170,27 @@ export default function SmartHomeServices() {
             Interactive Solution Explorer
           </h2>
 
-          <div className="bg-black/40 border border-cyan-500/20 rounded-xl overflow-hidden shadow-2xl">
-            <iframe
-              src="https://manus.im/app/bb96YZovyyHH2nJepD4KZe"
-              title="Smart Home Services Explorer"
-              className="w-full"
-              style={{ minHeight: "600px", border: "none" }}
-              allow="camera; microphone; clipboard-read; clipboard-write"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: "🏠", title: "Residential Smart Home", desc: "Full home automation — lighting, security, climate, entertainment. Starting at $2,500.", cta: "Get Quote" },
+              { icon: "🏢", title: "Commercial Smart Office", desc: "Enterprise-grade automation for offices, conference rooms, and facilities. Starting at $5,000.", cta: "Get Quote" },
+              { icon: "🔒", title: "Security & Surveillance", desc: "AI-powered cameras, access control, and 24/7 monitoring integration. Starting at $1,500.", cta: "Get Quote" },
+              { icon: "💡", title: "Smart Lighting", desc: "Automated lighting scenes, energy savings up to 40%, voice & app control. Starting at $800.", cta: "Get Quote" },
+              { icon: "🌡️", title: "Climate Control", desc: "Smart HVAC integration, automated scheduling, remote monitoring. Starting at $1,200.", cta: "Get Quote" },
+              { icon: "📡", title: "Network & Connectivity", desc: "Enterprise Wi-Fi, structured cabling, and IoT device management. Starting at $2,000.", cta: "Get Quote" },
+            ].map((item, i) => (
+              <div key={i} className="bg-black/40 border border-cyan-500/20 rounded-xl p-6 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer group"
+                onClick={() => document.getElementById('quote-form')?.scrollIntoView({ behavior: 'smooth' })}>
+                <div className="text-4xl mb-4">{item.icon}</div>
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{item.title}</h3>
+                <p className="text-gray-400 text-sm mb-4">{item.desc}</p>
+                <span className="text-cyan-400 text-sm font-semibold group-hover:underline">{item.cta} →</span>
+              </div>
+            ))}
           </div>
 
           <p className="text-center text-gray-400 mt-6 text-sm">
-            Explore our smart home solutions, get instant quotes, and learn how we can transform your enterprise.
+            Click any solution to get a custom quote. Our team responds within 24 hours.
           </p>
         </div>
       </section>
