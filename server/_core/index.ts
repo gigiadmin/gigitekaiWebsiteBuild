@@ -408,8 +408,7 @@ async function startServer() {
     // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
     startAiNewsScheduler();
     // Start daily AI blog post generation (1:00 PM ET, Mon-Fri only)
-    // DISABLED: Duplicate stories issue - manual posting until fixed
-    // startDailyBlogScheduler();
+    startDailyBlogScheduler();
     // Start Teams webhook health monitor (hourly checks)
     startWebhookHealthMonitor();
     // Start M365 Graph email poller (every 5 minutes)
