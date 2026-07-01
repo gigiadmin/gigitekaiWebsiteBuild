@@ -450,6 +450,37 @@ export async function runAiNewsRecap(): Promise<void> {
       return;
     }
 
+    // Persist articles to database for admin dashboard
+    try {
+      const { getDb } = await import("../db");
+      const { aiNewsArticles } = await import("../../drizzle/schema");
+      const db = await getDb();
+      if (db) {
+        for (const item of newsItems) {
+          const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+          await db.insert(aiNewsArticles).values({
+            title: item.title,
+            summary: item.analysis?.summary ?? item.summary,
+            keyTakeaways: item.analysis?.keyTakeaways ?? [],
+            gigitekAiAngle: item.analysis?.gigitekAiAngle ?? null,
+            category: item.category,
+            source: item.source,
+            url: item.url,
+            publishedAt: now,
+            fetchedAt: now,
+            includedInNewsletter: 1,
+            isArchived: 0,
+            viewCount: 0,
+            clickCount: 0,
+            shareCount: 0,
+          });
+        }
+        console.log(`[AI News Scheduler] ✅ Persisted ${newsItems.length} articles to database`);
+      }
+    } catch (err) {
+      console.warn("[AI News Scheduler] Failed to persist articles to database:", err);
+    }
+
     // Mark run as successful for today
     lastRunDate = todayET;
     await saveLastRunDateToDb(todayET);

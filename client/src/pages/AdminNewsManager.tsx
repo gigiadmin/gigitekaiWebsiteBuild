@@ -248,15 +248,15 @@ export default function AdminNewsManager() {
               <div>
                 <h3 className="font-semibold mb-2">Key Takeaways</h3>
                 <ul className="text-sm space-y-1">
-                  {typeof articleDetail.article.keyTakeaways === 'string' ? (
-                    (JSON.parse(articleDetail.article.keyTakeaways) as string[]).map((t: string, i: number) => (
-                      <li key={i} className="text-gray-700">• {t}</li>
-                    ))
-                  ) : Array.isArray(articleDetail.article.keyTakeaways) ? (
-                    (articleDetail.article.keyTakeaways as string[]).map((t: string, i: number) => (
-                      <li key={i} className="text-gray-700">• {t}</li>
-                    ))
-                  ) : null}
+                  {typeof articleDetail.article.keyTakeaways === 'string'
+                    ? (JSON.parse(articleDetail.article.keyTakeaways) as string[]).map((t: string, i: number) => (
+                        <li key={i} className="text-gray-700">• {t}</li>
+                      ))
+                    : Array.isArray(articleDetail.article.keyTakeaways)
+                    ? (articleDetail.article.keyTakeaways as string[]).map((t: string, i: number) => (
+                        <li key={i} className="text-gray-700">• {t}</li>
+                      ))
+                    : null}
                 </ul>
               </div>
             )}
