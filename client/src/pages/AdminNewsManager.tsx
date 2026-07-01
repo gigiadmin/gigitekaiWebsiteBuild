@@ -156,11 +156,11 @@ export default function AdminNewsManager() {
         ) : (
           <div className="space-y-3">
             {articles.map((article: any) => (
-              <Card key={article.id} className="p-4 hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedArticle(article.id)}>
+              <div key={article.id} className="p-4 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{article.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{article.summary?.substring(0, 150)}...</p>
+                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedArticle(article.id)}>
+                    <h3 className="font-semibold text-lg text-white">{article.title}</h3>
+                    <p className="text-sm text-gray-400 mt-1">{article.summary?.substring(0, 150)}...</p>
                     <div className="flex gap-4 mt-2 text-xs text-gray-500">
                       <span>{article.category}</span>
                       <span>{article.source}</span>
@@ -211,7 +211,7 @@ export default function AdminNewsManager() {
                     </Button>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}
