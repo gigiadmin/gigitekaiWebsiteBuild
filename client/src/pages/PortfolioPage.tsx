@@ -307,10 +307,10 @@ export default function WebsitesPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                  { tier: "Intro / Express", price: "$500", features: ["3 Pages", "Mobile Responsive", "Lead Capture Form", "Standard Email Support"] },
-                  { tier: "Starter", price: "$1,250", features: ["5–8 Pages", "Basic AI Chat", "Mobile Responsive", "SSL Certificate", "Email Support"] },
-                  { tier: "Growth", price: "$3,500", features: ["15–20 Pages", "Advanced AI Chat", "CRM Integration", "Analytics Dashboard", "Priority Support"], highlight: true },
-                  { tier: "Pro", price: "$7,500+", features: ["Unlimited Pages", "Full AI Suite", "Custom Integrations", "Advanced Analytics", "Dedicated Manager"] },
+                  { tier: "Intro / Express", price: "$500", maintenance: "$50/mo", features: ["3 Pages", "Mobile Responsive", "Lead Capture Form", "Standard Email Support"] },
+                  { tier: "Starter", price: "$1,250", maintenance: "$100/mo", features: ["5–8 Pages", "Basic AI Chat", "Mobile Responsive", "SSL Certificate", "Email Support"] },
+                  { tier: "Growth", price: "$3,500", maintenance: "$200/mo", features: ["15–20 Pages", "Advanced AI Chat", "CRM Integration", "Analytics Dashboard", "Priority Support"], highlight: true },
+                  { tier: "Pro", price: "$7,500+", maintenance: "$300+/mo", features: ["Unlimited Pages", "Full AI Suite", "Custom Integrations", "Advanced Analytics", "Dedicated Manager"] },
                 ].map((plan, i) => (
                   <div
                     key={i}
@@ -322,7 +322,8 @@ export default function WebsitesPage() {
                   >
                     {plan.highlight && <div className="text-xs font-bold text-cyan-300 uppercase mb-2">Most Popular</div>}
                     <h4 className="text-2xl font-bold text-white mb-2">{plan.tier}</h4>
-                    <div className="text-3xl font-bold text-cyan-400 mb-6">{plan.price}</div>
+                    <div className="text-3xl font-bold text-cyan-400 mb-1">{plan.price}</div>
+                    <div className="text-sm text-gray-400 mb-5">+ <span className="text-cyan-300 font-semibold">{(plan as any).maintenance}</span> maintenance</div>
                     <ul className="space-y-3 mb-8">
                       {plan.features.map((feature, j) => (
                         <li key={j} className="flex items-center gap-2 text-slate-300">
