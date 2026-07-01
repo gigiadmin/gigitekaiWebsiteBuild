@@ -2409,6 +2409,77 @@ export const upworkMessages = mysqlTable("upworkMessages", {
 	index("formSubmissions_submitted_idx").on(table.submittedAt),
 ]);
 
+// ─── AI News Collection & Management ────────────────────────────────────────
+
+export const aiNewsArticles = mysqlTable("aiNewsArticles", {
+	id: int().autoincrement().notNull().primaryKey(),
+	title: varchar({ length: 500 }).notNull(),
+	summary: text().notNull(),
+	content: text(),
+	category: varchar({ length: 100 }).notNull(),
+	source: varchar({ length: 255 }).notNull(),
+	url: varchar({ length: 1000 }).notNull(),
+	imageUrl: varchar({ length: 1000 }),
+	publishedAt: timestamp({ mode: 'string' }).notNull(),
+	fetchedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	keyTakeaways: json(),
+	gigitekAiAngle: text(),
+	readMoreText: varchar({ length: 255 }),
+	includedInNewsletter: tinyint().default(0).notNull(),
+	includedInBlog: tinyint().default(0).notNull(),
+	sentAt: timestamp({ mode: 'string' }),
+	clickCount: int().default(0).notNull(),
+	shareCount: int().default(0).notNull(),
+	viewCount: int().default(0).notNull(),
+	isManuallyAdded: tinyint().default(0).notNull(),
+	isArchived: tinyint().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("aiNewsArticles_category_idx").on(table.category),
+	index("aiNewsArticles_source_idx").on(table.source),
+	index("aiNewsArticles_url_unique").on(table.url),
+	index("aiNewsArticles_publishedAt_idx").on(table.publishedAt),
+	index("aiNewsArticles_includedInNewsletter_idx").on(table.includedInNewsletter),
+	index("aiNewsArticles_fetchedAt_idx").on(table.fetchedAt),
+]);
+
+export const newsletterSends = mysqlTable("newsletterSends", {
+	id: int().autoincrement().notNull().primaryKey(),
+	title: varchar({ length: 500 }).notNull(),
+	description: text(),
+	articleIds: json().notNull(),
+	recipientCount: int().default(0).notNull(),
+	sentCount: int().default(0).notNull(),
+	failedCount: int().default(0).notNull(),
+	openCount: int().default(0).notNull(),
+	clickCount: int().default(0).notNull(),
+	unsubscribeCount: int().default(0).notNull(),
+	status: mysqlEnum(['draft', 'scheduled', 'sending', 'sent', 'failed']).default('draft').notNull(),
+	scheduledFor: timestamp({ mode: 'string' }),
+	sentAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("newsletterSends_status_idx").on(table.status),
+	index("newsletterSends_sentAt_idx").on(table.sentAt),
+]);
+
+export const newsEngagementMetrics = mysqlTable("newsEngagementMetrics", {
+	id: int().autoincrement().notNull().primaryKey(),
+	articleId: int().notNull().references(() => aiNewsArticles.id, { onDelete: "cascade" }),
+	subscriberId: int().notNull().references(() => newsletterSubscribers.id, { onDelete: "cascade" }),
+	action: mysqlEnum(['opened', 'clicked', 'shared', 'saved', 'reported']).notNull(),
+	timestamp: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("newsEngagementMetrics_articleId_idx").on(table.articleId),
+	index("newsEngagementMetrics_subscriberId_idx").on(table.subscriberId),
+	index("newsEngagementMetrics_action_idx").on(table.action),
+]);
+
 export const voicemailSourceTombstones = mysqlTable("voicemailSourceTombstones", {
 	id: int().autoincrement().notNull(),
 	source: varchar({ length: 50 }).default("m365-group").notNull(),

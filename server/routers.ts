@@ -144,6 +144,7 @@ import { ticketAIRouter } from "./routers/ticketAI";
 import { adminCleanupRouter } from "./routers/admin-cleanup";
 import { agentManagementRouter } from "./routers/agent-management";
 import { m365IncidentsRouter } from "./routers/m365-incidents";
+import { aiNewsRouter } from "./routers/aiNews";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -195,6 +196,7 @@ export const appRouter = router({
   adminCleanup: adminCleanupRouter,
   agentManagement: agentManagementRouter,
   m365Incidents: m365IncidentsRouter,
+  aiNews: aiNewsRouter,
   dnsChecker: dnsCheckerRouter,
   emailDiagnostics: emailDiagnosticsRouter,
   ticketAI: ticketAIRouter,
@@ -824,5 +826,5 @@ export const appRouter = router({
       }),
    }),
   smsCampaign: smsCampaignRouter,
-})
+});
 export type AppRouter = typeof appRouter;
