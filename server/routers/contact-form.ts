@@ -46,7 +46,7 @@ export const contactFormRouter = router({
         industry: z.string().min(1, "Please select an industry"),
         description: z.string().min(10, "Business description must be at least 10 characters"),
         targetAudience: z.string().optional().default(""),
-        currentWebsite: z.string().url("Please enter a valid website URL").optional().default(""),
+        currentWebsite: z.string().optional().default(""),
         email: z.string().email("Please enter a valid email address"),
         phone: z.string().optional().default(""),
         pricingTier: z.enum(["intro / express", "starter", "growth", "pro"]).optional(),
