@@ -32,10 +32,8 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
             {isLast ? (
               <span className="text-slate-300 font-medium">{item.label}</span>
             ) : (
-              <Link href={item.href || "#"}>
-                <a className="text-cyan-400 hover:text-cyan-300 hover:underline transition-[opacity,transform] duration-200 cursor-pointer">
-                  {item.label}
-                </a>
+              <Link href={item.href || "#"} className="text-cyan-400 hover:text-cyan-300 hover:underline transition-[opacity,transform] duration-200 cursor-pointer">
+                {item.label}
               </Link>
             )}
           </div>

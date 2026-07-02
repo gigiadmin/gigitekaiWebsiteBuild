@@ -242,9 +242,9 @@ export default function BlogDetail() {
         </section>
 
         {/* Content */}
-        <section className="py-16 bg-gray-50 dark:bg-[#141B2D]">
+        <section className="py-16" style={{backgroundColor: '#f9fafb'}}>
           <div className="container max-w-3xl">
-            <article className="bg-white dark:bg-[#1a2240] rounded-2xl p-12 prose prose-lg max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-800 dark:prose-p:text-white prose-strong:text-gray-900 dark:prose-strong:text-white prose-li:text-gray-800 dark:prose-li:text-white prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-200 prose-a:text-[#00D4FF] prose-th:text-gray-900 dark:prose-th:text-white prose-td:text-gray-800 dark:prose-td:text-white [&_*]:text-gray-800 dark:[&_*]:text-white [&_h1]:text-gray-900 dark:[&_h1]:text-white [&_h2]:text-gray-900 dark:[&_h2]:text-white [&_h3]:text-gray-900 dark:[&_h3]:text-white [&_h4]:text-gray-900 dark:[&_h4]:text-white [&_p]:text-gray-800 dark:[&_p]:text-white [&_li]:text-gray-800 dark:[&_li]:text-white [&_blockquote]:text-gray-700 dark:[&_blockquote]:text-gray-200 [&_strong]:text-gray-900 dark:[&_strong]:text-white [&_td]:text-gray-800 dark:[&_td]:text-white [&_th]:text-gray-900 dark:[&_th]:text-white">
+            <article className="rounded-2xl p-12 max-w-none" style={{backgroundColor: '#ffffff', color: '#1f2937'}}>
               {/* Render HTML from TipTap editor; fall back to Markdown for legacy posts */}
               {post.content.trimStart().startsWith("<") ? (
                 <div
@@ -257,7 +257,7 @@ export default function BlogDetail() {
                 />
               ) : (
                 <div className="blog-article-content">
-                  <Streamdown>{post.content}</Streamdown>
+                  <Streamdown theme="light">{post.content}</Streamdown>
                 </div>
               )}
             </article>

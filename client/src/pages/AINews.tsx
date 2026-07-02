@@ -12,12 +12,12 @@ export default function AINews() {
   const articles = data?.articles || [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-slate-950 text-white">
       {/* Header */}
-      <div className="bg-gradient-to-b from-slate-900 to-background border-b border-slate-800 py-12">
+      <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 py-12">
         <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">AI News & Insights</h1>
-          <p className="text-xl text-slate-400">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">AI News & Insights</h1>
+          <p className="text-xl text-slate-300">
             Stay updated on the latest AI, cloud, and technology trends shaping the industry
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function AINews() {
               <div
                 key={article.id}
                 onClick={() => setLocation(`/ai-news/${article.id}`)}
-                className="group cursor-pointer p-6 bg-slate-900/50 border border-slate-800 rounded-lg hover:border-cyan-500/50 transition"
+                className="group cursor-pointer p-6 bg-slate-900 border border-slate-700 rounded-lg hover:border-cyan-500/50 transition"
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3">
@@ -47,12 +47,12 @@ export default function AINews() {
                       {article.category}
                     </span>
                     {article.source && (
-                      <span className="text-slate-500 text-sm">
+                      <span className="text-slate-400 text-sm">
                         {article.source}
                       </span>
                     )}
                   </div>
-                  <span className="text-slate-500 text-sm flex-shrink-0">
+                  <span className="text-slate-400 text-sm flex-shrink-0">
                     {new Date(article.publishedAt || new Date()).toLocaleDateString(
                       "en-US",
                       {
@@ -64,12 +64,12 @@ export default function AINews() {
                   </span>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-3 group-hover:text-cyan-400 transition">
+                <h2 className="text-2xl font-bold mb-3 text-white group-hover:text-cyan-400 transition">
                   {article.title}
                 </h2>
 
                 {article.summary && (
-                  <p className="text-slate-400 mb-4 line-clamp-2">
+                  <p className="text-slate-300 mb-4 line-clamp-2">
                     {article.summary}
                   </p>
                 )}
@@ -85,12 +85,12 @@ export default function AINews() {
       </div>
 
       {/* CTA */}
-      <div className="bg-slate-900/50 border-t border-slate-800 py-12 mt-12">
+      <div className="bg-slate-900 border-t border-slate-800 py-12 mt-12">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h3 className="text-2xl font-bold mb-4">
+          <h3 className="text-2xl font-bold mb-4 text-white">
             Need AI guidance for your organization?
           </h3>
-          <p className="text-slate-400 mb-6">
+          <p className="text-slate-300 mb-6">
             Our AI experts can help you navigate the latest technologies and trends.
           </p>
           <button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold px-8 py-3 rounded-lg transition">
