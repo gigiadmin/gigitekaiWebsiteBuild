@@ -82,9 +82,9 @@ async function fetchRecentVoicemailThreads(token: string): Promise<any[]> {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const filterDate = sevenDaysAgo.toISOString(); // Use full ISO format for M365 Graph API
   
-  // Note: Removed $filter for now due to M365 API date format issues
-  // Will rely on $top=20 + $orderby to get recent threads
-  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=20&$orderby=lastDeliveredDateTime desc`;
+  // M365 Graph API does not support date filters on Group threads
+  // Use $top=50 ordered by most recent to get all recent threads
+  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=50&$orderby=lastDeliveredDateTime desc`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -347,6 +347,13 @@ async function processVoicemail(
     const callerInfo = await lookupCallerByPhone(callerNumber);
 
     // Step 5: Create call log entry
+    // Check if already exists in DB (handles server restarts clearing in-memory set)
+    const existingLog = await db.select({ id: callLogs.id }).from(callLogs)
+      .where(eq(callLogs.graphCallId, graphCallId)).limit(1);
+    if (existingLog.length > 0) {
+      console.log(`[Voicemail Poller] Already in DB, skipping: ${graphCallId.substring(0, 40)}...`);
+      return true; // Already processed successfully
+    }
     const startTime = new Date(receivedAt);
     // TiDB requires MySQL-format timestamps: 'YYYY-MM-DD HH:MM:SS' not ISO strings
     const toMysqlTs = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');

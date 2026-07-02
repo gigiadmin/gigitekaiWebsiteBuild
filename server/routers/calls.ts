@@ -9,6 +9,7 @@ import { getDb } from "../db";
 import { callLogs, callDraftTickets, tickets, users, voicemailSourceTombstones } from "../../drizzle/schema";
 import { eq, desc, and, gte, inArray } from "drizzle-orm";
 import { getCallPollerStatus, triggerCallPollerRun } from "../_core/callPoller";
+import { triggerVoicemailPoll } from "../_core/voicemailGroupPoller";
 import { createTicket } from "../db";
 
 export const callsRouter = router({
@@ -18,7 +19,12 @@ export const callsRouter = router({
   }),
 
   triggerPoll: adminProcedure.mutation(async () => {
-    return await triggerCallPollerRun();
+    // Trigger both PSTN call poller AND voicemail group poller in parallel
+    await Promise.allSettled([
+      triggerCallPollerRun(),
+      triggerVoicemailPoll(),
+    ]);
+    return { success: true, message: "Poll cycle triggered for both PSTN and voicemail" };
   }),
 
   // ── Call logs ─────────────────────────────────────────────────────────────

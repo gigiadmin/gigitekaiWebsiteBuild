@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Archive, Trash2, Eye, Mail, MailX } from "lucide-react";
+import { Loader2, Archive, Eye, Mail, MailX } from "lucide-react";
 import { toast } from "sonner";
 
 type Article = {
@@ -32,30 +32,25 @@ export default function AdminNewsManager() {
     limit: 20,
   });
 
-  const { data: stats } = trpc.aiNews.getStats.useQuery();
-
   const archiveMutation = trpc.aiNews.archiveArticle.useMutation({
     onSuccess: () => { toast.success("Article archived"); refetch(); },
     onError: (err: any) => toast.error(err?.message || "Error"),
   });
 
-  const deleteMutation = trpc.aiNews.deleteArticle.useMutation({
-    onSuccess: () => { toast.success("Article deleted"); refetch(); },
-    onError: (err: any) => toast.error(err?.message || "Error"),
-  });
-
-  const includeMutation = trpc.aiNews.includeInNewsletter.useMutation({
-    onSuccess: () => { toast.success("Added to newsletter"); refetch(); },
-    onError: (err: any) => toast.error(err?.message || "Error"),
-  });
-
-  const excludeMutation = trpc.aiNews.excludeFromNewsletter.useMutation({
-    onSuccess: () => { toast.success("Removed from newsletter"); refetch(); },
+  // markForNewsletter handles both include (include: true) and exclude (include: false)
+  const newsletterMutation = trpc.aiNews.markForNewsletter.useMutation({
+    onSuccess: (_, vars) => {
+      toast.success(vars.include ? "Added to newsletter" : "Removed from newsletter");
+      refetch();
+    },
     onError: (err: any) => toast.error(err?.message || "Error"),
   });
 
   const articles: Article[] = (articlesData?.articles as Article[]) || [];
   const total = articlesData?.total || 0;
+
+  // Derive unique categories from loaded articles for filter dropdown
+  const categories = Array.from(new Set(articles.map((a) => a.category).filter(Boolean)));
 
   return (
     <div className="w-full p-4 md:p-6 space-y-6">
@@ -65,22 +60,19 @@ export default function AdminNewsManager() {
         <p className="text-gray-400 text-sm mt-1">Manage collected AI industry news and newsletter content</p>
       </div>
 
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: "Total Articles", value: stats.totalArticles || 0 },
-            { label: "Engagements", value: stats.totalEngagements || 0 },
-            { label: "Newsletters Sent", value: stats.totalNewsletters || 0 },
-            { label: "Categories", value: stats.categoryCounts?.length || 0 },
-          ].map((s) => (
-            <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
-              <p className="text-gray-400 text-xs">{s.label}</p>
-              <p className="text-xl font-bold text-cyan-400">{s.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {[
+          { label: "Total Articles", value: total },
+          { label: "In Newsletter", value: articles.filter((a) => a.includedInNewsletter === 1).length },
+          { label: "Archived", value: articles.filter((a) => a.isArchived === 1).length },
+        ].map((s) => (
+          <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+            <p className="text-gray-400 text-xs">{s.label}</p>
+            <p className="text-xl font-bold text-cyan-400">{s.value}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -96,8 +88,8 @@ export default function AdminNewsManager() {
           className="bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 text-sm"
         >
           <option value="">All Categories</option>
-          {(stats?.categoryCounts || []).map((cat: any) => (
-            <option key={cat.category} value={cat.category}>{cat.category}</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat!}>{cat}</option>
           ))}
         </select>
       </div>
@@ -134,10 +126,15 @@ export default function AdminNewsManager() {
                       In Newsletter
                     </span>
                   )}
+                  {article.isArchived === 1 && (
+                    <span className="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded">
+                      Archived
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Buttons — stacked on mobile, row on desktop */}
+              {/* Buttons */}
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
                 <Button
                   size="sm"
@@ -153,8 +150,8 @@ export default function AdminNewsManager() {
                     size="sm"
                     variant="outline"
                     className="text-xs border-orange-500/50 text-orange-400 hover:bg-orange-500/10"
-                    disabled={excludeMutation.isPending}
-                    onClick={() => excludeMutation.mutate({ id: article.id })}
+                    disabled={newsletterMutation.isPending}
+                    onClick={() => newsletterMutation.mutate({ id: article.id, include: false })}
                   >
                     <MailX className="w-3 h-3 mr-1" /> Remove
                   </Button>
@@ -163,36 +160,24 @@ export default function AdminNewsManager() {
                     size="sm"
                     variant="outline"
                     className="text-xs border-green-500/50 text-green-400 hover:bg-green-500/10"
-                    disabled={includeMutation.isPending}
-                    onClick={() => includeMutation.mutate({ id: article.id })}
+                    disabled={newsletterMutation.isPending}
+                    onClick={() => newsletterMutation.mutate({ id: article.id, include: true })}
                   >
                     <Mail className="w-3 h-3 mr-1" /> Newsletter
                   </Button>
                 )}
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs"
-                  disabled={archiveMutation.isPending}
-                  onClick={() => archiveMutation.mutate({ id: article.id })}
-                >
-                  <Archive className="w-3 h-3 mr-1" /> Archive
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="text-xs"
-                  disabled={deleteMutation.isPending}
-                  onClick={() => {
-                    if (window.confirm("Delete this article?")) {
-                      deleteMutation.mutate({ id: article.id });
-                    }
-                  }}
-                >
-                  <Trash2 className="w-3 h-3 mr-1" /> Delete
-                </Button>
+                {article.isArchived !== 1 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                    disabled={archiveMutation.isPending}
+                    onClick={() => archiveMutation.mutate({ id: article.id })}
+                  >
+                    <Archive className="w-3 h-3 mr-1" /> Archive
+                  </Button>
+                )}
               </div>
             </div>
           ))

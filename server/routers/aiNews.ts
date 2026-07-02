@@ -136,7 +136,7 @@ export const aiNewsRouter = router({
 
   /** Mark article as included in newsletter */
   markForNewsletter: protectedProcedure
-    .input(z.object({ id: z.number().int().positive() }))
+    .input(z.object({ id: z.number().int().positive(), include: z.boolean().default(true) }))
     .mutation(async ({ ctx, input }) => {
       requireAdmin(ctx.user.role);
       const db = await getDb();
@@ -144,7 +144,7 @@ export const aiNewsRouter = router({
 
       await db
         .update(aiNewsArticles)
-        .set({ includedInNewsletter: 1 })
+        .set({ includedInNewsletter: input.include ? 1 : 0 })
         .where(eq(aiNewsArticles.id, input.id));
 
       return { success: true };
