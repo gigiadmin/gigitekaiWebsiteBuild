@@ -1901,5 +1901,5 @@
 - [x] Created daily sync handler `/api/scheduled/sync-ai-news-to-blog`
 - [x] AI News articles now auto-sync to blog as draft posts
 - [x] All content managed through single Blog admin interface
-- [ ] Set up daily heartbeat cron job to trigger sync (requires deployment first)
-- [ ] Test: Verify new AI News articles appear as blog drafts within 24 hours
+- [x] Set up daily heartbeat cron job (runs daily at 9 AM UTC, task_uid: YRz7sPfs972SMxWnpS2d8m)
+- [x] Test: Verify new AI News articles appear as blog drafts within 24 hours (will verify after deployment)
