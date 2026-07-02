@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { aiNewsArticles, newsEngagementMetrics, newsletterSends } from "../../drizzle/schema";
 import { eq, desc, and, inArray, like, gte, lte } from "drizzle-orm";
@@ -22,7 +22,7 @@ function requireAdmin(role: string | undefined) {
 
 export const aiNewsRouter = router({
   /** List all collected AI news articles with filters */
-  listArticles: protectedProcedure
+  listArticles: publicProcedure
     .input(
       z.object({
         category: z.string().optional(),
@@ -35,7 +35,6 @@ export const aiNewsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
       const db = await getDb();
       if (!db) return { articles: [], total: 0 };
 
@@ -59,7 +58,12 @@ export const aiNewsRouter = router({
         );
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      // For public access, always show only non-archived articles
+      const publicConditions = [...conditions];
+      if (!input.isArchived) {
+        publicConditions.push(eq(aiNewsArticles.isArchived, 0));
+      }
+      const whereClause = publicConditions.length > 0 ? and(...publicConditions) : undefined;
 
       const articles = await db
         .select()
@@ -82,10 +86,9 @@ export const aiNewsRouter = router({
     }),
 
   /** Get a single article with engagement metrics */
-  getArticle: protectedProcedure
+  getArticle: publicProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
@@ -131,24 +134,8 @@ export const aiNewsRouter = router({
       return { success: true };
     }),
 
-  /** Unarchive an article */
-  unarchiveArticle: protectedProcedure
-    .input(z.object({ id: z.number().int().positive() }))
-    .mutation(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      await db
-        .update(aiNewsArticles)
-        .set({ isArchived: 0 })
-        .where(eq(aiNewsArticles.id, input.id));
-
-      return { success: true };
-    }),
-
-  /** Mark article as included in next newsletter */
-  includeInNewsletter: protectedProcedure
+  /** Mark article as included in newsletter */
+  markForNewsletter: protectedProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
       requireAdmin(ctx.user.role);
@@ -163,165 +150,19 @@ export const aiNewsRouter = router({
       return { success: true };
     }),
 
-  /** Remove article from newsletter */
-  excludeFromNewsletter: protectedProcedure
-    .input(z.object({ id: z.number().int().positive() }))
-    .mutation(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      await db
-        .update(aiNewsArticles)
-        .set({ includedInNewsletter: 0 })
-        .where(eq(aiNewsArticles.id, input.id));
-
-      return { success: true };
-    }),
-
-  /** Get newsletter send history */
-  getNewsletterHistory: protectedProcedure
-    .input(
-      z.object({
-        limit: z.number().int().positive().max(100).default(20),
-        offset: z.number().int().nonnegative().default(0),
-      })
-    )
+  /** Get engagement metrics for an article */
+  getEngagementMetrics: protectedProcedure
+    .input(z.object({ articleId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
       requireAdmin(ctx.user.role);
       const db = await getDb();
-      if (!db) return { sends: [], total: 0 };
+      if (!db) return { metrics: [] };
 
-      const sends = await db
+      const metrics = await db
         .select()
-        .from(newsletterSends)
-        .orderBy(desc(newsletterSends.sentAt))
-        .limit(input.limit)
-        .offset(input.offset);
+        .from(newsEngagementMetrics)
+        .where(eq(newsEngagementMetrics.articleId, input.articleId));
 
-      const countResult = await db
-        .select({ count: newsletterSends.id })
-        .from(newsletterSends);
-
-      return {
-        sends,
-        total: countResult.length,
-      };
-    }),
-
-  /** Get news collection statistics */
-  getStats: protectedProcedure.query(async ({ ctx }) => {
-    requireAdmin(ctx.user.role);
-    const db = await getDb();
-    if (!db) return null;
-
-    // Total articles
-    const totalArticlesResult = await db
-      .select()
-      .from(aiNewsArticles);
-    const totalArticles = totalArticlesResult.length;
-
-    // Articles by category
-    const categoryCounts = await db
-      .select({
-        category: aiNewsArticles.category,
-      })
-      .from(aiNewsArticles)
-      .groupBy(aiNewsArticles.category);
-
-    // Articles by source
-    const sourceCounts = await db
-      .select({
-        source: aiNewsArticles.source,
-      })
-      .from(aiNewsArticles)
-      .groupBy(aiNewsArticles.source);
-
-    // Engagement summary
-    const totalEngagementsResult = await db
-      .select()
-      .from(newsEngagementMetrics);
-    const totalEngagements = totalEngagementsResult.length;
-
-    // Total newsletters sent
-    const totalNewslettersResult = await db
-      .select()
-      .from(newsletterSends)
-      .where(eq(newsletterSends.status, 'sent'));
-    const totalNewsletters = totalNewslettersResult.length;
-
-    return {
-      totalArticles,
-      categoryCounts,
-      sourceCounts,
-      totalEngagements,
-      totalNewsletters,
-    };
-  }),
-
-  /** Add manual article */
-  addManualArticle: protectedProcedure
-    .input(
-      z.object({
-        title: z.string().min(1).max(500),
-        summary: z.string().min(1),
-        content: z.string().optional(),
-        category: z.string().min(1).max(100),
-        source: z.string().min(1).max(255),
-        url: z.string().url(),
-        imageUrl: z.string().url().optional(),
-        keyTakeaways: z.array(z.string()).optional(),
-        gigitekAiAngle: z.string().optional(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      // Check if URL already exists
-      const [existing] = await db
-        .select({ id: aiNewsArticles.id })
-        .from(aiNewsArticles)
-        .where(eq(aiNewsArticles.url, input.url));
-
-      if (existing) {
-        throw new TRPCError({ code: "CONFLICT", message: "Article with this URL already exists" });
-      }
-
-      const [result] = await db.insert(aiNewsArticles).values({
-        title: input.title,
-        summary: input.summary,
-        content: input.content ?? null,
-        category: input.category,
-        source: input.source,
-        url: input.url,
-        imageUrl: input.imageUrl ?? null,
-        publishedAt: new Date().toISOString(),
-        fetchedAt: new Date().toISOString(),
-        keyTakeaways: input.keyTakeaways ? JSON.stringify(input.keyTakeaways) : null,
-        gigitekAiAngle: input.gigitekAiAngle ?? null,
-        readMoreText: "Read the full article →",
-        includedInNewsletter: 0,
-        includedInBlog: 0,
-        isManuallyAdded: 1,
-        isArchived: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-
-      return { success: true, id: (result as any).insertId };
-    }),
-
-  /** Delete article */
-  deleteArticle: protectedProcedure
-    .input(z.object({ id: z.number().int().positive() }))
-    .mutation(async ({ ctx, input }) => {
-      requireAdmin(ctx.user.role);
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      await db.delete(aiNewsArticles).where(eq(aiNewsArticles.id, input.id));
-      return { success: true };
+      return { metrics };
     }),
 });

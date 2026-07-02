@@ -132,6 +132,8 @@ const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
 const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 const InvestorPortal = lazy(() => import("./pages/InvestorPortal"));
+const AINews = lazy(() => import("./pages/AINews"));
+const AINewsDetail = lazy(() => import("./pages/AINewsDetail"));
 
 // ── Page loading fallback ─────────────────────────────────────────────────
 function PageLoader() {
@@ -184,6 +186,8 @@ function Router() {
           <Route path="/admin" component={AdminApp} />
           {/* ── Public ── */}
           <Route path={"investor-portal"} component={InvestorPortal} />
+          <Route path={"/ai-news"} component={AINews} />
+          <Route path={"/ai-news/:id"} component={AINewsDetail} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/free-audit"} component={FreeAuditLandingPage} />
           <Route path={"/audit-results"} component={AuditResults} />
