@@ -415,7 +415,7 @@ async function startServer() {
     startEmailPoller();
     // Start Teams PSTN call poller (every 5 minutes)
     startCallPoller();
-    // M365 Group voicemail poller — polls voicemailbox@gigitekai.com group for new voicemails
+    // M365 Group voicemail poller — polls voicemail@gigitekai.com group for new voicemails
     // Transcribes audio via Whisper and creates draft tickets for admin review
     import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
       startVoicemailGroupPoller();

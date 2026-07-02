@@ -1,6 +1,6 @@
 /*
  * Voicemail Group Poller
- * Directly polls the voicemailbox@gigitekai.com M365 Group for new voicemail audio.
+ * Directly polls the voicemail@gigitekai.com M365 Group for new voicemail audio.
  * Bypasses Power Automate dependency — fetches audio.mp3 directly from the group,
  * transcribes via Whisper, and creates call log entries + draft tickets for admin review.
  *
@@ -73,6 +73,84 @@ function isSystemMessagePost(post: any): boolean {
   ];
   
   return systemPatterns.some(pattern => pattern.test(body) || pattern.test(subject));
+}
+
+// ─── Fetch Mailbox Messages (Teams Shared Voicemail) ────────────────────────
+// Teams Shared Voicemail deposits voicemails as email messages in the Group mailbox
+// These are accessible via /groups/{id}/messages (NOT /threads)
+async function fetchVoicemailMessages(token: string): Promise<any[]> {
+  // Fetch messages from the Group mailbox with audio attachments
+  // Teams voicemails have subject containing 'Voicemail' or 'Voice message'
+  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/messages?$top=20&$orderby=receivedDateTime desc&$select=id,subject,receivedDateTime,from,hasAttachments,body`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    if (res.status === 403) {
+      console.warn("[Voicemail Poller] 403 on mailbox messages — Mail.Read permission may not be granted for group");
+    } else if (res.status === 404) {
+      // Group may not have a mailbox — silently skip
+    } else {
+      console.warn(`[Voicemail Poller] Failed to fetch mailbox messages (${res.status}): ${err.substring(0, 200)}`);
+    }
+    return [];
+  }
+  const data = await res.json();
+  const messages = data.value || [];
+  // Filter to only voicemail messages (Teams deposits these with 'Voicemail' in subject)
+  return messages.filter((m: any) => {
+    const subject = (m.subject || "").toLowerCase();
+    return m.hasAttachments && (
+      subject.includes("voicemail") ||
+      subject.includes("voice message") ||
+      subject.includes("missed call")
+    );
+  });
+}
+
+// ─── Fetch Audio from Mailbox Message ────────────────────────────────────────
+async function fetchAudioFromMessage(
+  token: string,
+  messageId: string
+): Promise<{ audioBuffer: Buffer; contentType: string; callerNumber: string; receivedAt: string } | null> {
+  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/messages/${messageId}/attachments`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const attachments = data.value || [];
+
+  // Find audio attachment
+  const audioAtt = attachments.find(
+    (a: any) => a.contentType?.startsWith("audio/") || /\.(mp3|wav|m4a|ogg|webm)$/i.test(a.name || "")
+  );
+  if (!audioAtt || !audioAtt.contentBytes) return null;
+
+  // Try to get the message body to extract caller number
+  const msgUrl = `${GRAPH_BASE}/groups/${GROUP_ID}/messages/${messageId}?$select=body,receivedDateTime,from,subject`;
+  const msgRes = await fetch(msgUrl, { headers: { Authorization: `Bearer ${token}` } });
+  let callerNumber = "Unknown";
+  let receivedAt = new Date().toISOString();
+  if (msgRes.ok) {
+    const msg = await msgRes.json();
+    receivedAt = msg.receivedDateTime || receivedAt;
+    const bodyHtml = msg.body?.content || "";
+    const subject = msg.subject || "";
+    // Extract phone from body HTML or subject
+    const phoneMatch = bodyHtml.match(/tel:([^"]+)/) || subject.match(/(\+?1?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4})/);
+    if (phoneMatch) callerNumber = phoneMatch[1].replace(/[\s\-\(\)]/g, "");
+    else callerNumber = extractPhoneFromBody(bodyHtml) || extractPhoneFromBody(subject);
+  }
+
+  return {
+    audioBuffer: Buffer.from(audioAtt.contentBytes, "base64"),
+    contentType: audioAtt.contentType || "audio/mp3",
+    callerNumber: callerNumber || "Unknown",
+    receivedAt,
+  };
 }
 
 // ─── Fetch Group Threads ─────────────────────────────────────────────────────
@@ -362,7 +440,7 @@ async function processVoicemail(
       callerNumber,
       calleeNumber: "+17273825776",
       calleeDisplayName: "GigitekAI Main Line Auto Attendant",
-      calleeUpn: "voicemailbox@gigitekai.com",
+      calleeUpn: "voicemail@gigitekai.com",
       matchedUserId: callerInfo?.userId ?? null,
       direction: "inbound",
       startedAt: toMysqlTs(startTime),
@@ -509,10 +587,37 @@ async function runPollCycle(): Promise<void> {
       return;
     }
 
-    const threads = await fetchRecentVoicemailThreads(token);
-    if (threads.length === 0) return;
-
     let newCount = 0;
+
+    // ─── Method 1: Teams Shared Voicemail (mailbox messages) ─────────────────
+    // This is the primary method for Auto Attendant voicemails deposited via Teams Shared Voicemail
+    const voicemailMessages = await fetchVoicemailMessages(token);
+    for (const message of voicemailMessages) {
+      const msgId = message.id;
+      if (!msgId) continue;
+      const dedupKey = `msg-${msgId}`;
+      if (processedThreadIds.has(dedupKey)) continue;
+
+      const audioData = await fetchAudioFromMessage(token, msgId);
+      if (!audioData) {
+        processedThreadIds.add(dedupKey);
+        continue;
+      }
+
+      const success = await processVoicemail(
+        dedupKey,
+        audioData.audioBuffer,
+        audioData.contentType,
+        audioData.callerNumber,
+        audioData.receivedAt
+      );
+
+      processedThreadIds.add(dedupKey);
+      if (success) newCount++;
+    }
+
+    // ─── Method 2: Group Conversation Threads (legacy/email-forwarded voicemails) ─
+    const threads = await fetchRecentVoicemailThreads(token);
     for (const thread of threads) {
       const threadId = thread.id;
       if (!threadId || !thread.hasAttachments) continue;

@@ -496,7 +496,7 @@ function isTransactionalEmail(subject: string, senderEmail: string, body: string
 /**
  * Detect if an email is a Teams voicemail notification
  * Teams voicemails arrive with subject like "Voice Message from +1 (xxx) xxx-xxxx"
- * When forwarded from voicemailbox@gigitekai.com, subject may be "FW: Voice Message from..."
+ * When forwarded from voicemail@gigitekai.com, subject may be "FW: Voice Message from..."
  * Also detects Microsoft Teams voicemail body patterns
  */
 function isVoicemailEmail(subject: string, body: string): boolean {
@@ -751,7 +751,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         }
       }
       
-      // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemailbox@gigitekai.com)
+      // Fallback 2: Try to fetch voicemail audio from the M365 Group (voicemail@gigitekai.com)
       // The voicemail group is a Unified Group with ID b70ef14d-68dc-4faa-b7f6-8324b43c99b5
       // Teams deposits voicemails there with audio attachments
       // IMPORTANT: Must use $expand=attachments on posts query — the separate /attachments endpoint returns empty
@@ -1480,16 +1480,16 @@ export async function runEmailPoller(): Promise<void> {
 
   try {
     console.log(`[Email Poller] Starting email poll at ${new Date().toISOString()}`);
-    console.log(`[Email Poller] NODE_ENV=${process.env.NODE_ENV}, Polling mailboxes: support@gigitekai.com + voicemailbox@gigitekai.com`);
+    console.log(`[Email Poller] NODE_ENV=${process.env.NODE_ENV}, Polling mailboxes: support@gigitekai.com + voicemail@gigitekai.com`);
 
     // Fetch emails from BOTH support and voicemail mailboxes
-    // voicemailbox@gigitekai.com is the shared voicemail group that receives Teams voicemails
+    // voicemail@gigitekai.com is the shared voicemail group that receives Teams voicemails
     const [supportMessages, voicemailMessages] = await Promise.all([
       fetchInboxFromMsGraph(50, 0, "support@gigitekai.com"),
       fetchInboxFromMsGraph(50, 0, "voicemailbox@gigitekai.com")
     ]);
     const messages = [...supportMessages, ...voicemailMessages];
-    console.log(`[Email Poller] Fetched ${supportMessages.length} from support@gigitekai.com + ${voicemailMessages.length} from voicemailbox@gigitekai.com (total: ${messages.length})`);
+    console.log(`[Email Poller] Fetched ${supportMessages.length} from support@gigitekai.com + ${voicemailMessages.length} from voicemail@gigitekai.com (total: ${messages.length})`);
     if (messages.length === 0) {
       console.log(`[Email Poller] DEBUG: No emails fetched. Checking Graph API credentials...`);
       const { msGraphTenantId, msGraphClientId, msGraphClientSecret } = await import('./env').then(m => ({ msGraphTenantId: m.ENV.msGraphTenantId, msGraphClientId: m.ENV.msGraphClientId, msGraphClientSecret: m.ENV.msGraphClientSecret }));
@@ -1520,7 +1520,7 @@ export async function runEmailPoller(): Promise<void> {
         }
       }
 
-      // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemailbox@gigitekai.com
+      // ── VOICEMAIL CHECK FIRST — voicemails forwarded from voicemail@gigitekai.com
       // appear as sent from support@gigitekai.com, so we MUST check voicemail
       // BEFORE the own-system-email filter to prevent them from being silently skipped ──
       // BUT: exclude our own "[VOICEMAIL] New Ticket #..." notification emails to prevent feedback loop
