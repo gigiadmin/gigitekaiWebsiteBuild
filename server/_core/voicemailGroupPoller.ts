@@ -77,7 +77,12 @@ function isSystemMessagePost(post: any): boolean {
 
 // ─── Fetch Group Threads ─────────────────────────────────────────────────────
 async function fetchRecentVoicemailThreads(token: string): Promise<any[]> {
-  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=10&$orderby=lastDeliveredDateTime desc`;
+  // Only fetch threads from the last 7 days to avoid old duplicates
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const filterDate = sevenDaysAgo.toISOString().split('T')[0];
+  
+  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=20&$orderby=lastDeliveredDateTime desc&$filter=lastDeliveredDateTime ge '${filterDate}T00:00:00Z'`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

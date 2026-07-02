@@ -1877,3 +1877,10 @@
 - [x] **Added Manus notifyOwner() to voicemailGroupPoller.ts** — Step 8b sends push notification after Teams alert
 - [x] **Added email alert to support@gigitekai.com** — Step 8c sends HTML email via M365/MS Graph with transcript, priority, and CTA buttons
 - [x] **Fixed AdminNewsManager TypeScript error** — keyTakeaways json() type cast resolved
+
+
+## Call Draft Cleanup - Jul 2, 2026
+
+- [x] **Deleted 14 old pending draft tickets** — Removed pre-populated test calls from database
+- [x] **Improved voicemail thread filtering** — Now only fetches threads from last 7 days (prevents re-processing old threads)
+- [x] **Verified dedup logic** — Database-backed dedup with 24h window + in-memory processedThreadIds cache
