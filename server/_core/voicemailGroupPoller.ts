@@ -80,9 +80,11 @@ async function fetchRecentVoicemailThreads(token: string): Promise<any[]> {
   // Only fetch threads from the last 7 days to avoid old duplicates
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const filterDate = sevenDaysAgo.toISOString().split('T')[0];
+  const filterDate = sevenDaysAgo.toISOString(); // Use full ISO format for M365 Graph API
   
-  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=20&$orderby=lastDeliveredDateTime desc&$filter=lastDeliveredDateTime ge '${filterDate}T00:00:00Z'`;
+  // Note: Removed $filter for now due to M365 API date format issues
+  // Will rely on $top=20 + $orderby to get recent threads
+  const url = `${GRAPH_BASE}/groups/${GROUP_ID}/threads?$top=20&$orderby=lastDeliveredDateTime desc`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

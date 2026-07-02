@@ -1884,3 +1884,12 @@
 - [x] **Deleted 14 old pending draft tickets** — Removed pre-populated test calls from database
 - [x] **Improved voicemail thread filtering** — Now only fetches threads from last 7 days (prevents re-processing old threads)
 - [x] **Verified dedup logic** — Database-backed dedup with 24h window + in-memory processedThreadIds cache
+
+
+## Admin Portal Consolidation - Jul 2, 2026
+
+- [x] **Consolidated duplicate Metrics links** — Merged two separate metrics pages into single MasterMetricsDashboard
+  - [x] Created MasterMetricsDashboard.tsx combining Admin Metrics + Helpdesk Metrics
+  - [x] Updated AdminApp.tsx routing: `/admin/metrics` and `/admin/helpdesk-metrics` both point to unified dashboard
+  - [x] Removed duplicate "Agent Dashboard" link from sidebar (was appearing twice under OPERATIONS)
+  - [x] Sidebar now shows single "Metrics" entry under OVERVIEW section

@@ -21,7 +21,7 @@ const AdminAgentsPage = lazy(() => import("./pages/AdminAgentsPage"));
 const AdminNotificationsPage = lazy(() => import("./pages/AdminNotificationsPage"));
 const AdminBlogPage = lazy(() => import("./pages/AdminBlogPage"));
 const AdminNewsletterPage = lazy(() => import("./pages/AdminNewsletterPage"));
-const AdminMetricsPage = lazy(() => import("./pages/AdminMetricsPage"));
+const MasterMetricsDashboard = lazy(() => import("./pages/MasterMetricsDashboard"));
 const AdminAccountsPage = lazy(() => import("./pages/AdminAccountsPage"));
 const AdminInvitesPage = lazy(() => import("./pages/AdminInvitesPage"));
 const AdminEmailPage = lazy(() => import("./pages/AdminEmailPage"));
@@ -145,7 +145,7 @@ export default function AdminApp() {
               <Route path="/admin/blog" component={withApprovalOnly(AdminBlogPage)} />
               <Route path="/admin/newsletter" component={withApprovalOnly(AdminNewsletterPage)} />
               <Route path="/admin/news" component={withAdminLayout(AdminNewsManager, "AI News Manager")} />
-              <Route path="/admin/metrics" component={withApprovalOnly(AdminMetricsPage)} />
+              <Route path="/admin/metrics" component={withApprovalOnly(MasterMetricsDashboard)} />
               <Route path="/admin/accounts" component={withApprovalOnly(AdminAccountsPage)} />
               <Route path="/admin/invites" component={withApprovalOnly(AdminInvitesPage)} />
               <Route path="/admin/email" component={withApprovalOnly(AdminEmailPage)} />
@@ -159,7 +159,8 @@ export default function AdminApp() {
               <Route path="/admin/contacts" component={withApprovalOnly(AdminContactsPage)} />
               <Route path="/admin/canned-responses" component={withApprovalOnly(AdminCannedResponsesPage)} />
               <Route path="/admin/closed-tickets" component={withApprovalOnly(AdminClosedTicketsReportPage)} />
-              <Route path="/admin/helpdesk-metrics" component={withApprovalOnly(AdminHelpdeskMetricsPage)} />
+              {/* Redirect old helpdesk-metrics URL to unified metrics page */}
+              <Route path="/admin/helpdesk-metrics" component={withApprovalOnly(MasterMetricsDashboard)} />
               <Route path="/admin/agent-dashboard" component={withApprovalOnly(AdminAgentDashboardPage)} />
               <Route path="/admin/agent-leaderboard" component={withApprovalOnly(AdminAgentLeaderboard)} />
               <Route path="/admin/copilot" component={withApprovalOnly(AdminCopilot)} />

@@ -117,7 +117,6 @@ function AdminLayoutWithSidebarInner({ children, currentPage }: AdminLayoutProps
     { id: "metrics", label: "Metrics", section: "OVERVIEW", icon: BarChart3, path: "/admin/metrics" },
     { id: "helpdesk", label: "Helpdesk", section: "OPERATIONS", icon: Ticket, path: "/admin/helpdesk" },
     { id: "closed-tickets", label: "Closed Tickets", section: "OPERATIONS", icon: FileText, path: "/admin/closed-tickets" },
-    { id: "agent-dashboard", label: "Agent Dashboard", section: "OPERATIONS", icon: Headphones, path: "/admin/agent-dashboard" },
     { id: "agent-leaderboard", label: "Agent Leaderboard", section: "OPERATIONS", icon: Trophy, path: "/admin/agent-leaderboard" },
     { id: "canned-responses", label: "Canned Responses", section: "OPERATIONS", icon: MessageSquare, path: "/admin/canned-responses" },
     { id: "live-chat", label: "Live Chat", section: "OPERATIONS", icon: MessageSquare, path: "/admin/chat" },
