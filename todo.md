@@ -1893,3 +1893,13 @@
   - [x] Updated AdminApp.tsx routing: `/admin/metrics` and `/admin/helpdesk-metrics` both point to unified dashboard
   - [x] Removed duplicate "Agent Dashboard" link from sidebar (was appearing twice under OPERATIONS)
   - [x] Sidebar now shows single "Metrics" entry under OVERVIEW section
+
+
+## Content Management Consolidation - Jul 2, 2026
+
+- [x] Removed AI News Manager from admin sidebar navigation
+- [x] Created daily sync handler `/api/scheduled/sync-ai-news-to-blog`
+- [x] AI News articles now auto-sync to blog as draft posts
+- [x] All content managed through single Blog admin interface
+- [ ] Set up daily heartbeat cron job to trigger sync (requires deployment first)
+- [ ] Test: Verify new AI News articles appear as blog drafts within 24 hours

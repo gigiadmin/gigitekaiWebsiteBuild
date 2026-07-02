@@ -78,7 +78,7 @@ const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 const AdminSearchChat = lazy(() => import("./pages/AdminSearchChat"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
-const AdminNewsManager = lazy(() => import("./pages/AdminNewsManager"));
+
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
 const AdminFormSubmissions = lazy(() => import("./pages/AdminFormSubmissions"));
 
@@ -144,7 +144,7 @@ export default function AdminApp() {
               <Route path="/admin/notifications" component={withApprovalOnly(AdminNotificationsPage)} />
               <Route path="/admin/blog" component={withApprovalOnly(AdminBlogPage)} />
               <Route path="/admin/newsletter" component={withApprovalOnly(AdminNewsletterPage)} />
-              <Route path="/admin/news" component={withAdminLayout(AdminNewsManager, "AI News Manager")} />
+
               <Route path="/admin/metrics" component={withApprovalOnly(MasterMetricsDashboard)} />
               <Route path="/admin/accounts" component={withApprovalOnly(AdminAccountsPage)} />
               <Route path="/admin/invites" component={withApprovalOnly(AdminInvitesPage)} />

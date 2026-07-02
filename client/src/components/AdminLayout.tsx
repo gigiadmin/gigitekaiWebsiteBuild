@@ -100,7 +100,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Content",
     items: [
       { label: "Blog", icon: <FileText size={16} />, href: "/admin/blog" },
-      { label: "AI News", icon: <Sparkles size={16} />, href: "/admin/news" },
       { label: "Newsletter", icon: <Mail size={16} />, href: "/admin/newsletter" },
       { label: "Knowledge Base", icon: <BookOpen size={16} />, href: "/admin/kb" },
     ],
