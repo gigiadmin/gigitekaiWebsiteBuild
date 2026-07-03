@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { kbArticles } from "../../drizzle/schema";
 import { eq, like, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { indexContent } from "../search";
 
 export const helpdeskKbRouter = router({
   /**
@@ -122,9 +123,35 @@ export const helpdeskKbRouter = router({
         updatedAt: new Date().toISOString(),
       });
 
+      const articleId = result[0]?.insertId;
+
+      // Index the new article if published
+      if (articleId && input.isPublished) {
+        try {
+          await indexContent({
+            contentType: "kb",
+            sourceId: articleId.toString(),
+            title: input.title,
+            excerpt: input.content.substring(0, 300),
+            content: input.content,
+            url: `/kb/${articleId}`,
+            metadata: {
+              category: input.category,
+              tags: input.tags ? input.tags.split(",").map(t => t.trim()) : [],
+              audience: "technician",
+              difficulty: "intermediate",
+            },
+          });
+          console.log(`[KB] Article ${articleId} indexed in search index`);
+        } catch (indexError) {
+          console.error(`[KB] Failed to index article ${articleId}:`, indexError);
+          // Don't fail article creation if indexing fails
+        }
+      }
+
       return {
         success: true,
-        id: result[0]?.insertId,
+        id: articleId,
         message: "Article created successfully",
       };
     }),
@@ -152,6 +179,7 @@ export const helpdeskKbRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
       }
 
+      const article = articles[0];
       const updates: any = { updatedAt: new Date().toISOString() };
       if (input.title) updates.title = input.title;
       if (input.content) updates.content = input.content;
@@ -160,6 +188,30 @@ export const helpdeskKbRouter = router({
       if (input.isPublished !== undefined) updates.isPublished = input.isPublished;
 
       await db.update(kbArticles).set(updates).where(eq(kbArticles.id, input.id));
+
+      // Re-index the updated article if published
+      const isPublished = input.isPublished !== undefined ? input.isPublished : (article.isPublished === 1);
+      if (isPublished) {
+        try {
+          await indexContent({
+            contentType: "kb",
+            sourceId: input.id.toString(),
+            title: input.title || article.title,
+            excerpt: (input.content || article.content).substring(0, 300),
+            content: input.content || article.content,
+            url: `/kb/${input.id}`,
+            metadata: {
+              category: input.category || article.category,
+              tags: input.tags ? input.tags.split(",").map(t => t.trim()) : (article.tags?.split(",").map(t => t.trim()) || []),
+              audience: article.audience || "technician",
+              difficulty: article.difficulty || "intermediate",
+            },
+          });
+          console.log(`[KB] Article ${input.id} re-indexed in search index`);
+        } catch (indexError) {
+          console.error(`[KB] Failed to re-index article ${input.id}:`, indexError);
+        }
+      }
 
       return {
         success: true,
