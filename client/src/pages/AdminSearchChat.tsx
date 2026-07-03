@@ -2,11 +2,12 @@
  * ARIA Command Intelligence — Master AI Operations Brain
  * Premium redesign with live stats, suggested queries, and full-width chat
  */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, Trash2, Download, Zap, Activity, Ticket, BookOpen, Users, Phone, Globe, FileText, ChevronRight, Bot, User, RefreshCw } from "lucide-react";
+import { Loader2, Send, Trash2, Download, Zap, Activity, Ticket, BookOpen, Users, Phone, Globe, FileText, ChevronRight, Bot, User, RefreshCw, Mic, MicOff } from "lucide-react";
 import { Streamdown } from "@/components/GigitekMarkdown";
+
 
 interface Message {
   id: string;
@@ -54,15 +55,64 @@ export default function AdminSearchChat() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const searchMutation = trpc.adminSearch.search.useMutation();
   const modelsQuery = trpc.adminSearch.getModels.useQuery();
   const quickStatsQuery = trpc.adminSearch.getQuickStats.useQuery(undefined, {
     refetchInterval: 60000, // refresh every minute
   });
+
+  // Check Web Speech API support on mount
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    setVoiceSupported(!!SpeechRecognition);
+  }, []);
+
+  const startListening = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.warn("Voice input not supported in this browser");
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        console.error(`Voice error: ${event.error}`);
+      }
+    };
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      setQuery(transcript);
+      // Auto-send if final result
+      if (event.results[event.results.length - 1].isFinal) {
+        setTimeout(() => {
+          if (transcript.trim()) handleSearch(transcript.trim());
+        }, 300);
+      }
+    };
+    recognition.start();
+  }, [isListening]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -413,21 +463,47 @@ export default function AdminSearchChat() {
               </div>
             )}
             <div className="flex gap-2">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Ask ARIA anything — tickets, uptime, clients, leads..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && !isLoading) {
-                    e.preventDefault();
-                    handleSearch();
-                  }
-                }}
-                disabled={isLoading}
-                className="flex-1 bg-white/5 border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-cyan-500/50 focus:bg-white/8 transition-all"
-              />
+              <div className="relative flex-1">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder={isListening ? "Listening... speak now" : "Ask ARIA anything — tickets, uptime, clients, leads..."}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && !isLoading) {
+                      e.preventDefault();
+                      handleSearch();
+                    }
+                  }}
+                  disabled={isLoading}
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:bg-white/8 transition-all ${
+                    isListening
+                      ? "border-red-500/70 bg-red-500/5 placeholder-red-300/50 animate-pulse"
+                      : "border-white/15 focus:border-cyan-500/50"
+                  }`}
+                />
+                {isListening && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-red-400 text-xs font-medium">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    REC
+                  </span>
+                )}
+              </div>
+              {voiceSupported && (
+                <Button
+                  onClick={startListening}
+                  disabled={isLoading}
+                  title={isListening ? "Stop listening" : "Speak to ARIA"}
+                  className={`border-0 rounded-xl px-3 shadow-lg transition-all ${
+                    isListening
+                      ? "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30"
+                      : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white shadow-none"
+                  }`}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </Button>
+              )}
               <Button
                 onClick={() => handleSearch()}
                 disabled={isLoading || !query.trim()}
