@@ -996,7 +996,7 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
       const db = await getDb();
       if (db) {
         const { callDraftTickets, callLogs } = await import('../../drizzle/schema');
-        const { eq } = await import('drizzle-orm');
+        const { eq, gte, and } = await import('drizzle-orm');
         const now = new Date().toISOString();
         const callLogId = `voicemail-${messageId || Date.now()}`;
         
@@ -1005,6 +1005,24 @@ async function processVoicemailEmail(msgData: any): Promise<boolean> {
         if (existing.length > 0) {
           console.log(`[Email Poller] Call log already exists for ${callLogId} — skipping duplicate`);
           return false;
+        }
+
+        // Cross-check: if voicemailGroupPoller already created a draft for this caller
+        // in the last 15 minutes, skip — the Group Poller version is richer quality
+        if (callerNumber) {
+          const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+          const recentGroupDraft = await db
+            .select({ id: callDraftTickets.id })
+            .from(callDraftTickets)
+            .where(and(
+              eq(callDraftTickets.callerPhone, callerNumber),
+              gte(callDraftTickets.createdAt, fifteenMinsAgo)
+            ))
+            .limit(1);
+          if (recentGroupDraft.length > 0) {
+            console.log(`[Email Poller] Group Poller already created a draft for ${callerNumber} — skipping email poller duplicate`);
+            return false;
+          }
         }
         
         // 1. Create call log entry (for Call Logs tab)
