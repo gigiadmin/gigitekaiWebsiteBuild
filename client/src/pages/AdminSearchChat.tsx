@@ -16,7 +16,6 @@ interface Message {
   model?: string;
   timestamp: Date;
   stats?: Record<string, any>;
-  kbArticles?: Array<{ id: string; title: string; url: string; category: string; difficulty: string }>;
 }
 
 const SUGGESTED_QUERIES = [
@@ -167,13 +166,6 @@ export default function AdminSearchChat() {
         model: selectedModel,
         timestamp: new Date(),
         stats: result.stats,
-        kbArticles: result.kbArticles && result.kbArticles.length > 0 ? result.kbArticles.map((article: any) => ({
-          id: article.sourceId || article.id,
-          title: article.title,
-          url: article.url,
-          category: article.metadata?.category || 'General',
-          difficulty: article.metadata?.difficulty || 'intermediate',
-        })) : undefined,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -393,29 +385,6 @@ export default function AdminSearchChat() {
                           <span className="text-xs text-cyan-400/50 ml-auto">via {message.model}</span>
                         )}
                       </div>
-                      {/* KB Articles - Show as clickable buttons */}
-                      {message.kbArticles && message.kbArticles.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <p className="text-xs text-white/50 mb-2 font-semibold">📚 Knowledge Base Articles:</p>
-                          <div className="flex flex-col gap-2">
-                            {message.kbArticles.map((article) => (
-                              <a
-                                key={article.id}
-                                href={article.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-start gap-2 px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 hover:border-cyan-500/40 transition-all group"
-                              >
-                                <span className="text-cyan-400 mt-0.5">→</span>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm text-cyan-300 group-hover:text-cyan-200 font-medium truncate">{article.title}</p>
-                                  <p className="text-xs text-white/40 group-hover:text-white/60">{article.category} • {article.difficulty}</p>
-                                </div>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                     {message.role === "user" && (
                       <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 mt-0.5">

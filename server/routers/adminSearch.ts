@@ -383,7 +383,6 @@ Respond concisely. Use markdown formatting with headers and bullet points for re
         stats,
         context: sections.length,
         sources: input.scope,
-        kbArticles: scope.kb && kbSearch ? kbSearch : [],
       };
     }),
 
