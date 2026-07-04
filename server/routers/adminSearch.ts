@@ -15,6 +15,7 @@ import { router, adminProcedure, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { callLLM, getAvailableModels } from "../_core/multiLLM";
 import { getDb } from "../db";
+import { searchKBArticles } from "../search";
 import { eq, like, or, count, and, desc, gte, sql } from "drizzle-orm";
 import {
   kbArticles,
@@ -159,15 +160,8 @@ async function buildLiveContext(scope: {
       const [kbTotal] = await db.select({ c: count() }).from(kbArticles);
       const [kbPublished] = await db.select({ c: count() }).from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
-      const kbSearch = await db
-        .select({ title: kbArticles.title, category: kbArticles.category, content: kbArticles.content, isPublished: kbArticles.isPublished })
-        .from(kbArticles)
-        .where(or(
-          like(kbArticles.title, `%${query}%`),
-          like(kbArticles.content, `%${query}%`),
-          like(kbArticles.category, `%${query}%`)
-        ))
-        .limit(5);
+      // Use semantic search to find relevant KB articles (returns up to 10 results)
+      const kbSearch = await searchKBArticles(query, 10);
 
       const recentKb = await db
         .select({ title: kbArticles.title, category: kbArticles.category, isPublished: kbArticles.isPublished })
@@ -175,20 +169,22 @@ async function buildLiveContext(scope: {
         .orderBy(desc(kbArticles.createdAt))
         .limit(5);
 
-      stats.kb = { total: kbTotal.c, published: kbPublished.c };
+      stats.kb = { total: kbTotal.c, published: kbPublished.c, searchResults: kbSearch.length };
 
       let kbSection = `KNOWLEDGE BASE:\n  Total Articles: ${kbTotal.c} | Published: ${kbPublished.c}\n`;
 
       if (kbSearch.length > 0) {
-        kbSection += `\nKB Articles matching "${query}":\n`;
-        kbSection += kbSearch.map(a =>
-          `  - [${a.isPublished ? 'published' : 'draft'}] ${a.title} (${a.category})\n    ${a.content?.substring(0, 200)}`
-        ).join("\n");
-      }
-
-      if (recentKb.length > 0) {
-        kbSection += `\nMost Recent KB Articles:\n`;
-        kbSection += recentKb.map(a => `  - [${a.isPublished ? 'published' : 'draft'}] ${a.title} (${a.category})`).join("\n");
+        kbSection += `\nTop ${kbSearch.length} Relevant KB Articles for "${query}":\n`;
+        kbSection += kbSearch.map((a, idx) => {
+          const meta = a.metadata || {};
+          const content = (a.content || a.excerpt || 'No content available').substring(0, 500);
+          return `\n${idx + 1}. ${a.title}\n   Category: ${meta.category || 'General'} | Difficulty: ${meta.difficulty || 'intermediate'}\n   URL: ${a.url}\n   Content:\n${content.split('\n').map(line => `   ${line}`).join('\n')}`;
+        }).join("\n");
+      } else {
+        kbSection += `\nNo KB articles found matching "${query}". Showing recent articles:\n`;
+        if (recentKb.length > 0) {
+          kbSection += recentKb.map(a => `  - [${a.isPublished ? 'published' : 'draft'}] ${a.title} (${a.category})`).join("\n");
+        }
       }
 
       sections.push(kbSection);

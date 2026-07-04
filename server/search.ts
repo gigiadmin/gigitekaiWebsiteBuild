@@ -145,6 +145,47 @@ export async function searchContent(
 }
 
 /**
+ * Search KB articles with relevance ranking
+ * Returns top KB articles matching the query
+ */
+export async function searchKBArticles(
+  query: string,
+  limit: number = 10
+) {
+  try {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    // Search KB articles from searchIndex table
+    const results = await db
+      .select({
+        id: searchIndex.id,
+        title: searchIndex.title,
+        excerpt: searchIndex.excerpt,
+        content: searchIndex.content,
+        url: searchIndex.url,
+        metadata: searchIndex.metadata,
+      })
+      .from(searchIndex)
+      .where(
+        and(
+          eq(searchIndex.contentType, "kb"),
+          sql`(${searchIndex.title} LIKE ${`%${query}%`} OR ${searchIndex.content} LIKE ${`%${query}%`} OR ${searchIndex.excerpt} LIKE ${`%${query}%`})`
+        )
+      )
+      .limit(limit);
+
+    return results.map((r) => ({
+      ...r,
+      metadata: r.metadata ? JSON.parse(r.metadata) : {},
+    }));
+  } catch (error) {
+    console.error("[Search] KB search error:", error);
+    return [];
+  }
+}
+
+/**
  * Get search suggestions for autocomplete
  * Returns popular and trending searches
  */
