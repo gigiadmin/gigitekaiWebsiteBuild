@@ -163,6 +163,7 @@ async function buildLiveContext(scope: {
       // Use semantic search to find relevant KB articles (returns up to 10 results)
       const kbSearch = await searchKBArticles(query, 10);
 
+
       const recentKb = await db
         .select({ title: kbArticles.title, category: kbArticles.category, isPublished: kbArticles.isPublished })
         .from(kbArticles)
@@ -176,9 +177,10 @@ async function buildLiveContext(scope: {
       if (kbSearch.length > 0) {
         kbSection += `\nTop ${kbSearch.length} Relevant KB Articles for "${query}":\n`;
         kbSection += kbSearch.map((a, idx) => {
-          const meta = a.metadata || {};
+          const metadata = a.metadata ? (typeof a.metadata === 'string' ? JSON.parse(a.metadata) : a.metadata) : {};
           const content = (a.content || a.excerpt || 'No content available').substring(0, 500);
-          return `\n${idx + 1}. ${a.title}\n   Category: ${meta.category || 'General'} | Difficulty: ${meta.difficulty || 'intermediate'}\n   URL: ${a.url}\n   Content:\n${content.split('\n').map(line => `   ${line}`).join('\n')}`;
+          const articleLink = `[${a.title}](${a.url})`;
+          return `\n${idx + 1}. ${articleLink}\n   Category: ${metadata.category || 'General'} | Difficulty: ${metadata.difficulty || 'intermediate'}\n   Content:\n${content.split('\n').map(line => `   ${line}`).join('\n')}`;
         }).join("\n");
       } else {
         kbSection += `\nNo KB articles found matching "${query}". Showing recent articles:\n`;
@@ -186,6 +188,9 @@ async function buildLiveContext(scope: {
           kbSection += recentKb.map(a => `  - [${a.isPublished ? 'published' : 'draft'}] ${a.title} (${a.category})`).join("\n");
         }
       }
+
+      // Add note about clicking links to view full articles
+      kbSection += `\n\n📖 **Click on article titles to view full content**`;
 
       sections.push(kbSection);
     } catch {
