@@ -160,8 +160,8 @@ async function buildLiveContext(scope: {
       const [kbTotal] = await db.select({ c: count() }).from(kbArticles);
       const [kbPublished] = await db.select({ c: count() }).from(kbArticles).where(eq(kbArticles.isPublished, 1));
 
-      // Use semantic search to find relevant KB articles (returns up to 10 results)
-      const kbSearch = await searchKBArticles(query, 10);
+      // Use semantic search to find relevant KB articles (returns up to 20 results)
+      const kbSearch = await searchKBArticles(query, 20);
 
 
       const recentKb = await db
@@ -351,9 +351,10 @@ YOUR ROLE:
 
 KNOWLEDGE BASE INSTRUCTIONS:
 - When the user asks about KB articles or topics, use the "Relevant KB Articles" section from LIVE OPERATIONAL DATA
-- Extract article titles, URLs, and content from the KB section to answer questions
-- Summarize the most relevant articles to address the user's query
-- If KB search found results, cite them directly with titles and URLs
+- IMPORTANT: Display ALL search results provided, not just a few
+- List each article with its title, URL, category, and difficulty level
+- Format each article as: **[Title]** - Category: X, Difficulty: Y, URL: /kb/ID
+- If KB search found results, list them ALL with their URLs
 - If no KB results are shown, it means no matching articles were found in the search
 
 CAPABILITIES YOU CAN REPORT ON:
