@@ -1655,6 +1655,13 @@
   - [x] Ready for Google Rich Results testing
 
 
+- [x] **KB Article Migration to searchIndex** ✅ COMPLETE
+  - [x] Created migration script to index 750 KB articles
+  - [x] Indexed all published KB articles with metadata (category, tags, difficulty, audience)
+  - [x] Verified 752 KB articles now searchable in searchIndex table
+  - [x] ARIA admin search now returns relevant KB articles with full content
+  - [x] Semantic search working for Teams troubleshooting and other queries
+
 - [ ] **Upwork API Integration - Full Access Management**
   - [ ] Create Upwork webhook endpoint (/api/upwork/webhook)
   - [ ] Design database schema for proposals, jobs, and messages tracking
