@@ -1662,6 +1662,14 @@
   - [x] ARIA admin search now returns relevant KB articles with full content
   - [x] Semantic search working for Teams troubleshooting and other queries
 
+- [x] **ARIA KB Search - Natural Language Query Support** ✅ COMPLETE
+  - [x] Added stop word filtering (in, the, and, for, are, is, on, at, to, by, a, an, or, of, with, from)
+  - [x] Extract meaningful keywords from queries
+  - [x] Use OR logic to match ANY keyword (not all keywords)
+  - [x] Fall back to full query if no keywords after filtering
+  - [x] Test verified: "kb in teams issues" returns 10 articles
+  - [x] Unit tests: 9/9 passing
+
 - [ ] **Upwork API Integration - Full Access Management**
   - [ ] Create Upwork webhook endpoint (/api/upwork/webhook)
   - [ ] Design database schema for proposals, jobs, and messages tracking
