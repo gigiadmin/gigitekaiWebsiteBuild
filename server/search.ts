@@ -156,6 +156,29 @@ export async function searchKBArticles(
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
+    // Split query into keywords and filter out stop words
+    const stopWords = ["the", "and", "for", "are", "was", "is", "in", "on", "at", "to", "by", "a", "an", "or", "of", "with", "from"];
+    const keywords = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((k) => k.length > 2 && !stopWords.includes(k));
+
+    // If no valid keywords, use original query
+    const searchTerms = keywords.length > 0 ? keywords : [query.toLowerCase()];
+
+    // Build search conditions - match ANY keyword (OR logic)
+    const searchConditions = searchTerms.map((term) =>
+      sql`(${searchIndex.title} LIKE ${`%${term}%`} OR ${searchIndex.content} LIKE ${`%${term}%`} OR ${searchIndex.excerpt} LIKE ${`%${term}%`})`
+    );
+
+    // Combine all conditions with OR
+    let whereClause: any = and(
+      eq(searchIndex.contentType, "kb"),
+      searchConditions.length === 1
+        ? searchConditions[0]
+        : sql`(${searchConditions.reduce((acc, cond) => sql`${acc} OR ${cond}`)})`
+    );
+
     // Search KB articles from searchIndex table
     const results = await db
       .select({
@@ -167,12 +190,7 @@ export async function searchKBArticles(
         metadata: searchIndex.metadata,
       })
       .from(searchIndex)
-      .where(
-        and(
-          eq(searchIndex.contentType, "kb"),
-          sql`(${searchIndex.title} LIKE ${`%${query}%`} OR ${searchIndex.content} LIKE ${`%${query}%`} OR ${searchIndex.excerpt} LIKE ${`%${query}%`})`
-        )
-      )
+      .where(whereClause)
       .limit(limit);
 
     return results.map((r) => ({
