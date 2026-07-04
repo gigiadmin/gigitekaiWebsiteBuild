@@ -344,6 +344,13 @@ YOUR ROLE:
 - For "status report" or "full summary" requests, provide a structured overview of all available data
 - Always mention the data is live and as of today's date
 
+KNOWLEDGE BASE INSTRUCTIONS:
+- When the user asks about KB articles or topics, use the "Relevant KB Articles" section from LIVE OPERATIONAL DATA
+- Extract article titles, URLs, and content from the KB section to answer questions
+- Summarize the most relevant articles to address the user's query
+- If KB search found results, cite them directly with titles and URLs
+- If no KB results are shown, it means no matching articles were found in the search
+
 CAPABILITIES YOU CAN REPORT ON:
 ✅ Helpdesk tickets (counts by status, recent activity, critical tickets)
 ✅ Knowledge Base (article counts, search, categories)
