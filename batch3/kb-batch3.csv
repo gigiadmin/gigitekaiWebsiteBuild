@@ -1,0 +1,619 @@
+Title,Content,Category,Tags
+"AZR-004: Azure VM Disk Full — Diagnosing and Resolving Low or Exhausted Disk Space","# Azure VM Disk Full — Diagnosing and Resolving Low or Exhausted Disk Space
+
+**Category:** Azure > Compute
+**Article Code:** AZR-004
+**Tier:** 2
+**Audience:** Administrators / Technicians
+**Estimated Resolution Time:** 20–45 minutes
+
+## Symptoms / When to Use
+
+Use this article when an Azure Virtual Machine reports low or full disk space. Typical signals:
+
+- Applications or services fail to start, or the VM becomes unresponsive.
+- Windows event logs show ""There is not enough space on the disk.""
+- Linux commands report ""No space left on device"" (`ENOSPC`).
+- Azure Monitor ""OS Disk / Data Disk % Free Space"" alerts fire.
+- Users cannot save files; logs stop being written; SQL/IIS/app pools crash.
+
+## Background
+
+Azure VMs use managed disks with a **fixed provisioned size**. The OS disk and each data disk are separate volumes with independent capacity. Running out of space happens for a few recurring reasons: unbounded log growth, Windows Update/component store bloat, temp files, database/transaction-log growth, or a volume that was simply provisioned too small for its workload. Because managed disks do not auto-expand, resolution is either **reclaiming space** inside the guest OS or **growing the disk** at the Azure platform level and then extending the partition inside the OS.
+
+## Resolution
+
+### Step 1: Identify which disk is full
+
+**Windows (in the VM):**
+```powershell
+Get-Volume | Sort-Object SizeRemaining | Format-Table DriveLetter, FileSystemLabel, `
+  @{N='Size(GB)';E={[math]::Round($_.Size/1GB,1)}}, `
+  @{N='Free(GB)';E={[math]::Round($_.SizeRemaining/1GB,1)}}
+```
+
+**Linux (in the VM):**
+```bash
+df -h            # human-readable free space per filesystem
+sudo du -xh / --max-depth=1 2>/dev/null | sort -rh | head -20   # biggest top-level dirs
+```
+
+### Step 2: Reclaim space inside the guest OS (do this first)
+
+Reclaiming is faster and cheaper than resizing. Common wins:
+
+**Windows:**
+```powershell
+# Clear Windows Update / component store bloat
+Dism.exe /online /Cleanup-Image /StartComponentCleanup
+# Purge temp files
+Remove-Item ""$env:TEMP\*"",""C:\Windows\Temp\*"" -Recurse -Force -ErrorAction SilentlyContinue
+# Find the largest files on C:
+Get-ChildItem C:\ -Recurse -File -ErrorAction SilentlyContinue |
+  Sort-Object Length -Descending | Select-Object FullName,
+  @{N='GB';E={[math]::Round($_.Length/1GB,2)}} -First 20
+```
+Also check IIS logs (`C:\inetpub\logs`), SQL backups/`.ldf` files, and `C:\Windows\Minidump`.
+
+**Linux:**
+```bash
+sudo journalctl --vacuum-size=200M        # trim systemd journal
+sudo apt-get clean || sudo yum clean all  # package cache
+# Find files >500MB
+sudo find / -xdev -type f -size +500M -exec ls -lh {} \; 2>/dev/null
+```
+
+### Step 3: If reclaiming isn't enough, grow the managed disk
+
+Expanding a disk requires the VM to be **deallocated** (stopped) for OS disks; data disks on many VM sizes support online resize, but stopping is the safe default. **You cannot shrink a managed disk** — only grow.
+
+```bash
+# Azure CLI — resize the OS or data disk (VM should be stopped/deallocated)
+az vm deallocate --resource-group <rg> --name <vm>
+az disk update --resource-group <rg> --name <disk-name> --size-gb 256
+az vm start --resource-group <rg> --name <vm>
+```
+
+### Step 4: Extend the partition inside the OS
+
+Growing the Azure disk does **not** grow the partition — the OS still sees the old size until you extend it.
+
+**Windows:**
+```powershell
+$drive = ""C""
+$size = (Get-PartitionSupportedSize -DriveLetter $drive)
+Resize-Partition -DriveLetter $drive -Size $size.SizeMax
+```
+
+**Linux (example for /dev/sda1):**
+```bash
+sudo growpart /dev/sda 1
+sudo resize2fs /dev/sda1     # ext4;  use xfs_growfs /mountpoint for XFS
+```
+
+### Step 5: Verify
+
+Re-run `Get-Volume` / `df -h` and confirm free space. Restart any services that failed, and clear the Azure Monitor alert once metrics recover.
+
+## Troubleshooting
+
+- **Resize-Partition shows no extra space:** confirm the disk resize completed in Azure and that Windows sees the new size in Disk Management (rescan disks).
+- **XFS vs ext4:** use `xfs_growfs` for XFS root volumes; `resize2fs` only works on ext2/3/4.
+- **Temp disk confusion:** the ephemeral temp disk (`D:` on Windows, `/mnt` on Linux) is **not** persistent — never store data there expecting it to survive deallocation.
+- **Data disk online resize fails:** some VM sizes require a stop/deallocate; deallocate and retry.
+
+## Prevention
+
+- Set Azure Monitor alerts on **% Free Space** at 20% and 10% thresholds.
+- Redirect application/IIS/SQL logs to a dedicated, right-sized data disk with log rotation.
+- Enable log rotation (`logrotate` on Linux; scheduled cleanup on Windows).
+- Right-size disks at deployment and review growth quarterly.
+- Schedule `StartComponentCleanup` and temp cleanup as a recurring task.
+
+**Tags:** azure, virtual machine, disk full, managed disk, resize, storage, powershell
+","Azure > Compute","azure, virtual machine, disk full, managed disk, resize, storage, powershell"
+"EID-003: Entra ID MFA Enrollment Issues — Registering and Fixing Multi-Factor Authentication","# Entra ID MFA Enrollment Issues — Registering and Fixing Multi-Factor Authentication
+
+**Category:** Entra ID > Authentication
+**Article Code:** EID-003
+**Tier:** 2
+**Audience:** Administrators / Technicians
+**Estimated Resolution Time:** 15–40 minutes
+
+## Symptoms / When to Use
+
+Use this article when a user cannot enroll in, or authenticate with, Microsoft Entra ID multi-factor authentication (MFA):
+
+- User is stuck in the ""More information required"" / Authenticator setup loop.
+- ""We didn't hear from you"" or MFA prompts never arrive.
+- New employee cannot complete first-time MFA registration.
+- User lost/replaced their phone and is locked out of MFA.
+- Admin needs to reset a user's MFA methods.
+
+## Background
+
+Entra ID MFA registration is governed by **Security Defaults** or **Conditional Access + Authentication Methods** policies. Users register methods (Microsoft Authenticator, phone, FIDO2 key) via https://aka.ms/mfasetup (the combined security-info page). Common failure modes: the user isn't targeted/enabled by the auth-methods policy, they have a stale or lost method, registration is blocked by a Conditional Access ""register security info"" gate, or number-matching/push isn't reaching a misconfigured Authenticator app.
+
+## Resolution
+
+### Step 1: Confirm the user's registration state (admin)
+
+```powershell
+Connect-MgGraph -Scopes ""UserAuthenticationMethod.Read.All"",""Policy.Read.All""
+$upn = ""user@yourtenant.com""
+Get-MgUserAuthenticationMethod -UserId $upn |
+  Select-Object -ExpandProperty AdditionalProperties
+```
+This shows which methods (Authenticator, phone, etc.) are already registered.
+
+### Step 2: Ensure the user is allowed to register the intended method
+
+In Entra admin center → **Protection → Authentication methods**, confirm the target method (e.g., Microsoft Authenticator) is **Enabled** and the user (or their group) is **included**. If using Security Defaults, all users are prompted to register Authenticator automatically.
+
+### Step 3: Walk the user through (re)registration
+
+Have the user go to **https://aka.ms/mfasetup** on a browser:
+1. Sign in with username/password.
+2. **Add sign-in method → Microsoft Authenticator.**
+3. In the Authenticator app: **+ → Work or school account → Scan QR code.**
+4. Approve the test **number-matching** prompt.
+
+Ensure the Authenticator app has notifications enabled and time is set to automatic (a wrong device clock breaks TOTP codes).
+
+### Step 4: Reset methods for lost-device / lockout
+
+If the user lost their phone, an admin resets their methods so they can re-register:
+- Entra admin center → **Users** → select user → **Authentication methods** → **Require re-register MFA** (revokes existing registration) and/or delete the stale phone/Authenticator method.
+- Optionally provide a **Temporary Access Pass (TAP)** so they can sign in and register a new method without an existing factor:
+```powershell
+Connect-MgGraph -Scopes ""UserAuthenticationMethod.ReadWrite.All""
+New-MgUserAuthenticationTemporaryAccessPassMethod -UserId $upn -BodyParameter @{
+  isUsableOnce = $true; lifetimeInMinutes = 60
+}
+```
+Give the TAP to the user (securely); they use it at sign-in to enroll a new method.
+
+### Step 5: Verify
+
+Have the user sign out and sign in again, completing an MFA prompt with the new method. Confirm success in the Entra **Sign-in logs** (MFA result = ""satisfied by claim in the token"" / ""MFA completed"").
+
+## Troubleshooting
+
+- **Prompts never arrive:** check the phone has data/notifications; re-add the account; confirm the method is enabled in policy.
+- **""You can't get there from here"":** a Conditional Access policy blocks security-info registration from the user's location/device — allow registration from a trusted network or grant a TAP.
+- **Number match not showing:** update the Authenticator app; number matching is mandatory on current builds.
+- **Legacy per-user MFA vs CA:** avoid mixing legacy per-user MFA ""Enforced"" state with Conditional Access; migrate to Authentication Methods policy.
+
+## Prevention
+
+- Roll out **combined security info** registration and require it via a ""Register security info"" Conditional Access policy on a trusted network during onboarding.
+- Encourage **two** methods per user (Authenticator + phone or FIDO2) to avoid lockouts.
+- Pre-issue TAPs for new-hire onboarding.
+- Monitor the **Authentication methods activity** report for unregistered users.
+
+**Tags:** entra id, mfa, authentication, authenticator, tap, conditional access, graph
+","Entra ID > Authentication","entra id, mfa, authentication, authenticator, tap, conditional access, graph"
+"EML-065: Exchange Online Mailbox Quota Exceeded — Restoring Send/Receive","# Exchange Online Mailbox Quota Exceeded — Restoring Send/Receive
+
+**Category:** Email > Storage
+**Article Code:** EML-065
+**Tier:** 2
+**Audience:** Administrators / Technicians
+**Estimated Resolution Time:** 15–40 minutes
+
+## Symptoms / When to Use
+
+Use this article when an Exchange Online user can no longer send or receive mail due to mailbox size limits:
+
+- NDR to senders: ""The recipient's mailbox is full and can't accept messages.""
+- User sees ""Your mailbox is full"" or cannot send new mail.
+- Outlook prompts to free up space; items won't move to folders.
+- Admin center shows the mailbox near or at its storage quota.
+
+## Background
+
+Every Exchange Online mailbox has three quota thresholds: **Issue Warning**, **Prohibit Send**, and **Prohibit Send/Receive**. Standard plans provide 50 GB or 100 GB of primary mailbox storage depending on license; archive mailboxes add more. When usage crosses Prohibit Send, the user cannot send; at Prohibit Send/Receive, inbound mail bounces. The mailbox size also includes **Recoverable Items** (the ""dumpster""), which can silently consume several GB and is a common hidden cause of a mailbox that looks under quota but still blocks.
+
+## Resolution
+
+### Step 1: Confirm current usage and quota
+
+Connect to Exchange Online PowerShell:
+```powershell
+Connect-ExchangeOnline -UserPrincipalName admin@yourtenant.com
+
+Get-MailboxStatistics -Identity user@yourtenant.com |
+  Select DisplayName, TotalItemSize, TotalDeletedItemSize, ItemCount
+
+Get-Mailbox -Identity user@yourtenant.com |
+  Select ProhibitSendQuota, ProhibitSendReceiveQuota, IssueWarningQuota, `
+         ArchiveStatus, AutoExpandingArchiveEnabled
+```
+
+### Step 2: Enable the archive (fastest structural fix)
+
+If the license includes archiving, enable it and let managed folder assistant move old mail out of the primary mailbox.
+```powershell
+Enable-Mailbox -Identity user@yourtenant.com -Archive
+# Enable auto-expanding archive for large mailboxes
+Enable-Mailbox -Identity user@yourtenant.com -AutoExpandingArchive
+```
+Apply a retention/archive policy so items older than N years auto-move to the archive:
+```powershell
+Set-Mailbox -Identity user@yourtenant.com -RetentionPolicy ""Default MRM Policy""
+Start-ManagedFolderAssistant -Identity user@yourtenant.com
+```
+
+### Step 3: Reclaim space from Recoverable Items (""dumpster"")
+
+Recoverable Items counts against quota. Check and, if the user has confirmed nothing is needed, purge:
+```powershell
+Get-MailboxFolderStatistics -Identity user@yourtenant.com -FolderScope RecoverableItems |
+  Select Name, FolderAndSubfolderSize, ItemsInFolderAndSubfolders
+```
+Note: if the mailbox is on **Litigation Hold** or covered by a retention policy, Recoverable Items cannot be freed until the hold is released — this is by design for compliance.
+
+### Step 4: Have the user reduce mailbox size
+
+- Empty **Deleted Items** and **Junk**.
+- Delete or archive large-attachment threads (Outlook → sort by Size).
+- Move old mail to the online archive (In-Place Archive appears as a separate folder tree).
+
+### Step 5: (If licensed) temporarily raise the quota
+
+For plans that allow it, quotas are managed by license and generally fixed at 50/100 GB. If the user is on a lower plan, assign an appropriate license (e.g., a plan with 100 GB) as the durable fix rather than a manual override.
+
+### Step 6: Verify
+
+Re-run `Get-MailboxStatistics`. Confirm the user can send and receive a test message and that the warning clears (allow time for the store to catch up).
+
+## Troubleshooting
+
+- **Usage still high after archiving:** run `Start-ManagedFolderAssistant` and allow up to 24–72h; MFA processes on a schedule.
+- **Cannot purge Recoverable Items:** check for `LitigationHoldEnabled $true` or retention holds with `Get-Mailbox | Select LitigationHoldEnabled, InPlaceHolds`.
+- **Shared mailbox over 50 GB:** shared mailboxes require a license once they exceed 50 GB or need an archive.
+
+## Prevention
+
+- Deploy a tenant-wide **MRM retention policy** that archives mail older than 2 years.
+- Enable **auto-expanding archive** for heavy users.
+- Alert on mailboxes crossing 80% of quota via a scheduled Graph/PowerShell report.
+- Educate users to store large files in OneDrive/SharePoint and share links, not attachments.
+
+**Tags:** email, exchange online, mailbox, quota, storage, archive, powershell
+","Email > Storage","email, exchange online, mailbox, quota, storage, archive, powershell"
+"INT-003: Intune Device Not Compliant — Diagnosing Compliance Policy Failures","# Intune Device Not Compliant — Diagnosing Compliance Policy Failures
+
+**Category:** Intune > Compliance
+**Article Code:** INT-003
+**Tier:** 2
+**Audience:** Administrators
+**Estimated Resolution Time:** 20–45 minutes
+
+## Symptoms / When to Use
+
+Use this article when a device shows **Not compliant** in Intune / Entra and the user is blocked from resources:
+
+- User is denied access to M365 apps by Conditional Access citing device compliance.
+- Company Portal shows ""Device not compliant"" with one or more failed checks.
+- Intune admin center → Devices shows Compliance = **Not compliant** or **In grace period**.
+- Newly enrolled devices never reach Compliant status.
+
+## Background
+
+An Intune **compliance policy** defines rules a device must meet (encryption, OS version, password, Defender/health attestation, etc.). Compliance state feeds **Conditional Access**, which gates access to corporate resources. A device becomes non-compliant when it fails a rule, hasn't checked in recently, or has no policy assigned (the tenant's ""mark devices with no compliance policy"" setting then decides the default). Because compliance evaluation is periodic, state can lag reality — a fixed device may still show non-compliant until its next sync.
+
+## Resolution
+
+### Step 1: Find the specific failing rule
+
+In Intune admin center → **Devices** → select the device → **Device compliance**. Each policy lists which setting failed (e.g., ""Encryption of data storage: Not compliant""). This is the single most important step — fix the actual failing check, not a guess.
+
+You can also pull it via Graph:
+```powershell
+Connect-MgGraph -Scopes ""DeviceManagementManagedDevices.Read.All""
+Get-MgDeviceManagementManagedDevice -Filter ""deviceName eq 'LAPTOP-01'"" |
+  Select DeviceName, ComplianceState, OperatingSystem, OsVersion, LastSyncDateTime
+```
+
+### Step 2: Remediate common failures
+
+- **Encryption (BitLocker/FileVault):** enable device encryption. Windows: confirm `Get-BitLockerVolume` shows the OS drive protected; if a policy requires it, ensure TPM is present/enabled.
+- **OS version below minimum:** run Windows/macOS updates to meet the policy's minimum build.
+- **Password/PIN:** set a compliant screen-lock passcode meeting length/complexity.
+- **Defender / threat level:** resolve outstanding threats; ensure Defender is running and signatures current. For ""Require the device to be at or under machine risk score,"" clear the risk in Defender for Endpoint.
+- **No compliance policy assigned:** ensure the device's user/group is targeted by a policy.
+
+### Step 3: Force a sync (don't wait for the schedule)
+
+After remediation, push a check-in:
+- **Company Portal** app → Settings → **Sync**, or
+- Intune admin center → device → **Sync**, or on Windows: Settings → Accounts → Access work or school → Info → **Sync**.
+
+Graph:
+```powershell
+$id = (Get-MgDeviceManagementManagedDevice -Filter ""deviceName eq 'LAPTOP-01'"").Id
+Sync-MgDeviceManagementManagedDevice -ManagedDeviceId $id
+```
+
+### Step 4: Handle grace period and Conditional Access
+
+- If the device is **In grace period**, the user may still have access until the deadline — remediate before it expires.
+- Confirm the blocking **Conditional Access** policy requires ""compliant device"" and that the now-compliant state has propagated (can take 5–15 min after sync).
+
+### Step 5: Verify
+
+Re-check the device's Compliance state = **Compliant** and confirm the user can access the previously blocked resource.
+
+## Troubleshooting
+
+- **Compliant in Intune but still blocked:** the compliance signal hasn't reached Entra/CA yet; wait and re-sync, or have the user sign out and back in.
+- **Stuck ""In grace period"" after fix:** force a sync; grace state clears on next successful evaluation.
+- **Conflicting policies:** two compliance policies with different settings — the most restrictive wins; reconcile them.
+- **Enrollment/attestation errors:** for Windows health attestation, ensure Secure Boot/TPM 2.0 and internet access to the attestation service.
+
+## Prevention
+
+- Set the tenant default to **mark devices with no compliance policy as Not compliant** only after policies are broadly assigned.
+- Use a reasonable **grace period** (e.g., 1–3 days) so users self-remediate without an instant lockout.
+- Stage policy changes to a pilot group before tenant-wide rollout.
+- Monitor the compliance report weekly and alert on spikes in non-compliance.
+
+**Tags:** intune, compliance, conditional access, encryption, mdm, entra, graph
+","Intune > Compliance","intune, compliance, conditional access, encryption, mdm, entra, graph"
+"ODV-072: OneDrive Sync Client Not Syncing — Full Troubleshooting","# OneDrive Sync Client Not Syncing — Full Troubleshooting
+
+**Category:** OneDrive > Sync
+**Article Code:** ODV-072
+**Tier:** 1
+**Audience:** Technicians / End Users
+**Estimated Resolution Time:** 15–35 minutes
+
+## Symptoms / When to Use
+
+Use this article when the OneDrive sync client (`onedrive.exe`) is stuck, paused, or not syncing:
+
+- OneDrive tray icon shows a red X, ""Sync pending,"" or spins indefinitely.
+- Files edited locally don't appear online, or cloud changes don't reach the device.
+- ""You're not syncing any files"" or ""Processing changes"" that never completes.
+- Errors about file names, path length, or ""This folder can't be synced.""
+
+## Background
+
+OneDrive sync problems are rarely data loss — they're client-state issues: an expired token, a blocked or renamed file, an over-length path, exhausted local disk, or a corrupt sync database. Files On-Demand keeps placeholders locally; a full local disk or a corrupted client cache stalls the whole sync engine. Resetting the client rebuilds its local database from the cloud without deleting cloud data.
+
+## Resolution
+
+### Step 1: Basic checks
+
+- Confirm the user is **signed in** (tray icon → gear → Settings → Account) and to the correct account.
+- Confirm the account isn't **paused** (tray icon → Pause resume).
+- Confirm local disk has free space (`Get-Volume`) and that the mailbox/OneDrive isn't over quota (admin: check OneDrive storage in the admin center).
+- Check for a service incident at the Microsoft 365 service health dashboard.
+
+### Step 2: Look for a blocking file
+
+OneDrive stalls on unsupported names/paths. Offenders:
+- Invalid characters: `"" * : < > ? / \ |`
+- Names like `CON`, `PRN`, `AUX`, leading/trailing spaces, or names ending in a period.
+- **Path length** over ~400 characters.
+
+Rename the offending file/folder or shorten the path, then let sync continue.
+
+### Step 3: Restart, then reset the client
+
+Restart OneDrive first:
+```powershell
+Get-Process OneDrive -ErrorAction SilentlyContinue | Stop-Process -Force
+Start-Process ""$env:LOCALAPPDATA\Microsoft\OneDrive\OneDrive.exe""
+```
+
+If still stuck, **reset** OneDrive (rebuilds the sync DB; does not delete cloud files):
+```cmd
+%localappdata%\Microsoft\OneDrive\onedrive.exe /reset
+```
+If the icon doesn't return after a couple of minutes, relaunch:
+```cmd
+%localappdata%\Microsoft\OneDrive\onedrive.exe
+```
+
+### Step 4: Reconnect the account if needed
+
+Settings → Account → **Unlink this PC**, then sign back in and re-select folders. This forces a clean re-sync.
+
+### Step 5: Reinstall as a last resort
+
+```powershell
+winget uninstall Microsoft.OneDrive
+winget install Microsoft.OneDrive
+```
+Sign in and allow the initial sync to complete.
+
+### Step 6: Verify
+
+Create a test file locally, confirm it appears at https://onedrive.com; edit a file online and confirm it reaches the device.
+
+## Troubleshooting
+
+- **""Processing changes"" forever:** usually one huge file or a blocked item — pause, find the culprit (Step 2), resume.
+- **Files On-Demand greyed out:** ensure the volume is NTFS; FAT/exFAT don't support placeholders.
+- **Enterprise device:** an Intune ADMX/config or Known Folder Move policy may control OneDrive; check for conflicting policy.
+- **Error 0x8004de40 / sign-in loop:** clear stored credentials in Windows Credential Manager and re-authenticate.
+
+## Prevention
+
+- Enable **Known Folder Move** so Desktop/Documents/Pictures are protected.
+- Educate users on naming/path limits.
+- Keep the client auto-updating; monitor free disk space.
+- For shared devices, ensure each user has enough local storage for placeholders.
+
+**Tags:** onedrive, sync, client, reset, files on-demand, troubleshoot
+","OneDrive > Sync","onedrive, sync, client, reset, files on-demand, troubleshoot"
+"SPO-004: SharePoint Online Site Storage Quota — Diagnosis and Resolution","# SharePoint Online Site Storage Quota — Diagnosis and Resolution
+
+**Category:** SharePoint > Storage
+**Article Code:** SPO-004
+**Tier:** 2
+**Audience:** Administrators
+**Estimated Resolution Time:** 15–40 minutes
+
+## Symptoms / When to Use
+
+Use this article when a SharePoint Online site is at or near its storage quota:
+
+- Users cannot upload files: ""This site has reached its storage limit.""
+- A site's storage bar in the admin center shows red / near 100%.
+- Automated workflows or Teams file uploads (which use the site's document library) fail.
+- OneDrive or Teams file shares backed by the site stop accepting new content.
+
+## Background
+
+SharePoint Online tenants have a **pooled** storage model: total tenant storage = 1 TB + 10 GB per licensed user (plus any add-on). Sites either draw from this shared pool (**automatic** management) or have an **explicit** per-site quota. When a site hits its cap — whether the pool or an explicit limit — uploads stop. The Recycle Bin (first and second stage) and prior file **versions** count against usage and are the most common reclaimable space. Every Microsoft 365 Group / Team is backed by a SharePoint site, so a ""Teams storage"" complaint is usually a SharePoint quota issue.
+
+## Resolution
+
+### Step 1: Identify usage and quota mode
+
+SharePoint Online Management Shell:
+```powershell
+Connect-SPOService -Url https://yourtenant-admin.sharepoint.com
+
+Get-SPOSite -Identity https://yourtenant.sharepoint.com/sites/TeamSite |
+  Select Url, StorageUsageCurrent, StorageQuota, StorageQuotaType
+# StorageUsageCurrent is in MB
+```
+
+Check overall tenant pool:
+```powershell
+Get-SPOTenant | Select StorageQuota, StorageQuotaAllocated
+```
+
+### Step 2: Reclaim space — Recycle Bins and versions (do this first)
+
+**Empty both recycle bin stages** (they hold deleted files against quota for up to 93 days):
+- Site → Settings → **Recycle bin** → empty first stage; then the **second-stage** (site collection) recycle bin.
+
+**Trim version history**, often the single biggest reclaim. Large, frequently-edited files can hold hundreds of versions:
+```powershell
+# Report libraries and set a sensible version limit going forward (site admin / PnP)
+# Example with PnP PowerShell:
+Connect-PnPOnline -Url https://yourtenant.sharepoint.com/sites/TeamSite -Interactive
+Get-PnPList | Where-Object {$_.BaseTemplate -eq 101} |
+  Select Title, @{N='Versioning';E={$_.EnableVersioning}}, @{N='VerLimit';E={$_.MajorVersionLimit}}
+Set-PnPList -Identity ""Documents"" -MajorVersions 100
+```
+
+### Step 3: Increase the site quota (if the pool has room)
+
+If usage is legitimate and the tenant pool has free space, raise the site quota:
+```powershell
+Set-SPOSite -Identity https://yourtenant.sharepoint.com/sites/TeamSite -StorageQuota 51200  # 50 GB in MB
+```
+If the site is in **automatic** mode it already draws from the pool; ensure the pool itself isn't exhausted.
+
+### Step 4: If the tenant pool is exhausted
+
+- Purge recycle bins and versions on the **largest** sites (identify with a storage report in the SharePoint admin center → Active sites, sort by Storage used).
+- Move cold/archival content to a dedicated archive site or Azure storage.
+- Purchase an **Office 365 Extra File Storage** add-on to grow the pool.
+
+### Step 5: Verify
+
+Re-run `Get-SPOSite` and confirm `StorageUsageCurrent` dropped or `StorageQuota` increased. Test an upload.
+
+## Troubleshooting
+
+- **Space not reclaimed after deleting files:** the second-stage recycle bin still holds them — empty it explicitly.
+- **Quota change rejected:** the requested quota exceeds available pool; free pool space first.
+- **Teams uploads still failing:** confirm you resized the SharePoint site that backs that specific Team (the site URL matches the Team name).
+
+## Prevention
+
+- Set a tenant-wide **version limit** (e.g., 100–500 major versions) to cap version bloat.
+- Configure **retention/expiration** for stale sites and content.
+- Monitor the storage report monthly; alert on sites above 85%.
+- Store very large media/archives outside SharePoint where practical.
+
+**Tags:** sharepoint, storage, quota, versions, recycle bin, powershell, spo
+","SharePoint > Storage","sharepoint, storage, quota, versions, recycle bin, powershell, spo"
+"TMS-062: Microsoft Teams Chat History Missing or Not Loading","# Microsoft Teams Chat History Missing or Not Loading
+
+**Category:** Teams > Messaging
+**Article Code:** TMS-062
+**Tier:** 1
+**Audience:** Technicians / End Users
+**Estimated Resolution Time:** 10–30 minutes
+
+## Symptoms / When to Use
+
+Use this article when a user reports that Teams chat history is missing, blank, or won't load:
+
+- A one-on-one or group chat shows no prior messages, or ""Couldn't load messages.""
+- History disappears after a client update, sign-out, or device change.
+- Messages appear on mobile but not desktop (or vice versa).
+- Search finds a message but clicking it opens an empty conversation.
+
+## Background
+
+Teams stores chat messages in a cloud substrate (Exchange/SharePoint-backed compliance storage), so history is **not** lost just because a client is misbehaving — it is almost always a client cache, sync, or policy issue, not data loss. The most common causes are a corrupt local cache, a stale authentication token, a retention policy that legitimately removed old messages, or the user viewing a different account/tenant than expected.
+
+## Resolution
+
+### Step 1: Confirm the account and network
+
+- Verify the user is signed into the **correct tenant/account** (top-right profile). Guest/multi-tenant users often land in the wrong context.
+- Confirm connectivity; a degraded connection shows partial history. Check https://portal.office.com/servicestatus for a Teams incident.
+
+### Step 2: Force a client refresh
+
+- Press **Ctrl+R** (or right-click the Teams tray icon → Quit, then relaunch).
+- New Teams: Settings → **General** and confirm the app is up to date.
+
+### Step 3: Clear the Teams cache (resolves most cases)
+
+**New Teams (Windows):**
+```powershell
+# Quit Teams first, then clear cached data
+Get-Process ms-teams -ErrorAction SilentlyContinue | Stop-Process -Force
+Remove-Item ""$env:LOCALAPPDATA\Packages\MSTeams_8wekyb3d8bbwe\LocalCache\*"" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+**Classic Teams (Windows):**
+```powershell
+Get-Process Teams -ErrorAction SilentlyContinue | Stop-Process -Force
+Remove-Item ""$env:APPDATA\Microsoft\Teams\*"" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+**macOS (classic):** quit Teams, then remove `~/Library/Application Support/Microsoft/Teams`.
+
+Relaunch and sign in; history re-syncs from the cloud (may take a minute).
+
+### Step 4: Verify on a second client
+
+Sign in to https://teams.microsoft.com in a browser. If history **is** present in the web client, the problem is confirmed local (cache), and Step 3 resolves it. If history is **missing everywhere**, proceed to Step 5.
+
+### Step 5: Check retention/compliance policy (admin)
+
+If messages are genuinely gone across all clients, a retention policy may have deleted them by design.
+```powershell
+Connect-IPPSSession
+Get-RetentionCompliancePolicy | Where-Object {$_.TeamsChatLocation -ne $null} |
+  Select Name, Enabled, TeamsChatLocation
+Get-RetentionComplianceRule | Select Name, RetentionDuration, RetentionComplianceAction
+```
+A rule with a short `RetentionDuration` and a Delete action explains missing older messages. Adjust the policy if the retention window is shorter than the business requires.
+
+## Troubleshooting
+
+- **Only group chat affected:** the user may have been removed and re-added; history before re-add can be hidden for that member.
+- **Search opens empty chat:** almost always cache — clear per Step 3.
+- **Corporate device with app management:** an Intune app-config or conditional access token expiry can block sync; re-authenticate.
+
+## Prevention
+
+- Keep Teams auto-updating; most sync bugs are fixed in newer builds.
+- Set Teams chat retention deliberately (compliance center) and document the window so ""missing"" old chats are understood as policy, not failure.
+- Encourage users to sign out cleanly before switching devices.
+
+**Tags:** teams, chat, history, cache, retention, sync, troubleshoot
+","Teams > Messaging","teams, chat, history, cache, retention, sync, troubleshoot"
