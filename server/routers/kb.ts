@@ -2,7 +2,7 @@ import { z } from "zod";
 import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
-import { eq, like, or, desc, and } from "drizzle-orm";
+import { eq, like, or, desc, and, sql, asc } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { seedKBArticles } from "../kb-seeder";
 
@@ -327,6 +327,54 @@ export const kbRouter = router({
         .where(eq(kbArticles.isPublished, 1))
         .orderBy(desc(kbArticles.viewCount))
         .limit(limit);
+    }),
+
+  /** Get distinct categories with article counts for the public KB browse page */
+  getCategories: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const rows = await db
+      .select({
+        category: kbArticles.category,
+        count: sql<number>`COUNT(*)`.as('count'),
+      })
+      .from(kbArticles)
+      .where(eq(kbArticles.isPublished, 1))
+      .groupBy(kbArticles.category)
+      .orderBy(asc(kbArticles.category));
+    return rows;
+  }),
+
+  /** Paginated list of published articles, optionally filtered by category */
+  listPaginated: publicProcedure
+    .input(z.object({
+      category: z.string().optional(),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(50).default(24),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { articles: [], total: 0, page: input.page, pageSize: input.pageSize };
+      const offset = (input.page - 1) * input.pageSize;
+      const whereClause = input.category && input.category !== 'All'
+        ? and(eq(kbArticles.isPublished, 1), eq(kbArticles.category, input.category))
+        : eq(kbArticles.isPublished, 1);
+      const [articles, countRows] = await Promise.all([
+        db.select().from(kbArticles)
+          .where(whereClause)
+          .orderBy(desc(kbArticles.updatedAt))
+          .limit(input.pageSize)
+          .offset(offset),
+        db.select({ count: sql<number>`COUNT(*)`.as('count') })
+          .from(kbArticles)
+          .where(whereClause),
+      ]);
+      return {
+        articles,
+        total: Number(countRows[0]?.count ?? 0),
+        page: input.page,
+        pageSize: input.pageSize,
+      };
     }),
 
   /** Email a KB article to a recipient */
