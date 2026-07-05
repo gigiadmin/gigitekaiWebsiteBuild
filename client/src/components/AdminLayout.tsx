@@ -86,7 +86,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
       { label: "Call Review", icon: <Phone size={16} />, href: "/admin/call-review" },
-      { label: "Call Quality", icon: <Star size={16} />, href: "/admin/call-quality" },
+      // { label: "Call Quality", icon: <Star size={16} />, href: "/admin/call-quality" }, // HIDDEN - may use later
       { label: "Contact Center", icon: <Headphones size={16} />, href: "/admin/contact-center" },
       // { label: "Command Center", icon: <Command size={16} />, href: "/admin/command-center" }, // DISABLED
       { label: "Closed Tickets", icon: <CheckCircle2 size={16} />, href: "/admin/closed-tickets" },
@@ -104,15 +104,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Knowledge Base", icon: <BookOpen size={16} />, href: "/admin/kb" },
     ],
   },
-  {
-    title: "Analytics",
-    items: [
-      { label: "ROI Dashboard", icon: <BarChart3 size={16} />, href: "/admin/roi" },
-      { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
-      { label: "AI Strategic Briefing", icon: <Sparkles size={16} />, href: "/AIStrategicBriefing" },
-      { label: "Uptime Status", icon: <Zap size={16} />, href: "/admin/uptime" },
-    ],
-  },
+
   {
     title: "Customers",
     items: [
@@ -139,6 +131,8 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Admin Search", icon: <Search size={16} />, href: "/admin/search" },
       { label: "DNS Checker", icon: <Globe size={16} />, href: "/admin/dns-checker" },
       { label: "Email Diagnostics", icon: <Mail size={16} />, href: "/admin/email-diagnostics" },
+      { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
+      { label: "Uptime Status", icon: <Zap size={16} />, href: "/admin/uptime" },
     ],
   },
   {
