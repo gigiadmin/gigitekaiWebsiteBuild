@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/AdminLayout";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
+import { KBBulkImportCSV } from "@/components/KBBulkImportCSV";
 
 interface ArticleForm {
   title: string;
@@ -160,6 +161,9 @@ export default function KnowledgeBase() {
           </Button>
         )}
       </div>
+
+      {/* Bulk Import Section - Admin Only */}
+      {isAdmin && <KBBulkImportCSV />}
 
       {/* Search */}
       <div className="relative mb-6">
