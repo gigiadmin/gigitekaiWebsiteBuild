@@ -84,11 +84,11 @@ export default function KnowledgeBase() {
   });
 
   const toggleMutation = trpc.kb.togglePublish.useMutation({
-    onSuccess: (_, vars) => {
+    onSuccess: (_: any, vars: any) => {
       toast.success(vars.isPublished ? "Article published" : "Article unpublished");
       utils.kb.list.invalidate();
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.message),
   });
 
   const deleteMutation = trpc.kb.delete.useMutation({

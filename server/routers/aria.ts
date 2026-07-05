@@ -32,12 +32,14 @@ export const ariaRouter = router({
       let finalQuestion = question;
       if (audioUrl) {
         try {
-          const transcription = await transcribeAudio({
-            audioUrl,
-            language: "en",
-            prompt: "Technical IT terminology: Azure AD, M365, MSAL, Exchange, Teams, SharePoint",
-          });
-          finalQuestion = transcription.text;
+      const transcription = await transcribeAudio({
+        audioUrl,
+        language: "en",
+        prompt: "Technical IT terminology: Azure AD, M365, MSAL, Exchange, Teams, SharePoint",
+      });
+      if ('text' in transcription) {
+        finalQuestion = transcription.text;
+      }
         } catch (e) {
           console.error("[Aria] Transcription failed:", e);
           // Fall back to text question
