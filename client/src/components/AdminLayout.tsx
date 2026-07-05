@@ -53,6 +53,7 @@ import {
   Command,
   Search,
   Globe,
+  Brain,
 } from "lucide-react";
 
 interface NavItem {
@@ -77,6 +78,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Overview",
     items: [
+      { label: "🧠 Aria Command Center", icon: <Brain size={16} />, href: "/aria" },
       { label: "Dashboard", icon: <LayoutDashboard size={16} />, href: "/admin" },
       { label: "Metrics", icon: <BarChart3 size={16} />, href: "/admin/metrics" },
     ],

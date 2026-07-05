@@ -1,5 +1,5 @@
 import z from "zod";
-import { adminProcedure, publicProcedure, router } from "../_core/trpc";
+import { adminProcedure, protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
 import { eq, like, or, desc, and, sql, asc } from "drizzle-orm";
@@ -339,6 +339,28 @@ export const kbRouter = router({
         .orderBy(desc(kbArticles.updatedAt))
         .limit(input.limit);
       return rows;
+    }),
+
+  /** Toggle publish status of an article (admin only) */
+  togglePublish: adminProcedure
+    .input(z.object({ id: z.number().int().positive(), isPublished: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db
+        .update(kbArticles)
+        .set({ isPublished: input.isPublished ? 1 : 0, updatedAt: new Date().toISOString() })
+        .where(eq(kbArticles.id, input.id));
+      return { success: true };
+    }),
+
+  /** Email an article link to a recipient */
+  emailArticle: protectedProcedure
+    .input(z.object({ articleId: z.number().int().positive(), recipientEmail: z.string().email(), articleTitle: z.string().optional(), articleContent: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      // Placeholder — integrate with SendGrid/ACS when needed
+      console.log(`[KB] Email article ${input.articleId} to ${input.recipientEmail}`);
+      return { success: true };
     }),
 
   /** Seed KB with initial articles (admin only) */
