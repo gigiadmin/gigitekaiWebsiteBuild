@@ -276,6 +276,43 @@ export const kbRouter = router({
       return { articles, total, pages };
     }),
 
+  /** List all articles with pagination (for browse) */
+  listPaginated: publicProcedure
+    .input(z.object({ 
+      category: z.string().optional(),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(100).default(24)
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { articles: [], total: 0, pages: 0 };
+      
+      const offset = (input.page - 1) * input.pageSize;
+      
+      const whereConditions: any[] = [eq(kbArticles.isPublished, 1)];
+      if (input.category) {
+        whereConditions.push(eq(kbArticles.category, input.category));
+      }
+      
+      const countResult = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(kbArticles)
+        .where(and(...whereConditions));
+      
+      const total = countResult[0]?.count || 0;
+      const pages = Math.ceil(total / input.pageSize);
+      
+      const articles = await db
+        .select()
+        .from(kbArticles)
+        .where(and(...whereConditions))
+        .orderBy(desc(kbArticles.updatedAt))
+        .limit(input.pageSize)
+        .offset(offset);
+      
+      return { articles, total, pages };
+    }),
+
   /** Seed KB with initial articles (admin only) */
   seed: adminProcedure.mutation(async ({ ctx }) => {
     const result = await seedKBArticles();
