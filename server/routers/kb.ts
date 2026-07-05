@@ -1,4 +1,4 @@
-import { z } from "zod";
+import z from "zod";
 import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
@@ -37,16 +37,16 @@ export const kbRouter = router({
       return article ?? null;
     }),
 
-  /** Search published KB articles with fuzzy matching and semantic relevance scoring */
+  /** Search published KB articles with improved phrase-based relevance ranking */
   search: publicProcedure
     .input(z.object({ query: z.string().min(1), limit: z.number().int().min(1).max(50).default(20) }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
 
+      const queryLower = input.query.toLowerCase();
       // Split query into individual terms (ignore very short words)
-      const terms = input.query
-        .toLowerCase()
+      const terms = queryLower
         .split(/\s+/)
         .filter((t) => t.length >= 2)
         .slice(0, 8); // cap at 8 terms
@@ -61,89 +61,62 @@ export const kbRouter = router({
         .orderBy(desc(kbArticles.updatedAt))
         .limit(500); // fetch all articles for comprehensive search
 
-      // Levenshtein distance for fuzzy matching (handles typos and partial matches)
-      const levenshteinDistance = (a: string, b: string): number => {
-        const matrix: number[][] = [];
-        for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-        for (let i = 1; i <= b.length; i++) {
-          for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-              matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-              matrix[i][j] = Math.min(
-                matrix[i - 1][j - 1] + 1,
-                matrix[i][j - 1] + 1,
-                matrix[i - 1][j] + 1
-              );
-            }
-          }
-        }
-        return matrix[b.length][a.length];
+      // Count how many query terms appear in text
+      const countTermMatches = (text: string): number => {
+        if (!text) return 0;
+        const textLower = text.toLowerCase();
+        return terms.filter(term => textLower.includes(term)).length;
       };
 
-      // Fuzzy match: returns 0-100 similarity score
-      const fuzzyMatch = (haystack: string, needle: string): number => {
-        if (!haystack || !needle) return 0;
-        haystack = haystack.toLowerCase();
-        needle = needle.toLowerCase();
-        
-        // Exact match = 100
-        if (haystack === needle) return 100;
-        
-        // Substring match = 90
-        if (haystack.includes(needle)) return 90;
-        
-        // Word boundary match (e.g., "lock" matches "lockout")
-        const words = haystack.split(/\W+/);
-        if (words.some(w => w.startsWith(needle) || needle.startsWith(w))) return 80;
-        
-        // Levenshtein-based fuzzy match (typo tolerance)
-        const distance = levenshteinDistance(haystack, needle);
-        const maxLen = Math.max(haystack.length, needle.length);
-        const similarity = Math.max(0, 100 - (distance / maxLen) * 100);
-        return similarity > 50 ? similarity : 0; // Only return if >50% similar
-      };
-
-      // Score each article using fuzzy matching
+      // Score each article using improved phrase-based ranking
       const scored = rows.map((article) => {
         let score = 0;
         const titleLower = (article.title || "").toLowerCase();
         const categoryLower = (article.category || "").toLowerCase();
         const tagsLower = (article.tags || "").toLowerCase();
         const contentLower = (article.content || "").toLowerCase();
-        const queryLower = input.query.toLowerCase();
 
-        // Fuzzy match each term
-        for (const term of terms) {
-          // Title matches are weighted heavily (fuzzy)
-          const titleMatch = fuzzyMatch(titleLower, term);
-          if (titleMatch > 0) score += titleMatch * 2; // 0-200 points
-          
-          // Category/tags matches (fuzzy)
-          const categoryMatch = fuzzyMatch(categoryLower, term);
-          if (categoryMatch > 0) score += categoryMatch * 1.5; // 0-150 points
-          
-          const tagsMatch = fuzzyMatch(tagsLower, term);
-          if (tagsMatch > 0) score += tagsMatch * 1.5; // 0-150 points
-          
-          // Content matches (lower weight)
-          const contentMatch = fuzzyMatch(contentLower, term);
-          if (contentMatch > 50) score += contentMatch * 0.5; // 25-50 points
+        // CRITICAL: Full query phrase match in title (highest priority)
+        if (titleLower.includes(queryLower)) {
+          score += 500; // Massive bonus for exact phrase in title
         }
 
-        // Bonus: full query match in title (semantic relevance)
-        const fullQueryMatch = fuzzyMatch(titleLower, queryLower);
-        if (fullQueryMatch > 70) score += 100; // Strong bonus for full query match
+        // CRITICAL: Full query phrase match in content (high priority)
+        if (contentLower.includes(queryLower)) {
+          score += 300; // Strong bonus for exact phrase in content
+        }
+
+        // Count how many terms from the query appear in title (phrase relevance)
+        const titleTermCount = countTermMatches(titleLower);
+        if (titleTermCount === terms.length) {
+          score += 250; // All terms in title = strong relevance
+        } else if (titleTermCount > 0) {
+          score += titleTermCount * 60; // Partial term matches in title
+        }
+
+        // Count how many terms from the query appear in content
+        const contentTermCount = countTermMatches(contentLower);
+        if (contentTermCount === terms.length) {
+          score += 150; // All terms in content
+        } else if (contentTermCount > 0) {
+          score += contentTermCount * 30; // Partial term matches in content
+        }
+
+        // Category/tags matches (lower weight than title/content)
+        const categoryTermCount = countTermMatches(categoryLower);
+        if (categoryTermCount > 0) score += categoryTermCount * 40;
+        
+        const tagsTermCount = countTermMatches(tagsLower);
+        if (tagsTermCount > 0) score += tagsTermCount * 35;
 
         // Recency bonus (articles updated recently rank slightly higher)
         const updatedAtTime = article.updatedAt ? new Date(article.updatedAt).getTime() : 0;
         const daysSinceUpdate = (Date.now() - updatedAtTime) / (1000 * 60 * 60 * 24);
-        const recencyBonus = Math.max(0, 20 - Math.min(daysSinceUpdate, 20)); // 0-20 bonus
+        const recencyBonus = Math.max(0, 15 - Math.min(daysSinceUpdate, 15)); // 0-15 bonus
         score += recencyBonus;
 
         // View count bonus (popular articles rank higher)
-        const viewBonus = Math.min((article.viewCount ?? 0) / 10, 30); // 0-30 bonus
+        const viewBonus = Math.min((article.viewCount ?? 0) / 10, 20); // 0-20 bonus
         score += viewBonus;
 
         return { ...article, _score: score };
@@ -199,21 +172,14 @@ export const kbRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      const { id, ...updates } = input;
-      await db.update(kbArticles).set(updates as any).where(eq(kbArticles.id, id));
-      return { success: true };
-    }),
-
-  /** Toggle publish/unpublish (admin only) */
-  togglePublish: adminProcedure
-    .input(z.object({ id: z.number().int().positive(), isPublished: z.boolean() }))
-    .mutation(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-      await db
-        .update(kbArticles)
-        .set({ isPublished: input.isPublished ? 1 : 0 })
-        .where(eq(kbArticles.id, input.id));
+      const updates: any = {};
+      if (input.title) updates.title = input.title;
+      if (input.content) updates.content = input.content;
+      if (input.category) updates.category = input.category;
+      if (input.tags) updates.tags = input.tags;
+      if (input.isPublished !== undefined) updates.isPublished = input.isPublished ? 1 : 0;
+      updates.updatedAt = new Date();
+      await db.update(kbArticles).set(updates).where(eq(kbArticles.id, input.id));
       return { success: true };
     }),
 
@@ -227,39 +193,16 @@ export const kbRouter = router({
       return { success: true };
     }),
 
-  /** Get top 6 common issues for KB landing page */
-  getCommonIssues: publicProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) return [];
-    const issues = await db
-      .select()
-      .from(kbCommonIssues)
-      .orderBy(kbCommonIssues.orderNum)
-      .limit(6);
-    return issues;
-  }),
-
-  /** Seed all 50 KB articles (admin only, one-time) */
-  seed: adminProcedure
-    .mutation(async () => {
-      return await seedKBArticles();
-    }),
-
   /** Bulk insert KB articles (admin only) */
   bulkInsert: adminProcedure
     .input(
       z.object({
         articles: z.array(
           z.object({
-            title: z.string(),
-            category: z.string(),
-            articleCode: z.string().optional(),
-            audience: z.enum(["end-user", "technician", "admin"]).optional(),
-            difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-            estimatedTime: z.string().optional(),
-            symptoms: z.string().optional(),
-            rootCause: z.string().optional(),
-            resolutionSteps: z.array(z.string()).optional(),
+            title: z.string().min(3),
+            content: z.string().min(10),
+            category: z.string().min(1),
+            tags: z.string().optional(),
             isPublished: z.boolean().default(true),
           })
         ),
@@ -268,157 +211,74 @@ export const kbRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-
-      let inserted = 0;
-      let failed = 0;
-      const errors: string[] = [];
-
-      for (const article of input.articles) {
-        try {
-          const content = [
-            article.symptoms ? `**Symptoms:** ${article.symptoms}` : "",
-            article.rootCause ? `**Root Cause:** ${article.rootCause}` : "",
-            article.resolutionSteps && article.resolutionSteps.length > 0
-              ? `**Resolution Steps:**\n${article.resolutionSteps.map((step, i) => `${i + 1}. ${step}`).join("\n")}`
-              : "",
-          ]
-            .filter((s) => s)
-            .join("\n\n");
-
-          await db.insert(kbArticles).values({
-            title: article.title,
-            content: content || article.title,
-            category: article.category,
-            articleCode: article.articleCode,
-            audience: (article.audience as any) || "technician",
-            difficulty: (article.difficulty as any) || "intermediate",
-            estimatedResolutionTime: article.estimatedTime,
-            isPublished: article.isPublished ? 1 : 0,
-            createdBy: ctx.user.id,
-            ariaEnabled: 1,
-          });
-
-          inserted++;
-        } catch (err) {
-          failed++;
-          errors.push(`${article.articleCode || article.title}: ${(err as any).message}`);
-        }
-      }
-
-      return {
-        success: true,
-        inserted,
-        failed,
-        total: input.articles.length,
-        errors: errors.length > 0 ? errors : undefined,
-      };
+      const values = input.articles.map(a => ({
+        title: a.title,
+        content: a.content,
+        category: a.category,
+        tags: a.tags || "",
+        isPublished: a.isPublished ? 1 : 0,
+        createdBy: ctx.user.id,
+      }));
+      const result = await db.insert(kbArticles).values(values);
+      return { inserted: values.length };
     }),
 
-  /** Get trending articles for KB landing page */
-  getTrendingArticles: publicProcedure
-    .input(z.object({ limit: z.number().default(5) }).optional())
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return [];
-      const limit = input?.limit || 5;
-      return db
-        .select()
-        .from(kbArticles)
-        .where(eq(kbArticles.isPublished, 1))
-        .orderBy(desc(kbArticles.viewCount))
-        .limit(limit);
-    }),
-
-  /** Get distinct categories with article counts for the public KB browse page */
+  /** Get categories list */
   getCategories: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) return [];
     const rows = await db
-      .select({
-        category: kbArticles.category,
-        count: sql<number>`COUNT(*)`.as('count'),
-      })
+      .select({ category: kbArticles.category })
       .from(kbArticles)
       .where(eq(kbArticles.isPublished, 1))
       .groupBy(kbArticles.category)
       .orderBy(asc(kbArticles.category));
-    return rows;
+    return rows.map(r => r.category).filter(Boolean);
   }),
 
-  /** Paginated list of published articles, optionally filtered by category */
-  listPaginated: publicProcedure
-    .input(z.object({
-      category: z.string().optional(),
+  /** List articles by category with pagination */
+  listByCategory: publicProcedure
+    .input(z.object({ 
+      category: z.string().min(1),
       page: z.number().int().min(1).default(1),
-      pageSize: z.number().int().min(1).max(50).default(24),
+      pageSize: z.number().int().min(1).max(100).default(24)
     }))
     .query(async ({ input }) => {
       const db = await getDb();
-      if (!db) return { articles: [], total: 0, page: input.page, pageSize: input.pageSize };
+      if (!db) return { articles: [], total: 0, pages: 0 };
+      
       const offset = (input.page - 1) * input.pageSize;
-      const whereClause = input.category && input.category !== 'All'
-        ? and(eq(kbArticles.isPublished, 1), eq(kbArticles.category, input.category))
-        : eq(kbArticles.isPublished, 1);
-      const [articles, countRows] = await Promise.all([
-        db.select().from(kbArticles)
-          .where(whereClause)
-          .orderBy(desc(kbArticles.updatedAt))
-          .limit(input.pageSize)
-          .offset(offset),
-        db.select({ count: sql<number>`COUNT(*)`.as('count') })
-          .from(kbArticles)
-          .where(whereClause),
-      ]);
-      return {
-        articles,
-        total: Number(countRows[0]?.count ?? 0),
-        page: input.page,
-        pageSize: input.pageSize,
-      };
+      
+      // Get total count
+      const countResult = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(kbArticles)
+        .where(and(
+          eq(kbArticles.isPublished, 1),
+          eq(kbArticles.category, input.category)
+        ));
+      
+      const total = countResult[0]?.count || 0;
+      const pages = Math.ceil(total / input.pageSize);
+      
+      // Get paginated articles
+      const articles = await db
+        .select()
+        .from(kbArticles)
+        .where(and(
+          eq(kbArticles.isPublished, 1),
+          eq(kbArticles.category, input.category)
+        ))
+        .orderBy(desc(kbArticles.updatedAt))
+        .limit(input.pageSize)
+        .offset(offset);
+      
+      return { articles, total, pages };
     }),
 
-  /** Email a KB article to a recipient */
-  emailArticle: publicProcedure
-    .input(z.object({
-      recipientEmail: z.string().email(),
-      articleId: z.number().int().positive(),
-      articleTitle: z.string(),
-      articleContent: z.string(),
-      articleCategory: z.string(),
-    }))
-    .mutation(async ({ input }) => {
-      try {
-        const htmlContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-            <div style="background-color: #0f172a; color: #00d4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h1 style="margin: 0; font-size: 24px;">${input.articleTitle}</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.8; font-size: 14px;">${input.articleCategory}</p>
-            </div>
-            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #00d4ff;">
-              ${input.articleContent}
-            </div>
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
-              <p>This article was shared from GigitekAI Knowledge Base</p>
-              <p><a href="https://gigitekai.com/admin/kb" style="color: #00d4ff; text-decoration: none;">View in Knowledge Base</a></p>
-            </div>
-          </div>
-        `;
-
-        const success = await sendEmail({
-          to: input.recipientEmail,
-          subject: `KB Article: ${input.articleTitle}`,
-          html: htmlContent,
-          fromName: "GigitekAI Support",
-        });
-
-        if (!success) {
-          throw new Error("Failed to send email");
-        }
-
-        return { success: true, message: `Article sent to ${input.recipientEmail}` };
-      } catch (error) {
-        console.error("[KB Email] Error sending article:", error);
-        throw new Error("Failed to send KB article via email");
-      }
-    }),
+  /** Seed KB with initial articles (admin only) */
+  seed: adminProcedure.mutation(async ({ ctx }) => {
+    const result = await seedKBArticles();
+    return result;
+  }),
 });

@@ -70,7 +70,8 @@ export default function PublicKB() {
   // --- Data fetching ---
   const { data: dbCommonIssues = [] } = trpc.kb.getCommonIssues.useQuery();
   const { data: trendingArticles = [], isLoading: isLoadingTrending } = trpc.kb.getTrendingArticles.useQuery({ limit: 6 });
-  const { data: categories = [] } = trpc.kb.getCategories.useQuery();
+  const { data: categoriesRaw = [] } = trpc.kb.getCategories.useQuery();
+  const categories = categoriesRaw.map((cat: string) => ({ category: cat, count: 0 }));
 
   // Paginated browse
   const { data: browseData, isLoading: isLoadingBrowse } = trpc.kb.listPaginated.useQuery(
@@ -333,7 +334,7 @@ export default function PublicKB() {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {browseArticles.map((article) => (
+                  {browseArticles.map((article: KbArticle) => (
                     <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} />
                   ))}
                 </div>
