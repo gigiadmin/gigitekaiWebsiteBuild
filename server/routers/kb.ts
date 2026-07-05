@@ -313,6 +313,34 @@ export const kbRouter = router({
       return { articles, total, pages };
     }),
 
+  /** Get common issues (top KB articles) */
+  getCommonIssues: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const rows = await db
+      .select()
+      .from(kbArticles)
+      .where(eq(kbArticles.isPublished, 1))
+      .orderBy(desc(kbArticles.viewCount))
+      .limit(6);
+    return rows;
+  }),
+
+  /** Get trending articles */
+  getTrendingArticles: publicProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(50).default(6) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const rows = await db
+        .select()
+        .from(kbArticles)
+        .where(eq(kbArticles.isPublished, 1))
+        .orderBy(desc(kbArticles.updatedAt))
+        .limit(input.limit);
+      return rows;
+    }),
+
   /** Seed KB with initial articles (admin only) */
   seed: adminProcedure.mutation(async ({ ctx }) => {
     const result = await seedKBArticles();

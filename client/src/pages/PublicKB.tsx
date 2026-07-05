@@ -183,7 +183,7 @@ export default function PublicKB() {
               {/* Instant dropdown suggestions */}
               {showDropdown && dropdownSuggestions.length > 0 && !isSearchMode && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-cyan-500/30 rounded-lg shadow-2xl z-50 max-h-80 overflow-y-auto">
-                  {dropdownSuggestions.map((a: { id: number; title: string; category: string }) => (
+                  {dropdownSuggestions.map((a: KbArticle) => (
                     <div
                       key={a.id}
                       className="px-4 py-3 border-b border-slate-700 hover:bg-slate-700/50 cursor-pointer transition-colors"
