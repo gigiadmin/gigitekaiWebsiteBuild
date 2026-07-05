@@ -119,6 +119,7 @@ const RescheduleMeeting = lazy(() => import("./pages/RescheduleMeeting"));
 
 // ── Admin Portal — lazy loaded (all behind ApprovalGuard) ────────────────
 const AdminApp = lazy(() => import("./AdminApp"));
+const AriaCommandCenter = lazy(() => import("./pages/AriaCommandCenter"));
 
 // M365 health pages (public-facing)
 const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
@@ -184,6 +185,7 @@ function Router() {
           <Route path="/admin/unlock" component={AdminUnlock} />
           <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
+          <Route path="/aria" component={AriaCommandCenter} />
           {/* ── Public ── */}
           <Route path={"investor-portal"} component={InvestorPortal} />
           <Route path={"/ai-news"} component={AINews} />
