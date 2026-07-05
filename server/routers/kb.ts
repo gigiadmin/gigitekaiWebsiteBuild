@@ -356,7 +356,7 @@ export const kbRouter = router({
 
   /** Email an article link to a recipient */
   emailArticle: protectedProcedure
-    .input(z.object({ articleId: z.number().int().positive(), recipientEmail: z.string().email(), articleTitle: z.string().optional(), articleContent: z.string().optional() }))
+    .input(z.object({ articleId: z.number().int().positive(), recipientEmail: z.string().email(), articleTitle: z.string().optional(), articleContent: z.string().optional(), articleCategory: z.string().optional() }))
     .mutation(async ({ input }) => {
       // Placeholder — integrate with SendGrid/ACS when needed
       console.log(`[KB] Email article ${input.articleId} to ${input.recipientEmail}`);
