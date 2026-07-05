@@ -98,6 +98,88 @@ export const helpdeskKbRouter = router({
   /**
    * Create KB article (admin only)
    */
+  /**
+   * Bulk import KB articles from CSV
+   */
+  bulkImport: adminProcedure
+    .input(
+      z.object({
+        articles: z.array(
+          z.object({
+            title: z.string().min(5).max(500),
+            content: z.string().min(20),
+            category: z.string().min(1).max(100),
+            tags: z.string().optional(),
+            tier: z.number().min(1).max(3).default(2),
+            audience: z.string().default("Help Desk"),
+          })
+        ).min(1).max(1000),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const results = {
+        imported: 0,
+        failed: 0,
+        errors: [] as string[],
+      };
+
+      for (const article of input.articles) {
+        try {
+          const result = await db.insert(kbArticles).values({
+            title: article.title,
+            content: article.content,
+            category: article.category,
+            tags: article.tags,
+            isPublished: 1,
+            audience: (article.audience === "admin" || article.audience === "end-user") ? article.audience : "technician",
+            difficulty: (article.tier === 1 || article.tier === 3) ? (article.tier === 1 ? "beginner" : "advanced") : "intermediate",
+            createdBy: ctx.user.id,
+          });
+
+          const articleId = result[0]?.insertId;
+
+          // Index the article
+          if (articleId) {
+            try {
+              await indexContent({
+                contentType: "kb",
+                sourceId: articleId.toString(),
+                title: article.title,
+                excerpt: article.content.substring(0, 300),
+                content: article.content,
+                url: `/kb/${articleId}`,
+                metadata: {
+                  category: article.category,
+                  tags: article.tags ? article.tags.split(",").map(t => t.trim()) : [],
+                  audience: article.audience,
+                  difficulty: "intermediate",
+                  tier: article.tier,
+                },
+              });
+            } catch (indexError) {
+              console.error(`[KB] Failed to index article ${articleId}:`, indexError);
+            }
+          }
+
+          results.imported++;
+        } catch (error) {
+          results.failed++;
+          results.errors.push(`Failed to import "${article.title}": ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+
+      return {
+        success: results.failed === 0,
+        imported: results.imported,
+        failed: results.failed,
+        errors: results.errors,
+        message: `Imported ${results.imported} articles${results.failed > 0 ? `, ${results.failed} failed` : ""}`,
+      };
+    }),
+
   createArticle: adminProcedure
     .input(
       z.object({

@@ -36,6 +36,7 @@ import { KBFeedback } from "@/components/KBFeedback";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
 import { ShareKBModal } from "@/components/ShareKBModal";
 import { AdminKBBulkInsert } from "@/components/AdminKBBulkInsert";
+import { KBBulkImportCSV } from "@/components/KBBulkImportCSV";
 import AdminLayout from "@/components/AdminLayout";
 import { toast } from "sonner";
 
@@ -421,7 +422,10 @@ export default function AdminKB() {
         </AlertDialog>
 
         <div className="space-y-6">
-          {/* Bulk Insert Section */}
+          {/* Bulk Import Section */}
+          <KBBulkImportCSV />
+
+          {/* Legacy Bulk Insert Section */}
           {(!articles || articles.length < 30) && (
             <AdminKBBulkInsert />
           )}
