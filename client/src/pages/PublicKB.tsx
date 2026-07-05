@@ -258,7 +258,7 @@ export default function PublicKB() {
                   <div
                     key={issue.id}
                     className={`group relative p-6 rounded-lg border ${issue.borderColor} bg-gradient-to-br ${issue.color} backdrop-blur-sm hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/10`}
-                    onClick={() => { if (dbIssue?.articleId) navigate(`/kb/${dbIssue.articleId}`); }}
+                    onClick={() => { if (dbIssue?.id) navigate(`/kb/${dbIssue.id}`); }}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="p-3 bg-slate-800/50 rounded-lg group-hover:bg-slate-700/50 transition-colors">
