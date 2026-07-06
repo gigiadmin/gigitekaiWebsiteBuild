@@ -133,6 +133,8 @@ export default function AdminHome() {
     { label: "View Leads", href: "/admin/leads", icon: <TrendingUp size={14} />, color: "text-green-400" },
     { label: "Contact Submissions", href: "/admin/contacts", icon: <Inbox size={14} />, color: "text-orange-400" },
     { label: "Canned Responses", href: "/admin/canned-responses", icon: <MessageSquareText size={14} />, color: "text-purple-400" },
+    { label: "Copilot Dashboard", href: "/admin/copilot", icon: <Bot size={14} />, color: "text-cyan-400" },
+    { label: "Copilot M365", href: "/admin/copilot-m365", icon: <Zap size={14} />, color: "text-yellow-400" },
   ];
 
   return (

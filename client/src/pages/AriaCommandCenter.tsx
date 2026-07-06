@@ -352,7 +352,18 @@ export default function AriaCommandCenter() {
     a.click();
     toast.success("Chat saved");
   };
-  const clearChat = () => { if (confirm("Clear all messages?")) { setMessages([]); toast.success("Chat cleared"); } };
+  const clearChat = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (confirm("Clear all messages?")) {
+      setMessages([]);
+      try {
+        localStorage.removeItem(ARIA_CHAT_STORAGE_KEY);
+      } catch (e) {
+        console.error("Failed to clear chat history:", e);
+      }
+      toast.success("Chat cleared");
+    }
+  }, []);
 
   useEffect(() => () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -367,12 +378,22 @@ export default function AriaCommandCenter() {
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
+  /* Fetch live system metrics */
+  const { data: metrics } = trpc.helpdesk.getMetrics.useQuery(undefined, { refetchInterval: 30_000 });
+  const { data: systemContext } = trpc.aria.getSystemContext.useQuery(undefined, { refetchInterval: 30_000 });
+
+  const openTicketCount = (metrics?.open ?? 0) + (metrics?.inProgress ?? 0);
+  const criticalCount = metrics?.critical ?? 0;
+  const avgResolutionTime = metrics?.avgResolutionMinutes ? `${(metrics.avgResolutionMinutes / 60).toFixed(1)}h` : "N/A";
+  const kbArticleCount = systemContext?.kbArticleCount ?? 0;
+  const uptime = systemContext?.uptime24h ?? "99.9%";
+
   const systemBoxes = [
-    { icon: AlertTriangle, label: "Open Tickets",    value: "12",    status: "warn" as const, query: "Show me a summary of all currently open support tickets, their priority levels, and which ones need immediate attention." },
-    { icon: CheckCircle2, label: "System Status",    value: "99.9%", status: "ok"   as const, query: "What is the current system status across all GigitekAI services? Are there any active incidents or scheduled maintenance?" },
-    { icon: AlertTriangle,label: "Critical Issues",  value: "1",     status: "warn" as const, query: "What is the 1 critical issue currently open? Provide full details, impact assessment, and recommended resolution steps." },
-    { icon: Clock,        label: "Avg Resolution",   value: "2.4h",  status: "info" as const, query: "Analyze our current average ticket resolution time of 2.4 hours. What are the top bottlenecks and how can we improve?" },
-    { icon: Zap,          label: "KB Articles",      value: "932",   status: "ok"   as const, query: "What are the most frequently accessed knowledge base articles this week? Show trending topics and gaps." },
+    { icon: AlertTriangle, label: "Open Tickets",    value: openTicketCount.toString(), status: openTicketCount > 5 ? "warn" : "ok" as const, query: "Show me a summary of all currently open support tickets, their priority levels, and which ones need immediate attention." },
+    { icon: CheckCircle2, label: "System Status",    value: uptime, status: "ok"   as const, query: "What is the current system status across all GigitekAI services? Are there any active incidents or scheduled maintenance?" },
+    { icon: AlertTriangle,label: "Critical Issues",  value: criticalCount.toString(), status: criticalCount > 0 ? "warn" : "ok" as const, query: `What are the ${criticalCount} critical issue(s) currently open? Provide full details, impact assessment, and recommended resolution steps.` },
+    { icon: Clock,        label: "Avg Resolution",   value: avgResolutionTime, status: "info" as const, query: `Analyze our current average ticket resolution time of ${avgResolutionTime}. What are the top bottlenecks and how can we improve?` },
+    { icon: Zap,          label: "KB Articles",      value: kbArticleCount.toString(), status: "ok"   as const, query: "What are the most frequently accessed knowledge base articles this week? Show trending topics and gaps." },
     { icon: Terminal,     label: "PowerShell Help",  value: "Ready", status: "info" as const, query: "Give me the top 10 most useful PowerShell commands for Microsoft 365 administration, with examples." },
   ];
 
