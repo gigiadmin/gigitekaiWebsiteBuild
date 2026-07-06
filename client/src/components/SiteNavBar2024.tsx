@@ -6,8 +6,8 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Sun, Moon, Calendar } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Calendar } from "lucide-react";
+
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,7 +15,7 @@ export default function SiteNavBar2024() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [menuTop, setMenuTop] = useState(72);
   const navRef = useRef<HTMLElement>(null);
-  const { theme, toggleTheme } = useTheme();
+
 
   // Track Watch AI Work Live CTA clicks
   const trackAIDemoClick = (location: string) => {
@@ -198,19 +198,7 @@ export default function SiteNavBar2024() {
               </div>
               <span>Support</span>
             </a>
-            {/* Separator between Support and Theme Toggle */}
-            <div className="w-px h-6 bg-white/30 mx-1" />
-            {/* Theme Toggle */}
-            {toggleTheme && (
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg text-gray-200 hover:text-[#00D4FF] hover:bg-white/5 transition-colors"
-                title={theme === 'dark' ? "Light Mode" : "Dark Mode"}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-            )}
+
             <a
               href="/contact"
               className="btn-cyan text-sm"
@@ -323,17 +311,7 @@ export default function SiteNavBar2024() {
 
               {/* Mobile Search Bar - DISABLED - removed due to poor UX */}
 
-              {/* Mobile Theme Toggle */}
-              {toggleTheme && (
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center gap-2 py-3 px-3 text-sm transition-colors w-full mt-1 min-h-[48px]"
-                  style={{ color: '#d1d5db' }}
-                >
-                  {theme === 'dark' ? <Sun size={16} color="#d1d5db" /> : <Moon size={16} color="#d1d5db" />}
-                  <span>{theme === 'dark' ? "Light Mode" : "Dark Mode"}</span>
-                </button>
-              )}
+
               </div>
               <div className="px-4 pt-2 pb-6">
                 <a
