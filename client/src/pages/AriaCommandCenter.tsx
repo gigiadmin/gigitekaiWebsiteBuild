@@ -384,7 +384,7 @@ export default function AriaCommandCenter() {
 
   const openTicketCount = (metrics?.open ?? 0) + (metrics?.inProgress ?? 0);
   const criticalCount = metrics?.critical ?? 0;
-  const avgResolutionTime = metrics?.avgResolutionMinutes ? `${(metrics.avgResolutionMinutes / 60).toFixed(1)}h` : "N/A";
+  const avgResolutionTime = metrics?.avgResolutionHours ? `${(metrics.avgResolutionHours / 60).toFixed(1)}h` : "N/A";
   const kbArticleCount = systemContext?.kbArticleCount ?? 0;
   const uptime = systemContext?.uptime24h ?? "99.9%";
 
