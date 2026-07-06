@@ -66,41 +66,102 @@ function speakAsAria(text: string, onEnd?: () => void) {
 }
 
 /* ─── Holographic Sphere ─────────────────────────────────────────────────── */
-function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume: number }) {
+// Stage-aware color palette
+const STAGE_COLORS: Record<Stage, {
+  ring: string; ringBorder: string; halo: string; core: string;
+  coreShadow: string; dot: string; dotShadow: string; label: string; labelText: string;
+}> = {
+  idle: {
+    ring: "rgba(34,211,238,0.2)", ringBorder: "border-cyan-400/20",
+    halo: "radial-gradient(circle, rgba(34,211,238,0.35) 0%, rgba(6,182,212,0.15) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #67e8f9, #0891b2 60%, #0e7490)",
+    coreShadow: "rgba(34,211,238,", dot: "bg-cyan-200", dotShadow: "rgba(165,243,252,",
+    label: "text-cyan-400/60", labelText: "○ STANDBY",
+  },
+  listening: {
+    ring: "rgba(34,211,238,0.4)", ringBorder: "border-cyan-300/40",
+    halo: "radial-gradient(circle, rgba(34,211,238,0.55) 0%, rgba(6,182,212,0.25) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #a5f3fc, #0891b2 55%, #0e7490)",
+    coreShadow: "rgba(34,211,238,", dot: "bg-white", dotShadow: "rgba(255,255,255,",
+    label: "text-cyan-300/90", labelText: "◉ LISTENING",
+  },
+  transcribing: {
+    ring: "rgba(168,85,247,0.35)", ringBorder: "border-purple-400/35",
+    halo: "radial-gradient(circle, rgba(168,85,247,0.45) 0%, rgba(139,92,246,0.2) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #e9d5ff, #7c3aed 55%, #5b21b6)",
+    coreShadow: "rgba(168,85,247,", dot: "bg-purple-200", dotShadow: "rgba(233,213,255,",
+    label: "text-purple-300/90", labelText: "◎ TRANSCRIBING",
+  },
+  thinking: {
+    ring: "rgba(251,191,36,0.4)", ringBorder: "border-amber-400/40",
+    halo: "radial-gradient(circle, rgba(251,191,36,0.5) 0%, rgba(245,158,11,0.2) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #fef3c7, #d97706 55%, #b45309)",
+    coreShadow: "rgba(251,191,36,", dot: "bg-amber-200", dotShadow: "rgba(253,230,138,",
+    label: "text-amber-300/90", labelText: "◈ THINKING",
+  },
+  searching: {
+    ring: "rgba(52,211,153,0.4)", ringBorder: "border-emerald-400/40",
+    halo: "radial-gradient(circle, rgba(52,211,153,0.5) 0%, rgba(16,185,129,0.2) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #a7f3d0, #059669 55%, #047857)",
+    coreShadow: "rgba(52,211,153,", dot: "bg-emerald-200", dotShadow: "rgba(167,243,208,",
+    label: "text-emerald-300/90", labelText: "◉ SEARCHING",
+  },
+  responding: {
+    ring: "rgba(99,102,241,0.4)", ringBorder: "border-indigo-400/40",
+    halo: "radial-gradient(circle, rgba(99,102,241,0.5) 0%, rgba(79,70,229,0.2) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #c7d2fe, #4f46e5 55%, #3730a3)",
+    coreShadow: "rgba(99,102,241,", dot: "bg-indigo-200", dotShadow: "rgba(199,210,254,",
+    label: "text-indigo-300/90", labelText: "◎ RESPONDING",
+  },
+};
+
+function HolographicSphere({ isActive, volume = 0, stage = "idle" }: { isActive: boolean; volume: number; stage: Stage }) {
   const scale = 1 + volume * 0.35;
   const glow = 20 + volume * 120;
   const coreGlow = 30 + volume * 150;
+  const isProcessing = stage !== "idle";
+  const c = STAGE_COLORS[stage];
+
+  // Speed up rings during processing
+  const outerSpeed = isProcessing ? "8s" : "20s";
+  const innerSpeed = isProcessing ? "5s" : "12s";
+  const orbit2Anim = isProcessing ? "aria-process-pulse 1.4s ease-in-out infinite" : "aria-spin-med 18s linear infinite";
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: 'clamp(160px, 40vw, 240px)', height: 'clamp(160px, 40vw, 240px)' }}>
       {/* Outermost ring — slow rotate */}
       <div
-        className="absolute inset-0 rounded-full border border-cyan-400/20"
+        className="absolute inset-0 rounded-full border"
         style={{
-          animation: "aria-spin-slow 20s linear infinite",
+          borderColor: c.ring,
+          animation: `aria-spin-slow ${outerSpeed} linear infinite`,
           transform: `scale(${scale})`,
-          transition: "transform 75ms ease-out",
+          transition: "transform 75ms ease-out, border-color 600ms ease",
+          boxShadow: isProcessing ? `0 0 ${glow * 0.3}px ${c.ring}` : "none",
         }}
       />
       {/* Orbit ring 1 */}
       <div
-        className="absolute rounded-full border border-cyan-400/30"
+        className="absolute rounded-full border"
         style={{
           inset: 20,
-          animation: "aria-spin-med 12s linear infinite reverse",
+          borderColor: c.ring,
+          animation: `aria-spin-med ${innerSpeed} linear infinite reverse`,
           transform: `scale(${scale})`,
-          transition: "transform 75ms ease-out",
+          transition: "transform 75ms ease-out, border-color 600ms ease",
+          boxShadow: isProcessing ? `0 0 ${glow * 0.4}px ${c.ring}` : "none",
         }}
       />
-      {/* Orbit ring 2 */}
+      {/* Orbit ring 2 — pulses during processing */}
       <div
-        className="absolute rounded-full border-2 border-cyan-500/40"
+        className="absolute rounded-full border-2"
         style={{
           inset: 44,
-          animation: isActive ? "aria-pulse 2s ease-in-out infinite" : "aria-spin-med 18s linear infinite",
+          borderColor: c.ring,
+          animation: orbit2Anim,
           transform: `scale(${scale})`,
-          transition: "transform 75ms ease-out",
-          boxShadow: isActive ? `0 0 ${glow * 0.5}px rgba(34,211,238,0.3)` : "none",
+          transition: "transform 75ms ease-out, border-color 600ms ease",
+          boxShadow: isActive ? `0 0 ${glow * 0.6}px ${c.ring}` : "none",
         }}
       />
       {/* Glow halo */}
@@ -108,11 +169,11 @@ function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume
         className="absolute rounded-full"
         style={{
           inset: 56,
-          background: "radial-gradient(circle, rgba(34,211,238,0.35) 0%, rgba(6,182,212,0.15) 60%, transparent 100%)",
+          background: c.halo,
           filter: `blur(${8 + volume * 16}px)`,
           transform: `scale(${scale})`,
-          transition: "all 75ms ease-out",
-          opacity: 0.4 + volume * 0.6,
+          transition: "all 75ms ease-out, background 600ms ease",
+          opacity: isProcessing ? 0.7 + volume * 0.3 : 0.4 + volume * 0.6,
         }}
       />
       {/* Core sphere */}
@@ -120,10 +181,11 @@ function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume
         className="absolute rounded-full"
         style={{
           inset: 72,
-          background: "radial-gradient(circle at 35% 35%, #67e8f9, #0891b2 60%, #0e7490)",
-          boxShadow: `0 0 ${coreGlow}px rgba(34,211,238,${0.5 + volume * 0.5}), inset 0 0 20px rgba(255,255,255,0.1)`,
+          background: c.core,
+          boxShadow: `0 0 ${coreGlow}px ${c.coreShadow}${0.5 + volume * 0.5}), inset 0 0 20px rgba(255,255,255,0.1)`,
           transform: `scale(${scale})`,
-          transition: "all 75ms ease-out",
+          transition: "all 75ms ease-out, background 600ms ease, box-shadow 600ms ease",
+          animation: isProcessing ? "aria-core-breathe 1.8s ease-in-out infinite" : undefined,
         }}
       />
       {/* Specular highlight */}
@@ -140,22 +202,23 @@ function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume
       />
       {/* Center dot */}
       <div
-        className="absolute rounded-full bg-cyan-200"
+        className={`absolute rounded-full ${c.dot}`}
         style={{
           width: 8, height: 8,
           top: "calc(50% - 4px)", left: "calc(50% - 4px)",
-          boxShadow: `0 0 ${12 + volume * 20}px rgba(165,243,252,${0.8 + volume * 0.2})`,
+          boxShadow: `0 0 ${12 + volume * 20}px ${c.dotShadow}${0.8 + volume * 0.2})`,
           transform: `scale(${0.8 + volume * 0.5})`,
-          transition: "all 75ms ease-out",
+          transition: "all 75ms ease-out, background-color 600ms ease",
+          animation: isProcessing ? "aria-dot-ping 1.2s ease-in-out infinite" : undefined,
         }}
       />
       {/* Status label */}
       <div
-        className="absolute bottom-2 left-0 right-0 flex justify-center"
+        className="absolute left-0 right-0 flex justify-center"
         style={{ bottom: 8 }}
       >
-        <span className="text-xs text-cyan-400/70 font-mono tracking-widest uppercase">
-          {isActive ? "● ACTIVE" : "○ STANDBY"}
+        <span className={`text-xs font-mono tracking-widest uppercase transition-colors duration-500 ${c.label}`}>
+          {c.labelText}
         </span>
       </div>
     </div>
@@ -236,10 +299,13 @@ export default function AriaCommandCenter() {
     const s = document.createElement("style");
     s.id = id;
     s.textContent = `
-      @keyframes aria-bounce    { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
-      @keyframes aria-pulse     { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.08);opacity:1} }
-      @keyframes aria-spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-      @keyframes aria-spin-med  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes aria-bounce        { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
+      @keyframes aria-pulse         { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.08);opacity:1} }
+      @keyframes aria-spin-slow     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes aria-spin-med      { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes aria-process-pulse { 0%,100%{transform:scale(1);opacity:0.6;box-shadow:0 0 8px currentColor} 50%{transform:scale(1.12);opacity:1;box-shadow:0 0 28px currentColor} }
+      @keyframes aria-core-breathe  { 0%,100%{filter:brightness(1) saturate(1)} 50%{filter:brightness(1.3) saturate(1.4)} }
+      @keyframes aria-dot-ping      { 0%,100%{transform:scale(0.8);opacity:0.8} 50%{transform:scale(1.6);opacity:1} }
     `;
     document.head.appendChild(s);
   }, []);
@@ -450,7 +516,7 @@ export default function AriaCommandCenter() {
         <div className="flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
           {/* Sphere */}
           <div className="flex-shrink-0">
-            <HolographicSphere isActive={isActive} volume={audioVolume} />
+            <HolographicSphere isActive={isActive} volume={audioVolume} stage={stage} />
           </div>
 
           {/* Status Grid */}
