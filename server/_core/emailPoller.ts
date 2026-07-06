@@ -1271,17 +1271,24 @@ async function processEmail(msgData: any): Promise<boolean> {
     const senderEmail = emailMatch ? emailMatch[1] : fromStr;
     const senderName = fromStr.replace(/<.+?>/, "").trim() || senderEmail;
 
-    // ── Deduplication: skip if this messageId was already processed ──────────
-    if (messageId) {
+    // ── CRITICAL FIX: Deduplication using messageId OR content hash ──────────
+    // If messageId is missing, generate a hash from sender+subject+bodyPreview
+    // This prevents the same email from being processed multiple times
+    const crypto = require('crypto');
+    const dedupKey = messageId || crypto.createHash('sha256')
+      .update(`${senderEmail}|${subject}|${bodyPreview || ''}`)
+      .digest('hex');
+    
+    if (dedupKey) {
       const db = await getDb();
       if (db) {
         const existing = await db
           .select({ id: emailMessages.id })
           .from(emailMessages)
-          .where(eq(emailMessages.messageId, messageId))
+          .where(eq(emailMessages.messageId, dedupKey))
           .limit(1);
         if (existing.length > 0) {
-          // Already processed — silently skip
+          console.log(`[Email Poller] Email already processed (dedup key: ${dedupKey.slice(0,8)}...)`);
           return true;
         }
       }
@@ -1438,7 +1445,7 @@ async function processEmail(msgData: any): Promise<boolean> {
         const plainBody = typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 5000) : '';
         await db.insert(emailMessages).values({
           direction: 'received',
-          messageId: messageId || `poller-${Date.now()}`,
+          messageId: dedupKey,
           from: senderEmail,
           to: SUPPORT_EMAIL,
           subject: subject,
