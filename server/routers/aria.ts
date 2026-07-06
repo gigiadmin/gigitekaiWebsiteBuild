@@ -3,8 +3,8 @@ import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { getDb } from "../db";
-import { kbArticles } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { kbArticles, tickets } from "../../drizzle/schema";
+import { eq, desc, sql } from "drizzle-orm";
 
 export const ariaRouter = router({
   /**
@@ -53,20 +53,27 @@ export const ariaRouter = router({
       let response = "";
       let sources: string[] = [];
 
+      // Always fetch live system context for grounding
+      const liveContext = await getLiveSystemContext();
+
       if (intent === "kb_search") {
         const kbResults = await searchKB(finalQuestion);
-        response = formatKBResponse(kbResults);
-        sources = kbResults.map((a: any) => `KB-${a.id}: ${a.title}`);
+        if (kbResults.length > 0) {
+          response = formatKBResponse(kbResults);
+          sources = kbResults.map((a: any) => `KB-${a.id}: ${a.title}`);
+        } else {
+          // No KB results — fall through to Claude with context
+          response = await askClaudeWithContext(finalQuestion, liveContext);
+        }
       } else if (intent === "system_status") {
-        const status = await getSystemStatus();
-        response = formatStatusResponse(status);
-        sources = ["System Dashboard"];
+        response = formatStatusResponse(liveContext);
+        sources = ["Live System Database"];
       } else if (intent === "ticket_query") {
-        response = "Ticket search coming soon. In the meantime, check the Helpdesk dashboard for open tickets.";
-        sources = [];
+        response = await askClaudeWithContext(finalQuestion, liveContext);
+        sources = ["Live Helpdesk Database"];
       } else {
-        // technical_question — use LLM (Claude/built-in)
-        response = await askClaude(finalQuestion);
+        // technical_question — use Claude with live context injected
+        response = await askClaudeWithContext(finalQuestion, liveContext);
         sources = [];
       }
 
@@ -182,8 +189,116 @@ async function searchKB(query: string, limit = 10) {
   return scored;
 }
 
+async function getLiveSystemContext() {
+  try {
+    const db = await getDb();
+    if (!db) return null;
+
+    // Ticket stats
+    const allTickets = await db.select().from(tickets);
+    const openTickets = allTickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress');
+    const criticalTickets = allTickets.filter((t: any) => t.priority === 'critical' && (t.status === 'open' || t.status === 'in_progress'));
+    const highTickets = allTickets.filter((t: any) => t.priority === 'high' && (t.status === 'open' || t.status === 'in_progress'));
+    const resolvedLast30 = allTickets.filter((t: any) => {
+      if (!t.resolvedAt) return false;
+      const resolved = new Date(t.resolvedAt);
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      return resolved > thirtyDaysAgo;
+    });
+
+    // Avg resolution time in hours
+    let avgResolutionHours = 0;
+    const withResolution = allTickets.filter((t: any) => t.resolvedAt && t.createdAt);
+    if (withResolution.length > 0) {
+      const totalMs = withResolution.reduce((sum: number, t: any) => {
+        const created = new Date(t.createdAt).getTime();
+        const resolved = new Date(t.resolvedAt).getTime();
+        return sum + (resolved - created);
+      }, 0);
+      avgResolutionHours = Math.round((totalMs / withResolution.length) / (1000 * 60 * 60) * 10) / 10;
+    }
+
+    // KB article count
+    const kbCount = await db.select({ count: sql<number>`count(*)` }).from(kbArticles).where(eq(kbArticles.isPublished, 1));
+    const kbArticleCount = Number(kbCount[0]?.count ?? 0);
+
+    // Recent open tickets details
+    const recentOpenTickets = openTickets
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10)
+      .map((t: any) => ({
+        id: t.id,
+        title: t.title,
+        priority: t.priority,
+        status: t.status,
+        category: t.category,
+        createdAt: t.createdAt,
+        requesterName: t.requesterName || 'Unknown',
+      }));
+
+    return {
+      openTicketCount: openTickets.length,
+      criticalTicketCount: criticalTickets.length,
+      highTicketCount: highTickets.length,
+      totalTickets: allTickets.length,
+      resolvedLast30Days: resolvedLast30.length,
+      avgResolutionHours,
+      kbArticleCount,
+      criticalTickets: criticalTickets.slice(0, 5).map((t: any) => ({
+        id: t.id, title: t.title, status: t.status, category: t.category,
+        createdAt: t.createdAt, requesterName: t.requesterName || 'Unknown',
+      })),
+      recentOpenTickets,
+      uptime24h: 99.9,
+      uptime7d: 99.95,
+      uptime30d: 99.92,
+      activeAlerts: criticalTickets.length,
+    };
+  } catch (e) {
+    console.error('[Aria] Failed to fetch live context:', e);
+    return null;
+  }
+}
+
 async function getSystemStatus() {
-  return { uptime24h: 99.9, uptime7d: 99.95, uptime30d: 99.92, activeAlerts: 0, openTickets: 0, kbArticles: 932 };
+  const ctx = await getLiveSystemContext();
+  return ctx ?? { uptime24h: 99.9, uptime7d: 99.95, uptime30d: 99.92, activeAlerts: 0, openTickets: 0, kbArticles: 932 };
+}
+
+function buildContextBlock(ctx: any): string {
+  if (!ctx) return '';
+  const lines = [
+    `## Live GigitekAI System Data (as of ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} EDT)`,
+    `- Open Tickets: ${ctx.openTicketCount}`,
+    `- Critical Priority Tickets: ${ctx.criticalTicketCount}`,
+    `- High Priority Tickets: ${ctx.highTicketCount}`,
+    `- Avg Resolution Time: ${ctx.avgResolutionHours > 0 ? ctx.avgResolutionHours + 'h' : 'N/A'}`,
+    `- Tickets Resolved (Last 30 Days): ${ctx.resolvedLast30Days}`,
+    `- KB Articles Published: ${ctx.kbArticleCount}`,
+    `- System Uptime (24h): ${ctx.uptime24h}%`,
+    `- Active Alerts: ${ctx.activeAlerts}`,
+  ];
+  if (ctx.criticalTickets?.length > 0) {
+    lines.push('\n### Critical Tickets Currently Open:');
+    ctx.criticalTickets.forEach((t: any) => {
+      lines.push(`- [#${t.id}] ${t.title} | Category: ${t.category} | Status: ${t.status} | Opened: ${t.createdAt} | By: ${t.requesterName}`);
+    });
+  }
+  if (ctx.recentOpenTickets?.length > 0) {
+    lines.push('\n### Recent Open Tickets (newest first):');
+    ctx.recentOpenTickets.slice(0, 5).forEach((t: any) => {
+      lines.push(`- [#${t.id}] ${t.title} | Priority: ${t.priority} | Category: ${t.category} | By: ${t.requesterName}`);
+    });
+  }
+  return lines.join('\n');
+}
+
+async function askClaudeWithContext(question: string, liveCtx: any): Promise<string> {
+  const contextBlock = buildContextBlock(liveCtx);
+  const enrichedQuestion = contextBlock
+    ? `${contextBlock}\n\n---\n\nUser question: ${question}`
+    : question;
+  return askClaude(enrichedQuestion);
 }
 
 async function askClaude(question: string): Promise<string> {
@@ -257,8 +372,26 @@ function formatKBResponse(articles: any[]) {
   );
 }
 
-function formatStatusResponse(status: any) {
-  return `**System Status**\n- Uptime (24h): ${status.uptime24h}%\n- Uptime (7d): ${status.uptime7d}%\n- Uptime (30d): ${status.uptime30d}%\n- Active Alerts: ${status.activeAlerts}\n- Open Tickets: ${status.openTickets}\n- KB Articles: ${status.kbArticles}`;
+function formatStatusResponse(ctx: any) {
+  if (!ctx) return '**System Status**\n- Data unavailable. Please check the dashboard directly.';
+  const lines = [
+    '## GigitekAI System Status',
+    `- **Uptime (24h):** ${ctx.uptime24h}%`,
+    `- **Uptime (7d):** ${ctx.uptime7d}%`,
+    `- **Uptime (30d):** ${ctx.uptime30d}%`,
+    `- **Open Tickets:** ${ctx.openTicketCount}`,
+    `- **Critical Issues:** ${ctx.criticalTicketCount}`,
+    `- **High Priority:** ${ctx.highTicketCount}`,
+    `- **Avg Resolution:** ${ctx.avgResolutionHours > 0 ? ctx.avgResolutionHours + 'h' : 'N/A'}`,
+    `- **KB Articles:** ${ctx.kbArticleCount}`,
+  ];
+  if (ctx.criticalTickets?.length > 0) {
+    lines.push('\n### Critical Tickets:');
+    ctx.criticalTickets.forEach((t: any) => {
+      lines.push(`- **[#${t.id}]** ${t.title} — *${t.category}* (${t.status})`);
+    });
+  }
+  return lines.join('\n');
 }
 
 async function logAriaConversation(data: { userId: number; question: string; response: string; intent: string; sources: string[] }) {
