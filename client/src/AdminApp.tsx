@@ -76,7 +76,7 @@ const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
 const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
-const AdminSearchChat = lazy(() => import("./pages/AdminSearchChat"));
+const AriaCommandCenterAdmin = lazy(() => import("./pages/AriaCommandCenter"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
 
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
@@ -198,7 +198,7 @@ export default function AdminApp() {
               <Route path="/admin/contact-center" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/contact-center-dashboard" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/command-center" component={withAdminLayout(CommandCenterAdminDashboard, "Command Center")} />
-              <Route path="/admin/search" component={withAdminLayout(AdminSearchChat, "Admin Search")} />
+              <Route path="/admin/search" component={withAdminLayout(AriaCommandCenterAdmin, "Aria Command Center")} />
               <Route path="/admin/dns-checker" component={withAdminLayout(AdminDNSChecker, "DNS Checker")} />
               <Route path="/admin/email-diagnostics" component={withAdminLayout(AdminEmailDiagnostics, "Email Diagnostics")} />
               <Route path="/admin/form-submissions" component={withAdminLayout(AdminFormSubmissions, "Form Submissions")} />
