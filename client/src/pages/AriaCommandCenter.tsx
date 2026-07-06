@@ -86,7 +86,7 @@ function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; a
   const glowIntensity = audioVolume * 100;
 
   return (
-    <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 flex items-center justify-center flex-shrink-0">
+    <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center flex-shrink-0">
       <div 
         className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
         style={{ 
@@ -145,7 +145,7 @@ function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; a
       />
 
       <div 
-        className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-cyan-300 shadow-lg"
+        className="absolute w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-cyan-300 shadow-lg"
         style={{
           transform: `scale(${0.8 + audioVolume * 0.4})`,
           boxShadow: `0 0 ${15 + glowIntensity}px rgba(165, 243, 252, ${0.8 + audioVolume * 0.2})`,
@@ -432,14 +432,16 @@ export default function AriaCommandCenter() {
       </div>
 
       {/* Main Content - Responsive Layout */}
-      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-4 sm:gap-6 p-3 sm:p-6">
-        {/* Left: Holographic Sphere + System Status Grid */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 sm:gap-8 min-w-0">
-          {/* Holographic Sphere */}
-          <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6">
+        {/* Left: Holographic Sphere + System Status Grid - Full height on mobile */}
+        <div className="flex-1 flex flex-col items-center justify-start lg:justify-center gap-6 sm:gap-8 min-h-0 lg:min-h-full">
+          {/* Holographic Sphere - Large and prominent */}
+          <div className="flex-shrink-0 pt-4 sm:pt-6 lg:pt-0">
+            <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
+          </div>
 
           {/* System Status Grid - 2x3 on mobile, 3x2 on larger */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md flex-shrink-0">
             {systemBoxes.map((box) => {
               const Icon = box.icon;
               const statusColor = box.status === "healthy" 
@@ -463,14 +465,14 @@ export default function AriaCommandCenter() {
         </div>
 
         {/* Right: Chat Messages - Full width on mobile, sidebar on desktop */}
-        <div className="w-full lg:w-80 flex flex-col border-t lg:border-t-0 lg:border-l border-cyan-500/20 pt-4 lg:pt-0 lg:pl-6">
+        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-cyan-500/20 pt-4 lg:pt-0 lg:pl-6 min-h-0">
           {/* Chat Header */}
-          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-cyan-500/20">
+          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-cyan-500/20 flex-shrink-0">
             <h2 className="text-xs sm:text-sm font-semibold text-cyan-400 uppercase tracking-wider">Conversation</h2>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 mb-3 sm:mb-4">
+          <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 mb-3 sm:mb-4 min-h-0">
             {messages.length === 0 ? (
               <div className="text-center text-gray-500 text-xs sm:text-sm py-6 sm:py-8">
                 <p>Ask me anything...</p>
@@ -511,7 +513,7 @@ export default function AriaCommandCenter() {
           </div>
 
           {/* Input Area */}
-          <div className="space-y-2 border-t border-cyan-500/20 pt-3 sm:pt-4">
+          <div className="space-y-2 border-t border-cyan-500/20 pt-3 sm:pt-4 flex-shrink-0">
             <div className="flex gap-1.5 sm:gap-2">
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
