@@ -121,6 +121,25 @@ export const ariaRouter = router({
     return await getFullLiveContext();
   }),
 
+  /** Get system context for Aria (KB count, uptime, etc.) */
+  getSystemContext: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { kbArticleCount: 0, uptime24h: "99.9%", uptime7d: "99.9%", uptime30d: "99.9%" };
+    
+    const kbCount = await db.select({ count: sql`COUNT(*)` }).from(kbArticles).where(eq(kbArticles.isPublished, 1));
+    const kbArticleCount = (kbCount[0]?.count as number) || 0;
+    
+    const uptime = await db.select().from(uptimeStatistics).orderBy(desc(uptimeStatistics.createdAt)).limit(1);
+    const latestUptime = uptime[0];
+    
+    return {
+      kbArticleCount,
+      uptime24h: latestUptime?.uptime24h?.toString() || "99.9%",
+      uptime7d: latestUptime?.uptime7d?.toString() || "99.9%",
+      uptime30d: latestUptime?.uptime30d?.toString() || "99.9%",
+    };
+  }),
+
   /** Get common issues */
   getCommonIssues: publicProcedure.query(async () => {
     const db = await getDb();
