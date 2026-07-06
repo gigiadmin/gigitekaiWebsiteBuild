@@ -377,7 +377,7 @@ export default function AriaCommandCenter() {
   ];
 
   return (
-    <div className="flex flex-col bg-slate-950 text-white" style={{ minHeight: "calc(100vh - 60px)" }}>
+    <div className="flex flex-col bg-slate-950 text-white" style={{ height: "calc(100vh - 60px)", overflow: "hidden" }}>
 
       {/* ── Top Bar ──────────────────────────────────────────────────────── */}
       <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
@@ -421,10 +421,10 @@ export default function AriaCommandCenter() {
       </div>
 
       {/* ── Main Layout ──────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
 
-        {/* ── Left Panel: Sphere + Status Grid ─────────────────────────── */}
-        <div className="flex flex-col items-center gap-5 px-4 sm:px-6 py-5 lg:py-8 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5">
+        {/* ── Left Panel: Sphere + Status Grid — FIXED, never scrolls ─────── */}
+        <div className="flex flex-col items-center gap-5 px-4 sm:px-6 py-5 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 lg:overflow-hidden">
           {/* Sphere */}
           <div className="flex-shrink-0">
             <HolographicSphere isActive={isActive} volume={audioVolume} />
