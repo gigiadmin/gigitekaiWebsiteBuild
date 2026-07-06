@@ -136,9 +136,22 @@ export const ariaRouter = router({
 
 function detectIntent(question: string): "kb_search" | "system_status" | "ticket_query" | "technical_question" {
   const q = question.toLowerCase();
-  if (q.includes("uptime") || q.includes("status") || q.includes("alert") || q.includes("health")) return "system_status";
-  if (q.includes("ticket") || q.includes("open issue") || q.includes("helpdesk")) return "ticket_query";
-  if (q.includes("how") || q.includes("what") || q.includes("why") || q.includes("powershell") || q.includes("exchange") || q.includes("azure") || q.includes("teams") || q.includes("sharepoint") || q.includes("intune") || q.includes("entra")) return "technical_question";
+  // System status queries
+  if (q.includes("uptime") || q.includes("system status") || q.includes("active alerts") || q.includes("health check") || q.includes("current system") || q.includes("ongoing incident")) return "system_status";
+  // Ticket queries
+  if (q.includes("open ticket") || q.includes("open support ticket") || q.includes("helpdesk") || q.includes("resolution time") || q.includes("avg resolution")) return "ticket_query";
+  // Default to technical_question for anything with question words, critical issues, or IT topics
+  // This routes to Claude for intelligent responses instead of KB search
+  if (
+    q.includes("critical") || q.includes("issue") || q.includes("problem") ||
+    q.includes("how") || q.includes("what") || q.includes("why") || q.includes("when") || q.includes("where") ||
+    q.includes("powershell") || q.includes("exchange") || q.includes("azure") || q.includes("teams") ||
+    q.includes("sharepoint") || q.includes("intune") || q.includes("entra") || q.includes("m365") ||
+    q.includes("microsoft") || q.includes("security") || q.includes("compliance") || q.includes("backup") ||
+    q.includes("trending") || q.includes("frequently") || q.includes("most used") || q.includes("improve") ||
+    q.includes("recommend") || q.includes("best practice") || q.includes("command") || q.includes("script") ||
+    q.includes("attention") || q.includes("immediate") || q.includes("detail") || q.includes("solution")
+  ) return "technical_question";
   return "kb_search";
 }
 
@@ -174,27 +187,56 @@ async function getSystemStatus() {
 }
 
 async function askClaude(question: string): Promise<string> {
-  try {
-    const response = await invokeLLM({
-      messages: [
-        {
-          role: "system",
-          content: `You are Aria, the GigitekAI Command Center AI engineer. You are an expert in Microsoft 365, Azure, Exchange Online, Teams, SharePoint, Entra ID, Intune, and enterprise IT infrastructure.
+  const SYSTEM_PROMPT = `You are Aria, the GigitekAI Command Center AI engineer. You are an expert in Microsoft 365, Azure, Exchange Online, Teams, SharePoint, Entra ID, Intune, and enterprise IT infrastructure.
 
 Respond as a knowledgeable, professional female engineer. Be concise and actionable:
 - Give step-by-step instructions when applicable
-- Include PowerShell or CLI commands in code blocks
+- Include PowerShell or CLI commands in code blocks when relevant
 - Mention best practices and security considerations
-- Keep responses under 250 words unless more detail is requested
-- If unsure, say so and recommend escalating to GigitekAI support`,
+- Keep responses under 300 words unless more detail is requested
+- Format responses with markdown (bold, lists, code blocks) for readability
+- If unsure, say so and recommend escalating to GigitekAI support`;
+
+  // Try Anthropic Claude directly first
+  const claudeKey = process.env.CLAUDE_API_KEY;
+  if (claudeKey) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': claudeKey,
+          'anthropic-version': '2023-06-01'
         },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5',
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: question }]
+        })
+      });
+      if (res.ok) {
+        const data = await res.json() as any;
+        const text = data.content?.[0]?.text;
+        if (text) return text;
+      }
+    } catch (e) {
+      console.error('[Aria] Claude direct error:', e);
+    }
+  }
+
+  // Fallback: built-in LLM
+  try {
+    const response = await invokeLLM({
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: question },
       ],
     });
     const content = response.choices[0]?.message?.content;
     return typeof content === "string" ? content : "I was unable to generate a response. Please try again.";
   } catch (e) {
-    console.error("[Aria] LLM error:", e);
+    console.error("[Aria] LLM fallback error:", e);
     return "I encountered an error processing your question. Please try again or contact GigitekAI support.";
   }
 }
