@@ -80,7 +80,7 @@ export default function HelpdeskPricing() {
         "Basic Compliance",
       ],
       notIncluded: [
-        "24/7 live help desk",
+        "24/7 live support",
         "Backup & disaster recovery",
         "Advanced threat detection",
       ],
@@ -145,7 +145,7 @@ export default function HelpdeskPricing() {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-            24/7 Managed Help Desk Pricing
+            24/7 Managed IT Services Pricing
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Flat monthly per-user rates with no hidden fees, no per-ticket charges, and no surprise invoices.

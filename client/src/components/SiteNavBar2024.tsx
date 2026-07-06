@@ -297,7 +297,7 @@ export default function SiteNavBar2024() {
                 <span>Book a Consultation</span>
               </button>
 
-              {/* Mobile Help Desk - Standout */}
+              {/* Mobile Support - Standout */}
               <a
                 href="/helpdesk"
                 className="flex items-center gap-2 py-2.5 px-3 text-sm font-bold rounded-lg mt-2"

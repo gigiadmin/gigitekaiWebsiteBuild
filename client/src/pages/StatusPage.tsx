@@ -23,7 +23,7 @@ const SERVICES: ServiceStatus[] = [
     lastChecked: new Date().toISOString(),
   },
   {
-    name: 'Help Desk System',
+    name: 'Support Services System',
     status: 'operational',
     uptime: 99.8,
     lastChecked: new Date().toISOString(),

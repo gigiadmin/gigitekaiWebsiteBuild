@@ -567,7 +567,7 @@ export default function AdminChat() {
           </div>
           <div className="flex items-center gap-2">
             <a href="/admin/helpdesk" className="text-sm text-gray-400 hover:text-[#00D4FF] transition-colors mr-2">
-              Help Desk
+              Support Services
             </a>
             <Button
               onClick={handleLogout}
