@@ -70,8 +70,7 @@ export default function PublicKB() {
   // --- Data fetching ---
   const { data: dbCommonIssues = [] } = trpc.kb.getCommonIssues.useQuery();
   const { data: trendingArticles = [], isLoading: isLoadingTrending } = trpc.kb.getTrendingArticles.useQuery({ limit: 6 });
-  const { data: categoriesRaw = [] } = trpc.kb.getCategories.useQuery();
-  const categories = categoriesRaw.map((cat: string) => ({ category: cat, count: 0 }));
+  const { data: categories = [] } = trpc.kb.getCategories.useQuery();
 
   // Paginated browse
   const { data: browseData, isLoading: isLoadingBrowse } = trpc.kb.listPaginated.useQuery(

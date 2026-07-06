@@ -223,17 +223,20 @@ export const kbRouter = router({
       return { inserted: values.length };
     }),
 
-  /** Get categories list */
+  /** Get categories list with counts */
   getCategories: publicProcedure.query(async () => {
     const db = await getDb();
     if (!db) return [];
     const rows = await db
-      .select({ category: kbArticles.category })
+      .select({ 
+        category: kbArticles.category,
+        count: sql`COUNT(*)`
+      })
       .from(kbArticles)
       .where(eq(kbArticles.isPublished, 1))
       .groupBy(kbArticles.category)
       .orderBy(asc(kbArticles.category));
-    return rows.map(r => r.category).filter(Boolean);
+    return rows.filter(r => r.category).map(r => ({ category: r.category, count: r.count || 0 }));
   }),
 
   /** List articles by category with pagination */
