@@ -35,18 +35,36 @@ const STAGE_LABEL: Record<Stage, string> = {
 };
 
 /* ─── Voice helpers ─────────────────────────────────────────────────────── */
+// Cache voice to prevent switching mid-speech
+let cachedVoice: SpeechSynthesisVoice | null = null;
+
 function pickVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  if (cachedVoice) return cachedVoice;
+  
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-  const tests = [
-    (v: SpeechSynthesisVoice) => /en[-_](GB|IE|AU)/i.test(v.lang) && /female|woman|fiona|kate|serena|victoria|moira|tessa/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /en[-_](GB|IE)/i.test(v.lang),
-    (v: SpeechSynthesisVoice) => /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel/i.test(v.name),
-    (v: SpeechSynthesisVoice) => /en/i.test(v.lang),
-  ];
-  for (const t of tests) { const m = voices.find(t); if (m) return m; }
-  return voices[0] ?? null;
+  
+  // Priority: European English female voices
+  const gbFemale = voices.find(v => 
+    /en[-_](GB|IE)/i.test(v.lang) && 
+    /female|woman|fiona|kate|serena|victoria|moira|tessa/i.test(v.name)
+  );
+  if (gbFemale) { cachedVoice = gbFemale; return gbFemale; }
+  
+  const gbAny = voices.find(v => /en[-_](GB|IE)/i.test(v.lang));
+  if (gbAny) { cachedVoice = gbAny; return gbAny; }
+  
+  const anyFemale = voices.find(v => 
+    /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel/i.test(v.name)
+  );
+  if (anyFemale) { cachedVoice = anyFemale; return anyFemale; }
+  
+  const anyEnglish = voices.find(v => /en/i.test(v.lang));
+  if (anyEnglish) { cachedVoice = anyEnglish; return anyEnglish; }
+  
+  cachedVoice = voices[0] ?? null;
+  return cachedVoice;
 }
 
 function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
