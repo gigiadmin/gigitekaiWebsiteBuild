@@ -28,6 +28,9 @@ import {
   Inbox,
   MessageSquareText,
   Phone,
+  BarChart3,
+  Shield,
+  Settings,
 } from "lucide-react";
 import { SupportTicketWidget } from "@/components/SupportTicketWidget";
 
@@ -123,18 +126,51 @@ export default function AdminHome() {
   ];
 
   const quickActions = [
+    // Content & Communications
     { label: "New Blog Post", href: "/admin/blog", icon: <FileText size={14} />, color: "text-emerald-400" },
     { label: "Send Newsletter", href: "/admin/newsletter", icon: <Mail size={14} />, color: "text-violet-400" },
+    { label: "SMS Campaigns", href: "/admin/sms-campaigns", icon: <MessageSquareText size={14} />, color: "text-pink-400" },
+    
+    // Helpdesk & Support
     { label: "View Helpdesk", href: "/admin/helpdesk", icon: <Ticket size={14} />, color: "text-amber-400" },
     { label: "Call Review", href: "/admin/call-review", icon: <Phone size={14} />, color: "text-[#00D4FF]" },
+    { label: "Call Quality", href: "/admin/call-quality", icon: <Activity size={14} />, color: "text-orange-400" },
     { label: "Live Chat", href: "/admin/chat", icon: <MessageSquare size={14} />, color: "text-cyan-400" },
+    { label: "Contact Center", href: "/admin/contact-center", icon: <Inbox size={14} />, color: "text-blue-400" },
+    { label: "Recordings", href: "/admin/recordings", icon: <MessageSquareText size={14} />, color: "text-purple-400" },
+    
+    // Analytics & Insights
+    { label: "KB Analytics", href: "/admin/kb-analytics", icon: <TrendingUp size={14} />, color: "text-green-400" },
+    { label: "SLA Dashboard", href: "/admin/sla", icon: <CheckCircle size={14} />, color: "text-emerald-400" },
+    { label: "Satisfaction", href: "/admin/satisfaction", icon: <TrendingUp size={14} />, color: "text-yellow-400" },
+    { label: "Scorecard", href: "/admin/scorecard", icon: <TrendingUp size={14} />, color: "text-pink-400" },
+    { label: "Uptime Monitor", href: "/admin/uptime", icon: <Activity size={14} />, color: "text-cyan-400" },
+    { label: "Service Health", href: "/admin/service-health", icon: <Activity size={14} />, color: "text-green-400" },
+    { label: "M365 Health", href: "/admin/m365-health", icon: <Zap size={14} />, color: "text-blue-400" },
+    { label: "Escalation Patterns", href: "/admin/escalation-patterns", icon: <AlertCircle size={14} />, color: "text-red-400" },
+    
+    // Customer Management
     { label: "Invite Customer", href: "/admin/invites", icon: <Users size={14} />, color: "text-blue-400" },
-    { label: "View Metrics", href: "/admin/metrics", icon: <TrendingUp size={14} />, color: "text-pink-400" },
     { label: "View Leads", href: "/admin/leads", icon: <TrendingUp size={14} />, color: "text-green-400" },
     { label: "Contact Submissions", href: "/admin/contacts", icon: <Inbox size={14} />, color: "text-orange-400" },
+    { label: "Demo Leads", href: "/admin/demo-leads", icon: <TrendingUp size={14} />, color: "text-purple-400" },
+    { label: "Client Onboarding", href: "/admin/client-onboarding", icon: <Users size={14} />, color: "text-violet-400" },
+    
+    // Tools & Integrations
     { label: "Canned Responses", href: "/admin/canned-responses", icon: <MessageSquareText size={14} />, color: "text-purple-400" },
     { label: "Copilot Dashboard", href: "/admin/copilot", icon: <Bot size={14} />, color: "text-cyan-400" },
     { label: "Copilot M365", href: "/admin/copilot-m365", icon: <Zap size={14} />, color: "text-yellow-400" },
+    { label: "Jira Dashboard", href: "/admin/jira", icon: <Activity size={14} />, color: "text-blue-400" },
+    { label: "Teams Channels", href: "/admin/teams-channels", icon: <MessageSquare size={14} />, color: "text-cyan-400" },
+    { label: "Xero", href: "/admin/xero", icon: <TrendingUp size={14} />, color: "text-green-400" },
+    { label: "MS Learn Sync", href: "/admin/ms-learn-sync", icon: <FileText size={14} />, color: "text-emerald-400" },
+    
+    // Diagnostics & Admin
+    { label: "Email Diagnostics", href: "/admin/email-diagnostics", icon: <Mail size={14} />, color: "text-violet-400" },
+    { label: "DNS Checker", href: "/admin/dns-checker", icon: <Activity size={14} />, color: "text-pink-400" },
+    { label: "Form Submissions", href: "/admin/form-submissions", icon: <Inbox size={14} />, color: "text-orange-400" },
+    { label: "Audit Log", href: "/admin/audit", icon: <FileText size={14} />, color: "text-slate-400" },
+    { label: "View Metrics", href: "/admin/metrics", icon: <TrendingUp size={14} />, color: "text-pink-400" },
   ];
 
   return (

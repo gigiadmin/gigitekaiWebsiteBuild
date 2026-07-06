@@ -170,12 +170,11 @@ function DashboardLayoutContent({
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0 bg-white rounded-lg px-2 py-1">
-                  <img
-                    src={LOGO_DATA_URL}
-                    alt="GigitekAI logo"
-                    className="h-6 w-auto object-contain max-w-[120px]"
-                  />
+                <div className="flex items-center gap-2 min-w-0 px-2 py-1">
+                  <span className="font-bold text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.02em' }}>
+                    <span className="text-white">Gigitek</span>
+                    <span style={{ color: '#00D4FF' }}>AI</span>
+                  </span>
                 </div>
               ) : null}
             </div>
