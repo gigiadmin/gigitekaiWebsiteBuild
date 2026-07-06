@@ -218,11 +218,19 @@ Respond as a knowledgeable, professional female engineer. Be concise and actiona
       if (res.ok) {
         const data = await res.json() as any;
         const text = data.content?.[0]?.text;
-        if (text) return text;
+        if (text) {
+          console.log('[Aria] Claude success, response length:', text.length);
+          return text;
+        }
+      } else {
+        const errBody = await res.text().catch(() => 'unreadable');
+        console.error('[Aria] Claude API failed:', res.status, res.statusText, errBody.substring(0, 300));
       }
     } catch (e) {
       console.error('[Aria] Claude direct error:', e);
     }
+  } else {
+    console.error('[Aria] No CLAUDE_API_KEY available in environment');
   }
 
   // Fallback: built-in LLM

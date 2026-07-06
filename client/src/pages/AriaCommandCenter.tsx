@@ -1,13 +1,17 @@
 /**
  * Aria Command Center — GigitekAI Main Brain
- * Holographic sphere with real-time audio volume visualization
- * Fully responsive layout for mobile and desktop
+ * Fortune 100 quality holographic interface
+ * Real-time audio volume visualization on sphere
+ * Fully responsive: mobile-first
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2, Brain, AlertCircle, CheckCircle, Clock, Zap, Activity } from "lucide-react";
+import {
+  Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2,
+  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity
+} from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
@@ -15,7 +19,6 @@ type Message = {
   id: string;
   role: "user" | "aria";
   content: string;
-  sources?: string[];
   timestamp: Date;
   isVoice?: boolean;
 };
@@ -27,139 +30,142 @@ const STAGE_LABEL: Record<Stage, string> = {
   listening: "Listening...",
   transcribing: "Transcribing...",
   thinking: "Thinking...",
-  searching: "Searching KB...",
+  searching: "Searching...",
   responding: "Responding...",
 };
 
-function pickEuropeanFemaleVoice(): SpeechSynthesisVoice | null {
+/* ─── Voice helpers ─────────────────────────────────────────────────────── */
+function pickVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
-
-  const priorities = [
+  const tests = [
     (v: SpeechSynthesisVoice) => /en[-_](GB|IE|AU)/i.test(v.lang) && /female|woman|fiona|kate|serena|victoria|moira|tessa/i.test(v.name),
     (v: SpeechSynthesisVoice) => /en[-_](GB|IE)/i.test(v.lang),
     (v: SpeechSynthesisVoice) => /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel/i.test(v.name),
     (v: SpeechSynthesisVoice) => /en/i.test(v.lang),
   ];
-
-  for (const test of priorities) {
-    const match = voices.find(test);
-    if (match) return match;
-  }
+  for (const t of tests) { const m = voices.find(t); if (m) return m; }
   return voices[0] ?? null;
 }
 
 function speakAsAria(text: string, onEnd?: () => void) {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
-
   const clean = text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/`(.+?)`/g, "$1")
-    .replace(/#{1,6}\s/g, "")
-    .replace(/\n{2,}/g, ". ")
-    .replace(/\n/g, " ")
-    .trim();
-
-  const utterance = new SpeechSynthesisUtterance(clean);
-  utterance.rate = 0.95;
-  utterance.pitch = 1.05;
-  utterance.volume = 1;
-
-  const setVoice = () => {
-    const voice = pickEuropeanFemaleVoice();
-    if (voice) utterance.voice = voice;
-  };
+    .replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1")
+    .replace(/`(.+?)`/g, "$1").replace(/#{1,6}\s/g, "")
+    .replace(/\n{2,}/g, ". ").replace(/\n/g, " ").trim();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.rate = 0.95; u.pitch = 1.05; u.volume = 1;
+  const setVoice = () => { const v = pickVoice(); if (v) u.voice = v; };
   setVoice();
-  if (!utterance.voice) {
-    window.speechSynthesis.onvoiceschanged = () => { setVoice(); };
-  }
-
-  if (onEnd) utterance.onend = onEnd;
-  window.speechSynthesis.speak(utterance);
+  if (!u.voice) window.speechSynthesis.onvoiceschanged = setVoice;
+  if (onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
 }
 
-function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; audioVolume: number }) {
-  const volumeScale = 1 + audioVolume * 0.3;
-  const volumeOpacity = 0.3 + audioVolume * 0.7;
-  const glowIntensity = audioVolume * 100;
+/* ─── Holographic Sphere ─────────────────────────────────────────────────── */
+function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume: number }) {
+  const scale = 1 + volume * 0.35;
+  const glow = 20 + volume * 120;
+  const coreGlow = 30 + volume * 150;
 
   return (
-    <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center flex-shrink-0">
-      <div 
-        className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
-        style={{ 
-          animation: isActive ? "sphere-pulse 2s ease-in-out infinite" : "none",
-          transform: `scale(${volumeScale})`,
-          opacity: 0.3 + audioVolume * 0.4,
-          transitionDuration: "75ms"
-        }} 
-      />
-      <div 
-        className="absolute inset-4 rounded-full border border-cyan-400/20"
-        style={{ 
-          animation: isActive ? "sphere-rotate 8s linear infinite" : "none",
-          transform: `scale(${volumeScale})`,
-          opacity: 0.2 + audioVolume * 0.3,
-          transitionDuration: "75ms"
-        }} 
-      />
-      <div 
-        className="absolute inset-8 rounded-full border border-cyan-500/40"
-        style={{ 
-          animation: isActive ? "sphere-pulse 3s ease-in-out infinite" : "none",
-          animationDelay: "0.5s",
-          transform: `scale(${volumeScale})`,
-          opacity: 0.4 + audioVolume * 0.5,
-          transitionDuration: "75ms"
-        }} 
-      />
-
-      <div 
-        className="absolute inset-12 rounded-full bg-gradient-to-br from-cyan-400/40 to-cyan-600/20 blur-xl"
-        style={{ 
-          animation: isActive ? "sphere-glow 2s ease-in-out infinite" : "none",
-          transform: `scale(${volumeScale})`,
-          opacity: volumeOpacity,
-          boxShadow: `0 0 ${20 + glowIntensity}px rgba(34, 211, 238, ${0.5 + audioVolume * 0.5})`,
-          transitionDuration: "75ms"
-        }} 
-      />
-      
-      <div 
-        className="absolute inset-16 rounded-full bg-cyan-500/30 blur-md"
+    <div className="relative flex items-center justify-center" style={{ width: 240, height: 240 }}>
+      {/* Outermost ring — slow rotate */}
+      <div
+        className="absolute inset-0 rounded-full border border-cyan-400/20"
         style={{
-          transform: `scale(${volumeScale})`,
-          opacity: 0.3 + audioVolume * 0.5,
-          transitionDuration: "75ms"
+          animation: "aria-spin-slow 20s linear infinite",
+          transform: `scale(${scale})`,
+          transition: "transform 75ms ease-out",
         }}
       />
-      <div 
-        className="absolute inset-20 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg"
+      {/* Orbit ring 1 */}
+      <div
+        className="absolute rounded-full border border-cyan-400/30"
         style={{
-          transform: `scale(${volumeScale})`,
-          boxShadow: `0 0 ${30 + glowIntensity * 1.5}px rgba(34, 211, 238, ${0.6 + audioVolume * 0.4})`,
-          transitionDuration: "75ms"
+          inset: 20,
+          animation: "aria-spin-med 12s linear infinite reverse",
+          transform: `scale(${scale})`,
+          transition: "transform 75ms ease-out",
         }}
       />
-
-      <div 
-        className="absolute w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-cyan-300 shadow-lg"
+      {/* Orbit ring 2 */}
+      <div
+        className="absolute rounded-full border-2 border-cyan-500/40"
         style={{
-          transform: `scale(${0.8 + audioVolume * 0.4})`,
-          boxShadow: `0 0 ${15 + glowIntensity}px rgba(165, 243, 252, ${0.8 + audioVolume * 0.2})`,
-          transitionDuration: "75ms"
+          inset: 44,
+          animation: isActive ? "aria-pulse 2s ease-in-out infinite" : "aria-spin-med 18s linear infinite",
+          transform: `scale(${scale})`,
+          transition: "transform 75ms ease-out",
+          boxShadow: isActive ? `0 0 ${glow * 0.5}px rgba(34,211,238,0.3)` : "none",
         }}
       />
+      {/* Glow halo */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          inset: 56,
+          background: "radial-gradient(circle, rgba(34,211,238,0.35) 0%, rgba(6,182,212,0.15) 60%, transparent 100%)",
+          filter: `blur(${8 + volume * 16}px)`,
+          transform: `scale(${scale})`,
+          transition: "all 75ms ease-out",
+          opacity: 0.4 + volume * 0.6,
+        }}
+      />
+      {/* Core sphere */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          inset: 72,
+          background: "radial-gradient(circle at 35% 35%, #67e8f9, #0891b2 60%, #0e7490)",
+          boxShadow: `0 0 ${coreGlow}px rgba(34,211,238,${0.5 + volume * 0.5}), inset 0 0 20px rgba(255,255,255,0.1)`,
+          transform: `scale(${scale})`,
+          transition: "all 75ms ease-out",
+        }}
+      />
+      {/* Specular highlight */}
+      <div
+        className="absolute rounded-full bg-white/30"
+        style={{
+          width: 24, height: 24,
+          top: "calc(50% - 38px)", left: "calc(50% - 18px)",
+          filter: "blur(4px)",
+          opacity: 0.6 + volume * 0.4,
+          transform: `scale(${0.8 + volume * 0.4})`,
+          transition: "all 75ms ease-out",
+        }}
+      />
+      {/* Center dot */}
+      <div
+        className="absolute rounded-full bg-cyan-200"
+        style={{
+          width: 8, height: 8,
+          top: "calc(50% - 4px)", left: "calc(50% - 4px)",
+          boxShadow: `0 0 ${12 + volume * 20}px rgba(165,243,252,${0.8 + volume * 0.2})`,
+          transform: `scale(${0.8 + volume * 0.5})`,
+          transition: "all 75ms ease-out",
+        }}
+      />
+      {/* Status label */}
+      <div
+        className="absolute bottom-2 left-0 right-0 flex justify-center"
+        style={{ bottom: 8 }}
+      >
+        <span className="text-xs text-cyan-400/70 font-mono tracking-widest uppercase">
+          {isActive ? "● ACTIVE" : "○ STANDBY"}
+        </span>
+      </div>
     </div>
   );
 }
 
+/* ─── Typing indicator ───────────────────────────────────────────────────── */
 function TypingDots() {
   return (
-    <span className="inline-flex items-end gap-[3px]">
+    <span className="inline-flex items-end gap-[3px] ml-1">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
@@ -171,6 +177,37 @@ function TypingDots() {
   );
 }
 
+/* ─── System Status Box ──────────────────────────────────────────────────── */
+function StatusBox({
+  icon: Icon, label, value, status, onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  status: "ok" | "warn" | "info";
+  onClick: () => void;
+}) {
+  const colors = {
+    ok:   { border: "border-emerald-500/40", bg: "bg-emerald-500/10 hover:bg-emerald-500/20", icon: "text-emerald-400", val: "text-emerald-300" },
+    warn: { border: "border-amber-500/50",   bg: "bg-amber-500/10  hover:bg-amber-500/20",   icon: "text-amber-400",   val: "text-amber-300"   },
+    info: { border: "border-cyan-500/40",    bg: "bg-cyan-500/10   hover:bg-cyan-500/20",    icon: "text-cyan-400",    val: "text-cyan-300"    },
+  }[status];
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group flex flex-col gap-1.5 p-3 rounded-xl border ${colors.border} ${colors.bg} transition-all duration-200 text-left w-full cursor-pointer`}
+    >
+      <div className="flex items-center justify-between">
+        <Icon size={15} className={colors.icon} />
+        <span className={`text-[10px] font-bold tracking-wide ${colors.val}`}>{value}</span>
+      </div>
+      <span className="text-xs font-medium text-slate-300 leading-tight">{label}</span>
+    </button>
+  );
+}
+
+/* ─── Main Component ─────────────────────────────────────────────────────── */
 export default function AriaCommandCenter() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -184,22 +221,23 @@ export default function AriaCommandCenter() {
   const audioChunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
   const analyzerRef = useRef<AnalyserNode | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const askMutation = trpc.aria.askQuestion.useMutation();
 
+  /* inject keyframe CSS once */
   useEffect(() => {
-    const id = "aria-styles";
+    const id = "aria-keyframes";
     if (document.getElementById(id)) return;
     const s = document.createElement("style");
     s.id = id;
     s.textContent = `
-      @keyframes aria-bounce { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
-      @keyframes sphere-pulse { 0%,100%{transform:scale(1);opacity:0.8} 50%{transform:scale(1.1);opacity:1} }
-      @keyframes sphere-glow { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
-      @keyframes sphere-rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes aria-bounce    { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
+      @keyframes aria-pulse     { 0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.08);opacity:1} }
+      @keyframes aria-spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes aria-spin-med  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     `;
     document.head.appendChild(s);
   }, []);
@@ -212,25 +250,16 @@ export default function AriaCommandCenter() {
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }]);
   }, []);
 
-  const analyzeAudioVolume = useCallback(() => {
+  /* Audio volume analysis */
+  const analyzeVolume = useCallback(() => {
     if (!analyzerRef.current) return;
-
-    const dataArray = new Uint8Array(analyzerRef.current.frequencyBinCount);
-    analyzerRef.current.getByteFrequencyData(dataArray);
-
+    const data = new Uint8Array(analyzerRef.current.frequencyBinCount);
+    analyzerRef.current.getByteFrequencyData(data);
     let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-      sum += dataArray[i] * dataArray[i];
-    }
-    const rms = Math.sqrt(sum / dataArray.length);
-    const normalizedVolume = Math.min(rms / 128, 1);
-
-    setAudioVolume(normalizedVolume);
-
-    if (isRecording) {
-      animationFrameRef.current = requestAnimationFrame(analyzeAudioVolume);
-    }
-  }, [isRecording]);
+    for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
+    setAudioVolume(Math.min(Math.sqrt(sum / data.length) / 128, 1));
+    rafRef.current = requestAnimationFrame(analyzeVolume);
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -239,68 +268,38 @@ export default function AriaCommandCenter() {
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
-      const audioContext = audioContextRef.current;
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyzer = audioContext.createAnalyser();
+      const src = audioCtxRef.current.createMediaStreamSource(stream);
+      const analyzer = audioCtxRef.current.createAnalyser();
       analyzer.fftSize = 256;
-      source.connect(analyzer);
+      src.connect(analyzer);
       analyzerRef.current = analyzer;
 
       recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
-
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-          animationFrameRef.current = null;
-        }
+        if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
         setAudioVolume(0);
-        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
 
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64 = (reader.result as string).split(",")[1];
           setStage("transcribing");
-
+          const placeholderId = `voice-${Date.now()}`;
+          setMessages((prev) => [...prev, { id: placeholderId, role: "user", content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true }]);
+          setStage("thinking");
           try {
-            const placeholderId = `voice-${Date.now()}`;
-            setMessages((prev) => [
-              ...prev,
-              { id: placeholderId, role: "user", content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true },
-            ]);
-
-            setStage("thinking");
-            const result = await askMutation.mutateAsync({
-              question: "voice",
-              audioBase64: base64,
-              context: { systemStatus: true },
-            });
-
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === placeholderId
-                  ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` }
-                  : m
-              )
-            );
-
+            const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, context: { systemStatus: true } });
+            setMessages((prev) => prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` } : m));
             setStage("responding");
-            await new Promise((r) => setTimeout(r, 300));
-
-            addMessage({ role: "aria", content: result.response, sources: result.sources, timestamp: new Date() });
-
-            if (voiceEnabled) {
-              setIsSpeaking(true);
-              speakAsAria(result.response, () => setIsSpeaking(false));
-            }
-          } catch {
-            toast.error("Voice processing failed");
-          } finally {
-            setStage("idle");
-          }
+            await new Promise((r) => setTimeout(r, 200));
+            addMessage({ role: "aria", content: result.response, timestamp: new Date() });
+            if (voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, () => setIsSpeaking(false)); }
+          } catch { toast.error("Voice processing failed"); }
+          finally { setStage("idle"); }
         };
         reader.readAsDataURL(blob);
       };
@@ -308,20 +307,15 @@ export default function AriaCommandCenter() {
       recorder.start();
       setIsRecording(true);
       setStage("listening");
-      analyzeAudioVolume();
-    } catch {
-      toast.error("Microphone access denied");
-    }
+      rafRef.current = requestAnimationFrame(analyzeVolume);
+    } catch { toast.error("Microphone access denied"); }
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
+      if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
       setAudioVolume(0);
     }
   };
@@ -331,184 +325,184 @@ export default function AriaCommandCenter() {
     if (!q || stage !== "idle") return;
     setInput("");
     addMessage({ role: "user", content: q, timestamp: new Date() });
-
     setStage("thinking");
-    const stageTimer = setTimeout(() => setStage("searching"), 1000);
-
+    const timer = setTimeout(() => setStage("searching"), 1200);
     try {
       const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true } });
-      clearTimeout(stageTimer);
+      clearTimeout(timer);
       setStage("responding");
-      await new Promise((r) => setTimeout(r, 300));
-
-      addMessage({ role: "aria", content: result.response, sources: result.sources, timestamp: new Date() });
-
-      if (voiceEnabled) {
-        setIsSpeaking(true);
-        speakAsAria(result.response, () => setIsSpeaking(false));
-      }
+      await new Promise((r) => setTimeout(r, 200));
+      addMessage({ role: "aria", content: result.response, timestamp: new Date() });
+      if (voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, () => setIsSpeaking(false)); }
     } catch {
-      clearTimeout(stageTimer);
-      toast.error("Aria failed to respond");
+      clearTimeout(timer);
+      toast.error("Aria failed to respond. Please try again.");
     } finally {
       setStage("idle");
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
-  const stopSpeaking = () => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
-  };
-
+  const stopSpeaking = () => { window.speechSynthesis?.cancel(); setIsSpeaking(false); };
   const saveChat = () => {
-    const txt = messages.map((m) => `[${m.timestamp.toLocaleTimeString()}] ${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
+    const txt = messages.map((m) => `[${m.timestamp.toLocaleTimeString()}] ${m.role.toUpperCase()}:\n${m.content}`).join("\n\n---\n\n");
     const a = document.createElement("a");
     a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(txt)}`;
-    a.download = `aria-chat-${Date.now()}.txt`;
+    a.download = `aria-${new Date().toISOString().slice(0, 10)}.txt`;
     a.click();
     toast.success("Chat saved");
   };
-
   const clearChat = () => { if (confirm("Clear all messages?")) { setMessages([]); toast.success("Chat cleared"); } };
+
+  useEffect(() => () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    audioCtxRef.current?.close().catch(() => {});
+  }, []);
 
   const isProcessing = stage !== "idle";
   const isActive = isRecording || isSpeaking || isProcessing;
 
-  useEffect(() => {
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close().catch(() => {});
-      }
-    };
-  }, []);
+  const triggerQuery = (query: string) => {
+    setInput(query);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
 
   const systemBoxes = [
-    { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy", query: "What are the currently open support tickets? Show me a summary of their status and priority." },
-    { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy", query: "What is the current system status? Are there any ongoing incidents or maintenance windows?" },
-    { label: "Critical Issues", icon: AlertCircle, count: "1", status: "warning", query: "What are the critical system issues that need immediate attention? Provide details and recommended solutions." },
-    { label: "Avg Resolution", icon: Clock, count: "2.4h", status: "healthy", query: "What is our average ticket resolution time? How can we improve it?" },
-    { label: "KB Articles", icon: Zap, count: "932", status: "healthy", query: "Show me the most frequently accessed KB articles and trending topics." },
-    { label: "PowerShell Help", icon: Activity, count: "Ready", status: "healthy", query: "What are the most useful PowerShell commands and scripts for M365 administration?" },
+    { icon: AlertTriangle, label: "Open Tickets",    value: "12",    status: "warn" as const, query: "Show me a summary of all currently open support tickets, their priority levels, and which ones need immediate attention." },
+    { icon: CheckCircle2, label: "System Status",    value: "99.9%", status: "ok"   as const, query: "What is the current system status across all GigitekAI services? Are there any active incidents or scheduled maintenance?" },
+    { icon: AlertTriangle,label: "Critical Issues",  value: "1",     status: "warn" as const, query: "What is the 1 critical issue currently open? Provide full details, impact assessment, and recommended resolution steps." },
+    { icon: Clock,        label: "Avg Resolution",   value: "2.4h",  status: "info" as const, query: "Analyze our current average ticket resolution time of 2.4 hours. What are the top bottlenecks and how can we improve?" },
+    { icon: Zap,          label: "KB Articles",      value: "932",   status: "ok"   as const, query: "What are the most frequently accessed knowledge base articles this week? Show trending topics and gaps." },
+    { icon: Terminal,     label: "PowerShell Help",  value: "Ready", status: "info" as const, query: "Give me the top 10 most useful PowerShell commands for Microsoft 365 administration, with examples." },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
-      {/* Header */}
-      <div className="border-b border-cyan-500/20 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
-            <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+    <div className="flex flex-col bg-slate-950 text-white" style={{ minHeight: "calc(100vh - 60px)" }}>
+
+      {/* ── Top Bar ──────────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+            <Brain className="w-5 h-5 text-cyan-400" />
           </div>
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-white leading-tight truncate">Aria Command Center</h1>
-            <p className="text-xs text-slate-400 truncate">GigitekAI — AI Engineer · M365 · Azure</p>
+          <div>
+            <h1 className="text-base font-bold text-white leading-none">Aria Command Center</h1>
+            <p className="text-[11px] text-slate-500 mt-0.5">GigitekAI · M365 · Azure · Exchange</p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => { if (isSpeaking) stopSpeaking(); setVoiceEnabled((v) => !v); }}
-            className={`flex items-center gap-1 text-xs px-2 sm:px-3 py-1.5 rounded-full border transition-all ${
-              voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-600 text-slate-500"
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
+              voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
             }`}
           >
             {voiceEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
-            <span className="hidden sm:inline">{voiceEnabled ? "Voice On" : "Voice Off"}</span>
+            <span className="hidden sm:inline text-[11px] font-medium">{voiceEnabled ? "Voice On" : "Voice Off"}</span>
           </button>
-
-          <div className="flex items-center gap-1.5 bg-slate-800/60 border border-slate-700/50 px-2 sm:px-3 py-1.5 rounded-full text-xs">
-            <span className={`w-2 h-2 rounded-full ${isProcessing ? "bg-yellow-400 animate-pulse" : isSpeaking ? "bg-green-400 animate-pulse" : "bg-cyan-400"}`} />
-            <span className="text-slate-300 font-medium hidden sm:inline">{isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}</span>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all ${
+            isProcessing ? "border-amber-500/40 bg-amber-500/10 text-amber-300" :
+            isSpeaking   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" :
+                           "border-slate-700 bg-slate-800/50 text-slate-400"
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              isProcessing ? "bg-amber-400 animate-pulse" :
+              isSpeaking   ? "bg-emerald-400 animate-pulse" :
+                             "bg-cyan-500"
+            }`} />
+            <span className="hidden sm:inline">{isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}</span>
             {isSpeaking && (
-              <button onClick={stopSpeaking} className="text-slate-500 hover:text-red-400 ml-1">
-                <VolumeX size={12} />
+              <button onClick={stopSpeaking} className="text-slate-500 hover:text-red-400 ml-0.5">
+                <VolumeX size={11} />
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Main Content - Responsive Layout */}
-      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-4 sm:gap-6 p-4 sm:p-6">
-        {/* Left: Holographic Sphere + System Status Grid - Full height on mobile */}
-        <div className="flex-1 flex flex-col items-center justify-start lg:justify-center gap-6 sm:gap-8 min-h-0 lg:min-h-full">
-          {/* Holographic Sphere - Large and prominent */}
-          <div className="flex-shrink-0 pt-4 sm:pt-6 lg:pt-0">
-            <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
+      {/* ── Main Layout ──────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+        {/* ── Left Panel: Sphere + Status Grid ─────────────────────────── */}
+        <div className="flex flex-col items-center gap-5 px-4 sm:px-6 py-5 lg:py-8 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5">
+          {/* Sphere */}
+          <div className="flex-shrink-0">
+            <HolographicSphere isActive={isActive} volume={audioVolume} />
           </div>
 
-          {/* System Status Grid - 2x3 on mobile, 3x2 on larger */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md flex-shrink-0">
-            {systemBoxes.map((box) => {
-              const Icon = box.icon;
-              const statusColor = box.status === "healthy" 
-                ? "border-green-500/50 bg-green-500/10 hover:bg-green-500/20" 
-                : "border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20";
-              const textColor = box.status === "healthy" ? "text-green-400" : "text-yellow-400";
-              
-              return (
-                <button
-                  key={box.label}
-                  onClick={() => { setInput(box.query); inputRef.current?.focus(); }}
-                  className={`p-2 sm:p-3 rounded-lg border transition-all cursor-pointer ${statusColor}`}
-                >
-                  <div className={`${textColor} mb-1`}><Icon size={14} className="sm:w-4 sm:h-4" /></div>
-                  <h3 className="font-semibold text-xs mb-0.5 text-white">{box.label}</h3>
-                  <p className="text-xs font-bold text-gray-200">{box.count}</p>
-                </button>
-              );
-            })}
+          {/* Status Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 w-full">
+            {systemBoxes.map((box) => (
+              <StatusBox
+                key={box.label}
+                icon={box.icon}
+                label={box.label}
+                value={box.value}
+                status={box.status}
+                onClick={() => triggerQuery(box.query)}
+              />
+            ))}
           </div>
+
+          {/* Hint */}
+          <p className="text-[10px] text-slate-600 text-center hidden lg:block">
+            Click a box to query Aria · Voice or type below
+          </p>
         </div>
 
-        {/* Right: Chat Messages - Full width on mobile, sidebar on desktop */}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-cyan-500/20 pt-4 lg:pt-0 lg:pl-6 min-h-0">
-          {/* Chat Header */}
-          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-cyan-500/20 flex-shrink-0">
-            <h2 className="text-xs sm:text-sm font-semibold text-cyan-400 uppercase tracking-wider">Conversation</h2>
-          </div>
+        {/* ── Right Panel: Chat ─────────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 mb-3 sm:mb-4 min-h-0">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 text-xs sm:text-sm py-6 sm:py-8">
-                <p>Ask me anything...</p>
+              <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-12">
+                <Activity className="w-8 h-8 text-cyan-500/40" />
+                <p className="text-slate-500 text-sm">Ask Aria anything — tickets, M365, Azure, PowerShell...</p>
+                <p className="text-slate-600 text-xs">Click a status box or type below to get started</p>
               </div>
             ) : (
               <>
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm ${
-                        message.role === "user"
-                          ? "bg-cyan-500/20 border border-cyan-500/40 text-white"
-                          : "bg-gray-800/50 border border-gray-700/50 text-gray-100"
-                      }`}
-                    >
-                      {message.role === "aria" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none text-gray-100 [&>*]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>p]:my-1 [&>code]:bg-gray-900 [&>code]:px-1 [&>code]:rounded">
-                          <Streamdown>{message.content}</Streamdown>
+                {messages.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {msg.role === "aria" && (
+                      <div className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
+                        <Brain size={12} className="text-cyan-400" />
+                      </div>
+                    )}
+                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
+                      msg.role === "user"
+                        ? "bg-cyan-600/20 border border-cyan-500/30 text-white rounded-tr-sm"
+                        : "bg-slate-800/70 border border-white/5 text-slate-100 rounded-tl-sm"
+                    }`}>
+                      {msg.role === "aria" ? (
+                        <div className="prose prose-sm prose-invert max-w-none
+                          [&>p]:my-1.5 [&>ul]:my-1.5 [&>ol]:my-1.5 [&>li]:my-0.5
+                          [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm
+                          [&>pre]:bg-slate-900 [&>pre]:rounded-lg [&>pre]:p-3 [&>pre]:my-2 [&>pre]:overflow-x-auto
+                          [&>code]:bg-slate-900 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-cyan-300 [&>code]:text-xs
+                          [&>strong]:text-white [&>a]:text-cyan-400">
+                          <Streamdown>{msg.content}</Streamdown>
                         </div>
                       ) : (
-                        <p>{message.content}</p>
+                        <p className="leading-relaxed">{msg.content}</p>
                       )}
-                      <p className="text-xs text-gray-500 mt-2">{message.timestamp.toLocaleTimeString()}</p>
+                      <p className="text-[10px] text-slate-500 mt-2 text-right">
+                        {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
                     </div>
                   </div>
                 ))}
+
+                {/* Typing indicator */}
                 {isProcessing && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-800/50 border border-gray-700/50 p-2 sm:p-3 rounded-lg">
+                    <div className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
+                      <Brain size={12} className="text-cyan-400" />
+                    </div>
+                    <div className="bg-slate-800/70 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                        <span className="text-xs text-gray-400">{STAGE_LABEL[stage]}</span>
+                        <span className="text-xs text-slate-400">{STAGE_LABEL[stage]}</span>
                         <TypingDots />
                       </div>
                     </div>
@@ -519,57 +513,47 @@ export default function AriaCommandCenter() {
             )}
           </div>
 
-          {/* Input Area */}
-          <div className="space-y-2 border-t border-cyan-500/20 pt-3 sm:pt-4 flex-shrink-0">
-            <div className="flex gap-1.5 sm:gap-2">
+          {/* Input Bar */}
+          <div className="flex-shrink-0 border-t border-white/5 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2">
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
-                variant={isRecording ? "default" : "outline"}
+                variant="outline"
                 size="sm"
-                className={`flex-1 text-xs sm:text-sm ${
+                className={`flex-shrink-0 transition-all ${
                   isRecording
-                    ? "bg-red-500 hover:bg-red-600 border-red-500"
-                    : "border-cyan-500/30 hover:border-cyan-400"
+                    ? "bg-red-500/20 border-red-500/60 text-red-400 hover:bg-red-500/30"
+                    : "border-cyan-500/30 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-500/10"
                 }`}
               >
-                {isRecording ? <MicOff size={12} className="sm:w-4 sm:h-4 mr-1" /> : <Mic size={12} className="sm:w-4 sm:h-4 mr-1" />}
-                {isRecording ? "Stop" : "Voice"}
+                {isRecording ? <MicOff size={14} /> : <Mic size={14} />}
+                <span className="ml-1.5 text-xs hidden sm:inline">{isRecording ? "Stop" : "Voice"}</span>
               </Button>
-              <Button
-                onClick={clearChat}
-                variant="outline"
-                size="sm"
-                className="border-cyan-500/30 hover:border-cyan-400"
-              >
-                <Trash2 size={12} className="sm:w-4 sm:h-4" />
-              </Button>
-              <Button
-                onClick={saveChat}
-                variant="outline"
-                size="sm"
-                className="border-cyan-500/30 hover:border-cyan-400"
-              >
-                <Download size={12} className="sm:w-4 sm:h-4" />
-              </Button>
-            </div>
 
-            <div className="flex gap-1.5 sm:gap-2">
               <Input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Ask Aria..."
-                className="bg-gray-900/50 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500 text-xs sm:text-sm"
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                placeholder="Ask Aria — tickets, M365, Azure, PowerShell..."
+                className="flex-1 bg-slate-800/60 border-slate-700/50 focus:border-cyan-500/50 text-white placeholder-slate-500 text-sm rounded-xl"
                 disabled={isProcessing}
               />
+
               <Button
                 onClick={handleSend}
                 disabled={isProcessing || !input.trim()}
-                className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
                 size="sm"
+                className="flex-shrink-0 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl px-3"
               >
-                <Send size={12} className="sm:w-4 sm:h-4" />
+                <Send size={14} />
+              </Button>
+
+              <Button onClick={clearChat} variant="outline" size="sm" className="flex-shrink-0 border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600">
+                <Trash2 size={13} />
+              </Button>
+              <Button onClick={saveChat} variant="outline" size="sm" className="flex-shrink-0 border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600">
+                <Download size={13} />
               </Button>
             </div>
           </div>
