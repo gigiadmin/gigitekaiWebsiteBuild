@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2, Brain, AlertCircle, CheckCircle, Clock, Zap, Activity } from "lucide-react";
 import { toast } from "sonner";
+import { Streamdown } from "streamdown";
 
 type Message = {
   id: string;
@@ -491,8 +492,14 @@ export default function AriaCommandCenter() {
                           : "bg-gray-800/50 border border-gray-700/50 text-gray-100"
                       }`}
                     >
-                      <p>{message.content}</p>
-                      <p className="text-xs text-gray-500 mt-1">{message.timestamp.toLocaleTimeString()}</p>
+                      {message.role === "aria" ? (
+                        <div className="prose prose-sm dark:prose-invert max-w-none text-gray-100 [&>*]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>p]:my-1 [&>code]:bg-gray-900 [&>code]:px-1 [&>code]:rounded">
+                          <Streamdown>{message.content}</Streamdown>
+                        </div>
+                      ) : (
+                        <p>{message.content}</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">{message.timestamp.toLocaleTimeString()}</p>
                     </div>
                   </div>
                 ))}
