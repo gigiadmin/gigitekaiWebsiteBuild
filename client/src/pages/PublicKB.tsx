@@ -80,17 +80,22 @@ export default function PublicKB() {
   const browseTotal = browseData?.total ?? 0;
   const totalPages = Math.ceil(browseTotal / PAGE_SIZE);
 
-  // Live search (server-side, triggered on submit)
+  // Live search (server-side, triggered on input change)
   const { data: searchResults = [], isFetching: isSearching } = trpc.kb.search.useQuery(
-    { query: activeSearch, limit: 30 },
-    { enabled: activeSearch.trim().length > 1 }
+    { query: searchInput, limit: 30 },
+    { enabled: searchInput.trim().length > 1 }
   );
 
-  // Dropdown suggestions (client-side instant, from first 200 browse results)
+  // Dropdown suggestions (client-side instant, from first 50 browse results)
   const { data: allForDropdown } = trpc.kb.listPaginated.useQuery(
     { page: 1, pageSize: 50 },
     { enabled: searchInput.trim().length > 1 }
   );
+
+  // Show search results if user is searching, otherwise show browse results
+  const displayArticles = searchInput.trim().length > 1 ? searchResults : browseArticles;
+  const displayTotal = searchInput.trim().length > 1 ? searchResults.length : browseTotal;
+  const isLoading = searchInput.trim().length > 1 ? isSearching : isLoadingBrowse;
   const dropdownSuggestions = useMemo(() => {
     if (!searchInput.trim()) return [];
     const q = searchInput.toLowerCase();
@@ -316,19 +321,16 @@ export default function PublicKB() {
                   type="text"
                   placeholder="Search articles by keyword..."
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && searchInput.trim()) {
-                      setActiveSearch(searchInput.trim());
-                      setCurrentPage(1);
-                    }
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setCurrentPage(1);
                   }}
                   className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:ring-cyan-500/20"
                 />
               </div>
-              {searchInput && (
+              {searchInput && isSearching && (
                 <p className="text-sm text-slate-400 mt-2">
-                  Press Enter to search or browse categories below
+                  Searching...
                 </p>
               )}
             </div>
@@ -348,9 +350,9 @@ export default function PublicKB() {
             </div>
 
             {/* Article grid */}
-            {isLoadingBrowse ? (
+            {isLoading ? (
               <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-cyan-500" /></div>
-            ) : browseArticles.length === 0 ? (
+            ) : displayArticles.length === 0 ? (
               <div className="text-center py-16">
                 <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-4" />
                 <p className="text-slate-400">No articles in this category yet.</p>
@@ -358,7 +360,7 @@ export default function PublicKB() {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {browseArticles.map((article: KbArticle) => (
+                  {displayArticles.map((article: KbArticle) => (
                     <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} />
                   ))}
                 </div>
