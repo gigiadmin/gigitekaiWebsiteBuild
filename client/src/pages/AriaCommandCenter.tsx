@@ -319,41 +319,46 @@ export default function AriaCommandCenter() {
         </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto">
+      {/* System Status Grid - Always Visible */}
+      <div className="flex-shrink-0 border-b border-cyan-500/20 bg-slate-900/40 px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-sm font-semibold text-cyan-400 mb-4 uppercase tracking-wider">System Status</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {systemBoxes.map((box) => {
+              const Icon = box.icon;
+              const statusColor = box.status === "healthy" 
+                ? "border-green-500/50 bg-green-500/10 hover:bg-green-500/20" 
+                : "border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20";
+              const textColor = box.status === "healthy" ? "text-green-400" : "text-yellow-400";
+              
+              return (
+                <button
+                  key={box.label}
+                  onClick={() => { setInput(box.cmd); inputRef.current?.focus(); }}
+                  className={`p-4 rounded-lg border transition-all cursor-pointer ${statusColor}`}
+                >
+                  <div className={`${textColor} mb-2`}><Icon size={20} /></div>
+                  <h3 className="font-semibold text-xs mb-1 text-white">{box.label}</h3>
+                  <p className="text-sm font-bold text-gray-200">{box.count}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {messages.length === 0 ? (
-          <div className="p-8 flex flex-col items-center justify-center min-h-full">
-            <div className="text-center mb-12 max-w-2xl">
-              <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4">
-                <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Hi, I'm Aria</h2>
-              <p className="text-gray-400">Your GigitekAI Command Center engineer. Ask me anything about your environment — M365, Azure, Exchange, Teams, or any IT issue. Use voice or text.</p>
+          <div className="flex flex-col items-center justify-center h-full text-center max-w-2xl mx-auto p-6">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4">
+              <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
             </div>
-
-            {/* System Status Grid */}
-            <div className="w-full max-w-5xl grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-              {systemBoxes.map((box) => {
-                const Icon = box.icon;
-                const statusColor = box.status === "healthy" ? "border-green-500/30 bg-green-500/5" : "border-yellow-500/30 bg-yellow-500/5";
-                const textColor = box.status === "healthy" ? "text-green-400" : "text-yellow-400";
-                return (
-                  <button
-                    key={box.label}
-                    onClick={() => { setInput(box.cmd); inputRef.current?.focus(); }}
-                    className={`p-4 rounded-lg border transition-all hover:border-cyan-400 hover:bg-cyan-500/10 cursor-pointer ${statusColor}`}
-                  >
-                    <div className={`${textColor} mb-2`}><Icon size={24} /></div>
-                    <h3 className="font-semibold text-sm mb-1">{box.label}</h3>
-                    <p className="text-xs text-gray-400">{box.count}</p>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Quick Prompts */}
-            <div className="w-full max-w-2xl">
-              <p className="text-xs text-gray-500 mb-3 text-center">Quick questions:</p>
+            <h2 className="text-2xl font-bold mb-2">Hi, I'm Aria</h2>
+            <p className="text-gray-400 mb-6">Your GigitekAI Command Center engineer. Click any system status box above or ask me anything about your environment — M365, Azure, Exchange, Teams, or any IT issue. Use voice or text.</p>
+            
+            <div className="w-full">
+              <p className="text-xs text-gray-500 mb-3">Quick questions:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
                   "How do I create a distribution group in PowerShell?",
@@ -372,7 +377,7 @@ export default function AriaCommandCenter() {
             </div>
           </div>
         ) : (
-          <div className="p-6 space-y-4 max-w-4xl mx-auto">
+          <div className="p-6 space-y-4 max-w-4xl mx-auto flex-1">
             {messages.map((message) => (
               <div
                 key={message.id}
