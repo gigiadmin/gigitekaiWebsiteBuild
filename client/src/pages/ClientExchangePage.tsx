@@ -57,7 +57,7 @@ interface Script {
 
 const CATEGORIES = [
   "All",
-  "Helpdesk Automation",
+  "Support Services Automation",
   "Security & Compliance",
   "Identity & Access",
   "Monitoring",

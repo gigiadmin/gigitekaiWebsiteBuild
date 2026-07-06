@@ -18,7 +18,7 @@ const GIGITEK_SERVICES = [
     icon: '🤖',
   },
   {
-    title: 'Helpdesk & Support',
+    title: 'Managed IT Support',
     description: 'Tier 1-3 support, ticket management, and AI-powered customer service solutions.',
     icon: '🎧',
   },

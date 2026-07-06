@@ -229,7 +229,7 @@ export default function AdminSettingsPage() {
               <div className="bg-[#0A0E1A] border border-gray-800/40 rounded-lg px-4 py-3">
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Will NOT be touched</p>
                 <ul className="text-sm text-gray-300 space-y-1">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Helpdesk tickets</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Support Services tickets</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Blog posts &amp; KB articles</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> User accounts &amp; team members</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-3 h-3 text-green-400" /> Contact form submissions</li>

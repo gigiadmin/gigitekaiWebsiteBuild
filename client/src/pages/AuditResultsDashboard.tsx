@@ -131,7 +131,7 @@ function RecommendationsCard({ auditType }: { auditType: string | null }) {
       { title: "Enable Multi-Factor Authentication", priority: "High", impact: "Reduces breach risk by 99.9%" },
       { title: "Implement Cloud Cost Monitoring", priority: "High", impact: "Avg. 30% cost reduction" },
       { title: "Automate Backup Verification", priority: "Medium", impact: "Ensures data recovery readiness" },
-      { title: "Deploy AI-Powered Helpdesk", priority: "Medium", impact: "280+ hours saved/month" },
+      { title: "Deploy AI-Powered Support Services", priority: "Medium", impact: "280+ hours saved/month" },
       { title: "Consolidate Security Tools", priority: "Low", impact: "15-20% tool cost savings" },
     ],
     m365: [
@@ -149,7 +149,7 @@ function RecommendationsCard({ auditType }: { auditType: string | null }) {
       { title: "Achieve SOC 2 Compliance", priority: "Medium", impact: "Enterprise customer trust" },
     ],
     ai: [
-      { title: "Deploy AI Helpdesk Agent", priority: "High", impact: "80% ticket auto-resolution" },
+      { title: "Deploy AI Support Agent", priority: "High", impact: "80% ticket auto-resolution" },
       { title: "Implement Process Automation", priority: "High", impact: "40% operational cost reduction" },
       { title: "Enable Predictive Analytics", priority: "Medium", impact: "Proactive issue prevention" },
       { title: "Build AI Knowledge Base", priority: "Medium", impact: "Self-service resolution" },

@@ -153,13 +153,13 @@ export default function WebsitePricingTiers() {
           </p>
         </div>
 
-        {/* Helpdesk Reference */}
+        {/* Support Services Reference */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">Need Managed IT Services?</h3>
           <p className="text-gray-300 mb-6">
-            We also offer comprehensive helpdesk support, AI automation, and managed IT services. 
+            We also offer comprehensive support services, AI automation, and managed IT services. 
             <a href="https://gigitekai.com/helpdesk-pricing" className="text-[#00D4FF] hover:underline ml-1">
-              View our helpdesk pricing →
+              View our support services pricing →
             </a>
           </p>
         </div>

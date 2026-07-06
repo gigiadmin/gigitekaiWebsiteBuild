@@ -3,7 +3,7 @@
  * 
  * Real-time monitoring for:
  * - Email API (MS Graph + SendGrid)
- * - Helpdesk System
+ * - Support Services System
  * - M365 Service Health
  */
 
@@ -326,10 +326,10 @@ export default function AdminServiceHealthMonitoring() {
                 </>
               )}
 
-              {service.service === "Helpdesk System" && service.metrics && (
+              {service.service === "Support Services System" && service.metrics && (
                 <>
                   <div className="border-t border-gray-600/50 pt-2 mt-2">
-                    <p className="text-gray-400 font-semibold mb-2">Helpdesk Metrics</p>
+                    <p className="text-gray-400 font-semibold mb-2">Support Services Metrics</p>
                     <div className="space-y-1 text-xs">
                       <div className="flex justify-between">
                         <span>Database:</span>

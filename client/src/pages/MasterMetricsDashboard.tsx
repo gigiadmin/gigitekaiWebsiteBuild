@@ -1,7 +1,7 @@
 /**
  * MasterMetricsDashboard — Unified metrics page combining:
  * - Admin Metrics (ticket KPIs, status breakdown, category/priority charts)
- * - Helpdesk Metrics (ticket creation trend, resolution time, closing note themes)
+ * - Support Services Metrics (ticket creation trend, resolution time, closing note themes)
  */
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";

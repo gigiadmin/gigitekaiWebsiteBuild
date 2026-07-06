@@ -148,7 +148,7 @@ export default function AdminPortal() {
                 className="border-cyan-700 text-cyan-400 hover:bg-cyan-900/30 hover:text-cyan-300 hidden sm:flex items-center gap-1.5"
               >
                 <LifeBuoy className="w-4 h-4" />
-                Helpdesk
+                Support Services
               </Button>
               <Button
                 onClick={() => setLocation("/")}
@@ -326,7 +326,7 @@ export default function AdminPortal() {
             )}
           </TabsContent>
 
-          {/* Helpdesk Tab — admin and agents */}
+          {/* Support Services Tab — admin and agents */}
           <TabsContent value="helpdesk" className="mt-6">
             {isAgent ? (
               <AdminPanel />

@@ -92,7 +92,7 @@ const SmartHomeServices = lazy(() => import("./pages/SmartHomeServices"));
 
 // ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
-// ── Helpdesk (customer-facing) — lazy loaded ─────────────────────────────
+// ── Support Services (customer-facing) — lazy loaded ─────────────────────────────
 const SupportLanding = lazy(() => import("./pages/SupportLanding"));
 const TicketLookup = lazy(() => import("./pages/TicketLookup"));
 const PublicTicketDetail = lazy(() => import("./pages/PublicTicketDetail"));
@@ -267,7 +267,7 @@ function Router() {
           <Route path={"/status"} component={StatusPage} />
           {/* Scripts Portal */}
           <Route path={"/scripts"} component={ScriptsPortal} />
-          {/* ── Helpdesk (customer-facing) ── */}
+          {/* ── Support Services (customer-facing) ── */}
           <Route path={"/support"} component={SupportLanding} />
           <Route path={"/support/lookup"} component={TicketLookup} />
           <Route path={"/support/ticket/:ticketId"} component={PublicTicketDetail} />

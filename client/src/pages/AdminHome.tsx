@@ -54,11 +54,11 @@ const QUICK_ACTIONS_CATEGORIES = [
   },
   {
     id: "helpdesk",
-    label: "Helpdesk & Support",
+    label: "Support Services",
     icon: <Ticket size={14} />,
     color: "text-amber-400",
     actions: [
-      { label: "View Helpdesk", href: "/admin/helpdesk", icon: <Ticket size={14} />, color: "text-amber-400" },
+      { label: "View Support Services", href: "/admin/helpdesk", icon: <Ticket size={14} />, color: "text-amber-400" },
       { label: "Call Review", href: "/admin/call-review", icon: <Phone size={14} />, color: "text-[#00D4FF]" },
       { label: "Call Quality", href: "/admin/call-quality", icon: <Activity size={14} />, color: "text-orange-400" },
       { label: "Live Chat", href: "/admin/chat", icon: <MessageSquare size={14} />, color: "text-cyan-400" },

@@ -1,5 +1,5 @@
 /**
- * AdminPanelPage — Helpdesk module inside unified AdminLayout
+ * AdminPanelPage — Support Services module inside unified AdminLayout
  */
 import AdminLayout from "@/components/AdminLayout";
 import AdminPanel from "./AdminPanel";

@@ -185,7 +185,7 @@ export default function Contact() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] flex-shrink-0" />
-                  24/7 Helpdesk &amp; Automation Support
+                  24/7 Managed IT &amp; Automation Support
                 </li>
               </ul>
             </div>
