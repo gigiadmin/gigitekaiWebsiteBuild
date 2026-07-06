@@ -129,14 +129,16 @@ export const ariaRouter = router({
     const kbCount = await db.select({ count: sql`COUNT(*)` }).from(kbArticles).where(eq(kbArticles.isPublished, 1));
     const kbArticleCount = (kbCount[0]?.count as number) || 0;
     
-    const uptime = await db.select().from(uptimeStatistics).orderBy(desc(uptimeStatistics.createdAt)).limit(1);
-    const latestUptime = uptime[0];
+    // Get latest uptime stats for each period
+    const uptime24h = await db.select().from(uptimeStatistics).where(eq(uptimeStatistics.period, '24h')).orderBy(desc(uptimeStatistics.calculatedAt)).limit(1);
+    const uptime7d = await db.select().from(uptimeStatistics).where(eq(uptimeStatistics.period, '7d')).orderBy(desc(uptimeStatistics.calculatedAt)).limit(1);
+    const uptime30d = await db.select().from(uptimeStatistics).where(eq(uptimeStatistics.period, '30d')).orderBy(desc(uptimeStatistics.calculatedAt)).limit(1);
     
     return {
       kbArticleCount,
-      uptime24h: latestUptime?.uptime24h?.toString() || "99.9%",
-      uptime7d: latestUptime?.uptime7d?.toString() || "99.9%",
-      uptime30d: latestUptime?.uptime30d?.toString() || "99.9%",
+      uptime24h: uptime24h[0]?.uptimePercentage?.toString() || "99.9%",
+      uptime7d: uptime7d[0]?.uptimePercentage?.toString() || "99.9%",
+      uptime30d: uptime30d[0]?.uptimePercentage?.toString() || "99.9%",
     };
   }),
 
