@@ -311,7 +311,7 @@ export default function PublicKB() {
             {/* Category filter pills */}
             <div className="flex flex-wrap gap-2 mb-8">
               <CategoryPill label="All" count={browseTotal} active={selectedCategory === "All"} onClick={() => handleCategoryChange("All")} />
-              {categories.map((cat) => (
+              {categories.filter((cat) => Number(cat.count) > 0).map((cat) => (
                 <CategoryPill
                   key={cat.category}
                   label={cat.category}
