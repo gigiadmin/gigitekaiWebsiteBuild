@@ -159,22 +159,22 @@
     {
       "prerender": [
         {
-          "where": { "href_matches": "/blog*" },
-          "eagerness": "moderate"
+          "where": { "href_matches": "/blog" },
+          "eagerness": "conservative"
         },
         {
-          "where": { "href_matches": "/about*" },
-          "eagerness": "moderate"
-        },
-        {
-          "where": { "href_matches": "/helpdesk*" },
+          "where": { "href_matches": "/about" },
           "eagerness": "conservative"
         }
       ],
       "prefetch": [
         {
-          "where": { "and": [ { "href_matches": "/*" }, { "not": { "href_matches": "/admin*" } } ] },
-          "eagerness": "moderate"
+          "where": { "href_matches": "/services" },
+          "eagerness": "conservative"
+        },
+        {
+          "where": { "href_matches": "/contact" },
+          "eagerness": "conservative"
         }
       ]
     }
@@ -515,10 +515,19 @@
         gaLoaded = true;
         loadGA4();
       }
-      // Load GA only after page fully loaded + 2s delay (after LCP)
-      window.addEventListener('load', function() {
-        setTimeout(triggerGA, 2000);
-      });
+      // Load GA only after browser is idle (after LCP + TTI)
+      // requestIdleCallback fires when the main thread has no critical work
+      // This prevents GA from contributing to TBT (Total Blocking Time)
+      if (typeof requestIdleCallback !== 'undefined') {
+        window.addEventListener('load', function() {
+          requestIdleCallback(triggerGA, { timeout: 5000 });
+        });
+      } else {
+        // Safari fallback: 4s delay after load event
+        window.addEventListener('load', function() {
+          setTimeout(triggerGA, 4000);
+        });
+      }
     </script>
 
     <!-- Umami Analytics (async + defer for non-blocking) -->

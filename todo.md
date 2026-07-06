@@ -1941,3 +1941,11 @@
   - [x] Default: Content & Helpdesk categories open, others collapsed
   - [x] Responsive grid layout (2-3 columns depending on screen size)
   - [x] Color-coded icons for visual distinction
+
+## Performance Optimization - July 6, 2026
+
+- [ ] Smart code splitting in vite.config.ts (react-core, charts, msal, tiptap, admin chunks)
+- [ ] Defer Google Analytics until after LCP
+- [ ] Add fetchpriority="high" to LCP hero image preload
+- [ ] Add resource hints: dns-prefetch for third-party domains
+- [ ] Verify build produces smaller initial bundle and improved PageSpeed scores

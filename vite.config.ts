@@ -170,7 +170,7 @@ function vitePluginNonBlockingCSS(): Plugin {
       // Step 1: Remove modulepreload tags for admin-only chunks
       // These chunks are only needed on /admin routes, not public pages
       let result = html.replace(
-        /<link rel="modulepreload"[^>]*href="\/assets\/(msal-|syntax-highlight-)[^"]+"[^>]*>\n?/g,
+        /<link rel="modulepreload"[^>]*href="\/assets\/(msal-|syntax-highlight-|tiptap-|stripe-)[^"]+"[^>]*>\n?/g,
         ''
       );
 
@@ -358,6 +358,7 @@ function vitePluginCriticalPreload(): Plugin {
       // React now lives in vendor chunk.
       let criticalUtilsFile = '';
       let trpcQueryFile = '';
+      let vendorFile = '';
       const bundle = ctx.bundle;
       if (bundle) {
         for (const [fileName] of Object.entries(bundle)) {
@@ -365,6 +366,9 @@ function vitePluginCriticalPreload(): Plugin {
             criticalUtilsFile = '/' + fileName;
           } else if (fileName.match(/trpc-query-[a-zA-Z0-9_-]+\.js$/)) {
             trpcQueryFile = '/' + fileName;
+          } else if (fileName.match(/vendor-[a-zA-Z0-9_-]+\.js$/) && !vendorFile) {
+            // Preload vendor chunk (React, Radix, tRPC) — critical for initial render
+            vendorFile = '/' + fileName;
           }
         }
       }
@@ -381,6 +385,9 @@ function vitePluginCriticalPreload(): Plugin {
       // they are side-effect-only imports that can load after main renders.
       const preloadHints = [
         `<link rel="modulepreload" href="/assets/main-${mainHash}.js">`,
+        // Preload vendor chunk (React, Radix, tRPC) — critical for initial render
+        // Without this, the browser discovers vendor.js only after parsing main.js
+        vendorFile ? `<link rel="modulepreload" href="${vendorFile}">` : '',
         criticalUtilsFile ? `<link rel="modulepreload" href="${criticalUtilsFile}">` : '',
         trpcQueryFile ? `<link rel="modulepreload" href="${trpcQueryFile}">` : '',
       ].filter(Boolean).join('\n    ');
@@ -609,15 +616,32 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        // SIMPLIFIED CHUNKING: All node_modules go into vendor.
-        // Previous complex manualChunks caused circular dependency crashes
-        // (react-core→charts→react-core, vendor→charts→vendor) that broke production.
-        // Simple vendor split is safe and reliable. Performance optimizations can be
-        // re-added carefully after the site is stable.
+        // SMART CODE SPLITTING v2: Separate heavy/admin-only libs from public critical path.
+        // IMPORTANT: React must stay in vendor (not a separate chunk) to avoid dual-React
+        // crashes with recharts/react-smooth which have their own React imports.
+        // We split out ONLY truly independent heavy libs that are NOT needed on homepage.
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return "vendor";
-          }
+          if (!id.includes('node_modules')) return undefined;
+
+          // ── MSAL / Azure AD: admin-only, never needed on public pages ─────────
+          // Keep all Azure libs together to avoid circular deps between them
+          if (
+            id.includes('@azure/msal') ||
+            id.includes('@azure/identity') ||
+            id.includes('@azure/communication')
+          ) return 'msal';
+
+          // ── Tiptap rich-text editor: only needed in admin blog editor ─────────
+          // Keep tiptap + prosemirror together (tiptap depends on prosemirror)
+          if (id.includes('@tiptap/') || id.includes('prosemirror')) return 'tiptap';
+
+          // ── Stripe: only needed on pricing/checkout pages ─────────────────────
+          if (id.includes('@stripe/') || id.includes('/stripe/')) return 'stripe';
+
+          // ── Everything else (React, Radix, tRPC, charts, etc.): vendor ─────────
+          // Keeping these together prevents circular dependency crashes that broke
+          // production previously (react-core→charts→react-core circular refs).
+          return 'vendor';
         },
       },
     },
