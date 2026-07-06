@@ -308,6 +308,31 @@ export default function PublicKB() {
               </p>
             </div>
 
+            {/* Search bar */}
+            <div className="mb-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Input
+                  type="text"
+                  placeholder="Search articles by keyword..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchInput.trim()) {
+                      setActiveSearch(searchInput.trim());
+                      setCurrentPage(1);
+                    }
+                  }}
+                  className="pl-10 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:ring-cyan-500/20"
+                />
+              </div>
+              {searchInput && (
+                <p className="text-sm text-slate-400 mt-2">
+                  Press Enter to search or browse categories below
+                </p>
+              )}
+            </div>
+
             {/* Category filter pills */}
             <div className="flex flex-wrap gap-2 mb-8">
               <CategoryPill label="All" count={browseTotal} active={selectedCategory === "All"} onClick={() => handleCategoryChange("All")} />
