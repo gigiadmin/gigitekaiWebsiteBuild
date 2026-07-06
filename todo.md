@@ -1678,7 +1678,15 @@
   - [x] Automatic indexing to searchIndex for ARIA retrieval
   - [x] Ready to import 100 new KB articles
 
-- [ ] **Upwork API Integration - Full Access Management**
+- [ ] **⏳ BLOCKED: Upwork API Integration - Awaiting API Key Approval**
+  - [ ] User to generate Upwork API key at: https://www.upwork.com/ab/account-security/api
+  - [ ] Callback URL: https://gigitekai.com/api/upwork/webhook
+  - [ ] Permissions: Full access (GraphQL)
+  - [ ] API Usage: 1-10 (or higher as needed)
+  - **Status:** Waiting for user to provide API credentials
+  - **Next Steps:** Once approved, will implement webhook endpoint, database schema, OAuth client, job search, auto-proposal system, and production deployment
+
+- [ ] **⏳ BLOCKED: Upwork Webhook Testing & Deployment**
   - [ ] Create Upwork webhook endpoint (/api/upwork/webhook)
   - [ ] Design database schema for proposals, jobs, and messages tracking
   - [ ] Implement Upwork OAuth client with full API access
@@ -1688,16 +1696,7 @@
   - [ ] Set up secure credential storage in webdev secrets
   - [ ] Test webhook event delivery from Upwork
   - [ ] Deploy and verify integration on production
-
-
-- [ ] **⏳ WAITING: Upwork API Integration - Awaiting API Key Approval**
-  - [ ] User to generate Upwork API key at: https://www.upwork.com/ab/account-security/api
-  - [ ] Callback URL: https://gigitekai.com/api/upwork/webhook
-  - [ ] Permissions: Full access (GraphQL)
-  - [ ] API Usage: 1-10 (or higher as needed)
-  - [ ] Once approved, integrate webhook endpoint and complete auto-proposal system
-  - [ ] Test webhook with Upwork test events
-  - [ ] Deploy to production
+  - **Blocked By:** Upwork API key approval (item above)
 
 
 - [x] **BUG: False "Voicemail content missing" alert - transcription exists but not detected** ✅ FIXED
@@ -1926,3 +1925,19 @@
 - [x] All content managed through single Blog admin interface
 - [x] Set up daily heartbeat cron job (runs daily at 9 AM UTC, task_uid: YRz7sPfs972SMxWnpS2d8m)
 - [x] Test: Verify new AI News articles appear as blog drafts within 24 hours (will verify after deployment)
+
+
+---
+
+## NEW FEATURES - July 6, 2026
+
+- [x] **Collapsible Quick Actions Categories** — COMPLETE
+  - [x] Reorganized 35+ quick actions into 6 collapsible categories
+  - [x] Categories: Content & Communications, Helpdesk & Support, Analytics & Insights, Customer Management, Tools & Integrations, Diagnostics & Admin
+  - [x] Persistent state stored in localStorage (remembers which categories are open)
+  - [x] Search/filter bar to quickly find actions across all categories
+  - [x] Category badges show action count
+  - [x] Smooth expand/collapse animations with ChevronDown icon rotation
+  - [x] Default: Content & Helpdesk categories open, others collapsed
+  - [x] Responsive grid layout (2-3 columns depending on screen size)
+  - [x] Color-coded icons for visual distinction
