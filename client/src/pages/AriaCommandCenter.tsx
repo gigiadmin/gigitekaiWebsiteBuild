@@ -387,12 +387,12 @@ export default function AriaCommandCenter() {
   }, []);
 
   const systemBoxes = [
-    { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy" },
-    { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy" },
-    { label: "Critical Issues", icon: AlertCircle, count: "1", status: "warning" },
-    { label: "Avg Resolution", icon: Clock, count: "2.4h", status: "healthy" },
-    { label: "KB Articles", icon: Zap, count: "932", status: "healthy" },
-    { label: "PowerShell Help", icon: Activity, count: "Ready", status: "healthy" },
+    { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy", query: "What are the currently open support tickets? Show me a summary of their status and priority." },
+    { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy", query: "What is the current system status? Are there any ongoing incidents or maintenance windows?" },
+    { label: "Critical Issues", icon: AlertCircle, count: "1", status: "warning", query: "What are the critical system issues that need immediate attention? Provide details and recommended solutions." },
+    { label: "Avg Resolution", icon: Clock, count: "2.4h", status: "healthy", query: "What is our average ticket resolution time? How can we improve it?" },
+    { label: "KB Articles", icon: Zap, count: "932", status: "healthy", query: "Show me the most frequently accessed KB articles and trending topics." },
+    { label: "PowerShell Help", icon: Activity, count: "Ready", status: "healthy", query: "What are the most useful PowerShell commands and scripts for M365 administration?" },
   ];
 
   return (
@@ -453,7 +453,7 @@ export default function AriaCommandCenter() {
               return (
                 <button
                   key={box.label}
-                  onClick={() => { setInput(box.label); inputRef.current?.focus(); }}
+                  onClick={() => { setInput(box.query); inputRef.current?.focus(); }}
                   className={`p-2 sm:p-3 rounded-lg border transition-all cursor-pointer ${statusColor}`}
                 >
                   <div className={`${textColor} mb-1`}><Icon size={14} className="sm:w-4 sm:h-4" /></div>
