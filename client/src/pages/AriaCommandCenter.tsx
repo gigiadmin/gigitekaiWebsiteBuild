@@ -45,24 +45,30 @@ function pickVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
   
-  // Priority: European English female voices
+  // PRIORITY 1: GB/IE English FEMALE voices (explicit female match)
   const gbFemale = voices.find(v => 
     /en[-_](GB|IE)/i.test(v.lang) && 
-    /female|woman|fiona|kate|serena|victoria|moira|tessa/i.test(v.name)
+    /female|woman|fiona|kate|serena|victoria|moira|tessa|google uk|neural2-a|standard-a/i.test(v.name) &&
+    !/male|man|david|george|james|mark|paul|brian/i.test(v.name)
   );
   if (gbFemale) { cachedVoice = gbFemale; return gbFemale; }
   
-  const gbAny = voices.find(v => /en[-_](GB|IE)/i.test(v.lang));
-  if (gbAny) { cachedVoice = gbAny; return gbAny; }
-  
+  // PRIORITY 2: Any FEMALE voice (explicit female match, any language)
   const anyFemale = voices.find(v => 
-    /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel/i.test(v.name)
+    /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel|cortana|samantha/i.test(v.name) &&
+    !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name)
   );
   if (anyFemale) { cachedVoice = anyFemale; return anyFemale; }
   
+  // PRIORITY 3: GB/IE English (any gender, but prefer female)
+  const gbAny = voices.find(v => /en[-_](GB|IE)/i.test(v.lang));
+  if (gbAny) { cachedVoice = gbAny; return gbAny; }
+  
+  // PRIORITY 4: Any English voice
   const anyEnglish = voices.find(v => /en/i.test(v.lang));
   if (anyEnglish) { cachedVoice = anyEnglish; return anyEnglish; }
   
+  // Last resort
   cachedVoice = voices[0] ?? null;
   return cachedVoice;
 }
@@ -86,7 +92,14 @@ function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
 
 function stopSpeaking() {
   if ("speechSynthesis" in window) {
+    window.speechSynthesis.pause();
     window.speechSynthesis.cancel();
+    // Force a small delay to ensure cancel takes effect
+    setTimeout(() => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+    }, 50);
   }
 }
 
