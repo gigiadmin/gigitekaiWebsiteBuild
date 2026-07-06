@@ -331,7 +331,7 @@ async function getFullLiveContext() {
     // ── Blog / Content ────────────────────────────────────────────
     let contentData: any = { publishedPosts: 0 };
     try {
-      const blogCount = await db.select({ count: sql<number>`count(*)` }).from(blogPosts).where(eq(blogPosts.isPublished, 1));
+      const blogCount = await db.select({ count: sql<number>`count(*)` }).from(blogPosts).where(eq(blogPosts.published, 1));
       contentData.publishedPosts = Number(blogCount[0]?.count ?? 0);
     } catch (_) {}
 

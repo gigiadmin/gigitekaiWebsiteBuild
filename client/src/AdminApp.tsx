@@ -116,11 +116,11 @@ function withApprovalOnly(Component: React.ComponentType<any>) {
  * For pages that do NOT have AdminLayout internally — wrap with both ApprovalGuard and AdminLayout
  * This ensures they still get the unified navigation menu
  */
-function withAdminLayout(Component: React.ComponentType<any>, title?: string) {
+function withAdminLayout(Component: React.ComponentType<any>, title?: string, noPadding?: boolean) {
   return () => (
     <LazyComponentWrapper>
       <ApprovalGuard>
-        <AdminLayout title={title}>
+        <AdminLayout title={title} noPadding={noPadding}>
           <Component />
         </AdminLayout>
       </ApprovalGuard>
@@ -198,7 +198,7 @@ export default function AdminApp() {
               <Route path="/admin/contact-center" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/contact-center-dashboard" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/command-center" component={withAdminLayout(CommandCenterAdminDashboard, "Command Center")} />
-              <Route path="/admin/search" component={withAdminLayout(AriaCommandCenterAdmin, "Aria Command Center")} />
+              <Route path="/admin/search" component={withAdminLayout(AriaCommandCenterAdmin, "Aria Command Center", true)} />
               <Route path="/admin/dns-checker" component={withAdminLayout(AdminDNSChecker, "DNS Checker")} />
               <Route path="/admin/email-diagnostics" component={withAdminLayout(AdminEmailDiagnostics, "Email Diagnostics")} />
               <Route path="/admin/form-submissions" component={withAdminLayout(AdminFormSubmissions, "Form Submissions")} />

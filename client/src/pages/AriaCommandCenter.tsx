@@ -72,7 +72,7 @@ function HolographicSphere({ isActive, volume = 0 }: { isActive: boolean; volume
   const coreGlow = 30 + volume * 150;
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 240, height: 240 }}>
+    <div className="relative flex items-center justify-center" style={{ width: 'clamp(160px, 40vw, 240px)', height: 'clamp(160px, 40vw, 240px)' }}>
       {/* Outermost ring — slow rotate */}
       <div
         className="absolute inset-0 rounded-full border border-cyan-400/20"
@@ -208,6 +208,8 @@ function StatusBox({
 }
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
+const ARIA_CHAT_STORAGE_KEY = "aria_chat_history";
+
 export default function AriaCommandCenter() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -383,12 +385,12 @@ export default function AriaCommandCenter() {
   const { data: systemContext } = trpc.aria.getSystemContext.useQuery(undefined, { refetchInterval: 30_000 });
 
   const openTicketCount = (metrics?.open ?? 0) + (metrics?.inProgress ?? 0);
-  const criticalCount = metrics?.critical ?? 0;
+  const criticalCount = metrics?.byPriority?.critical ?? 0;
   const avgResolutionTime = metrics?.avgResolutionHours ? `${(metrics.avgResolutionHours / 60).toFixed(1)}h` : "N/A";
   const kbArticleCount = systemContext?.kbArticleCount ?? 0;
   const uptime = systemContext?.uptime24h ?? "99.9%";
 
-  const systemBoxes = [
+  const systemBoxes: Array<{ icon: React.ElementType; label: string; value: string; status: 'ok' | 'warn' | 'info'; query: string }> = [
     { icon: AlertTriangle, label: "Open Tickets",    value: openTicketCount.toString(), status: openTicketCount > 5 ? "warn" : "ok" as const, query: "Show me a summary of all currently open support tickets, their priority levels, and which ones need immediate attention." },
     { icon: CheckCircle2, label: "System Status",    value: uptime, status: "ok"   as const, query: "What is the current system status across all GigitekAI services? Are there any active incidents or scheduled maintenance?" },
     { icon: AlertTriangle,label: "Critical Issues",  value: criticalCount.toString(), status: criticalCount > 0 ? "warn" : "ok" as const, query: `What are the ${criticalCount} critical issue(s) currently open? Provide full details, impact assessment, and recommended resolution steps.` },
@@ -398,7 +400,7 @@ export default function AriaCommandCenter() {
   ];
 
   return (
-    <div className="flex flex-col bg-slate-950 text-white" style={{ height: "calc(100vh - 60px)", overflow: "hidden" }}>
+    <div className="flex flex-col bg-slate-950 text-white" style={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
 
       {/* ── Top Bar ──────────────────────────────────────────────────────── */}
       <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
@@ -444,8 +446,8 @@ export default function AriaCommandCenter() {
       {/* ── Main Layout ──────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
 
-        {/* ── Left Panel: Sphere + Status Grid — FIXED, never scrolls ─────── */}
-        <div className="flex flex-col items-center gap-5 px-4 sm:px-6 py-5 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 lg:overflow-hidden">
+        {/* ── Left Panel: Sphere + Status Grid — scrollable on mobile ─────── */}
+        <div className="flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
           {/* Sphere */}
           <div className="flex-shrink-0">
             <HolographicSphere isActive={isActive} volume={audioVolume} />
@@ -472,10 +474,10 @@ export default function AriaCommandCenter() {
         </div>
 
         {/* ── Right Panel: Chat ─────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ minHeight: 0 }}>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ overscrollBehavior: 'contain' }}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-12">
                 <Activity className="w-8 h-8 text-cyan-500/40" />
@@ -535,7 +537,7 @@ export default function AriaCommandCenter() {
           </div>
 
           {/* Input Bar */}
-          <div className="flex-shrink-0 border-t border-white/5 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex-shrink-0 border-t border-white/5 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
             <div className="flex items-center gap-2">
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
