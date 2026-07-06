@@ -1,6 +1,6 @@
 /**
  * Aria Command Center — GigitekAI Main Brain
- * Holographic sphere with pulsating rings + side chat interface
+ * Holographic sphere with real-time audio volume visualization
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
@@ -79,23 +79,83 @@ function speakAsAria(text: string, onEnd?: () => void) {
   window.speechSynthesis.speak(utterance);
 }
 
-function HolographicSphere({ isActive }: { isActive: boolean }) {
+function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; audioVolume: number }) {
+  // audioVolume ranges from 0 to 1
+  const volumeScale = 1 + audioVolume * 0.3; // Scale from 1 to 1.3
+  const volumeOpacity = 0.3 + audioVolume * 0.7; // Opacity from 0.3 to 1
+  const glowIntensity = audioVolume * 100; // For shadow glow
+
   return (
     <div className="relative w-64 h-64 flex items-center justify-center">
-      {/* Outer pulsating rings */}
-      <div className={`absolute inset-0 rounded-full border-2 border-cyan-400/30 ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-pulse 2s ease-in-out infinite" : "none" }} />
-      <div className={`absolute inset-4 rounded-full border border-cyan-400/20 ${isActive ? "animate-spin" : ""}`} style={{ animation: isActive ? "sphere-rotate 8s linear infinite" : "none" }} />
-      <div className={`absolute inset-8 rounded-full border border-cyan-500/40 ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-pulse 3s ease-in-out infinite" : "none", animationDelay: "0.5s" }} />
+      {/* Outer pulsating rings - react to volume */}
+      <div 
+        className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
+        style={{ 
+          animation: isActive ? "sphere-pulse 2s ease-in-out infinite" : "none",
+          transform: `scale(${volumeScale})`,
+          opacity: 0.3 + audioVolume * 0.4,
+          transitionDuration: "75ms"
+        }} 
+      />
+      <div 
+        className="absolute inset-4 rounded-full border border-cyan-400/20"
+        style={{ 
+          animation: isActive ? "sphere-rotate 8s linear infinite" : "none",
+          transform: `scale(${volumeScale})`,
+          opacity: 0.2 + audioVolume * 0.3,
+          transitionDuration: "75ms"
+        }} 
+      />
+      <div 
+        className="absolute inset-8 rounded-full border border-cyan-500/40"
+        style={{ 
+          animation: isActive ? "sphere-pulse 3s ease-in-out infinite" : "none",
+          animationDelay: "0.5s",
+          transform: `scale(${volumeScale})`,
+          opacity: 0.4 + audioVolume * 0.5,
+          transitionDuration: "75ms"
+        }} 
+      />
 
-      {/* Central glowing sphere */}
-      <div className={`absolute inset-12 rounded-full bg-gradient-to-br from-cyan-400/40 to-cyan-600/20 blur-xl ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-glow 2s ease-in-out infinite" : "none" }} />
+      {/* Central glowing sphere - reacts to volume */}
+      <div 
+        className="absolute inset-12 rounded-full bg-gradient-to-br from-cyan-400/40 to-cyan-600/20 blur-xl"
+        style={{ 
+          animation: isActive ? "sphere-glow 2s ease-in-out infinite" : "none",
+          transform: `scale(${volumeScale})`,
+          opacity: volumeOpacity,
+          boxShadow: `0 0 ${20 + glowIntensity}px rgba(34, 211, 238, ${0.5 + audioVolume * 0.5})`,
+          transitionDuration: "75ms"
+        }} 
+      />
       
-      {/* Core sphere */}
-      <div className="absolute inset-16 rounded-full bg-cyan-500/30 blur-md" />
-      <div className="absolute inset-20 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg shadow-cyan-500/50" />
+      {/* Core sphere - reacts to volume */}
+      <div 
+        className="absolute inset-16 rounded-full bg-cyan-500/30 blur-md"
+        style={{
+          transform: `scale(${volumeScale})`,
+          opacity: 0.3 + audioVolume * 0.5,
+          transitionDuration: "75ms"
+        }}
+      />
+      <div 
+        className="absolute inset-20 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg"
+        style={{
+          transform: `scale(${volumeScale})`,
+          boxShadow: `0 0 ${30 + glowIntensity * 1.5}px rgba(34, 211, 238, ${0.6 + audioVolume * 0.4})`,
+          transitionDuration: "75ms"
+        }}
+      />
 
-      {/* Center dot */}
-      <div className="absolute w-4 h-4 rounded-full bg-cyan-300 shadow-lg shadow-cyan-400" />
+      {/* Center dot - reacts to volume */}
+      <div 
+        className="absolute w-4 h-4 rounded-full bg-cyan-300 shadow-lg"
+        style={{
+          transform: `scale(${0.8 + audioVolume * 0.4})`,
+          boxShadow: `0 0 ${15 + glowIntensity}px rgba(165, 243, 252, ${0.8 + audioVolume * 0.2})`,
+          transitionDuration: "75ms"
+        }}
+      />
     </div>
   );
 }
@@ -121,11 +181,15 @@ export default function AriaCommandCenter() {
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [audioVolume, setAudioVolume] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyzerRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   const askMutation = trpc.aria.askQuestion.useMutation();
 
@@ -151,6 +215,28 @@ export default function AriaCommandCenter() {
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }]);
   }, []);
 
+  // Analyze audio volume in real-time
+  const analyzeAudioVolume = useCallback(() => {
+    if (!analyzerRef.current) return;
+
+    const dataArray = new Uint8Array(analyzerRef.current.frequencyBinCount);
+    analyzerRef.current.getByteFrequencyData(dataArray);
+
+    // Calculate RMS (root mean square) for volume
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      sum += dataArray[i] * dataArray[i];
+    }
+    const rms = Math.sqrt(sum / dataArray.length);
+    const normalizedVolume = Math.min(rms / 128, 1); // Normalize to 0-1
+
+    setAudioVolume(normalizedVolume);
+
+    if (isRecording) {
+      animationFrameRef.current = requestAnimationFrame(analyzeAudioVolume);
+    }
+  }, [isRecording]);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -158,10 +244,26 @@ export default function AriaCommandCenter() {
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
+      // Set up audio context for volume analysis
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const audioContext = audioContextRef.current;
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyzer = audioContext.createAnalyser();
+      analyzer.fftSize = 256;
+      source.connect(analyzer);
+      analyzerRef.current = analyzer;
+
       recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
 
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+        setAudioVolume(0);
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
 
         const reader = new FileReader();
@@ -212,6 +314,7 @@ export default function AriaCommandCenter() {
       recorder.start();
       setIsRecording(true);
       setStage("listening");
+      analyzeAudioVolume();
     } catch {
       toast.error("Microphone access denied");
     }
@@ -221,6 +324,11 @@ export default function AriaCommandCenter() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      setAudioVolume(0);
     }
   };
 
@@ -272,6 +380,18 @@ export default function AriaCommandCenter() {
 
   const isProcessing = stage !== "idle";
   const isActive = isRecording || isSpeaking || isProcessing;
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+      }
+    };
+  }, []);
 
   // System Status Boxes
   const systemBoxes = [
@@ -328,7 +448,7 @@ export default function AriaCommandCenter() {
         <div className="flex-1 flex flex-col items-center justify-center">
           {/* Holographic Sphere */}
           <div className="mb-12">
-            <HolographicSphere isActive={isActive} />
+            <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
           </div>
 
           {/* System Status Grid - 2x3 */}
