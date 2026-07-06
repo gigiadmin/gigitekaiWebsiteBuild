@@ -1,13 +1,12 @@
 /**
  * Aria Command Center — GigitekAI Main Brain
- * Live voice conversation with European woman's voice
- * System status boxes, push-to-talk, animated waveform, typing indicator
+ * Holographic sphere with pulsating rings + side chat interface
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, Send, Volume2, VolumeX, Copy, Download, Trash2, Brain, AlertCircle, CheckCircle, Clock, Zap, TrendingUp } from "lucide-react";
+import { Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2, Brain, AlertCircle, CheckCircle, Clock, Zap, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 type Message = {
@@ -80,6 +79,27 @@ function speakAsAria(text: string, onEnd?: () => void) {
   window.speechSynthesis.speak(utterance);
 }
 
+function HolographicSphere({ isActive }: { isActive: boolean }) {
+  return (
+    <div className="relative w-64 h-64 flex items-center justify-center">
+      {/* Outer pulsating rings */}
+      <div className={`absolute inset-0 rounded-full border-2 border-cyan-400/30 ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-pulse 2s ease-in-out infinite" : "none" }} />
+      <div className={`absolute inset-4 rounded-full border border-cyan-400/20 ${isActive ? "animate-spin" : ""}`} style={{ animation: isActive ? "sphere-rotate 8s linear infinite" : "none" }} />
+      <div className={`absolute inset-8 rounded-full border border-cyan-500/40 ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-pulse 3s ease-in-out infinite" : "none", animationDelay: "0.5s" }} />
+
+      {/* Central glowing sphere */}
+      <div className={`absolute inset-12 rounded-full bg-gradient-to-br from-cyan-400/40 to-cyan-600/20 blur-xl ${isActive ? "animate-pulse" : ""}`} style={{ animation: isActive ? "sphere-glow 2s ease-in-out infinite" : "none" }} />
+      
+      {/* Core sphere */}
+      <div className="absolute inset-16 rounded-full bg-cyan-500/30 blur-md" />
+      <div className="absolute inset-20 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg shadow-cyan-500/50" />
+
+      {/* Center dot */}
+      <div className="absolute w-4 h-4 rounded-full bg-cyan-300 shadow-lg shadow-cyan-400" />
+    </div>
+  );
+}
+
 function TypingDots() {
   return (
     <span className="inline-flex items-end gap-[3px]">
@@ -88,25 +108,6 @@ function TypingDots() {
           key={i}
           className="w-[5px] h-[5px] rounded-full bg-cyan-400 inline-block"
           style={{ animation: `aria-bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
-        />
-      ))}
-    </span>
-  );
-}
-
-function VoiceWaveform({ active }: { active: boolean }) {
-  const heights = [3, 6, 10, 14, 10, 6, 3];
-  return (
-    <span className="inline-flex items-center gap-[2px]">
-      {heights.map((h, i) => (
-        <span
-          key={i}
-          className={`w-[3px] rounded-full transition-all duration-150 ${active ? "bg-cyan-400" : "bg-slate-600"}`}
-          style={{
-            height: active ? undefined : `${h * 0.4}px`,
-            animation: active ? `aria-wave 0.7s ease-in-out ${i * 0.08}s infinite alternate` : "none",
-            minHeight: "3px",
-          }}
         />
       ))}
     </span>
@@ -135,8 +136,9 @@ export default function AriaCommandCenter() {
     s.id = id;
     s.textContent = `
       @keyframes aria-bounce { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-5px);opacity:1} }
-      @keyframes aria-wave { from{height:3px} to{height:18px} }
-      @keyframes aria-fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes sphere-pulse { 0%,100%{transform:scale(1);opacity:0.8} 50%{transform:scale(1.1);opacity:1} }
+      @keyframes sphere-glow { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+      @keyframes sphere-rotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     `;
     document.head.appendChild(s);
   }, []);
@@ -269,15 +271,16 @@ export default function AriaCommandCenter() {
   const clearChat = () => { if (confirm("Clear all messages?")) { setMessages([]); toast.success("Chat cleared"); } };
 
   const isProcessing = stage !== "idle";
+  const isActive = isRecording || isSpeaking || isProcessing;
 
   // System Status Boxes
   const systemBoxes = [
-    { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy", cmd: "Show me open tickets" },
-    { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy", cmd: "What's our system uptime?" },
-    { label: "Critical Issues", icon: AlertCircle, count: "1", status: "warning", cmd: "Show critical issues" },
-    { label: "Avg Resolution", icon: Clock, count: "2.4h", status: "healthy", cmd: "What's our resolution rate?" },
-    { label: "KB Articles", icon: Zap, count: "932", status: "healthy", cmd: "Search KB for printer issues" },
-    { label: "PowerShell Help", icon: Zap, count: "Ready", status: "healthy", cmd: "How do I create a distribution group?" },
+    { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy" },
+    { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy" },
+    { label: "Critical Issues", icon: AlertCircle, count: "1", status: "warning" },
+    { label: "Avg Resolution", icon: Clock, count: "2.4h", status: "healthy" },
+    { label: "KB Articles", icon: Zap, count: "932", status: "healthy" },
+    { label: "PowerShell Help", icon: Activity, count: "Ready", status: "healthy" },
   ];
 
   return (
@@ -319,11 +322,17 @@ export default function AriaCommandCenter() {
         </div>
       </div>
 
-      {/* System Status Grid - Always Visible */}
-      <div className="flex-shrink-0 border-b border-cyan-500/20 bg-slate-900/40 px-6 py-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-sm font-semibold text-cyan-400 mb-4 uppercase tracking-wider">System Status</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* Main Content - Holosphere + Chat */}
+      <div className="flex-1 overflow-hidden flex gap-6 p-6">
+        {/* Left: Holographic Sphere + System Status Grid */}
+        <div className="flex-1 flex flex-col items-center justify-center">
+          {/* Holographic Sphere */}
+          <div className="mb-12">
+            <HolographicSphere isActive={isActive} />
+          </div>
+
+          {/* System Status Grid - 2x3 */}
+          <div className="grid grid-cols-3 gap-3 w-full max-w-md">
             {systemBoxes.map((box) => {
               const Icon = box.icon;
               const statusColor = box.status === "healthy" 
@@ -334,149 +343,119 @@ export default function AriaCommandCenter() {
               return (
                 <button
                   key={box.label}
-                  onClick={() => { setInput(box.cmd); inputRef.current?.focus(); }}
-                  className={`p-4 rounded-lg border transition-all cursor-pointer ${statusColor}`}
+                  onClick={() => { setInput(box.label); inputRef.current?.focus(); }}
+                  className={`p-3 rounded-lg border transition-all cursor-pointer ${statusColor}`}
                 >
-                  <div className={`${textColor} mb-2`}><Icon size={20} /></div>
-                  <h3 className="font-semibold text-xs mb-1 text-white">{box.label}</h3>
-                  <p className="text-sm font-bold text-gray-200">{box.count}</p>
+                  <div className={`${textColor} mb-1`}><Icon size={16} /></div>
+                  <h3 className="font-semibold text-xs mb-0.5 text-white">{box.label}</h3>
+                  <p className="text-xs font-bold text-gray-200">{box.count}</p>
                 </button>
               );
             })}
           </div>
         </div>
-      </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center max-w-2xl mx-auto p-6">
-            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4">
-              <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Hi, I'm Aria</h2>
-            <p className="text-gray-400 mb-6">Your GigitekAI Command Center engineer. Click any system status box above or ask me anything about your environment — M365, Azure, Exchange, Teams, or any IT issue. Use voice or text.</p>
-            
-            <div className="w-full">
-              <p className="text-xs text-gray-500 mb-3">Quick questions:</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {[
-                  "How do I create a distribution group in PowerShell?",
-                  "What's our system uptime?",
-                  "Troubleshoot Teams call quality",
-                ].map((prompt) => (
-                  <button
-                    key={prompt}
-                    onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
-                    className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-400 hover:bg-cyan-500/20 transition-all"
+        {/* Right: Chat Messages */}
+        <div className="w-96 flex flex-col border-l border-cyan-500/20 pl-6">
+          {/* Chat Header */}
+          <div className="mb-4 pb-4 border-b border-cyan-500/20">
+            <h2 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider">Conversation</h2>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto space-y-3 mb-4">
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 text-sm py-8">
+                <p>Ask me anything...</p>
+              </div>
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="p-6 space-y-4 max-w-4xl mx-auto flex-1">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-md lg:max-w-2xl p-4 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-cyan-500/20 border border-cyan-500/40 text-white"
-                      : "bg-gray-800/50 border border-gray-700/50 text-gray-100"
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className="text-xs text-gray-500 mt-2">{message.timestamp.toLocaleTimeString()}</p>
-                </div>
-              </div>
-            ))}
-            {isProcessing && (
-              <div className="flex justify-start">
-                <div className="bg-gray-800/50 border border-gray-700/50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                    <span className="text-sm text-gray-400">{STAGE_LABEL[stage]}</span>
-                    <TypingDots />
+                    <div
+                      className={`max-w-xs p-3 rounded-lg text-sm ${
+                        message.role === "user"
+                          ? "bg-cyan-500/20 border border-cyan-500/40 text-white"
+                          : "bg-gray-800/50 border border-gray-700/50 text-gray-100"
+                      }`}
+                    >
+                      <p>{message.content}</p>
+                      <p className="text-xs text-gray-500 mt-1">{message.timestamp.toLocaleTimeString()}</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                ))}
+                {isProcessing && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="text-xs text-gray-400">{STAGE_LABEL[stage]}</span>
+                        <TypingDots />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </>
             )}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
-
-      {/* Input Area */}
-      <div className="border-t border-cyan-500/20 p-6 bg-slate-900/60 backdrop-blur flex-shrink-0">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-3 mb-3">
-            <Button
-              onClick={isRecording ? stopRecording : startRecording}
-              variant={isRecording ? "default" : "outline"}
-              size="sm"
-              className={`${
-                isRecording
-                  ? "bg-red-500 hover:bg-red-600 border-red-500"
-                  : "border-cyan-500/30 hover:border-cyan-400"
-              }`}
-            >
-              {isRecording ? <MicOff size={16} className="mr-2" /> : <Mic size={16} className="mr-2" />}
-              {isRecording ? "Stop" : "Voice"}
-            </Button>
-            <Button
-              onClick={clearChat}
-              variant="outline"
-              size="sm"
-              className="border-cyan-500/30 hover:border-cyan-400"
-            >
-              <Trash2 size={16} className="mr-2" />
-              Clear
-            </Button>
-            <Button
-              onClick={saveChat}
-              variant="outline"
-              size="sm"
-              className="border-cyan-500/30 hover:border-cyan-400"
-            >
-              <Download size={16} className="mr-2" />
-              Export
-            </Button>
           </div>
 
-          <div className="flex gap-3">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask Aria anything — tickets, uptime, KB, PowerShell help..."
-              className="bg-gray-900/50 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500"
-              disabled={isProcessing}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={isProcessing || !input.trim()}
-              className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
-            >
-              <Send size={16} />
-            </Button>
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {["Open Tickets", "System Status", "KB Articles", "PowerShell Help"].map((cmd) => (
-              <button
-                key={cmd}
-                onClick={() => { setInput(cmd); inputRef.current?.focus(); }}
-                className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-400 hover:bg-cyan-500/20 transition-all"
+          {/* Input Area */}
+          <div className="space-y-2 border-t border-cyan-500/20 pt-4">
+            <div className="flex gap-2">
+              <Button
+                onClick={isRecording ? stopRecording : startRecording}
+                variant={isRecording ? "default" : "outline"}
+                size="sm"
+                className={`flex-1 ${
+                  isRecording
+                    ? "bg-red-500 hover:bg-red-600 border-red-500"
+                    : "border-cyan-500/30 hover:border-cyan-400"
+                }`}
               >
-                {cmd}
-              </button>
-            ))}
+                {isRecording ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
+                {isRecording ? "Stop" : "Voice"}
+              </Button>
+              <Button
+                onClick={clearChat}
+                variant="outline"
+                size="sm"
+                className="border-cyan-500/30 hover:border-cyan-400"
+              >
+                <Trash2 size={14} />
+              </Button>
+              <Button
+                onClick={saveChat}
+                variant="outline"
+                size="sm"
+                className="border-cyan-500/30 hover:border-cyan-400"
+              >
+                <Download size={14} />
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Ask Aria..."
+                className="bg-gray-900/50 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500 text-sm"
+                disabled={isProcessing}
+              />
+              <Button
+                onClick={handleSend}
+                disabled={isProcessing || !input.trim()}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
+                size="sm"
+              >
+                <Send size={14} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
