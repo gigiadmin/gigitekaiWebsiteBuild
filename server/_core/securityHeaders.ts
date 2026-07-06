@@ -52,9 +52,10 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 
   // Permissions Policy — restrict browser features
+  // Allow microphone for Aria Command Center voice input
   res.setHeader(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), payment=()"
+    "camera=(), microphone=(self), geolocation=(), payment=()"
   );
 
   // Cross-Origin-Opener-Policy — prevent cross-origin opener access (COOP)
