@@ -8,8 +8,8 @@
 import { fetchInboxFromMsGraph, markMessageAsRead, fetchAttachmentsFromMessage, downloadAttachmentContent } from "./email";
 import { createTicket } from "../db";
 import { getDb } from "../db";
-import { eq, and, gt } from "drizzle-orm";
-import { emailMessages, voicemailDedup } from "../../drizzle/schema";
+import { eq, and, gt, gte } from "drizzle-orm";
+import { emailMessages, voicemailDedup, tickets } from "../../drizzle/schema";
 import { invokeLLM } from "./llm";
 import { sendEmail } from "./email";
 import { notifyOwner } from "./notification";
@@ -1274,7 +1274,7 @@ async function processEmail(msgData: any): Promise<boolean> {
     // ── CRITICAL FIX: Deduplication using messageId OR content hash ──────────
     // If messageId is missing, generate a hash from sender+subject+bodyPreview
     // This prevents the same email from being processed multiple times
-    const crypto = require('crypto');
+    const crypto = await import('crypto');
     const dedupKey = messageId || crypto.createHash('sha256')
       .update(`${senderEmail}|${subject}|${bodyPreview || ''}`)
       .digest('hex');
@@ -1359,6 +1359,43 @@ async function processEmail(msgData: any): Promise<boolean> {
         }
       } catch (calendarError) {
         console.warn(`[Email Poller] Failed to create calendar event:`, calendarError);
+      }
+    }
+
+    // ── CRITICAL FIX: Check if ticket already exists for this sender+subject ──
+    // This prevents duplicate tickets from the same email being processed multiple times
+    const db = await getDb();
+    if (db) {
+      const existingTicket = await db
+        .select({ id: tickets.id })
+        .from(tickets)
+        .where(
+          and(
+            eq(tickets.userId, user.id),
+            eq(tickets.title, subject),
+            gte(tickets.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()) // Within last 7 days
+          )
+        )
+        .limit(1);
+      
+      if (existingTicket.length > 0) {
+        console.log(`[Email Poller] Ticket already exists for this sender+subject (ID: ${existingTicket[0].id}). Skipping duplicate.`);
+        // Record in emailMessages but don't create new ticket
+        try {
+          await db.insert(emailMessages).values({
+            direction: 'received',
+            messageId: dedupKey,
+            from: senderEmail,
+            to: SUPPORT_EMAIL,
+            subject: subject,
+            body: typeof emailBody === 'string' ? emailBody.replace(/<[^>]*>/g, '').slice(0, 5000) : 'No body content',
+            linkedTicketId: existingTicket[0].id,
+            status: 'received',
+          });
+        } catch (dbError) {
+          console.warn('[Email Poller] Failed to record duplicate email:', dbError);
+        }
+        return true; // Mark as processed
       }
     }
 
