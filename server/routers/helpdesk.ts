@@ -829,12 +829,23 @@ export const helpdeskRouter = router({
 
   bulkDelete: adminProcedure
     .input(z.object({ ticketIds: z.array(z.number()) }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { tickets } = await import("../../drizzle/schema");
       const { inArray } = await import("drizzle-orm");
-      await db.delete(tickets).where(inArray(tickets.id, input.ticketIds));
+      
+      // CRITICAL FIX: Soft-delete tickets instead of hard-delete
+      // Hard-deleting tickets can cause them to be re-created by email/webhook pollers
+      // Soft-delete by marking as 'closed' preserves audit trail and prevents resurrection
+      await db.update(tickets)
+        .set({
+          status: 'closed',
+          closedAt: new Date().toISOString(),
+          closingNotes: `Deleted by ${ctx.user?.email ?? 'system'} on ${new Date().toISOString()}`,
+        })
+        .where(inArray(tickets.id, input.ticketIds));
+      
       return { success: true, count: input.ticketIds.length };
     }),
 

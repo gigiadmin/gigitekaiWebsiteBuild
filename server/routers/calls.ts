@@ -444,16 +444,38 @@ export const callsRouter = router({
         ids: z.array(z.number()),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       if (!input.ids.length) throw new Error("No IDs provided");
 
+      // CRITICAL FIX: Create tombstones BEFORE deleting to prevent call poller from re-importing
+      // The call poller runs every 5 minutes and fetches calls from Microsoft Graph.
+      // Without tombstones, deleted calls get re-created when the poller runs again.
+      const callsToDelete = await db
+        .select()
+        .from(callLogs)
+        .where(inArray(callLogs.id, input.ids));
+
+      // Create tombstone records for each deleted call
+      for (const call of callsToDelete) {
+        await db.insert(voicemailSourceTombstones).values({
+          source: "m365-group",
+          groupId: "call-deletion",
+          threadId: call.graphCallId,
+          callLogId: call.id,
+          action: "deleted",
+          reason: "Admin deleted call from UI",
+          createdBy: ctx.user?.email ?? "system",
+        });
+      }
+
+      // Now safe to delete
       await db
         .delete(callLogs)
         .where(inArray(callLogs.id, input.ids));
 
-      return { success: true, deleted: input.ids.length };
+      return { success: true, deleted: input.ids.length, tombstonesCreated: callsToDelete.length };
     }),
 
 
