@@ -49,20 +49,27 @@ function pickVoice(): SpeechSynthesisVoice | null {
   return voices[0] ?? null;
 }
 
-function speakAsAria(text: string, onEnd?: () => void) {
-  if (!("speechSynthesis" in window)) return;
+function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
+  if (!text || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const clean = text
     .replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1")
     .replace(/`(.+?)`/g, "$1").replace(/#{1,6}\s/g, "")
     .replace(/\n{2,}/g, ". ").replace(/\n/g, " ").trim();
   const u = new SpeechSynthesisUtterance(clean);
-  u.rate = 0.95; u.pitch = 1.05; u.volume = 1;
+  u.rate = Math.max(0.5, Math.min(2, speed));
+  u.pitch = 1.05; u.volume = 1;
   const setVoice = () => { const v = pickVoice(); if (v) u.voice = v; };
   setVoice();
   if (!u.voice) window.speechSynthesis.onvoiceschanged = setVoice;
   if (onEnd) u.onend = onEnd;
   window.speechSynthesis.speak(u);
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
 }
 
 /* ─── Holographic Sphere ─────────────────────────────────────────────────── */
@@ -281,6 +288,8 @@ export default function AriaCommandCenter() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [audioVolume, setAudioVolume] = useState(0);
+  const [ttsSpeed, setTtsSpeed] = useState(0.95);
+  const [ttsMode, setTtsMode] = useState<'voice' | 'text' | 'both'>('both');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -365,7 +374,7 @@ export default function AriaCommandCenter() {
             setStage("responding");
             await new Promise((r) => setTimeout(r, 200));
             addMessage({ role: "aria", content: result.response, timestamp: new Date() });
-            if (voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, () => setIsSpeaking(false)); }
+            if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
           } catch { toast.error("Voice processing failed"); }
           finally { setStage("idle"); }
         };
@@ -401,7 +410,7 @@ export default function AriaCommandCenter() {
       setStage("responding");
       await new Promise((r) => setTimeout(r, 200));
       addMessage({ role: "aria", content: result.response, timestamp: new Date() });
-      if (voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, () => setIsSpeaking(false)); }
+      if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
     } catch {
       clearTimeout(timer);
       toast.error("Aria failed to respond. Please try again.");
@@ -479,7 +488,23 @@ export default function AriaCommandCenter() {
             <p className="text-[11px] text-slate-500 mt-0.5">GigitekAI · M365 · Azure · Exchange</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* TTS Mode Selector */}
+          <select value={ttsMode} onChange={(e) => setTtsMode(e.target.value as any)} className="text-xs px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300 hover:border-cyan-500/40 transition-all" title="Choose how Aria responds">
+            <option value="both">Voice + Text</option>
+            <option value="voice">Voice Only</option>
+            <option value="text">Text Only</option>
+          </select>
+          
+          {/* TTS Speed Control */}
+          {(ttsMode === 'voice' || ttsMode === 'both') && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+              <span className="text-[10px] text-slate-500">Speed:</span>
+              <input type="range" min="0.5" max="2" step="0.25" value={ttsSpeed} onChange={(e) => setTtsSpeed(parseFloat(e.target.value))} className="w-12 h-1 bg-slate-700 rounded cursor-pointer" title="Adjust speech speed" />
+              <span className="text-[10px] text-slate-400 w-6 text-right">{ttsSpeed.toFixed(2)}x</span>
+            </div>
+          )}
+          
           <button
             onClick={() => { if (isSpeaking) stopSpeaking(); setVoiceEnabled((v) => !v); }}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
