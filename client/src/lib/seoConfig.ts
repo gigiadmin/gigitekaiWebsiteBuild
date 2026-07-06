@@ -44,9 +44,9 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "24/7 Managed IT Services pricing starting at $99/user/month. AI-powered support, SLA guarantees, and compliance management. Get a custom quote today.",
   },
   "/helpdesk": {
-    title: "IT Support Helpdesk | GigitekAI",
+    title: "Managed IT Support | GigitekAI",
     description:
-      "Access GigitekAI's AI-powered helpdesk for fast, intelligent IT support. Create tickets, track issues, and get resolutions faster.",
+      "Access GigitekAI's AI-powered support system for fast, intelligent IT support. Create tickets, track issues, and get resolutions faster.",
   },
   "/services": {
     title: "Enterprise Cloud & AI Services | GigitekAI",

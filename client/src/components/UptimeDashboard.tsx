@@ -61,7 +61,7 @@ export function UptimeDashboard() {
     );
   }
 
-  const services = ["Email API", "Helpdesk System", "M365 Service Health"];
+  const services = ["Email API", "Support Services System", "M365 Service Health"];
   const periods: UptimePeriod[] = ["1h", "24h", "7d", "30d"];
 
   return (

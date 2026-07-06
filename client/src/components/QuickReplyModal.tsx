@@ -1,10 +1,10 @@
 /**
- * QuickReplyModal — Send a quick email reply from Helpdesk or Chat
+ * QuickReplyModal — Send a quick email reply from Support Services or Chat
  *
  * Props:
  *  - isOpen: boolean
  *  - onClose: () => void
- *  - linkedTicketId?: number (for Helpdesk) — enables AI Draft button
+ *  - linkedTicketId?: number (for Support Services) — enables AI Draft button
  *  - linkedSessionId?: number (for Chat)
  *  - recipientEmail: string
  *  - recipientName?: string

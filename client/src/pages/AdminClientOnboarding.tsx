@@ -136,7 +136,7 @@ export default function AdminClientOnboarding() {
                       name="serviceType"
                       value={formData.serviceType}
                       onChange={handleChange}
-                      placeholder="e.g., M365/Helpdesk/Security/Backup"
+                      placeholder="e.g., M365/Support Services/Security/Backup"
                       required
                     />
                   </div>

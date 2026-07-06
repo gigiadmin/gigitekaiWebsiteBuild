@@ -153,7 +153,7 @@ export default function ROIRoadmapGenerator() {
           ? "Deploy core AI helpdesk agent and basic automation for immediate ticket reduction."
           : "Enterprise assessment, M365 optimization, and first AI agent deployment for Tier-1 ticket resolution.",
         deliverables: [
-          "AI Helpdesk Agent (Tier-1 auto-resolution)",
+          "AI Support Agent (Tier-1 auto-resolution)",
           "Microsoft 365 security baseline",
           isSmall ? "Basic monitoring setup" : "24/7 proactive monitoring",
           "SLA framework established",
@@ -279,7 +279,7 @@ export default function ROIRoadmapGenerator() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Helpdesk Tickets / Month</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Support Tickets / Month</label>
                 <Input
                   type="number"
                   value={profile.ticketsPerMonth}

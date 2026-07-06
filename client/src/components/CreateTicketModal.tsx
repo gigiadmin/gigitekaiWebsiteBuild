@@ -42,7 +42,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
       try {
         utils.helpdesk.getAllTickets.invalidate();
       } catch (e) {
-        console.warn("[Helpdesk] Failed to invalidate tickets cache:", e);
+        console.warn("[Support Services] Failed to invalidate tickets cache:", e);
       }
       reset();
       setSelectedPriority("medium");
@@ -66,7 +66,7 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
       try {
         utils.helpdesk.getAllTickets.invalidate();
       } catch (e) {
-        console.warn("[Helpdesk] Failed to invalidate tickets cache:", e);
+        console.warn("[Support Services] Failed to invalidate tickets cache:", e);
       }
       reset();
       setSelectedPriority("medium");

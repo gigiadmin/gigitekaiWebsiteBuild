@@ -196,7 +196,7 @@ export const LEAD_MAGNETS: LeadMagnet[] = [
   },
   {
     id: 'helpdesk-sla',
-    title: 'Helpdesk SLA Template',
+    title: 'Support Services SLA Template',
     description: 'Professional SLA document for IT support services',
     icon: 'word',
     downloadUrl: '/manus-storage/Helpdesk_SLA_Template_3a55e9ec.pdf',

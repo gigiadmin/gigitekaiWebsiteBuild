@@ -205,7 +205,7 @@ export function MultiStepContactForm() {
             {[
               { key: "needsCybersecurity", label: "Cybersecurity Solutions" },
               { key: "needsCloud", label: "Cloud Services & Migration" },
-              { key: "needsHelpdesk", label: "Helpdesk & IT Support" },
+              { key: "needsHelpdesk", label: "Managed IT Support" },
               { key: "needsAI", label: "AI & Automation" },
             ].map(({ key, label }) => (
               <label key={key} className="flex items-center gap-3 p-4 bg-slate-700 hover:bg-slate-600 rounded-lg cursor-pointer transition-colors">

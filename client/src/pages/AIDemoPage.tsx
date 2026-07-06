@@ -55,7 +55,7 @@ const SCENARIOS = [
   {
     id: "helpdesk",
     icon: Ticket,
-    title: "AI Helpdesk Agent",
+    title: "AI Support Agent",
     subtitle: "Tier-1 ticket auto-resolution",
     description:
       "Watch an AI agent receive, classify, and resolve a password reset ticket — without a human touching it.",
@@ -110,7 +110,7 @@ const SCENARIOS = [
         status: "complete",
       },
     ],
-    codeSnippet: `// GigitekAI Helpdesk Agent — Tier-1 Auto-Resolution
+    codeSnippet: `// GigitekAI Support Agent — Tier-1 Auto-Resolution
 // Runtime: Azure Functions + Microsoft Graph API
 
 async function handleTicket(ticket) {
@@ -571,7 +571,7 @@ async function offboardEmployee(employee) {
         agent: "CRM Sub-Agent",
         icon: Database,
         action: "[PARALLEL] Creating Dynamics 365 records",
-        detail: "Account, contacts, and SLA records created in D365. Support queue assigned. Helpdesk portal provisioned.",
+        detail: "Account, contacts, and SLA records created in D365. Support queue assigned. Support Services portal provisioned.",
         duration: 800,
         status: "processing",
       },
@@ -603,7 +603,7 @@ async function offboardEmployee(employee) {
         agent: "Orchestrator Agent",
         icon: CheckCircle2,
         action: "Full environment live — 8 systems connected",
-        detail: "M365 · Azure · D365 · Intune · ConnectSecure · DefensX · Billing · Helpdesk all provisioned. Time: 11 min 23 sec.",
+        detail: "M365 · Azure · D365 · Intune · ConnectSecure · DefensX · Billing · Support Services all provisioned. Time: 11 min 23 sec.",
         duration: 400,
         status: "complete",
       },

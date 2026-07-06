@@ -18,7 +18,7 @@ import { toast } from "sonner";
 
 const SERVICES = [
   { id: "Email API", label: "Email API", description: "Email delivery and management" },
-  { id: "Helpdesk System", label: "Helpdesk System", description: "Ticket management and support" },
+  { id: "Support Services System", label: "Support Services System", description: "Ticket management and support" },
   { id: "M365 Service Health", label: "Microsoft 365 Health", description: "M365 service status updates" },
 ];
 
@@ -34,7 +34,7 @@ interface SubscriptionFormState {
 export function ServiceStatusSubscriptionForm() {
   const [formState, setFormState] = useState<SubscriptionFormState>({
     email: "",
-    selectedServices: ["Email API", "Helpdesk System", "M365 Service Health"],
+    selectedServices: ["Email API", "Support Services System", "M365 Service Health"],
     notifyOnHealthy: false,
     notifyOnDegraded: true,
     notifyOnCritical: true,
@@ -51,7 +51,7 @@ export function ServiceStatusSubscriptionForm() {
       setTimeout(() => {
         setFormState({
           email: "",
-          selectedServices: ["Email API", "Helpdesk System", "M365 Service Health"],
+          selectedServices: ["Email API", "Support Services System", "M365 Service Health"],
           notifyOnHealthy: false,
           notifyOnDegraded: true,
           notifyOnCritical: true,

@@ -154,7 +154,7 @@ export const TeamsRemoteAssistanceButton: React.FC<TeamsRemoteAssistanceButtonPr
             Launch Remote Assistance Session
           </DialogTitle>
           <DialogDescription>
-            Start a remote session for Ticket #{ticketId} and notify the Teams Helpdesk channel.
+            Start a remote session for Ticket #{ticketId} and notify the Teams Support Services channel.
           </DialogDescription>
         </DialogHeader>
 
@@ -217,7 +217,7 @@ export const TeamsRemoteAssistanceButton: React.FC<TeamsRemoteAssistanceButtonPr
             <div className="flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
               <MessageSquare className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
               <p className="text-xs text-blue-300">
-                An Adaptive Card will be posted to the <strong>Helpdesk Teams channel</strong> with
+                An Adaptive Card will be posted to the <strong>Support Services Teams channel</strong> with
                 the session details and a direct join link for team visibility.
               </p>
             </div>
@@ -259,7 +259,7 @@ export const TeamsRemoteAssistanceButton: React.FC<TeamsRemoteAssistanceButtonPr
             <div className="flex items-start gap-2 rounded-lg border border-green-500/30 bg-green-500/5 p-3">
               <AlertCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
               <p className="text-xs text-green-300">
-                The client has been emailed the session code. The Teams Helpdesk channel has been
+                The client has been emailed the session code. The Teams Support Services channel has been
                 notified with full session details.
               </p>
             </div>

@@ -691,9 +691,9 @@ export default function AdminContactCenterDashboard() {
           </div>
         </div>
 
-        {/* ── Helpdesk Performance ── */}
+        {/* ── Support Services Performance ── */}
         <div>
-          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Helpdesk Performance</h2>
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Support Services Performance</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             <MetricCard
               title="Total Tickets"

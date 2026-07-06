@@ -266,7 +266,7 @@ export default function AdminGuide() {
               {
                 task: "Create a New Ticket",
                 steps: [
-                  "Go to Helpdesk → Tickets",
+                  "Go to Support Services → Tickets",
                   "Click 'New Ticket'",
                   "Fill in customer info and issue details",
                   "Assign to a team member or leave unassigned",
@@ -286,7 +286,7 @@ export default function AdminGuide() {
               {
                 task: "Resolve a Ticket",
                 steps: [
-                  "Find the ticket in Helpdesk",
+                  "Find the ticket in Support Services",
                   "Add any final notes or replies",
                   "Change status to 'Resolved'",
                   "Click 'Save'",

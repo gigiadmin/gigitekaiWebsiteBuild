@@ -1,5 +1,5 @@
 /**
- * Helpdesk Ticket - Remote Assistance Integration
+ * Support Services Ticket - Remote Assistance Integration
  * Launch remote assistance sessions directly from support tickets
  */
 
