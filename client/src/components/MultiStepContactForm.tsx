@@ -420,7 +420,7 @@ export function MultiStepContactForm() {
             <ul className="text-gray-300 space-y-2">
               {state.needsCybersecurity && <li>✓ Cybersecurity Solutions</li>}
               {state.needsCloud && <li>✓ Cloud Services</li>}
-              {state.needsHelpdesk && <li>✓ Helpdesk Support</li>}
+              {state.needsHelpdesk && <li>✓ Managed IT Support</li>}
               {state.needsAI && <li>✓ AI & Automation</li>}
               {state.otherNeeds && <li>✓ {state.otherNeeds}</li>}
             </ul>

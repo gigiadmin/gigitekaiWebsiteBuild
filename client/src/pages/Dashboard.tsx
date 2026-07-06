@@ -52,8 +52,8 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Helpdesk Dashboard</h1>
-          <p className="text-slate-400">Real-time monitoring of helpdesk metrics and agent performance</p>
+          <h1 className="text-4xl font-bold mb-2">Support Services Dashboard</h1>
+          <p className="text-slate-400">Real-time monitoring of support metrics and agent performance</p>
         </div>
 
         {/* System Health */}

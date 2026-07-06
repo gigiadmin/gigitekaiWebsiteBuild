@@ -303,7 +303,7 @@ export default function TicketDetail({ isAdminOverride = false }: TicketDetailPr
   const priorityConfig = getPriorityConfig(ticket.priority);
 
   const breadcrumbs = [
-    { label: "Helpdesk", href: "/helpdesk/dashboard" },
+    { label: "Support Services", href: "/helpdesk/dashboard" },
     { label: "Tickets", href: "/helpdesk/dashboard" },
     { label: `#${ticketIdNum}` },
   ];

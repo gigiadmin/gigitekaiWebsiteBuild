@@ -1949,3 +1949,23 @@
 - [ ] Add fetchpriority="high" to LCP hero image preload
 - [ ] Add resource hints: dns-prefetch for third-party domains
 - [ ] Verify build produces smaller initial bundle and improved PageSpeed scores
+
+
+## Helpdesk → Managed IT Services Rebranding - July 6, 2026
+
+- [x] Replace "Helpdesk" with "Managed IT Services" in AdminLayout sidebar (line 88)
+- [x] Replace "Helpdesk" with "Support Services" in AdminLayoutWithSidebar (line 118)
+- [x] Replace "Helpdesk" with "Support Services" in AdminMenuCustomizer (line 18)
+- [x] Replace "Helpdesk" with "Support Services" in AgenticOrchestrationSection (line 30)
+- [x] Replace "Helpdesk" with "Support Services" in MobileAdminMenu (line 18)
+- [x] Replace "Helpdesk Support" with "Managed IT Support" in MultiStepContactForm (line 423)
+- [x] Replace "Helpdesk" with "Support Services" in AdminDashboard tab (line 48)
+- [x] Replace "Helpdesk" with "Support Services" in AdminHelpdeskPage title (line 9)
+- [x] Replace "Helpdesk" with "Support Services" in AdminHome (line 365)
+- [x] Replace "Helpdesk" with "Support Services" in AdminLeadsPage (line 314)
+- [x] Replace "Helpdesk" with "Support Services" in AdminPanelPage title (line 9)
+- [x] Replace "Helpdesk" with "Support Services" in ClientExchangePage tags (line 80)
+- [x] Replace "Helpdesk Dashboard" with "Support Services Dashboard" in Dashboard (line 55)
+- [x] Replace "Helpdesk Support" references in FreeAuditPricingPage (lines 28, 45)
+- [x] Replace "Helpdesk Support" with "Managed IT Support" in ServiceDetail (line 183)
+- [x] Replace "Helpdesk" with "Support Services" in TicketDetail breadcrumb (line 306)

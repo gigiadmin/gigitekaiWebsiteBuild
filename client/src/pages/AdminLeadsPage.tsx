@@ -311,7 +311,7 @@ export default function AdminLeadsPage() {
                     const needs = [
                       lead.needsCybersecurity && "Cybersecurity",
                       lead.needsCloud && "Cloud",
-                      lead.needsHelpdesk && "Helpdesk",
+                      lead.needsHelpdesk && "Support Services",
                       lead.needsAI && "AI",
                     ].filter(Boolean) as string[];
 

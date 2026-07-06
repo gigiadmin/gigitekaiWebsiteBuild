@@ -6,7 +6,7 @@ import AdminPanel from "./AdminPanel";
 
 export default function AdminHelpdeskPage() {
   return (
-    <AdminLayout title="Helpdesk" noPadding>
+    <AdminLayout title="Support Services" noPadding>
       <AdminPanel />
     </AdminLayout>
   );

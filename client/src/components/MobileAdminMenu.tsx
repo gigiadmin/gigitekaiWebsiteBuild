@@ -15,7 +15,7 @@ const menuSections = [
   {
     title: "OPERATIONS",
     items: [
-      { label: "Helpdesk", icon: MessageSquare, path: "/admin/helpdesk" },
+      { label: "Support Services", icon: MessageSquare, path: "/admin/helpdesk" },
       { label: "Live Chat", icon: MessageSquare, path: "/admin/chat" },
       { label: "AI Agents", icon: Zap, path: "/admin/agents" },
       { label: "Notifications", icon: Bell, path: "/admin/notifications" },

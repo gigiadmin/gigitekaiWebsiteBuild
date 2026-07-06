@@ -25,7 +25,7 @@ const pricingTiers: PricingTier[] = [
     discountedPrice: 750,
     description: "Perfect for businesses just getting started with managed IT services",
     features: [
-      "Basic Helpdesk Support (Tier 1-2)",
+      "Basic Managed IT Support (Tier 1-2)",
       "24/5 Support",
       "Email & Password Management",
       "Basic Backup & Recovery",
@@ -42,7 +42,7 @@ const pricingTiers: PricingTier[] = [
     discountedPrice: 1750,
     description: "For scaling businesses ready to leverage AI automation",
     features: [
-      "Full Helpdesk Support (Tier 1-3)",
+      "Full Managed IT Support (Tier 1-3)",
       "24/7 Support",
       "AI Agent Automation",
       "Microsoft 365 Optimization",

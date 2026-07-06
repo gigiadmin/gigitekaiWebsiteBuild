@@ -362,7 +362,7 @@ export default function AdminHome() {
             <CardContent className="pt-0 space-y-3">
               {[
                 {
-                  label: "Helpdesk",
+                  label: "Support Services",
                   status: openTickets > 10 ? "warning" : "operational",
                   detail: openTickets > 10 ? `${openTickets} tickets need attention` : "All systems normal",
                 },

@@ -45,7 +45,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: "chat" as TabType, label: "Live Chat", icon: <MessageSquare className="w-5 h-5" /> },
-    { id: "helpdesk" as TabType, label: "Helpdesk", icon: <Ticket className="w-5 h-5" /> },
+    { id: "helpdesk" as TabType, label: "Support Services", icon: <Ticket className="w-5 h-5" /> },
     { id: "notifications" as TabType, label: "Notifications", icon: <Bell className="w-5 h-5" /> },
   ];
 

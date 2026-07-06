@@ -180,7 +180,7 @@ const serviceData: Record<string, {
     heroDescription: "Focus on your core business while we manage your IT infrastructure. Our managed services provide 24/7 monitoring, proactive maintenance, helpdesk support, and strategic guidance to keep your technology running at peak performance.",
     features: [
       { title: "24/7 Monitoring", description: "Continuous monitoring of servers, networks, applications, and endpoints. Proactive alerting and automated remediation to prevent issues before they impact your business." },
-      { title: "Helpdesk Support", description: "Dedicated helpdesk with guaranteed response times. Tier 1-3 support for all technology issues with escalation procedures and SLA tracking." },
+      { title: "Managed IT Support", description: "Dedicated support with guaranteed response times. Tier 1-3 support for all technology issues with escalation procedures and SLA tracking." },
       { title: "Patch Management", description: "Automated patch management for operating systems, applications, and firmware. Ensure security compliance and reduce vulnerability exposure." },
       { title: "Backup & Recovery", description: "Comprehensive backup solutions with regular testing and verified recovery procedures. Protect your data with 3-2-1 backup strategies and immutable backups." },
       { title: "Endpoint Management", description: "Unified endpoint management for desktops, laptops, and mobile devices. Deploy, configure, and secure all endpoints from a central console." },

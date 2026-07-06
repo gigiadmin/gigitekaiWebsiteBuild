@@ -15,7 +15,7 @@ const DEFAULT_MENU: MenuItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "LayoutDashboard", section: "OVERVIEW" },
   { id: "metrics", label: "Metrics", icon: "BarChart3", section: "OVERVIEW" },
   // Operations
-  { id: "helpdesk", label: "Helpdesk", icon: "Headphones", section: "OPERATIONS" },
+  { id: "helpdesk", label: "Support Services", icon: "Headphones", section: "OPERATIONS" },
   { id: "closed-tickets", label: "Closed Tickets", icon: "CheckCircle", section: "OPERATIONS" },
   { id: "agent-dashboard", label: "Agent Dashboard", icon: "Users", section: "OPERATIONS" },
   { id: "canned-responses", label: "Canned Responses", icon: "MessageSquare", section: "OPERATIONS" },

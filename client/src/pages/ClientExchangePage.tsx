@@ -77,7 +77,7 @@ const SCRIPTS: Script[] = [
     downloads: 847,
     rating: 4.8,
     reviews: 124,
-    tags: ["Entra ID", "Graph API", "Helpdesk"],
+    tags: ["Entra ID", "Graph API", "Support Services"],
     verified: true,
     featured: true,
   },

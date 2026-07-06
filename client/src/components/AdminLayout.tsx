@@ -85,7 +85,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Operations",
     items: [
-      { label: "Helpdesk", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
+      { label: "Support Services", icon: <Ticket size={16} />, href: "/admin/helpdesk" },
       { label: "Call Review", icon: <Phone size={16} />, href: "/admin/call-review" },
       // { label: "Call Quality", icon: <Star size={16} />, href: "/admin/call-quality" }, // HIDDEN - may use later
       { label: "Contact Center", icon: <Headphones size={16} />, href: "/admin/contact-center" },

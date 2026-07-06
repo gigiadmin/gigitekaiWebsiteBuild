@@ -27,7 +27,7 @@ const SYSTEMS = [
   { icon: Cpu, label: "Intune MDM", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/30" },
   { icon: BarChart3, label: "Dynamics 365", color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/30" },
   { icon: Users, label: "DefensX", color: "text-red-400", bg: "bg-red-500/10 border-red-500/30" },
-  { icon: GitBranch, label: "Helpdesk", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30" },
+  { icon: GitBranch, label: "Support Services", color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/30" },
   { icon: Zap, label: "Billing API", color: "text-pink-400", bg: "bg-pink-500/10 border-pink-500/30" },
 ];
 
@@ -37,7 +37,7 @@ const AGENT_STEPS = [
   { agent: "Security Agent", action: "Enrolls device in ConnectSecure + DefensX policies", time: "1.4s" },
   { agent: "Device Agent", action: "Pushes Intune MDM profile + compliance baseline", time: "1.6s" },
   { agent: "CRM Agent", action: "Creates Dynamics 365 contact + opportunity record", time: "1.8s" },
-  { agent: "Helpdesk Agent", action: "Opens onboarding ticket + assigns to tech team", time: "2.0s" },
+  { agent: "Support Services Agent", action: "Opens onboarding ticket + assigns to tech team", time: "2.0s" },
   { agent: "Billing Agent", action: "Activates subscription + generates first invoice", time: "2.1s" },
   { agent: "Orchestrator Agent", action: "Validates all 7 systems — sends welcome email", time: "3.4s" },
 ];
