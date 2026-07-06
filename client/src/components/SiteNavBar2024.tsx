@@ -165,7 +165,7 @@ export default function SiteNavBar2024() {
               { label: "Industries", href: "/industries", show: 'always' },
               // { label: "About Us", href: "/about-us", show: 'always' }, // HIDDEN
               { label: "Free Audit", href: "/free-audit", show: 'always' },
-              { label: "Helpdesk Pricing", href: "/helpdesk-pricing", show: 'always' },
+              { label: "Managed IT Services", href: "/helpdesk-pricing", show: 'always' },
               // { label: "ROI Calculator", href: "/roi-calculator", show: 'always' }, // REMOVED: too complex for now
               { label: "Insights", href: "/blog", show: 'always' },
               { label: "Knowledge Base", href: "/kb", show: 'always' },
@@ -266,7 +266,7 @@ export default function SiteNavBar2024() {
                 { label: "Industries", href: "/industries", id: "nav-industries" },
                 // { label: "About Us", href: "/about", id: "nav-about" }, // HIDDEN — re-enable at production launch
                 { label: "Free Audit", href: "/free-audit", id: "nav-audit" },
-                { label: "Helpdesk Pricing", href: "/helpdesk-pricing", id: "nav-pricing" },
+                { label: "Managed IT Services", href: "/helpdesk-pricing", id: "nav-pricing" },
                 // { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" }, // REMOVED: too complex for now
                 { label: "Insights", href: "/blog", id: "nav-insights" },
                 { label: "Knowledge Base", href: "/kb", id: "nav-kb" },

@@ -86,7 +86,7 @@ export default function PricingFAQ() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Managed IT & Helpdesk Pricing FAQ</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">24/7 Managed IT Services Pricing FAQ</h2>
           <p className="text-xl text-slate-400">Find answers to common questions about our service tiers and pricing</p>
         </div>
 

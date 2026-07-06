@@ -39,9 +39,9 @@ export const SEO_CONFIG: Record<string, PageSEO> = {
       "Transparent pricing for managed IT, cloud infrastructure, AI automation, and cybersecurity services. Custom plans for businesses of all sizes.",
   },
   "/helpdesk-pricing": {
-    title: "Managed Helpdesk Pricing Plans | GigitekAI",
+    title: "24/7 Managed IT Services Pricing | GigitekAI",
     description:
-      "AI-powered helpdesk plans starting at competitive rates. 24/7 support, SLA guarantees, and intelligent ticket routing. Get a custom quote today.",
+      "24/7 Managed IT Services pricing starting at $99/user/month. AI-powered support, SLA guarantees, and compliance management. Get a custom quote today.",
   },
   "/helpdesk": {
     title: "IT Support Helpdesk | GigitekAI",

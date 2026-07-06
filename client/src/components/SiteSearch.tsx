@@ -225,7 +225,7 @@ export default function SiteSearch({ open, onClose }: SiteSearchProps) {
           {/* Hint when query is empty */}
           {debouncedQuery.length === 0 && (
             <div className="mt-3 flex flex-wrap gap-2 pb-1">
-              {["Cloud Infrastructure", "AI Solutions", "Cybersecurity", "Helpdesk Pricing", "About Us"].map((hint) => (
+              {["Cloud Infrastructure", "AI Solutions", "Cybersecurity", "Managed IT Services", "About Us"].map((hint) => (
                 <button
                   key={hint}
                   onClick={() => setQuery(hint)}
