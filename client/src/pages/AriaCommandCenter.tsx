@@ -1,6 +1,7 @@
 /**
  * Aria Command Center — GigitekAI Main Brain
  * Holographic sphere with real-time audio volume visualization
+ * Fully responsive layout for mobile and desktop
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
@@ -80,14 +81,12 @@ function speakAsAria(text: string, onEnd?: () => void) {
 }
 
 function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; audioVolume: number }) {
-  // audioVolume ranges from 0 to 1
-  const volumeScale = 1 + audioVolume * 0.3; // Scale from 1 to 1.3
-  const volumeOpacity = 0.3 + audioVolume * 0.7; // Opacity from 0.3 to 1
-  const glowIntensity = audioVolume * 100; // For shadow glow
+  const volumeScale = 1 + audioVolume * 0.3;
+  const volumeOpacity = 0.3 + audioVolume * 0.7;
+  const glowIntensity = audioVolume * 100;
 
   return (
-    <div className="relative w-64 h-64 flex items-center justify-center">
-      {/* Outer pulsating rings - react to volume */}
+    <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 flex items-center justify-center flex-shrink-0">
       <div 
         className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
         style={{ 
@@ -117,7 +116,6 @@ function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; a
         }} 
       />
 
-      {/* Central glowing sphere - reacts to volume */}
       <div 
         className="absolute inset-12 rounded-full bg-gradient-to-br from-cyan-400/40 to-cyan-600/20 blur-xl"
         style={{ 
@@ -129,7 +127,6 @@ function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; a
         }} 
       />
       
-      {/* Core sphere - reacts to volume */}
       <div 
         className="absolute inset-16 rounded-full bg-cyan-500/30 blur-md"
         style={{
@@ -147,9 +144,8 @@ function HolographicSphere({ isActive, audioVolume = 0 }: { isActive: boolean; a
         }}
       />
 
-      {/* Center dot - reacts to volume */}
       <div 
-        className="absolute w-4 h-4 rounded-full bg-cyan-300 shadow-lg"
+        className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-cyan-300 shadow-lg"
         style={{
           transform: `scale(${0.8 + audioVolume * 0.4})`,
           boxShadow: `0 0 ${15 + glowIntensity}px rgba(165, 243, 252, ${0.8 + audioVolume * 0.2})`,
@@ -215,20 +211,18 @@ export default function AriaCommandCenter() {
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }]);
   }, []);
 
-  // Analyze audio volume in real-time
   const analyzeAudioVolume = useCallback(() => {
     if (!analyzerRef.current) return;
 
     const dataArray = new Uint8Array(analyzerRef.current.frequencyBinCount);
     analyzerRef.current.getByteFrequencyData(dataArray);
 
-    // Calculate RMS (root mean square) for volume
     let sum = 0;
     for (let i = 0; i < dataArray.length; i++) {
       sum += dataArray[i] * dataArray[i];
     }
     const rms = Math.sqrt(sum / dataArray.length);
-    const normalizedVolume = Math.min(rms / 128, 1); // Normalize to 0-1
+    const normalizedVolume = Math.min(rms / 128, 1);
 
     setAudioVolume(normalizedVolume);
 
@@ -244,7 +238,6 @@ export default function AriaCommandCenter() {
       mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
 
-      // Set up audio context for volume analysis
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
@@ -381,7 +374,6 @@ export default function AriaCommandCenter() {
   const isProcessing = stage !== "idle";
   const isActive = isRecording || isSpeaking || isProcessing;
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
@@ -393,7 +385,6 @@ export default function AriaCommandCenter() {
     };
   }, []);
 
-  // System Status Boxes
   const systemBoxes = [
     { label: "Open Tickets", icon: AlertCircle, count: "12", status: "healthy" },
     { label: "System Status", icon: CheckCircle, count: "99.9%", status: "healthy" },
@@ -406,33 +397,31 @@ export default function AriaCommandCenter() {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
-      <div className="border-b border-cyan-500/20 bg-slate-900/60 backdrop-blur px-6 py-4 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
-            <Brain className="w-5 h-5 text-cyan-400" />
+      <div className="border-b border-cyan-500/20 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
+            <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white leading-tight">Aria Command Center</h1>
-            <p className="text-xs text-slate-400">GigitekAI — AI Engineer · M365 · Azure · Exchange</p>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-white leading-tight truncate">Aria Command Center</h1>
+            <p className="text-xs text-slate-400 truncate">GigitekAI — AI Engineer · M365 · Azure</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => { if (isSpeaking) stopSpeaking(); setVoiceEnabled((v) => !v); }}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
+            className={`flex items-center gap-1 text-xs px-2 sm:px-3 py-1.5 rounded-full border transition-all ${
               voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-600 text-slate-500"
             }`}
           >
-            {voiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
-            {voiceEnabled ? "Voice On" : "Voice Off"}
+            {voiceEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
+            <span className="hidden sm:inline">{voiceEnabled ? "Voice On" : "Voice Off"}</span>
           </button>
 
-          <div className="flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-1.5 bg-slate-800/60 border border-slate-700/50 px-2 sm:px-3 py-1.5 rounded-full text-xs">
             <span className={`w-2 h-2 rounded-full ${isProcessing ? "bg-yellow-400 animate-pulse" : isSpeaking ? "bg-green-400 animate-pulse" : "bg-cyan-400"}`} />
-            <span className="text-xs text-slate-300 font-medium">
-              {isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}
-            </span>
+            <span className="text-slate-300 font-medium hidden sm:inline">{isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}</span>
             {isSpeaking && (
               <button onClick={stopSpeaking} className="text-slate-500 hover:text-red-400 ml-1">
                 <VolumeX size={12} />
@@ -442,17 +431,15 @@ export default function AriaCommandCenter() {
         </div>
       </div>
 
-      {/* Main Content - Holosphere + Chat */}
-      <div className="flex-1 overflow-hidden flex gap-6 p-6">
+      {/* Main Content - Responsive Layout */}
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-4 sm:gap-6 p-3 sm:p-6">
         {/* Left: Holographic Sphere + System Status Grid */}
-        <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 sm:gap-8 min-w-0">
           {/* Holographic Sphere */}
-          <div className="mb-12">
-            <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
-          </div>
+          <HolographicSphere isActive={isActive} audioVolume={audioVolume} />
 
-          {/* System Status Grid - 2x3 */}
-          <div className="grid grid-cols-3 gap-3 w-full max-w-md">
+          {/* System Status Grid - 2x3 on mobile, 3x2 on larger */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md">
             {systemBoxes.map((box) => {
               const Icon = box.icon;
               const statusColor = box.status === "healthy" 
@@ -464,9 +451,9 @@ export default function AriaCommandCenter() {
                 <button
                   key={box.label}
                   onClick={() => { setInput(box.label); inputRef.current?.focus(); }}
-                  className={`p-3 rounded-lg border transition-all cursor-pointer ${statusColor}`}
+                  className={`p-2 sm:p-3 rounded-lg border transition-all cursor-pointer ${statusColor}`}
                 >
-                  <div className={`${textColor} mb-1`}><Icon size={16} /></div>
+                  <div className={`${textColor} mb-1`}><Icon size={14} className="sm:w-4 sm:h-4" /></div>
                   <h3 className="font-semibold text-xs mb-0.5 text-white">{box.label}</h3>
                   <p className="text-xs font-bold text-gray-200">{box.count}</p>
                 </button>
@@ -475,17 +462,17 @@ export default function AriaCommandCenter() {
           </div>
         </div>
 
-        {/* Right: Chat Messages */}
-        <div className="w-96 flex flex-col border-l border-cyan-500/20 pl-6">
+        {/* Right: Chat Messages - Full width on mobile, sidebar on desktop */}
+        <div className="w-full lg:w-80 flex flex-col border-t lg:border-t-0 lg:border-l border-cyan-500/20 pt-4 lg:pt-0 lg:pl-6">
           {/* Chat Header */}
-          <div className="mb-4 pb-4 border-b border-cyan-500/20">
-            <h2 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider">Conversation</h2>
+          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-cyan-500/20">
+            <h2 className="text-xs sm:text-sm font-semibold text-cyan-400 uppercase tracking-wider">Conversation</h2>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-3 mb-4">
+          <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 mb-3 sm:mb-4">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 text-sm py-8">
+              <div className="text-center text-gray-500 text-xs sm:text-sm py-6 sm:py-8">
                 <p>Ask me anything...</p>
               </div>
             ) : (
@@ -496,7 +483,7 @@ export default function AriaCommandCenter() {
                     className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-xs p-3 rounded-lg text-sm ${
+                      className={`max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm ${
                         message.role === "user"
                           ? "bg-cyan-500/20 border border-cyan-500/40 text-white"
                           : "bg-gray-800/50 border border-gray-700/50 text-gray-100"
@@ -509,7 +496,7 @@ export default function AriaCommandCenter() {
                 ))}
                 {isProcessing && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                    <div className="bg-gray-800/50 border border-gray-700/50 p-2 sm:p-3 rounded-lg">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                         <span className="text-xs text-gray-400">{STAGE_LABEL[stage]}</span>
@@ -524,19 +511,19 @@ export default function AriaCommandCenter() {
           </div>
 
           {/* Input Area */}
-          <div className="space-y-2 border-t border-cyan-500/20 pt-4">
-            <div className="flex gap-2">
+          <div className="space-y-2 border-t border-cyan-500/20 pt-3 sm:pt-4">
+            <div className="flex gap-1.5 sm:gap-2">
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
                 variant={isRecording ? "default" : "outline"}
                 size="sm"
-                className={`flex-1 ${
+                className={`flex-1 text-xs sm:text-sm ${
                   isRecording
                     ? "bg-red-500 hover:bg-red-600 border-red-500"
                     : "border-cyan-500/30 hover:border-cyan-400"
                 }`}
               >
-                {isRecording ? <MicOff size={14} className="mr-1" /> : <Mic size={14} className="mr-1" />}
+                {isRecording ? <MicOff size={12} className="sm:w-4 sm:h-4 mr-1" /> : <Mic size={12} className="sm:w-4 sm:h-4 mr-1" />}
                 {isRecording ? "Stop" : "Voice"}
               </Button>
               <Button
@@ -545,7 +532,7 @@ export default function AriaCommandCenter() {
                 size="sm"
                 className="border-cyan-500/30 hover:border-cyan-400"
               >
-                <Trash2 size={14} />
+                <Trash2 size={12} className="sm:w-4 sm:h-4" />
               </Button>
               <Button
                 onClick={saveChat}
@@ -553,18 +540,18 @@ export default function AriaCommandCenter() {
                 size="sm"
                 className="border-cyan-500/30 hover:border-cyan-400"
               >
-                <Download size={14} />
+                <Download size={12} className="sm:w-4 sm:h-4" />
               </Button>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 sm:gap-2">
               <Input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
                 placeholder="Ask Aria..."
-                className="bg-gray-900/50 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500 text-sm"
+                className="bg-gray-900/50 border-cyan-500/30 focus:border-cyan-400 text-white placeholder-gray-500 text-xs sm:text-sm"
                 disabled={isProcessing}
               />
               <Button
@@ -573,7 +560,7 @@ export default function AriaCommandCenter() {
                 className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold"
                 size="sm"
               >
-                <Send size={14} />
+                <Send size={12} className="sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>
