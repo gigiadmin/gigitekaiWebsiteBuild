@@ -366,8 +366,36 @@ function StatusBox({ icon: Icon, label, value, status, onClick }: {
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 const ARIA_CHAT_STORAGE_KEY = "aria_chat_history";
 
+// Load chat history from localStorage
+function loadChatHistory(): Message[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(ARIA_CHAT_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    // Convert timestamp strings back to Date objects
+    return Array.isArray(parsed) ? parsed.map((m: any) => ({
+      ...m,
+      timestamp: new Date(m.timestamp)
+    })) : [];
+  } catch (e) {
+    console.error("Failed to load chat history:", e);
+    return [];
+  }
+}
+
+// Save chat history to localStorage
+function saveChatHistory(msgs: Message[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(ARIA_CHAT_STORAGE_KEY, JSON.stringify(msgs));
+  } catch (e) {
+    console.error("Failed to save chat history:", e);
+  }
+}
+
 export default function AriaCommandCenter() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => loadChatHistory());
   const [input, setInput] = useState("");
   const [stage, setStage] = useState<Stage>("idle");
   const [isRecording, setIsRecording] = useState(false);
@@ -415,7 +443,11 @@ export default function AriaCommandCenter() {
   }, [messages, stage]);
 
   const addMessage = useCallback((msg: Omit<Message, "id">) => {
-    setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }]);
+    setMessages((prev) => {
+      const newMessages = [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }];
+      saveChatHistory(newMessages);
+      return newMessages;
+    });
   }, []);
 
   /* Audio volume analysis with voice activity detection */
@@ -484,20 +516,32 @@ export default function AriaCommandCenter() {
           const base64 = (reader.result as string).split(",")[1];
           setStage("transcribing");
           const placeholderId = `voice-${Date.now()}`;
-          setMessages((prev) => [...prev, { id: placeholderId, role: "user", content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true }]);
+          setMessages((prev) => {
+            const newMessages = [...prev, { id: placeholderId, role: "user", content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true }];
+            saveChatHistory(newMessages);
+            return newMessages;
+          });
           setStage("thinking");
           try {
             const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, context: { systemStatus: true } });
             
             // Check wake word if required
             if (requireWakeWord && !detectWakeWord(result.transcribedQuestion || "")) {
-              setMessages((prev) => prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"} (wake word not detected - try saying "Hey Aria")` } : m));
+              setMessages((prev) => {
+                const updated = prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"} (wake word not detected - try saying "Hey Aria")` } : m);
+                saveChatHistory(updated);
+                return updated;
+              });
               setStage("idle");
               setVoiceActivityDetected(false);
               return;
             }
             
-            setMessages((prev) => prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` } : m));
+            setMessages((prev) => {
+              const updated = prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` } : m);
+              saveChatHistory(updated);
+              return updated;
+            });
             setStage("responding");
             await new Promise((r) => setTimeout(r, 200));
             addMessage({ role: "aria", content: result.response, timestamp: new Date() });
@@ -532,7 +576,14 @@ export default function AriaCommandCenter() {
     const q = input.trim();
     if (!q || stage !== "idle") return;
     setInput("");
-    addMessage({ role: "user", content: q, timestamp: new Date() });
+    
+    // Add user message and save
+    setMessages((prev) => {
+      const newMessages = [...prev, { id: `${Date.now()}-${Math.random()}`, role: "user", content: q, timestamp: new Date() }];
+      saveChatHistory(newMessages);
+      return newMessages;
+    });
+    
     setStage("thinking");
     const timer = setTimeout(() => setStage("searching"), 1200);
     try {
@@ -564,11 +615,7 @@ export default function AriaCommandCenter() {
     if (typeof window === "undefined") return;
     if (confirm("Clear all messages?")) {
       setMessages([]);
-      try {
-        localStorage.removeItem(ARIA_CHAT_STORAGE_KEY);
-      } catch (e) {
-        console.error("Failed to clear chat history:", e);
-      }
+      saveChatHistory([]);
       toast.success("Chat cleared");
     }
   }, []);
