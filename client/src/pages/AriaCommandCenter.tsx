@@ -754,8 +754,8 @@ export default function AriaCommandCenter() {
       {/* ── Main Layout ──────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
 
-        {/* ── Left Panel: Sphere + Status Grid — scrollable on mobile ─────── */}
-        <div className="flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
+        {/* ── Left Panel: Sphere + Status Grid — hidden on mobile, visible on lg ─────── */}
+        <div className="hidden lg:flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
           {/* Sphere */}
           <div className="flex-shrink-0">
             <HolographicSphere isActive={isActive} volume={audioVolume} stage={stage} />
@@ -784,7 +784,7 @@ export default function AriaCommandCenter() {
         {/* ── Right Panel: Chat ─────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ minHeight: 0 }}>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ overscrollBehavior: 'contain' }}>
+          <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-2 sm:py-4 space-y-2 sm:space-y-3" style={{ overscrollBehavior: 'contain' }}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center py-12">
                 <Activity className="w-8 h-8 text-cyan-500/40" />
@@ -796,12 +796,12 @@ export default function AriaCommandCenter() {
                 {messages.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group`}>
                     {msg.role === "aria" && (
-                      <div className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
-                        <Brain size={12} className="text-cyan-400" />
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mr-1.5 sm:mr-2 mt-0.5">
+                        <Brain size={10} className="sm:w-3 sm:h-3 text-cyan-400" />
                       </div>
                     )}
                     <div className="relative">
-                      <div className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-base sm:text-sm ${
+                      <div className={`max-w-[92%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-sm ${
                         msg.role === "user"
                           ? "bg-cyan-600/20 border border-cyan-500/30 text-white rounded-tr-sm"
                           : "bg-slate-800/70 border border-white/5 text-slate-50 rounded-tl-sm"
@@ -819,17 +819,17 @@ export default function AriaCommandCenter() {
                         ) : (
                           <p className="leading-relaxed text-base sm:text-sm">{msg.content}</p>
                         )}
-                        <p className="text-xs text-slate-400 mt-2 text-right">
-                          {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </p>
+                      <p className="text-[10px] sm:text-xs text-slate-400 mt-1 sm:mt-2 text-right">
+                        {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
                       </div>
                       {/* Delete button - appears on hover */}
                       <button
                         onClick={() => deleteMessage(msg.id)}
-                        className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600/80 hover:bg-red-700 rounded-full p-1 shadow-lg"
+                        className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600/80 hover:bg-red-700 rounded-full p-0.5 sm:p-1 shadow-lg"
                         title="Delete message"
                       >
-                        <Trash2 size={14} className="text-white" />
+                        <Trash2 size={12} className="sm:w-3.5 sm:h-3.5 text-white" />
                       </button>
                     </div>
                   </div>
