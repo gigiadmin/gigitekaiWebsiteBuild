@@ -374,9 +374,12 @@ function loadChatHistory(): Message[] {
     if (!stored) return [];
     const parsed = JSON.parse(stored);
     // Convert timestamp strings back to Date objects
-    return Array.isArray(parsed) ? parsed.map((m: any) => ({
-      ...m,
-      timestamp: new Date(m.timestamp)
+    return Array.isArray(parsed) ? parsed.map((m: any): Message => ({
+      id: m.id,
+      role: m.role as "user" | "aria",
+      content: m.content,
+      timestamp: new Date(m.timestamp),
+      isVoice: m.isVoice
     })) : [];
   } catch (e) {
     console.error("Failed to load chat history:", e);
