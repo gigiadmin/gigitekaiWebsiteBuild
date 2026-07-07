@@ -3,6 +3,8 @@
  * Fortune 100 quality holographic interface
  * Real-time audio volume visualization on sphere
  * Fully responsive: mobile-first
+ * 
+ * NEW: Voice Activity Detection, Sensitivity Control, Wake Word Detection
  */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
@@ -23,7 +25,7 @@ type Message = {
   isVoice?: boolean;
 };
 
-type Stage = "idle" | "listening" | "transcribing" | "thinking" | "searching" | "responding";
+type Stage = "idle" | "listening" | "transcribing" | "thinking" | "searching" | "responding" | "waiting_for_wake_word";
 
 const STAGE_LABEL: Record<Stage, string> = {
   idle: "Ready",
@@ -32,7 +34,22 @@ const STAGE_LABEL: Record<Stage, string> = {
   thinking: "Thinking...",
   searching: "Searching...",
   responding: "Responding...",
+  waiting_for_wake_word: "Waiting for wake word...",
 };
+
+/* ─── Voice Activity Detection ─────────────────────────────────────────────── */
+function detectVoiceActivity(frequencyData: Uint8Array, threshold: number = 0.3): boolean {
+  let sum = 0;
+  for (let i = 0; i < frequencyData.length; i++) sum += frequencyData[i];
+  const average = sum / frequencyData.length;
+  return average > (threshold * 255);
+}
+
+function detectWakeWord(transcript: string): boolean {
+  const normalized = transcript.toLowerCase().trim();
+  const wakeWords = ["hey aria", "aria", "hey aria listen", "aria listen"];
+  return wakeWords.some(word => normalized.includes(word));
+}
 
 /* ─── Voice helpers ─────────────────────────────────────────────────────── */
 // Cache voice to prevent switching mid-speech
@@ -122,6 +139,13 @@ const STAGE_COLORS: Record<Stage, {
     core: "radial-gradient(circle at 35% 35%, #a5f3fc, #0891b2 55%, #0e7490)",
     coreShadow: "rgba(34,211,238,", dot: "bg-white", dotShadow: "rgba(255,255,255,",
     label: "text-cyan-300/90", labelText: "◉ LISTENING",
+  },
+  waiting_for_wake_word: {
+    ring: "rgba(168,85,247,0.35)", ringBorder: "border-purple-400/35",
+    halo: "radial-gradient(circle, rgba(168,85,247,0.45) 0%, rgba(139,92,246,0.2) 60%, transparent 100%)",
+    core: "radial-gradient(circle at 35% 35%, #e9d5ff, #7c3aed 55%, #5b21b6)",
+    coreShadow: "rgba(168,85,247,", dot: "bg-purple-200", dotShadow: "rgba(233,213,255,",
+    label: "text-purple-300/90", labelText: "◎ WAITING FOR WAKE WORD",
   },
   transcribing: {
     ring: "rgba(168,85,247,0.35)", ringBorder: "border-purple-400/35",
@@ -251,53 +275,47 @@ function HolographicSphere({ isActive, volume = 0, stage = "idle" }: { isActive:
         }}
       />
       {/* Status label */}
-      <div
-        className="absolute left-0 right-0 flex justify-center"
-        style={{ bottom: 8 }}
-      >
-        <span className={`text-xs font-mono tracking-widest uppercase transition-colors duration-500 ${c.label}`}>
-          {c.labelText}
-        </span>
+      <div className="absolute bottom-0 text-center">
+        <p className={`text-[10px] font-bold tracking-widest ${c.label}`}>{c.labelText}</p>
       </div>
     </div>
   );
 }
 
-/* ─── Typing indicator ───────────────────────────────────────────────────── */
 function TypingDots() {
   return (
-    <span className="inline-flex items-end gap-[3px] ml-1">
+    <div className="flex gap-1">
       {[0, 1, 2].map((i) => (
-        <span
+        <div
           key={i}
-          className="w-[5px] h-[5px] rounded-full bg-cyan-400 inline-block"
-          style={{ animation: `aria-bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
+          className="w-1.5 h-1.5 bg-slate-400 rounded-full"
+          style={{
+            animation: `aria-bounce 1.4s infinite`,
+            animationDelay: `${i * 0.2}s`,
+          }}
         />
       ))}
-    </span>
+    </div>
   );
 }
 
-/* ─── System Status Box ──────────────────────────────────────────────────── */
-function StatusBox({
-  icon: Icon, label, value, status, onClick,
-}: {
+function StatusBox({ icon: Icon, label, value, status, onClick }: {
   icon: React.ElementType;
   label: string;
   value: string;
-  status: "ok" | "warn" | "info";
+  status: 'ok' | 'warn' | 'info';
   onClick: () => void;
 }) {
   const colors = {
-    ok:   { border: "border-emerald-500/40", bg: "bg-emerald-500/10 hover:bg-emerald-500/20", icon: "text-emerald-400", val: "text-emerald-300" },
-    warn: { border: "border-amber-500/50",   bg: "bg-amber-500/10  hover:bg-amber-500/20",   icon: "text-amber-400",   val: "text-amber-300"   },
-    info: { border: "border-cyan-500/40",    bg: "bg-cyan-500/10   hover:bg-cyan-500/20",    icon: "text-cyan-400",    val: "text-cyan-300"    },
+    ok: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: "text-emerald-400", val: "text-emerald-300" },
+    warn: { bg: "bg-amber-500/10", border: "border-amber-500/30", icon: "text-amber-400", val: "text-amber-300" },
+    info: { bg: "bg-cyan-500/10", border: "border-cyan-500/30", icon: "text-cyan-400", val: "text-cyan-300" },
   }[status];
 
   return (
     <button
       onClick={onClick}
-      className={`group flex flex-col gap-1.5 p-3 rounded-xl border ${colors.border} ${colors.bg} transition-all duration-200 text-left w-full cursor-pointer`}
+      className={`${colors.bg} border ${colors.border} rounded-lg p-2 hover:scale-105 transition-transform cursor-pointer`}
     >
       <div className="flex items-center justify-between">
         <Icon size={15} className={colors.icon} />
@@ -321,6 +339,9 @@ export default function AriaCommandCenter() {
   const [audioVolume, setAudioVolume] = useState(0);
   const [ttsSpeed, setTtsSpeed] = useState(0.95);
   const [ttsMode, setTtsMode] = useState<'voice' | 'text' | 'both'>('both');
+  const [micSensitivity, setMicSensitivity] = useState(0.4);
+  const [requireWakeWord, setRequireWakeWord] = useState(true);
+  const [voiceActivityDetected, setVoiceActivityDetected] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -329,6 +350,8 @@ export default function AriaCommandCenter() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const rafRef = useRef<number | null>(null);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const voiceActivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const askMutation = trpc.aria.askQuestion.useMutation();
 
@@ -358,16 +381,34 @@ export default function AriaCommandCenter() {
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random()}` }]);
   }, []);
 
-  /* Audio volume analysis */
+  /* Audio volume analysis with voice activity detection */
   const analyzeVolume = useCallback(() => {
     if (!analyzerRef.current) return;
     const data = new Uint8Array(analyzerRef.current.frequencyBinCount);
     analyzerRef.current.getByteFrequencyData(data);
     let sum = 0;
     for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
-    setAudioVolume(Math.min(Math.sqrt(sum / data.length) / 128, 1));
+    const volume = Math.min(Math.sqrt(sum / data.length) / 128, 1);
+    setAudioVolume(volume);
+    
+    // Voice Activity Detection
+    const hasVoiceActivity = detectVoiceActivity(data, micSensitivity);
+    if (hasVoiceActivity) {
+      setVoiceActivityDetected(true);
+      if (voiceActivityTimeoutRef.current) clearTimeout(voiceActivityTimeoutRef.current);
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    } else if (voiceActivityDetected) {
+      // Silence detected - start timeout to auto-stop recording
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = setTimeout(() => {
+        if (isRecording && voiceActivityDetected) {
+          stopRecording();
+        }
+      }, 1500); // 1.5 seconds of silence
+    }
+    
     rafRef.current = requestAnimationFrame(analyzeVolume);
-  }, []);
+  }, [isRecording, voiceActivityDetected, micSensitivity]);
 
   const startRecording = async () => {
     try {
@@ -389,9 +430,18 @@ export default function AriaCommandCenter() {
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+        if (voiceActivityTimeoutRef.current) clearTimeout(voiceActivityTimeoutRef.current);
         setAudioVolume(0);
 
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (blob.size < 1000) {
+          toast.error("No audio detected. Please speak clearly.");
+          setStage("idle");
+          setVoiceActivityDetected(false);
+          return;
+        }
+        
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64 = (reader.result as string).split(",")[1];
@@ -401,20 +451,30 @@ export default function AriaCommandCenter() {
           setStage("thinking");
           try {
             const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, context: { systemStatus: true } });
+            
+            // Check wake word if required
+            if (requireWakeWord && !detectWakeWord(result.transcribedQuestion || "")) {
+              setMessages((prev) => prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"} (wake word not detected - try saying "Hey Aria")` } : m));
+              setStage("idle");
+              setVoiceActivityDetected(false);
+              return;
+            }
+            
             setMessages((prev) => prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` } : m));
             setStage("responding");
             await new Promise((r) => setTimeout(r, 200));
             addMessage({ role: "aria", content: result.response, timestamp: new Date() });
             if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
           } catch { toast.error("Voice processing failed"); }
-          finally { setStage("idle"); }
+          finally { setStage("idle"); setVoiceActivityDetected(false); }
         };
         reader.readAsDataURL(blob);
       };
 
       recorder.start();
       setIsRecording(true);
-      setStage("listening");
+      setVoiceActivityDetected(false);
+      setStage(requireWakeWord ? "waiting_for_wake_word" : "listening");
       rafRef.current = requestAnimationFrame(analyzeVolume);
     } catch { toast.error("Microphone access denied"); }
   };
@@ -424,7 +484,10 @@ export default function AriaCommandCenter() {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (voiceActivityTimeoutRef.current) clearTimeout(voiceActivityTimeoutRef.current);
       setAudioVolume(0);
+      setVoiceActivityDetected(false);
     }
   };
 
@@ -451,7 +514,7 @@ export default function AriaCommandCenter() {
     }
   };
 
-  const stopSpeaking = () => { window.speechSynthesis?.cancel(); setIsSpeaking(false); };
+  const stopSpeakingHandler = () => { stopSpeaking(); setIsSpeaking(false); };
   const saveChat = () => {
     const txt = messages.map((m) => `[${m.timestamp.toLocaleTimeString()}] ${m.role.toUpperCase()}:\n${m.content}`).join("\n\n---\n\n");
     const a = document.createElement("a");
@@ -475,6 +538,8 @@ export default function AriaCommandCenter() {
 
   useEffect(() => () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    if (voiceActivityTimeoutRef.current) clearTimeout(voiceActivityTimeoutRef.current);
     audioCtxRef.current?.close().catch(() => {});
   }, []);
 
@@ -536,8 +601,26 @@ export default function AriaCommandCenter() {
             </div>
           )}
           
+          {/* Mic Sensitivity Control */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+            <span className="text-[10px] text-slate-500">Mic:</span>
+            <input type="range" min="0.1" max="0.8" step="0.1" value={micSensitivity} onChange={(e) => setMicSensitivity(parseFloat(e.target.value))} className="w-12 h-1 bg-slate-700 rounded cursor-pointer" title="Adjust microphone sensitivity (lower = more sensitive)" />
+            <span className="text-[10px] text-slate-400 w-6 text-right">{(1 - micSensitivity).toFixed(1)}</span>
+          </div>
+          
+          {/* Wake Word Toggle */}
           <button
-            onClick={() => { if (isSpeaking) stopSpeaking(); setVoiceEnabled((v) => !v); }}
+            onClick={() => setRequireWakeWord(!requireWakeWord)}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
+              requireWakeWord ? "border-purple-500/40 text-purple-400 bg-purple-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
+            }`}
+            title="Require 'Hey Aria' wake word before processing commands"
+          >
+            <span className="text-[11px] font-medium">Wake: {requireWakeWord ? "ON" : "OFF"}</span>
+          </button>
+          
+          <button
+            onClick={() => { if (isSpeaking) stopSpeakingHandler(); setVoiceEnabled((v) => !v); }}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
               voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
             }`}
@@ -557,7 +640,12 @@ export default function AriaCommandCenter() {
             }`} />
             <span className="hidden sm:inline">{isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}</span>
             {isSpeaking && (
-              <button onClick={stopSpeaking} className="text-slate-500 hover:text-red-400 ml-0.5">
+              <button onClick={stopSpeakingHandler} className="text-slate-500 hover:text-red-400 ml-0.5 transition-colors" title="Stop Aria from speaking">
+                <VolumeX size={11} />
+              </button>
+            )}
+            {isRecording && (
+              <button onClick={stopRecording} className="text-slate-500 hover:text-red-400 ml-0.5 transition-colors" title="Stop recording">
                 <VolumeX size={11} />
               </button>
             )}
@@ -597,7 +685,6 @@ export default function AriaCommandCenter() {
 
         {/* ── Right Panel: Chat ─────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden" style={{ minHeight: 0 }}>
-
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3" style={{ overscrollBehavior: 'contain' }}>
             {messages.length === 0 ? (
@@ -661,19 +748,27 @@ export default function AriaCommandCenter() {
           {/* Input Bar */}
           <div className="flex-shrink-0 border-t border-white/5 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={isRecording ? stopRecording : startRecording}
-                variant="outline"
-                size="sm"
-                className={`flex-shrink-0 transition-all ${
-                  isRecording
-                    ? "bg-red-500/20 border-red-500/60 text-red-400 hover:bg-red-500/30"
-                    : "border-cyan-500/30 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-500/10"
-                }`}
-              >
-                {isRecording ? <MicOff size={14} /> : <Mic size={14} />}
-                <span className="ml-1.5 text-xs hidden sm:inline">{isRecording ? "Stop" : "Voice"}</span>
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  variant="outline"
+                  size="sm"
+                  className={`flex-shrink-0 transition-all ${
+                    isRecording
+                      ? "bg-red-500/20 border-red-500/60 text-red-400 hover:bg-red-500/30"
+                      : "border-cyan-500/30 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-500/10"
+                  }`}
+                  title={isRecording ? "Stop recording" : "Start voice recording"}
+                >
+                  {isRecording ? <MicOff size={14} /> : <Mic size={14} />}
+                  <span className="ml-1.5 text-xs hidden sm:inline">{isRecording ? "Stop" : "Voice"}</span>
+                </Button>
+                {isRecording && (
+                  <div className="text-[10px] text-slate-400 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+                    {stage === "waiting_for_wake_word" ? "Say 'Hey Aria'" : voiceActivityDetected ? "Recording..." : "Waiting for voice..."}
+                  </div>
+                )}
+              </div>
 
               <Input
                 ref={inputRef}
