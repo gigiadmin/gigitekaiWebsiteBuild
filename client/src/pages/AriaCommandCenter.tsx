@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2,
-  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity
+  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -26,6 +26,8 @@ type Message = {
 };
 
 type Stage = "idle" | "listening" | "transcribing" | "thinking" | "searching" | "responding" | "waiting_for_wake_word";
+
+// Import X icon for delete button (already imported above)
 
 const STAGE_LABEL: Record<Stage, string> = {
   idle: "Ready",
@@ -614,6 +616,15 @@ export default function AriaCommandCenter() {
     a.click();
     toast.success("Chat saved");
   };
+  const deleteMessage = useCallback((messageId: string) => {
+    setMessages((prev) => {
+      const updated = prev.filter((m) => m.id !== messageId);
+      saveChatHistory(updated);
+      return updated;
+    });
+    toast.success("Message deleted");
+  }, []);
+
   const clearChat = useCallback(() => {
     if (typeof window === "undefined") return;
     if (confirm("Clear all messages?")) {
@@ -783,33 +794,43 @@ export default function AriaCommandCenter() {
             ) : (
               <>
                 {messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} group`}>
                     {msg.role === "aria" && (
                       <div className="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mr-2 mt-0.5">
                         <Brain size={12} className="text-cyan-400" />
                       </div>
                     )}
-                    <div className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-base sm:text-sm ${
-                      msg.role === "user"
-                        ? "bg-cyan-600/20 border border-cyan-500/30 text-white rounded-tr-sm"
-                        : "bg-slate-800/70 border border-white/5 text-slate-50 rounded-tl-sm"
-                    }`}>
-                      {msg.role === "aria" ? (
-                        <div className="prose prose-sm prose-invert max-w-none
-                          [&>p]:my-2 [&>p]:text-base sm:[&>p]:text-sm [&>p]:leading-relaxed
-                          [&>ul]:my-2 [&>ol]:my-2 [&>li]:my-1 [&>li]:text-base sm:[&>li]:text-sm
-                          [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-base
-                          [&>pre]:bg-slate-900 [&>pre]:rounded-lg [&>pre]:p-3 [&>pre]:my-2 [&>pre]:overflow-x-auto [&>pre]:text-xs
-                          [&>code]:bg-slate-900 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-cyan-300 [&>code]:text-xs
-                          [&>strong]:text-white [&>a]:text-cyan-400">
-                          <Streamdown>{msg.content}</Streamdown>
-                        </div>
-                      ) : (
-                        <p className="leading-relaxed text-base sm:text-sm">{msg.content}</p>
-                      )}
-                      <p className="text-xs text-slate-400 mt-2 text-right">
-                        {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </p>
+                    <div className="relative">
+                      <div className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-base sm:text-sm ${
+                        msg.role === "user"
+                          ? "bg-cyan-600/20 border border-cyan-500/30 text-white rounded-tr-sm"
+                          : "bg-slate-800/70 border border-white/5 text-slate-50 rounded-tl-sm"
+                      }`}>
+                        {msg.role === "aria" ? (
+                          <div className="prose prose-sm prose-invert max-w-none
+                            [&>p]:my-2 [&>p]:text-base sm:[&>p]:text-sm [&>p]:leading-relaxed
+                            [&>ul]:my-2 [&>ol]:my-2 [&>li]:my-1 [&>li]:text-base sm:[&>li]:text-sm
+                            [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-base
+                            [&>pre]:bg-slate-900 [&>pre]:rounded-lg [&>pre]:p-3 [&>pre]:my-2 [&>pre]:overflow-x-auto [&>pre]:text-xs
+                            [&>code]:bg-slate-900 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-cyan-300 [&>code]:text-xs
+                            [&>strong]:text-white [&>a]:text-cyan-400">
+                            <Streamdown>{msg.content}</Streamdown>
+                          </div>
+                        ) : (
+                          <p className="leading-relaxed text-base sm:text-sm">{msg.content}</p>
+                        )}
+                        <p className="text-xs text-slate-400 mt-2 text-right">
+                          {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
+                      {/* Delete button - appears on hover */}
+                      <button
+                        onClick={() => deleteMessage(msg.id)}
+                        className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600/80 hover:bg-red-700 rounded-full p-1 shadow-lg"
+                        title="Delete message"
+                      >
+                        <Trash2 size={14} className="text-white" />
+                      </button>
                     </div>
                   </div>
                 ))}
