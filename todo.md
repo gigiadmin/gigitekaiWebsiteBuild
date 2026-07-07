@@ -1988,3 +1988,14 @@
 - [x] Replace "M365/Helpdesk" placeholder with "M365/Support Services" in AdminClientOnboarding (line 139)
 - [x] Replace "Helpdesk Performance" with "Support Services Performance" in AdminContactCenterDashboard (lines 694, 696)
 - [x] Replace "Go to Helpdesk" with "Go to Support Services" in AdminGuide (lines 269, 289)
+
+
+## Aria Command Center - Voice Improvements - July 6-7, 2026
+
+- [x] Implement prominent "Stop" button during speech for easy interrupt
+- [x] Add voice activity detection (VAD) to filter background noise
+- [x] Implement adjustable microphone sensitivity slider (0.1-0.8 range)
+- [x] Add "Hey Aria" wake word detection with ON/OFF toggle
+- [x] Auto-stop recording after 1.5 seconds of silence
+- [x] Add minimum audio threshold (ignore recordings < 1KB)
+- [x] Improve error handling and user feedback for voice commands

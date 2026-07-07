@@ -100,10 +100,35 @@ function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
   const u = new SpeechSynthesisUtterance(clean);
   u.rate = Math.max(0.5, Math.min(2, speed));
   u.pitch = 1.05; u.volume = 1;
-  const setVoice = () => { const v = pickVoice(); if (v) u.voice = v; };
-  setVoice();
-  if (!u.voice) window.speechSynthesis.onvoiceschanged = setVoice;
+  
+  // Try to set voice immediately
+  const v = pickVoice();
+  if (v) {
+    u.voice = v;
+  } else {
+    // If voices not loaded, wait for voiceschanged event
+    const setVoiceOnReady = () => {
+      const voice = pickVoice();
+      if (voice) {
+        u.voice = voice;
+        window.speechSynthesis.removeEventListener('voiceschanged', setVoiceOnReady);
+      }
+    };
+    window.speechSynthesis.addEventListener('voiceschanged', setVoiceOnReady);
+  }
+  
   if (onEnd) u.onend = onEnd;
+  
+  // Add error handler
+  u.onerror = (event) => {
+    console.error('[Aria TTS Error]', event.error);
+  };
+  
+  // Ensure speech synthesis is resumed (in case it was paused)
+  if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+  }
+  
   window.speechSynthesis.speak(u);
 }
 
@@ -702,24 +727,25 @@ export default function AriaCommandCenter() {
                         <Brain size={12} className="text-cyan-400" />
                       </div>
                     )}
-                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
+                    <div className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-base sm:text-sm ${
                       msg.role === "user"
                         ? "bg-cyan-600/20 border border-cyan-500/30 text-white rounded-tr-sm"
-                        : "bg-slate-800/70 border border-white/5 text-slate-100 rounded-tl-sm"
+                        : "bg-slate-800/70 border border-white/5 text-slate-50 rounded-tl-sm"
                     }`}>
                       {msg.role === "aria" ? (
                         <div className="prose prose-sm prose-invert max-w-none
-                          [&>p]:my-1.5 [&>ul]:my-1.5 [&>ol]:my-1.5 [&>li]:my-0.5
-                          [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm
-                          [&>pre]:bg-slate-900 [&>pre]:rounded-lg [&>pre]:p-3 [&>pre]:my-2 [&>pre]:overflow-x-auto
+                          [&>p]:my-2 [&>p]:text-base sm:[&>p]:text-sm [&>p]:leading-relaxed
+                          [&>ul]:my-2 [&>ol]:my-2 [&>li]:my-1 [&>li]:text-base sm:[&>li]:text-sm
+                          [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-base
+                          [&>pre]:bg-slate-900 [&>pre]:rounded-lg [&>pre]:p-3 [&>pre]:my-2 [&>pre]:overflow-x-auto [&>pre]:text-xs
                           [&>code]:bg-slate-900 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-cyan-300 [&>code]:text-xs
                           [&>strong]:text-white [&>a]:text-cyan-400">
                           <Streamdown>{msg.content}</Streamdown>
                         </div>
                       ) : (
-                        <p className="leading-relaxed">{msg.content}</p>
+                        <p className="leading-relaxed text-base sm:text-sm">{msg.content}</p>
                       )}
-                      <p className="text-[10px] text-slate-500 mt-2 text-right">
+                      <p className="text-xs text-slate-400 mt-2 text-right">
                         {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
