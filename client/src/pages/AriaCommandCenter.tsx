@@ -62,30 +62,42 @@ function pickVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
   
-  // PRIORITY 1: GB/IE English FEMALE voices (explicit female match)
-  const gbFemale = voices.find(v => 
-    /en[-_](GB|IE)/i.test(v.lang) && 
-    /female|woman|fiona|kate|serena|victoria|moira|tessa|google uk|neural2-a|standard-a/i.test(v.name) &&
-    !/male|man|david|george|james|mark|paul|brian/i.test(v.name)
-  );
+  // PRIORITY 1: British/Irish English FEMALE voices (natural, professional)
+  const gbFemale = voices.find(v => {
+    const isGB = /en[-_](GB|IE)/i.test(v.lang);
+    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|siri|cortana|google uk|neural2-a|standard-a|en_GB/i.test(v.name);
+    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male|en_US/i.test(v.name);
+    return isGB && isFemale && notMale;
+  });
   if (gbFemale) { cachedVoice = gbFemale; return gbFemale; }
   
-  // PRIORITY 2: Any FEMALE voice (explicit female match, any language)
-  const anyFemale = voices.find(v => 
-    /female|woman|fiona|kate|serena|victoria|moira|tessa|zira|hazel|cortana|samantha/i.test(v.name) &&
-    !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name)
-  );
+  // PRIORITY 2: European female voices (German, French, Dutch, etc.)
+  const europeanFemale = voices.find(v => {
+    const isEuropean = /en[-_](GB|IE|AU)|de[-_]DE|fr[-_]FR|nl[-_]NL|es[-_]ES|it[-_]IT/i.test(v.lang);
+    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|siri|cortana|neural2-a|standard-a/i.test(v.name);
+    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
+    return isEuropean && isFemale && notMale;
+  });
+  if (europeanFemale) { cachedVoice = europeanFemale; return europeanFemale; }
+  
+  // PRIORITY 3: Any English FEMALE voice (US, AU, etc.)
+  const anyEnglishFemale = voices.find(v => {
+    const isEnglish = /en/i.test(v.lang);
+    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|zira|hazel|siri|cortana|neural2-a|standard-a/i.test(v.name);
+    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
+    return isEnglish && isFemale && notMale;
+  });
+  if (anyEnglishFemale) { cachedVoice = anyEnglishFemale; return anyEnglishFemale; }
+  
+  // PRIORITY 4: Any female voice (any language)
+  const anyFemale = voices.find(v => {
+    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|zira|hazel|siri|cortana|neural2-a|standard-a/i.test(v.name);
+    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
+    return isFemale && notMale;
+  });
   if (anyFemale) { cachedVoice = anyFemale; return anyFemale; }
   
-  // PRIORITY 3: GB/IE English (any gender, but prefer female)
-  const gbAny = voices.find(v => /en[-_](GB|IE)/i.test(v.lang));
-  if (gbAny) { cachedVoice = gbAny; return gbAny; }
-  
-  // PRIORITY 4: Any English voice
-  const anyEnglish = voices.find(v => /en/i.test(v.lang));
-  if (anyEnglish) { cachedVoice = anyEnglish; return anyEnglish; }
-  
-  // Last resort
+  // Last resort: any voice
   cachedVoice = voices[0] ?? null;
   return cachedVoice;
 }
