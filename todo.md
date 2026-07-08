@@ -2159,4 +2159,5 @@
 
 - [x] Reduce preconnect hints from 6 to 3 (fonts.googleapis.com, fonts.gstatic.com, CloudFront CDN) — PageSpeed penalizes >4 preconnects
 - [x] Fix GA4 deferral: moved gtag('js') and gtag('config') calls inside script.onload callback — prevents GA from blocking main thread during LCP
-- [ ] Monitor PageSpeed after deployment — target 60+ mobile (currently 50)
+- [x] Remove GA4 entirely — was causing 3,500ms TBT spike via forced reflows in gtag.js; Umami is now sole analytics provider
+- [ ] Monitor PageSpeed after deployment — target 60+ mobile (currently 32 desktop after stale build issue)
