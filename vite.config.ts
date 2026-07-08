@@ -165,7 +165,10 @@ function vitePluginNonBlockingCSS(): Plugin {
     name: 'vite-plugin-non-blocking-css',
     enforce: 'post',
     transformIndexHtml(html) {
-      if (process.env.NODE_ENV !== 'production') return html;
+      // FIXED: Detect production build by checking for hashed asset paths
+      // NODE_ENV may be 'development' in the shell even during `pnpm build`
+      const isProductionBuild = /\/assets\/main-[a-zA-Z0-9_-]+\.js/.test(html);
+      if (!isProductionBuild) return html;
 
       // Step 1: Remove modulepreload tags for admin-only chunks
       // These chunks are only needed on /admin routes, not public pages
@@ -275,8 +278,13 @@ function vitePluginHeroPreload(): Plugin {
     name: 'vite-plugin-hero-preload',
     enforce: 'post',
     transformIndexHtml(html, ctx) {
-      if (process.env.NODE_ENV !== 'production') {
-        // In dev mode, inject preload with the source paths
+      // FIXED: Use ctx.bundle to detect production build instead of NODE_ENV.
+      // NODE_ENV may be 'development' in the shell even during `pnpm build`,
+      // which caused dev paths (/src/assets/) to be injected into production HTML.
+      const isProductionBuild = ctx.bundle && Object.keys(ctx.bundle).length > 0;
+
+      if (!isProductionBuild) {
+        // In dev mode, inject preload with the source paths (Vite serves these directly)
         const devPreload = `<link rel="preload" as="image"
       href="/src/assets/hero-bg-desktop.webp"
       imagesrcset="/src/assets/hero-bg-mobile.webp 768w, /src/assets/hero-bg-desktop.webp 1920w"
@@ -313,10 +321,12 @@ function vitePluginHeroPreload(): Plugin {
 
       if (!desktopPath || !mobilePath) {
         console.warn('[hero-preload] Could not find hero image asset paths in bundle');
-        // Fallback to old proxy paths
+        // Fallback to CDN paths that are known to work
         desktopPath = '/manus-storage/hero-bg-desktop_cbb9d5e6.webp';
         mobilePath = '/manus-storage/hero-bg-mobile_e0adb787.webp';
       }
+
+      console.log(`[hero-preload] Production paths: desktop=${desktopPath}, mobile=${mobilePath}`);
 
       const preloadTag = `<link rel="preload" as="image"
       href="${desktopPath}"
@@ -351,7 +361,9 @@ function vitePluginCriticalPreload(): Plugin {
     name: 'vite-plugin-critical-preload',
     enforce: 'post',
     transformIndexHtml(html, ctx) {
-      if (process.env.NODE_ENV !== 'production') return html;
+      // FIXED: Use ctx.bundle to detect production build instead of NODE_ENV
+      const isProductionBuild = ctx.bundle && Object.keys(ctx.bundle).length > 0;
+      if (!isProductionBuild) return html;
 
       // Find the main chunk from the script tag in HTML
       const mainMatch = html.match(/<script[^>]*src="\/assets\/main-([a-zA-Z0-9_-]+)\.js"/);
@@ -388,11 +400,13 @@ function vitePluginCriticalPreload(): Plugin {
       // instead of waiting for main.js to parse and discover the imports sequentially.
       // We intentionally do NOT preload vendor (280KB) or radix-ui (87KB) because
       // they are side-effect-only imports that can load after main renders.
+      // PERFORMANCE FIX: Do NOT modulepreload the vendor chunk (2.9 MB gzipped).
+      // The browser already discovers vendor.js immediately via static import in main.js.
+      // Adding modulepreload for it just wastes bandwidth priority and competes with
+      // the hero image for network resources, worsening LCP.
+      // Only preload main.js (20 KB) which is the entry point.
       const preloadHints = [
         `<link rel="modulepreload" href="/assets/main-${mainHash}.js">`,
-        // Preload vendor chunk (React, Radix, tRPC) — critical for initial render
-        // Without this, the browser discovers vendor.js only after parsing main.js
-        vendorFile ? `<link rel="modulepreload" href="${vendorFile}">` : '',
         criticalUtilsFile ? `<link rel="modulepreload" href="${criticalUtilsFile}">` : '',
         trpcQueryFile ? `<link rel="modulepreload" href="${trpcQueryFile}">` : '',
       ].filter(Boolean).join('\n    ');
@@ -423,8 +437,10 @@ function vitePluginBootstrapFallback(): Plugin {
     name: 'vite-plugin-bootstrap-fallback',
     enforce: 'post',
     transformIndexHtml(html) {
-      // Only inject in production builds
-      if (process.env.NODE_ENV !== 'production') {
+      // FIXED: Detect production build by checking for hashed asset paths
+      // NODE_ENV may be 'development' in the shell even during `pnpm build`
+      const isProductionBuild = /\/assets\/main-[a-zA-Z0-9_-]+\.js/.test(html);
+      if (!isProductionBuild) {
         // In dev mode, still inject but with a longer delay
         return html;
       }
@@ -650,9 +666,28 @@ export default defineConfig({
           // ── Stripe: only needed on pricing/checkout pages ─────────────────────
           if (id.includes('@stripe/') || id.includes('/stripe/')) return 'stripe';
 
-          // ── Everything else (React, Radix, tRPC, charts, etc.): vendor ─────────
-          // Keeping these together prevents circular dependency crashes that broke
-          // production previously (react-core→charts→react-core circular refs).
+          // ── SAFE SPLITS: Packages with NO React peer deps ──────────────────
+          // These are truly independent libraries that can be safely isolated
+          // without causing circular dependency or initialization order issues.
+
+          // NOTE: highlight.js/lowlight CANNOT be safely split because vendor
+          // has a static import dependency on it (via tiptap lowlight extension
+          // that leaks into vendor). Splitting it causes initialization errors.
+          // if (id.includes('highlight.js') || id.includes('lowlight')) return 'syntax-highlight';
+
+          // socket.io-client: Only used in WebSocket hook + RemoteSession (lazy-loaded)
+          // No React deps, pure networking library
+          if (id.includes('socket.io-client') || id.includes('engine.io')) return 'websocket';
+
+          // pdf-lib: Only used server-side or in admin PDF generation
+          // No React deps, pure PDF manipulation library
+          if (id.includes('pdf-lib')) return 'pdf';
+
+          // ── IMPORTANT: Keep recharts, d3, React, Radix, tRPC together ────────
+          // DO NOT split recharts/d3 — they have React peer deps and splitting
+          // them causes "Cannot access 'gm' before initialization" crash.
+          // All React-dependent packages MUST stay in vendor to ensure correct
+          // initialization order.
           return 'vendor';
         },
       },
