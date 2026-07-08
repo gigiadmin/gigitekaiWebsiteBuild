@@ -1999,3 +1999,13 @@
 - [x] Auto-stop recording after 1.5 seconds of silence
 - [x] Add minimum audio threshold (ignore recordings < 1KB)
 - [x] Improve error handling and user feedback for voice commands
+
+
+## Aria Command Center Overhaul - July 7, 2026
+
+- [ ] Fix voice to consistent male voice (stop female voice from randomly popping up)
+- [ ] Enhance Aria system prompt with admin page component knowledge
+- [ ] Add M365/Azure context awareness to Aria
+- [ ] Improve mobile UI layout for better usability
+- [ ] Make Aria the brain for admin pages and Microsoft environment
+- [ ] Add power features (quick actions, navigation shortcuts, admin commands)

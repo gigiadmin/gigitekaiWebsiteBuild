@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2,
-  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X
+  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X, Settings
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -54,53 +54,73 @@ function detectWakeWord(transcript: string): boolean {
 }
 
 /* ─── Voice helpers ─────────────────────────────────────────────────────── */
-// Cache voice to prevent switching mid-speech
+// Cache voice permanently to prevent switching mid-session
 let cachedVoice: SpeechSynthesisVoice | null = null;
+let voiceLoadAttempts = 0;
 
 function pickVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  // Once cached, NEVER re-select — prevents voice switching
   if (cachedVoice) return cachedVoice;
   
   const voices = window.speechSynthesis.getVoices();
-  if (!voices.length) return null;
+  if (!voices.length) {
+    voiceLoadAttempts++;
+    return null;
+  }
   
-  // PRIORITY 1: British/Irish English FEMALE voices (natural, professional)
+  // Log available voices for debugging (first time only)
+  if (voiceLoadAttempts === 0) {
+    console.log('[Aria Voice] Available voices:', voices.map(v => `${v.name} (${v.lang})`).join(', '));
+  }
+  
+  // STRATEGY: European FEMALE voice — consistent, never switches
+  // Priority: British/Irish female > European female > US female > any female
+  
+  // PRIORITY 1: Premium British/Irish female voices
+  const premiumFemale = voices.find(v => {
+    const isGB = /en[-_](GB|AU|IE)/i.test(v.lang);
+    const isPremium = /fiona|kate|serena|martha|moira|tessa|victoria|samantha|siri.*female|enhanced/i.test(v.name);
+    return isGB && isPremium;
+  });
+  if (premiumFemale) { cachedVoice = premiumFemale; console.log('[Aria Voice] Selected:', premiumFemale.name); return premiumFemale; }
+  
+  // PRIORITY 2: Any British/Irish female voice
   const gbFemale = voices.find(v => {
-    const isGB = /en[-_](GB|IE)/i.test(v.lang);
-    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|siri|cortana|google uk|neural2-a|standard-a|en_GB/i.test(v.name);
-    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male|en_US/i.test(v.name);
-    return isGB && isFemale && notMale;
+    const isGB = /en[-_](GB|AU|IE)/i.test(v.lang);
+    const isFemale = /female|woman|fiona|kate|serena|martha|moira|tessa|victoria|samantha|karen|zoe|emily/i.test(v.name);
+    const notMale = !/male|man|daniel|james|oliver|lee|george|rishi|aaron|thomas|gordon/i.test(v.name);
+    return isGB && (isFemale || notMale);
   });
-  if (gbFemale) { cachedVoice = gbFemale; return gbFemale; }
+  if (gbFemale) { cachedVoice = gbFemale; console.log('[Aria Voice] Selected:', gbFemale.name); return gbFemale; }
   
-  // PRIORITY 2: European female voices (German, French, Dutch, etc.)
-  const europeanFemale = voices.find(v => {
-    const isEuropean = /en[-_](GB|IE|AU)|de[-_]DE|fr[-_]FR|nl[-_]NL|es[-_]ES|it[-_]IT/i.test(v.lang);
-    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|siri|cortana|neural2-a|standard-a/i.test(v.name);
-    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
-    return isEuropean && isFemale && notMale;
+  // PRIORITY 3: European female voices (German, French, Dutch, etc.)
+  const euroFemale = voices.find(v => {
+    const isEuro = /de[-_]|fr[-_]|nl[-_]|es[-_]|it[-_]|sv[-_]|no[-_]|da[-_]/i.test(v.lang);
+    const isFemale = /female|woman|anna|petra|amelie|marie|claire|alice|sara|helena|nora/i.test(v.name);
+    return isEuro && isFemale;
   });
-  if (europeanFemale) { cachedVoice = europeanFemale; return europeanFemale; }
+  if (euroFemale) { cachedVoice = euroFemale; console.log('[Aria Voice] Selected:', euroFemale.name); return euroFemale; }
   
-  // PRIORITY 3: Any English FEMALE voice (US, AU, etc.)
-  const anyEnglishFemale = voices.find(v => {
+  // PRIORITY 4: US English female voices
+  const usFemale = voices.find(v => {
     const isEnglish = /en/i.test(v.lang);
-    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|zira|hazel|siri|cortana|neural2-a|standard-a/i.test(v.name);
-    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
-    return isEnglish && isFemale && notMale;
+    const isFemale = /female|woman|samantha|karen|zira|hazel|susan|siri|allison|ava|cortana|jenny|aria/i.test(v.name);
+    return isEnglish && isFemale;
   });
-  if (anyEnglishFemale) { cachedVoice = anyEnglishFemale; return anyEnglishFemale; }
+  if (usFemale) { cachedVoice = usFemale; console.log('[Aria Voice] Selected:', usFemale.name); return usFemale; }
   
-  // PRIORITY 4: Any female voice (any language)
-  const anyFemale = voices.find(v => {
-    const isFemale = /female|woman|fiona|kate|serena|victoria|moira|tessa|samantha|zira|hazel|siri|cortana|neural2-a|standard-a/i.test(v.name);
-    const notMale = !/male|man|david|george|james|mark|paul|brian|cortana-male/i.test(v.name);
-    return isFemale && notMale;
+  // PRIORITY 5: Any English voice that isn't explicitly male
+  const englishNotMale = voices.find(v => {
+    const isEnglish = /en/i.test(v.lang);
+    const notMale = !/male|man|daniel|james|david|mark|alex|fred|tom|ralph|junior|albert|bruce|charles|evan|gordon|aaron|oliver/i.test(v.name);
+    return isEnglish && notMale;
   });
-  if (anyFemale) { cachedVoice = anyFemale; return anyFemale; }
+  if (englishNotMale) { cachedVoice = englishNotMale; console.log('[Aria Voice] Selected:', englishNotMale.name); return englishNotMale; }
   
-  // Last resort: any voice
+  // Last resort: first available voice
   cachedVoice = voices[0] ?? null;
+  if (cachedVoice) console.log('[Aria Voice] Fallback:', cachedVoice.name);
   return cachedVoice;
 }
 
@@ -113,7 +133,7 @@ function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
     .replace(/\n{2,}/g, ". ").replace(/\n/g, " ").trim();
   const u = new SpeechSynthesisUtterance(clean);
   u.rate = Math.max(0.5, Math.min(2, speed));
-  u.pitch = 1.05; u.volume = 1;
+  u.pitch = 1.1; u.volume = 1;
   
   // Try to set voice immediately
   const v = pickVoice();
@@ -412,6 +432,7 @@ export default function AriaCommandCenter() {
   const [micSensitivity, setMicSensitivity] = useState(0.4);
   const [requireWakeWord, setRequireWakeWord] = useState(true);
   const [voiceActivityDetected, setVoiceActivityDetected] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -522,7 +543,7 @@ export default function AriaCommandCenter() {
           setStage("transcribing");
           const placeholderId = `voice-${Date.now()}`;
           setMessages((prev) => {
-            const newMessages = [...prev, { id: placeholderId, role: "user", content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true }];
+            const newMessages = [...prev, { id: placeholderId, role: "user" as const, content: "🎤 Voice message (transcribing...)", timestamp: new Date(), isVoice: true }];
             saveChatHistory(newMessages);
             return newMessages;
           });
@@ -584,7 +605,7 @@ export default function AriaCommandCenter() {
     
     // Add user message and save
     setMessages((prev) => {
-      const newMessages = [...prev, { id: `${Date.now()}-${Math.random()}`, role: "user", content: q, timestamp: new Date() }];
+      const newMessages = [...prev, { id: `${Date.now()}-${Math.random()}`, role: "user" as const, content: q, timestamp: new Date() }];
       saveChatHistory(newMessages);
       return newMessages;
     });
@@ -671,85 +692,115 @@ export default function AriaCommandCenter() {
   return (
     <div className="flex flex-col bg-slate-950 text-white" style={{ height: "100%", minHeight: 0, overflow: "hidden" }}>
 
-      {/* ── Top Bar ──────────────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
-            <Brain className="w-5 h-5 text-cyan-400" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-white leading-none">Aria Command Center</h1>
-            <p className="text-[11px] text-slate-500 mt-0.5">GigitekAI · M365 · Azure · Exchange</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* TTS Mode Selector */}
-          <select value={ttsMode} onChange={(e) => setTtsMode(e.target.value as any)} className="text-xs px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300 hover:border-cyan-500/40 transition-all" title="Choose how Aria responds">
-            <option value="both">Voice + Text</option>
-            <option value="voice">Voice Only</option>
-            <option value="text">Text Only</option>
-          </select>
-          
-          {/* TTS Speed Control */}
-          {(ttsMode === 'voice' || ttsMode === 'both') && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
-              <span className="text-[10px] text-slate-500">Speed:</span>
-              <input type="range" min="0.5" max="2" step="0.25" value={ttsSpeed} onChange={(e) => setTtsSpeed(parseFloat(e.target.value))} className="w-12 h-1 bg-slate-700 rounded cursor-pointer" title="Adjust speech speed" />
-              <span className="text-[10px] text-slate-400 w-6 text-right">{ttsSpeed.toFixed(2)}x</span>
+      {/* ── Top Bar — Compact on mobile, full on desktop ────────────────── */}
+      <div className="flex-shrink-0 border-b border-white/5 bg-slate-900/80 backdrop-blur-md">
+        {/* Primary row: Logo + Status + Settings toggle */}
+        <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+              <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             </div>
-          )}
-          
-          {/* Mic Sensitivity Control */}
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
-            <span className="text-[10px] text-slate-500">Mic:</span>
-            <input type="range" min="0.1" max="0.8" step="0.1" value={micSensitivity} onChange={(e) => setMicSensitivity(parseFloat(e.target.value))} className="w-12 h-1 bg-slate-700 rounded cursor-pointer" title="Adjust microphone sensitivity (lower = more sensitive)" />
-            <span className="text-[10px] text-slate-400 w-6 text-right">{(1 - micSensitivity).toFixed(1)}</span>
+            <div>
+              <h1 className="text-sm sm:text-base font-bold text-white leading-none">Aria</h1>
+              <p className="text-[10px] text-slate-500 mt-0.5 hidden sm:block">M365 · Azure · Exchange · Admin Brain</p>
+            </div>
           </div>
-          
-          {/* Wake Word Toggle */}
-          <button
-            onClick={() => setRequireWakeWord(!requireWakeWord)}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
-              requireWakeWord ? "border-purple-500/40 text-purple-400 bg-purple-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
-            }`}
-            title="Require 'Hey Aria' wake word before processing commands"
-          >
-            <span className="text-[11px] font-medium">Wake: {requireWakeWord ? "ON" : "OFF"}</span>
-          </button>
-          
-          <button
-            onClick={() => { if (isSpeaking) stopSpeakingHandler(); setVoiceEnabled((v) => !v); }}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
-              voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
-            }`}
-          >
-            {voiceEnabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
-            <span className="hidden sm:inline text-[11px] font-medium">{voiceEnabled ? "Voice On" : "Voice Off"}</span>
-          </button>
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all ${
-            isProcessing ? "border-amber-500/40 bg-amber-500/10 text-amber-300" :
-            isSpeaking   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" :
-                           "border-slate-700 bg-slate-800/50 text-slate-400"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              isProcessing ? "bg-amber-400 animate-pulse" :
-              isSpeaking   ? "bg-emerald-400 animate-pulse" :
-                             "bg-cyan-500"
-            }`} />
-            <span className="hidden sm:inline">{isSpeaking ? "Speaking..." : STAGE_LABEL[stage]}</span>
-            {isSpeaking && (
-              <button onClick={stopSpeakingHandler} className="text-slate-500 hover:text-red-400 ml-0.5 transition-colors" title="Stop Aria from speaking">
-                <VolumeX size={11} />
-              </button>
-            )}
-            {isRecording && (
-              <button onClick={stopRecording} className="text-slate-500 hover:text-red-400 ml-0.5 transition-colors" title="Stop recording">
-                <VolumeX size={11} />
-              </button>
-            )}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Status indicator */}
+            <div className={`flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border text-[10px] sm:text-[11px] font-medium transition-all ${
+              isProcessing ? "border-amber-500/40 bg-amber-500/10 text-amber-300" :
+              isSpeaking   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" :
+                             "border-slate-700 bg-slate-800/50 text-slate-400"
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                isProcessing ? "bg-amber-400 animate-pulse" :
+                isSpeaking   ? "bg-emerald-400 animate-pulse" :
+                               "bg-cyan-500"
+              }`} />
+              <span>{isSpeaking ? "Speaking" : STAGE_LABEL[stage]}</span>
+              {isSpeaking && (
+                <button onClick={stopSpeakingHandler} className="text-slate-500 hover:text-red-400 ml-0.5 transition-colors" title="Stop speaking">
+                  <VolumeX size={10} />
+                </button>
+              )}
+            </div>
+            {/* Voice toggle */}
+            <button
+              onClick={() => { if (isSpeaking) stopSpeakingHandler(); setVoiceEnabled((v) => !v); }}
+              className={`p-1.5 sm:p-2 rounded-full border transition-all ${
+                voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
+              }`}
+              title={voiceEnabled ? "Voice On" : "Voice Off"}
+            >
+              {voiceEnabled ? <Volume2 size={13} /> : <VolumeX size={13} />}
+            </button>
+            {/* Settings toggle */}
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-1.5 sm:p-2 rounded-full border transition-all ${
+                showSettings ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
+              }`}
+              title="Voice & mic settings"
+            >
+              <Settings size={13} />
+            </button>
           </div>
         </div>
+        {/* Collapsible settings row */}
+        {showSettings && (
+          <div className="flex items-center gap-2 px-3 sm:px-6 py-2 border-t border-white/5 bg-slate-900/40 flex-wrap">
+            <select value={ttsMode} onChange={(e) => setTtsMode(e.target.value as any)} className="text-[10px] sm:text-xs px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50 text-slate-300">
+              <option value="both">Voice + Text</option>
+              <option value="voice">Voice Only</option>
+              <option value="text">Text Only</option>
+            </select>
+            {(ttsMode === 'voice' || ttsMode === 'both') && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+                <span className="text-[9px] sm:text-[10px] text-slate-500">Speed:</span>
+                <input type="range" min="0.5" max="2" step="0.25" value={ttsSpeed} onChange={(e) => setTtsSpeed(parseFloat(e.target.value))} className="w-10 sm:w-12 h-1 bg-slate-700 rounded cursor-pointer" />
+                <span className="text-[9px] sm:text-[10px] text-slate-400">{ttsSpeed.toFixed(2)}x</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
+              <span className="text-[9px] sm:text-[10px] text-slate-500">Mic:</span>
+              <input type="range" min="0.1" max="0.8" step="0.1" value={micSensitivity} onChange={(e) => setMicSensitivity(parseFloat(e.target.value))} className="w-10 sm:w-12 h-1 bg-slate-700 rounded cursor-pointer" />
+              <span className="text-[9px] sm:text-[10px] text-slate-400">{(1 - micSensitivity).toFixed(1)}</span>
+            </div>
+            <button
+              onClick={() => setRequireWakeWord(!requireWakeWord)}
+              className={`text-[10px] sm:text-xs px-2 py-1 rounded-full border transition-all ${
+                requireWakeWord ? "border-purple-500/40 text-purple-400 bg-purple-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
+              }`}
+            >
+              Wake: {requireWakeWord ? "ON" : "OFF"}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* ── Quick Action Chips — visible when no messages ─────────────────── */}
+      {messages.length === 0 && (
+        <div className="flex-shrink-0 px-3 sm:px-6 py-2 border-b border-white/5 bg-slate-900/40 overflow-x-auto">
+          <div className="flex gap-1.5 sm:gap-2 min-w-max">
+            {[
+              { label: "System Status", query: "What is the current system status across all GigitekAI services?" },
+              { label: "Open Tickets", query: "Show me all open tickets with priority levels" },
+              { label: "M365 Health", query: "What is the current Microsoft 365 service health status?" },
+              { label: "PowerShell", query: "Give me the top 10 PowerShell commands for M365 admin" },
+              { label: "Uptime", query: "What is our current website and service uptime?" },
+              { label: "All Pages", query: "Show me all admin portal pages and their functions" },
+            ].map((chip) => (
+              <button
+                key={chip.label}
+                onClick={() => { setInput(chip.query); setTimeout(() => inputRef.current?.focus(), 50); }}
+                className="text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 hover:bg-cyan-500/15 hover:border-cyan-500/40 transition-all whitespace-nowrap"
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Main Layout ──────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
