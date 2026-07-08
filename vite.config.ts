@@ -632,13 +632,10 @@ export default defineConfig({
     // disabled, chunks are only fetched when their dynamic import() actually executes.
     modulePreload: false,
     rollupOptions: {
-      // Enable aggressive tree-shaking to remove unused Radix UI components
-      // This reduces vendor bundle from ~280KB to ~200KB by eliminating unused UI primitives
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-        tryCatchDeoptimization: false,
-      },
+      // Use Rollup's default tree-shaking (safest + lowest memory footprint)
+      // The aggressive options (moduleSideEffects:false, propertyReadSideEffects:false)
+      // force Rollup to hold the full module graph in memory, causing OOM on large bundles.
+      treeshake: 'recommended',
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
         redirect: path.resolve(import.meta.dirname, "client", "redirect.html"),
@@ -691,7 +688,7 @@ export default defineConfig({
           // them causes "Cannot access 'gm' before initialization" crash.
           // All React-dependent packages MUST stay in vendor to ensure correct
           // initialization order.
-          // Build: 2026-07-08T16:15:00Z (esbuild+lightningcss, GA4 removed)
+          // Build: 2026-07-08T16:30:00Z (OOM fix: heap 3GB + treeshake recommended)
           return 'vendor';
         },
       },
