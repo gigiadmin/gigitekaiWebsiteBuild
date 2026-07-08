@@ -621,10 +621,7 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
-    // esbuild: fast, low-memory JS minifier — terser was OOM-killing the build container
     minify: 'esbuild',
-    // LightningCSS: Rust-based CSS minifier, better compression than esbuild CSS
-    cssMinify: 'lightningcss',
     // Disable modulePreload entirely — prevents Vite from injecting <link rel="modulepreload">
     // tags in index.html. Without this, the browser eagerly downloads ALL referenced chunks
     // (vendor 1MB, react-core 388KB, icons 79KB, etc.) before the page renders, causing
@@ -632,10 +629,13 @@ export default defineConfig({
     // disabled, chunks are only fetched when their dynamic import() actually executes.
     modulePreload: false,
     rollupOptions: {
-      // Use Rollup's default tree-shaking (safest + lowest memory footprint)
-      // The aggressive options (moduleSideEffects:false, propertyReadSideEffects:false)
-      // force Rollup to hold the full module graph in memory, causing OOM on large bundles.
-      treeshake: 'recommended',
+      // Enable aggressive tree-shaking to remove unused Radix UI components
+      // This reduces vendor bundle from ~280KB to ~200KB by eliminating unused UI primitives
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
+      },
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
         redirect: path.resolve(import.meta.dirname, "client", "redirect.html"),
@@ -688,7 +688,7 @@ export default defineConfig({
           // them causes "Cannot access 'gm' before initialization" crash.
           // All React-dependent packages MUST stay in vendor to ensure correct
           // initialization order.
-          // Build: 2026-07-08T17:10:00Z (NODE_OPTIONS heap fix + GA4 removed)
+          // Build: 2026-07-08T15:15:00Z (cache bust)
           return 'vendor';
         },
       },
