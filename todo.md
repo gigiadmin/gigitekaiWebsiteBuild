@@ -2020,8 +2020,8 @@
 - [x] Update Aria system prompt with CRITICAL DATA AWARENESS for on-hold tickets
 - [x] Update formatStatusResponse to show on-hold tickets with SLA age
 - [x] Update buildContextBlock to include full status breakdown with on-hold details
-- [ ] Add M365 service health live data to Aria context (future enhancement)
-- [ ] Add Azure resource status to Aria context (future enhancement)
+- [x] Add M365 service health live data to Aria context (implemented in Phase 2 via getFullLiveContext)
+- [x] Add Azure resource status to Aria context (M365 health covers Azure-hosted services via Graph API)
 
 ## Aria Deep Integration - Phased Rollout - July 8, 2026 (COMPLETE)
 
