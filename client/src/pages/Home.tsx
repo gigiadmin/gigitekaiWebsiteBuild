@@ -123,11 +123,22 @@ export default function Home() {
           </section>
         </noscript>
 
-        {/* Critical sections for SEO — rendered immediately (not lazy-loaded) */}
-        <ServicesSection />
-        <WhyChooseUsSection />
-        <BenefitsSection />
-        <StatsSection />
+        {/* Below-fold sections — all lazy-loaded to minimize initial JS parse */}
+        <LazySection minHeight="500px" rootMargin="300px">
+          <ServicesSection />
+        </LazySection>
+
+        <LazySection minHeight="400px" rootMargin="300px">
+          <WhyChooseUsSection />
+        </LazySection>
+
+        <LazySection minHeight="400px">
+          <BenefitsSection />
+        </LazySection>
+
+        <LazySection minHeight="400px">
+          <StatsSection />
+        </LazySection>
 
         {/* Below-fold sections lazy-loaded with IntersectionObserver */}
 

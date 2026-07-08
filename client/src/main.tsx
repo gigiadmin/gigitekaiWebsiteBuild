@@ -274,6 +274,9 @@ function mountApp() {
     );
 
     reactRoot.render(appContent);
+    // Hide the pre-rendered static hero now that React has mounted
+    const staticHero = document.getElementById('static-hero');
+    if (staticHero) staticHero.style.display = 'none';
     console.log('[GigitekAI] React mounted successfully');
   } catch (err) {
     console.error('[GigitekAI] React mount failed, retrying...', err);
@@ -297,6 +300,8 @@ function mountApp() {
         );
 
         retryRoot.render(appContent);
+        const staticHero2 = document.getElementById('static-hero');
+        if (staticHero2) staticHero2.style.display = 'none';
         console.log('[GigitekAI] React mounted on retry');
       } catch (retryErr) {
         console.error('[GigitekAI] React mount retry also failed:', retryErr);
@@ -329,24 +334,10 @@ function mountApp() {
   }
 }
 
-// PERFORMANCE: Defer React mounting until browser is idle.
-// The pre-rendered hero HTML in index.html is already visible to the user.
-// Delaying React hydration until requestIdleCallback means the browser can
-// mark the page as interactive BEFORE executing 1.5MB of JS, which drops
-// TBT from ~3900ms to near 0 on mobile PageSpeed.
-//
-// Fallback: If requestIdleCallback is not available (Safari < 16), mount after
-// a short setTimeout to still get the benefit of deferring past first paint.
-//
-// The hero video is already deferred on mobile (preload="none"), so no UX
-// regression from delaying React mount by ~1-2 seconds.
-// PERFORMANCE: Defer React mounting until browser is idle.
-if (typeof requestIdleCallback !== 'undefined') {
-  requestIdleCallback(mountApp, { timeout: 3000 });
-} else {
-  // Fallback for browsers without requestIdleCallback (Safari < 16)
-  setTimeout(mountApp, 0);
-}
+// PERFORMANCE: Mount React immediately. The static hero in index.html
+// provides instant FCP. React mounting will happen as soon as the JS
+// is parsed, replacing the static hero with the interactive version.
+mountApp();
 
 // Log offline status on startup
 if (!navigator.onLine) {

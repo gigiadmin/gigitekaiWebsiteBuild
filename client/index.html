@@ -371,6 +371,30 @@
     <!-- Duplicate Organization schema removed — consolidated in main JSON-LD block above -->
   </head>
   <body>
+    <!-- PRE-RENDERED HERO: Visible immediately before React/JS loads.
+         This gives the browser content to paint for FCP while the 358KB Manus
+         runtime + vendor bundle parse. React will hide this when it mounts. -->
+    <div id="static-hero" style="background:#0A0E1A;min-height:90vh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(10,14,26,0.97) 0%,rgba(10,14,26,0.75) 60%,rgba(10,14,26,0.4) 100%);z-index:1;"></div>
+      <div style="position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:5rem 1rem;width:100%;">
+        <div style="max-width:48rem;">
+          <p style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.15em;color:#00D4FF;text-transform:uppercase;margin-bottom:1.5rem;">SECURITY-FIRST MANAGED IT FOR TAMPA BAY</p>
+          <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:700;color:#fff;line-height:1.05;margin:0 0 1.5rem 0;">Managed IT + <span style="background:linear-gradient(90deg,#00D4FF,#00EEFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Governed AI</span><br>for Tampa Bay SMBs</h1>
+          <p style="font-family:'DM Sans',sans-serif;font-size:1.125rem;color:#d1d5db;max-width:36rem;line-height:1.7;margin:0 0 2.5rem 0;">Security-first managed IT with AI done safely. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations—without the complexity.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+            <a href="/contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:#00D4FF;color:#0A0E1A;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.5rem;text-decoration:none;font-size:1rem;">Get Started in Tampa Bay →</a>
+            <a href="/smart-home" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,212,255,0.08);border:1.5px solid rgba(0,212,255,0.45);color:#00D4FF;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.5rem;text-decoration:none;font-size:1rem;">Explore Smart Home</a>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-top:1.5rem;font-size:0.875rem;color:#d1d5db;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#00D4FF;">30+</span><span>Clients Served</span>
+            <span style="color:rgba(0,212,255,0.3);">|</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#00D4FF;">99.9%</span><span>Uptime SLA</span>
+            <span style="color:rgba(0,212,255,0.3);">|</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:#00D4FF;">24/7</span><span>Local Support</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <!-- Noscript fallback: Full homepage content for search engines and users without JavaScript -->
     <noscript>
