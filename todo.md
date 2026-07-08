@@ -2128,7 +2128,27 @@
 - TBT: 310ms (🟡 Needs Work)
 - CLS: 0.01 (✅ Good)
 
-**Expected After Fix (Re-test Needed):**
-- LCP: 8-12s (hero loads immediately via preload instead of after 2.9 MB JS)
-- FCP: 2-4s (CSS now non-blocking, renders before full CSS loads)
-- Performance: 60-70/100 (significant improvement from 48)
+**Deep Analysis Findings (Jul 8, 2026):**
+- Manus Runtime: 358 KB inline script injected by platform (cannot remove)
+- Production HTML total: 408 KB (90% is Manus Runtime)
+- Cache headers: no-cache, no-store (platform-level, cannot change)
+- Autoscale cold starts: 2-4s server wake time on first request
+- Vendor.js not referenced in HTML — loaded via dynamic import from main.js
+
+**Additional Fix: Vendor Modulepreload Restored**
+- [x] Re-added vendor.js modulepreload (browser downloads 2.9 MB in parallel with main.js)
+- [x] Without it: browser waits for main.js download + parse THEN discovers vendor.js (sequential = slow)
+- [x] With it: both download simultaneously (saves 3-4 seconds)
+- [x] Hero image still has fetchpriority="high" so it won't be starved
+- [x] Verified: both homepage and admin load with zero console errors
+
+**Platform Limitations (Cannot Fix — Require Infrastructure Changes):**
+- Manus Runtime 358 KB inline (platform visual editor) — adds 200-400ms parse time
+- no-cache headers on HTML — every visit re-downloads 408 KB HTML
+- Autoscale cold starts — first visitor after idle waits 2-4s for server wake
+- Recommendation: Switch to Reserved hosting to eliminate cold starts
+
+**Expected After All Fixes (Re-test Needed):**
+- LCP: 8-12s (hero preloads correctly + vendor downloads in parallel)
+- FCP: 2-4s (CSS non-blocking + bootstrap fallback working)
+- Performance: 55-65/100 (limited by platform overhead)

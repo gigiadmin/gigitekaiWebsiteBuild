@@ -395,18 +395,18 @@ function vitePluginCriticalPreload(): Plugin {
         return html;
       }
 
-      // Build modulepreload hints for critical chunks that are statically imported by main.
-      // These tell the browser to start fetching these modules in parallel with main.js
-      // instead of waiting for main.js to parse and discover the imports sequentially.
-      // We intentionally do NOT preload vendor (280KB) or radix-ui (87KB) because
-      // they are side-effect-only imports that can load after main renders.
-      // PERFORMANCE FIX: Do NOT modulepreload the vendor chunk (2.9 MB gzipped).
-      // The browser already discovers vendor.js immediately via static import in main.js.
-      // Adding modulepreload for it just wastes bandwidth priority and competes with
-      // the hero image for network resources, worsening LCP.
-      // Only preload main.js (20 KB) which is the entry point.
+      // Build modulepreload hints for critical chunks.
+      // The vendor chunk is NOT directly referenced in HTML — it's loaded via dynamic import
+      // from main.js. Without modulepreload, the browser must:
+      //   1. Download main.js (3-4s on cold start)
+      //   2. Parse main.js
+      //   3. Discover vendor.js import
+      //   4. Download vendor.js (another 3-4s)
+      // With modulepreload, steps 1 and 4 happen IN PARALLEL, saving 3-4 seconds.
+      // The hero image preload has fetchpriority="high" so it won't be starved.
       const preloadHints = [
         `<link rel="modulepreload" href="/assets/main-${mainHash}.js">`,
+        vendorFile ? `<link rel="modulepreload" href="${vendorFile}">` : '',
         criticalUtilsFile ? `<link rel="modulepreload" href="${criticalUtilsFile}">` : '',
         trpcQueryFile ? `<link rel="modulepreload" href="${trpcQueryFile}">` : '',
       ].filter(Boolean).join('\n    ');
