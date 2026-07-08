@@ -688,6 +688,7 @@ export default defineConfig({
           // them causes "Cannot access 'gm' before initialization" crash.
           // All React-dependent packages MUST stay in vendor to ensure correct
           // initialization order.
+          // Build: 2026-07-08T15:15:00Z (cache bust)
           return 'vendor';
         },
       },
