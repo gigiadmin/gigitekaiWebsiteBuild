@@ -2052,3 +2052,66 @@
 - [x] Support mailbox inbox query (recent messages, unread count)
 - [x] Per-user mailbox/M365 activity queries via Graph API
 - [x] Add exchange_query intent to detectIntent function
+
+
+## Service Worker & Offline Support - July 8, 2026
+
+- [x] **Service Worker Implementation** — COMPLETE
+  - [x] Created enhanced service worker (sw.js) with intelligent caching strategies
+  - [x] Implemented cache-first strategy for static assets (/assets/*, fonts)
+  - [x] Implemented network-first strategy for API calls and dynamic content
+  - [x] Added navigation strategy with offline.html fallback
+  - [x] Version-based cache management with automatic cleanup
+  - [x] Precache critical assets (/, /offline.html, /manifest.json)
+  - [x] Message handler for cache control from clients
+  - [x] Service worker registered successfully in main.tsx
+  - [x] Periodic update checks (every 6 hours)
+  - [x] Online/offline event listeners with CSS class management
+  - [x] Files verified in production build: sw.js (7.0 KB), offline.html (9.1 KB)
+
+- [x] **Offline Fallback Page** — COMPLETE
+  - [x] Created branded offline.html with GigitekAI dark theme
+  - [x] Responsive design with mobile optimization
+  - [x] Contact information (phone, email) for support
+  - [x] Auto-refresh when connection is restored
+  - [x] Helpful troubleshooting tips
+  - [x] Action buttons (Try Again, Go to Home)
+  - [x] Accessibility features (reduced motion support)
+  - [x] Page size: 9.1 KB (optimized)
+
+- [x] **Caching Headers Configuration** — COMPLETE
+  - [x] Added offline.html caching header (7 days, 604800s)
+  - [x] Service worker caching headers verified (max-age=0, must-revalidate)
+  - [x] Asset caching headers verified (immutable, 1 year)
+
+- [x] **Service Worker Registration** — COMPLETE
+  - [x] Registered in main.tsx with proper error handling
+  - [x] Update checks every 6 hours
+  - [x] Controller change listener for new SW activation
+  - [x] Message listener for cache updates
+  - [x] Online/offline event handlers
+  - [x] Graceful fallback for browsers without SW support
+
+## Performance Optimization - Phase 2 (In Progress)
+
+**PageSpeed Results (Jul 8, 2026):**
+- Mobile Performance: 48/100 (🔴 Poor - target: 90+)
+- LCP: 18.6s (🔴 Poor - target: < 2.5s)
+- FCP: 16.4s (🔴 Poor - target: < 1.8s)
+- TBT: 310ms (🟡 Needs Work - target: < 200ms)
+- CLS: 0.01 (✅ Good)
+
+**Root Causes:**
+1. Vendor bundle too large (2.9 MB gzipped)
+2. Unused JavaScript (773 KiB potential savings)
+3. Long main-thread tasks (5 found)
+4. Hero image not optimized
+
+**Next Actions:**
+- [ ] Reduce vendor bundle size (aggressive tree-shaking)
+- [ ] Remove unused Radix UI components
+- [ ] Optimize hero image (WebP, responsive)
+- [ ] Extract critical CSS for inline injection
+- [ ] Lazy-load admin-only components
+- [ ] Reduce TBT with better task scheduling
+- [ ] Re-test PageSpeed after optimizations

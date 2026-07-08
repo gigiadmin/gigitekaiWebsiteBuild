@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>You're Offline | GigitekAI</title>
+    <meta name="description" content="You're currently offline. GigitekAI will be available when your connection is restored.">
+    <meta name="theme-color" content="#0A0E1A">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0A0E1A 0%, #0F1629 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .offline-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .status-message {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .signal-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            color: #00D4FF;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .signal-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #FF6B6B;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .info-section {
+            background: rgba(20, 27, 45, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .info-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            color: #00D4FF;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-section li {
+            padding: 0.5rem 0;
+            color: #b0b0b0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .info-section li:before {
+            content: "✓";
+            color: #00D4FF;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .contact-info {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid #00D4FF;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .contact-info p {
+            margin: 0.5rem 0;
+            color: #e0e0e0;
+        }
+
+        .contact-info a {
+            color: #00D4FF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #00D4FF;
+            color: #0A0E1A;
+        }
+
+        .btn-primary:hover {
+            background: #00B8D4;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00D4FF;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00D4FF;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00D4FF;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .offline-icon {
+                font-size: 3rem;
+            }
+
+            .info-section {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Accessibility: Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Dark mode preference (already dark, but ensure consistency) */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0A0E1A 0%, #0F1629 100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="logo">GigitekAI</div>
+
+        <div class="offline-icon">📡</div>
+
+        <h1>You're Currently Offline</h1>
+
+        <p class="status-message">
+            Your internet connection appears to be unavailable. Don't worry — we'll be right here when you're back online.
+        </p>
+
+        <div class="signal-indicator">
+            <span class="signal-dot"></span>
+            Waiting for connection...
+        </div>
+
+        <div class="info-section">
+            <h2>💾 What You Can Do</h2>
+            <ul>
+                <li>Check your internet connection</li>
+                <li>Restart your WiFi router or mobile hotspot</li>
+                <li>Try moving closer to your WiFi access point</li>
+                <li>Wait a moment and try refreshing this page</li>
+            </ul>
+        </div>
+
+        <div class="contact-info">
+            <p><strong>Need Help?</strong></p>
+            <p>Call us at <a href="tel:+17273825776">(727) 382-6909</a></p>
+            <p>or email <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></p>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="location.reload()">
+                🔄 Try Again
+            </button>
+            <button class="btn btn-secondary" onclick="goHome()">
+                ← Go to Home
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>© 2024-2026 GigitekAI LLC. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Your data is cached locally — no data is being sent while offline.</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh when connection is restored
+        window.addEventListener('online', function() {
+            console.log('[Offline Page] Connection restored!');
+            // Wait a moment for connection to stabilize, then reload
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        });
+
+        // Attempt to navigate to home page
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Log offline status
+        console.log('[Offline Page] User is offline. Waiting for connection...');
+    </script>
+</body>
+</html>

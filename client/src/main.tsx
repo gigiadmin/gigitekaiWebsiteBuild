@@ -11,6 +11,72 @@ import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 
 // ============================================================
+// SERVICE WORKER REGISTRATION & MANAGEMENT
+// Registers the service worker for offline support, caching,
+// and background sync capabilities.
+// ============================================================
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    console.log('[SW] Service Workers not supported in this browser');
+    return;
+  }
+
+  // Register service worker on page load
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+      });
+      console.log('[SW] Service Worker registered successfully:', registration);
+
+      // Check for updates periodically (every 6 hours)
+      setInterval(() => {
+        registration.update().catch((err) => {
+          console.warn('[SW] Update check failed:', err);
+        });
+      }, 6 * 60 * 60 * 1000);
+
+      // Listen for controller change (new SW activated)
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('[SW] New Service Worker activated');
+        // Optionally notify user about updates
+        notifyUserOfUpdate();
+      });
+
+      // Listen for messages from service worker
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'CACHE_UPDATED') {
+          console.log('[SW] Cache updated:', event.data.payload);
+        }
+      });
+    } catch (error) {
+      console.error('[SW] Service Worker registration failed:', error);
+    }
+  });
+
+  // Handle online/offline events
+  window.addEventListener('online', () => {
+    console.log('[SW] Connection restored');
+    document.body.classList.remove('offline-mode');
+  });
+
+  window.addEventListener('offline', () => {
+    console.log('[SW] Connection lost');
+    document.body.classList.add('offline-mode');
+  });
+}
+
+// Notify user when a new service worker version is available
+function notifyUserOfUpdate() {
+  // You can implement a toast notification here
+  // For now, just log it
+  console.log('[SW] New version available. Page will update on next visit.');
+}
+
+// Initialize service worker registration
+registerServiceWorker();
+
+// ============================================================
 // PRODUCTION FIX: Manus platform injects manus-runtime which
 // bundles its own React and targets elements with id="root" or
 // id="app". To avoid the dual-React conflict, we create a fresh
@@ -103,22 +169,8 @@ function getOrCreateMountPoint(): HTMLElement {
   }, true /* capture phase — fires before React */);
 })();
 
-// CLEANUP: Unregister any stale service workers that may serve cached content
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister();
-    }
-  });
-  // Also clear any SW caches
-  if ('caches' in window) {
-    caches.keys().then((names) => {
-      for (const name of names) {
-        caches.delete(name);
-      }
-    });
-  }
-}
+// NOTE: Service worker cleanup removed — we now manage SW lifecycle properly
+// The new service worker handles cache cleanup on activation
 
 const queryClient = new QueryClient();
 
@@ -288,9 +340,16 @@ function mountApp() {
 //
 // The hero video is already deferred on mobile (preload="none"), so no UX
 // regression from delaying React mount by ~1-2 seconds.
+// PERFORMANCE: Defer React mounting until browser is idle.
 if (typeof requestIdleCallback !== 'undefined') {
   requestIdleCallback(mountApp, { timeout: 3000 });
 } else {
   // Fallback for browsers without requestIdleCallback (Safari < 16)
   setTimeout(mountApp, 0);
+}
+
+// Log offline status on startup
+if (!navigator.onLine) {
+  console.log('[App] Starting in offline mode');
+  document.body.classList.add('offline-mode');
 }

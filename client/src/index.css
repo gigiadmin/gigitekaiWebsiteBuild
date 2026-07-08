@@ -799,3 +799,100 @@
 .navbar-logo-light:hover {
   opacity: 0.9;
 }
+
+
+/* ============================================================
+   OFFLINE MODE STYLES
+   Provides visual feedback when the app is in offline mode
+   ============================================================ */
+
+body.offline-mode {
+  /* Optional: Add subtle visual indicator for offline mode */
+  --offline-indicator-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Offline indicator bar (optional) */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #FF6B6B, #FF8E8E);
+  color: white;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Disable interactive elements when offline (optional) */
+body.offline-mode .interactive-element:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Service worker update notification */
+.sw-update-notification {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: #00D4FF;
+  color: #0A0E1A;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  z-index: 9998;
+  animation: slideUp 0.3s ease-out;
+  max-width: 300px;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sw-update-notification button {
+  background: #0A0E1A;
+  color: #00D4FF;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.sw-update-notification button:hover {
+  background: #0F1629;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .offline-indicator,
+  .sw-update-notification {
+    animation: none;
+  }
+}
