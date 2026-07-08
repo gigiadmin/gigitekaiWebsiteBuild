@@ -604,17 +604,14 @@ export default defineConfig({
    build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-        // Increase chunk size warning to 1MB since we're intentionally creating
-        // larger chunks for admin-only features (msal, tiptap, charts, markdown)
-        chunkSizeWarningLimit: isAnalyze ? 999999 : 1000,
+    chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
     minify: 'esbuild',
-      // Disable modulePreload entirely — prevents Vite from injecting <link rel="modulepreload">
-      // tags in index.html. Without this, the browser eagerly downloads ALL referenced chunks
-      // (vendor 1MB, charts 600KB, markdown 150KB, etc.) before the page renders, causing
-      // Lighthouse to flag 773+ KiB of "unused JavaScript" on mobile. With modulePreload
-      // disabled, chunks are only fetched when their dynamic import() actually executes.
-      // This is critical for reducing initial bundle from 2.9MB to ~1.8MB gzipped.
-      modulePreload: false,
+    // Disable modulePreload entirely — prevents Vite from injecting <link rel="modulepreload">
+    // tags in index.html. Without this, the browser eagerly downloads ALL referenced chunks
+    // (vendor 1MB, react-core 388KB, icons 79KB, etc.) before the page renders, causing
+    // Lighthouse to flag 448+ KiB of "unused JavaScript" on mobile. With modulePreload
+    // disabled, chunks are only fetched when their dynamic import() actually executes.
+    modulePreload: false,
     rollupOptions: {
       // Enable aggressive tree-shaking to remove unused Radix UI components
       // This reduces vendor bundle from ~280KB to ~200KB by eliminating unused UI primitives
@@ -622,13 +619,6 @@ export default defineConfig({
         moduleSideEffects: false,
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false,
-        // Mark known pure functions for aggressive removal
-        manualPureFunctions: [
-          'console.log',
-          'console.warn',
-          'console.error',
-          'console.info',
-        ],
       },
       input: {
         main: path.resolve(import.meta.dirname, "client", "index.html"),
@@ -660,31 +650,9 @@ export default defineConfig({
           // ── Stripe: only needed on pricing/checkout pages ─────────────────────
           if (id.includes('@stripe/') || id.includes('/stripe/')) return 'stripe';
 
-          // ── Recharts & D3: only needed in investor portal & admin dashboards ──
-          // Recharts is 600KB gzipped but only used in InvestorPortal and admin pages.
-          // Lazy-loading this chunk saves 300KB on homepage initial load.
-          if (id.includes('recharts') || id.includes('d3')) return 'charts';
-
-          // ── Markdown libraries: only needed on blog/KB pages ──────────────────
-          // react-markdown, remark-gfm, highlight.js are 150KB gzipped but only
-          // used on blog detail, KB pages, and admin blog editor.
-          if (
-            id.includes('react-markdown') ||
-            id.includes('remark-') ||
-            id.includes('highlight.js')
-          ) return 'markdown';
-
-          // ── Form libraries: only needed on pages with forms ──────────────────
-          // react-hook-form and zod are 100KB gzipped but only used on form pages.
-          if (
-            id.includes('react-hook-form') ||
-            id.includes('zod') ||
-            id.includes('hookform')
-          ) return 'forms';
-
-          // ── Everything else (React, Radix, tRPC, etc.): vendor ────────────────
-          // After splitting charts, markdown, and forms, vendor should be ~1.3MB
-          // gzipped (down from 2.9MB), containing only truly critical dependencies.
+          // ── Everything else (React, Radix, tRPC, charts, etc.): vendor ─────────
+          // Keeping these together prevents circular dependency crashes that broke
+          // production previously (react-core→charts→react-core circular refs).
           return 'vendor';
         },
       },

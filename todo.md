@@ -2092,45 +2092,26 @@
   - [x] Online/offline event handlers
   - [x] Graceful fallback for browsers without SW support
 
-## Bundle Optimization - Phase 1 Complete (Jul 8, 2026)
+## Performance Optimization - Phase 2 (In Progress)
 
-**Phase 1: Code Splitting - COMPLETE**
-- [x] Added Recharts chunk (441 KB, 116 KB gzipped) - lazy-loaded
-- [x] Added Markdown chunk (41 KB, 13.7 KB gzipped) - lazy-loaded
-- [x] Added Forms chunk (22 KB, 8.68 KB gzipped) - lazy-loaded
-- [x] Enhanced tree-shaking configuration
-- [x] Verified chunks properly separated
-- [x] Build successful: vendor 2.76 MB gzipped (down from 2.9 MB)
-- [x] Homepage savings: 140 KB gzipped (4.8% reduction)
+**PageSpeed Results (Jul 8, 2026):**
+- Mobile Performance: 48/100 (🔴 Poor - target: 90+)
+- LCP: 18.6s (🔴 Poor - target: < 2.5s)
+- FCP: 16.4s (🔴 Poor - target: < 1.8s)
+- TBT: 310ms (🟡 Needs Work - target: < 200ms)
+- CLS: 0.01 (✅ Good)
 
-**Phase 2: Radix UI Tree-Shaking - PENDING**
-- [ ] Identify unused Radix UI components
-- [ ] Configure tree-shaking for Radix
-- [ ] Expected savings: 100-150 KB gzipped
+**Root Causes:**
+1. Vendor bundle too large (2.9 MB gzipped)
+2. Unused JavaScript (773 KiB potential savings)
+3. Long main-thread tasks (5 found)
+4. Hero image not optimized
 
-**Phase 3: Icon Optimization - PENDING**
-- [ ] Audit lucide-react icon usage
-- [ ] Create icon sprite for public pages
-- [ ] Expected savings: 50-100 KB gzipped
-
-**Phase 4: Image Optimization - PENDING**
+**Next Actions:**
+- [ ] Reduce vendor bundle size (aggressive tree-shaking)
+- [ ] Remove unused Radix UI components
 - [ ] Optimize hero image (WebP, responsive)
-- [ ] Implement lazy loading for below-fold images
-- [ ] Expected savings: 200-300 KB
-
-**Phase 5: Dependency Audit - PENDING**
-- [ ] Identify unused npm packages
-- [ ] Remove or replace with lighter alternatives
-- [ ] Expected savings: 100-200 KB gzipped
-
-**PageSpeed Results (Jul 8, 2026 - Before Optimization):**
-- Mobile Performance: 48/100 (target: 90+)
-- LCP: 18.6s (target: < 2.5s)
-- FCP: 16.4s (target: < 1.8s)
-- TBT: 310ms (target: < 200ms)
-- CLS: 0.01 (Good)
-
-**Expected After All Phases:**
-- Performance: 55-65/100 (improved)
-- LCP: 14-16s (20-30% improvement)
-- Total bundle savings: 15-20% reduction
+- [ ] Extract critical CSS for inline injection
+- [ ] Lazy-load admin-only components
+- [ ] Reduce TBT with better task scheduling
+- [ ] Re-test PageSpeed after optimizations
