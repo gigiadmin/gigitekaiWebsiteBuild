@@ -688,7 +688,7 @@ export default defineConfig({
           // them causes "Cannot access 'gm' before initialization" crash.
           // All React-dependent packages MUST stay in vendor to ensure correct
           // initialization order.
-          // Build: 2026-07-08T16:30:00Z (OOM fix: heap 3GB + treeshake recommended)
+          // Build: 2026-07-08T17:10:00Z (NODE_OPTIONS heap fix + GA4 removed)
           return 'vendor';
         },
       },
