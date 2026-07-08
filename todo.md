@@ -2152,3 +2152,11 @@
 - LCP: 8-12s (hero preloads correctly + vendor downloads in parallel)
 - FCP: 2-4s (CSS non-blocking + bootstrap fallback working)
 - Performance: 55-65/100 (limited by platform overhead)
+
+---
+
+## Performance Optimization - Jul 8, 2026
+
+- [x] Reduce preconnect hints from 6 to 3 (fonts.googleapis.com, fonts.gstatic.com, CloudFront CDN) — PageSpeed penalizes >4 preconnects
+- [x] Fix GA4 deferral: moved gtag('js') and gtag('config') calls inside script.onload callback — prevents GA from blocking main thread during LCP
+- [ ] Monitor PageSpeed after deployment — target 60+ mobile (currently 50)

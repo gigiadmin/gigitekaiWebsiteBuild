@@ -83,7 +83,6 @@
     <!-- Fallback for browsers without JS -->
     <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" /></noscript>
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
-    <link rel="dns-prefetch" href="https://gigitekai.com" />
     <!-- Critical CSS: Inlined to prevent render-blocking CSS requests (3KB minified) -->
     <style>
       :root{--radius:0.5rem;--cyan-accent:#00D4FF;--cyan-glow:rgba(0,212,255,0.15);--navy-deep:#0A0E1A;--navy-mid:#0F1629;--navy-card:#141B2D;--navy-border:rgba(0,212,255,0.2);--background:oklch(0.08 0.02 250);--foreground:oklch(0.95 0.005 250);--card:oklch(0.12 0.025 250);--card-foreground:oklch(0.95 0.005 250);--primary:oklch(0.75 0.2 200);--primary-foreground:oklch(0.05 0.01 250);--border:oklch(1 0 0 / 10%);--ring:oklch(0.75 0.2 200)}html{scroll-behavior:smooth}*{border-color:var(--border);outline-color:oklch(0.75 0.2 200 / 50%)}body{background-color:var(--background);color:var(--foreground);font-family:'DM Sans',sans-serif;min-height:100dvh}#root{min-height:100dvh}h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}button:not(:disabled),[role="button"]:not([aria-disabled="true"]),[type="button"]:not(:disabled),[type="submit"]:not(:disabled),[type="reset"]:not(:disabled),a[href],select:not(:disabled),input[type="checkbox"]:not(:disabled),input[type="radio"]:not(:disabled){cursor:pointer}.container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}@media(min-width:640px){.container{padding-left:1.5rem;padding-right:1.5rem}}@media(min-width:1024px){.container{padding-left:2rem;padding-right:2rem;max-width:1280px}}.flex{min-height:0;min-width:0}nav{background-color:var(--background);border-bottom:1px solid var(--border)}nav button,nav a{color:var(--foreground);text-decoration:none}nav button:hover,nav a:hover{color:var(--cyan-accent)}.hero-section{background-color:var(--background);color:var(--foreground)}.hero-section h1{font-size:2.25rem;font-weight:700;line-height:1.2}@media(min-width:768px){.hero-section h1{font-size:3.75rem}}button[type="submit"],.btn-primary{background-color:var(--cyan-accent);color:var(--navy-deep);font-weight:600;padding:0.75rem 1.5rem;border-radius:0.375rem;border:none;cursor:pointer;transition:all 200ms ease}button[type="submit"]:hover,.btn-primary:hover{background-color:#00B8D4;box-shadow:0 0 20px rgba(0,212,255,0.4)}.loading{opacity:0.6;pointer-events:none}
@@ -91,19 +90,9 @@
     <!-- Note: Vite automatically injects the hashed CSS file (index-[hash].css) into the HTML.
          Do NOT add manual /assets/index.css references here as they will 404 in production. -->
     
-    <!-- DNS prefetch for CloudFront -->
-    <link rel="dns-prefetch" href="https://d2xsxph8kpxj0f.cloudfront.net" />
-    <link rel="dns-prefetch" href="https://d36hbw14aib5lz.cloudfront.net" />
+    <!-- DNS prefetch only (lightweight) for deferred third-party services -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <!-- Additional dns-prefetch for third-party services -->
-    <link rel="dns-prefetch" href="https://www.google.com" />
-    <link rel="dns-prefetch" href="https://www.gstatic.com" />
-    <link rel="dns-prefetch" href="https://graph.microsoft.com" />
-    <link rel="dns-prefetch" href="https://api.stripe.com" />
-    <link rel="dns-prefetch" href="https://checkout.stripe.com" />
-    <!-- Preconnect for critical third-party domains (establishes early connection) -->
-    <link rel="preconnect" href="https://graph.microsoft.com" crossorigin />
-    <link rel="preconnect" href="https://api.stripe.com" crossorigin />
+    <link rel="dns-prefetch" href="https://d36hbw14aib5lz.cloudfront.net" />
     
     <!-- Schema Markup: Consolidated in the extended JSON-LD block below -->
     <!-- LCP Optimization: CSS is already async via vitePluginNonBlockingCSS -->
@@ -453,43 +442,41 @@
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics 4: loaded after page interactive to reduce INP -->
+    <!-- Google Analytics 4: fully deferred until after page is interactive -->
+    <!-- Only the tiny dataLayer stub runs synchronously; gtag.js network load is deferred -->
     <script>
-      // Defer GA4 initialization until after page is interactive
-      // This improves INP (Interaction to Next Paint) by keeping main thread free
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+
+      var gaLoaded = false;
       function loadGA4() {
+        if (gaLoaded) return;
+        gaLoaded = true;
         var s = document.createElement('script');
         s.async = true;
         s.src = 'https://www.googletagmanager.com/gtag/js?id=G-00F4D2QCEX';
+        // gtag calls are inside onload so they run AFTER the script executes
+        // This prevents GA from contributing to TBT (Total Blocking Time)
+        s.onload = function() {
+          gtag('js', new Date());
+          gtag('config', 'G-00F4D2QCEX', {
+            'page_path': window.location.pathname,
+            'page_title': document.title,
+            'send_page_view': true
+          });
+        };
         document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', 'G-00F4D2QCEX', {
-          'page_path': window.location.pathname,
-          'page_title': document.title
-        });
       }
-      // Defer GTM to requestIdleCallback (after page interactive) for better performance
-      // This prevents GTM from blocking main thread during critical rendering
-      var gaLoaded = false;
-      function triggerGA() {
-        if (gaLoaded) return;
-        gaLoaded = true;
-        loadGA4();
-      }
-      // Load GA only after browser is idle (after LCP + TTI)
-      // requestIdleCallback fires when the main thread has no critical work
-      // This prevents GA from contributing to TBT (Total Blocking Time)
+      // Fire only after browser is idle (post-LCP, post-TTI)
       if (typeof requestIdleCallback !== 'undefined') {
         window.addEventListener('load', function() {
-          requestIdleCallback(triggerGA, { timeout: 5000 });
+          requestIdleCallback(loadGA4, { timeout: 6000 });
         });
       } else {
-        // Safari fallback: 4s delay after load event
+        // Safari fallback: 5s delay after load
         window.addEventListener('load', function() {
-          setTimeout(triggerGA, 4000);
+          setTimeout(loadGA4, 5000);
         });
       }
     </script>
