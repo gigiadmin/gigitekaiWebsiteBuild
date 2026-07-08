@@ -621,47 +621,9 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: isAnalyze ? 999999 : 700,
-    // Terser: 5-15% better JS compression than esbuild, worth the slightly slower build
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        // Remove dead code and unreachable branches
-        dead_code: true,
-        drop_console: false, // Keep console.error/warn for production debugging
-        drop_debugger: true,
-        // Inline small functions for fewer call overhead
-        inline: 2,
-        // Remove unused variables and parameters
-        unused: true,
-        // Collapse single-use variables
-        collapse_vars: true,
-        // Reduce if/else to ternary where possible
-        conditionals: true,
-        // Evaluate constant expressions at build time
-        evaluate: true,
-        // Remove unreachable code after return/throw
-        sequences: true,
-        // Merge consecutive simple statements
-        join_vars: true,
-        // Hoist function declarations
-        hoist_funs: false,
-        // Remove pure function calls with no side effects
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
-        passes: 2, // Two compression passes for better ratio
-      },
-      mangle: {
-        // Shorten property names for extra savings
-        properties: false, // Disabled — breaks runtime property access
-        toplevel: false,   // Disabled — breaks module exports
-      },
-      format: {
-        // Remove all comments except legal notices
-        comments: false,
-        // Compact output
-        beautify: false,
-      },
-    },
-    // LightningCSS: Rust-based CSS minifier, faster and better than esbuild CSS
+    // esbuild: fast, low-memory JS minifier — terser was OOM-killing the build container
+    minify: 'esbuild',
+    // LightningCSS: Rust-based CSS minifier, better compression than esbuild CSS
     cssMinify: 'lightningcss',
     // Disable modulePreload entirely — prevents Vite from injecting <link rel="modulepreload">
     // tags in index.html. Without this, the browser eagerly downloads ALL referenced chunks
@@ -729,7 +691,7 @@ export default defineConfig({
           // them causes "Cannot access 'gm' before initialization" crash.
           // All React-dependent packages MUST stay in vendor to ensure correct
           // initialization order.
-          // Build: 2026-07-08T16:00:00Z (terser+lightningcss minification)
+          // Build: 2026-07-08T16:15:00Z (esbuild+lightningcss, GA4 removed)
           return 'vendor';
         },
       },
