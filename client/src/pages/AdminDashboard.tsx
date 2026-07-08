@@ -7,6 +7,7 @@ import AdminChat from "./AdminChat";
 import AdminPanel from "./AdminPanel";
 import AdminNotifications from "./AdminNotifications";
 import AdminLayout from "@/components/AdminLayout";
+import AriaWidget from "@/components/AriaWidget";
 
 type TabType = "chat" | "helpdesk" | "notifications";
 
@@ -104,6 +105,10 @@ export default function AdminDashboard() {
           {activeTab === "notifications" && <AdminNotifications />}
         </div>
       </div>
+      <AriaWidget
+        pageContext="Admin Dashboard"
+        starterQuestion="Give me a full system status: tickets, M365 health, SLA breaches, and any critical issues I should know about."
+      />
     </AdminLayout>
   );
 }

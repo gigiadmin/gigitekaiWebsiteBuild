@@ -8,6 +8,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
+import AriaWidget from "@/components/AriaWidget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -695,6 +696,11 @@ export default function AdminM365Health() {
         </div>
         </div>
       </div>
+      <AriaWidget
+        pageContext="M365 Health Dashboard"
+        starterQuestion="What is the current Microsoft 365 service health status? Any degraded or down services?"
+        position="bottom-right"
+      />
       </AdminLayout>
   );
 }

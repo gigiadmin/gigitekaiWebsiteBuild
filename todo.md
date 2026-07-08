@@ -2022,3 +2022,33 @@
 - [x] Update buildContextBlock to include full status breakdown with on-hold details
 - [ ] Add M365 service health live data to Aria context (future enhancement)
 - [ ] Add Azure resource status to Aria context (future enhancement)
+
+## Aria Deep Integration - Phased Rollout - July 8, 2026 (COMPLETE)
+
+### Phase 1: Aria Action Commands ✅
+- [x] Add intent detection for ticket actions (close, assign, escalate, reopen, hold, set_priority)
+- [x] Add executeTicketAction function to close/resolve/escalate/assign/hold/reopen tickets
+- [x] Add ticket ID extraction from natural language commands
+- [x] Add confirmation messages for all actions
+- [x] Update system prompt with action command syntax
+
+### Phase 2: M365 Live Health + SLA Alerts ✅
+- [x] Wire Microsoft Graph service health API into Aria context (getFullLiveContext)
+- [x] Add M365 service degradation detection (Exchange, Teams, SharePoint)
+- [x] Add proactive SLA breach alert (tickets on hold > 24h via teamsSlaAlerts)
+- [x] Add M365 health and SLA breach sections to buildContextBlock
+- [x] Update system prompt with M365 health and SLA proactive awareness
+
+### Phase 3: Contextual Aria Widget on Admin Pages ✅
+- [x] Create reusable AriaWidget component with page context prop
+- [x] Embed AriaWidget on AdminHelpdeskPage (ticket dashboard)
+- [x] Embed AriaWidget on AdminDashboard
+- [x] Embed AriaWidget on AdminM365Health page
+- [x] Fix TypeScript error in AriaWidget (removed audioMimeType)
+
+### Phase 4: Teams Bot + Exchange Queries ✅
+- [x] Teams webhook already wired for SLA breach alerts (teamsSlaAlerts.ts)
+- [x] Add Exchange mailbox query capability (handleExchangeQuery function)
+- [x] Support mailbox inbox query (recent messages, unread count)
+- [x] Per-user mailbox/M365 activity queries via Graph API
+- [x] Add exchange_query intent to detectIntent function

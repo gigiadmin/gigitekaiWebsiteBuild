@@ -3,6 +3,8 @@ import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { getDb } from "../db";
+import { getMsGraphToken } from "../_core/email";
+import { SLA_THRESHOLDS_MS } from "../_core/teamsSlaAlerts";
 import {
   kbArticles, tickets, agents, callLogs, callAnalytics,
   agentMetrics, chatSessions, uptimeStatistics, uptimeAlerts,
@@ -91,9 +93,16 @@ export const ariaRouter = router({
       } else if (intent === "leads") {
         response = await askClaudeWithContext(finalQuestion, liveContext, "leads");
         sources = ["Live CRM Database"];
+      } else if (intent === "ticket_action") {
+        const actionResult = await executeTicketAction(finalQuestion, liveContext, ctx.user);
+        response = actionResult.response;
+        sources = actionResult.sources;
       } else if (intent === "navigation") {
         response = handleNavigation(finalQuestion);
         sources = ["Admin Portal Map"];
+      } else if (intent === "exchange_query") {
+        response = await handleExchangeQuery(finalQuestion, liveContext);
+        sources = ["Microsoft Graph / Exchange Online"];
       } else {
         // General technical question — Claude with full context
         response = await askClaudeWithContext(finalQuestion, liveContext, "general");
@@ -186,6 +195,17 @@ export const ariaRouter = router({
 function detectIntent(question: string): string {
   const q = question.toLowerCase();
 
+  // Ticket ACTION commands (must check before ticket_query)
+  const isTicketAction = (
+    (q.includes("close") || q.includes("resolve") || q.includes("mark as resolved") || q.includes("mark resolved")) ||
+    (q.includes("assign") && (q.includes("ticket") || q.includes("case") || q.includes("#"))) ||
+    (q.includes("escalate") && (q.includes("ticket") || q.includes("case") || q.includes("#"))) ||
+    (q.includes("put on hold") || q.includes("place on hold") || q.includes("hold ticket")) ||
+    (q.includes("reopen") && (q.includes("ticket") || q.includes("case") || q.includes("#"))) ||
+    (q.includes("set priority") || q.includes("change priority") || q.includes("mark as critical") || q.includes("mark as high"))
+  );
+  if (isTicketAction) return "ticket_action";
+
   // Navigation queries
   if (q.includes("where is") || q.includes("how do i get to") || q.includes("navigate to") || q.includes("find the page") || q.includes("where can i") || q.includes("go to") || q.includes("show me the page") || q.includes("take me to")) return "navigation";
 
@@ -213,8 +233,10 @@ function detectIntent(question: string): string {
   // KB / knowledge base
   if (q.includes("kb ") || q.includes("knowledge base") || q.includes("article") || q.includes("documentation") || q.includes("how to") || q.includes("steps to") || q.includes("guide for")) return "kb_search";
 
+  // Exchange / mailbox live queries
+  if (q.includes("mailbox") || q.includes("mail flow") || q.includes("unread email") || q.includes("inbox") || q.includes("email quota") || q.includes("mailbox size") || q.includes("recent email") || q.includes("mail activity") || q.includes("exchange mailbox") || q.includes("user email") || q.includes("user's email") || q.includes("user activity") || q.includes("m365 activity")) return "exchange_query";
   // Microsoft 365 / Azure specific queries (route to general with full context)
-  if (q.includes("exchange") || q.includes("mailbox") || q.includes("mail flow") || q.includes("transport rule") || q.includes("dlp") || q.includes("retention") || q.includes("quarantine")) return "technical_question";
+  if (q.includes("exchange") || q.includes("mail flow") || q.includes("transport rule") || q.includes("dlp") || q.includes("retention") || q.includes("quarantine")) return "technical_question";
   if (q.includes("teams") || q.includes("sharepoint") || q.includes("onedrive") || q.includes("entra") || q.includes("azure ad") || q.includes("intune") || q.includes("defender") || q.includes("conditional access")) return "technical_question";
   if (q.includes("powershell") || q.includes("script") || q.includes("command") || q.includes("cmdlet") || q.includes("connect-") || q.includes("get-mg") || q.includes("set-mg")) return "technical_question";
   if (q.includes("azure") || q.includes("vm") || q.includes("vnet") || q.includes("nsg") || q.includes("key vault") || q.includes("storage account") || q.includes("resource group")) return "technical_question";
@@ -372,6 +394,53 @@ async function getFullLiveContext() {
       clientCount = Number(clientRows[0]?.count ?? 0);
     } catch (_) {}
 
+    // ── M365 Service Health ───────────────────────────────────────
+    let m365Health: any = { available: false, services: [], degraded: [], down: [], critical: 0, total: 0 };
+    try {
+      const token = await getMsGraphToken();
+      if (token) {
+        const healthRes = await fetch('https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/healthOverviews', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (healthRes.ok) {
+          const healthData = (await healthRes.json()) as { value: any[] };
+          const services = healthData.value || [];
+          const degraded = services.filter((s: any) => s.status === 'serviceDegradation' || s.status === 'investigating');
+          const down = services.filter((s: any) => s.status === 'serviceInterruption' || s.status === 'extendedRecovery');
+          const critical = services.filter((s: any) => ['serviceInterruption', 'serviceDegradation', 'extendedRecovery'].includes(s.status));
+          m365Health = {
+            available: true,
+            total: services.length,
+            operational: services.filter((s: any) => s.status === 'serviceOperational').length,
+            degraded: degraded.map((s: any) => ({ service: s.service, status: s.status })),
+            down: down.map((s: any) => ({ service: s.service, status: s.status })),
+            critical: critical.length,
+            criticalServices: critical.map((s: any) => s.service),
+          };
+        }
+      }
+    } catch (_) {}
+
+    // ── SLA Breach Detection ──────────────────────────────────────
+    const nowMs = Date.now();
+    const slaBreachingTickets = allTickets
+      .filter((t: any) => (t.status === 'open' || t.status === 'in_progress') && t.priority && t.updatedAt)
+      .filter((t: any) => {
+        const threshold = SLA_THRESHOLDS_MS[t.priority];
+        if (!threshold) return false;
+        const elapsed = nowMs - new Date(t.updatedAt).getTime();
+        return elapsed > threshold;
+      })
+      .map((t: any) => {
+        const threshold = SLA_THRESHOLDS_MS[t.priority];
+        const elapsed = nowMs - new Date(t.updatedAt).getTime();
+        return {
+          id: t.id, title: t.title, priority: t.priority,
+          hoursOverdue: Math.round((elapsed - threshold) / (1000 * 60 * 60) * 10) / 10,
+          assignedTo: t.assignedTo || 'Unassigned',
+        };
+      });
+
     return {
       // Tickets — full status breakdown
       openTicketCount: openTickets.length,
@@ -422,6 +491,10 @@ async function getFullLiveContext() {
       contentData,
       // Clients
       clientCount,
+      // M365 Service Health
+      m365Health,
+      // SLA Breaching Tickets
+      slaBreachingTickets,
     };
   } catch (e) {
     console.error('[Aria] Failed to fetch full live context:', e);
@@ -537,6 +610,39 @@ function buildContextBlock(ctx: any, focus?: string): string {
     `\n### Content`,
     `- Published Blog Posts: ${ctx.contentData?.publishedPosts ?? 0}`,
   );
+
+  // M365 Service Health
+  if (ctx.m365Health?.available) {
+    const h = ctx.m365Health;
+    sections.push(
+      `\n### Microsoft 365 Service Health`,
+      `- Total Services Monitored: ${h.total}`,
+      `- Operational: ${h.operational}`,
+      `- Degraded: ${h.degraded?.length ?? 0}`,
+      `- Down / Interrupted: ${h.down?.length ?? 0}`,
+      `- Critical Issues: ${h.critical}`,
+    );
+    if (h.degraded?.length > 0) {
+      sections.push(`- ⚠️ Degraded Services:`);
+      h.degraded.forEach((s: any) => sections.push(`  • ${s.service} (${s.status})`));
+    }
+    if (h.down?.length > 0) {
+      sections.push(`- 🔴 Down Services:`);
+      h.down.forEach((s: any) => sections.push(`  • ${s.service} (${s.status})`));
+    }
+  } else {
+    sections.push(`\n### Microsoft 365 Service Health`, `- Status: Graph API credentials not configured or unavailable`);
+  }
+
+  // SLA Breach Alerts
+  if (ctx.slaBreachingTickets?.length > 0) {
+    sections.push(`\n### 🚨 SLA Breach Alerts (${ctx.slaBreachingTickets.length} tickets overdue):`);
+    ctx.slaBreachingTickets.forEach((t: any) => {
+      sections.push(`- [#${t.id}] ${t.title} | ${t.priority?.toUpperCase()} | ${t.hoursOverdue}h overdue | Assigned: ${t.assignedTo}`);
+    });
+  } else {
+    sections.push(`\n### SLA Status`, `- ✅ No active SLA breaches detected`);
+  }
 
   return sections.join('\n');
 }
@@ -751,6 +857,28 @@ You provide ready-to-use PowerShell commands for:
 - For navigation questions, always include clickable links to admin pages
 - Proactively suggest related actions or pages the user might want to check
 
+## M365 SERVICE HEALTH AWARENESS:
+- The live context block includes real-time Microsoft 365 service health data
+- If any M365 services are degraded or down, PROACTIVELY mention this even if not asked
+- When reporting system status, always include M365 health alongside ticket data
+- Critical M365 issues (Exchange down, Teams outage) should be flagged immediately with remediation steps
+- If M365 health data is unavailable, note that Graph API credentials may need ServiceHealth.Read.All permission
+
+## SLA BREACH AWARENESS:
+- The live context block includes real-time SLA breach data
+- SLA thresholds: Critical = 1h, High = 2h, Medium = 4h, Low = 8h (since last update)
+- If SLA breaches are detected, ALWAYS mention them proactively when reporting ticket status
+- Suggest immediate actions: reassign, escalate, or contact the client
+- On-hold tickets do NOT count toward SLA breach (they are intentionally paused)
+
+## TICKET ACTIONS YOU CAN PERFORM:
+When asked to take action on tickets, confirm the action and execute:
+- **Close ticket #N**: Mark as resolved/closed
+- **Assign ticket #N to [person]**: Update assignee
+- **Escalate ticket #N**: Change priority to critical
+- **Put ticket #N on hold**: Change status to on_hold
+- Always confirm the action taken with the ticket ID and new status
+
 ## PERSONALITY:
 - You are confident, knowledgeable, and efficient
 - You speak like a trusted senior IT architect who has seen it all
@@ -804,6 +932,123 @@ You provide ready-to-use PowerShell commands for:
   } catch (e) {
     console.error("[Aria] LLM fallback error:", e);
     return "I encountered an error. Please try again or contact GigitekAI support.";
+  }
+}
+
+// ============ Ticket Action Executor ============
+
+async function executeTicketAction(question: string, liveCtx: any, user: any): Promise<{ response: string; sources: string[] }> {
+  const db = await getDb();
+  if (!db) return { response: 'Database unavailable. Cannot execute action.', sources: [] };
+
+  const q = question.toLowerCase();
+
+  // Extract ticket ID from question (e.g. "close ticket #42", "escalate #15", "ticket 7")
+  const idMatch = question.match(/#(\d+)|ticket\s+(\d+)|case\s+(\d+)/i);
+  const ticketId = idMatch ? parseInt(idMatch[1] || idMatch[2] || idMatch[3]) : null;
+
+  // Determine action type
+  let action: 'close' | 'resolve' | 'escalate' | 'assign' | 'hold' | 'reopen' | 'set_priority' | 'unknown' = 'unknown';
+  if (q.includes('close') || q.includes('mark as closed')) action = 'close';
+  else if (q.includes('resolve') || q.includes('mark as resolved') || q.includes('mark resolved')) action = 'resolve';
+  else if (q.includes('escalate')) action = 'escalate';
+  else if (q.includes('assign')) action = 'assign';
+  else if (q.includes('hold') || q.includes('put on hold') || q.includes('place on hold')) action = 'hold';
+  else if (q.includes('reopen')) action = 'reopen';
+  else if (q.includes('priority') || q.includes('mark as critical') || q.includes('mark as high')) action = 'set_priority';
+
+  // Extract assignee name if assigning
+  let assigneeName: string | null = null;
+  const assignMatch = question.match(/assign(?:ed)?\s+(?:to\s+)?([A-Za-z]+(?:\s+[A-Za-z]+)?)/i);
+  if (assignMatch) assigneeName = assignMatch[1].trim();
+
+  // Extract priority if setting
+  let newPriority: string | null = null;
+  if (q.includes('critical')) newPriority = 'critical';
+  else if (q.includes('high')) newPriority = 'high';
+  else if (q.includes('medium')) newPriority = 'medium';
+  else if (q.includes('low')) newPriority = 'low';
+
+  // If no ticket ID found, ask for clarification
+  if (!ticketId && action !== 'unknown') {
+    // Try to find the ticket from context (e.g. "close the on-hold ticket")
+    if ((q.includes('on hold') || q.includes('on-hold')) && liveCtx?.onHoldTickets?.length === 1) {
+      const t = liveCtx.onHoldTickets[0];
+      return executeTicketAction(`${question} #${t.id}`, liveCtx, user);
+    }
+    return {
+      response: `I need a ticket number to ${action} it. Please specify the ticket ID, e.g. "${action} ticket #42".`,
+      sources: []
+    };
+  }
+
+  if (!ticketId) {
+    return {
+      response: await askClaudeWithContext(question, liveCtx, 'tickets'),
+      sources: ['Live Helpdesk Database']
+    };
+  }
+
+  // Fetch the ticket
+  const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId)).limit(1);
+  if (!ticketRows.length) {
+    return { response: `I couldn\'t find ticket **#${ticketId}**. Please verify the ticket number.`, sources: [] };
+  }
+  const ticket = ticketRows[0] as any;
+
+  // Execute the action
+  const now = new Date();
+  const actorName = (user as any)?.name || 'Aria';
+
+  try {
+    switch (action) {
+      case 'close':
+        await db.update(tickets).set({ status: 'closed', updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'status_changed', details: 'Status changed from ' + ticket.status + ' to closed via Aria', createdAt: now } as any);
+        return { response: `✅ **Ticket #${ticketId} closed.**\n\n**"${ticket.title}"** has been marked as **Closed** by Aria on your behalf.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+
+      case 'resolve':
+        await db.update(tickets).set({ status: 'resolved', resolvedAt: now, updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'status_changed', details: 'Status changed from ' + ticket.status + ' to resolved via Aria', createdAt: now } as any);
+        return { response: `✅ **Ticket #${ticketId} resolved.**\n\n**"${ticket.title}"** has been marked as **Resolved**.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+
+      case 'escalate': {
+        const newPrio = newPriority || 'critical';
+        await db.update(tickets).set({ priority: newPrio, updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'priority_changed', details: `Priority escalated to ${newPrio} via Aria`, createdAt: now } as any);
+        return { response: `🚨 **Ticket #${ticketId} escalated to ${newPrio.toUpperCase()}.**\n\n**"${ticket.title}"** priority has been updated. The team will be notified.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+      }
+
+      case 'assign': {
+        const assignTo = assigneeName || actorName;
+        await db.update(tickets).set({ assignedTo: assignTo, updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'assigned', details: `Ticket assigned to ${assignTo} via Aria`, createdAt: now } as any);
+        return { response: `✅ **Ticket #${ticketId} assigned to ${assignTo}.**\n\n**"${ticket.title}"** has been assigned.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+      }
+
+      case 'hold':
+        await db.update(tickets).set({ status: 'on_hold', updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'status_changed', details: 'Status changed to on_hold via Aria', createdAt: now } as any);
+        return { response: `⏸ **Ticket #${ticketId} placed on hold.**\n\n**"${ticket.title}"** is now On Hold.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+
+      case 'reopen':
+        await db.update(tickets).set({ status: 'open', resolvedAt: null, updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'status_changed', details: 'Ticket reopened via Aria', createdAt: now } as any);
+        return { response: `🔄 **Ticket #${ticketId} reopened.**\n\n**"${ticket.title}"** is now Open again.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+
+      case 'set_priority': {
+        const prio = newPriority || 'high';
+        await db.update(tickets).set({ priority: prio, updatedAt: now } as any).where(eq(tickets.id, ticketId));
+        await db.insert(ticketActivity).values({ ticketId, actorName, action: 'priority_changed', details: `Priority set to ${prio} via Aria`, createdAt: now } as any);
+        return { response: `✅ **Ticket #${ticketId} priority set to ${prio.toUpperCase()}.**\n\n**"${ticket.title}"** has been updated.\n\nView it at [/admin/helpdesk](/admin/helpdesk).`, sources: ['Live Helpdesk Database'] };
+      }
+
+      default:
+        return { response: await askClaudeWithContext(question, liveCtx, 'tickets'), sources: ['Live Helpdesk Database'] };
+    }
+  } catch (e: any) {
+    console.error('[Aria] Ticket action error:', e);
+    return { response: `I encountered an error executing that action: ${e?.message || 'Unknown error'}. Please try again or use the [Helpdesk page](/admin/helpdesk) directly.`, sources: [] };
   }
 }
 
@@ -892,4 +1137,104 @@ function formatUptimeResponse(ctx: any): string {
 
 async function logAriaConversation(data: { userId: number; question: string; response: string; intent: string; sources: string[] }) {
   console.log("[Aria] Conversation logged:", { userId: data.userId, intent: data.intent, questionLength: data.question.length });
+}
+
+// ============ Exchange / Mailbox Query Handler ============
+
+async function handleExchangeQuery(question: string, liveCtx: any): Promise<string> {
+  const q = question.toLowerCase();
+
+  // Extract user email from question if present
+  const emailMatch = question.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i);
+  const targetEmail = emailMatch ? emailMatch[0] : null;
+
+  try {
+    // Import helpers dynamically to avoid circular deps
+    const { getUserRecentEmails, analyzeUserM365Activity } = await import('../_core/m365Graph');
+
+    if (targetEmail) {
+      // Per-user mailbox query
+      if (q.includes('recent email') || q.includes('inbox') || q.includes('unread') || q.includes('mail activity')) {
+        const emails = await getUserRecentEmails(targetEmail, 10);
+        if (!emails || emails.length === 0) {
+          return `No recent emails found for **${targetEmail}**. The mailbox may be empty or the user may not have Exchange Online access.`;
+        }
+        const lines = [
+          `## Recent Emails for ${targetEmail}`,
+          '',
+          `| # | Subject | From | Date | Read |`,
+          `|---|---------|------|------|------|`,
+        ];
+        emails.forEach((e: any, i: number) => {
+          const date = e.receivedDateTime ? new Date(e.receivedDateTime).toLocaleDateString() : 'Unknown';
+          const read = e.isRead ? '✅' : '📬 Unread';
+          const subject = (e.subject || 'No Subject').substring(0, 50);
+          const from = e.from?.emailAddress?.address || 'Unknown';
+          lines.push(`| ${i + 1} | ${subject} | ${from} | ${date} | ${read} |`);
+        });
+        lines.push('', `> 📧 View full mailbox: [/admin/email](/admin/email)`);
+        return lines.join('\n');
+      }
+
+      if (q.includes('activity') || q.includes('m365 activity') || q.includes('user activity')) {
+        const activity = await analyzeUserM365Activity(targetEmail);
+        if (!activity || !activity.summary) return `Unable to retrieve M365 activity for **${targetEmail}**. Check permissions.`;
+        const lines = [
+          `## M365 Activity — ${targetEmail}`,
+          '',
+          `**Summary:**`,
+          activity.summary.trim(),
+          '',
+        ];
+        if (activity.insights?.length > 0) {
+          lines.push('**Insights:**');
+          activity.insights.forEach((i: string) => lines.push(`- ${i}`));
+          lines.push('');
+        }
+        if (activity.recommendations?.length > 0) {
+          lines.push('**Recommendations:**');
+          activity.recommendations.forEach((r: string) => lines.push(`- ${r}`));
+        }
+        return lines.join('\n');
+      }
+    }
+
+    // Support mailbox / general inbox query
+    if (q.includes('support mailbox') || q.includes('support inbox') || q.includes('support email') || q.includes('unread') || q.includes('inbox')) {
+      const { fetchInboxFromMsGraph } = await import('../_core/email');
+      const inbox = await fetchInboxFromMsGraph(10, 0);
+      if (!inbox || inbox.length === 0) {
+        return '## Support Mailbox\n\nThe support mailbox is currently empty or no recent messages found.\n\n> 📧 View mailbox: [/admin/email](/admin/email)';
+      }
+      const unread = inbox.filter((m: any) => !m.isRead);
+      const lines = [
+        '## Support Mailbox Status',
+        '',
+        `- **Total (recent 10):** ${inbox.length}`,
+        `- **Unread:** ${unread.length}`,
+        '',
+        '### Recent Messages:',
+        '',
+        `| Subject | From | Date | Status |`,
+        `|---------|------|------|--------|`,
+      ];
+      inbox.slice(0, 8).forEach((m: any) => {
+        const date = m.receivedDateTime ? new Date(m.receivedDateTime).toLocaleDateString() : 'Unknown';
+        const status = m.isRead ? '✅ Read' : '📬 Unread';
+        const subject = (m.subject || 'No Subject').substring(0, 45);
+        const from = m.from?.emailAddress?.address || 'Unknown';
+        lines.push(`| ${subject} | ${from} | ${date} | ${status} |`);
+      });
+      lines.push('', `> 📧 Full mailbox: [/admin/email](/admin/email)`);
+      return lines.join('\n');
+    }
+
+    // Fallback: route to Claude with full context for Exchange guidance
+    return await askClaudeWithContext(question, liveCtx, 'general');
+
+  } catch (err: any) {
+    console.error('[Aria] Exchange query error:', err?.message);
+    // Graceful fallback to Claude for guidance
+    return await askClaudeWithContext(question, liveCtx, 'general');
+  }
 }
