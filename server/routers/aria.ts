@@ -239,12 +239,34 @@ async function getFullLiveContext() {
 
     // ── Tickets ──────────────────────────────────────────────────
     const allTickets = await db.select().from(tickets);
-    const openTickets = allTickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress' || t.status === 'pending');
-    const criticalTickets = openTickets.filter((t: any) => t.priority === 'critical');
-    const highTickets = openTickets.filter((t: any) => t.priority === 'high');
+
+    // Segment by ALL statuses
+    const openTickets = allTickets.filter((t: any) => t.status === 'open');
+    const inProgressTickets = allTickets.filter((t: any) => t.status === 'in_progress');
+    const onHoldTickets = allTickets.filter((t: any) => t.status === 'on_hold' || t.status === 'on hold' || t.status === 'hold' || t.status === 'pending');
+    const resolvedTickets = allTickets.filter((t: any) => t.status === 'resolved');
+    const closedTickets = allTickets.filter((t: any) => t.status === 'closed');
+    // Active = open + in_progress (not on hold)
+    const activeTickets = allTickets.filter((t: any) => t.status === 'open' || t.status === 'in_progress');
+    const criticalTickets = activeTickets.filter((t: any) => t.priority === 'critical');
+    const highTickets = activeTickets.filter((t: any) => t.priority === 'high');
     const resolvedLast30 = allTickets.filter((t: any) => t.resolvedAt && new Date(t.resolvedAt) > thirtyDaysAgo);
     const resolvedLast7 = allTickets.filter((t: any) => t.resolvedAt && new Date(t.resolvedAt) > sevenDaysAgo);
     const newLast24h = allTickets.filter((t: any) => t.createdAt && new Date(t.createdAt) > oneDayAgo);
+
+    // SLA age: how long each on-hold ticket has been waiting
+    const now2 = new Date();
+    const onHoldWithAge = onHoldTickets.map((t: any) => {
+      const ageMs = t.createdAt ? now2.getTime() - new Date(t.createdAt).getTime() : 0;
+      const ageHours = Math.round(ageMs / (1000 * 60 * 60) * 10) / 10;
+      return {
+        id: t.id, title: t.title, priority: t.priority, status: t.status,
+        category: t.category, createdAt: t.createdAt,
+        requesterName: t.requesterName || t.customerEmail || 'Unknown',
+        assignedTo: t.assignedTo || 'Unassigned',
+        ageHours,
+      };
+    });
 
     // Avg resolution time
     let avgResolutionHours = 0;
@@ -351,8 +373,13 @@ async function getFullLiveContext() {
     } catch (_) {}
 
     return {
-      // Tickets
+      // Tickets — full status breakdown
       openTicketCount: openTickets.length,
+      inProgressTicketCount: inProgressTickets.length,
+      onHoldTicketCount: onHoldTickets.length,
+      resolvedTicketCount: resolvedTickets.length,
+      closedTicketCount: closedTickets.length,
+      activeTicketCount: activeTickets.length,
       criticalTicketCount: criticalTickets.length,
       highTicketCount: highTickets.length,
       totalTickets: allTickets.length,
@@ -360,17 +387,20 @@ async function getFullLiveContext() {
       resolvedLast7Days: resolvedLast7.length,
       newTicketsLast24h: newLast24h.length,
       avgResolutionHours,
+      // On-hold tickets with SLA age
+      onHoldTickets: onHoldWithAge,
       criticalTickets: criticalTickets.slice(0, 5).map((t: any) => ({
         id: t.id, title: t.title, status: t.status, category: t.category,
-        createdAt: t.createdAt, requesterName: t.requesterName || 'Unknown',
+        createdAt: t.createdAt, requesterName: t.requesterName || t.customerEmail || 'Unknown',
         assignedTo: t.assignedTo || 'Unassigned',
       })),
-      recentOpenTickets: openTickets
+      recentOpenTickets: activeTickets
         .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 8)
         .map((t: any) => ({
           id: t.id, title: t.title, priority: t.priority, status: t.status,
-          category: t.category, createdAt: t.createdAt, requesterName: t.requesterName || 'Unknown',
+          category: t.category, createdAt: t.createdAt,
+          requesterName: t.requesterName || t.customerEmail || 'Unknown',
           assignedTo: t.assignedTo || 'Unassigned',
         })),
       // KB
@@ -409,20 +439,33 @@ function buildContextBlock(ctx: any, focus?: string): string {
     `## Live GigitekAI System Data — ${ts} EDT`,
   ];
 
-  // Always include core ticket summary
+  // Always include full ticket status breakdown
   sections.push(
-    `\n### Helpdesk Summary`,
-    `- Open Tickets: ${ctx.openTicketCount}`,
-    `- Critical Priority: ${ctx.criticalTicketCount}`,
-    `- High Priority: ${ctx.highTicketCount}`,
+    `\n### Ticket Status Breakdown`,
+    `- Total Tickets: ${ctx.totalTickets}`,
+    `- Open: ${ctx.openTicketCount}`,
+    `- In Progress: ${ctx.inProgressTicketCount}`,
+    `- **On Hold: ${ctx.onHoldTicketCount}**`,
+    `- Resolved: ${ctx.resolvedTicketCount}`,
+    `- Closed: ${ctx.closedTicketCount}`,
+    `- Critical Priority (active): ${ctx.criticalTicketCount}`,
+    `- High Priority (active): ${ctx.highTicketCount}`,
     `- New (Last 24h): ${ctx.newTicketsLast24h}`,
     `- Resolved (Last 7d): ${ctx.resolvedLast7Days}`,
     `- Resolved (Last 30d): ${ctx.resolvedLast30Days}`,
     `- Avg Resolution Time: ${ctx.avgResolutionHours > 0 ? ctx.avgResolutionHours + 'h' : 'N/A'}`,
   );
 
+  // On-hold tickets with SLA age
+  if (ctx.onHoldTickets?.length > 0) {
+    sections.push(`\n### ⏸ Tickets On Hold (${ctx.onHoldTickets.length}):`);
+    ctx.onHoldTickets.forEach((t: any) => {
+      sections.push(`- [#${t.id}] ${t.title} | ${t.priority?.toUpperCase() || 'NORMAL'} | ${t.category || 'General'} | Assigned: ${t.assignedTo} | Client: ${t.requesterName} | On hold for: ${t.ageHours}h`);
+    });
+  }
+
   if (ctx.criticalTickets?.length > 0) {
-    sections.push(`\n### Critical Tickets Open:`);
+    sections.push(`\n### ⚠️ Critical Tickets Open:`);
     ctx.criticalTickets.forEach((t: any) => {
       sections.push(`- [#${t.id}] ${t.title} | ${t.category} | ${t.status} | Assigned: ${t.assignedTo} | By: ${t.requesterName}`);
     });
@@ -639,7 +682,15 @@ async function askClaudeWithContext(question: string, liveCtx: any, focus?: stri
 async function askClaude(question: string): Promise<string> {
   const SYSTEM_PROMPT = `You are Aria, the GigitekAI Command Center AI — a senior Microsoft 365 Architect, Azure Solutions Architect, and enterprise IT operations expert. You are the brain behind GigitekAI's admin portal and Microsoft environment.
 
-GigitekAI is an AI-first MSP (Managed Service Provider) serving 50+ clients across North America and Canada. Founded by Harry, a Microsoft 365 Architect with 25+ years of enterprise IT experience. You have full visibility into the live system data provided in the context block above.
+GigitekAI is an AI-first MSP (Managed Service Provider) serving 50+ clients across North America and Canada. Founded by Harry, a Microsoft 365 Architect with 25+ years of enterprise IT experience. You have FULL visibility into the live system data provided in the context block above.
+
+## CRITICAL DATA AWARENESS:
+The live context block above contains the COMPLETE ticket status breakdown including:
+- Open tickets, In Progress tickets, **On Hold tickets** (with SLA age in hours), Resolved tickets, and Closed tickets
+- ALWAYS reference the "On Hold" count when asked about cases on hold, pending cases, or waiting tickets
+- NEVER say there are 0 tickets if the context shows on-hold, in-progress, or other statuses
+- When reporting ticket counts, always break down by status (open, in-progress, on-hold, resolved, closed)
+- SLA age for on-hold tickets shows how long each ticket has been waiting — flag tickets over 24h as needing attention
 
 ## YOUR CAPABILITIES:
 
@@ -764,12 +815,16 @@ function formatStatusResponse(ctx: any): string {
     '## GigitekAI System Status',
     `**As of:** ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} EDT`,
     '',
-    '### Helpdesk',
-    `| Metric | Value |`,
+    '### Ticket Status',
+    `| Status | Count |`,
     `|--------|-------|`,
-    `| Open Tickets | ${ctx.openTicketCount} |`,
-    `| Critical Priority | ${ctx.criticalTicketCount} |`,
-    `| High Priority | ${ctx.highTicketCount} |`,
+    `| Open | ${ctx.openTicketCount} |`,
+    `| In Progress | ${ctx.inProgressTicketCount} |`,
+    `| **On Hold** | **${ctx.onHoldTicketCount}** |`,
+    `| Resolved | ${ctx.resolvedTicketCount} |`,
+    `| Closed | ${ctx.closedTicketCount} |`,
+    `| Critical (active) | ${ctx.criticalTicketCount} |`,
+    `| High (active) | ${ctx.highTicketCount} |`,
     `| New (Last 24h) | ${ctx.newTicketsLast24h} |`,
     `| Avg Resolution | ${ctx.avgResolutionHours > 0 ? ctx.avgResolutionHours + 'h' : 'N/A'} |`,
     `| Resolved (30d) | ${ctx.resolvedLast30Days} |`,
@@ -794,12 +849,19 @@ function formatStatusResponse(ctx: any): string {
     `- Published Articles: **${ctx.kbArticleCount}**`,
   ];
 
+  if (ctx.onHoldTickets?.length > 0) {
+    lines.push('', '### ⏸ Tickets On Hold:');
+    ctx.onHoldTickets.forEach((t: any) => {
+      lines.push(`- **[#${t.id}]** ${t.title} — *${t.priority?.toUpperCase() || 'NORMAL'}* | Client: ${t.requesterName} | Assigned: ${t.assignedTo} | Waiting: ${t.ageHours}h`);
+    });
+  }
+
   if (ctx.criticalTickets?.length > 0) {
     lines.push('', '### ⚠️ Critical Tickets Requiring Attention:');
     ctx.criticalTickets.forEach((t: any) => {
       lines.push(`- **[#${t.id}]** ${t.title} — *${t.category}* | Assigned: ${t.assignedTo}`);
     });
-  } else {
+  } else if (ctx.onHoldTickets?.length === 0) {
     lines.push('', '✅ **No critical tickets open. All systems nominal.**');
   }
 

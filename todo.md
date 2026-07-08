@@ -2009,3 +2009,16 @@
 - [x] Improve mobile UI layout (compact top bar, collapsible settings)
 - [x] Make Aria the brain for admin pages and Microsoft environment
 - [x] Add power features (quick action chips, navigation shortcuts, admin commands)
+
+## Aria Brain Expansion - Full Operational Intelligence - July 8, 2026
+
+- [x] Fix Aria to query ALL ticket statuses (open, on-hold, in-progress, closed, resolved)
+- [x] Add ticket detail context (client name, assignee, priority, SLA age, description)
+- [x] Add SLA tracking (how long each on-hold ticket has been waiting)
+- [x] Add ticket assignment visibility (who is working on what)
+- [x] Add client/customer context to ticket queries
+- [x] Update Aria system prompt with CRITICAL DATA AWARENESS for on-hold tickets
+- [x] Update formatStatusResponse to show on-hold tickets with SLA age
+- [x] Update buildContextBlock to include full status breakdown with on-hold details
+- [ ] Add M365 service health live data to Aria context (future enhancement)
+- [ ] Add Azure resource status to Aria context (future enhancement)
