@@ -91,12 +91,11 @@
          Do NOT add manual /assets/index.css references here as they will 404 in production. -->
     
     <!-- DNS prefetch only (lightweight) for deferred third-party services -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://d36hbw14aib5lz.cloudfront.net" />
     
     <!-- Schema Markup: Consolidated in the extended JSON-LD block below -->
     <!-- LCP Optimization: CSS is already async via vitePluginNonBlockingCSS -->
-    <!-- Google Analytics already deferred via requestIdleCallback -->
+    <!-- Analytics: Umami only (async+defer, non-blocking) -->
     <!-- Next: Inline additional critical CSS for hero section to reduce render delay -->
     <!-- Hero section CSS will be extracted and inlined at build time -->
     
@@ -442,46 +441,7 @@
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics 4: fully deferred until after page is interactive -->
-    <!-- Only the tiny dataLayer stub runs synchronously; gtag.js network load is deferred -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-
-      var gaLoaded = false;
-      function loadGA4() {
-        if (gaLoaded) return;
-        gaLoaded = true;
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-00F4D2QCEX';
-        // gtag calls are inside onload so they run AFTER the script executes
-        // This prevents GA from contributing to TBT (Total Blocking Time)
-        s.onload = function() {
-          gtag('js', new Date());
-          gtag('config', 'G-00F4D2QCEX', {
-            'page_path': window.location.pathname,
-            'page_title': document.title,
-            'send_page_view': true
-          });
-        };
-        document.head.appendChild(s);
-      }
-      // Fire only after browser is idle (post-LCP, post-TTI)
-      if (typeof requestIdleCallback !== 'undefined') {
-        window.addEventListener('load', function() {
-          requestIdleCallback(loadGA4, { timeout: 6000 });
-        });
-      } else {
-        // Safari fallback: 5s delay after load
-        window.addEventListener('load', function() {
-          setTimeout(loadGA4, 5000);
-        });
-      }
-    </script>
-
-    <!-- Umami Analytics (async + defer for non-blocking) -->
+    <!-- Umami Analytics (async + defer for non-blocking) — sole analytics provider -->
     <script
       async
       defer
