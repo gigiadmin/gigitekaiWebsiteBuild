@@ -596,7 +596,7 @@ export default function KBPublic() {
         />
       )}
           {/* MS Learn Section — dynamically shows synced articles */}
-          {msLearnArticles.length > 0 && (
+          {false && msLearnArticles.length > 0 && (
           <div className="mt-16 pt-8 border-t border-slate-700">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
