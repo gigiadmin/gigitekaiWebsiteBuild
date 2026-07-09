@@ -2,7 +2,7 @@ import z from "zod";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
-import { eq, like, or, desc, and, sql, asc } from "drizzle-orm";
+import { eq, like, or, desc, and, sql, asc, ne } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { seedKBArticles } from "../kb-seeder";
 
@@ -18,7 +18,7 @@ export const kbRouter = router({
       const rows = await db
         .select()
         .from(kbArticles)
-        .where(showAll ? undefined : eq(kbArticles.isPublished, 1))
+        .where(showAll ? ne(kbArticles.syncSource, 'ms-learn') : and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, 'ms-learn')))
         .orderBy(desc(kbArticles.updatedAt));
       return rows;
     }),
@@ -53,11 +53,11 @@ export const kbRouter = router({
 
       if (terms.length === 0) return [];
 
-      // Fetch ALL published articles for client-side fuzzy matching
+      // Fetch ALL published articles for client-side fuzzy matching (excluding MS Learn)
       const rows = await db
         .select()
         .from(kbArticles)
-        .where(eq(kbArticles.isPublished, 1))
+        .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, 'ms-learn')))
         .orderBy(desc(kbArticles.updatedAt))
         .limit(500); // fetch all articles for comprehensive search
 
@@ -233,7 +233,7 @@ export const kbRouter = router({
         count: sql`COUNT(*)`
       })
       .from(kbArticles)
-      .where(eq(kbArticles.isPublished, 1))
+      .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, "ms-learn")))
       .groupBy(kbArticles.category)
       .orderBy(asc(kbArticles.category));
     return rows.filter(r => r.category).map(r => ({ category: r.category, count: r.count || 0 }));
@@ -292,7 +292,7 @@ export const kbRouter = router({
       
       const offset = (input.page - 1) * input.pageSize;
       
-      const whereConditions: any[] = [eq(kbArticles.isPublished, 1)];
+      const whereConditions: any[] = [eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, "ms-learn")];
       if (input.category) {
         whereConditions.push(eq(kbArticles.category, input.category));
       }
@@ -323,7 +323,7 @@ export const kbRouter = router({
     const rows = await db
       .select()
       .from(kbArticles)
-      .where(eq(kbArticles.isPublished, 1))
+      .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, "ms-learn")))
       .orderBy(desc(kbArticles.viewCount))
       .limit(6);
     return rows;
@@ -335,15 +335,14 @@ export const kbRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-      const rows = await db
+            const rows = await db
         .select()
         .from(kbArticles)
-        .where(eq(kbArticles.isPublished, 1))
-        .orderBy(desc(kbArticles.updatedAt))
+        .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, 'ms-learn')))
+        .orderBy(desc(kbArticles.viewCount))
         .limit(input.limit);
       return rows;
     }),
-
   /** Toggle publish status of an article (admin only) */
   togglePublish: adminProcedure
     .input(z.object({ id: z.number().int().positive(), isPublished: z.boolean() }))
