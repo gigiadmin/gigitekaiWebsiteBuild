@@ -335,13 +335,57 @@ export const kbRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
-            const rows = await db
+
+      // Fetch a larger pool ordered by viewCount desc (real usage data)
+      const pool = await db
         .select()
         .from(kbArticles)
         .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, 'ms-learn')))
-        .orderBy(desc(kbArticles.viewCount))
-        .limit(input.limit);
-      return rows;
+        .orderBy(desc(kbArticles.viewCount), desc(kbArticles.updatedAt))
+        .limit(200);
+
+      // Check if we have real view data
+      const hasRealViews = pool.some(a => (a.viewCount ?? 0) > 0);
+
+      if (hasRealViews) {
+        // Real data: return top articles by viewCount, one per category for diversity
+        const seen = new Set<string>();
+        const trending: typeof pool = [];
+        // First pass: highest-viewed article per category
+        for (const article of pool) {
+          if (!seen.has(article.category) && trending.length < input.limit) {
+            seen.add(article.category);
+            trending.push(article);
+          }
+        }
+        // Second pass: fill remaining with next highest-viewed articles
+        if (trending.length < input.limit) {
+          for (const article of pool) {
+            if (!trending.find(a => a.id === article.id) && trending.length < input.limit) {
+              trending.push(article);
+            }
+          }
+        }
+        return trending;
+      } else {
+        // No view data yet: show diverse mix across categories
+        const seen = new Set<string>();
+        const diverse: typeof pool = [];
+        for (const article of pool) {
+          if (!seen.has(article.category) && diverse.length < input.limit) {
+            seen.add(article.category);
+            diverse.push(article);
+          }
+        }
+        if (diverse.length < input.limit) {
+          for (const article of pool) {
+            if (!diverse.find(a => a.id === article.id) && diverse.length < input.limit) {
+              diverse.push(article);
+            }
+          }
+        }
+        return diverse;
+      }
     }),
   /** Toggle publish status of an article (admin only) */
   togglePublish: adminProcedure
@@ -362,6 +406,19 @@ export const kbRouter = router({
     .mutation(async ({ input }) => {
       // Placeholder — integrate with SendGrid/ACS when needed
       console.log(`[KB] Email article ${input.articleId} to ${input.recipientEmail}`);
+      return { success: true };
+    }),
+
+  /** Track a view for a KB article (increments viewCount) */
+  trackView: publicProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { success: false };
+      await db
+        .update(kbArticles)
+        .set({ viewCount: sql`COALESCE(${kbArticles.viewCount}, 0) + 1` })
+        .where(and(eq(kbArticles.id, input.id), eq(kbArticles.isPublished, 1)));
       return { success: true };
     }),
 

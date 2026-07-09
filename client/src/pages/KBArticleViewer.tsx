@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,16 @@ export default function KBArticleViewer() {
     { id: articleId || 0 },
     { enabled: !!articleId && !isNaN(articleId!) }
   );
+
+  // Track view — fire once when article data first loads
+  const trackView = trpc.kb.trackView.useMutation();
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (article && articleId && !viewTracked.current) {
+      viewTracked.current = true;
+      trackView.mutate({ id: articleId });
+    }
+  }, [article, articleId]);
 
   // Fetch related articles
   const { data: relatedArticles = [] } = trpc.kb.getTrendingArticles.useQuery(
