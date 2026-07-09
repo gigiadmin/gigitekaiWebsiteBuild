@@ -255,14 +255,14 @@ export default function PublicKB() {
               <p className="text-slate-400">Quick solutions to the most common problems</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {COMMON_ISSUES.map((issue) => {
+              {dbCommonIssues.map((article, idx) => {
+                const issue = COMMON_ISSUES[idx] || COMMON_ISSUES[0];
                 const IconComponent = issue.icon;
-                const dbIssue = dbCommonIssues.find((i) => i.id === issue.id);
                 return (
                   <div
-                    key={issue.id}
+                    key={article.id}
                     className={`group relative p-6 rounded-lg border ${issue.borderColor} bg-gradient-to-br ${issue.color} backdrop-blur-sm hover:border-cyan-500/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/10`}
-                    onClick={() => { if (dbIssue?.id) navigate(`/kb/${dbIssue.id}`); }}
+                    onClick={() => { if (article.id) navigate(`/kb/${article.id}`); }}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="p-3 bg-slate-800/50 rounded-lg group-hover:bg-slate-700/50 transition-colors">

@@ -2199,3 +2199,10 @@
 - [x] **Sentry Integration** — Real-time error tracking with triple-layer logging (console, backend, Sentry)
 - [x] **Sentry Test Panel** — Dev-only error trigger buttons for testing
 - [x] **Verified Sentry Capture** — All 6 test errors successfully captured in Sentry dashboard
+
+## KB Link Fixes (Jul 9 2026)
+- [x] Fixed Top Issues links on KB page - now uses actual database article IDs instead of hardcoded IDs
+  - Windows Crashes link now points to correct article
+  - Can't Print link now points to correct article
+  - Network Issues link now points to correct article
+  - All other Top Issues links fixed
