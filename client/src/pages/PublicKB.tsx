@@ -255,8 +255,8 @@ export default function PublicKB() {
               <p className="text-slate-400">Quick solutions to the most common problems</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {dbCommonIssues.map((article, idx) => {
-                const issue = COMMON_ISSUES[idx] || COMMON_ISSUES[0];
+              {dbCommonIssues.map((article) => {
+                const issue = COMMON_ISSUES[0];
                 const IconComponent = issue.icon;
                 return (
                   <div
@@ -270,8 +270,8 @@ export default function PublicKB() {
                       </div>
                       <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transform group-hover:translate-x-1 transition-all" />
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">{issue.title}</h3>
-                    <p className="text-sm text-slate-300 mb-4">{issue.description}</p>
+                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">{article.title}</h3>
+                    <p className="text-sm text-slate-300 mb-4">{getContentPreview(article.content, 80)}</p>
                     <div className="pt-4 border-t border-slate-700/50">
                       <span className="text-xs text-cyan-400 font-medium">View Solution →</span>
                     </div>

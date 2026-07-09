@@ -1678,26 +1678,6 @@
   - [x] Automatic indexing to searchIndex for ARIA retrieval
   - [x] Ready to import 100 new KB articles
 
-- [ ] **⏳ BLOCKED: Upwork API Integration - Awaiting API Key Approval**
-  - [ ] User to generate Upwork API key at: https://www.upwork.com/ab/account-security/api
-  - [ ] Callback URL: https://gigitekai.com/api/upwork/webhook
-  - [ ] Permissions: Full access (GraphQL)
-  - [ ] API Usage: 1-10 (or higher as needed)
-  - **Status:** Waiting for user to provide API credentials
-  - **Next Steps:** Once approved, will implement webhook endpoint, database schema, OAuth client, job search, auto-proposal system, and production deployment
-
-- [ ] **⏳ BLOCKED: Upwork Webhook Testing & Deployment**
-  - [ ] Create Upwork webhook endpoint (/api/upwork/webhook)
-  - [ ] Design database schema for proposals, jobs, and messages tracking
-  - [ ] Implement Upwork OAuth client with full API access
-  - [ ] Build job search and filtering system (Exchange/Outlook projects)
-  - [ ] Create auto-proposal system with custom cover letters
-  - [ ] Implement proposal tracking and success analytics
-  - [ ] Set up secure credential storage in webdev secrets
-  - [ ] Test webhook event delivery from Upwork
-  - [ ] Deploy and verify integration on production
-  - **Blocked By:** Upwork API key approval (item above)
-
 
 - [x] **BUG: False "Voicemail content missing" alert - transcription exists but not detected** ✅ FIXED
   - [x] Issue: Teams message shows "Voicemail content missing" in title and urgency, but transcript IS present in message body
