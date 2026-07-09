@@ -629,10 +629,9 @@ export default defineConfig({
     // disabled, chunks are only fetched when their dynamic import() actually executes.
     modulePreload: false,
     rollupOptions: {
-      // Enable aggressive tree-shaking to remove unused Radix UI components
-      // This reduces vendor bundle from ~280KB to ~200KB by eliminating unused UI primitives
+      // Tree-shaking: use package.json sideEffects fields (default behavior)
+      // Removed moduleSideEffects:false which was breaking lucide-react tree-shaking
       treeshake: {
-        moduleSideEffects: false,
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false,
       },
@@ -644,15 +643,13 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        // SMART CODE SPLITTING v2: Separate heavy/admin-only libs from public critical path.
-        // IMPORTANT: React must stay in vendor (not a separate chunk) to avoid dual-React
-        // crashes with recharts/react-smooth which have their own React imports.
-        // We split out ONLY truly independent heavy libs that are NOT needed on homepage.
+        // SMART CODE SPLITTING v3: Aggressively split heavy libs from public critical path.
+        // Homepage should only load: React + ReactDOM + Radix basics + tRPC + wouter
+        // Everything else loads on-demand via lazy() routes.
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
 
           // ── MSAL / Azure AD: admin-only, never needed on public pages ─────────
-          // Keep all Azure libs together to avoid circular deps between them
           if (
             id.includes('@azure/msal') ||
             id.includes('@azure/identity') ||
@@ -660,35 +657,37 @@ export default defineConfig({
           ) return 'msal';
 
           // ── Tiptap rich-text editor: only needed in admin blog editor ─────────
-          // Keep tiptap + prosemirror together (tiptap depends on prosemirror)
           if (id.includes('@tiptap/') || id.includes('prosemirror')) return 'tiptap';
 
           // ── Stripe: only needed on pricing/checkout pages ─────────────────────
           if (id.includes('@stripe/') || id.includes('/stripe/')) return 'stripe';
 
-          // ── SAFE SPLITS: Packages with NO React peer deps ──────────────────
-          // These are truly independent libraries that can be safely isolated
-          // without causing circular dependency or initialization order issues.
+          // ── Recharts + D3: only needed on admin dashboard pages ───────────────
+          // These are lazy-loaded via React.lazy() so they won't block homepage.
+          // react-smooth is included here since it's a recharts dependency.
+          if (
+            id.includes('recharts') ||
+            id.includes('react-smooth') ||
+            id.includes('d3-') ||
+            id.includes('victory')
+          ) return 'charts';
 
-          // NOTE: highlight.js/lowlight CANNOT be safely split because vendor
-          // has a static import dependency on it (via tiptap lowlight extension
-          // that leaks into vendor). Splitting it causes initialization errors.
-          // if (id.includes('highlight.js') || id.includes('lowlight')) return 'syntax-highlight';
+          // ── Lucide icons: split into own chunk for better caching ─────────────
+          // lucide-react is used across many pages; isolating it means the vendor
+          // chunk stays small and lucide can be cached independently.
+          if (id.includes('lucide-react') || id.includes('lucide/')) return 'icons';
 
-          // socket.io-client: Only used in WebSocket hook + RemoteSession (lazy-loaded)
-          // No React deps, pure networking library
+          // ── socket.io-client: Only used in WebSocket hook (lazy-loaded) ────────
           if (id.includes('socket.io-client') || id.includes('engine.io')) return 'websocket';
 
-          // pdf-lib: Only used server-side or in admin PDF generation
-          // No React deps, pure PDF manipulation library
+          // ── pdf-lib: Only used in admin PDF generation ─────────────────────────
           if (id.includes('pdf-lib')) return 'pdf';
 
-          // ── IMPORTANT: Keep recharts, d3, React, Radix, tRPC together ────────
-          // DO NOT split recharts/d3 — they have React peer deps and splitting
-          // them causes "Cannot access 'gm' before initialization" crash.
-          // All React-dependent packages MUST stay in vendor to ensure correct
-          // initialization order.
-          // Build: 2026-07-08T15:15:00Z (cache bust)
+          // ── date-fns: utility, can be split for caching ───────────────────────
+          if (id.includes('date-fns')) return 'date-fns';
+
+          // ── Everything else: React, ReactDOM, Radix, tRPC, wouter, superjson ──
+          // These are the core runtime needed for ANY page to render.
           return 'vendor';
         },
       },

@@ -2160,3 +2160,19 @@
 - [x] Reduce preconnect hints from 6 to 3 (fonts.googleapis.com, fonts.gstatic.com, CloudFront CDN) — PageSpeed penalizes >4 preconnects
 - [x] Fix GA4 deferral: moved gtag('js') and gtag('config') calls inside script.onload callback — prevents GA from blocking main thread during LCP
 - [ ] Monitor PageSpeed after deployment — target 60+ mobile (currently 50)
+
+## PageSpeed Performance Optimization (July 2026)
+- [x] **Self-hosted Google Fonts** — Replaced external Google Fonts CSS with self-hosted @font-face declarations
+  - [x] Eliminated 2 external network requests (fonts.googleapis.com + fonts.gstatic.com)
+  - [x] Added font preload hints for Space Grotesk and DM Sans woff2 files
+  - [x] Maintained metric-matched fallback fonts to prevent CLS
+- [x] **Bundle splitting v3** — Improved code splitting to reduce initial page load
+  - [x] Split recharts/d3/react-smooth into 'charts' chunk (449KB, admin-only)
+  - [x] Split lucide-react into 'icons' chunk (83KB, cacheable independently)
+  - [x] Split date-fns into separate chunk
+  - [x] Removed moduleSideEffects:false that was breaking lucide tree-shaking
+  - [x] Fixed production React build (was bundling development React)
+- [ ] **Further vendor reduction** — Vendor still 2.6MB gzip (contains React+Radix+tRPC+TanStack+highlight.js+markdown)
+  - [ ] Consider splitting highlight.js/lowlight into separate chunk
+  - [ ] Consider splitting react-markdown/unified ecosystem into separate chunk
+  - [ ] Consider dynamic import for heavy Radix UI components used only in admin
