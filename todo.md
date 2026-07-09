@@ -2180,3 +2180,7 @@
 - [x] Split react-markdown/unified/micromark into 'markdown' chunk (was 455KB in vendor)
 - [x] Vendor chunk reduced from 13MB/2.6MB gzip to 1MB/336KB gzip (12x reduction)
 - [x] Updated vitePluginNonBlockingCSS to strip modulepreload for new chunks
+- [x] Fix circular chunk dependency TDZ error (vendor -> markdown -> vendor)
+- [x] Replace direct streamdown imports in AINewsDetail.tsx and AriaCommandCenter.tsx with GigitekMarkdown
+- [x] Remove markdown manualChunk split to prevent circular deps
+- [x] Add streamdown to syntax-highlight chunk to prevent it from hoisting to vendor

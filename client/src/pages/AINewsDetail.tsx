@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 import { useEffect, useState } from "react";
 
 export default function AINewsDetail() {

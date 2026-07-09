@@ -15,7 +15,7 @@ import {
   Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X, Settings
 } from "lucide-react";
 import { toast } from "sonner";
-import { Streamdown } from "streamdown";
+import { Streamdown } from "@/components/GigitekMarkdown";
 
 type Message = {
   id: string;

@@ -159,7 +159,7 @@ function vitePluginManusDebugCollector(): Plugin {
  */
 function vitePluginNonBlockingCSS(): Plugin {
   // Chunks that should NOT be preloaded on public pages (admin-only)
-  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'tiptap-editor-', 'tiptap-', 'markdown-'];
+  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'tiptap-editor-', 'tiptap-'];
 
   return {
     name: 'vite-plugin-non-blocking-css',
@@ -676,26 +676,16 @@ export default defineConfig({
             id.includes('lowlight') ||
             id.includes('langium') ||
             id.includes('chevrotain') ||
-            id.includes('vscode-languageserver-types')
+            id.includes('vscode-languageserver-types') ||
+            id.includes('/streamdown/')
           ) return 'syntax-highlight';
 
-          // ── Markdown ecosystem: react-markdown + unified + micromark ──────────────
-          // Only used in KB articles, blog detail, and AI chat markdown rendering.
-          if (
-            id.includes('react-markdown') ||
-            id.includes('remark-') ||
-            id.includes('rehype-') ||
-            id.includes('unified') ||
-            id.includes('micromark') ||
-            id.includes('mdast-') ||
-            id.includes('hast-') ||
-            id.includes('unist-') ||
-            id.includes('parse5') ||
-            id.includes('property-information') ||
-            id.includes('entities') ||
-            id.includes('marked') ||
-            id.includes('dompurify')
-          ) return 'markdown';
+          // NOTE: markdown ecosystem (react-markdown, unified, remark, rehype, etc.)
+          // is intentionally kept in vendor to avoid circular chunk dependencies.
+          // GigitekMarkdown component is shared across many lazy chunks, so Rollup
+          // hoists it to vendor. If markdown libs were in a separate chunk,
+          // vendor -> markdown -> vendor = circular TDZ error.
+
 
           // ── Recharts + D3: only needed on admin dashboard pages ───────────────
           // These are lazy-loaded via React.lazy() so they won't block homepage.
