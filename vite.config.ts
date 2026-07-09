@@ -159,7 +159,7 @@ function vitePluginManusDebugCollector(): Plugin {
  */
 function vitePluginNonBlockingCSS(): Plugin {
   // Chunks that should NOT be preloaded on public pages (admin-only)
-  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'tiptap-editor-'];
+  const ADMIN_ONLY_CHUNKS = ['msal-', 'syntax-highlight-', 'tiptap-editor-', 'tiptap-', 'markdown-'];
 
   return {
     name: 'vite-plugin-non-blocking-css',
@@ -661,6 +661,41 @@ export default defineConfig({
 
           // ── Stripe: only needed on pricing/checkout pages ─────────────────────
           if (id.includes('@stripe/') || id.includes('/stripe/')) return 'stripe';
+
+          // ── Syntax highlighting: shikijs + mermaid + katex (KB/blog/chat only) ──
+          // These are the BIGGEST contributors to vendor bloat (9MB+ source).
+          // Only used by GigitekMarkdown component in lazy-loaded pages/widgets.
+          if (
+            id.includes('@shikijs/') ||
+            id.includes('shiki') ||
+            id.includes('mermaid') ||
+            id.includes('@mermaid-js/') ||
+            id.includes('cytoscape') ||
+            id.includes('katex') ||
+            id.includes('highlight.js') ||
+            id.includes('lowlight') ||
+            id.includes('langium') ||
+            id.includes('chevrotain') ||
+            id.includes('vscode-languageserver-types')
+          ) return 'syntax-highlight';
+
+          // ── Markdown ecosystem: react-markdown + unified + micromark ──────────────
+          // Only used in KB articles, blog detail, and AI chat markdown rendering.
+          if (
+            id.includes('react-markdown') ||
+            id.includes('remark-') ||
+            id.includes('rehype-') ||
+            id.includes('unified') ||
+            id.includes('micromark') ||
+            id.includes('mdast-') ||
+            id.includes('hast-') ||
+            id.includes('unist-') ||
+            id.includes('parse5') ||
+            id.includes('property-information') ||
+            id.includes('entities') ||
+            id.includes('marked') ||
+            id.includes('dompurify')
+          ) return 'markdown';
 
           // ── Recharts + D3: only needed on admin dashboard pages ───────────────
           // These are lazy-loaded via React.lazy() so they won't block homepage.

@@ -2176,3 +2176,7 @@
   - [ ] Consider splitting highlight.js/lowlight into separate chunk
   - [ ] Consider splitting react-markdown/unified ecosystem into separate chunk
   - [ ] Consider dynamic import for heavy Radix UI components used only in admin
+- [x] Split shikijs/mermaid/cytoscape/katex into 'syntax-highlight' chunk (was 9MB+ in vendor)
+- [x] Split react-markdown/unified/micromark into 'markdown' chunk (was 455KB in vendor)
+- [x] Vendor chunk reduced from 13MB/2.6MB gzip to 1MB/336KB gzip (12x reduction)
+- [x] Updated vitePluginNonBlockingCSS to strip modulepreload for new chunks
