@@ -31,6 +31,9 @@ const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
 // CopilotChat removed - AIChatWidget is the primary AI chat with voice/upload
 const MobileAIDemoCTA = lazy(() => import("./components/MobileAIDemoCTA"));
 
+// ── Dev Tools — only in development ──────────────────────────────────────────
+const SentryTestPanel = import.meta.env.DEV ? lazy(() => import("./components/SentryTestPanel")) : null;
+
 // ── Public pages — lazy loaded ────────────────────────────────────────────
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogDetail = lazy(() => import("./pages/BlogDetail"));
@@ -377,6 +380,12 @@ function App() {
             </Suspense>
           )}
           {/* UserChatWidget removed from initial render — load on-demand only */}
+          {/* Dev Tools — Sentry Test Panel (dev only) */}
+          {SentryTestPanel && (
+            <Suspense fallback={null}>
+              <SentryTestPanel />
+            </Suspense>
+          )}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

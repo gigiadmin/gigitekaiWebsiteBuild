@@ -27,27 +27,15 @@ export function initSentry() {
       dsn: sentryDsn,
       environment: import.meta.env.MODE,
       tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1, // 100% in dev, 10% in prod
-      integrations: [
-        // Capture unhandled promise rejections
-        new (window as any).Sentry.Integrations.GlobalHandlers({
-          onerror: true,
-          onunhandledrejection: true,
-        }),
-      ],
+      // Sentry automatically includes default integrations for error capture
       // Don't send errors from localhost
-      beforeSend(event, hint) {
+      beforeSend(event) {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
           return null;
         }
         return event;
       },
     });
-
-    // Set user context if available
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      setUser({ id: userId });
-    }
 
     // Set environment tags
     setTag('build_time', import.meta.env.VITE_BUILD_TIME || 'unknown');
@@ -63,40 +51,48 @@ export function initSentry() {
  * Capture a custom exception in Sentry
  */
 export function captureException(error: Error, context?: Record<string, any>) {
-  if (window.Sentry) {
-    window.Sentry.captureException(error, {
+  import('@sentry/react').then(({ captureException: sentryCaptureException }) => {
+    sentryCaptureException(error, {
       contexts: context ? { custom: context } : undefined,
     });
-  }
+  }).catch(() => {
+    console.error('Failed to capture exception in Sentry');
+  });
 }
 
 /**
  * Capture a message in Sentry
  */
 export function captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info') {
-  if (window.Sentry) {
-    window.Sentry.captureMessage(message, level);
-  }
+  import('@sentry/react').then(({ captureMessage: sentryCaptureMessage }) => {
+    sentryCaptureMessage(message, level);
+  }).catch(() => {
+    // Silently fail if Sentry not loaded
+  });
 }
 
 /**
  * Set user context for Sentry
  */
 export function setSentryUser(userId: string, email?: string, username?: string) {
-  if (window.Sentry) {
-    window.Sentry.setUser({
+  import('@sentry/react').then(({ setUser }) => {
+    setUser({
       id: userId,
       email,
       username,
     });
-  }
+  }).catch(() => {
+    // Silently fail if Sentry not loaded
+  });
 }
 
 /**
  * Clear user context from Sentry
  */
 export function clearSentryUser() {
-  if (window.Sentry) {
-    window.Sentry.setUser(null);
-  }
+  import('@sentry/react').then(({ setUser }) => {
+    setUser(null);
+  }).catch(() => {
+    // Silently fail if Sentry not loaded
+  });
 }
