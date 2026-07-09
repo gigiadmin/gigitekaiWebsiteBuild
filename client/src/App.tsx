@@ -345,7 +345,7 @@ function App() {
   const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary level="global">
       <SchemaMarkup />
       <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>

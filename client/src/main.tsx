@@ -8,7 +8,11 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import { HelmetProvider } from "react-helmet-async";
+import { initSentry } from "./lib/sentry";
 import "./index.css";
+
+// Initialize Sentry error tracking
+initSentry();
 
 // ============================================================
 // SERVICE WORKER REGISTRATION & MANAGEMENT
@@ -75,6 +79,8 @@ function notifyUserOfUpdate() {
 
 // Initialize service worker registration
 registerServiceWorker();
+
+// Sentry already initialized above
 
 // ============================================================
 // PRODUCTION FIX: Manus platform injects manus-runtime which
