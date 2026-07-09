@@ -443,6 +443,37 @@ export const helpdeskRouter = router({
         const combinedDescription = input.stepsAttempted
           ? `ISSUE DESCRIPTION:\n${input.description}\n\nSTEPS ALREADY ATTEMPTED:\n${input.stepsAttempted}`
           : input.description;
+
+        // Resolve a valid numeric userId for the tickets table.
+        // ctx.user.id for admin sessions is the adminCredentials.id (a small integer).
+        // However, the tickets.userId FK points to users.id, not adminCredentials.id.
+        // We look up (or create) a users row for this admin by email so the FK is valid.
+        let resolvedUserId = input.userId || ctx.user.id;
+        const db = await getDb();
+        if (db && ctx.user.email) {
+          const existingUser = await db.select({ id: users.id }).from(users).where(eq(users.email, ctx.user.email)).limit(1);
+          if (existingUser.length > 0) {
+            resolvedUserId = existingUser[0].id;
+          } else {
+            try {
+              const result = await db.insert(users).values({
+                openId: ctx.user.openId || `admin-${ctx.user.id}`,
+                email: ctx.user.email,
+                name: ctx.user.name || null,
+                role: "admin" as any,
+                approved: 1,
+                loginMethod: "admin",
+                lastSignedIn: new Date().toISOString(),
+              });
+              const insertedId = (result as any).insertId;
+              if (insertedId) resolvedUserId = insertedId;
+            } catch (e) {
+              console.warn("[Helpdesk] Could not create user row for admin, using fallback userId 1", e);
+              resolvedUserId = 1;
+            }
+          }
+        }
+
         const ticket = await createTicket({
           title: input.title,
           description: combinedDescription,
@@ -450,7 +481,7 @@ export const helpdeskRouter = router({
           category: input.category,
           priority: input.priority,
           source: input.channel,
-          userId: input.userId || ctx.user.id,
+          userId: resolvedUserId,
           requesterName: input.requesterName || undefined,
           requesterEmail: input.requesterEmail && input.requesterEmail.trim() ? input.requesterEmail : undefined,
         });

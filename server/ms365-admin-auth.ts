@@ -13,7 +13,7 @@ const ADMIN_SESSION_COOKIE = "admin_session";
 const SESSION_DURATION = "7d";
 
 export interface AdminTokenPayload {
-  adminId: string;
+  adminId: number; // Must be the numeric adminCredentials.id (NOT the Graph API GUID string)
   email: string;
   name: string;
   role: "admin" | "agent" | "viewer";

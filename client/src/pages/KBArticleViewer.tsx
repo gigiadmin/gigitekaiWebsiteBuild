@@ -26,13 +26,15 @@ export default function KBArticleViewer() {
     { enabled: !!articleId && !isNaN(articleId!) }
   );
 
-  // Track view — fire once when article data first loads
-  const trackView = trpc.kb.trackView.useMutation();
+  // Track view — fire once when article data first loads, fully silent (never shows error)
+  const trackView = trpc.kb.trackView.useMutation({
+    onError: () => { /* silent — view tracking failures must never surface to the user */ },
+  });
   const viewTracked = useRef(false);
   useEffect(() => {
     if (article && articleId && !viewTracked.current) {
       viewTracked.current = true;
-      trackView.mutate({ id: articleId });
+      try { trackView.mutate({ id: articleId }); } catch { /* silent */ }
     }
   }, [article, articleId]);
 

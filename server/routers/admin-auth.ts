@@ -106,9 +106,20 @@ export const adminAuthRouter = router({
           });
         }
 
-        // Sign JWT token
+        // Look up the numeric DB admin ID by email.
+        // user.id from Graph API is a GUID string — NOT a numeric DB id.
+        // adminId in the JWT must be a number (adminCredentials.id) so that
+        // ctx.user.id is a valid integer when used as userId in ticket creation.
+        const dbAdmin = await findAdminByEmail(user.email);
+        if (!dbAdmin) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Admin account not found in database. Please contact system administrator.",
+          });
+        }
+        // Sign JWT token using the numeric DB ID
         const token = await signMs365Token({
-          adminId: user.id,
+          adminId: dbAdmin.id,
           email: user.email,
           name: user.name,
           role: "admin",

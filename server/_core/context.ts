@@ -31,8 +31,12 @@ export async function createContext(
       if (payload) {
         // Create a synthetic User object from admin credentials
         // This allows admin queries to work with protectedProcedure/adminProcedure
+        // Coerce adminId to a safe integer — legacy tokens may have stored the Graph API GUID string.
+        // Number(string_guid) returns NaN which is falsy, so we fall back to 0 to avoid DB errors.
+        const adminNumericId = Number(payload.adminId);
+        const safeAdminId = Number.isFinite(adminNumericId) ? adminNumericId : 0;
         user = {
-          id: payload.adminId,
+          id: safeAdminId,
           openId: `admin-${payload.adminId}`,
           name: payload.name || null,
           email: payload.email || null,
