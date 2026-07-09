@@ -1,12 +1,7 @@
 /**
- * Logo Data — served from client/public as a static file
+ * Logo Data — served from CDN for cache-busting reliability
  *
- * PERMANENT: This path is served directly from the origin server with no expiry,
- * no S3 signing, and no CDN dependency. The file lives at client/public/
- * and is available at /gigitekai-admin-logo.webp on all domains.
- * WebP version: 24KB vs 255KB JPG — 90% smaller, same visual quality.
- *
- * To update the logo: replace client/public/gigitekai-admin-logo.jpg,
- * regenerate .webp with Pillow (quality=85), and save a checkpoint.
+ * Uses the CDN-hosted version to ensure the correct logo is always displayed.
+ * White "Gigitek" + cyan "AI" on dark background.
  */
-export const LOGO_DATA_URL = "/gigitekai-admin-logo.webp";
+export const LOGO_DATA_URL = "/manus-storage/download_d77c157e.png";
