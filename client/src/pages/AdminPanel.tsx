@@ -141,6 +141,26 @@ export default function AdminPanel() {
     enabled: isAuthenticated,
   });
 
+  // Portal Access Requests
+  const { data: accessRequests, isLoading: accessRequestsLoading, refetch: refetchAccessRequests } = trpc.portalAccess.list.useQuery({ status: 'pending' }, {
+    enabled: isAuthenticated && activeTab === "users",
+  });
+  const approveRequestMutation = trpc.portalAccess.approve.useMutation({
+    onSuccess: () => {
+      toast.success("Access request approved! An account has been created and the user notified.");
+      refetchAccessRequests();
+      refetchUsers();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to approve request"),
+  });
+  const rejectRequestMutation = trpc.portalAccess.deny.useMutation({
+    onSuccess: () => {
+      toast.success("Access request rejected.");
+      refetchAccessRequests();
+    },
+    onError: (error: any) => toast.error(error.message || "Failed to reject request"),
+  });
+
   const approveMutation = trpc.users.approve.useMutation({
     onSuccess: () => {
       toast.success("User approved! They can now access the Support Center.");
@@ -469,11 +489,16 @@ export default function AdminPanel() {
           >
             <Users className="w-4 h-4" />
             User Access
-            {allUsers && allUsers.filter((u: any) => !u.approved && u.role !== "admin").length > 0 && (
-              <span className="bg-amber-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full">
-                {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length}
-              </span>
-            )}
+{(() => {
+                const pendingUsers = allUsers ? allUsers.filter((u: any) => !u.approved && u.role !== "admin").length : 0;
+                const pendingRequests = accessRequests ? accessRequests.length : 0;
+                const total = pendingUsers + pendingRequests;
+                return total > 0 ? (
+                  <span className="bg-purple-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                    {total}
+                  </span>
+                ) : null;
+              })()}
           </button>
 
         </div>
@@ -1030,6 +1055,62 @@ export default function AdminPanel() {
               </div>
             ) : allUsers && allUsers.length > 0 ? (
               <div className="space-y-4">
+                {/* Portal Access Requests */}
+                {accessRequests && accessRequests.filter((r: any) => r.status === "pending").length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-400 mb-3 flex items-center gap-2">
+                      <UserPlus className="w-5 h-5" />
+                      Portal Access Requests ({accessRequests.filter((r: any) => r.status === "pending").length})
+                    </h3>
+                    <div className="space-y-2">
+                      {accessRequests.filter((r: any) => r.status === "pending").map((req: any) => (
+                        <div key={req.id} className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold text-sm shrink-0">
+                                {req.name?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-white font-medium truncate">{req.name}</p>
+                                <p className="text-gray-400 text-sm truncate">{req.email}</p>
+                                {req.company && <p className="text-gray-500 text-xs truncate">{req.company}</p>}
+                                <p className="text-gray-600 text-xs mt-0.5">Requested: {new Date(req.createdAt).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 shrink-0">
+                              <Button
+                                size="sm"
+                                onClick={() => approveRequestMutation.mutate({ requestId: req.id })}
+                                disabled={approveRequestMutation.isPending}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                              >
+                                <UserCheck className="w-4 h-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => rejectRequestMutation.mutate({ requestId: req.id })}
+                                disabled={rejectRequestMutation.isPending}
+                                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                              >
+                                <UserX className="w-4 h-4 mr-1" />
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                          {req.reason && (
+                            <div className="mt-3 ml-13 pl-13">
+                              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Reason for Access</p>
+                              <p className="text-gray-300 text-sm bg-[#0A0E1A]/60 rounded-lg px-3 py-2 border border-gray-800/60">{req.reason}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Pending Users */}
                 {allUsers.filter((u: any) => !u.approved && u.role !== "admin").length > 0 && (
                   <div>

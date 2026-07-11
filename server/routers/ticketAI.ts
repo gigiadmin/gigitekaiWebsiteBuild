@@ -4,7 +4,7 @@
  * priority scoring, sentiment detection, and draft reply generation.
  */
 
-import { router, adminProcedure } from "../_core/trpc";
+import { router, adminProcedure, approvedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { callLLM } from "../_core/multiLLM";
 import { getDb } from "../db";
@@ -350,6 +350,98 @@ Respond ONLY with a valid JSON array, no markdown.`;
         model: input.model,
         analyzed: results.length,
         results,
+      };
+    }),
+
+  /**
+   * User-facing: Analyze the user's own ticket with AI (simplified, no admin fields)
+   */
+  analyzeMyTicket: approvedProcedure
+    .input(
+      z.object({
+        ticketId: z.number().int().positive(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Security: ensure the ticket belongs to this user
+      const [ticket] = await db
+        .select()
+        .from(tickets)
+        .where(eq(tickets.id, input.ticketId))
+        .limit(1);
+
+      if (!ticket) throw new TRPCError({ code: "NOT_FOUND", message: "Ticket not found" });
+      if (ticket.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+
+      const kbContext = await fetchRelevantKB(ticket.description, ticket.category, 4);
+      const kbSummary = kbContext.length > 0
+        ? kbContext.map((a) => `KB #${a.id}: ${a.title}\n${a.content.slice(0, 250)}`).join("\n---\n")
+        : "No relevant KB articles found.";
+
+      const systemPrompt = `You are a helpful IT support AI for GigitekAI. Analyze this support ticket and provide user-friendly guidance.
+Return a JSON object with:
+- summary: string (1-2 sentence plain-English summary of the issue)
+- rootCause: string (likely cause in simple terms)
+- suggestedSteps: array of strings (3-5 clear self-service steps the user can try)
+- estimatedResolution: string (e.g. "15 minutes", "1-2 hours", "1 business day")
+- relevantKBIds: array of numbers (IDs from the KB articles provided)
+Respond ONLY with valid JSON.`;
+
+      const userPrompt = `TICKET: ${ticket.title}\nDescription: ${ticket.description}\nSteps tried: ${ticket.stepsAttempted || "None"}\n\nRELEVANT KB:\n${kbSummary}`;
+
+      const llmResponse = await callLLM("manus", [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ]);
+
+      let analysis: Record<string, unknown>;
+      try {
+        const jsonStr = llmResponse.content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        analysis = JSON.parse(jsonStr);
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "AI analysis failed. Please try again." });
+      }
+
+      return {
+        ticketId: ticket.id,
+        analysis,
+        kbArticlesUsed: kbContext.map((a) => ({ id: a.id, title: a.title })),
+      };
+    }),
+
+  /**
+   * User-facing: Get stored AI analysis for the user's own ticket
+   */
+  getMyTicketAnalysis: approvedProcedure
+    .input(z.object({ ticketId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [ticket] = await db
+        .select({
+          id: tickets.id,
+          userId: tickets.userId,
+          aiCategory: tickets.aiCategory,
+          aiPriority: tickets.aiPriority,
+          aiReasoning: tickets.aiReasoning,
+        })
+        .from(tickets)
+        .where(eq(tickets.id, input.ticketId))
+        .limit(1);
+
+      if (!ticket) throw new TRPCError({ code: "NOT_FOUND", message: "Ticket not found" });
+      if (ticket.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+
+      return {
+        ticketId: ticket.id,
+        hasAnalysis: !!(ticket.aiCategory || ticket.aiReasoning),
+        aiCategory: ticket.aiCategory,
+        aiPriority: ticket.aiPriority,
+        aiReasoning: ticket.aiReasoning,
       };
     }),
 

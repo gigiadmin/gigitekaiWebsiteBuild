@@ -17,6 +17,9 @@ import {
   ChevronRight,
   ArrowUpRight,
   CircleDot,
+  BookOpen,
+  Brain,
+  ExternalLink,
 } from "lucide-react";
 
 type TicketStatus = "open" | "in_progress" | "resolved" | "closed";
@@ -221,6 +224,43 @@ export default function HelpdeskDashboard() {
           <StatCard label="Closed" value={stats.closed} icon={<AlertCircle className="w-5 h-5" />} color="text-gray-400" bgColor="bg-gray-500/5" borderColor="border-gray-500/15" onClick={() => setStatusFilter("closed")} active={statusFilter === "closed"} />
         </div>
 
+        {/* Self-Service KB Widget */}
+        <div className="mb-8 bg-gradient-to-br from-[#0F1A30]/90 to-[#141B2D]/80 border border-[#00D4FF]/15 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center">
+              <Brain className="w-5 h-5 text-[#00D4FF]" />
+            </div>
+            <div>
+              <h2 className="text-white font-bold text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Self-Service Knowledge Base</h2>
+              <p className="text-gray-400 text-xs">Search 500+ articles — resolve common issues instantly</p>
+            </div>
+            <a
+              href="/kb"
+              className="ml-auto flex items-center gap-1.5 text-[#00D4FF] hover:text-[#00EEFF] text-xs font-semibold transition-colors"
+            >
+              Browse All <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+          <KBSearchWidget />
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              { label: "Password Reset", icon: "🔑", query: "password reset" },
+              { label: "Email Issues", icon: "📧", query: "email" },
+              { label: "MFA / 2FA", icon: "🔐", query: "mfa authentication" },
+              { label: "VPN / Network", icon: "🌐", query: "vpn network" },
+            ].map((topic) => (
+              <a
+                key={topic.label}
+                href={`/kb?search=${encodeURIComponent(topic.query)}`}
+                className="flex items-center gap-2 bg-[#0A0E1A]/60 border border-gray-800/60 hover:border-[#00D4FF]/30 rounded-lg px-3 py-2 text-xs text-gray-400 hover:text-white transition-colors"
+              >
+                <span>{topic.icon}</span>
+                {topic.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* Search & Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
@@ -375,5 +415,65 @@ function StatCard({
       <p className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{value}</p>
       <p className="text-xs text-gray-400 mt-0.5">{label}</p>
     </button>
+  );
+}
+
+/**
+ * Inline KB search widget for the helpdesk dashboard
+ */
+function KBSearchWidget() {
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 400);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  const { data, isLoading } = trpc.kb.search.useQuery(
+    { query: debouncedQuery, limit: 4 },
+    { enabled: debouncedQuery.length >= 3 }
+  );
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Search knowledge base (e.g. 'reset password', 'printer offline')..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full bg-[#0A0E1A]/80 border border-gray-800 rounded-xl pl-10 pr-4 py-2.5 text-white text-sm placeholder-gray-500 focus:border-[#00D4FF]/50 focus:outline-none focus:ring-1 focus:ring-[#00D4FF]/20 transition-colors"
+        />
+        {isLoading && (
+          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00D4FF] animate-spin" />
+        )}
+      </div>
+      {debouncedQuery.length >= 3 && data && (
+        <div className="mt-2 space-y-1.5">
+          {data && data.length > 0 ? (
+            data.map((article: any) => (
+              <a
+                key={article.id}
+                href={`/kb/${article.id}`}
+                className="flex items-center gap-3 bg-[#0A0E1A]/60 border border-gray-800/60 hover:border-[#00D4FF]/30 rounded-lg px-3 py-2.5 group transition-colors"
+              >
+                <BookOpen className="w-4 h-4 text-[#00D4FF]/60 group-hover:text-[#00D4FF] flex-shrink-0 transition-colors" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium group-hover:text-[#00D4FF] truncate transition-colors">{article.title}</p>
+                  <p className="text-gray-500 text-xs truncate">{article.category}</p>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-600 group-hover:text-[#00D4FF] flex-shrink-0 transition-colors" />
+              </a>
+            ))
+          ) : (
+            <div className="text-center py-4 text-gray-500 text-sm">
+              No articles found for "{debouncedQuery}" — <a href="/helpdesk/tickets/new" className="text-[#00D4FF] hover:underline">create a ticket</a> for personalized help.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

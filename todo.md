@@ -2186,3 +2186,15 @@
   - Can't Print link now points to correct article
   - Network Issues link now points to correct article
   - All other Top Issues links fixed
+
+## Support Portal Upgrade - Jul 2026
+
+- [x] Add `portalAccessRequests` table to schema (name, email, company, reason, status: pending/approved/denied)
+- [x] Add `requestPortalAccess` public tRPC procedure + admin approval/deny procedures
+- [x] Build `/helpdesk/request-access` public page (request form, no login required)
+- [x] Update HelpDesk.tsx: show "Request Access" CTA + "Pending Approval" gate for unapproved users
+- [x] Add KB self-service panel to HelpdeskDashboard (search + top articles sidebar)
+- [x] Add AI "Suggest Solutions" panel to CreateTicket page (KB search before submitting)
+- [x] Build user-facing AI ticket analysis in TicketDetail page (simplified TicketAIPanel)
+- [x] Add portal access requests section to Admin Support Services page
+- [x] Send admin email + Teams notification on new portal access request

@@ -100,6 +100,7 @@ const SupportLanding = lazy(() => import("./pages/SupportLanding"));
 const TicketLookup = lazy(() => import("./pages/TicketLookup"));
 const PublicTicketDetail = lazy(() => import("./pages/PublicTicketDetail"));
 const HelpDesk = lazy(() => import("./pages/HelpDesk"));
+const RequestPortalAccess = lazy(() => import("./pages/RequestPortalAccess"));
 const RemoteSession = lazy(() => import("./pages/RemoteSession"));
 const HelpdeskDashboard = lazy(() => import("./pages/HelpdeskDashboard"));
 const CreateTicket = lazy(() => import("./pages/CreateTicket"));
@@ -275,6 +276,7 @@ function Router() {
           <Route path={"/support/lookup"} component={TicketLookup} />
           <Route path={"/support/ticket/:ticketId"} component={PublicTicketDetail} />
           <Route path={"/remote-session/:roomId"} component={RemoteSession} />
+          <Route path={"/helpdesk/request-access"} component={RequestPortalAccess} />
           <Route path={"/helpdesk"} component={HelpDesk} />
           <Route path={"/helpdesk/dashboard"} component={HelpdeskDashboard} />
           <Route path={"/helpdesk/create-ticket"} component={CreateTicket} />

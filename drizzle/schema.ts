@@ -2498,6 +2498,28 @@ export const voicemailSourceTombstones = mysqlTable("voicemailSourceTombstones",
 	index("voicemailSourceTombstones_callLogId").on(table.callLogId),
 ]);
 
+// Portal Access Requests — users request access before being approved
+export const portalAccessRequests = mysqlTable("portalAccessRequests", {
+	id: int().autoincrement().primaryKey().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	company: varchar({ length: 255 }),
+	phone: varchar({ length: 50 }),
+	reason: text(),
+	status: mysqlEnum(['pending', 'approved', 'denied']).default('pending').notNull(),
+	userId: int(),
+	reviewedBy: varchar({ length: 320 }),
+	reviewedAt: timestamp({ mode: 'string' }),
+	reviewNote: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+},
+(table) => [
+	index("portalAccessRequests_email").on(table.email),
+	index("portalAccessRequests_status").on(table.status),
+]);
+export type PortalAccessRequest = typeof portalAccessRequests.$inferSelect;
+export type InsertPortalAccessRequest = typeof portalAccessRequests.$inferInsert;
+
 // Type exports
 export type UpworkProposal = typeof upworkProposals.$inferSelect;
 export type InsertUpworkProposal = typeof upworkProposals.$inferInsert;

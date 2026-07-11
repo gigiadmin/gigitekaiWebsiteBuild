@@ -8,12 +8,16 @@ import {
   Ticket,
   Clock,
   MessageSquare,
-  Shield,
   Zap,
   ArrowRight,
   CheckCircle2,
   Home,
   Headphones,
+  UserPlus,
+  BookOpen,
+  Mail,
+  Phone,
+  AlertCircle,
 } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
@@ -25,10 +29,10 @@ export default function HelpDesk() {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    if (isAuthenticated && !loading) {
+    if (isAuthenticated && !loading && user?.approved) {
       navigate("/helpdesk/dashboard");
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, navigate, user]);
 
   if (loading) {
     return (
@@ -41,6 +45,75 @@ export default function HelpDesk() {
     );
   }
 
+  // Logged in but not approved — show pending approval gate
+  if (isAuthenticated && user && !user.approved) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A] flex flex-col">
+        <nav className="border-b border-[rgba(0,212,255,0.15)] bg-[#0A0E1A]/95 backdrop-blur-xl sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <a href="/helpdesk" className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#00D4FF] to-[#0088AA] rounded-xl flex items-center justify-center shadow-lg shadow-[#00D4FF]/20">
+                  <LifeBuoy className="w-5 h-5 text-[#0A0E1A]" strokeWidth={2.5} />
+                </div>
+                <div>
+                  <span className="text-white font-bold text-lg block leading-tight">Support Center</span>
+                  <span className="text-[#00D4FF] text-xs font-medium">GigitekAI</span>
+                </div>
+              </a>
+              <a href="/" className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-colors">
+                <Home className="w-3.5 h-3.5" />
+                GigitekAI.com
+              </a>
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex-1 flex items-center justify-center px-4 py-16">
+          <div className="max-w-lg w-full text-center">
+            <div className="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-10 h-10 text-amber-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-3">Access Pending Approval</h1>
+            <p className="text-gray-400 mb-6 leading-relaxed">
+              Hi <span className="text-white font-medium">{user.name || user.email}</span>, your account is currently awaiting admin approval. You'll receive an email once your access has been granted — typically within 1 business day.
+            </p>
+
+            <div className="bg-[#0F1A30] border border-white/10 rounded-xl p-5 mb-6 text-left space-y-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">While you wait</p>
+              <a href="/kb" className="flex items-center gap-3 text-gray-300 hover:text-[#00D4FF] transition-colors group">
+                <div className="w-8 h-8 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <BookOpen className="w-4 h-4 text-[#00D4FF]" />
+                </div>
+                <span className="text-sm">Browse our Knowledge Base for self-service articles</span>
+              </a>
+              <a href="mailto:support@gigitekai.com" className="flex items-center gap-3 text-gray-300 hover:text-[#00D4FF] transition-colors group">
+                <div className="w-8 h-8 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <Mail className="w-4 h-4 text-[#00D4FF]" />
+                </div>
+                <span className="text-sm">Email us at support@gigitekai.com</span>
+              </a>
+              <a href="tel:7273826909" className="flex items-center gap-3 text-gray-300 hover:text-[#00D4FF] transition-colors group">
+                <div className="w-8 h-8 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00D4FF]/20 transition-colors">
+                  <Phone className="w-4 h-4 text-[#00D4FF]" />
+                </div>
+                <span className="text-sm">Call us at (727) 382-6909 for urgent issues</span>
+              </a>
+            </div>
+
+            <a href="/kb">
+              <Button variant="outline" className="border-[#00D4FF]/30 text-[#00D4FF] hover:bg-[#00D4FF]/10">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Browse Knowledge Base
+              </Button>
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not logged in — show public landing with Sign In + Request Access
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E1A] via-[#0F1629] to-[#0A0E1A]">
       {/* Navigation */}
@@ -52,26 +125,26 @@ export default function HelpDesk() {
                 <LifeBuoy className="w-5 h-5 text-[#0A0E1A]" strokeWidth={2.5} />
               </div>
               <div>
-                <span className="text-white font-bold text-lg block leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Support Center
-                </span>
+                <span className="text-white font-bold text-lg block leading-tight">Support Center</span>
                 <span className="text-[#00D4FF] text-xs font-medium">GigitekAI</span>
               </div>
             </a>
-            <a
-              href="/"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-[opacity,transform]"
-            >
-              <Home className="w-3.5 h-3.5" />
-              GigitekAI.com
-            </a>
+            <div className="flex items-center gap-3">
+              <a href="/kb" className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-colors">
+                <BookOpen className="w-3.5 h-3.5" />
+                Knowledge Base
+              </a>
+              <a href="/" className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-[#00D4FF] border border-gray-800 hover:border-[#00D4FF]/30 rounded-lg transition-colors">
+                <Home className="w-3.5 h-3.5" />
+                GigitekAI.com
+              </a>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Background grid pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(rgba(0,212,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.3) 1px, transparent 1px)`,
           backgroundSize: '60px 60px'
@@ -89,16 +162,34 @@ export default function HelpDesk() {
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
               Our dedicated support team is here to ensure your technology infrastructure runs seamlessly. Create tickets, track progress, and get expert resolution.
             </p>
-            <a href={getLoginUrl("/helpdesk/dashboard")}>
-              <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-[opacity,transform]">
-                Sign In to Support Center
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </a>
+
+            {/* Dual CTA: Sign In + Request Access */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a href={getLoginUrl("/helpdesk/dashboard")}>
+                <Button size="lg" className="bg-gradient-to-r from-[#00D4FF] to-[#00B8CC] hover:from-[#00EEFF] hover:to-[#00D4FF] text-[#0A0E1A] font-bold text-base px-8 py-6 rounded-xl shadow-lg shadow-[#00D4FF]/20 hover:shadow-[#00D4FF]/40 transition-all">
+                  Sign In to Support Center
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </a>
+              <a href="/helpdesk/request-access">
+                <Button size="lg" variant="outline" className="border-[#00D4FF]/30 text-[#00D4FF] hover:bg-[#00D4FF]/10 font-semibold text-base px-8 py-6 rounded-xl transition-all">
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Request Portal Access
+                </Button>
+              </a>
+            </div>
+
+            <p className="text-xs text-gray-600 mt-4">
+              Don't have an account?{" "}
+              <a href="/helpdesk/request-access" className="text-[#00D4FF]/70 hover:text-[#00D4FF] underline">
+                Request access
+              </a>{" "}
+              — approved within 1 business day.
+            </p>
           </div>
 
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-16">
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
             <FeatureCard
               icon={<Ticket className="w-6 h-6" />}
               title="Ticket Management"
@@ -116,9 +207,25 @@ export default function HelpDesk() {
             />
           </div>
 
+          {/* KB Quick Access Banner */}
+          <div className="bg-[#0F1A30]/80 border border-[#00D4FF]/10 rounded-2xl p-6 mb-10 flex flex-col md:flex-row items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-6 h-6 text-[#00D4FF]" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <p className="text-white font-semibold">Try Self-Service First</p>
+              <p className="text-gray-400 text-sm">Browse 500+ knowledge base articles — many issues can be resolved instantly without opening a ticket.</p>
+            </div>
+            <a href="/kb" className="flex-shrink-0">
+              <Button variant="outline" className="border-[#00D4FF]/30 text-[#00D4FF] hover:bg-[#00D4FF]/10 whitespace-nowrap">
+                Browse KB
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </a>
+          </div>
+
           {/* Trust Indicators */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <TrustBadge icon={<Zap className="w-5 h-5" />} label="< 2hr Response" />
             <TrustBadge icon={<CheckCircle2 className="w-5 h-5" />} label="99.9% Uptime" />
             <TrustBadge icon={<Headphones className="w-5 h-5" />} label="24/7 Support" />
@@ -131,7 +238,7 @@ export default function HelpDesk() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-6 hover:border-[rgba(0,212,255,0.4)] transition-[opacity,transform] duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
+    <div className="group bg-[#141B2D]/80 border border-[rgba(0,212,255,0.12)] rounded-xl p-6 hover:border-[rgba(0,212,255,0.4)] transition-all duration-300 hover:shadow-lg hover:shadow-[#00D4FF]/5 hover:-translate-y-1">
       <div className="w-12 h-12 bg-gradient-to-br from-[#00D4FF]/15 to-[#00D4FF]/5 border border-[#00D4FF]/20 rounded-xl flex items-center justify-center mb-4 text-[#00D4FF] group-hover:shadow-lg group-hover:shadow-[#00D4FF]/10 transition-shadow">
         {icon}
       </div>

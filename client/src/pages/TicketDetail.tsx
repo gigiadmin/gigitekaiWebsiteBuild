@@ -10,6 +10,7 @@ import { TicketMergeModal } from "@/components/TicketMergeModal";
 import { SurveyModal } from "@/components/SurveyModal";
 import CannedResponsePicker from "@/components/CannedResponsePicker";
 import TicketAIPanel from "@/components/TicketAIPanel";
+import UserTicketAIPanel from "@/components/UserTicketAIPanel";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
@@ -935,6 +936,11 @@ export default function TicketDetail({ isAdminOverride = false }: TicketDetailPr
               </div>
             )}
           </div>
+
+          {/* User AI Panel — show for non-admin users on their own tickets */}
+          {!isAdmin && (
+            <UserTicketAIPanel ticketId={ticketIdNum} />
+          )}
 
           {/* Quick Reply Suggestions */}
           {!isAdmin && ticket.status !== "closed" && (
