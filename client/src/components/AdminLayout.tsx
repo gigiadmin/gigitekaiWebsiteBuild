@@ -129,7 +129,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Tools",
     items: [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
-      { label: "🧠 Aria Command Center", icon: <Brain size={16} />, href: "/admin/search" },
+      { label: "🧠 Aria Command Center", icon: <Brain size={16} />, href: "/admin/aria" },
       { label: "DNS Checker", icon: <Globe size={16} />, href: "/admin/dns-checker" },
       { label: "Email Diagnostics", icon: <Mail size={16} />, href: "/admin/email-diagnostics" },
       { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
@@ -272,7 +272,7 @@ function AdminLayoutInner({ children, title, noPadding }: AdminLayoutProps) {
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
         {/* Aria Command Center — Primary AI Orchestrator */}
         <div className="mb-4 px-1">
-          <a href="/admin/search">
+          <a href="/admin/aria">
             <div
               className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 relative overflow-hidden"
               style={{
