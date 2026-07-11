@@ -6,7 +6,7 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Calendar } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Calendar, Bot } from "lucide-react";
 
 
 export default function SiteNavBar2024() {
@@ -120,6 +120,23 @@ export default function SiteNavBar2024() {
 
           {/* Desktop nav links */}
           <div className="hidden lg:flex items-center gap-1">
+            {/* Aria Command Center — Primary Orchestrator */}
+            <a
+              href="/aria"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold rounded-lg transition-all whitespace-nowrap mr-1"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                background: 'linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(99,102,241,0.15) 100%)',
+                border: '1px solid rgba(0,212,255,0.4)',
+                color: '#00D4FF',
+                boxShadow: '0 0 12px rgba(0,212,255,0.15)',
+              }}
+            >
+              <Bot size={15} className="flex-shrink-0" />
+              <span>Aria AI</span>
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></span>
+            </a>
+
             {/* Services dropdown */}
             <div className="relative group">
               <button
@@ -246,15 +263,41 @@ export default function SiteNavBar2024() {
             <div className="fixed left-0 right-0 overflow-y-auto z-50 lg:hidden"
               style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)`, backgroundColor: '#0F1629', borderTop: '1px solid rgba(0,212,255,0.1)', colorScheme: 'dark' }}
             >
-              {/* Home link */}
+              {/* Aria Command Center — TOP of mobile menu, primary orchestrator */}
               <div className="px-4 pt-4 pb-2">
+                <a
+                  href="/aria"
+                  className="flex items-center gap-3 py-3 px-4 text-sm font-bold rounded-xl w-full"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(0,212,255,0.12) 0%, rgba(99,102,241,0.12) 100%)',
+                    border: '1px solid rgba(0,212,255,0.4)',
+                    color: '#00D4FF',
+                    boxShadow: '0 0 16px rgba(0,212,255,0.12)',
+                  }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <div className="relative flex-shrink-0">
+                    <Bot size={22} color="#00D4FF" />
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse border border-[#0F1629]"></span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-base" style={{ color: '#00D4FF' }}>Aria Command Center</div>
+                    <div className="text-xs font-normal mt-0.5" style={{ color: 'rgba(0,212,255,0.7)' }}>AI Orchestrator · Always On</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M1 7H13M7 1L13 7L7 13" stroke="#00D4FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+              </div>
+              {/* Home link */}
+              <div className="px-4 pb-2">
                 <a
                   href="/"
                   className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold rounded-lg"
-                  style={{ color: '#00D4FF', backgroundColor: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}
+                  style={{ color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                   Home
                 </a>
               </div>
