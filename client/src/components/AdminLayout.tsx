@@ -480,7 +480,18 @@ function AdminLayoutInner({ children, title, noPadding }: AdminLayoutProps) {
           <div className="flex-1" />
 
           {/* Top bar actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Aria Status Indicator */}
+            <Link href="/admin/aria">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 hover:bg-green-500/15 transition-colors cursor-pointer">
+                <div className="relative flex-shrink-0">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </div>
+                <span className="text-xs font-semibold text-green-300">Aria Active</span>
+              </div>
+            </Link>
+
             {/* Real-time notification bell */}
             <NotificationBell />
             <Link href="/" target="_blank">

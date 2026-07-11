@@ -7,6 +7,7 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import { lazy, Suspense } from "react";
+import { useAriaShortcut } from "@/hooks/useAriaShortcut";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ApprovalGuard from "./components/ApprovalGuard";
@@ -76,7 +77,7 @@ const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
 const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
-const AriaCommandCenterAdmin = lazy(() => import("./pages/AriaCommandCenter"));
+const AriaCommandCenterAdmin = lazy(() => import("./pages/AriaCommandCenterDashboard"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
 
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
@@ -128,13 +129,12 @@ function withAdminLayout(Component: React.ComponentType<any>, title?: string, no
   );
 }
 
-export default function AdminApp() {
+function AdminAppInner() {
+  // Enable global ⌘K/Ctrl+K shortcut to launch Aria
+  useAriaShortcut();
+
   return (
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
-        <TooltipProvider>
-          <Suspense fallback={<PageLoader />}>
-            <Switch>
+    <Switch>
               {/* Pages that ALREADY have AdminLayout internally — use withApprovalOnly */}
               <Route path="/admin" component={withApprovalOnly(AdminHome)} />
               <Route path="/admin/helpdesk/:ticketId" component={withApprovalOnly(AdminTicketDetail)} />
@@ -219,7 +219,17 @@ export default function AdminApp() {
                   </div>
                 </div>
               )} />
-            </Switch>
+    </Switch>
+  );
+}
+
+export default function AdminApp() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="dark">
+        <TooltipProvider>
+          <Suspense fallback={<PageLoader />}>
+            <AdminAppInner />
           </Suspense>
         </TooltipProvider>
       </ThemeProvider>
