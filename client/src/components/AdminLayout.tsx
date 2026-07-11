@@ -270,6 +270,38 @@ function AdminLayoutInner({ children, title, noPadding }: AdminLayoutProps) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+        {/* Aria Command Center — Primary AI Orchestrator */}
+        <div className="mb-4 px-1">
+          <a href="/admin/search">
+            <div
+              className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(99,102,241,0.15) 100%)',
+                border: '1px solid rgba(0,212,255,0.4)',
+                boxShadow: '0 0 16px rgba(0,212,255,0.12)',
+              }}
+            >
+              {/* Subtle glow pulse behind icon */}
+              <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(circle at 20% 50%, rgba(0,212,255,0.4) 0%, transparent 60%)' }} />
+              <div className="relative flex-shrink-0">
+                <Brain size={collapsed ? 20 : 18} className="text-cyan-400" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+              </div>
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-cyan-300 leading-tight">Aria Command Center</div>
+                  <div className="text-xs text-cyan-500/80 mt-0.5">AI Orchestrator · Always On</div>
+                </div>
+              )}
+              {!collapsed && (
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" className="flex-shrink-0 text-cyan-500">
+                  <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </div>
+          </a>
+        </div>
+
         {NAV_SECTIONS.map((section) => (
           <div key={section.title} className="mb-4">
             {!collapsed && (
