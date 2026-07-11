@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Mic, MicOff, Send, Volume2, VolumeX, Download, Trash2,
-  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X, Settings
+  Brain, AlertTriangle, CheckCircle2, Clock, Zap, Terminal, Activity, X, Settings, Plus, Workflow
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
@@ -955,6 +955,69 @@ export default function AriaCommandCenter() {
               <Button onClick={saveChat} variant="outline" size="sm" className="flex-shrink-0 border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600">
                 <Download size={13} />
               </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Dashboard Section: Metrics & Quick Launch ────────────────── */}
+        <div className="flex-shrink-0 border-t border-white/5 bg-gradient-to-b from-slate-900/40 to-slate-950/60 p-4 sm:p-6 overflow-y-auto max-h-96">
+          {/* Quick Launch Actions */}
+          <div className="mb-6">
+            <h3 className="text-xs sm:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Zap size={14} className="text-cyan-400" />
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { label: 'Provision Client', icon: Plus, color: 'cyan' },
+                { label: 'Run Workflow', icon: Workflow, color: 'blue' },
+                { label: 'Agent Status', icon: Activity, color: 'green' },
+                { label: 'Settings', icon: Settings, color: 'purple' },
+              ].map((action) => {
+                const Icon = action.icon;
+                const colorMap = {
+                  cyan: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20',
+                  blue: 'bg-blue-500/10 border-blue-500/30 text-blue-300 hover:bg-blue-500/20',
+                  green: 'bg-green-500/10 border-green-500/30 text-green-300 hover:bg-green-500/20',
+                  purple: 'bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20',
+                };
+                return (
+                  <button
+                    key={action.label}
+                    onClick={() => alert(`${action.label} feature coming soon`)}
+                    className={`p-2 sm:p-3 rounded-lg border text-[10px] sm:text-xs font-medium transition-all ${colorMap[action.color as keyof typeof colorMap]}`}
+                  >
+                    <Icon size={14} className="mx-auto mb-1" />
+                    <div className="truncate">{action.label}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* System Metrics */}
+          <div>
+            <h3 className="text-xs sm:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Activity size={14} className="text-cyan-400" />
+              System Status
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] sm:text-xs">
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className="text-slate-500 mb-1">Uptime SLA</div>
+                <div className="text-green-400 font-semibold">99.9%</div>
+              </div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className="text-slate-500 mb-1">Response Time</div>
+                <div className="text-cyan-400 font-semibold">340ms</div>
+              </div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className="text-slate-500 mb-1">Workflows</div>
+                <div className="text-blue-400 font-semibold">47</div>
+              </div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className="text-slate-500 mb-1">Systems</div>
+                <div className="text-purple-400 font-semibold">280+</div>
+              </div>
             </div>
           </div>
         </div>
