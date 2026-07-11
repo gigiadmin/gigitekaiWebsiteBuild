@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { BookOpen, X, ExternalLink } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface CreateTicketModalProps {
   mode?: "user" | "admin";
@@ -21,7 +23,17 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const dialogOpen = open ?? isOpen ?? false;
   const utils = trpc.useUtils();
   const [selectedPriority, setSelectedPriority] = useState("medium");
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+  const [kbQuery, setKbQuery] = useState("");
+  const [showKbSuggestions, setShowKbSuggestions] = useState(false);
+  const [, navigate] = useLocation();
+  const kbDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { data: kbSuggestions } = trpc.kb.search.useQuery(
+    { query: kbQuery, limit: 4 },
+    { enabled: kbQuery.length >= 5 }
+  );
+
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
       requesterName: "",
       requesterEmail: "",
@@ -84,6 +96,25 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
   const submitInProgressRef = useRef(false);
   const lastSubmitTimeRef = useRef(0);
   const isPending = userMutation.isPending || adminMutation.isPending;
+
+  // Watch title field for KB suggestions (user mode only)
+  const titleValue = watch("title");
+  useEffect(() => {
+    if (mode !== "user") return;
+    if (kbDebounceRef.current) clearTimeout(kbDebounceRef.current);
+    if (!titleValue || titleValue.length < 5) {
+      setShowKbSuggestions(false);
+      setKbQuery("");
+      return;
+    }
+    kbDebounceRef.current = setTimeout(() => {
+      setKbQuery(titleValue);
+      setShowKbSuggestions(true);
+    }, 600);
+    return () => {
+      if (kbDebounceRef.current) clearTimeout(kbDebounceRef.current);
+    };
+  }, [titleValue, mode]);
 
   const onSubmit = async (data: any) => {
     console.log("[CreateTicketModal] onSubmit called", { mode, data });
@@ -183,6 +214,41 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
             />
             {errors.title && <span className="text-red-500 text-sm">{errors.title.message}</span>}
           </div>
+
+          {/* KB Suggestions Panel - user mode only */}
+          {mode === "user" && showKbSuggestions && kbSuggestions && kbSuggestions.length > 0 && (
+            <div className="rounded-lg border border-cyan-500/30 bg-cyan-950/20 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 text-cyan-400 text-sm font-medium">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Found {kbSuggestions.length} related KB article{kbSuggestions.length > 1 ? "s" : ""} — check if this solves your issue first:</span>
+                </div>
+                <button type="button" onClick={() => setShowKbSuggestions(false)} className="text-slate-500 hover:text-slate-300">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {kbSuggestions.slice(0, 4).map((article: any) => (
+                  <a
+                    key={article.id}
+                    href={`/kb/${article.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-2 p-2 rounded bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/50 hover:border-cyan-500/30 transition-colors group"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-cyan-400 mt-0.5 flex-shrink-0 group-hover:text-cyan-300" />
+                    <div className="min-w-0">
+                      <p className="text-sm text-white font-medium truncate group-hover:text-cyan-300">{article.title}</p>
+                      {article.summary && (
+                        <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{article.summary}</p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-2">If none of these help, continue filling out the form below.</p>
+            </div>
+          )}
 
           {/* Issue Description */}
           <div>

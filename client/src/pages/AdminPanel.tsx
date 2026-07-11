@@ -1293,6 +1293,17 @@ export default function AdminPanel() {
         )}
       </div>
 
+      {/* Invite Customer Modal */}
+      <InviteCustomerModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={() => {
+          setShowInviteModal(false);
+          refetchUsers();
+          toast.success("Customer invite sent!");
+        }}
+      />
+
       {/* Create Ticket Modal */}
       <CreateTicketModal
         mode="admin"

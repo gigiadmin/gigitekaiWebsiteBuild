@@ -175,7 +175,14 @@ export default function NotificationBell() {
 
   const unreadCount = Array.isArray(unreadNotifications) ? unreadNotifications.filter((n: any) => !n.isRead).length : 0;
   const notifications = Array.isArray(allNotifications) ? allNotifications : [];
-  const totalUnread = unreadCount + wsUnread;
+
+  // Portal access requests pending count
+  const { data: portalPendingCount = 0 } = trpc.portalAccess.pendingCount.useQuery(undefined, {
+    refetchInterval: 30_000,
+    enabled: isAuthenticated && user?.role === "admin",
+  });
+
+  const totalUnread = unreadCount + wsUnread + (typeof portalPendingCount === 'number' ? portalPendingCount : 0);
   const displayCount = totalUnread > 99 ? "99+" : totalUnread;
 
   if (!isAuthenticated || user?.role !== "admin") return null;
