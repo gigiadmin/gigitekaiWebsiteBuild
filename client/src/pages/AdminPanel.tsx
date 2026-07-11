@@ -89,6 +89,7 @@ export default function AdminPanel() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<AdminTab>("tickets");
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [denyReasonMap, setDenyReasonMap] = useState<Record<number, string>>({});
   const [showQuickReply, setShowQuickReply] = useState(false);
   const [quickReplyTicketId, setQuickReplyTicketId] = useState<number | undefined>();
   const [quickReplyEmail, setQuickReplyEmail] = useState("");
@@ -1090,7 +1091,10 @@ export default function AdminPanel() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => rejectRequestMutation.mutate({ requestId: req.id })}
+                                onClick={() => {
+                                  const reason = denyReasonMap[req.id];
+                                  rejectRequestMutation.mutate({ requestId: req.id, reviewNote: reason || undefined });
+                                }}
                                 disabled={rejectRequestMutation.isPending}
                                 className="border-red-500/30 text-red-400 hover:bg-red-500/10"
                               >
@@ -1100,11 +1104,21 @@ export default function AdminPanel() {
                             </div>
                           </div>
                           {req.reason && (
-                            <div className="mt-3 ml-13 pl-13">
+                            <div className="mt-3">
                               <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Reason for Access</p>
                               <p className="text-gray-300 text-sm bg-[#0A0E1A]/60 rounded-lg px-3 py-2 border border-gray-800/60">{req.reason}</p>
                             </div>
                           )}
+                          <div className="mt-3">
+                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Denial Reason (optional — sent to user if rejected)</p>
+                            <textarea
+                              className="w-full bg-[#0A0E1A]/60 border border-red-500/20 rounded-lg px-3 py-2 text-sm text-gray-300 placeholder-gray-600 resize-none focus:outline-none focus:border-red-500/50"
+                              rows={2}
+                              placeholder="e.g. Not a current GigitekAI client. Please contact sales@gigitekai.com to get started."
+                              value={denyReasonMap[req.id] || ""}
+                              onChange={(e) => setDenyReasonMap(prev => ({ ...prev, [req.id]: e.target.value }))}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>

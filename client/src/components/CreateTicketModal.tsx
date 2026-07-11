@@ -50,11 +50,11 @@ export function CreateTicketModal({ mode = "admin", open, isOpen, onClose, onSuc
       submitInProgressRef.current = false;
       console.log("[CreateTicketModal] User mutation succeeded:", data);
       toast.success("Ticket created successfully!");
-      // Wrap invalidation in try/catch to prevent errors from affecting UX
+      // Invalidate user-facing ticket list (NOT getAllTickets which is admin-only)
       try {
-        utils.helpdesk.getAllTickets.invalidate();
+        utils.helpdesk.getMyTickets.invalidate();
       } catch (e) {
-        console.warn("[Support Services] Failed to invalidate tickets cache:", e);
+        console.warn("[Support Services] Failed to invalidate user tickets cache:", e);
       }
       reset();
       setSelectedPriority("medium");

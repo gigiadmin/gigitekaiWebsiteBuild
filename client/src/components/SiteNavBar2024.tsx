@@ -198,6 +198,17 @@ export default function SiteNavBar2024() {
               </div>
               <span>Support</span>
             </a>
+            {/* Request Portal Access CTA */}
+            <a
+              href="/helpdesk/request-access"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#00D4FF]/40 text-[#00D4FF] hover:bg-[#00D4FF]/10 transition-colors whitespace-nowrap"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
+              <span>Request Access</span>
+            </a>
 
             <a
               href="/contact"
@@ -307,6 +318,18 @@ export default function SiteNavBar2024() {
                 <LifeBuoy size={18} color="#00D4FF" />
                 <span>Support</span>
                 <span className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              </a>
+              {/* Mobile Request Access */}
+              <a
+                href="/helpdesk/request-access"
+                className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold rounded-lg mt-1"
+                style={{ color: '#00D4FF', border: '1px solid rgba(0,212,255,0.2)' }}
+                onClick={() => setMobileOpen(false)}
+              >
+                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
+                  <path d="M7 1v12M1 7h12" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+                <span>Request Portal Access</span>
               </a>
 
               {/* Mobile Search Bar - DISABLED - removed due to poor UX */}
