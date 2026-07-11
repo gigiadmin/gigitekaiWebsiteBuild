@@ -34,20 +34,6 @@ interface QuickLaunchAction {
 }
 
 export default function AriaCommandCenterDashboard() {
-  const handleQuickLaunch = (actionId: string, actionLabel: string) => {
-    // Show toast notification
-    const toastMessage = `${actionLabel} feature coming soon. Keyboard shortcut: ⌘K / Ctrl+K to return to Aria.`;
-    alert(toastMessage); // Replace with toast component if available
-    
-    // Log action for analytics
-    console.log(`[Aria] Quick launch: ${actionLabel}`);
-    
-    // TODO: Wire to actual features
-    // - Provision Client → open provisioning modal
-    // - Run Workflow → open workflow selector
-    // - Agent Status → scroll to agents section
-    // - Settings → open settings panel
-  };
   const [agents, setAgents] = useState<Agent[]>([
     { id: '1', name: 'Provisioning Agent', status: 'active', tasksCompleted: 847, uptime: '99.8%' },
     { id: '2', name: 'Support Agent', status: 'active', tasksCompleted: 1203, uptime: '99.9%' },
@@ -122,12 +108,11 @@ export default function AriaCommandCenterDashboard() {
         {quickLaunchActions.map((action) => (
           <button
             key={action.id}
-            onClick={() => handleQuickLaunch(action.id, action.label)}
-            className={`p-4 rounded-lg border transition-all hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer active:scale-95 ${action.color}`}
+            className={`p-4 rounded-lg border transition-all hover:shadow-lg hover:shadow-cyan-500/20 ${action.color}`}
           >
             <div className="flex items-center gap-3 mb-2">
               {action.icon}
-              <span className="text-sm font-semibold">{action.label}</span>
+              <span className="font-semibold text-sm">{action.label}</span>
             </div>
             <p className="text-xs opacity-80">{action.description}</p>
           </button>
