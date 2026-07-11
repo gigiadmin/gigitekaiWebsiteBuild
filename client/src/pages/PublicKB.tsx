@@ -239,7 +239,7 @@ export default function PublicKB() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {searchResults.map((article) => (
-                <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} />
+                <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} showViews />
               ))}
             </div>
           )}
@@ -361,7 +361,7 @@ export default function PublicKB() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {displayArticles.map((article: KbArticle) => (
-                    <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} />
+                    <ArticleCard key={article.id} article={article} onClick={() => navigate(`/kb/${article.id}`)} showViews />
                   ))}
                 </div>
 

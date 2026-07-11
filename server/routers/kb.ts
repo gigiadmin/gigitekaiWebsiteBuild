@@ -422,6 +422,69 @@ export const kbRouter = router({
       return { success: true };
     }),
 
+  /** Bulk create KB articles (admin only) — alias for bulkInsert, accepts syncSource field */
+  bulkCreate: adminProcedure
+    .input(
+      z.object({
+        articles: z.array(
+          z.object({
+            title: z.string().min(3),
+            content: z.string().min(10),
+            category: z.string().min(1),
+            tags: z.string().optional(),
+            isPublished: z.boolean().default(true),
+            syncSource: z.string().optional().default('manual'),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const errors: string[] = [];
+      const values = input.articles
+        .map((a, i) => {
+          try {
+            return {
+              title: a.title,
+              content: a.content,
+              category: a.category,
+              tags: a.tags || "",
+              isPublished: a.isPublished ? 1 : 0,
+              syncSource: a.syncSource || 'manual',
+              createdBy: ctx.user.id,
+            };
+          } catch (e: any) {
+            errors.push(`Article ${i}: ${e.message}`);
+            return null;
+          }
+        })
+        .filter(Boolean) as any[];
+      if (values.length > 0) {
+        // Insert in batches of 100 to avoid query size limits
+        const batchSize = 100;
+        for (let i = 0; i < values.length; i += batchSize) {
+          await db.insert(kbArticles).values(values.slice(i, i + batchSize));
+        }
+      }
+      return { inserted: values.length, errors };
+    }),
+
+  /** Get most viewed articles this month (admin report) */
+  getMostViewed: adminProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(50).default(10) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const rows = await db
+        .select()
+        .from(kbArticles)
+        .where(and(eq(kbArticles.isPublished, 1), ne(kbArticles.syncSource, 'ms-learn')))
+        .orderBy(desc(kbArticles.viewCount))
+        .limit(input.limit);
+      return rows;
+    }),
+
   /** Seed KB with initial articles (admin only) */
   seed: adminProcedure.mutation(async ({ ctx }) => {
     const result = await seedKBArticles();

@@ -143,13 +143,13 @@ export async function createTicket(ticket: InsertTicket) {
   }
 
   try {
-    const result = await db.insert(tickets).values(ticket);
+    // MySQL2/Drizzle: destructure the result array to get the ResultSetHeader
+    const [insertResult] = await db.insert(tickets).values(ticket);
     console.log("[Database] Ticket created successfully");
-    // Get the inserted ticket ID from the insert result
-    // Drizzle returns the inserted row(s) in the result
-    const insertedId = (result as any).insertId || (result as any)[0]?.id;
+    // insertResult.insertId is the auto-increment ID from MySQL
+    const insertedId = (insertResult as any).insertId;
     if (!insertedId) {
-      console.error("[Database] Could not get inserted ticket ID from result");
+      console.error("[Database] Could not get inserted ticket ID from result", JSON.stringify(insertResult));
       return null;
     }
     const insertedTickets = await db.select().from(tickets).where(eq(tickets.id, insertedId as any));

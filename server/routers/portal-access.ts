@@ -271,6 +271,33 @@ export const portalAccessRouter = router({
       return { success: true };
     }),
 
+  /** Public: check request status by email */
+  checkStatus: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      // Return the most recent request for this email
+      const [req] = await db
+        .select()
+        .from(portalAccessRequests)
+        .where(eq(portalAccessRequests.email, input.email))
+        .orderBy(desc(portalAccessRequests.createdAt))
+        .limit(1);
+
+      if (!req) return null;
+
+      return {
+        status: req.status,
+        name: req.name,
+        company: req.company,
+        createdAt: req.createdAt,
+        reviewedAt: req.reviewedAt,
+        reviewNote: req.reviewNote,
+      };
+    }),
+
   /** Admin: get pending count for badge */
   pendingCount: adminProcedure.query(async () => {
       const db = await getDb();

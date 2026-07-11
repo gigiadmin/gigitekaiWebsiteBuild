@@ -30,13 +30,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, Trash2, Edit2, BookOpen, Eye, Mail, Share2, Globe, EyeOff, CheckCircle2 } from "lucide-react";
+import { Search, Plus, Trash2, Edit2, BookOpen, Eye, Mail, Share2, Globe, EyeOff, CheckCircle2, TrendingUp, BarChart3 } from "lucide-react";
 import { KBArticleContent } from "@/components/KBArticleContent";
 import { KBFeedback } from "@/components/KBFeedback";
 import { KBFullScreenModal } from "@/components/KBFullScreenModal";
 import { ShareKBModal } from "@/components/ShareKBModal";
 import { AdminKBBulkInsert } from "@/components/AdminKBBulkInsert";
 import { KBBulkImportCSV } from "@/components/KBBulkImportCSV";
+import { KBBulkImportJSON } from "@/components/KBBulkImportJSON";
 import AdminLayout from "@/components/AdminLayout";
 import { toast } from "sonner";
 
@@ -105,6 +106,13 @@ export default function AdminKB() {
 
   // Delete confirm state
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+
+  // Most Viewed report toggle
+  const [showMostViewed, setShowMostViewed] = useState(false);
+  const { data: mostViewedArticles } = trpc.kb.getMostViewed.useQuery(
+    { limit: 10 },
+    { enabled: showMostViewed }
+  );
 
   // Fetch all KB articles
   const { data: articles, isLoading, refetch } = trpc.kb.list.useQuery(
@@ -423,7 +431,16 @@ export default function AdminKB() {
 
         <div className="space-y-6">
           {/* Bulk Import Section */}
-          <KBBulkImportCSV />
+          <div className="flex flex-wrap items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">Bulk Import Tools</p>
+              <p className="text-xs text-gray-400">Import articles from CSV or JSON (media agent output)</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <KBBulkImportCSV />
+              <KBBulkImportJSON onSuccess={refetch} />
+            </div>
+          </div>
 
           {/* Legacy Bulk Insert Section */}
           {(!articles || articles.length < 30) && (
@@ -431,7 +448,7 @@ export default function AdminKB() {
           )}
 
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-cyan-400" />
@@ -446,14 +463,62 @@ export default function AdminKB() {
                 )}
               </p>
             </div>
-            <Button
-              onClick={openCreateForm}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Article
-            </Button>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                onClick={() => setShowMostViewed(!showMostViewed)}
+                variant="outline"
+                className="border-purple-700 text-purple-400 hover:bg-purple-900/20"
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                {showMostViewed ? 'Hide Report' : 'Most Viewed'}
+              </Button>
+              <Button
+                onClick={openCreateForm}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Article
+              </Button>
+            </div>
           </div>
+
+          {/* Most Viewed Report */}
+          {showMostViewed && (
+            <div className="rounded-lg border border-purple-700/40 bg-purple-900/10 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="w-5 h-5 text-purple-400" />
+                <h3 className="text-base font-semibold text-white">Top 10 Most Viewed Articles</h3>
+              </div>
+              {!mostViewedArticles ? (
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                  <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                  Loading...
+                </div>
+              ) : mostViewedArticles.length === 0 ? (
+                <p className="text-gray-400 text-sm">No view data yet. Articles will appear here as users read them.</p>
+              ) : (
+                <div className="space-y-2">
+                  {mostViewedArticles.map((article: any, idx: number) => (
+                    <div
+                      key={article.id}
+                      className="flex items-center gap-3 p-2 rounded bg-slate-800/60 hover:bg-slate-700/60 cursor-pointer"
+                      onClick={() => setSelectedArticle(article)}
+                    >
+                      <span className="text-lg font-bold text-purple-400 w-6 text-center">{idx + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{article.title}</p>
+                        <p className="text-xs text-gray-400">{article.category}</p>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-purple-300 flex-shrink-0">
+                        <Eye className="w-3 h-3" />
+                        {article.viewCount || 0} views
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="relative">
