@@ -145,7 +145,13 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
       if (result.steps && Array.isArray(result.steps)) {
         for (let i = 0; i < result.steps.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 300));
-          setProgress(result.steps.slice(0, i + 1));
+          const steps = result.steps.map((s: any) => ({
+            system: s.system || s.name,
+            status: s.status,
+            progress: s.progress,
+            details: s.details,
+          }));
+          setProgress(steps.slice(0, i + 1));
         }
       }
       alert(`Success: ${result.message}`);
