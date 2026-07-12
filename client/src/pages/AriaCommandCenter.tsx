@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
+import { WorkflowHistoryPanel } from "@/components/WorkflowHistoryPanel";
 
 type Message = {
   id: string;
@@ -1026,6 +1027,7 @@ export default function AriaCommandCenter() {
             <h3 className="text-xs sm:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
               <Activity size={14} className="text-cyan-400" />
               System Status
+              <WorkflowHistoryPanel />
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] sm:text-xs">
               <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">

@@ -19,23 +19,38 @@ export function ProvisionClientModal({ isOpen, onClose }: ModalProps) {
   const [clientName, setClientName] = useState("");
   const [email, setEmail] = useState("");
   const [systems, setSystems] = useState<string[]>([]);
+  const [isProvisioning, setIsProvisioning] = useState(false);
+  const [progress, setProgress] = useState<Array<{ system: string; status: string; progress: number; details?: string }>>([]);
 
   const handleProvision = async () => {
     if (!clientName || !email || systems.length === 0) {
       alert("Please fill in all fields");
       return;
     }
+    setIsProvisioning(true);
+    setProgress([]);
     try {
       const result = await trpc.aria.provisionClient.useMutation().mutateAsync({
         clientName,
         email,
         systems,
       });
+      // Show step-by-step progress
+      if (result.steps && Array.isArray(result.steps)) {
+        for (let i = 0; i < result.steps.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          setProgress(result.steps.slice(0, i + 1));
+        }
+      }
       alert(`Success: ${result.message}`);
       console.log("[Aria] Provisioning result:", result);
-      onClose();
+      setTimeout(() => {
+        setIsProvisioning(false);
+        onClose();
+      }, 1000);
     } catch (error) {
       alert(`Error: ${error instanceof Error ? error.message : "Provisioning failed"}`);
+      setIsProvisioning(false);
     }
   };
 
@@ -54,6 +69,34 @@ export function ProvisionClientModal({ isOpen, onClose }: ModalProps) {
           </button>
         </div>
 
+        {isProvisioning && progress.length > 0 && (
+          <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg">
+            <h3 className="text-sm font-semibold text-cyan-400 mb-3">Provisioning Progress</h3>
+            <div className="space-y-3">
+              {progress.map((step, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-slate-300">{step.system}</span>
+                      <span className="text-xs text-slate-400">{step.progress}%</span>
+                    </div>
+                    <div className="w-full bg-slate-700 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${
+                          step.status === "completed" ? "bg-green-500" : "bg-cyan-500"
+                        }`}
+                        style={{ width: `${step.progress}%` }}
+                      />
+                    </div>
+                    {step.details && <p className="text-[10px] text-slate-400 mt-1">{step.details}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!isProvisioning && (
         <div className="space-y-4 mb-6">
           <div>
             <label className="text-sm text-slate-400 mb-2 block">Client Name</label>
@@ -100,12 +143,18 @@ export function ProvisionClientModal({ isOpen, onClose }: ModalProps) {
           </div>
         </div>
 
+        )}
+
         <div className="flex gap-2">
-          <Button onClick={onClose} variant="outline" className="flex-1">
+          <Button onClick={onClose} variant="outline" className="flex-1" disabled={isProvisioning}>
             Cancel
           </Button>
-          <Button onClick={handleProvision} className="flex-1 bg-cyan-600 hover:bg-cyan-500">
-            Provision
+          <Button 
+            onClick={handleProvision} 
+            disabled={isProvisioning}
+            className="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50"
+          >
+            {isProvisioning ? "Provisioning..." : "Provision"}
           </Button>
         </div>
       </div>
