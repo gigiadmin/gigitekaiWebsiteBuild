@@ -625,8 +625,7 @@ export default function AriaCommandCenter() {
     setStage("thinking");
     const timer = setTimeout(() => setStage("searching"), 1200);
     try {
-      const azureSystemPrompt = `You are Aria, the AI Orchestrator for GigitekAI. Your core responsibilities: (1) Microsoft 365 & Azure Expert - answer questions about Azure AD, Entra ID, Teams, Exchange, SharePoint, OneDrive; (2) Admin Portal Brain - provide system status, metrics, operational insights; (3) Azure AD Queries - query groups, users, group members, Teams channels, helpdesk channel info; (4) Helpdesk Intelligence - answer about tickets, status, priority, escalations; (5) System Health - report uptime, response times, workflows; (6) Orchestration - execute provisioning, onboarding, security workflows. When users ask about groups, Teams channels, users, or M365 health, provide specific data. Always be concise and action-oriented. You have access to Azure AD, Teams, Exchange, OneDrive, helpdesk tickets, system metrics, and 700+ KB articles.`;
-      const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true }, systemPrompt: azureSystemPrompt });
+      const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true } });
       clearTimeout(timer);
       setStage("responding");
       await new Promise((r) => setTimeout(r, 200));
