@@ -13,10 +13,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZGUU2HSIG",
-    "secret_access_key": "8H7nl2j0oLyOJxT2sHJnhQJQXCQFvnXOTy/1I6ax",
-    "session_token": "IQoJb3JpZ2luX2VjEP3//////////wEaCXVzLWVhc3QtMSJHMEUCIQDSQ8LCM4Kbmf/JXJ2d4ensAMb2ASifntOCyFnSxmOEGgIgE4bXnhp/iblRxoi8ANYtiflRh0WHGnlp/EdiqmVDWSwq/wMIxf//////////ARAEGgw2NjUzODYwOTg4NjYiDGEle1CzFRE/HlrnkyrTA50TwF4LcwBeGUuArgd4mkZJn3l6qyayUqDdEgb32KWqzImrOEwKqvao8dK9uF+0K2dGYGFgEM4rLo7ZP9HTxkb0xoQaot53VeogTmKvetRB1mZavC1w8SEhgTACHbTVRt1EEwmTlkbcHxH/yAPykOoMI9eT0+xMkm7vknHmsrVTJFemRUJriCQyp/2m3AjVxwGkgjFnKPV0i+BtFxTwcdyt6KuuEeDpZ0gseAnAlYddWEV8/X3/LfGExg+eWTq0l1eXIgmFhv+i5S0fmtDT0BxOubNFodsSSyqYINtCMDjj7ATuYMAiyRXIqs6MP4Ntq+elFqtnMr+861LBEYmu9KfqEC9ipoKE3TTjMLd9N456wz+rhC9escqbwpJaF8+PWs7YXypZbt3XzeGBqyFraZFXk3nPCRJsv9bvxqAMRFPpBKVinX3HFkHEQ0JmdJOYjsilcv2QFImQoeXe7GySfSu2eft10gHjZkuVeWtW0Kcq4F/qZXUrMhrlr+SeZr9asWCHY7bfIKhDpqpx6xAavoQ+XxB1P47GlDv4umAwhDvUzB5aKCQ5xP0lm6MBrEWFXN5CeL1hWCW8jqSCutjBaMYfbypORMUFMaENianQSHZZcgnRMLGIx9IGOp0BVAjWditBcSbEryqp7zc2IdZigZpRBsqsh/M4jTzOPcUZNmvXw/ZRns+nx+pZl4ACN/OrV3XyPw8WKL0hs+EH2cwyl5Sz1XETeH2Jea6SwR9Tdr+vMtY45Yi3HspIZLSgaqnmtWWKmDochYVz8y81nkzl2luv7NOqZm5Z4JfuIlhkyDQa79FpRf+FbivFP87bY8zAAOUnF1PRcYa4dg==",
-    "expiration": "2026-07-11T16:18:57.000Z",
+    "access_key_id": "ASIAZV3A2ECZOL65WITH",
+    "secret_access_key": "3qX+kLIcqmps6UOVXrjVIDQ5DaB3IM3PHC6p0Z46",
+    "session_token": "IQoJb3JpZ2luX2VjEBAaCXVzLWVhc3QtMSJIMEYCIQDgV/ZbyhV8NMysZuTnUIp6GTNfBQ8iONjXs6//0rhn4gIhAPw2auzoZDsdRjQ3S0xMcQLyFpM5cKuDh4QIZXtLKbOxKv8DCNn//////////wEQBBoMNjY1Mzg2MDk4ODY2Igyd00dKtrx2XvnHN/cq0wNmWsnM4lP2qOAjWvhSYMVqD3E6IX/jdJzekaqnAbJRcU6Eb982ifALnBlJ7b1wb+5KefGuPzd6RsImzziqr1AnFmawoC340hc+m4UrpklqyGqurwI7JNPDBQJMc98LE3/Enxtm+bg/KJ66+D6EK86H2CO9d4N6QPzcaR+piaRo9D3PpSViWQ5/c2nQTLL8JBR08988M4QO5FdN+kZE0HYLJeGBG9C3M+QFvaL/8rQx9eufiW+0UwPtEa4kDTAFuFqVSKLe4nAiDJOgro35FirnVEAh6zvyLuWSsincfqQNPzyim54yY3K6tx3k5E2zd6tAECozmkGZAd0U6iKm0WZ2lwsv2fiUf/mFwWi64TKTnQpHDbF72pzJ4AqweMZFw0trbCbVOx9MnRUwhAZuX4PG+Ffr+H0Xq+N78J0CnTg40/W2TmGcRI39k4Id6byKqplw1EqoFkmTeJiz3brypAAtd9U+GkD0XEplCBeSPQFZV2Gt9eXWZGdkbZQpeNTREkiiiI8+o8qHqVcL3EA/acncVGRf3mpZCvQHkkM0n7fj77igYT78wFCWrcuEYfGiu7hbwb3T5xYXsJXygocbx4jYzP8mPQd1+nzrSgdOVars+zGN1DDdpsvSBjqcAQMLm+QYC8UOz3jT+hXsV6r08/v3kQ59gXZDLY/c24RtTxmhgX1S16M+S9WbpGxL+IVruHklIWa4sJMOtfP1hoQJQLrxQqB2v368LaF+w1FOAXdwB488SAlRn3Ar+gq9mRVURw6it0SJFAXTGyAcSF5Se2twaCg5/2gg0rE9yKt228O7ZrlaKaBS6TAiDDpCen2m2oYBJiKuheC+3g==",
+    "expiration": "2026-07-12T11:35:57.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "gigitekai",

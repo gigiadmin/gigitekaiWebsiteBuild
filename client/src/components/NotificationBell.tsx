@@ -243,6 +243,20 @@ export default function NotificationBell() {
                   All read
                 </Button>
               )}
+              {reconnectAttemptsRef.current >= 5 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-[11px] text-orange-400 hover:text-orange-300"
+                  onClick={() => {
+                    reconnectAttemptsRef.current = 0;
+                    connectWs();
+                  }}
+                  title="Reconnect WebSocket"
+                >
+                  Reconnect
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -298,6 +312,15 @@ export default function NotificationBell() {
               ))
             )}
           </div>
+
+          {/* WebSocket Status */}
+          {reconnectAttemptsRef.current >= 5 && (
+            <div className="px-4 py-2 border-t border-slate-700 bg-orange-500/10 border-orange-500/30">
+              <p className="text-[11px] text-orange-400 text-center">
+                WebSocket disconnected. Click "Reconnect" above to restore live notifications.
+              </p>
+            </div>
+          )}
 
           {/* Footer */}
           {notifications.length > 0 && (

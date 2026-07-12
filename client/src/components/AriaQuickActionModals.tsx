@@ -117,6 +117,8 @@ export function ProvisionClientModal({ isOpen, onClose }: ModalProps) {
 export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
   const [selectedWorkflow, setSelectedWorkflow] = useState("");
   const [parameters, setParameters] = useState<Record<string, string>>({});
+  const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState<Array<{ system: string; status: string; progress: number; details?: string }>>([]);
 
   const workflows = [
     { id: "onboard", name: "Client Onboarding", params: ["clientName", "email"] },
@@ -132,16 +134,27 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
       alert("Please select a workflow");
       return;
     }
+    setIsRunning(true);
+    setProgress([]);
     try {
       const result = await trpc.aria.runWorkflow.useMutation().mutateAsync({
         workflowId: selectedWorkflow,
         parameters,
       });
+      // Simulate step-by-step progress
+      if (result.steps && Array.isArray(result.steps)) {
+        for (let i = 0; i < result.steps.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+          setProgress(result.steps.slice(0, i + 1));
+        }
+      }
       alert(`Success: ${result.message}`);
       console.log("[Aria] Workflow result:", result);
-      onClose();
+      setTimeout(() => onClose(), 1000);
     } catch (error) {
       alert(`Error: ${error instanceof Error ? error.message : "Workflow failed"}`);
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -149,7 +162,7 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-lg max-w-md w-full p-6">
+      <div className="bg-slate-900 border border-slate-700 rounded-lg max-w-md w-full p-6 max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Workflow className="w-5 h-5 text-blue-400" />
@@ -159,6 +172,33 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
             <X size={20} />
           </button>
         </div>
+
+        {isRunning && progress.length > 0 && (
+          <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg">
+            <h3 className="text-sm font-semibold text-cyan-400 mb-3">Workflow Progress</h3>
+            <div className="space-y-2">
+              {progress.map((step, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-slate-300">{step.system}</span>
+                      <span className="text-xs text-slate-400">{step.progress}%</span>
+                    </div>
+                    <div className="w-full bg-slate-700 rounded-full h-1.5">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${
+                          step.status === "completed" ? "bg-green-500" : "bg-cyan-500"
+                        }`}
+                        style={{ width: `${step.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  {step.status === "completed" && <span className="text-green-400 text-xs">✓</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4 mb-6">
           <div>
@@ -198,11 +238,11 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={onClose} variant="outline" className="flex-1">
-            Cancel
+          <Button onClick={onClose} variant="outline" className="flex-1" disabled={isRunning}>
+            {isRunning ? "Running..." : "Cancel"}
           </Button>
-          <Button onClick={handleRun} disabled={!selectedWorkflow} className="flex-1 bg-blue-600 hover:bg-blue-500">
-            Run
+          <Button onClick={handleRun} disabled={!selectedWorkflow || isRunning} className="flex-1 bg-blue-600 hover:bg-blue-500">
+            {isRunning ? "Executing..." : "Run"}
           </Button>
         </div>
       </div>
