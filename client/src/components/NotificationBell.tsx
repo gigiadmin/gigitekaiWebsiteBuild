@@ -113,15 +113,21 @@ export default function NotificationBell() {
   });
 
   // ── WebSocket: listen for admin_notification events ───────────────────────
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const connectWs = useCallback(() => {
     if (!isAuthenticated || user?.role !== "admin") return;
     if (wsRef.current && wsRef.current.readyState < 2) return; // already open/connecting
+    // Cap retries at 5 to prevent infinite reconnect spam in dev tools
+    if (reconnectAttemptsRef.current >= 5) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws`);
     wsRef.current = ws;
 
     ws.onopen = () => {
+      reconnectAttemptsRef.current = 0; // reset on successful connect
       ws.send(JSON.stringify({ type: "join", userId: user.id, role: "admin" }));
     };
 
@@ -141,14 +147,19 @@ export default function NotificationBell() {
     };
 
     ws.onclose = () => {
-      // Reconnect after 5 s
-      setTimeout(connectWs, 5_000);
+      reconnectAttemptsRef.current += 1;
+      // Exponential backoff: 5s, 10s, 20s, 40s, 80s — then stop
+      const delay = Math.min(5_000 * Math.pow(2, reconnectAttemptsRef.current - 1), 80_000);
+      if (reconnectAttemptsRef.current < 5) {
+        reconnectTimerRef.current = setTimeout(connectWs, delay);
+      }
     };
   }, [isAuthenticated, user, open, refetchCount, refetchList]);
 
   useEffect(() => {
     connectWs();
     return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       wsRef.current?.close();
     };
   }, [connectWs]);

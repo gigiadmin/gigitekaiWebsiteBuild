@@ -215,7 +215,7 @@ export const ariaRouter = router({
 
   /** Run Workflow - Execute orchestration workflows */
   runWorkflow: adminProcedure
-    .input(z.object({ workflowId: z.string(), parameters: z.record(z.string()) }))
+    .input(z.object({ workflowId: z.string(), parameters: z.record(z.string(), z.string()) }))
     .mutation(async ({ input }) => {
       console.log(`[Aria] Running workflow: ${input.workflowId}`);
       const workflows: Record<string, { name: string; steps: string[] }> = {
@@ -244,12 +244,12 @@ export const ariaRouter = router({
       const metricsData = await db?.select().from(agentMetrics).limit(100);
       const agentList = (agentData || []).map((a) => ({
         id: a.id.toString(),
-        name: a.name || `Agent ${a.id}`,
+        name: a.specialization || `Agent ${a.id}`,
         status: a.status || "offline",
         tasks: (metricsData?.find((m) => m.agentId === a.id)?.ticketsHandled) || 0,
         uptime: "99.0%",
       }));
-      return { agents: agentList, activeCount: agentList.filter((a) => a.status === "active").length, totalUptime: "99.8%" };
+      return { agents: agentList, activeCount: agentList.filter((a) => a.status === "available" || a.status === "busy").length, totalUptime: "99.8%" };
     } catch {
       return {
         agents: [
