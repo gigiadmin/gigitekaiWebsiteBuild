@@ -2531,3 +2531,51 @@ export type FormSubmission = typeof formSubmissions.$inferSelect;
 export type InsertFormSubmission = typeof formSubmissions.$inferInsert;
 export type VoicemailSourceTombstone = typeof voicemailSourceTombstones.$inferSelect;
 export type InsertVoicemailSourceTombstone = typeof voicemailSourceTombstones.$inferInsert;
+
+
+// Workflow Execution History
+export const workflowExecutions = mysqlTable("workflowExecutions", {
+	id: int().autoincrement().primaryKey().notNull(),
+	workflowId: varchar({ length: 100 }).notNull(),
+	workflowName: varchar({ length: 255 }).notNull(),
+	status: mysqlEnum(['pending', 'running', 'completed', 'failed', 'cancelled']).default('pending').notNull(),
+	initiatedBy: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	parameters: json().notNull(),
+	steps: json(), // Array of step results
+	result: json(), // Final result
+	errorMessage: text(),
+	startedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	completedAt: timestamp({ mode: 'string' }),
+	duration: int(), // Duration in milliseconds
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("workflowExecutions_workflowId").on(table.workflowId),
+	index("workflowExecutions_status").on(table.status),
+	index("workflowExecutions_createdAt").on(table.createdAt),
+]);
+
+// Workflow Templates
+export const workflowTemplates = mysqlTable("workflowTemplates", {
+	id: int().autoincrement().primaryKey().notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	category: varchar({ length: 100 }).notNull(),
+	steps: json().notNull(), // Array of workflow steps
+	parameters: json().notNull(), // Required parameters
+	isActive: tinyint().default(1).notNull(),
+	createdBy: int().notNull().references(() => users.id, { onDelete: "cascade" }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("workflowTemplates_category").on(table.category),
+	index("workflowTemplates_isActive").on(table.isActive),
+]);
+
+// Type exports
+export type WorkflowExecution = typeof workflowExecutions.$inferSelect;
+export type InsertWorkflowExecution = typeof workflowExecutions.$inferInsert;
+export type WorkflowTemplate = typeof workflowTemplates.$inferSelect;
+export type InsertWorkflowTemplate = typeof workflowTemplates.$inferInsert;
