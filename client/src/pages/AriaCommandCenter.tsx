@@ -825,7 +825,7 @@ export default function AriaCommandCenter() {
       )}
 
       {/* ── Main Layout ──────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden" style={{ minWidth: 0 }}>
 
         {/* ── Left Panel: Sphere + Status Grid — hidden on mobile, visible on lg ─────── */}
         <div className="hidden lg:flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
@@ -981,15 +981,15 @@ export default function AriaCommandCenter() {
           </div>
         </div>
 
-        {/* ── Dashboard Section: Metrics & Quick Launch ────────────────── */}
-        <div className="flex-shrink-0 border-t border-white/5 bg-gradient-to-b from-slate-900/40 to-slate-950/60 p-4 sm:p-6 overflow-y-auto max-h-96">
+        {/* ── Right Sidebar: Quick Actions + System Status ──────────────── */}
+        <div className="hidden xl:flex flex-col w-64 flex-shrink-0 border-l border-white/5 bg-slate-900/30 overflow-y-auto p-4 gap-5">
           {/* Quick Launch Actions */}
-          <div className="mb-6">
-            <h3 className="text-xs sm:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Zap size={14} className="text-cyan-400" />
+          <div>
+            <h3 className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+              <Zap size={12} className="text-cyan-400" />
               Quick Actions
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { label: 'Provision Client', icon: Plus, color: 'cyan' },
                 { label: 'Run Workflow', icon: Workflow, color: 'blue' },
@@ -1012,10 +1012,10 @@ export default function AriaCommandCenter() {
                       else if (action.label === 'Agent Status') setShowAgentStatusModal(true);
                       else if (action.label === 'Settings') setShowSettingsModal(true);
                     }}
-                    className={`p-2 sm:p-3 rounded-lg border text-[10px] sm:text-xs font-medium transition-all cursor-pointer hover:shadow-lg ${colorMap[action.color as keyof typeof colorMap]}`}
+                    className={`p-2 rounded-lg border text-[10px] font-medium transition-all cursor-pointer hover:shadow-lg flex flex-col items-center gap-1 ${colorMap[action.color as keyof typeof colorMap]}`}
                   >
-                    <Icon size={14} className="mx-auto mb-1" />
-                    <div className="truncate">{action.label}</div>
+                    <Icon size={13} />
+                    <div className="truncate text-center leading-tight">{action.label}</div>
                   </button>
                 );
               })}
@@ -1024,33 +1024,40 @@ export default function AriaCommandCenter() {
 
           {/* System Metrics */}
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Activity size={14} className="text-cyan-400" />
+            <h3 className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+              <Activity size={12} className="text-cyan-400" />
               System Status
-              <WorkflowHistoryPanel />
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] sm:text-xs">
-              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                <div className="text-slate-500 mb-1">Uptime SLA</div>
-                <div className="text-green-400 font-semibold">99.9%</div>
+            <div className="flex flex-col gap-2 text-[11px]">
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-500">Uptime SLA</span>
+                <span className="text-green-400 font-semibold">99.9%</span>
               </div>
-              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                <div className="text-slate-500 mb-1">Response Time</div>
-                <div className="text-cyan-400 font-semibold">340ms</div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-500">Response</span>
+                <span className="text-cyan-400 font-semibold">340ms</span>
               </div>
-              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                <div className="text-slate-500 mb-1">Workflows</div>
-                <div className="text-blue-400 font-semibold">47</div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-500">Workflows</span>
+                <span className="text-blue-400 font-semibold">47</span>
               </div>
-              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                <div className="text-slate-500 mb-1">Systems</div>
-                <div className="text-purple-400 font-semibold">280+</div>
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/50 flex justify-between items-center">
+                <span className="text-slate-500">Systems</span>
+                <span className="text-purple-400 font-semibold">280+</span>
               </div>
             </div>
           </div>
+
+          {/* Workflow History */}
+          <div>
+            <h3 className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+              <Activity size={12} className="text-cyan-400" />
+              Recent Runs
+            </h3>
+            <WorkflowHistoryPanel compact />
+          </div>
         </div>
       </div>
-
       {/* Quick Action Modals */}
       <ProvisionClientModal isOpen={showProvisionModal} onClose={() => setShowProvisionModal(false)} />
       <RunWorkflowModal isOpen={showWorkflowModal} onClose={() => setShowWorkflowModal(false)} />
