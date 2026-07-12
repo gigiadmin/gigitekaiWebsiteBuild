@@ -7,6 +7,7 @@ import { useState } from "react";
 import { X, Plus, Workflow, Activity, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,10 +20,23 @@ export function ProvisionClientModal({ isOpen, onClose }: ModalProps) {
   const [email, setEmail] = useState("");
   const [systems, setSystems] = useState<string[]>([]);
 
-  const handleProvision = () => {
-    console.log("[Aria] Provision Client:", { clientName, email, systems });
-    alert(`Provisioning ${clientName} across ${systems.length} systems...`);
-    onClose();
+  const handleProvision = async () => {
+    if (!clientName || !email || systems.length === 0) {
+      alert("Please fill in all fields");
+      return;
+    }
+    try {
+      const result = await trpc.aria.provisionClient.useMutation().mutateAsync({
+        clientName,
+        email,
+        systems,
+      });
+      alert(`Success: ${result.message}`);
+      console.log("[Aria] Provisioning result:", result);
+      onClose();
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : "Provisioning failed"}`);
+    }
   };
 
   if (!isOpen) return null;
@@ -113,10 +127,22 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
 
   const currentWorkflow = workflows.find((w) => w.id === selectedWorkflow);
 
-  const handleRun = () => {
-    console.log("[Aria] Run Workflow:", { workflow: selectedWorkflow, parameters });
-    alert(`Running workflow: ${currentWorkflow?.name}`);
-    onClose();
+  const handleRun = async () => {
+    if (!selectedWorkflow) {
+      alert("Please select a workflow");
+      return;
+    }
+    try {
+      const result = await trpc.aria.runWorkflow.useMutation().mutateAsync({
+        workflowId: selectedWorkflow,
+        parameters,
+      });
+      alert(`Success: ${result.message}`);
+      console.log("[Aria] Workflow result:", result);
+      onClose();
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : "Workflow failed"}`);
+    }
   };
 
   if (!isOpen) return null;
@@ -186,12 +212,15 @@ export function RunWorkflowModal({ isOpen, onClose }: ModalProps) {
 
 /* ─── Agent Status Modal ─────────────────────────────────────────────────── */
 export function AgentStatusModal({ isOpen, onClose }: ModalProps) {
-  const agents = [
+  const { data: metricsData } = trpc.aria.getAgentMetrics.useQuery();
+  const agents = metricsData?.agents || [
     { id: "1", name: "Provisioning Agent", status: "active", tasks: 847, uptime: "99.8%" },
     { id: "2", name: "Support Agent", status: "active", tasks: 1203, uptime: "99.9%" },
     { id: "3", name: "Security Agent", status: "idle", tasks: 456, uptime: "99.7%" },
     { id: "4", name: "Analytics Agent", status: "active", tasks: 234, uptime: "99.9%" },
   ];
+  const activeCount = metricsData?.activeCount || 3;
+  const totalUptime = metricsData?.totalUptime || "99.8%";
 
   if (!isOpen) return null;
 

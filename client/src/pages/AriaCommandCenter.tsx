@@ -457,6 +457,15 @@ export default function AriaCommandCenter() {
   const voiceActivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const askMutation = trpc.aria.askQuestion.useMutation();
+  const { data: agentMetrics, refetch: refetchAgents } = trpc.aria.getAgentMetrics.useQuery();
+
+  // Poll agent metrics every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchAgents();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [refetchAgents]);
 
   /* inject keyframe CSS once */
   useEffect(() => {
