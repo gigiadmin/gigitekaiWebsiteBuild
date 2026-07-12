@@ -7,6 +7,12 @@
  * NEW: Voice Activity Detection, Sensitivity Control, Wake Word Detection
  */
 import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  ProvisionClientModal,
+  RunWorkflowModal,
+  AgentStatusModal,
+  SettingsModal,
+} from "@/components/AriaQuickActionModals";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -433,6 +439,12 @@ export default function AriaCommandCenter() {
   const [requireWakeWord, setRequireWakeWord] = useState(true);
   const [voiceActivityDetected, setVoiceActivityDetected] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Quick Action Modals state
+  const [showProvisionModal, setShowProvisionModal] = useState(false);
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
+  const [showAgentStatusModal, setShowAgentStatusModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -613,7 +625,8 @@ export default function AriaCommandCenter() {
     setStage("thinking");
     const timer = setTimeout(() => setStage("searching"), 1200);
     try {
-      const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true } });
+      const azureSystemPrompt = `You are Aria, the AI Orchestrator for GigitekAI. Your core responsibilities: (1) Microsoft 365 & Azure Expert - answer questions about Azure AD, Entra ID, Teams, Exchange, SharePoint, OneDrive; (2) Admin Portal Brain - provide system status, metrics, operational insights; (3) Azure AD Queries - query groups, users, group members, Teams channels, helpdesk channel info; (4) Helpdesk Intelligence - answer about tickets, status, priority, escalations; (5) System Health - report uptime, response times, workflows; (6) Orchestration - execute provisioning, onboarding, security workflows. When users ask about groups, Teams channels, users, or M365 health, provide specific data. Always be concise and action-oriented. You have access to Azure AD, Teams, Exchange, OneDrive, helpdesk tickets, system metrics, and 700+ KB articles.`;
+      const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true }, systemPrompt: azureSystemPrompt });
       clearTimeout(timer);
       setStage("responding");
       await new Promise((r) => setTimeout(r, 200));
@@ -984,8 +997,13 @@ export default function AriaCommandCenter() {
                 return (
                   <button
                     key={action.label}
-                    onClick={() => alert(`${action.label} feature coming soon`)}
-                    className={`p-2 sm:p-3 rounded-lg border text-[10px] sm:text-xs font-medium transition-all ${colorMap[action.color as keyof typeof colorMap]}`}
+                    onClick={() => {
+                      if (action.label === 'Provision Client') setShowProvisionModal(true);
+                      else if (action.label === 'Run Workflow') setShowWorkflowModal(true);
+                      else if (action.label === 'Agent Status') setShowAgentStatusModal(true);
+                      else if (action.label === 'Settings') setShowSettingsModal(true);
+                    }}
+                    className={`p-2 sm:p-3 rounded-lg border text-[10px] sm:text-xs font-medium transition-all cursor-pointer hover:shadow-lg ${colorMap[action.color as keyof typeof colorMap]}`}
                   >
                     <Icon size={14} className="mx-auto mb-1" />
                     <div className="truncate">{action.label}</div>
@@ -1022,6 +1040,12 @@ export default function AriaCommandCenter() {
           </div>
         </div>
       </div>
+
+      {/* Quick Action Modals */}
+      <ProvisionClientModal isOpen={showProvisionModal} onClose={() => setShowProvisionModal(false)} />
+      <RunWorkflowModal isOpen={showWorkflowModal} onClose={() => setShowWorkflowModal(false)} />
+      <AgentStatusModal isOpen={showAgentStatusModal} onClose={() => setShowAgentStatusModal(false)} />
+      <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>
   );
 }
