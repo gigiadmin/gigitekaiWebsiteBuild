@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Services — GigitekAI</title>
+  <meta name="description" content="GigitekAI delivers Managed IT Services, AI Agent Automation, Microsoft 365, Cloud Infrastructure, Cybersecurity, and 24/7 AI Support for businesses across North America.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #0A0E1A;
+      --bg-secondary: #0F1629;
+      --cyan: #00D4FF;
+      --cyan-glow: rgba(0, 212, 255, 0.15);
+      --text-primary: #FFFFFF;
+      --text-secondary: #94A3B8;
+      --border: rgba(0, 212, 255, 0.2);
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-top: 1rem;
+    }
+
+    .header a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--cyan); }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .back-link:hover { opacity: 0.8; }
+    .back-link::before { content: '← '; }
+
+    /* Service Cards */
+    .services-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .service-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      transition: border-color 0.3s;
+    }
+
+    .service-card:hover {
+      border-color: var(--cyan);
+    }
+
+    .service-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .service-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .service-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .service-card .description {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+    }
+
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .feature-item::before {
+      content: '✓';
+      color: var(--cyan);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 2.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .cta-section h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-section p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      padding: 0.875rem 2rem;
+      background: var(--cyan);
+      color: var(--bg-primary);
+      text-decoration: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .cta-btn:hover { opacity: 0.9; }
+
+    .contact-info {
+      margin-top: 1.25rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .contact-info a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 640px) {
+      .page-title { font-size: 1.75rem; }
+      .service-card { padding: 1.75rem; }
+      .features-list { grid-template-columns: 1fr; }
+      .stat-row { flex-wrap: wrap; gap: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">Back to Home</a>
+
+    <div class="header">
+      <a href="/">
+        <div class="logo">Gigitek<span>AI</span></div>
+        <p class="tagline">AI-First Managed IT Services</p>
+      </a>
+      <h1 class="page-title">Our Services</h1>
+      <p class="page-subtitle">Enterprise-grade solutions powered by AI, delivered with MSP precision. We help businesses reduce costs, eliminate downtime, and scale faster.</p>
+    </div>
+
+    <div class="services-list">
+
+      <!-- Managed IT Services -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">🖥️</div>
+          <h2>Managed IT Services</h2>
+        </div>
+        <p class="description">
+          Fully managed IT operations for your entire organization. We handle monitoring, maintenance, patching, helpdesk support, and strategic IT planning — so your team can focus on growing the business. Our AI-powered NOC detects and resolves issues before they impact your users.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">24/7 proactive monitoring</div>
+          <div class="feature-item">Patch management & updates</div>
+          <div class="feature-item">Helpdesk with AI triage</div>
+          <div class="feature-item">Vendor management</div>
+          <div class="feature-item">IT strategy & vCIO</div>
+          <div class="feature-item">Asset lifecycle management</div>
+          <div class="feature-item">Backup & disaster recovery</div>
+          <div class="feature-item">SLA-backed response times</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">99.9%</div><div class="stat-label">Uptime SLA</div></div>
+          <div class="stat"><div class="stat-value">50+</div><div class="stat-label">Clients Managed</div></div>
+          <div class="stat"><div class="stat-value">&lt;15min</div><div class="stat-label">Avg Response</div></div>
+          <div class="stat"><div class="stat-value">40%</div><div class="stat-label">Cost Reduction</div></div>
+        </div>
+      </div>
+
+      <!-- AI Agent Automation -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">🤖</div>
+          <h2>AI Agent Automation</h2>
+        </div>
+        <p class="description">
+          Replace manual workflows with intelligent AI agents that function as full employees. Our multi-system agentic AI orchestrator provisions clients across 8+ systems in ~3.4 seconds. From ticket routing to client onboarding, our agents handle repetitive tasks at machine speed with human-level judgment.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">Multi-system orchestration</div>
+          <div class="feature-item">Intelligent ticket routing</div>
+          <div class="feature-item">Automated client provisioning</div>
+          <div class="feature-item">AI-powered helpdesk agents</div>
+          <div class="feature-item">Workflow automation</div>
+          <div class="feature-item">Natural language interfaces</div>
+          <div class="feature-item">Custom agent development</div>
+          <div class="feature-item">Continuous learning & improvement</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">3.4s</div><div class="stat-label">Provisioning Time</div></div>
+          <div class="stat"><div class="stat-value">280+</div><div class="stat-label">Hours Freed/Month</div></div>
+          <div class="stat"><div class="stat-value">8+</div><div class="stat-label">Systems Integrated</div></div>
+          <div class="stat"><div class="stat-value">10x</div><div class="stat-label">Faster Deployment</div></div>
+        </div>
+      </div>
+
+      <!-- Microsoft 365 -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">☁️</div>
+          <h2>Microsoft 365</h2>
+        </div>
+        <p class="description">
+          Complete Microsoft 365 architecture, migration, and optimization. We design, deploy, and manage your M365 environment — from Exchange Online and Teams to SharePoint, OneDrive, Intune, and Entra ID. Our expertise ensures maximum productivity, security, and ROI from your Microsoft investment.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">Tenant architecture & design</div>
+          <div class="feature-item">Migration (on-prem to cloud)</div>
+          <div class="feature-item">Teams deployment & governance</div>
+          <div class="feature-item">Exchange Online management</div>
+          <div class="feature-item">Entra ID & conditional access</div>
+          <div class="feature-item">Intune device management</div>
+          <div class="feature-item">SharePoint & OneDrive</div>
+          <div class="feature-item">License optimization</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">25+</div><div class="stat-label">Years Experience</div></div>
+          <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Migration Success</div></div>
+          <div class="stat"><div class="stat-value">Zero</div><div class="stat-label">Data Loss</div></div>
+          <div class="stat"><div class="stat-value">30%</div><div class="stat-label">License Savings</div></div>
+        </div>
+      </div>
+
+      <!-- Cloud Infrastructure -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">🏗️</div>
+          <h2>Cloud Infrastructure</h2>
+        </div>
+        <p class="description">
+          Multi-cloud architecture across Azure, AWS, and Google Cloud. We design, build, and manage scalable cloud environments with Infrastructure as Code, automated deployments, and cost optimization. From lift-and-shift migrations to cloud-native architectures — we meet you where you are.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">Azure / AWS / GCP</div>
+          <div class="feature-item">Infrastructure as Code (IaC)</div>
+          <div class="feature-item">Cloud migration planning</div>
+          <div class="feature-item">Cost optimization</div>
+          <div class="feature-item">High availability design</div>
+          <div class="feature-item">Auto-scaling & load balancing</div>
+          <div class="feature-item">Disaster recovery</div>
+          <div class="feature-item">Multi-cloud management</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">3-4mo</div><div class="stat-label">Payback Period</div></div>
+          <div class="stat"><div class="stat-value">99.99%</div><div class="stat-label">Availability</div></div>
+          <div class="stat"><div class="stat-value">40%</div><div class="stat-label">Cost Savings</div></div>
+          <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Monitoring</div></div>
+        </div>
+      </div>
+
+      <!-- Cybersecurity -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">🛡️</div>
+          <h2>Cybersecurity</h2>
+        </div>
+        <p class="description">
+          Zero Trust security architecture with compliance-ready infrastructure. We protect your organization with layered defenses — from endpoint protection and email security to SIEM, vulnerability management, and incident response. Built to meet HIPAA, SOC 2, PCI-DSS, and CMMC requirements.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">Zero Trust architecture</div>
+          <div class="feature-item">Endpoint detection & response</div>
+          <div class="feature-item">Email security (Harmony/Avanan)</div>
+          <div class="feature-item">Vulnerability scanning</div>
+          <div class="feature-item">SIEM & log management</div>
+          <div class="feature-item">Security awareness training</div>
+          <div class="feature-item">Incident response</div>
+          <div class="feature-item">Compliance (HIPAA/SOC2/PCI)</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">NIST</div><div class="stat-label">Framework</div></div>
+          <div class="stat"><div class="stat-value">Zero</div><div class="stat-label">Trust Model</div></div>
+          <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Threat Monitoring</div></div>
+          <div class="stat"><div class="stat-value">4</div><div class="stat-label">Compliance Frameworks</div></div>
+        </div>
+      </div>
+
+      <!-- 24/7 AI Support -->
+      <div class="service-card">
+        <div class="service-card-header">
+          <div class="service-icon">💬</div>
+          <h2>24/7 AI Support</h2>
+        </div>
+        <p class="description">
+          Round-the-clock intelligent support powered by AI agents and backed by human experts. Our AI-first helpdesk handles Tier 1 issues instantly, escalates complex problems intelligently, and learns from every interaction. Your team gets immediate answers — day or night, weekday or weekend.
+        </p>
+        <div class="features-list">
+          <div class="feature-item">AI-powered Tier 1 resolution</div>
+          <div class="feature-item">Intelligent escalation</div>
+          <div class="feature-item">Multi-channel support</div>
+          <div class="feature-item">Teams integration</div>
+          <div class="feature-item">Knowledge base automation</div>
+          <div class="feature-item">SLA-backed response times</div>
+          <div class="feature-item">Ticket analytics & reporting</div>
+          <div class="feature-item">Continuous improvement</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Availability</div></div>
+          <div class="stat"><div class="stat-value">&lt;60s</div><div class="stat-label">First Response</div></div>
+          <div class="stat"><div class="stat-value">85%</div><div class="stat-label">AI Resolution Rate</div></div>
+          <div class="stat"><div class="stat-value">4.8/5</div><div class="stat-label">CSAT Score</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <h2>Ready to Transform Your IT?</h2>
+      <p>Let's discuss how GigitekAI can reduce costs, eliminate downtime, and accelerate your business with AI-powered managed services.</p>
+      <a href="/" class="cta-btn">Contact Us</a>
+      <div class="contact-info">
+        <p>Or call us directly: <a href="tel:+17273826909">(727) 382-6909</a> | <a href="mailto:support@gigitekai.com">support@gigitekai.com</a></p>
+      </div>
+    </div>
+
+    <p class="footer">&copy; 2025 GigitekAI LLC. All rights reserved. | Tampa Bay, Florida | Serving North America</p>
+  </div>
+</body>
+</html>
