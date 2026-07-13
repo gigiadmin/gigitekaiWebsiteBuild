@@ -32,11 +32,10 @@
       align-items: center;
       justify-content: center;
       padding: 2rem;
-      overflow: hidden;
+      overflow-x: hidden;
       position: relative;
     }
 
-    /* Animated background grid */
     body::before {
       content: '';
       position: absolute;
@@ -53,11 +52,10 @@
       100% { transform: translate(60px, 60px); }
     }
 
-    /* Radial glow */
     body::after {
       content: '';
       position: absolute;
-      top: 50%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 800px;
@@ -82,9 +80,7 @@
       letter-spacing: -0.02em;
     }
 
-    .logo span {
-      color: var(--cyan);
-    }
+    .logo span { color: var(--cyan); }
 
     .tagline {
       color: var(--text-secondary);
@@ -137,6 +133,14 @@
       margin-bottom: 1rem;
     }
 
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
     .description {
       color: var(--text-secondary);
       font-size: 1rem;
@@ -161,6 +165,97 @@
       font-weight: 500;
     }
 
+    /* Contact Form */
+    .contact-form-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .contact-form-card h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(0, 212, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--cyan);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn:active { transform: scale(0.98); }
+
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      color: var(--cyan);
+      font-weight: 500;
+    }
+
+    .form-success.show {
+      display: block;
+    }
+
+    /* Contact Info */
     .contact-section {
       margin-top: 2rem;
     }
@@ -190,9 +285,7 @@
       transition: opacity 0.2s;
     }
 
-    .contact-links a:hover {
-      opacity: 0.8;
-    }
+    .contact-links a:hover { opacity: 0.8; }
 
     .address {
       margin-top: 1.5rem;
@@ -201,9 +294,7 @@
       line-height: 1.8;
     }
 
-    .address p {
-      margin: 0;
-    }
+    .address p { margin: 0; }
 
     .footer {
       margin-top: 3rem;
@@ -217,6 +308,7 @@
       h1 { font-size: 1.5rem; }
       .status-card { padding: 2rem 1.5rem; }
       .services-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -248,13 +340,48 @@
       </div>
     </div>
 
+    <!-- Contact Form -->
+    <div class="contact-form-card">
+      <h2>Get in Touch</h2>
+      <form id="contactForm" action="https://formsubmit.co/support@gigitekai.com" method="POST">
+        <input type="hidden" name="_subject" value="GigitekAI Website Inquiry">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="box">
+        <input type="hidden" name="_next" value="https://gigitekai.com">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@company.com" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="company">Company</label>
+          <input type="text" id="company" name="company" placeholder="Your company name">
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
+        </div>
+        <div class="form-group">
+          <label for="message">How can we help?</label>
+          <textarea id="message" name="message" placeholder="Tell us about your IT needs..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send Message</button>
+      </form>
+      <div class="form-success" id="formSuccess">
+        <p>Message sent successfully! We'll get back to you within 24 hours.</p>
+      </div>
+    </div>
+
     <div class="contact-section">
       <h3>Need Immediate Support?</h3>
       <div class="contact-links">
         <a href="tel:+17273826909">(727) 382-6909</a>
-        <a href="tel:+16096764483">(609) 676-4483</a>
         <a href="mailto:support@gigitekai.com">support@gigitekai.com</a>
-        <a href="mailto:harry@gigitekai.com">harry@gigitekai.com</a>
       </div>
       <div class="address">
         <p>GigitekAI LLC</p>
@@ -263,7 +390,7 @@
       </div>
     </div>
 
-    <p class="footer">&copy; 2025 GigitekAI LLC. All rights reserved. | 99.9% Uptime SLA | HIPAA · SOC 2 · PCI-DSS Compliant</p>
+    <p class="footer">&copy; 2025 GigitekAI LLC. All rights reserved. | 99.9% Uptime SLA | HIPAA &middot; SOC 2 &middot; PCI-DSS Compliant</p>
   </div>
 </body>
 </html>
