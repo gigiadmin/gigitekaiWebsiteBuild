@@ -343,11 +343,7 @@
     <!-- Contact Form -->
     <div class="contact-form-card">
       <h2>Get in Touch</h2>
-      <form id="contactForm" action="https://formsubmit.co/support@gigitekai.com" method="POST">
-        <input type="hidden" name="_subject" value="GigitekAI Website Inquiry">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_template" value="box">
-        <input type="hidden" name="_next" value="https://gigitekai.com">
+      <form id="contactForm" onsubmit="handleSubmit(event)">
         <div class="form-row">
           <div class="form-group">
             <label for="name">Name</label>
@@ -392,5 +388,29 @@
 
     <p class="footer">&copy; 2025 GigitekAI LLC. All rights reserved. | 99.9% Uptime SLA | HIPAA &middot; SOC 2 &middot; PCI-DSS Compliant</p>
   </div>
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const company = document.getElementById('company').value;
+      const phone = document.getElementById('phone').value;
+      const message = document.getElementById('message').value;
+
+      const subject = encodeURIComponent('Website Inquiry from ' + name);
+      const body = encodeURIComponent(
+        'Name: ' + name + '\n' +
+        'Email: ' + email + '\n' +
+        'Company: ' + (company || 'N/A') + '\n' +
+        'Phone: ' + (phone || 'N/A') + '\n\n' +
+        'Message:\n' + message
+      );
+
+      window.location.href = 'mailto:support@gigitekai.com?subject=' + subject + '&body=' + body;
+
+      document.getElementById('contactForm').style.display = 'none';
+      document.getElementById('formSuccess').classList.add('show');
+    }
+  </script>
 </body>
 </html>
