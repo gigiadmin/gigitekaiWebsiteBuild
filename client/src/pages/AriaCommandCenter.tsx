@@ -60,129 +60,53 @@ function detectWakeWord(transcript: string): boolean {
   return wakeWords.some(word => normalized.includes(word));
 }
 
-/* ─── Voice helpers ─────────────────────────────────────────────────────── */
-// Cache voice permanently to prevent switching mid-session
-let cachedVoice: SpeechSynthesisVoice | null = null;
-let voiceLoadAttempts = 0;
+/* ─── Voice helpers — Azure AI Speech Service ──────────────────────────── */
+// Server-side neural TTS via Azure AI Speech — voice NEVER changes, works on all browsers/devices
+// Voice locked to: en-US-JennyNeural (Microsoft Neural TTS)
+let currentAudio: HTMLAudioElement | null = null;
 
-function pickVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  // Once cached, NEVER re-select — prevents voice switching
-  if (cachedVoice) return cachedVoice;
-  
-  const voices = window.speechSynthesis.getVoices();
-  if (!voices.length) {
-    voiceLoadAttempts++;
-    return null;
-  }
-  
-  // Log available voices for debugging (first time only)
-  if (voiceLoadAttempts === 0) {
-    console.log('[Aria Voice] Available voices:', voices.map(v => `${v.name} (${v.lang})`).join(', '));
-  }
-  
-  // STRATEGY: European FEMALE voice — consistent, never switches
-  // Priority: British/Irish female > European female > US female > any female
-  
-  // PRIORITY 1: Premium British/Irish female voices
-  const premiumFemale = voices.find(v => {
-    const isGB = /en[-_](GB|AU|IE)/i.test(v.lang);
-    const isPremium = /fiona|kate|serena|martha|moira|tessa|victoria|samantha|siri.*female|enhanced/i.test(v.name);
-    return isGB && isPremium;
-  });
-  if (premiumFemale) { cachedVoice = premiumFemale; console.log('[Aria Voice] Selected:', premiumFemale.name); return premiumFemale; }
-  
-  // PRIORITY 2: Any British/Irish female voice
-  const gbFemale = voices.find(v => {
-    const isGB = /en[-_](GB|AU|IE)/i.test(v.lang);
-    const isFemale = /female|woman|fiona|kate|serena|martha|moira|tessa|victoria|samantha|karen|zoe|emily/i.test(v.name);
-    const notMale = !/male|man|daniel|james|oliver|lee|george|rishi|aaron|thomas|gordon/i.test(v.name);
-    return isGB && (isFemale || notMale);
-  });
-  if (gbFemale) { cachedVoice = gbFemale; console.log('[Aria Voice] Selected:', gbFemale.name); return gbFemale; }
-  
-  // PRIORITY 3: European female voices (German, French, Dutch, etc.)
-  const euroFemale = voices.find(v => {
-    const isEuro = /de[-_]|fr[-_]|nl[-_]|es[-_]|it[-_]|sv[-_]|no[-_]|da[-_]/i.test(v.lang);
-    const isFemale = /female|woman|anna|petra|amelie|marie|claire|alice|sara|helena|nora/i.test(v.name);
-    return isEuro && isFemale;
-  });
-  if (euroFemale) { cachedVoice = euroFemale; console.log('[Aria Voice] Selected:', euroFemale.name); return euroFemale; }
-  
-  // PRIORITY 4: US English female voices
-  const usFemale = voices.find(v => {
-    const isEnglish = /en/i.test(v.lang);
-    const isFemale = /female|woman|samantha|karen|zira|hazel|susan|siri|allison|ava|cortana|jenny|aria/i.test(v.name);
-    return isEnglish && isFemale;
-  });
-  if (usFemale) { cachedVoice = usFemale; console.log('[Aria Voice] Selected:', usFemale.name); return usFemale; }
-  
-  // PRIORITY 5: Any English voice that isn't explicitly male
-  const englishNotMale = voices.find(v => {
-    const isEnglish = /en/i.test(v.lang);
-    const notMale = !/male|man|daniel|james|david|mark|alex|fred|tom|ralph|junior|albert|bruce|charles|evan|gordon|aaron|oliver/i.test(v.name);
-    return isEnglish && notMale;
-  });
-  if (englishNotMale) { cachedVoice = englishNotMale; console.log('[Aria Voice] Selected:', englishNotMale.name); return englishNotMale; }
-  
-  // Last resort: first available voice
-  cachedVoice = voices[0] ?? null;
-  if (cachedVoice) console.log('[Aria Voice] Fallback:', cachedVoice.name);
-  return cachedVoice;
-}
-
-function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
-  if (!text || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const clean = text
-    .replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1")
-    .replace(/`(.+?)`/g, "$1").replace(/#{1,6}\s/g, "")
-    .replace(/\n{2,}/g, ". ").replace(/\n/g, " ").trim();
-  const u = new SpeechSynthesisUtterance(clean);
-  u.rate = Math.max(0.5, Math.min(2, speed));
-  u.pitch = 1.1; u.volume = 1;
-  
-  // Try to set voice immediately
-  const v = pickVoice();
-  if (v) {
-    u.voice = v;
-  } else {
-    // If voices not loaded, wait for voiceschanged event
-    const setVoiceOnReady = () => {
-      const voice = pickVoice();
-      if (voice) {
-        u.voice = voice;
-        window.speechSynthesis.removeEventListener('voiceschanged', setVoiceOnReady);
-      }
+async function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => void) {
+  if (!text) return;
+  // Stop any current playback
+  stopSpeaking();
+  try {
+    // Map speed (0.5–2.0) to Azure prosody rate percentage
+    const ratePercent = Math.round((speed - 1) * 100);
+    const rateStr = ratePercent >= 0 ? `+${ratePercent}%` : `${ratePercent}%`;
+    const response = await fetch("/api/aria/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, rate: rateStr }),
+    });
+    if (!response.ok) {
+      console.error("[Aria TTS] Azure Speech failed:", response.status);
+      return;
+    }
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    currentAudio = new Audio(audioUrl);
+    currentAudio.onended = () => {
+      URL.revokeObjectURL(audioUrl);
+      currentAudio = null;
+      if (onEnd) onEnd();
     };
-    window.speechSynthesis.addEventListener('voiceschanged', setVoiceOnReady);
+    currentAudio.onerror = (e) => {
+      console.error("[Aria TTS] Audio playback error:", e);
+      URL.revokeObjectURL(audioUrl);
+      currentAudio = null;
+    };
+    await currentAudio.play();
+    console.log("[Aria TTS] Playing via Azure AI Speech (en-US-JennyNeural)");
+  } catch (err) {
+    console.error("[Aria TTS] Error:", err);
   }
-  
-  if (onEnd) u.onend = onEnd;
-  
-  // Add error handler
-  u.onerror = (event) => {
-    console.error('[Aria TTS Error]', event.error);
-  };
-  
-  // Ensure speech synthesis is resumed (in case it was paused)
-  if (window.speechSynthesis.paused) {
-    window.speechSynthesis.resume();
-  }
-  
-  window.speechSynthesis.speak(u);
 }
 
 function stopSpeaking() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.pause();
-    window.speechSynthesis.cancel();
-    // Force a small delay to ensure cancel takes effect
-    setTimeout(() => {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
-    }, 50);
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = "";
+    currentAudio = null;
   }
 }
 

@@ -47,6 +47,7 @@ import { registerXeroOAuthRoutes } from "../routers/xero";
 import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
 import { voicemailRouter } from "../voicemailRoute";
 import uptimeWebhookRouter from "../uptimeWebhook";
+import ariaTtsRouter from "../ariaTtsRouter";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -250,6 +251,9 @@ async function startServer() {
   
   // UptimeRobot webhook endpoint
   app.use("/api", uptimeWebhookRouter);
+
+  // Aria TTS — Azure AI Speech Service (stable neural voice)
+  app.use("/api/aria", ariaTtsRouter);
   
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);

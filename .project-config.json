@@ -8,15 +8,16 @@
   "dev_command": "pnpm run dev",
   "env_vars": {
     "DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}",
-    "DRIZZLE_DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}"
+    "DRIZZLE_DATABASE_URL": "mysql://UhWFWtnzYdiVL8G.root:0kh6UuhTjx8gy682gSPg@gateway05.us-east-1.prod.aws.tidbcloud.com:4000/mmTCDMc2kTTVcTkwoY8f9U?ssl={\"rejectUnauthorized\":true}",
+    "MANUS_WEBDEV_PROJECT_ID": "mmTCDMc2kTTVcTkwoY8f9U"
   },
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U",
-    "access_key_id": "ASIAZV3A2ECZOL65WITH",
-    "secret_access_key": "3qX+kLIcqmps6UOVXrjVIDQ5DaB3IM3PHC6p0Z46",
-    "session_token": "IQoJb3JpZ2luX2VjEBAaCXVzLWVhc3QtMSJIMEYCIQDgV/ZbyhV8NMysZuTnUIp6GTNfBQ8iONjXs6//0rhn4gIhAPw2auzoZDsdRjQ3S0xMcQLyFpM5cKuDh4QIZXtLKbOxKv8DCNn//////////wEQBBoMNjY1Mzg2MDk4ODY2Igyd00dKtrx2XvnHN/cq0wNmWsnM4lP2qOAjWvhSYMVqD3E6IX/jdJzekaqnAbJRcU6Eb982ifALnBlJ7b1wb+5KefGuPzd6RsImzziqr1AnFmawoC340hc+m4UrpklqyGqurwI7JNPDBQJMc98LE3/Enxtm+bg/KJ66+D6EK86H2CO9d4N6QPzcaR+piaRo9D3PpSViWQ5/c2nQTLL8JBR08988M4QO5FdN+kZE0HYLJeGBG9C3M+QFvaL/8rQx9eufiW+0UwPtEa4kDTAFuFqVSKLe4nAiDJOgro35FirnVEAh6zvyLuWSsincfqQNPzyim54yY3K6tx3k5E2zd6tAECozmkGZAd0U6iKm0WZ2lwsv2fiUf/mFwWi64TKTnQpHDbF72pzJ4AqweMZFw0trbCbVOx9MnRUwhAZuX4PG+Ffr+H0Xq+N78J0CnTg40/W2TmGcRI39k4Id6byKqplw1EqoFkmTeJiz3brypAAtd9U+GkD0XEplCBeSPQFZV2Gt9eXWZGdkbZQpeNTREkiiiI8+o8qHqVcL3EA/acncVGRf3mpZCvQHkkM0n7fj77igYT78wFCWrcuEYfGiu7hbwb3T5xYXsJXygocbx4jYzP8mPQd1+nzrSgdOVars+zGN1DDdpsvSBjqcAQMLm+QYC8UOz3jT+hXsV6r08/v3kQ59gXZDLY/c24RtTxmhgX1S16M+S9WbpGxL+IVruHklIWa4sJMOtfP1hoQJQLrxQqB2v368LaF+w1FOAXdwB488SAlRn3Ar+gq9mRVURw6it0SJFAXTGyAcSF5Se2twaCg5/2gg0rE9yKt228O7ZrlaKaBS6TAiDDpCen2m2oYBJiKuheC+3g==",
-    "expiration": "2026-07-12T11:35:57.000Z",
+    "access_key_id": "ASIAZV3A2ECZFDNTM3DW",
+    "secret_access_key": "ZlZs7rDzPQlmzj64hsU14ruPaaw10xzws2wo2IyA",
+    "session_token": "IQoJb3JpZ2luX2VjEEQaCXVzLWVhc3QtMSJHMEUCIQCBsEuLX21qU6TZC/CHfx5lYRZ1YvrYbptqu637lBrHLAIgLh68beEBv9fPY3JTV+EyuJVmmHmWPpnXHPgh9JHD450q9gMIDRAEGgw2NjUzODYwOTg4NjYiDM8FgjtyP6mCZuqThSrTAyXWWgs7fm5cOyLXZ6zQ1e3dfa6D+cJ02AkKRgdTn2pxctScS70o47QOWJgo7TeodqIbH4k83dNAd3BIXq2DJyWpADbf7KikFqW97bgGNg9eoz1EULLkTI0TrtZQ0Fpx9AXATDoQbuJzX+W5zHcoF8EL/Y5II8BQtg/GMttfCvVc2DBjPTR7Jg33Xm03iJfC3hSXjGQoWqN/oLSfcVGGv0Cz+YzC6SO3Yo4rTfUSIEpkt07JicWbQ0ruTfcHUNNQzMO+FjABR2RcWjbVfBH3eogKDSklo3Ub0YSJnhxxipGc5jW0OsFKWzLnScn2UWL3uJSzyJRwXVSyIT+hv0xp/r/eVv2tVDpbZA03VXjSG0mPzH5SssUrv3EunefCJe6M+scgHgEG90zQVBwI9rAkkcVz8wG+rDA7l7KY1Ec/YK6YlCdhPI6+J9sv0B9fFG1CvROv201qG4YPh0uxfpCYNqbUfBg3hZ4KqrmIMfgwX5G8rwB4hIGrePm0Yj1xgWDmBOJ3BjiBb/a6khSgFcxQYUDbt0qCMIP3fmJKPYN9p/Hlqfwg2YWkbjN2weV7MRvWJif8mhd5uph03YaGQrfFnJNxD3wrmURK5lRLoj9Q0JexrfPbMKTq1tIGOp0BZJsCPulY6n5z2WaeaBYnL5sE85mdhaQOkjVIwnp/evv6kLnCWN/EF+oHMGHVATBJ3mqBDUI7SJi4QbOqzCzG5O7ZMpoEltxyA2EL6XjG05upsLHx4hMpl5sYKM4hoTiX8a90qKENbgYLMcyqmXmpL009KYd/IwtpAPrrGC7iboVRXuvpwedFV80yFMwJJh+MFIdl1iA4f19lH7ZUgQ==",
+    "expiration": "2026-07-14T16:03:48.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "gigitekai",
@@ -31,6 +32,8 @@
     "ATLASSIAN_SITE_URL": "https://gigitekai.atlassian.net",
     "AZURE_CLIENT_ID": "ad77019a-0b47-4dbe-9269-0074396ab5c5",
     "AZURE_CLIENT_SECRET": "RJO8Q~wWDAexs_b-T4r1Rfs-s5Zt4u_dfmAVAb.O",
+    "AZURE_SPEECH_KEY": "FUX2lz1s3Gmva82jVtGFMFtk3hxHY6cQyrp3ogOToVkBMh8wb7GnJQQJ99CGACYeBjFXJ3w3AAAYACOGsALT",
+    "AZURE_SPEECH_REGION": "eastus",
     "AZURE_TENANT_ID": "b7595a11-d451-46a6-aff1-c98ee3bda4f9",
     "BUILT_IN_FORGE_API_KEY": "TEFpXz9YCoTWBKQ5BYpgpS",
     "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
