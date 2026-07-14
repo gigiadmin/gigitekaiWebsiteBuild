@@ -2211,3 +2211,8 @@
 - [x] Ticket triage AI — auto-classify priority/category, suggest assignee
 - [x] Inline dashboard widgets — sparkline charts in Aria chat responses
 - [x] Aria Command Center user guide (MD) for engineering team
+
+- [x] Redesign Client Onboarding page into Client Management Hub
+- [x] Add client directory/list view with search, filters, status badges
+- [x] Improve onboarding form with multi-step wizard UX
+- [x] Add client detail view with timeline and status management
