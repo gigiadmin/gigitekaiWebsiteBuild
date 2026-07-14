@@ -1,0 +1,167 @@
+name: Pre-Deployment Smoke Test
+
+# Runs automatically on every push to main (before production publish)
+# Can also be triggered manually via workflow_dispatch
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target domain to test (default: staging)'
+        required: false
+        default: 'https://hh.gigitekai.com'
+
+jobs:
+  smoke-test:
+    name: Smoke Test — ${{ github.event.inputs.target || 'https://hh.gigitekai.com' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set target URL
+        id: target
+        run: |
+          TARGET="${{ github.event.inputs.target || 'https://hh.gigitekai.com' }}"
+          echo "url=$TARGET" >> $GITHUB_OUTPUT
+          echo "Testing against: $TARGET"
+
+      - name: Run smoke tests
+        id: smoke
+        run: |
+          BASE="${{ steps.target.outputs.url }}"
+          PASS=0
+          FAIL=0
+          FAILED_URLS=""
+
+          check() {
+            local path="$1"
+            local url="$BASE$path"
+            local code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$url")
+            if [ "$code" = "200" ] || [ "$code" = "304" ]; then
+              echo "✅ $path ($code)"
+              PASS=$((PASS+1))
+            else
+              echo "❌ $path ($code)"
+              FAIL=$((FAIL+1))
+              FAILED_URLS="$FAILED_URLS $path"
+            fi
+          }
+
+          # Critical public pages
+          check "/"
+          check "/services"
+          check "/pricing"
+          check "/about"
+          check "/contact"
+          check "/blog"
+          check "/kb"
+          check "/status"
+          check "/support"
+          check "/helpdesk"
+          check "/free-audit"
+          check "/compliance-scorecard"
+          check "/ai-demo"
+
+          # Service detail pages
+          check "/services/managed-it"
+          check "/services/cybersecurity"
+          check "/services/microsoft-365"
+          check "/services/ai-automation"
+
+          # Industry pages
+          check "/industries/healthcare"
+          check "/industries/financial"
+
+          # Portfolio demos
+          check "/websites/finance"
+          check "/websites/gigitekai"
+
+          # Auth / admin
+          check "/admin/login"
+
+          # Helpdesk
+          check "/helpdesk/create-ticket"
+          check "/support/lookup"
+
+          echo ""
+          echo "SMOKE TEST RESULTS: $PASS passed, $FAIL failed"
+
+          # Write summary
+          echo "## Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** $BASE" >> $GITHUB_STEP_SUMMARY
+          echo "**Result:** $PASS passed, $FAIL failed" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$FAILED_URLS" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Failed URLs:**" >> $GITHUB_STEP_SUMMARY
+            for url in $FAILED_URLS; do
+              echo "- \`$url\`" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
+          # Fail the job if any URLs are broken
+          if [ "$FAIL" -gt 0 ]; then
+            echo "::error::$FAIL page(s) returned non-200 status. DO NOT publish to production until fixed."
+            exit 1
+          fi
+
+      - name: Notify Teams on failure
+        if: failure()
+        run: |
+          WEBHOOK="${{ secrets.TEAMS_WEBHOOK_URL }}"
+          if [ -z "$WEBHOOK" ]; then
+            echo "No Teams webhook configured, skipping notification"
+            exit 0
+          fi
+          curl -s -X POST "$WEBHOOK" \
+            -H "Content-Type: application/json" \
+            --data "{
+              \"@type\": \"MessageCard\",
+              \"@context\": \"http://schema.org/extensions\",
+              \"themeColor\": \"FF0000\",
+              \"summary\": \"Smoke Test FAILED\",
+              \"sections\": [{
+                \"activityTitle\": \"🚨 Pre-Deploy Smoke Test FAILED\",
+                \"activitySubtitle\": \"Branch: ${{ github.ref_name }} | Commit: ${{ github.sha }}\",
+                \"facts\": [
+                  { \"name\": \"Target\", \"value\": \"${{ steps.target.outputs.url }}\" },
+                  { \"name\": \"Triggered by\", \"value\": \"${{ github.actor }}\" },
+                  { \"name\": \"Action\", \"value\": \"DO NOT publish to production\" }
+                ]
+              }],
+              \"potentialAction\": [{
+                \"@type\": \"OpenUri\",
+                \"name\": \"View Run\",
+                \"targets\": [{ \"os\": \"default\", \"uri\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\" }]
+              }]
+            }"
+
+      - name: Notify Teams on success
+        if: success()
+        run: |
+          WEBHOOK="${{ secrets.TEAMS_WEBHOOK_URL }}"
+          if [ -z "$WEBHOOK" ]; then
+            echo "No Teams webhook configured, skipping notification"
+            exit 0
+          fi
+          curl -s -X POST "$WEBHOOK" \
+            -H "Content-Type: application/json" \
+            --data "{
+              \"@type\": \"MessageCard\",
+              \"@context\": \"http://schema.org/extensions\",
+              \"themeColor\": \"00D4FF\",
+              \"summary\": \"Smoke Test PASSED\",
+              \"sections\": [{
+                \"activityTitle\": \"✅ Pre-Deploy Smoke Test PASSED\",
+                \"activitySubtitle\": \"Branch: ${{ github.ref_name }} | Safe to publish\",
+                \"facts\": [
+                  { \"name\": \"Target\", \"value\": \"${{ steps.target.outputs.url }}\" },
+                  { \"name\": \"Triggered by\", \"value\": \"${{ github.actor }}\" },
+                  { \"name\": \"Status\", \"value\": \"All pages returning 200 ✅\" }
+                ]
+              }]
+            }"
