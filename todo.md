@@ -2202,3 +2202,7 @@
 - [x] Persist Aria voice preferences (speed, mode, sensitivity) to localStorage
 - [x] Add compact mobile sphere with speaking indicator above chat input (visible on mobile/tablet)
 - [x] Add Aria greeting on first load with Jenny neural voice (only when no chat history)
+
+- [x] Conversation memory — pass last 5 messages as history to Claude for multi-turn context
+- [x] Slash commands — /tickets, /status, /health, /ps, /kb, /sla shortcuts
+- [x] Proactive load briefing — check SLA breaches + critical tickets + M365 health on mount

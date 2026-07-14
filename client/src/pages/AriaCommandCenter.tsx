@@ -430,6 +430,7 @@ export default function AriaCommandCenter() {
 
   const askMutation = trpc.aria.askQuestion.useMutation();
   const { data: agentMetrics, refetch: refetchAgents } = trpc.aria.getAgentMetrics.useQuery();
+  const { data: briefingData } = trpc.aria.getProactiveBriefing.useQuery(undefined, { refetchOnWindowFocus: false, staleTime: 60_000 });
 
   // Poll agent metrics every 10 seconds
   useEffect(() => {
@@ -438,6 +439,23 @@ export default function AriaCommandCenter() {
     }, 10000);
     return () => clearInterval(interval);
   }, [refetchAgents]);
+
+  /* Proactive briefing — announce system alerts on mount */
+  const hasBriefedRef = useRef(false);
+  useEffect(() => {
+    if (hasBriefedRef.current) return;
+    if (!briefingData || !briefingData.alerts || briefingData.alerts.length === 0) return;
+    if (messages.length > 0) return; // Don't brief if returning to existing conversation
+    hasBriefedRef.current = true;
+    const briefingContent = `## \u26a1 Morning Briefing\n\n${briefingData.alerts.join('\n\n')}`;
+    setTimeout(() => {
+      addMessage({ role: "aria", content: briefingContent, timestamp: new Date() });
+      if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled && briefingData.hasCritical) {
+        setIsSpeaking(true);
+        speakAsAria("Heads up. I've detected issues that need your attention. Check the briefing above.", ttsSpeed, () => setIsSpeaking(false));
+      }
+    }, 1200);
+  }, [briefingData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Aria greeting on first load — only when no prior messages exist */
   const hasGreetedRef = useRef(false);
@@ -559,7 +577,12 @@ export default function AriaCommandCenter() {
           });
           setStage("thinking");
           try {
-            const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, context: { systemStatus: true } });
+            // Build conversation history for voice messages too
+            const voiceHistory = messages.filter(m => m.role === 'user' || m.role === 'aria').slice(-5).map(m => ({
+              role: m.role === 'aria' ? 'assistant' as const : 'user' as const,
+              content: m.content,
+            }));
+            const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, conversationHistory: voiceHistory, context: { systemStatus: true } });
             
             // Check wake word if required
             if (requireWakeWord && !detectWakeWord(result.transcribedQuestion || "")) {
@@ -608,6 +631,21 @@ export default function AriaCommandCenter() {
     }
   };
 
+  // ============ Slash Command Definitions ============
+  const SLASH_COMMANDS: Record<string, { description: string; transform: (args: string) => string }> = {
+    '/tickets': { description: 'Show ticket summary', transform: (args) => args ? `Show me ${args} tickets` : 'Give me a full ticket status breakdown by priority and status' },
+    '/status': { description: 'Full system dashboard', transform: () => 'Give me a complete system status report — tickets, SLA, uptime, agents, M365 health' },
+    '/health': { description: 'M365 service health', transform: () => 'What is the current Microsoft 365 service health status?' },
+    '/sla': { description: 'SLA breach report', transform: (args) => args ? `Show SLA status for ${args}` : 'Show all current SLA breaches and at-risk tickets' },
+    '/kb': { description: 'Search knowledge base', transform: (args) => args ? `Search the knowledge base for: ${args}` : 'Show me the most recent KB articles' },
+    '/ps': { description: 'PowerShell command', transform: (args) => args ? `Give me the PowerShell command for: ${args}` : 'What PowerShell commands do you recommend for my current situation?' },
+    '/assign': { description: 'Assign a ticket', transform: (args) => `Assign ticket ${args}` },
+    '/close': { description: 'Close a ticket', transform: (args) => `Close ticket ${args}` },
+    '/escalate': { description: 'Escalate a ticket', transform: (args) => `Escalate ticket ${args} to critical priority` },
+    '/provision': { description: 'Provision a client', transform: (args) => args ? `Provision new client: ${args}` : 'Start client provisioning workflow' },
+    '/help': { description: 'Show available commands', transform: () => 'SLASH_HELP' },
+  };
+
   const handleSend = async () => {
     const q = input.trim();
     if (!q || stage !== "idle") return;
@@ -619,11 +657,60 @@ export default function AriaCommandCenter() {
       saveChatHistory(newMessages);
       return newMessages;
     });
+
+    // ============ Slash Command Handling ============
+    if (q.startsWith('/')) {
+      const parts = q.split(' ');
+      const cmd = parts[0].toLowerCase();
+      const args = parts.slice(1).join(' ');
+      const slashCmd = SLASH_COMMANDS[cmd];
+      
+      if (cmd === '/help' || (slashCmd && slashCmd.transform(args) === 'SLASH_HELP')) {
+        const helpText = `## ⚡ Aria Slash Commands\n\n| Command | Description |\n|---------|-------------|\n${Object.entries(SLASH_COMMANDS).map(([k, v]) => `| \`${k}\` | ${v.description} |`).join('\n')}\n\n**Usage:** Type a command + optional arguments. Example: \`/tickets critical\` or \`/ps Get-Mailbox\``;
+        addMessage({ role: "aria", content: helpText, timestamp: new Date() });
+        if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria("Here are my available slash commands. Type slash help anytime to see them again.", ttsSpeed, () => setIsSpeaking(false)); }
+        return;
+      }
+      
+      if (!slashCmd) {
+        addMessage({ role: "aria", content: `Unknown command \`${cmd}\`. Type \`/help\` to see available commands.`, timestamp: new Date() });
+        return;
+      }
+      
+      // Transform slash command into natural language query and continue to normal flow
+      const transformedQuery = slashCmd.transform(args);
+      setStage("thinking");
+      const timer = setTimeout(() => setStage("searching"), 1200);
+      try {
+        const recentHistory = messages.filter(m => m.role === 'user' || m.role === 'aria').slice(-5).map(m => ({
+          role: m.role === 'aria' ? 'assistant' as const : 'user' as const,
+          content: m.content,
+        }));
+        const result = await askMutation.mutateAsync({ question: transformedQuery, conversationHistory: recentHistory, context: { systemStatus: true } });
+        clearTimeout(timer);
+        setStage("responding");
+        await new Promise((r) => setTimeout(r, 200));
+        addMessage({ role: "aria", content: result.response, timestamp: new Date() });
+        if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
+      } catch {
+        clearTimeout(timer);
+        toast.error("Aria failed to respond. Please try again.");
+      } finally {
+        setStage("idle");
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
+      return;
+    }
     
     setStage("thinking");
     const timer = setTimeout(() => setStage("searching"), 1200);
     try {
-      const result = await askMutation.mutateAsync({ question: q, context: { systemStatus: true } });
+      // Build conversation history from last 5 messages for multi-turn context
+      const recentHistory = messages.filter(m => m.role === 'user' || m.role === 'aria').slice(-5).map(m => ({
+        role: m.role === 'aria' ? 'assistant' as const : 'user' as const,
+        content: m.content,
+      }));
+      const result = await askMutation.mutateAsync({ question: q, conversationHistory: recentHistory, context: { systemStatus: true } });
       clearTimeout(timer);
       setStage("responding");
       await new Promise((r) => setTimeout(r, 200));

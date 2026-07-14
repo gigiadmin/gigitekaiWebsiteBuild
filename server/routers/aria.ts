@@ -25,6 +25,10 @@ export const ariaRouter = router({
         question: z.string().min(1),
         audioUrl: z.string().optional(),
         audioBase64: z.string().optional(),
+        conversationHistory: z.array(z.object({
+          role: z.enum(['user', 'assistant']),
+          content: z.string(),
+        })).optional(),
         context: z
           .object({
             ticketId: z.number().optional(),
@@ -35,7 +39,7 @@ export const ariaRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { question, audioUrl, audioBase64 } = input;
+      const { question, audioUrl, audioBase64, conversationHistory } = input;
 
       // Transcribe audio if provided
       let finalQuestion = question;
@@ -68,30 +72,30 @@ export const ariaRouter = router({
         response = formatStatusResponse(liveContext);
         sources = ["Live System Database"];
       } else if (intent === "contact_center") {
-        response = await askClaudeWithContext(finalQuestion, liveContext, "contact_center");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "contact_center", undefined, conversationHistory);
         sources = ["Live Contact Center Database"];
       } else if (intent === "uptime") {
         response = formatUptimeResponse(liveContext);
         sources = ["UptimeRobot + Live DB"];
       } else if (intent === "ticket_query") {
-        response = await askClaudeWithContext(finalQuestion, liveContext, "tickets");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "tickets", undefined, conversationHistory);
         sources = ["Live Helpdesk Database"];
       } else if (intent === "agent_query") {
-        response = await askClaudeWithContext(finalQuestion, liveContext, "agents");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "agents", undefined, conversationHistory);
         sources = ["Live Agent Database"];
       } else if (intent === "kb_search") {
         const kbResults = await searchKB(finalQuestion);
         if (kbResults.length > 0) {
-          response = await askClaudeWithContext(finalQuestion, liveContext, "kb", kbResults);
+          response = await askClaudeWithContext(finalQuestion, liveContext, "kb", kbResults, conversationHistory);
           sources = kbResults.slice(0, 3).map((a: any) => `KB: ${a.title}`);
         } else {
-          response = await askClaudeWithContext(finalQuestion, liveContext, "general");
+          response = await askClaudeWithContext(finalQuestion, liveContext, "general", undefined, conversationHistory);
         }
       } else if (intent === "sla") {
-        response = await askClaudeWithContext(finalQuestion, liveContext, "sla");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "sla", undefined, conversationHistory);
         sources = ["Live SLA Database"];
       } else if (intent === "leads") {
-        response = await askClaudeWithContext(finalQuestion, liveContext, "leads");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "leads", undefined, conversationHistory);
         sources = ["Live CRM Database"];
       } else if (intent === "ticket_action") {
         const actionResult = await executeTicketAction(finalQuestion, liveContext, ctx.user);
@@ -105,11 +109,10 @@ export const ariaRouter = router({
         sources = ["Microsoft Graph / Exchange Online"];
       } else {
         // General technical question — Claude with full context
-        response = await askClaudeWithContext(finalQuestion, liveContext, "general");
+        response = await askClaudeWithContext(finalQuestion, liveContext, "general", undefined, conversationHistory);
       }
 
-      logAriaConversation({ userId: ctx.user.id, question: finalQuestion, response, intent, sources }).catch(() => {});
-
+            logAriaConversation({ userId: ctx.user.id, question: finalQuestion, response, intent, sources }).catch(() => {});
       return {
         response,
         sources,
@@ -117,6 +120,45 @@ export const ariaRouter = router({
         transcribedQuestion: resolvedAudioUrl ? finalQuestion : undefined,
       };
     }),
+
+  /**
+   * Proactive briefing — checks SLA breaches, critical tickets, M365 health on load
+   */
+  getProactiveBriefing: protectedProcedure.query(async () => {
+    const alerts: string[] = [];
+    try {
+      const liveCtx = await getFullLiveContext();
+      if (!liveCtx) return { alerts, hasCritical: false };
+      // Check SLA breaches
+      if (liveCtx.slaBreaches && liveCtx.slaBreaches.length > 0) {
+        alerts.push(`\u26a0\ufe0f **${liveCtx.slaBreaches.length} SLA breach${liveCtx.slaBreaches.length > 1 ? 'es' : ''}** detected — tickets need immediate attention.`);
+      }
+      // Check critical/high priority open tickets
+      const criticalTickets = liveCtx.tickets?.filter((t: any) => (t.priority === 'critical' || t.priority === 'high') && (t.status === 'open' || t.status === 'in_progress'));
+      if (criticalTickets && criticalTickets.length > 0) {
+        alerts.push(`\ud83d\udea8 **${criticalTickets.length} critical/high priority ticket${criticalTickets.length > 1 ? 's' : ''}** currently open.`);
+      }
+      // Check M365 health
+      if (liveCtx.m365Health && Array.isArray(liveCtx.m365Health)) {
+        const degraded = liveCtx.m365Health.filter((s: any) => s.status !== 'serviceDegradation' && s.status !== 'serviceOperational' ? false : s.status === 'serviceDegradation');
+        if (degraded.length > 0) {
+          alerts.push(`\u2601\ufe0f **M365 degradation**: ${degraded.map((s: any) => s.service || s.workloadDisplayName).join(', ')}`);
+        }
+      }
+      // Check unread voicemails
+      if (liveCtx.recentVoicemails && liveCtx.recentVoicemails.length > 0) {
+        alerts.push(`\ud83d\udcde **${liveCtx.recentVoicemails.length} new voicemail${liveCtx.recentVoicemails.length > 1 ? 's' : ''}** awaiting review.`);
+      }
+      // If nothing critical, add positive status
+      if (alerts.length === 0) {
+        alerts.push('\u2705 All systems green. No SLA breaches, no critical tickets, M365 healthy.');
+      }
+    } catch (e) {
+      console.error('[Aria] Proactive briefing error:', e);
+      alerts.push('\u2705 Systems operational. Detailed status available on request.');
+    }
+    return { alerts, hasCritical: alerts.some(a => a.includes('SLA breach') || a.includes('critical')) };
+  }),
 
   /** Search KB articles */
   searchKB: publicProcedure
@@ -1018,7 +1060,7 @@ async function searchKB(query: string, limit = 10) {
 
 // ============ Claude Integration ============
 
-async function askClaudeWithContext(question: string, liveCtx: any, focus?: string, kbResults?: any[]): Promise<string> {
+async function askClaudeWithContext(question: string, liveCtx: any, focus?: string, kbResults?: any[], history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
   const contextBlock = buildContextBlock(liveCtx, focus);
 
   let kbBlock = '';
@@ -1033,10 +1075,10 @@ async function askClaudeWithContext(question: string, liveCtx: any, focus?: stri
     ? `${contextBlock}${kbBlock}\n\n---\n\nUser question: ${question}`
     : question;
 
-  return askClaude(enrichedQuestion);
+  return askClaude(enrichedQuestion, history);
 }
 
-async function askClaude(question: string): Promise<string> {
+async function askClaude(question: string, history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
   const SYSTEM_PROMPT = `You are Aria, the GigitekAI Command Center AI — a senior Microsoft 365 Architect, Azure Solutions Architect, and enterprise IT operations expert. You are the brain behind GigitekAI's admin portal and Microsoft environment.
 
 GigitekAI is an AI-first MSP (Managed Service Provider) serving 50+ clients across North America and Canada. Founded by Harry, a Microsoft 365 Architect with 25+ years of enterprise IT experience. You have FULL visibility into the live system data provided in the context block above.
@@ -1151,7 +1193,10 @@ When asked to take action on tickets, confirm the action and execute:
           model: 'claude-haiku-4-5',
           max_tokens: 2000,
           system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: question }]
+          messages: [
+            ...(history || []).slice(-5).map(h => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content.substring(0, 500) })),
+            { role: 'user', content: question }
+          ]
         })
       });
       if (res.ok) {
@@ -1175,6 +1220,7 @@ When asked to take action on tickets, confirm the action and execute:
     const response = await invokeLLM({
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
+        ...(history || []).slice(-5).map(h => ({ role: h.role === 'assistant' ? 'assistant' as const : 'user' as const, content: h.content.substring(0, 500) })),
         { role: "user", content: question },
       ],
     });
