@@ -642,6 +642,7 @@ export default function AriaCommandCenter() {
     '/assign': { description: 'Assign a ticket', transform: (args) => `Assign ticket ${args}` },
     '/close': { description: 'Close a ticket', transform: (args) => `Close ticket ${args}` },
     '/escalate': { description: 'Escalate a ticket', transform: (args) => `Escalate ticket ${args} to critical priority` },
+    '/triage': { description: 'AI triage a ticket', transform: (args) => args ? `Run full AI triage on ticket #${args} — classify priority, category, and suggest assignee` : 'Which tickets need triage?' },
     '/provision': { description: 'Provision a client', transform: (args) => args ? `Provision new client: ${args}` : 'Start client provisioning workflow' },
     '/help': { description: 'Show available commands', transform: () => 'SLASH_HELP' },
   };
@@ -770,6 +771,7 @@ export default function AriaCommandCenter() {
   /* Fetch live system metrics */
   const { data: metrics } = trpc.helpdesk.getMetrics.useQuery(undefined, { refetchInterval: 30_000 });
   const { data: systemContext } = trpc.aria.getSystemContext.useQuery(undefined, { refetchInterval: 30_000 });
+  const { data: ticketTrends } = trpc.helpdeskDashboardMetrics.getTicketTrends.useQuery({ days: 7 }, { refetchInterval: 60_000 });
 
   const openTicketCount = (metrics?.open ?? 0) + (metrics?.inProgress ?? 0);
   const criticalCount = metrics?.byPriority?.critical ?? 0;
@@ -1059,6 +1061,26 @@ export default function AriaCommandCenter() {
 
           {/* Input Bar */}
           <div className="flex-shrink-0 border-t border-white/5 bg-slate-900/60 backdrop-blur px-4 sm:px-6 py-3 sm:py-4" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
+            {/* Slash command autocomplete dropdown */}
+            {input.startsWith('/') && input.length > 0 && (() => {
+              const typed = input.toLowerCase();
+              const matches = Object.entries(SLASH_COMMANDS).filter(([cmd]) => cmd.startsWith(typed) && cmd !== typed);
+              if (matches.length === 0) return null;
+              return (
+                <div className="mb-2 bg-slate-800/95 border border-slate-700/60 rounded-xl overflow-hidden backdrop-blur-sm shadow-xl max-h-48 overflow-y-auto">
+                  {matches.map(([cmd, info]) => (
+                    <button
+                      key={cmd}
+                      onClick={() => { setInput(cmd + ' '); inputRef.current?.focus(); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-cyan-500/10 transition-colors border-b border-slate-700/30 last:border-0"
+                    >
+                      <span className="text-cyan-400 font-mono text-sm font-semibold min-w-[90px]">{cmd}</span>
+                      <span className="text-slate-400 text-xs">{info.description}</span>
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Button
@@ -1177,6 +1199,37 @@ export default function AriaCommandCenter() {
               </div>
             </div>
           </div>
+
+          {/* Inline Sparkline: Ticket Volume (7-day) */}
+          {ticketTrends?.trends && ticketTrends.trends.length > 0 && (
+            <div>
+              <h3 className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+                <Activity size={12} className="text-cyan-400" />
+                Ticket Volume (7d)
+              </h3>
+              <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className="flex items-end gap-1 h-10">
+                  {ticketTrends.trends.map((day: { date: string; created: number; resolved: number }, i: number) => {
+                    const maxVal = Math.max(...ticketTrends.trends.map((d: { created: number }) => d.created), 1);
+                    const height = Math.max(4, (day.created / maxVal) * 100);
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-0.5" title={`${day.date}: ${day.created} created, ${day.resolved} resolved`}>
+                        <div className="w-full rounded-sm bg-cyan-500/70" style={{ height: `${height}%` }} />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-1.5 text-[9px] text-slate-500">
+                  <span>{ticketTrends.trends[0]?.date?.slice(5)}</span>
+                  <span>{ticketTrends.trends[ticketTrends.trends.length - 1]?.date?.slice(5)}</span>
+                </div>
+                <div className="flex justify-between mt-1 text-[10px]">
+                  <span className="text-cyan-400">Created: {ticketTrends.trends.reduce((s: number, d: { created: number }) => s + d.created, 0)}</span>
+                  <span className="text-green-400">Resolved: {ticketTrends.trends.reduce((s: number, d: { resolved: number }) => s + d.resolved, 0)}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Workflow History */}
           <div>

@@ -2206,3 +2206,8 @@
 - [x] Conversation memory — pass last 5 messages as history to Claude for multi-turn context
 - [x] Slash commands — /tickets, /status, /health, /ps, /kb, /sla shortcuts
 - [x] Proactive load briefing — check SLA breaches + critical tickets + M365 health on mount
+
+- [x] Slash command autocomplete dropdown (Discord/Slack-style)
+- [x] Ticket triage AI — auto-classify priority/category, suggest assignee
+- [x] Inline dashboard widgets — sparkline charts in Aria chat responses
+- [x] Aria Command Center user guide (MD) for engineering team
