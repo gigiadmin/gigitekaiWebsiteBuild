@@ -2198,3 +2198,7 @@
 - [x] Build user-facing AI ticket analysis in TicketDetail page (simplified TicketAIPanel)
 - [x] Add portal access requests section to Admin Support Services page
 - [x] Send admin email + Teams notification on new portal access request
+
+- [x] Persist Aria voice preferences (speed, mode, sensitivity) to localStorage
+- [x] Add compact mobile sphere with speaking indicator above chat input (visible on mobile/tablet)
+- [x] Add Aria greeting on first load with Jenny neural voice (only when no chat history)

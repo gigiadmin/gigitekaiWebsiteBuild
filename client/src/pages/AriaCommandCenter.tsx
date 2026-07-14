@@ -345,6 +345,20 @@ function StatusBox({ icon: Icon, label, value, status, onClick }: {
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 const ARIA_CHAT_STORAGE_KEY = "aria_chat_history";
+const ARIA_PREFS_KEY = "aria_voice_prefs";
+
+// Load/save voice preferences
+function loadVoicePrefs() {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(ARIA_PREFS_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch { return null; }
+}
+function saveVoicePrefs(prefs: { ttsSpeed: number; ttsMode: string; voiceEnabled: boolean; micSensitivity: number; requireWakeWord: boolean }) {
+  if (typeof window === "undefined") return;
+  try { localStorage.setItem(ARIA_PREFS_KEY, JSON.stringify(prefs)); } catch {}
+}
 
 // Load chat history from localStorage
 function loadChatHistory(): Message[] {
@@ -383,12 +397,18 @@ export default function AriaCommandCenter() {
   const [stage, setStage] = useState<Stage>("idle");
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const savedPrefs = loadVoicePrefs();
+  const [voiceEnabled, setVoiceEnabled] = useState(savedPrefs?.voiceEnabled ?? true);
   const [audioVolume, setAudioVolume] = useState(0);
-  const [ttsSpeed, setTtsSpeed] = useState(0.95);
-  const [ttsMode, setTtsMode] = useState<'voice' | 'text' | 'both'>('both');
-  const [micSensitivity, setMicSensitivity] = useState(0.4);
-  const [requireWakeWord, setRequireWakeWord] = useState(true);
+  const [ttsSpeed, setTtsSpeed] = useState(savedPrefs?.ttsSpeed ?? 0.95);
+  const [ttsMode, setTtsMode] = useState<'voice' | 'text' | 'both'>(savedPrefs?.ttsMode ?? 'both');
+  const [micSensitivity, setMicSensitivity] = useState(savedPrefs?.micSensitivity ?? 0.4);
+  const [requireWakeWord, setRequireWakeWord] = useState(savedPrefs?.requireWakeWord ?? true);
+
+  // Persist voice preferences on change
+  useEffect(() => {
+    saveVoicePrefs({ ttsSpeed, ttsMode, voiceEnabled, micSensitivity, requireWakeWord });
+  }, [ttsSpeed, ttsMode, voiceEnabled, micSensitivity, requireWakeWord]);
   const [voiceActivityDetected, setVoiceActivityDetected] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   
@@ -418,6 +438,22 @@ export default function AriaCommandCenter() {
     }, 10000);
     return () => clearInterval(interval);
   }, [refetchAgents]);
+
+  /* Aria greeting on first load — only when no prior messages exist */
+  const hasGreetedRef = useRef(false);
+  useEffect(() => {
+    if (hasGreetedRef.current) return;
+    if (messages.length > 0) return; // Don't greet if chat history exists
+    if (!voiceEnabled) return;
+    hasGreetedRef.current = true;
+    // Small delay to let the page render first
+    const timer = setTimeout(() => {
+      const greeting = "Aria online. How can I help you today?";
+      setIsSpeaking(true);
+      speakAsAria(greeting, ttsSpeed, () => setIsSpeaking(false));
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* inject keyframe CSS once */
   useEffect(() => {
@@ -700,7 +736,7 @@ export default function AriaCommandCenter() {
             </div>
             {/* Voice toggle */}
             <button
-              onClick={() => { if (isSpeaking) stopSpeakingHandler(); setVoiceEnabled((v) => !v); }}
+              onClick={() => { if (isSpeaking) stopSpeakingHandler(); setVoiceEnabled((v: boolean) => !v); }}
               className={`p-1.5 sm:p-2 rounded-full border transition-all ${
                 voiceEnabled ? "border-cyan-500/40 text-cyan-400 bg-cyan-500/10" : "border-slate-700 text-slate-500 bg-slate-800/50"
               }`}
@@ -892,6 +928,46 @@ export default function AriaCommandCenter() {
                 <div ref={messagesEndRef} />
               </>
             )}
+          </div>
+
+          {/* Mobile Compact Sphere — visible only on mobile/tablet (below lg) */}
+          <div className="flex-shrink-0 lg:hidden flex items-center justify-center py-2 border-t border-white/5 bg-slate-900/40">
+            <div className="relative flex items-center gap-3">
+              {/* Mini sphere */}
+              <div className="relative w-12 h-12">
+                <div className={`absolute inset-0 rounded-full border transition-all ${
+                  isSpeaking ? "border-emerald-400/40 shadow-[0_0_12px_rgba(52,211,153,0.3)]" :
+                  isProcessing ? "border-amber-400/40 shadow-[0_0_12px_rgba(251,191,36,0.3)]" :
+                  isRecording ? "border-cyan-300/40 shadow-[0_0_12px_rgba(34,211,238,0.3)]" :
+                  "border-cyan-500/20"
+                }`} />
+                <div className={`absolute inset-2 rounded-full transition-all ${
+                  isSpeaking ? "bg-gradient-to-br from-emerald-300 to-emerald-600" :
+                  isProcessing ? "bg-gradient-to-br from-amber-200 to-amber-600" :
+                  isRecording ? "bg-gradient-to-br from-cyan-200 to-cyan-600" :
+                  "bg-gradient-to-br from-cyan-300 to-cyan-700"
+                }`} style={{ animation: isProcessing || isSpeaking ? 'aria-core-breathe 1.8s ease-in-out infinite' : undefined }} />
+              </div>
+              {/* Status + waveform */}
+              <div className="flex flex-col items-start">
+                {isSpeaking ? (
+                  <div className="flex items-center gap-2">
+                    <SpeakingWaveform />
+                    <span className="text-[10px] font-bold text-emerald-400">SPEAKING</span>
+                    <button onClick={stopSpeakingHandler} className="text-slate-500 hover:text-red-400 transition-colors">
+                      <VolumeX size={12} />
+                    </button>
+                  </div>
+                ) : (
+                  <span className={`text-[10px] font-bold tracking-wider ${
+                    isProcessing ? "text-amber-400" :
+                    isRecording ? "text-cyan-300" :
+                    "text-slate-500"
+                  }`}>{isRecording ? "LISTENING" : STAGE_LABEL[stage].toUpperCase()}</span>
+                )}
+                <span className="text-[9px] text-slate-600">Azure Neural · JennyNeural</span>
+              </div>
+            </div>
           </div>
 
           {/* Input Bar */}
