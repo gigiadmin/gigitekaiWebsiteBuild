@@ -43,20 +43,45 @@ export const ariaRouter = router({
 
       // Transcribe audio if provided
       let finalQuestion = question;
+      let transcriptionFailed = false;
       const resolvedAudioUrl = audioUrl ?? (audioBase64 ? `data:audio/webm;base64,${audioBase64}` : null);
       if (resolvedAudioUrl) {
         try {
           const transcription = await transcribeAudio({
             audioUrl: resolvedAudioUrl,
             language: "en",
-            prompt: "Technical IT terminology: Azure AD, M365, MSAL, Exchange, Teams, SharePoint, Entra, Intune",
+            prompt: "Technical IT terminology: Azure AD, M365, MSAL, Exchange, Teams, SharePoint, Entra, Intune, GigitekAI, Hey Aria, system status, tickets, helpdesk",
           });
           if (transcription && "text" in transcription && transcription.text) {
             finalQuestion = transcription.text;
+          } else if (transcription && "error" in transcription) {
+            console.error("[Aria] Transcription error:", (transcription as any).error, (transcription as any).details);
+            transcriptionFailed = true;
           }
         } catch (e) {
-          console.error("[Aria] Transcription failed:", e);
+          console.error("[Aria] Transcription exception:", e);
+          transcriptionFailed = true;
         }
+      }
+
+      // If audio was provided but transcription failed, return a clear error
+      if (resolvedAudioUrl && transcriptionFailed) {
+        return {
+          response: "I couldn't process your voice message. Please try again — speak clearly and ensure your microphone is working. You can also type your question directly.",
+          sources: ["Voice Processing"],
+          intent: "voice_error",
+          transcribedQuestion: undefined,
+        };
+      }
+
+      // If audio was provided but finalQuestion is still the placeholder "voice", transcription returned empty
+      if (resolvedAudioUrl && finalQuestion === "voice") {
+        return {
+          response: "I didn't catch that. Could you repeat your question? Make sure to speak clearly into the microphone, or type your question below.",
+          sources: ["Voice Processing"],
+          intent: "voice_error",
+          transcribedQuestion: undefined,
+        };
       }
 
       // Detect intent
@@ -129,25 +154,32 @@ export const ariaRouter = router({
     try {
       const liveCtx = await getFullLiveContext();
       if (!liveCtx) return { alerts, hasCritical: false };
-      // Check SLA breaches
-      if (liveCtx.slaBreaches && liveCtx.slaBreaches.length > 0) {
-        alerts.push(`\u26a0\ufe0f **${liveCtx.slaBreaches.length} SLA breach${liveCtx.slaBreaches.length > 1 ? 'es' : ''}** detected — tickets need immediate attention.`);
+      // Check SLA breaches (correct field: slaBreachingTickets)
+      if (liveCtx.slaBreachingTickets && liveCtx.slaBreachingTickets.length > 0) {
+        alerts.push(`\u26a0\ufe0f **${liveCtx.slaBreachingTickets.length} SLA breach${liveCtx.slaBreachingTickets.length > 1 ? 'es' : ''}** detected \u2014 tickets need immediate attention.`);
       }
-      // Check critical/high priority open tickets
-      const criticalTickets = liveCtx.tickets?.filter((t: any) => (t.priority === 'critical' || t.priority === 'high') && (t.status === 'open' || t.status === 'in_progress'));
-      if (criticalTickets && criticalTickets.length > 0) {
-        alerts.push(`\ud83d\udea8 **${criticalTickets.length} critical/high priority ticket${criticalTickets.length > 1 ? 's' : ''}** currently open.`);
+      // Check critical/high priority open tickets (correct fields: criticalTicketCount + highTicketCount)
+      const criticalHighCount = (liveCtx.criticalTicketCount || 0) + (liveCtx.highTicketCount || 0);
+      if (criticalHighCount > 0) {
+        alerts.push(`\ud83d\udea8 **${criticalHighCount} critical/high priority ticket${criticalHighCount > 1 ? 's' : ''}** currently open.`);
       }
-      // Check M365 health
-      if (liveCtx.m365Health && Array.isArray(liveCtx.m365Health)) {
-        const degraded = liveCtx.m365Health.filter((s: any) => s.status !== 'serviceDegradation' && s.status !== 'serviceOperational' ? false : s.status === 'serviceDegradation');
-        if (degraded.length > 0) {
-          alerts.push(`\u2601\ufe0f **M365 degradation**: ${degraded.map((s: any) => s.service || s.workloadDisplayName).join(', ')}`);
+      // Check M365 health (correct field: m365Health is an object with .critical and .degraded array)
+      if (liveCtx.m365Health && liveCtx.m365Health.available) {
+        const degradedServices = liveCtx.m365Health.degraded || [];
+        const downServices = liveCtx.m365Health.down || [];
+        if (downServices.length > 0) {
+          alerts.push(`\ud83d\udfe5 **M365 outage**: ${downServices.map((s: any) => s.service).join(', ')}`);
+        } else if (degradedServices.length > 0) {
+          alerts.push(`\u2601\ufe0f **M365 degradation**: ${degradedServices.map((s: any) => s.service).join(', ')}`);
         }
       }
-      // Check unread voicemails
-      if (liveCtx.recentVoicemails && liveCtx.recentVoicemails.length > 0) {
-        alerts.push(`\ud83d\udcde **${liveCtx.recentVoicemails.length} new voicemail${liveCtx.recentVoicemails.length > 1 ? 's' : ''}** awaiting review.`);
+      // Check missed calls as proxy for voicemails
+      if (liveCtx.callData && liveCtx.callData.missed > 0) {
+        alerts.push(`\ud83d\udcde **${liveCtx.callData.missed} missed call${liveCtx.callData.missed > 1 ? 's' : ''}** in the last 24h.`);
+      }
+      // Check SLA data for at-risk tickets
+      if (liveCtx.slaData && liveCtx.slaData.atRisk > 0) {
+        alerts.push(`\u23f1 **${liveCtx.slaData.atRisk} ticket${liveCtx.slaData.atRisk > 1 ? 's' : ''} at risk** of SLA breach.`);
       }
       // If nothing critical, add positive status
       if (alerts.length === 0) {
@@ -157,7 +189,7 @@ export const ariaRouter = router({
       console.error('[Aria] Proactive briefing error:', e);
       alerts.push('\u2705 Systems operational. Detailed status available on request.');
     }
-    return { alerts, hasCritical: alerts.some(a => a.includes('SLA breach') || a.includes('critical')) };
+    return { alerts, hasCritical: alerts.some(a => a.includes('SLA breach') || a.includes('critical') || a.includes('outage')) };
   }),
 
   /** Search KB articles */
@@ -517,8 +549,8 @@ function detectIntent(question: string): string {
   // Leads / CRM
   if (q.includes("lead") || q.includes("prospect") || q.includes("demo") || q.includes("free audit") || q.includes("form submission") || q.includes("contact form") || q.includes("new client") || q.includes("pipeline")) return "leads";
 
-  // System status
-  if (q.includes("system status") || q.includes("active alerts") || q.includes("health check") || q.includes("current system") || q.includes("ongoing incident") || q.includes("service health") || q.includes("m365 health") || q.includes("microsoft health")) return "system_status";
+  // System status — expanded to catch natural language patterns
+  if (q.includes("system status") || q.includes("active alerts") || q.includes("health check") || q.includes("current system") || q.includes("ongoing incident") || q.includes("service health") || q.includes("m365 health") || q.includes("microsoft health") || q.includes("status right now") || q.includes("how are things") || q.includes("what's the status") || q.includes("whats the status") || q.includes("give me status") || q.includes("show me status") || q.includes("current status") || q.includes("overall status") || q.includes("how's the system") || q.includes("hows the system") || q.includes("everything running") || q.includes("all systems") || q.includes("system overview") || q.includes("operations status") || q.includes("ops status") || q.includes("dashboard status") || q.includes("how are we doing") || q.includes("status update") || q.includes("status report") || q.includes("sitrep") || q.includes("sit rep")) return "system_status";
 
   // Ticket queries
   if (q.includes("ticket") || q.includes("helpdesk") || q.includes("resolution time") || q.includes("open issue") || q.includes("support request") || q.includes("critical issue") || q.includes("priority")) return "ticket_query";

@@ -2216,3 +2216,8 @@
 - [x] Add client directory/list view with search, filters, status badges
 - [x] Improve onboarding form with multi-step wizard UX
 - [x] Add client detail view with timeline and status management
+
+- [x] Fix Aria voice path — surface transcription errors instead of silently falling through
+- [x] Fix wake word detection — no longer blocks voice responses
+- [x] Expand system_status intent detection to catch natural language patterns
+- [x] Fix proactive briefing schema mismatches (slaBreachingTickets, m365Health object, callData)

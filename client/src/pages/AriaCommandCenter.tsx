@@ -584,13 +584,33 @@ export default function AriaCommandCenter() {
             }));
             const result = await askMutation.mutateAsync({ question: "voice", audioBase64: base64, conversationHistory: voiceHistory, context: { systemStatus: true } });
             
-            // Check wake word if required
-            if (requireWakeWord && !detectWakeWord(result.transcribedQuestion || "")) {
+            // Handle voice_error from backend (transcription failed)
+            if (result.intent === 'voice_error') {
               setMessages((prev) => {
-                const updated = prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"} (wake word not detected - try saying "Hey Aria")` } : m);
+                const updated = prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 (voice not recognized)` } : m);
                 saveChatHistory(updated);
                 return updated;
               });
+              addMessage({ role: "aria", content: result.response, timestamp: new Date() });
+              if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
+              setStage("idle");
+              setVoiceActivityDetected(false);
+              return;
+            }
+
+            // Wake word check: if required and not detected, still process but show subtle hint
+            const wakeWordDetected = detectWakeWord(result.transcribedQuestion || "");
+            if (requireWakeWord && !wakeWordDetected) {
+              // Still show the transcription and response — don't block the user
+              setMessages((prev) => {
+                const updated = prev.map((m) => m.id === placeholderId ? { ...m, content: `🎤 ${result.transcribedQuestion || "Voice message"}` } : m);
+                saveChatHistory(updated);
+                return updated;
+              });
+              setStage("responding");
+              await new Promise((r) => setTimeout(r, 200));
+              addMessage({ role: "aria", content: result.response, timestamp: new Date() });
+              if ((ttsMode === 'voice' || ttsMode === 'both') && voiceEnabled) { setIsSpeaking(true); speakAsAria(result.response, ttsSpeed, () => setIsSpeaking(false)); }
               setStage("idle");
               setVoiceActivityDetected(false);
               return;
