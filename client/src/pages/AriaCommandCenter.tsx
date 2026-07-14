@@ -167,7 +167,27 @@ const STAGE_COLORS: Record<Stage, {
   },
 };
 
-function HolographicSphere({ isActive, volume = 0, stage = "idle" }: { isActive: boolean; volume: number; stage: Stage }) {
+function SpeakingWaveform() {
+  const delays = ["0ms", "120ms", "240ms", "120ms", "0ms"];
+  const heights = ["10px", "18px", "26px", "18px", "10px"];
+  return (
+    <div className="flex items-center gap-[3px]">
+      {delays.map((delay, i) => (
+        <div
+          key={i}
+          className="w-[3px] rounded-full bg-emerald-400"
+          style={{
+            height: heights[i],
+            animation: `aria-wave-bar 0.7s ease-in-out infinite`,
+            animationDelay: delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function HolographicSphere({ isActive, volume = 0, stage = "idle", isSpeaking = false }: { isActive: boolean; volume: number; stage: Stage; isSpeaking?: boolean }) {
   const scale = 1 + volume * 0.35;
   const glow = 20 + volume * 120;
   const coreGlow = 30 + volume * 150;
@@ -265,8 +285,15 @@ function HolographicSphere({ isActive, volume = 0, stage = "idle" }: { isActive:
         }}
       />
       {/* Status label */}
-      <div className="absolute bottom-0 text-center">
-        <p className={`text-[10px] font-bold tracking-widest ${c.label}`}>{c.labelText}</p>
+      <div className="absolute bottom-0 text-center flex flex-col items-center gap-1">
+        {isSpeaking ? (
+          <div className="flex flex-col items-center gap-1">
+            <SpeakingWaveform />
+            <p className="text-[10px] font-bold tracking-widest text-emerald-400/90">◎ SPEAKING</p>
+          </div>
+        ) : (
+          <p className={`text-[10px] font-bold tracking-widest ${c.label}`}>{c.labelText}</p>
+        )}
       </div>
     </div>
   );
@@ -406,6 +433,7 @@ export default function AriaCommandCenter() {
       @keyframes aria-process-pulse { 0%,100%{transform:scale(1);opacity:0.6;box-shadow:0 0 8px currentColor} 50%{transform:scale(1.12);opacity:1;box-shadow:0 0 28px currentColor} }
       @keyframes aria-core-breathe  { 0%,100%{filter:brightness(1) saturate(1)} 50%{filter:brightness(1.3) saturate(1.4)} }
       @keyframes aria-dot-ping      { 0%,100%{transform:scale(0.8);opacity:0.8} 50%{transform:scale(1.6);opacity:1} }
+      @keyframes aria-wave-bar       { 0%,100%{transform:scaleY(0.3);opacity:0.5} 50%{transform:scaleY(1);opacity:1} }
     `;
     document.head.appendChild(s);
   }, []);
@@ -703,8 +731,23 @@ export default function AriaCommandCenter() {
             {(ttsMode === 'voice' || ttsMode === 'both') && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
                 <span className="text-[9px] sm:text-[10px] text-slate-500">Speed:</span>
-                <input type="range" min="0.5" max="2" step="0.25" value={ttsSpeed} onChange={(e) => setTtsSpeed(parseFloat(e.target.value))} className="w-10 sm:w-12 h-1 bg-slate-700 rounded cursor-pointer" />
-                <span className="text-[9px] sm:text-[10px] text-slate-400">{ttsSpeed.toFixed(2)}x</span>
+                <input
+                  type="range" min="0.5" max="2" step="0.25"
+                  value={ttsSpeed}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    setTtsSpeed(v);
+                    // Stop any current speech so next response uses new speed
+                    if (isSpeaking) { stopSpeaking(); setIsSpeaking(false); }
+                  }}
+                  className="w-10 sm:w-14 h-1 bg-slate-700 rounded cursor-pointer accent-cyan-400"
+                />
+                <span className="text-[9px] sm:text-[10px] text-cyan-400 font-mono">
+                  {ttsSpeed.toFixed(2)}x
+                </span>
+                <span className="text-[9px] text-slate-600 hidden sm:inline">
+                  ({ttsSpeed >= 1 ? '+' : ''}{Math.round((ttsSpeed - 1) * 100)}%)
+                </span>
               </div>
             )}
             <div className="flex items-center gap-1 px-2 py-1 rounded-full border border-slate-700 bg-slate-800/50">
@@ -755,7 +798,7 @@ export default function AriaCommandCenter() {
         <div className="hidden lg:flex flex-col items-center gap-4 px-4 sm:px-6 py-4 lg:py-6 lg:w-80 xl:w-96 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-white/5 overflow-y-auto lg:overflow-hidden">
           {/* Sphere */}
           <div className="flex-shrink-0">
-            <HolographicSphere isActive={isActive} volume={audioVolume} stage={stage} />
+            <HolographicSphere isActive={isActive} volume={audioVolume} stage={stage} isSpeaking={isSpeaking} />
           </div>
 
           {/* Status Grid */}
