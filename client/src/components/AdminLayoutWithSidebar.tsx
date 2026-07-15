@@ -28,6 +28,7 @@ import {
   Wifi,
   Home,
   Wrench,
+  Activity,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -131,6 +132,7 @@ function AdminLayoutWithSidebarInner({ children, currentPage }: AdminLayoutProps
     { id: "kb-analytics", label: "KB Analytics", section: "ANALYTICS", icon: TrendingUp, path: "/admin/kb-analytics" },
     { id: "m365-health", label: "M365 Health Status", section: "ANALYTICS", icon: TrendingUp, path: "/admin/m365-health" },
     { id: "escalation-patterns", label: "Escalation Patterns", section: "ANALYTICS", icon: BarChart3, path: "/admin/escalation-patterns" },
+    { id: "aria-logs", label: "Aria Logs", section: "ANALYTICS", icon: Activity, path: "/admin/aria-logs" },
     { id: "jira", label: "Jira Dashboard", section: "ANALYTICS", icon: Wrench, path: "/admin/jira" },
     { id: "uptime", label: "Uptime Status", section: "ANALYTICS", icon: Wifi, path: "/admin/uptime" },
     { id: "uptime-tools", label: "Uptime Status", section: "TOOLS", icon: Wifi, path: "/admin/uptime" },

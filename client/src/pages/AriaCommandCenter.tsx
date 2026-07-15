@@ -403,7 +403,7 @@ export default function AriaCommandCenter() {
   const [ttsSpeed, setTtsSpeed] = useState(savedPrefs?.ttsSpeed ?? 0.95);
   const [ttsMode, setTtsMode] = useState<'voice' | 'text' | 'both'>(savedPrefs?.ttsMode ?? 'both');
   const [micSensitivity, setMicSensitivity] = useState(savedPrefs?.micSensitivity ?? 0.4);
-  const [requireWakeWord, setRequireWakeWord] = useState(savedPrefs?.requireWakeWord ?? true);
+  const [requireWakeWord, setRequireWakeWord] = useState(savedPrefs?.requireWakeWord ?? false);
 
   // Persist voice preferences on change
   useEffect(() => {

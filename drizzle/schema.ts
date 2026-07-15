@@ -2579,3 +2579,24 @@ export type WorkflowExecution = typeof workflowExecutions.$inferSelect;
 export type InsertWorkflowExecution = typeof workflowExecutions.$inferInsert;
 export type WorkflowTemplate = typeof workflowTemplates.$inferSelect;
 export type InsertWorkflowTemplate = typeof workflowTemplates.$inferInsert;
+
+// ─── Aria Logs ────────────────────────────────────────────────────────────────
+export const ariaLogs = mysqlTable("aria_logs", {
+  id: int().autoincrement().primaryKey(),
+  userId: int("user_id"),
+  question: text(),
+  transcribedQuestion: text("transcribed_question"),
+  response: text(),
+  intent: varchar({ length: 100 }),
+  sources: text(), // JSON array
+  status: varchar({ length: 50 }).default("success").notNull(), // success | error | voice_error | fallback
+  errorMessage: text("error_message"),
+  errorCode: varchar("error_code", { length: 50 }),
+  inputMethod: varchar("input_method", { length: 20 }).default("text").notNull(), // text | voice | slash_command
+  responseTimeMs: int("response_time_ms"),
+  modelUsed: varchar("model_used", { length: 50 }), // claude | built-in | none
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+});
+
+export type AriaLog = typeof ariaLogs.$inferSelect;
+export type InsertAriaLog = typeof ariaLogs.$inferInsert;

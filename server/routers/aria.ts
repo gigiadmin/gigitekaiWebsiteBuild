@@ -11,7 +11,7 @@ import {
   slaTracking, slaConfigurations, ticketReplies, ticketActivity,
   demoLeads, contactSubmissions, freeAuditSubmissions,
   blogPosts, smsCampaigns, roiCalculations, clients,
-  agentWorkload, ticketFeedback, customerFeedback,
+  agentWorkload, ticketFeedback, customerFeedback, ariaLogs,
 } from "../../drizzle/schema";
 import { eq, desc, sql, gte, and, or, lt } from "drizzle-orm";
 
@@ -39,6 +39,7 @@ export const ariaRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const startTime = Date.now();
       const { question, audioUrl, audioBase64, conversationHistory } = input;
 
       // Transcribe audio if provided
@@ -137,7 +138,18 @@ export const ariaRouter = router({
         response = await askClaudeWithContext(finalQuestion, liveContext, "general", undefined, conversationHistory);
       }
 
-            logAriaConversation({ userId: ctx.user.id, question: finalQuestion, response, intent, sources }).catch(() => {});
+            logAriaConversation({
+              userId: ctx.user.id,
+              question: finalQuestion,
+              response,
+              intent,
+              sources,
+              status: 'success',
+              inputMethod: resolvedAudioUrl ? 'voice' : 'text',
+              responseTimeMs: Date.now() - startTime,
+              modelUsed: (intent === 'system_status' || intent === 'navigation') ? 'none' : 'claude',
+              transcribedQuestion: resolvedAudioUrl ? finalQuestion : undefined,
+            }).catch(() => {});
       return {
         response,
         sources,
@@ -512,6 +524,54 @@ export const ariaRouter = router({
         totalUptime: "99.8%",
       };
     }
+  }),
+
+  /** Get Aria interaction logs for the dashboard */
+  getAriaLogs: protectedProcedure
+    .input(z.object({
+      limit: z.number().int().min(1).max(100).default(50),
+      offset: z.number().int().min(0).default(0),
+      status: z.string().optional(),
+      intent: z.string().optional(),
+      inputMethod: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { logs: [], total: 0 };
+      const conditions: any[] = [];
+      if (input.status) conditions.push(eq(ariaLogs.status, input.status));
+      if (input.intent) conditions.push(eq(ariaLogs.intent, input.intent));
+      if (input.inputMethod) conditions.push(eq(ariaLogs.inputMethod, input.inputMethod));
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const [logs, countResult] = await Promise.all([
+        db.select().from(ariaLogs).where(whereClause).orderBy(desc(ariaLogs.createdAt)).limit(input.limit).offset(input.offset),
+        db.select({ count: sql`COUNT(*)` }).from(ariaLogs).where(whereClause),
+      ]);
+      return { logs, total: (countResult[0]?.count as number) || 0 };
+    }),
+
+  /** Get Aria usage stats for the dashboard */
+  getAriaLogStats: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { totalQueries: 0, errorRate: 0, avgResponseTime: 0, topIntents: [], inputMethodBreakdown: { text: 0, voice: 0, slash_command: 0 } };
+    const [total, errors, avgTime, intents, methods] = await Promise.all([
+      db.select({ count: sql`COUNT(*)` }).from(ariaLogs),
+      db.select({ count: sql`COUNT(*)` }).from(ariaLogs).where(or(eq(ariaLogs.status, 'error'), eq(ariaLogs.status, 'voice_error'))),
+      db.select({ avg: sql`AVG(response_time_ms)` }).from(ariaLogs).where(eq(ariaLogs.status, 'success')),
+      db.select({ intent: ariaLogs.intent, count: sql`COUNT(*)` }).from(ariaLogs).groupBy(ariaLogs.intent).orderBy(desc(sql`COUNT(*)`)).limit(10),
+      db.select({ method: ariaLogs.inputMethod, count: sql`COUNT(*)` }).from(ariaLogs).groupBy(ariaLogs.inputMethod),
+    ]);
+    const totalCount = (total[0]?.count as number) || 0;
+    const errorCount = (errors[0]?.count as number) || 0;
+    const methodBreakdown = { text: 0, voice: 0, slash_command: 0 };
+    methods.forEach((m: any) => { if (m.method in methodBreakdown) (methodBreakdown as any)[m.method] = Number(m.count); });
+    return {
+      totalQueries: totalCount,
+      errorRate: totalCount > 0 ? Math.round((errorCount / totalCount) * 100) : 0,
+      avgResponseTime: Math.round(Number(avgTime[0]?.avg) || 0),
+      topIntents: intents.map((i: any) => ({ intent: i.intent, count: Number(i.count) })),
+      inputMethodBreakdown: methodBreakdown,
+    };
   }),
 });
 
@@ -1464,8 +1524,42 @@ function formatUptimeResponse(ctx: any): string {
   return lines.join('\n');
 }
 
-async function logAriaConversation(data: { userId: number; question: string; response: string; intent: string; sources: string[] }) {
-  console.log("[Aria] Conversation logged:", { userId: data.userId, intent: data.intent, questionLength: data.question.length });
+async function logAriaConversation(data: {
+  userId: number;
+  question: string;
+  response: string;
+  intent: string;
+  sources: string[];
+  status?: string;
+  errorMessage?: string;
+  errorCode?: string;
+  inputMethod?: string;
+  responseTimeMs?: number;
+  modelUsed?: string;
+  transcribedQuestion?: string;
+}) {
+  try {
+    const db = await getDb();
+    if (db) {
+      await db.insert(ariaLogs).values({
+        userId: data.userId,
+        question: data.question?.substring(0, 5000),
+        transcribedQuestion: data.transcribedQuestion?.substring(0, 5000),
+        response: data.response?.substring(0, 10000),
+        intent: data.intent,
+        sources: JSON.stringify(data.sources),
+        status: data.status || 'success',
+        errorMessage: data.errorMessage,
+        errorCode: data.errorCode,
+        inputMethod: data.inputMethod || 'text',
+        responseTimeMs: data.responseTimeMs,
+        modelUsed: data.modelUsed,
+      });
+    }
+  } catch (e) {
+    // Don't let logging failures break the main flow
+  }
+  console.log("[Aria] Conversation logged:", { userId: data.userId, intent: data.intent, questionLength: data.question.length, status: data.status || 'success' });
 }
 
 // ============ Exchange / Mailbox Query Handler ============

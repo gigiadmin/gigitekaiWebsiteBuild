@@ -2221,3 +2221,7 @@
 - [x] Fix wake word detection — no longer blocks voice responses
 - [x] Expand system_status intent detection to catch natural language patterns
 - [x] Fix proactive briefing schema mismatches (slaBreachingTickets, m365Health object, callData)
+
+- [x] Disable wake word requirement by default for faster admin voice commands
+- [ ] Add Aria error logging table and backend tracking
+- [x] Build Aria error logging dashboard in admin portal
