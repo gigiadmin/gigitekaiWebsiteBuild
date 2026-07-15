@@ -2223,5 +2223,9 @@
 - [x] Fix proactive briefing schema mismatches (slaBreachingTickets, m365Health object, callData)
 
 - [x] Disable wake word requirement by default for faster admin voice commands
-- [ ] Add Aria error logging table and backend tracking
+- [x] Add Aria error logging table and backend tracking
 - [x] Build Aria error logging dashboard in admin portal
+
+- [x] Aria conversation takeover — live session viewing + admin handoff
+- [x] Weekly Aria digest email via heartbeat scheduler
+- [x] Custom intent training UI and backend

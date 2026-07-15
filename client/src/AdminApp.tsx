@@ -79,6 +79,8 @@ const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
 const AriaCommandCenterAdmin = lazy(() => import("./pages/AriaCommandCenter"));
 const AdminAriaLogs = lazy(() => import("./pages/AdminAriaLogs"));
+const AdminAriaSessions = lazy(() => import("./pages/AdminAriaSessions"));
+const AdminAriaIntents = lazy(() => import("./pages/AdminAriaIntents"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
 
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
@@ -201,6 +203,8 @@ function AdminAppInner() {
               <Route path="/admin/command-center" component={withAdminLayout(CommandCenterAdminDashboard, "Command Center")} />
               <Route path="/admin/aria" component={withApprovalOnly(AriaCommandCenterAdmin)} />
               <Route path="/admin/aria-logs" component={withAdminLayout(AdminAriaLogs, "Aria Logs")} />
+              <Route path="/admin/aria-sessions" component={withAdminLayout(AdminAriaSessions, "Aria Sessions")} />
+              <Route path="/admin/aria-intents" component={withAdminLayout(AdminAriaIntents, "Aria Intent Training")} />
               <Route path="/admin/search" component={withApprovalOnly(AriaCommandCenterAdmin)} />
               <Route path="/admin/dns-checker" component={withAdminLayout(AdminDNSChecker, "DNS Checker")} />
               <Route path="/admin/email-diagnostics" component={withAdminLayout(AdminEmailDiagnostics, "Email Diagnostics")} />

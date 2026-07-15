@@ -2600,3 +2600,58 @@ export const ariaLogs = mysqlTable("aria_logs", {
 
 export type AriaLog = typeof ariaLogs.$inferSelect;
 export type InsertAriaLog = typeof ariaLogs.$inferInsert;
+
+// ============ Aria Sessions (for live takeover) ============
+export const ariaSessions = mysqlTable("aria_sessions", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("user_id").notNull(),
+  userName: varchar("user_name", { length: 255 }),
+  userEmail: varchar("user_email", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("active").notNull(), // active, taken_over, closed
+  takenOverBy: int("taken_over_by"),
+  takenOverByName: varchar("taken_over_by_name", { length: 255 }),
+  takenOverAt: timestamp("taken_over_at"),
+  messageCount: int("message_count").default(0),
+  lastMessageAt: timestamp("last_message_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  closedAt: timestamp("closed_at"),
+});
+
+export const ariaSessionMessages = mysqlTable("aria_session_messages", {
+  id: int("id").primaryKey().autoincrement(),
+  sessionId: int("session_id").notNull(),
+  role: varchar("role", { length: 20 }).notNull(), // user, aria, admin
+  content: text("content").notNull(),
+  intent: varchar("intent", { length: 100 }),
+  senderName: varchar("sender_name", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AriaSession = typeof ariaSessions.$inferSelect;
+export type InsertAriaSession = typeof ariaSessions.$inferInsert;
+export type AriaSessionMessage = typeof ariaSessionMessages.$inferSelect;
+
+// ============ Aria Custom Intents (for training) ============
+export const ariaCustomIntents = mysqlTable("aria_custom_intents", {
+  id: int("id").primaryKey().autoincrement(),
+  intentName: varchar("intent_name", { length: 100 }).notNull(),
+  description: varchar("description", { length: 500 }),
+  responseTemplate: text("response_template"),
+  action: varchar("action", { length: 100 }), // e.g., "run_procedure", "redirect", "respond"
+  actionTarget: varchar("action_target", { length: 255 }), // e.g., procedure name or URL
+  isActive: int("is_active").default(1).notNull(),
+  createdBy: int("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const ariaIntentExamples = mysqlTable("aria_intent_examples", {
+  id: int("id").primaryKey().autoincrement(),
+  intentId: int("intent_id").notNull(),
+  examplePhrase: varchar("example_phrase", { length: 500 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AriaCustomIntent = typeof ariaCustomIntents.$inferSelect;
+export type InsertAriaCustomIntent = typeof ariaCustomIntents.$inferInsert;
+export type AriaIntentExample = typeof ariaIntentExamples.$inferSelect;

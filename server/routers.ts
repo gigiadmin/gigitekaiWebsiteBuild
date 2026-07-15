@@ -146,6 +146,8 @@ import { agentManagementRouter } from "./routers/agent-management";
 import { m365IncidentsRouter } from "./routers/m365-incidents";
 import { aiNewsRouter } from "./routers/aiNews";
 import { ariaRouter } from "./routers/aria";
+import { ariaSessionsRouter } from "./routers/ariaSessions";
+import { ariaIntentsRouter } from "./routers/ariaIntents";
 import { errorLoggingRouter } from "./routers/errorLogging";
 import { portalAccessRouter } from "./routers/portal-access";
 
@@ -201,6 +203,8 @@ export const appRouter = router({
   m365Incidents: m365IncidentsRouter,
   aiNews: aiNewsRouter,
   aria: ariaRouter,
+  ariaSessions: ariaSessionsRouter,
+  ariaIntents: ariaIntentsRouter,
   errors: errorLoggingRouter,
   dnsChecker: dnsCheckerRouter,
   emailDiagnostics: emailDiagnosticsRouter,
