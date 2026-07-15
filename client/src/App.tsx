@@ -266,8 +266,7 @@ function Router() {
           <Route path={"/kb/:id"} component={KBArticleViewer} />
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />
-          {/* Scripts Portal */}
-          <Route path={"/scripts"} component={ScriptsPortal} />
+          {/* Scripts Portal — MOVED TO ADMIN: /admin/scripts */}
           {/* ── Support Services (customer-facing) ── */}
           <Route path={"/support"} component={SupportLanding} />
           <Route path={"/support/lookup"} component={TicketLookup} />
@@ -300,10 +299,8 @@ function Router() {
           <Route path={"/payment/canceled"} component={PaymentCanceled} />
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
-          {/* Call Transcript Search */}
-          <Route path={"call-transcripts"} component={CallTranscriptSearch} />
-          {/* Admin Search Index */}
-          <Route path={"admin/search-index"} component={AdminSearchIndexPage} />
+          {/* Call Transcript Search — MOVED TO ADMIN: /admin/call-transcripts */}
+          {/* Admin Search Index — MOVED TO ADMIN: /admin/search-index */}
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           {/* Home page (MUST be after all specific routes) */}
