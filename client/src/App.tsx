@@ -282,7 +282,7 @@ function Router() {
           <Route path={"/helpdesk/ticket/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/tickets/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/profile"} component={UserProfile} />
-          <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
+          {/* HelpdeskAgentGuide — MOVED TO ADMIN: /admin/agent-guide */}
           {/* <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} /> */} {/* REMOVED: ROI page too complex for now */}
           {/* ── Auth ── */}
           <Route path={"accept-invite"} component={AcceptInvite} />
