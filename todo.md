@@ -2229,3 +2229,7 @@
 - [x] Aria conversation takeover — live session viewing + admin handoff
 - [x] Weekly Aria digest email via heartbeat scheduler
 - [x] Custom intent training UI and backend
+
+- [x] Wire custom intents into Aria live detection
+- [x] Create weekly digest heartbeat cron
+- [x] Aria session auto-escalation to Teams

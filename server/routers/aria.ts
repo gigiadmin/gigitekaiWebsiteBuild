@@ -12,6 +12,7 @@ import {
   demoLeads, contactSubmissions, freeAuditSubmissions,
   blogPosts, smsCampaigns, roiCalculations, clients,
   agentWorkload, ticketFeedback, customerFeedback, ariaLogs,
+  ariaCustomIntents, ariaIntentExamples,
 } from "../../drizzle/schema";
 import { eq, desc, sql, gte, and, or, lt } from "drizzle-orm";
 
@@ -85,8 +86,46 @@ export const ariaRouter = router({
         };
       }
 
-      // Detect intent
-      const intent = detectIntent(finalQuestion);
+      // Check custom trained intents first (DB-driven, highest priority)
+      let customIntentMatch: { intentName: string; responseTemplate: string | null; action: string | null; actionTarget: string | null } | null = null;
+      try {
+        const db = await getDb();
+        if (db) {
+          const activeIntents = await db
+            .select({
+              id: ariaCustomIntents.id,
+              intentName: ariaCustomIntents.intentName,
+              responseTemplate: ariaCustomIntents.responseTemplate,
+              action: ariaCustomIntents.action,
+              actionTarget: ariaCustomIntents.actionTarget,
+            })
+            .from(ariaCustomIntents)
+            .where(eq(ariaCustomIntents.isActive, 1));
+
+          for (const intent of activeIntents) {
+            const examples = await db
+              .select({ examplePhrase: ariaIntentExamples.examplePhrase })
+              .from(ariaIntentExamples)
+              .where(eq(ariaIntentExamples.intentId, intent.id));
+
+            const q = finalQuestion.toLowerCase();
+            const matched = examples.some(ex =>
+              q.includes(ex.examplePhrase.toLowerCase()) ||
+              ex.examplePhrase.toLowerCase().includes(q)
+            );
+            if (matched) {
+              customIntentMatch = intent;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        // Custom intent check failed silently — fall through to static detection
+        console.warn("[Aria] Custom intent check failed:", e);
+      }
+
+      // Detect intent (static patterns)
+      const intent = customIntentMatch ? `custom:${customIntentMatch.intentName}` : detectIntent(finalQuestion);
 
       // Always fetch full live system context
       const liveContext = await getFullLiveContext();
@@ -94,7 +133,34 @@ export const ariaRouter = router({
       let response = "";
       let sources: string[] = [];
 
-      if (intent === "system_status") {
+      // Handle custom trained intents (DB-driven, highest priority)
+      if (customIntentMatch && intent.startsWith("custom:")) {
+        if (customIntentMatch.responseTemplate) {
+          // Use the static response template
+          response = customIntentMatch.responseTemplate;
+          sources = [`Custom Intent: ${customIntentMatch.intentName}`];
+        } else if (customIntentMatch.action === "run_procedure" && customIntentMatch.actionTarget) {
+          // Route to a known built-in intent
+          const mappedIntent = customIntentMatch.actionTarget;
+          if (mappedIntent === "system_status") {
+            response = formatStatusResponse(liveContext);
+            sources = ["Live System Database"];
+          } else if (mappedIntent === "ticket_query") {
+            response = await askClaudeWithContext(finalQuestion, liveContext, "tickets", undefined, conversationHistory);
+            sources = ["Live Helpdesk Database"];
+          } else {
+            response = await askClaudeWithContext(finalQuestion, liveContext, "general", undefined, conversationHistory);
+            sources = [`Custom Intent: ${customIntentMatch.intentName}`];
+          }
+        } else {
+          // Fallback: use Claude with full context and intent name as hint
+          response = await askClaudeWithContext(
+            `[Custom intent: ${customIntentMatch.intentName}] ${finalQuestion}`,
+            liveContext, "general", undefined, conversationHistory
+          );
+          sources = [`Custom Intent: ${customIntentMatch.intentName}`];
+        }
+      } else if (intent === "system_status") {
         response = formatStatusResponse(liveContext);
         sources = ["Live System Database"];
       } else if (intent === "contact_center") {
@@ -138,18 +204,35 @@ export const ariaRouter = router({
         response = await askClaudeWithContext(finalQuestion, liveContext, "general", undefined, conversationHistory);
       }
 
+            // Determine if this is a failed/unresolved response
+            const isFailedResponse = (
+              intent === 'voice_error' ||
+              intent === 'technical_question' && (
+                response.toLowerCase().includes("i'm not sure") ||
+                response.toLowerCase().includes("i don't have") ||
+                response.toLowerCase().includes("i cannot") ||
+                response.toLowerCase().includes("unable to") ||
+                response.toLowerCase().includes("i'm unable")
+              )
+            );
+
             logAriaConversation({
               userId: ctx.user.id,
               question: finalQuestion,
               response,
               intent,
               sources,
-              status: 'success',
+              status: isFailedResponse ? 'failed' : 'success',
               inputMethod: resolvedAudioUrl ? 'voice' : 'text',
               responseTimeMs: Date.now() - startTime,
               modelUsed: (intent === 'system_status' || intent === 'navigation') ? 'none' : 'claude',
               transcribedQuestion: resolvedAudioUrl ? finalQuestion : undefined,
             }).catch(() => {});
+
+            // Auto-escalation: check for 3 consecutive failures from this user
+            if (isFailedResponse) {
+              checkAndEscalateSession(ctx.user.id, ctx.user.name || 'Unknown User', finalQuestion).catch(() => {});
+            }
       return {
         response,
         sources,
@@ -1659,5 +1742,70 @@ async function handleExchangeQuery(question: string, liveCtx: any): Promise<stri
     console.error('[Aria] Exchange query error:', err?.message);
     // Graceful fallback to Claude for guidance
     return await askClaudeWithContext(question, liveCtx, 'general');
+  }
+}
+
+// ============ Auto-Escalation: 3 Consecutive Failures → Teams Alert ============
+
+async function checkAndEscalateSession(userId: number, userName: string, lastQuestion: string) {
+  try {
+    const db = await getDb();
+    if (!db) return;
+
+    // Get the last 3 logs for this user ordered by most recent
+    const recentLogs = await db
+      .select({ status: ariaLogs.status, question: ariaLogs.question, createdAt: ariaLogs.createdAt })
+      .from(ariaLogs)
+      .where(eq(ariaLogs.userId, userId))
+      .orderBy(desc(ariaLogs.createdAt))
+      .limit(3);
+
+    // Check if all 3 most recent are failures
+    if (recentLogs.length < 3) return;
+    const allFailed = recentLogs.every(log => log.status === 'failed');
+    if (!allFailed) return;
+
+    // Check that the failures happened within the last 15 minutes (same session)
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const allRecent = recentLogs.every(log => new Date(log.createdAt) > fifteenMinutesAgo);
+    if (!allRecent) return;
+
+    // Send Teams alert with takeover link
+    const teamsWebhookUrl = process.env.TEAMS_WEBHOOK_URL;
+    if (!teamsWebhookUrl) return;
+
+    const takeoverUrl = `${process.env.VITE_OAUTH_PORTAL_URL?.replace('/portal', '') || 'https://gigitekai.com'}/admin/aria-sessions`;
+    const payload = {
+      "@type": "MessageCard",
+      "@context": "http://schema.org/extensions",
+      "themeColor": "FF0000",
+      "summary": `⚠️ Aria needs help — ${userName} has 3 consecutive unresolved queries`,
+      "sections": [
+        {
+          "activityTitle": "⚠️ **Aria Auto-Escalation Alert**",
+          "activitySubtitle": `User **${userName}** (ID: ${userId}) has had 3 consecutive unresolved queries in the last 15 minutes`,
+          "activityText": `Last query: *"${lastQuestion.substring(0, 150)}${lastQuestion.length > 150 ? '...' : ''}"*`,
+          "facts": [
+            { "name": "User", "value": userName },
+            { "name": "Consecutive Failures", "value": "3" },
+            { "name": "Time", "value": new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }) + " ET" },
+            { "name": "Action Required", "value": "Review session and take over if needed" }
+          ]
+        }
+      ],
+      "potentialAction": [
+        {
+          "@type": "OpenUri",
+          "name": "🎯 Take Over Session",
+          "targets": [{ "os": "default", "uri": takeoverUrl }]
+        }
+      ]
+    };
+
+    const { sendToTeamsWithRetry } = await import('../_core/teamsWebhookUtils');
+    await sendToTeamsWithRetry(teamsWebhookUrl, payload, "Aria auto-escalation alert");
+    console.log(`[Aria] Auto-escalation alert sent to Teams for user ${userId} (${userName})`);
+  } catch (err) {
+    console.error("[Aria] Auto-escalation check failed:", err);
   }
 }
