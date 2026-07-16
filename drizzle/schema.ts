@@ -2655,3 +2655,34 @@ export const ariaIntentExamples = mysqlTable("aria_intent_examples", {
 export type AriaCustomIntent = typeof ariaCustomIntents.$inferSelect;
 export type InsertAriaCustomIntent = typeof ariaCustomIntents.$inferInsert;
 export type AriaIntentExample = typeof ariaIntentExamples.$inferSelect;
+
+// ============ Aria LLM Response Cache (for cost optimization) ============
+export const ariaLlmCache = mysqlTable("aria_llm_cache", {
+  id: int("id").primaryKey().autoincrement(),
+  cacheKey: varchar("cache_key", { length: 64 }).notNull().unique(),
+  question: varchar("question", { length: 500 }).notNull(),
+  response: text("response").notNull(),
+  intent: varchar("intent", { length: 100 }).notNull(),
+  focus: varchar("focus", { length: 100 }).notNull(),
+  hitCount: int("hit_count").default(1).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export type AriaLlmCache = typeof ariaLlmCache.$inferSelect;
+export type InsertAriaLlmCache = typeof ariaLlmCache.$inferInsert;
+
+// ============ Aria TTS Audio Cache (for cost optimization) ============
+export const ariaTtsCache = mysqlTable("aria_tts_cache", {
+  id: int("id").primaryKey().autoincrement(),
+  cacheKey: varchar("cache_key", { length: 64 }).notNull().unique(),
+  text: varchar("text", { length: 500 }).notNull(),
+  audioData: text("audio_data").notNull(),
+  rate: varchar("rate", { length: 20 }).default("0%").notNull(),
+  pitch: varchar("pitch", { length: 20 }).default("0%").notNull(),
+  hitCount: int("hit_count").default(1).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AriaTtsCache = typeof ariaTtsCache.$inferSelect;
+export type InsertAriaTtsCache = typeof ariaTtsCache.$inferInsert;

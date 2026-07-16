@@ -120,6 +120,20 @@
       "when": 1783826221533,
       "tag": "0016_reflective_nightcrawler",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1784241587458,
+      "tag": "0017_watery_makkari",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1784241758782,
+      "tag": "0018_gigantic_nocturne",
+      "breakpoints": true
     }
   ]
 }

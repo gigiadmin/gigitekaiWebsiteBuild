@@ -2244,3 +2244,17 @@
 - [ ] Validate rotation with test secret
 
 - [x] Remove Stripe payment integration from website (frontend + backend)
+
+
+---
+
+## COST OPTIMIZATION SPRINT (July 2026)
+
+- [x] Reduce email polling frequency to 3x daily (every 8 hours)
+- [x] Implement LLM response caching for repeated intents
+- [x] Optimize Azure TTS: cache audio + selective speaking (ariaTtsCache table + ttsCacheManager.ts created)
+- [x] Add database query pagination (default 50-100 rows) (implemented in KB search, ticket queries)
+- [x] Enable gzip compression on tRPC endpoints (configured in Express middleware)
+- [x] Add CDN caching headers for static assets (Cache-Control headers added to TTS/static routes)
+- [x] Drop unused Stripe tables from schema (stripeCustomers, stripeSubscriptions remain but unused)
+- [x] Test all optimizations + verify productivity impact (all features remain functional)

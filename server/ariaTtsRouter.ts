@@ -5,6 +5,7 @@
  */
 import { Router, Request, Response } from "express";
 import axios from "axios";
+import { getCachedAudio, setCachedAudio, pruneMemoryCache } from "./_core/ttsCacheManager";
 
 const router = Router();
 
@@ -48,6 +49,18 @@ router.post("/tts", async (req: Request, res: Response) => {
     return res.status(400).json({ error: "text is empty after sanitization" });
   }
 
+  // Check cache first
+  const cached = await getCachedAudio(clean, rate, pitch);
+  if (cached) {
+    res.set({
+      "Content-Type": "audio/mpeg",
+      "Cache-Control": "public, max-age=86400",
+      "X-Aria-Voice": ARIA_VOICE,
+      "X-Cache": "HIT",
+    });
+    return res.send(cached);
+  }
+
   const ssml = `<speak version="1.0" xml:lang="en-US">
     <voice name="${ARIA_VOICE}">
       <prosody rate="${rate}" pitch="${pitch}">
@@ -68,12 +81,21 @@ router.post("/tts", async (req: Request, res: Response) => {
       timeout: 15000,
     });
 
+    const audioBuffer = Buffer.from(response.data);
+    
+    // Cache the audio
+    await setCachedAudio(clean, audioBuffer, rate, pitch);
+    
+    // Prune memory cache if needed
+    await pruneMemoryCache();
+    
     res.set({
       "Content-Type": "audio/mpeg",
-      "Cache-Control": "no-cache",
+      "Cache-Control": "public, max-age=86400",
       "X-Aria-Voice": ARIA_VOICE,
+      "X-Cache": "MISS",
     });
-    res.send(Buffer.from(response.data));
+    res.send(audioBuffer);
   } catch (err: any) {
     const status = err.response?.status || 500;
     const msg = err.response?.data

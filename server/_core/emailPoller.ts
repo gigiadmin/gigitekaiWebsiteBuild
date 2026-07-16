@@ -1,6 +1,6 @@
 /**
  * M365 Graph Email Poller
- * Polls support@gigitekai.com mailbox every 5 minutes for new emails
+ * Polls support@gigitekai.com mailbox every 8 hours (3x daily) for new emails
  * Auto-creates support tickets from unread emails
  * Marks emails as read after processing
  */
@@ -1650,7 +1650,7 @@ export async function runEmailPoller(): Promise<void> {
     }
   } finally {
     pollerStatus.isRunning = false;
-    pollerStatus.nextSyncTime = new Date(Date.now() + 5 * 60 * 1000); // Next sync in 5 minutes
+    pollerStatus.nextSyncTime = new Date(Date.now() + 8 * 60 * 60 * 1000); // Next sync in 8 hours
     const duration = Date.now() - startTime;
     console.log(`[Email Poller] Polling cycle completed in ${duration}ms`);
   }
@@ -1665,19 +1665,19 @@ export function startEmailPoller(): void {
     return;
   }
 
-  console.log("[Email Poller] Starting email poller (5-minute interval)");
+  console.log("[Email Poller] Starting email poller (8-hour interval - 3x daily)");
 
   // Run immediately on startup
   runEmailPoller().catch((error) => {
     console.error("[Email Poller] Initial run failed:", error);
   });
 
-  // Schedule recurring runs every 5 minutes
+  // Schedule recurring runs every 8 hours (3x daily)
   pollerInterval = setInterval(() => {
     runEmailPoller().catch((error) => {
       console.error("[Email Poller] Scheduled run failed:", error);
     });
-  }, 5 * 60 * 1000); // 5 minutes
+  }, 8 * 60 * 60 * 1000); // 8 hours
 }
 
 /**

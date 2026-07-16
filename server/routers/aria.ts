@@ -2,6 +2,7 @@ import { router, publicProcedure, protectedProcedure, adminProcedure } from "../
 import { z } from "zod";
 import { invokeLLM } from "../_core/llm";
 import { transcribeAudio } from "../_core/voiceTranscription";
+import { getCachedResponse, setCachedResponse } from "../_core/llmCache";
 import { getDb } from "../db";
 import { getMsGraphToken } from "../_core/email";
 import { SLA_THRESHOLDS_MS } from "../_core/teamsSlaAlerts";
@@ -1236,6 +1237,13 @@ async function searchKB(query: string, limit = 10) {
 // ============ Claude Integration ============
 
 async function askClaudeWithContext(question: string, liveCtx: any, focus?: string, kbResults?: any[], history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
+  const cacheKey = focus || 'general';
+  const cached = await getCachedResponse(question, 'context_query', cacheKey);
+  if (cached) {
+    console.log(`[Aria] Using cached response for ${cacheKey}`);
+    return cached;
+  }
+
   const contextBlock = buildContextBlock(liveCtx, focus);
 
   let kbBlock = '';
@@ -1250,7 +1258,9 @@ async function askClaudeWithContext(question: string, liveCtx: any, focus?: stri
     ? `${contextBlock}${kbBlock}\n\n---\n\nUser question: ${question}`
     : question;
 
-  return askClaude(enrichedQuestion, history);
+  const response = await askClaude(enrichedQuestion, history);
+  await setCachedResponse(question, response, 'context_query', cacheKey);
+  return response;
 }
 
 async function askClaude(question: string, history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
