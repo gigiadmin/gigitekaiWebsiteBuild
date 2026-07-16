@@ -185,9 +185,9 @@ function Router() {
           {/* ── Admin Portal (MUST come before empty route) ── */}
           <Route path="/admin/login" component={AdminLoginAzure} />
           <Route path="/admin/unlock" component={AdminUnlock} />
+          <Route path="/admin/aria" component={AriaCommandCenter} />
           <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
-          <Route path="/aria" component={AriaCommandCenter} />
           {/* ── Public ── */}
           <Route path={"investor-portal"} component={InvestorPortal} />
           <Route path={"/ai-news"} component={AINews} />
