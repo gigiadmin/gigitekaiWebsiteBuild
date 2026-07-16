@@ -42,7 +42,7 @@ import {
 } from "../socialOAuth";
 import cronEndpoints from "../cronEndpoints";
 import newsletterAutoPost from "../newsletterAutoPost";
-import stripeWebhookRoute from "../routes/stripe-webhook-route";
+// Stripe webhook removed — no payments on website
 import { registerXeroOAuthRoutes } from "../routers/xero";
 import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
 import { voicemailRouter } from "../voicemailRoute";
@@ -246,8 +246,7 @@ async function startServer() {
   // Newsletter auto-post API (used by daily AI recap scheduled task)
   app.use("/api/newsletter", newsletterAutoPost);
   
-  // Stripe webhook endpoint
-  app.use("/api/stripe/webhook", stripeWebhookRoute);
+  // Stripe webhook endpoint removed — no payments on website
   
   // UptimeRobot webhook endpoint
   app.use("/api", uptimeWebhookRouter);

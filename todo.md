@@ -2233,3 +2233,14 @@
 - [x] Wire custom intents into Aria live detection
 - [x] Create weekly digest heartbeat cron
 - [x] Aria session auto-escalation to Teams
+
+# Azure Key Vault Migration
+- [ ] Generate Azure Functions rotation code for Twilio, SendGrid, Cloudflare, HubSpot
+- [ ] Set up Event Grid triggers for secret expiry alerts
+- [ ] Run 01-provision-keyvault.sh to create vault
+- [ ] Run 02-import-secrets.sh to bulk import all 30 secrets
+- [ ] Wire OpenClaw VDI startup script (03-vdi-startup.sh)
+- [ ] Install systemd rotation service on VDI (04-rotation-and-service.sh)
+- [ ] Validate rotation with test secret
+
+- [x] Remove Stripe payment integration from website (frontend + backend)

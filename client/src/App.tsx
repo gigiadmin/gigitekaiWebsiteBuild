@@ -123,12 +123,12 @@ const RescheduleMeeting = lazy(() => import("./pages/RescheduleMeeting"));
 
 // ── Admin Portal — lazy loaded (all behind ApprovalGuard) ────────────────
 const AdminApp = lazy(() => import("./AdminApp"));
+const AriaCommandCenter = lazy(() => import("./pages/AriaCommandCenter"));
+
 // M365 health pages (public-facing)
 const M365HealthPage = lazy(() => import("./pages/M365HealthPage"));
 const M365NotificationsPreferencesPage = lazy(() => import("./pages/M365NotificationsPreferencesPage"));
-// Payment pages (Stripe checkout results)
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
+// Stripe payment pages removed — no payments taken on website
 
 const SurveyPage = lazy(() => import("./pages/SurveyPage"));
 const ClientSessionHistory = lazy(() => import("./pages/ClientSessionHistory"));
@@ -187,6 +187,7 @@ function Router() {
           <Route path="/admin/unlock" component={AdminUnlock} />
           <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
+          <Route path="/aria" component={AriaCommandCenter} />
           {/* ── Public ── */}
           <Route path={"investor-portal"} component={InvestorPortal} />
           <Route path={"/ai-news"} component={AINews} />
@@ -266,7 +267,8 @@ function Router() {
           <Route path={"/kb/:id"} component={KBArticleViewer} />
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />
-          {/* Scripts Portal — MOVED TO ADMIN: /admin/scripts */}
+          {/* Scripts Portal */}
+          <Route path={"/scripts"} component={ScriptsPortal} />
           {/* ── Support Services (customer-facing) ── */}
           <Route path={"/support"} component={SupportLanding} />
           <Route path={"/support/lookup"} component={TicketLookup} />
@@ -282,7 +284,7 @@ function Router() {
           <Route path={"/helpdesk/ticket/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/tickets/:ticketId/feedback"} component={TicketFeedback} />
           <Route path={"/helpdesk/profile"} component={UserProfile} />
-          {/* HelpdeskAgentGuide — MOVED TO ADMIN: /admin/agent-guide */}
+          <Route path={"/helpdesk/agent-guide"} component={HelpdeskAgentGuide} />
           {/* <Route path={"/helpdesk/roi"} component={HelpdeskROIReport} /> */} {/* REMOVED: ROI page too complex for now */}
           {/* ── Auth ── */}
           <Route path={"accept-invite"} component={AcceptInvite} />
@@ -295,12 +297,13 @@ function Router() {
           <Route path={"/m365-status"} component={M365HealthPage} />
           <Route path={"/m365-notifications"} component={M365NotificationsPreferencesPage} />
           {/* Payment Pages */}
-          <Route path={"/payment/success"} component={PaymentSuccess} />
-          <Route path={"/payment/canceled"} component={PaymentCanceled} />
+          {/* Stripe payment routes removed */}
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
-          {/* Call Transcript Search — MOVED TO ADMIN: /admin/call-transcripts */}
-          {/* Admin Search Index — MOVED TO ADMIN: /admin/search-index */}
+          {/* Call Transcript Search */}
+          <Route path={"call-transcripts"} component={CallTranscriptSearch} />
+          {/* Admin Search Index */}
+          <Route path={"admin/search-index"} component={AdminSearchIndexPage} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           {/* Home page (MUST be after all specific routes) */}

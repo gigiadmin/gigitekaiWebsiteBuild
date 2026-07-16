@@ -91,7 +91,7 @@ import { callsRouter } from "./routers/calls";
 import { clientOnboardingRouter } from "./routers/client-onboarding";
 import { uptimerobotRouter } from "./routers/uptimerobot";
 import { slaPredicationRouter } from "./routers/sla-prediction";
-import { stripeRouter } from "./stripe-router";
+// Stripe router removed — no payments on website
 import { sentimentAnalysisRouter } from "./routers/sentiment-analysis";
 import { kbAutoLinkingRouter } from "./routers/kb-auto-linking";
 import { agentGamificationRouter } from "./routers/agent-gamification";
@@ -225,7 +225,7 @@ export const appRouter = router({
   copilotM365: copilotM365Router,
   copilotStudio: copilotStudioRouter,
   pricing: pricingRouter,
-  stripe: stripeRouter,
+  // stripe: removed — no payments on website
   dns: dnsRouter,
   formSubmissions: formSubmissionsRouter,
   auth: router({

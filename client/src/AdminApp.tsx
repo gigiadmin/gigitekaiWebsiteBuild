@@ -77,9 +77,6 @@ const AdminROIDashboard = lazy(() => import("./pages/AdminROIDashboard"));
 const TicketDetail = lazy(() => import("./pages/TicketDetail"));
 const AdminTicketDetail = lazy(() => import("./pages/AdminTicketDetail"));
 const AdminSearchIndexPage = lazy(() => import("./pages/AdminSearchIndexPage"));
-const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
-const CallTranscriptSearch = lazy(() => import("./pages/CallTranscriptSearch"));
-const HelpdeskAgentGuide = lazy(() => import("./pages/HelpdeskAgentGuide"));
 const AriaCommandCenterAdmin = lazy(() => import("./pages/AriaCommandCenter"));
 const AdminAriaLogs = lazy(() => import("./pages/AdminAriaLogs"));
 const AdminAriaSessions = lazy(() => import("./pages/AdminAriaSessions"));
@@ -195,9 +192,6 @@ function AdminAppInner() {
               <Route path="/admin/xero" component={withApprovalOnly(AdminXero)} />
               <Route path="/admin/client-onboarding" component={withApprovalOnly(AdminClientOnboardingPage)} />
               <Route path="/admin/search-index" component={withApprovalOnly(AdminSearchIndexPage)} />
-              <Route path="/admin/scripts" component={withApprovalOnly(ScriptsPortal)} />
-              <Route path="/admin/call-transcripts" component={withApprovalOnly(CallTranscriptSearch)} />
-              <Route path="/admin/agent-guide" component={withApprovalOnly(HelpdeskAgentGuide)} />
 
               {/* Pages that do NOT have AdminLayout internally — use withAdminLayout */}
               <Route path="/admin/dashboard" component={withAdminLayout(Dashboard, "Dashboard")} />
