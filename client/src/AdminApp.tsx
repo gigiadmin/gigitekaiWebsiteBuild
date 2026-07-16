@@ -82,6 +82,7 @@ const AdminAriaLogs = lazy(() => import("./pages/AdminAriaLogs"));
 const AdminAriaSessions = lazy(() => import("./pages/AdminAriaSessions"));
 const AdminAriaIntents = lazy(() => import("./pages/AdminAriaIntents"));
 const AdminDNSChecker = lazy(() => import("./pages/AdminDNSChecker"));
+const AdminAriaDashboard = lazy(() => import("./pages/AdminAriaDashboard"));
 
 const AdminEmailDiagnostics = lazy(() => import("./pages/EmailDiagnostics"));
 const AdminFormSubmissions = lazy(() => import("./pages/AdminFormSubmissions"));
@@ -201,6 +202,7 @@ function AdminAppInner() {
               <Route path="/admin/contact-center" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/contact-center-dashboard" component={withAdminLayout(AdminContactCenterDashboardWrapper, "Contact Center")} />
               <Route path="/admin/command-center" component={withAdminLayout(CommandCenterAdminDashboard, "Command Center")} />
+              <Route path="/admin/aria-dashboard" component={withAdminLayout(AdminAriaDashboard, "Aria AI Dashboard")} />
               <Route path="/admin/aria" component={withApprovalOnly(AriaCommandCenterAdmin)} />
               <Route path="/admin/aria-logs" component={withAdminLayout(AdminAriaLogs, "Aria Logs")} />
               <Route path="/admin/aria-sessions" component={withAdminLayout(AdminAriaSessions, "Aria Sessions")} />

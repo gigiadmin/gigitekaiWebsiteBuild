@@ -129,7 +129,8 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Tools",
     items: [
       { label: "Admin Hub", icon: <Grid3X3 size={16} />, href: "/admin/hub" },
-      { label: "🧠 Aria Command Center", icon: <Brain size={16} />, href: "/admin/aria" },
+      { label: "🧠 Aria AI Dashboard", icon: <Brain size={16} />, href: "/admin/aria-dashboard" },
+      { label: "Aria Command Center", icon: <Brain size={16} />, href: "/admin/aria" },
       { label: "DNS Checker", icon: <Globe size={16} />, href: "/admin/dns-checker" },
       { label: "Email Diagnostics", icon: <Mail size={16} />, href: "/admin/email-diagnostics" },
       { label: "M365 Health Status", icon: <TrendingUp size={16} />, href: "/admin/m365-health" },
