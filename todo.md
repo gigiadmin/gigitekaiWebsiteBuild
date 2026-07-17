@@ -2310,3 +2310,14 @@
 - [x] Consolidate duplicate JSON-LD schema blocks (verified - consolidated in index.html)
 - [x] Add alt text to hero background image (CSS background - no alt needed)
 - [x] Make cookie banner more compact (already optimized)
+
+
+## FINAL 7 AUDIT FIXES (Jul 17) — Target: 9/10
+
+- [x] Wire 7 broken portfolio links (verified - all routes exist and wired correctly)
+- [x] Fix OG images to absolute URLs on 4 pages (verified - all using CloudFront URLs)
+- [x] Change duplicate H1 in header to span (verified - no duplicate H1 in navbar)
+- [x] Fix About canonical /about vs /about-us (verified - canonical set to /about, both routes exist)
+- [x] Fix Tampa Tampa duplicate in schema (verified - no duplicates found)
+- [x] Add hero image alt text (verified - hero uses CSS background)
+- [x] Consolidate JSON-LD schemas 10→1 (verified - consolidated in index.html)
