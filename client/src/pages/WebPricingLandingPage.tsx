@@ -21,7 +21,7 @@ export default function WebPricingLandingPage() {
   });
 
   useEffect(() => {
-    document.title = "Professional Websites Starting at $2,997 | GigitekAI";
+    document.title = "Website Plans Starting at $199/mo | GigitekAI";
     const updateMetaTag = (name: string, content: string) => {
       let tag = document.querySelector(`meta[name="${name}"]`);
       if (!tag) {
@@ -31,8 +31,8 @@ export default function WebPricingLandingPage() {
       }
       tag.setAttribute("content", content);
     };
-    updateMetaTag("description", "Professional websites with AI chatbot starting at $2,997 + $149/mo. Custom design, SEO, CRM integration, and dedicated support. Built by GigitekAI.");
-    updateMetaTag("keywords", "website design, small business website, AI chatbot, web development, affordable website, GigitekAI");
+    updateMetaTag("description", "Professional websites with AI chatbot starting at $199/mo. Starter, Growth, and Pro plans with custom design, SEO, and dedicated support. Built by GigitekAI.");
+    updateMetaTag("keywords", "website design, small business website, AI chatbot, web development, affordable website, WaaS, GigitekAI");
     
     const updatePropertyTag = (property: string, content: string) => {
       let tag = document.querySelector(`meta[property="${property}"]`);
@@ -44,8 +44,8 @@ export default function WebPricingLandingPage() {
       tag.setAttribute("content", content);
     };
     
-    updatePropertyTag("og:title", "Professional Websites Starting at $2,997 | GigitekAI");
-    updatePropertyTag("og:description", "Professional websites with AI chatbot starting at $2,997 + $149/mo. Custom design, SEO, CRM integration, and dedicated support.");
+    updatePropertyTag("og:title", "Website Plans Starting at $199/mo | GigitekAI");
+    updatePropertyTag("og:description", "Professional websites with AI chatbot starting at $199/mo. Starter, Growth, and Pro plans with custom design, SEO, and dedicated support.");
     updatePropertyTag("og:url", "https://gigitekai.com/web-pricing");
     updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
     
@@ -192,7 +192,7 @@ export default function WebPricingLandingPage() {
               Professional Website Made <span className="text-cyan-400">Simple</span>
             </h1>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Custom-built websites with AI chatbot starting at <span className="text-cyan-400 font-bold">$2,997</span> + <span className="text-cyan-400 font-bold">$149/mo</span> for hosting, maintenance, and support.
+              Custom-built websites with AI chatbot starting at <span className="text-cyan-400 font-bold">$199/mo</span> + <span className="text-cyan-400 font-bold">$499 setup</span>. Starter, Growth, and Pro plans.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
@@ -312,88 +312,29 @@ export default function WebPricingLandingPage() {
             {liveClients.map((client, idx) => {
               const IconComponent = client.icon;
               return (
-                <div
-                  key={idx}
-                  className={`bg-gradient-to-br ${client.bgColor} border-2 ${client.borderColor} rounded-xl p-8 hover:shadow-2xl transition transform hover:scale-105 cursor-pointer`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white/10 rounded-lg">
-                        <IconComponent size={32} className="text-cyan-400" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold">{client.name}</h3>
-                        <p className="text-cyan-400 text-sm">{client.tagline}</p>
+                <div key={idx} className={`bg-gradient-to-br ${client.bgColor} border ${client.borderColor} rounded-2xl p-8 hover:shadow-xl transition`}>
+                  <div className="grid md:grid-cols-3 gap-8 items-center">
+                    <div>
+                      <IconComponent size={48} className="mb-4 opacity-80" />
+                      <h3 className="text-2xl font-bold mb-2">{client.name}</h3>
+                      <p className="text-sm opacity-90 mb-4">{client.tagline}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {client.tags.map((tag) => (
+                          <span key={tag} className="text-xs px-2 py-1 bg-white/20 rounded-full">{tag}</span>
+                        ))}
                       </div>
                     </div>
-                    <div className="px-3 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full">
-                      <span className="text-cyan-400 text-xs font-semibold">✓ Live Site</span>
+                    <div className="md:col-span-2">
+                      <p className="text-sm leading-relaxed mb-6">{client.description}</p>
+                      <a href={client.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg font-semibold transition">
+                        View Live Site <ExternalLink size={16} />
+                      </a>
                     </div>
                   </div>
-
-                  <p className="text-gray-200 mb-6">{client.description}</p>
-
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {client.tags.map((tag, i) => (
-                      <span key={i} className="px-3 py-1 bg-white/10 rounded-full text-xs text-gray-300 border border-white/20">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <a
-                    href={client.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-semibold transition"
-                  >
-                    Visit Live Site <ExternalLink size={16} />
-                  </a>
                 </div>
               );
             })}
           </div>
-
-          <div className="text-center mt-12">
-            <p className="text-gray-300 mb-6">Ready to see your business featured here?</p>
-            <button
-              onClick={() => setDiscoveryFormOpen(true)}
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition inline-flex items-center gap-2"
-            >
-              Get Your Website <ArrowRight size={20} />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* LIMITED TIME OFFER - PRIMARY FOCUS */}
-      <section className="py-20 px-4 bg-gradient-to-r from-red-900/40 via-cyan-900/40 to-purple-900/40 border-y-2 border-red-500/60 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-red-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500 rounded-full blur-3xl"></div>
-        </div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-block bg-cyan-600/30 border border-cyan-500/60 rounded-full px-6 py-2 mb-6">
-            <p className="text-cyan-300 font-bold text-sm">🚀 READY TO TRANSFORM YOUR BUSINESS?</p>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-bold mb-4 text-white">Your Website, <span className="text-cyan-400">Built Right</span></h2>
-          <p className="text-2xl text-gray-200 mb-2">Starting at <span className="text-cyan-400 font-bold">$2,997</span> + <span className="text-cyan-400 font-bold">$149/mo</span></p>
-          <p className="text-lg text-gray-300 mb-8">Custom design, AI chatbot, SEO, CRM integration, and dedicated support</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => setDiscoveryFormOpen(true)}
-              className="px-10 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold text-lg rounded-lg transition transform hover:scale-105 shadow-lg shadow-red-500/50"
-            >
-              🚀 Get Started Today
-            </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="px-10 py-4 border-2 border-cyan-400 text-cyan-400 font-bold text-lg rounded-lg hover:bg-cyan-400/10 transition"
-            >
-              View All Packages
-            </button>
-          </div>
-          <p className="text-sm text-gray-300 mt-6">✓ Free domain • ✓ SSL included • ✓ 1 month free trial • ✓ Money-back guarantee</p>
         </div>
       </section>
 
@@ -408,14 +349,14 @@ export default function WebPricingLandingPage() {
 
           {/* Pricing Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Starter */}
+            {/* Starter - $199/mo */}
             <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
               <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Starter</p>
               <div className="mb-2">
-                <span className="text-4xl font-bold text-cyan-400">$2,997</span>
-                <span className="text-gray-400 text-sm"> one-time</span>
+                <span className="text-4xl font-bold text-cyan-400">$199</span>
+                <span className="text-gray-400 text-sm">/mo</span>
               </div>
-              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $149/mo maintenance</p>
+              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $499 setup fee</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -427,23 +368,23 @@ export default function WebPricingLandingPage() {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">5–8 custom pages</span>
+                  <span className="text-gray-300">3-page responsive website</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Mobile responsive design</span>
+                  <span className="text-gray-300">AI chatbot (basic)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Basic AI Chatbot</span>
+                  <span className="text-gray-300">Mobile-optimized design</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">SSL Certificate & Security</span>
+                  <span className="text-gray-300">SSL certificate</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Contact forms + Google Maps</span>
+                  <span className="text-gray-300">Monthly maintenance</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
@@ -451,25 +392,21 @@ export default function WebPricingLandingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">2 rounds of revisions</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Monthly maintenance (up to 2 hrs)</span>
+                  <span className="text-gray-300">Email support</span>
                 </li>
               </ul>
             </div>
 
-            {/* Growth - Most Popular */}
+            {/* Growth - Most Popular - $399/mo */}
             <div className="relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Most Popular</div>
               <div className="bg-[#131B2E] border-2 border-cyan-500/60 rounded-xl p-8 hover:border-cyan-400/80 transition shadow-lg shadow-cyan-500/10">
                 <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Growth</p>
                 <div className="mb-2">
-                  <span className="text-4xl font-bold text-cyan-400">$6,997</span>
-                  <span className="text-gray-400 text-sm"> one-time</span>
+                  <span className="text-4xl font-bold text-cyan-400">$399</span>
+                  <span className="text-gray-400 text-sm">/mo</span>
                 </div>
-                <p className="text-sm text-cyan-300 font-semibold mb-6">+ $249/mo maintenance</p>
+                <p className="text-sm text-cyan-300 font-semibold mb-6">+ $999 setup fee</p>
 
                 <button
                   onClick={() => setDiscoveryFormOpen(true)}
@@ -481,52 +418,44 @@ export default function WebPricingLandingPage() {
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">12–20 custom pages</span>
+                    <span className="text-gray-300">Up to 7-page website</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Advanced AI Chatbot with business knowledge</span>
+                    <span className="text-gray-300">Advanced AI chatbot with CRM integration</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">CRM Integration (HubSpot, Salesforce)</span>
+                    <span className="text-gray-300">Blog/content management</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Analytics Dashboard</span>
+                    <span className="text-gray-300">Google Analytics setup</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Blog/News section ready</span>
+                    <span className="text-gray-300">On-page SEO optimization</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Advanced SEO optimization</span>
+                    <span className="text-gray-300">Priority email + chat support</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Social media integration</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Priority support & faster turnaround</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-cyan-400">✓</span>
-                    <span className="text-gray-300">Monthly maintenance (up to 5 hrs)</span>
+                    <span className="text-gray-300">Monthly performance reports</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Pro */}
+            {/* Pro - $799/mo */}
             <div className="bg-[#131B2E] border border-[#1E2A45] rounded-xl p-8 hover:border-cyan-500/50 transition">
               <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Pro</p>
               <div className="mb-2">
-                <span className="text-4xl font-bold text-cyan-400">$12,997</span>
-                <span className="text-gray-400 text-sm"> one-time</span>
+                <span className="text-4xl font-bold text-cyan-400">$799</span>
+                <span className="text-gray-400 text-sm">/mo</span>
               </div>
-              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $399/mo maintenance</p>
+              <p className="text-sm text-cyan-300 font-semibold mb-6">+ $1,499 setup fee</p>
 
               <button
                 onClick={() => setDiscoveryFormOpen(true)}
@@ -542,37 +471,55 @@ export default function WebPricingLandingPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Full AI Suite (chatbot + automation)</span>
+                  <span className="text-gray-300">Custom AI chatbot with full CRM/API integration</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Custom integrations & API connections</span>
+                  <span className="text-gray-300">E-commerce capability</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Advanced Analytics + Reporting</span>
+                  <span className="text-gray-300">Advanced SEO + local SEO</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Dedicated Account Manager</span>
+                  <span className="text-gray-300">Google Ads management (setup)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Ongoing SEO & Performance Optimization</span>
+                  <span className="text-gray-300">Dedicated account manager</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">E-commerce capability (if needed)</span>
+                  <span className="text-gray-300">Weekly performance reports</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Monthly maintenance (up to 10 hrs)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-cyan-400">✓</span>
-                  <span className="text-gray-300">Priority updates & emergency support</span>
+                  <span className="text-gray-300">Phone + email + chat support</span>
                 </li>
               </ul>
+            </div>
+          </div>
+
+          {/* Add-ons Section */}
+          <div className="mt-16 p-8 bg-[#0F1428] border border-cyan-500/20 rounded-xl">
+            <h3 className="text-2xl font-bold mb-8 text-center">Optional Add-ons</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="p-6 bg-[#131B2E] rounded-lg border border-[#1E2A45]">
+                <h4 className="text-lg font-bold text-cyan-400 mb-2">Google Ads Management</h4>
+                <p className="text-2xl font-bold text-white mb-4">$299<span className="text-sm text-gray-400">/mo</span></p>
+                <p className="text-gray-300 text-sm">Professional campaign setup and optimization</p>
+              </div>
+              <div className="p-6 bg-[#131B2E] rounded-lg border border-[#1E2A45]">
+                <h4 className="text-lg font-bold text-cyan-400 mb-2">Advanced SEO Package</h4>
+                <p className="text-2xl font-bold text-white mb-4">$199<span className="text-sm text-gray-400">/mo</span></p>
+                <p className="text-gray-300 text-sm">Keyword research, backlink strategy, content optimization</p>
+              </div>
+              <div className="p-6 bg-[#131B2E] rounded-lg border border-[#1E2A45]">
+                <h4 className="text-lg font-bold text-cyan-400 mb-2">Additional AI Chatbot Training</h4>
+                <p className="text-2xl font-bold text-white mb-4">$99<span className="text-sm text-gray-400">/mo</span></p>
+                <p className="text-gray-300 text-sm">Custom training and knowledge base expansion</p>
+              </div>
             </div>
           </div>
 
@@ -596,97 +543,8 @@ export default function WebPricingLandingPage() {
             </div>
             <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-300 mt-8">
               <div>✓ <span className="text-cyan-300">30-Day Money Back</span> Guarantee</div>
-              <div>✓ <span className="text-cyan-300">No Setup Fees</span> Ever</div>
+              <div>✓ <span className="text-cyan-300">No Hidden Fees</span> Ever</div>
               <div>✓ <span className="text-cyan-300">Cancel Anytime</span> (Monthly)</div>
-            </div>
-            <p className="text-xs text-gray-300 mt-6">✓ <span className="text-cyan-300">Custom built</span> • ✓ <span className="text-cyan-300">AI-powered</span> • ✓ <span className="text-cyan-300">Ongoing support</span></p>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16">Get In Touch</h2>
-
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-[#0F1428] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 bg-[#0F1428] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
-                />
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone Number"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-[#0F1428] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
-                />
-                <textarea
-                  name="message"
-                  placeholder="Tell us about your project..."
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={5}
-                  className="w-full px-4 py-3 bg-[#0F1428] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
-                />
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition"
-                >
-                  Send Message
-                </button>
-              </form>
-              {formSubmitted && (
-                <p className="mt-4 text-cyan-400 text-center">Thanks! We'll be in touch soon.</p>
-              )}
-            </div>
-
-            {/* Contact Info */}
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Mail size={24} className="text-cyan-400" />
-                    <div>
-                      <p className="text-gray-300 text-sm">Email</p>
-                      <p className="text-white">support@gigitekai.com</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Phone size={24} className="text-cyan-400" />
-                    <div>
-                      <p className="text-gray-300 text-sm">Phone</p>
-                      <p className="text-white">(727) 382-6909</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <MapPin size={24} className="text-cyan-400" />
-                    <div>
-                      <p className="text-gray-300 text-sm">Location</p>
-                      <p className="text-white">Tampa, FL 33601</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -694,149 +552,76 @@ export default function WebPricingLandingPage() {
 
       {/* Discovery Form Modal */}
       {discoveryFormOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0F1428] border-2 border-cyan-500/50 rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">Tell Us About Your Business</h3>
-              <button
-                onClick={() => setDiscoveryFormOpen(false)}
-                className="text-gray-300 hover:text-white transition"
-              >
-                <X size={24} />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-cyan-500/30">
+            <div className="flex items-center justify-between p-6 border-b border-cyan-500/20">
+              <h3 className="text-2xl font-bold text-white">Website Pricing Inquiry</h3>
+              <button onClick={() => setDiscoveryFormOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-6 h-6" />
               </button>
             </div>
-
-            <form onSubmit={handleDiscoverySubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">Business Name *</label>
+            <form onSubmit={handleDiscoverySubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
                   name="businessName"
+                  placeholder="Business Name"
                   value={discoveryData.businessName}
                   onChange={handleDiscoveryChange}
                   required
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="Your business name"
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Email *</label>
                 <input
                   type="email"
                   name="email"
+                  placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="your@email.com"
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Phone</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="tel"
                   name="phone"
+                  placeholder="Phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="(727) 382-6909"
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Industry *</label>
                 <select
                   name="industry"
                   value={discoveryData.industry}
                   onChange={handleDiscoveryChange}
-                  required
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:border-cyan-400 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-cyan-500"
                 >
-                  <option value="">Select an industry</option>
-                  <option value="retail">Retail</option>
-                  <option value="services">Services</option>
-                  <option value="consulting">Consulting</option>
+                  <option value="">Select Industry</option>
                   <option value="healthcare">Healthcare</option>
-                  <option value="tech">Technology</option>
+                  <option value="finance">Finance</option>
+                  <option value="retail">Retail</option>
+                  <option value="saas">SaaS</option>
                   <option value="other">Other</option>
                 </select>
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Business Description *</label>
-                <textarea
-                  name="description"
-                  value={discoveryData.description}
-                  onChange={handleDiscoveryChange}
-                  required
-                  rows={4}
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="What does your business do?"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Target Audience</label>
-                <input
-                  type="text"
-                  name="targetAudience"
-                  value={discoveryData.targetAudience}
-                  onChange={handleDiscoveryChange}
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="Who are your customers?"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">Current Website</label>
-                <input
-                  type="url"
-                  name="currentWebsite"
-                  value={discoveryData.currentWebsite}
-                  onChange={handleDiscoveryChange}
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="w-full px-4 py-2 bg-[#0A0E1A] border border-cyan-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 disabled:opacity-50"
-                  placeholder="https://example.com (optional)"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-6">
-                <button
-                  type="submit"
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="flex-1 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitWebsitePricingInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDiscoveryFormOpen(false)}
-                  disabled={submitWebsitePricingInquiry.isPending}
-                  className="flex-1 px-6 py-3 border-2 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 font-bold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Cancel
-                </button>
-              </div>
+              <textarea
+                name="description"
+                placeholder="Describe your business and website goals"
+                value={discoveryData.description}
+                onChange={handleDiscoveryChange}
+                className="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 h-24"
+              />
+              <button
+                type="submit"
+                disabled={submitWebsitePricingInquiry.isPending}
+                className="w-full px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-lg transition disabled:opacity-50"
+              >
+                {submitWebsitePricingInquiry.isPending ? "Submitting..." : "Submit Inquiry"}
+              </button>
             </form>
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer className="bg-[#0A0E1A] border-t border-cyan-500/20 py-12 px-4">
-        <div className="max-w-6xl mx-auto text-center text-gray-300">
-          <p className="mb-4">© 2026 GigitekAI. All rights reserved.</p>
-          <p className="text-sm">
-            Created by <a href="https://gigitekai.com" className="text-cyan-400 hover:text-cyan-300 transition">GigitekAI</a>
-          </p>
-        </div>
-      </footer>
       </main>
     </div>
   );
