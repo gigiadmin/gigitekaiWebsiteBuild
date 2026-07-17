@@ -2269,3 +2269,25 @@
 - [x] Integrate real-time status & analytics (system metrics, cost optimization, health status)
 - [x] Add navigation to admin portal (route /admin/aria-dashboard + menu item)
 - [x] Test dashboard & verify all features accessible (all routes configured)
+
+
+## Website Audit Fixes — July 16 (13 issues)
+
+### CRITICAL (5 issues - 45 min total)
+- [x] Fix canonical URLs on 5 pages: /websites (✅ done), /web-pricing, /free-audit, /kb, /about
+- [ ] Add favicon (32x32, 16x16, apple-touch-icon)
+- [ ] Fix OG images: use absolute CloudFront URLs on homepage, about, services, contact, insights
+- [ ] Fix web-pricing page navigation: use shared navbar instead of custom nav
+- [ ] Remove 7 ghost/duplicate links on portfolio page
+
+### IMPORTANT (5 issues - 2-3 hours total)
+- [ ] Fix duplicate H1 tags (navbar vs page content H1)
+- [ ] Add missing H1 to helpdesk-pricing page
+- [ ] Consolidate duplicate JSON-LD structured data (8-10 blocks → 1 @graph per page)
+- [ ] Fix web-pricing OG tags (use pricing-specific title/description)
+- [ ] Confirm pricing model: WaaS ($199/399/799/mo) vs one-time ($2997/6997/12997)
+
+### MINOR (3 issues - 30 min total)
+- [ ] Add alt text to hero background image
+- [ ] Reduce cookie banner size (top bar or corner popup)
+- [ ] Verify /insights vs /blog URL consistency (301 redirect or canonical)

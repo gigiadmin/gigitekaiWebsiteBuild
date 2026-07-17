@@ -4,7 +4,7 @@
  * Designed to convert visitors into leads for GigitekAI web development services
  */
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowRight, MessageCircle, Zap, Globe, Shield, Cpu, BarChart3, Smartphone, CheckCircle, X } from "lucide-react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import { trpc } from "@/lib/trpc";
@@ -130,6 +130,46 @@ const FEATURES = [
 export default function WebsitesPage() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [inquiryData, setInquiryData] = useState<InquiryForm>(DEFAULT_INQUIRY);
+
+  // Set meta tags and canonical URL
+  useEffect(() => {
+    document.title = "Professional Website Design & AI Chatbot | GigitekAI";
+    
+    const updateMetaTag = (name: string, content: string) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    const updatePropertyTag = (property: string, content: string) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    updateMetaTag("description", "Explore our portfolio of professional websites built with AI chatbots, SEO optimization, and conversion-focused design. Industry-specific demos available.");
+    updatePropertyTag("og:title", "Professional Website Design & AI Chatbot | GigitekAI");
+    updatePropertyTag("og:description", "Explore our portfolio of professional websites built with AI chatbots, SEO optimization, and conversion-focused design. Industry-specific demos available.");
+    updatePropertyTag("og:url", "https://gigitekai.com/websites");
+    updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
+    
+    // Set canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://gigitekai.com/websites');
+  }, []);
 
   const submitInquiry = trpc.contact.submitWebsitePricingInquiry.useMutation({
     onSuccess: () => {

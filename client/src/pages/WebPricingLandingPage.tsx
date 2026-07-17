@@ -32,6 +32,29 @@ export default function WebPricingLandingPage() {
     };
     updateMetaTag("description", "Professional websites with AI chatbot starting at $2,997 + $149/mo. Custom design, SEO, CRM integration, and dedicated support. Built by GigitekAI.");
     updateMetaTag("keywords", "website design, small business website, AI chatbot, web development, affordable website, GigitekAI");
+    
+    const updatePropertyTag = (property: string, content: string) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    updatePropertyTag("og:title", "Professional Websites Starting at $2,997 | GigitekAI");
+    updatePropertyTag("og:description", "Professional websites with AI chatbot starting at $2,997 + $149/mo. Custom design, SEO, CRM integration, and dedicated support.");
+    updatePropertyTag("og:url", "https://gigitekai.com/web-pricing");
+    updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
+    
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://gigitekai.com/web-pricing');
   }, []);
 
   const scrollToSection = (id: string) => {
