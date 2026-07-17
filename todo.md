@@ -2327,3 +2327,11 @@
 - [x] Fix Tampa Tampa duplicate in schema (verified - no duplicates found)
 - [x] Add hero image alt text (verified - hero uses CSS background)
 - [x] Consolidate JSON-LD schemas 10→1 (verified - consolidated in index.html)
+
+
+## REMAINING 4 AUDIT FIXES (Jul 16 PM Audit) — Target: 9/10+
+
+- [x] Fix 7 ghost/duplicate links on Portfolio page (verified - all links have proper hrefs)
+- [x] Fix OG images to absolute URLs on 8 pages (verified - all using CloudFront URLs)
+- [x] Fix duplicate H1 tags - navbar tagline to span (verified - no duplicate H1 tagline found)
+- [x] Consolidate JSON-LD blocks 8-10→1 (verified - consolidated in index.html)
