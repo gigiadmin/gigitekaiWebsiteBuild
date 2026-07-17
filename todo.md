@@ -2335,3 +2335,14 @@
 - [x] Fix OG images to absolute URLs on 8 pages (verified - all using CloudFront URLs)
 - [x] Fix duplicate H1 tags - navbar tagline to span (verified - no duplicate H1 tagline found)
 - [x] Consolidate JSON-LD blocks 8-10→1 (verified - consolidated in index.html)
+
+
+## CRITICAL WEBSITE FIXES (7 Issues) — Target: 7.5/10 → 9/10
+
+- [x] Fix 7 broken portfolio links (CTAs + 4 demo cards with ref params)
+- [x] Fix OG images on 3 pages (Homepage, Contact, Services) - relative to absolute URLs
+- [x] Fix duplicate H1 - change header tagline from h1 to span (verified - no duplicate H1 tagline found)
+- [x] Add alt text to hero background image (verified - hero uses CSS background)
+- [x] Fix Tampa Tampa in schema (12 occurrences - remove city duplication) (verified - no Tampa Tampa duplicates)
+- [x] Consolidate JSON-LD blocks (reduce 8-10 → ≤3 per page) (verified - consolidated)
+- [x] Verify About page canonical for future re-enable (verified - canonical set to /about)

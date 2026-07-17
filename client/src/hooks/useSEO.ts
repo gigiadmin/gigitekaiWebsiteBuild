@@ -19,14 +19,14 @@ interface SEOConfig {
 }
 
 const BASE_URL = "https://gigitekai.com";
-const DEFAULT_OG_IMAGE = "/gigitekai-logo.png";
+const DEFAULT_OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png";
 
 const ORG_SCHEMA = {
   "@type": "Organization",
   "@id": "https://gigitekai.com/#organization",
   name: "GigitekAI",
   url: "https://gigitekai.com",
-  logo: DEFAULT_OG_IMAGE,
+  logo: "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png",
   telephone: "+1727-382-6909",
   email: "support@gigitekai.com",
 };

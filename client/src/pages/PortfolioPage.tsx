@@ -56,7 +56,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "💰",
     color: "#FBBF24",
     bgGradient: "from-amber-900/40 to-yellow-900/40",
-    href: "/portfolio/finance",
+    href: "/contact?ref=meridian-capital",
     tags: ["Finance", "Analytics", "Security"],
   },
   {
@@ -67,7 +67,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🏥",
     color: "#EF4444",
     bgGradient: "from-red-900/40 to-rose-900/40",
-    href: "/portfolio/health",
+    href: "/contact?ref=medicare-plus",
     tags: ["Healthcare", "Telemedicine", "HIPAA"],
   },
   {
@@ -78,7 +78,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "🛍️",
     color: "#EC4899",
     bgGradient: "from-pink-900/40 to-rose-900/40",
-    href: "/portfolio/ecommerce",
+    href: "/contact?ref=trendhub-store",
     tags: ["E-Commerce", "Payments", "Inventory"],
   },
   {
@@ -89,7 +89,7 @@ const FEATURED_SITES: FeaturedSite[] = [
     icon: "☁️",
     color: "#3B82F6",
     bgGradient: "from-blue-900/40 to-indigo-900/40",
-    href: "/portfolio/tech",
+    href: "/contact?ref=cloudsync-pro",
     tags: ["SaaS", "Collaboration", "Enterprise"],
   },
 ];
@@ -230,7 +230,7 @@ export default function WebsitesPage() {
             professional, AI-powered digital experiences for any business sector. All pricing is custom-quoted based on your project scope.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/contact">
+            <Link href="/web-discovery-intake">
               <a className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-black text-base transition-[opacity,transform] hover:opacity-90 hover:scale-105" style={{ backgroundColor: "#00D4FF" }}>
                 Start Your Project
                 <ArrowRight className="w-5 h-5" />
