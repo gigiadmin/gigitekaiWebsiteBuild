@@ -230,8 +230,9 @@ function Router() {
           <Route path={"/blog"} component={Blog} />
           <Route path={"/insights"} component={Blog} />
           <Route path={"/blog/:slug"} component={BlogDetail} />
-          <Route path={"/about"} component={AboutUs} />
-          <Route path={"/about-us"} component={AboutUs} />
+          {/* About Us page hidden from public — admin only */}
+          {/* <Route path={"/about"} component={AboutUs} />
+          <Route path={"/about-us"} component={AboutUs} /> */}
           <Route path={"/our-team"} component={OurTeam} />
           <Route path={"/partners"} component={Partners} />
           <Route path={"/services"} component={Services} />

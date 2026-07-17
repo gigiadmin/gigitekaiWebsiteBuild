@@ -2312,6 +2312,12 @@
 - [x] Make cookie banner more compact (already optimized)
 
 
+## URGENT: Hide About Us Page from Public
+
+- [x] Hide /about and /about-us pages from public access (routes commented out in App.tsx)
+- [x] Removed from navbar (both desktop and mobile)
+- [x] Routes no longer accessible to public users
+
 ## FINAL 7 AUDIT FIXES (Jul 17) — Target: 9/10
 
 - [x] Wire 7 broken portfolio links (verified - all routes exist and wired correctly)
