@@ -7,6 +7,7 @@ import {
   ArrowRight, TrendingUp, BookOpen, ChevronLeft, ChevronRight, X
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 
@@ -56,6 +57,43 @@ type KbArticle = {
 const PAGE_SIZE = 24;
 
 export default function PublicKB() {
+  useEffect(() => {
+    document.title = "Knowledge Base | GigitekAI";
+    
+    const updateMetaTag = (name: string, content: string) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    const updatePropertyTag = (property: string, content: string) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    updateMetaTag("description", "Browse GigitekAI's comprehensive knowledge base with 700+ articles on cloud infrastructure, AI automation, Microsoft 365, and managed IT services.");
+    updatePropertyTag("og:title", "Knowledge Base | GigitekAI");
+    updatePropertyTag("og:description", "Browse GigitekAI's comprehensive knowledge base with 700+ articles on cloud infrastructure, AI automation, Microsoft 365, and managed IT services.");
+    updatePropertyTag("og:url", "https://gigitekai.com/kb");
+    updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
+    
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://gigitekai.com/kb');
+  }, []);
   const [, navigate] = useLocation();
 
   // Search state

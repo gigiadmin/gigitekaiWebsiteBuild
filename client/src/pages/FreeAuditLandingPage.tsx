@@ -13,10 +13,48 @@ import { trpc } from "@/lib/trpc";
 
 import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 
 export default function FreeAuditLandingPage() {
+  useEffect(() => {
+    document.title = "Free Cloud & AI Audit | GigitekAI";
+    
+    const updateMetaTag = (name: string, content: string) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    const updatePropertyTag = (property: string, content: string) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    updateMetaTag("description", "Get a free cloud infrastructure and AI automation audit from GigitekAI. Identify optimization opportunities and cost savings in 24 hours.");
+    updatePropertyTag("og:title", "Free Cloud & AI Audit | GigitekAI");
+    updatePropertyTag("og:description", "Get a free cloud infrastructure and AI automation audit from GigitekAI. Identify optimization opportunities and cost savings in 24 hours.");
+    updatePropertyTag("og:url", "https://gigitekai.com/free-audit");
+    updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
+    
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://gigitekai.com/free-audit');
+  }, []);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     companyName: "",

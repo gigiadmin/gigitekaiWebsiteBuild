@@ -144,9 +144,9 @@ export default function HelpdeskPricing() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
             24/7 Managed IT Services Pricing
-          </h2>
+          </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Flat monthly per-user rates with no hidden fees, no per-ticket charges, and no surprise invoices.
           </p>

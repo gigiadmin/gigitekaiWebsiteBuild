@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowRight, Zap, MessageSquare, Wrench, Check, Mail, Phone, MapPin, Globe, Shield, BarChart3, Palette, Menu, X, Send, Rocket, Music, Leaf, ExternalLink } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
 
 export default function WebPricingLandingPage() {
   const [currentSection, setCurrentSection] = useState("home");
@@ -176,50 +177,7 @@ export default function WebPricingLandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A0E1A] via-[#0F1428] to-[#0A0E1A] text-white">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-[#0A0E1A]/95 backdrop-blur border-b border-cyan-500/20">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <a href="/" className="text-xl font-bold text-cyan-400">GigitekAI</a>
-          </div>
-          
-          {/* Desktop Menu */}
-          <div className="hidden md:flex gap-8">
-            {["home", "portfolio", "pricing", "contact"].map(item => (
-              <button
-                key={item}
-                onClick={() => scrollToSection(item)}
-                className={`capitalize transition ${currentSection === item ? "text-cyan-400" : "text-gray-300 hover:text-cyan-400"}`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-cyan-400"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-[#0F1428] border-t border-cyan-500/20 p-4 flex flex-col gap-4">
-            {["home", "portfolio", "pricing", "contact"].map(item => (
-              <button
-                key={item}
-                onClick={() => scrollToSection(item)}
-                className="capitalize text-left text-gray-300 hover:text-cyan-400 transition"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
-      </nav>
+      <SiteNavBar2024 />
       <main>
 
       {/* Hero Section */}

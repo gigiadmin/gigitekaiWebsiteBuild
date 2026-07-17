@@ -9,8 +9,46 @@ import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { useEffect } from "react";
 
 export default function AboutUs() {
+  useEffect(() => {
+    document.title = "About GigitekAI | AI-First Managed Services Provider";
+    
+    const updateMetaTag = (name: string, content: string) => {
+      let tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("name", name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    const updatePropertyTag = (property: string, content: string) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+    
+    updateMetaTag("description", "Learn about GigitekAI — a veteran and family-owned AI-first MSP delivering cloud infrastructure, AI automation, and managed IT services to 50+ clients.");
+    updatePropertyTag("og:title", "About GigitekAI | AI-First Managed Services Provider");
+    updatePropertyTag("og:description", "Learn about GigitekAI — a veteran and family-owned AI-first MSP delivering cloud infrastructure, AI automation, and managed IT services to 50+ clients.");
+    updatePropertyTag("og:url", "https://gigitekai.com/about");
+    updatePropertyTag("og:image", "https://d2xsxph8kpxj0f.cloudfront.net/310519663509163804/mmTCDMc2kTTVcTkwoY8f9U/gigitekai-social-share-PcGTfHXSqszP86JZVvvsxv.png");
+    
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', 'https://gigitekai.com/about');
+  }, []);
   useSEO({ ...SEO_CONFIG["/about-us"], path: "/about-us", schemaType: "AboutPage" });
 
   return (

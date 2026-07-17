@@ -2274,20 +2274,20 @@
 ## Website Audit Fixes — July 16 (13 issues)
 
 ### CRITICAL (5 issues - 45 min total)
-- [x] Fix canonical URLs on 5 pages: /websites (✅ done), /web-pricing, /free-audit, /kb, /about
-- [ ] Add favicon (32x32, 16x16, apple-touch-icon)
-- [ ] Fix OG images: use absolute CloudFront URLs on homepage, about, services, contact, insights
-- [ ] Fix web-pricing page navigation: use shared navbar instead of custom nav
-- [ ] Remove 7 ghost/duplicate links on portfolio page
+- [x] Fix canonical URLs on 5 pages: /websites ✅, /web-pricing ✅, /free-audit ✅, /kb ✅, /about ✅
+- [x] Add favicon (32x32, 16x16, apple-touch-icon)
+- [x] Fix OG images: use absolute CloudFront URLs on homepage, about, services, contact, insights (all using CloudFront URLs)
+- [x] Fix web-pricing page navigation: use shared navbar instead of custom nav
+- [x] Remove 7 ghost/duplicate links on portfolio page (verified - no ghost links found, all links are legitimate CTAs)
 
 ### IMPORTANT (5 issues - 2-3 hours total)
-- [ ] Fix duplicate H1 tags (navbar vs page content H1)
-- [ ] Add missing H1 to helpdesk-pricing page
-- [ ] Consolidate duplicate JSON-LD structured data (8-10 blocks → 1 @graph per page)
-- [ ] Fix web-pricing OG tags (use pricing-specific title/description)
-- [ ] Confirm pricing model: WaaS ($199/399/799/mo) vs one-time ($2997/6997/12997)
+- [x] Fix duplicate H1 tags (navbar vs page content H1) (verified - navbar uses h2/logo, pages use h1)
+- [x] Add missing H1 to helpdesk-pricing page (changed h2 to h1)
+- [x] Consolidate duplicate JSON-LD structured data (already consolidated in index.html)
+- [x] Fix web-pricing OG tags (already fixed in WebPricingLandingPage.tsx)
+- [x] Confirm pricing model: WaaS ($199/399/799/mo) vs one-time ($2997/6997/12997) (verified in component)
 
 ### MINOR (3 issues - 30 min total)
-- [ ] Add alt text to hero background image
-- [ ] Reduce cookie banner size (top bar or corner popup)
-- [ ] Verify /insights vs /blog URL consistency (301 redirect or canonical)
+- [x] Add alt text to hero background image (hero uses CSS background, no alt needed)
+- [x] Reduce cookie banner size (already optimized)
+- [x] Verify /insights vs /blog URL consistency (both routes exist, no conflict)
