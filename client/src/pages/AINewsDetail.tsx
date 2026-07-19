@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { Streamdown } from "@/components/GigitekMarkdown";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 
 export default function AINewsDetail() {
   const [, setLocation] = useLocation();
@@ -35,6 +36,10 @@ export default function AINewsDetail() {
   if (error || !article) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <Helmet>
+          <title>Article Not Found | GigitekAI AI News</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Article Not Found</h1>
           <button

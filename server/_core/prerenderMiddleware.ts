@@ -628,9 +628,6 @@ export function prerenderMiddleware(distPath: string) {
   loadPrerenderedContent(distPath);
   
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Add debug header to ALL responses processed by this middleware
-    res.setHeader("X-GG-Middleware", "prerender");
-    
     // Skip API routes, static assets, and storage proxy
     if (
       req.path.startsWith("/api/") ||
@@ -664,30 +661,26 @@ export function prerenderMiddleware(distPath: string) {
           noindex: true,
         }, `${BASE_URL}/404`);
         res.status(404).setHeader("Content-Type", "text/html; charset=utf-8");
-        res.setHeader("X-GG-404", "true");
         return res.send(html);
       } catch {
         return res.status(404).send("Not Found");
       }
     }
 
-    // ─── SEO Injection (for ALL requests, not just crawlers) ─────────────
-    // This ensures Google sees correct meta even if it renders the page
+        // ─── SEO Injection & HTML Serving (for ALL known routes) ─────────────
+    // This middleware ALWAYS serves index.html for known routes.
+    // If SEO data exists, inject it. Otherwise serve plain index.html.
+    // This prevents the serveStatic catch-all from ever handling HTML pages.
     const seo = await getRouteSEO(req.path);
-    if (!seo) {
-      return next();
-    }
-
     const canonicalUrl = req.path === "/" ? `${BASE_URL}/` : `${BASE_URL}${req.path}`;
     const indexPath = path.resolve(distPath, "index.html");
-
     try {
       let html = fs.readFileSync(indexPath, "utf-8");
-      html = injectSEO(html, seo, canonicalUrl);
-      
+      if (seo) {
+        html = injectSEO(html, seo, canonicalUrl);
+      }
       // Inject prerendered content into #root for crawlers to see real DOM
       html = injectPrerenderedContent(html, req.path);
-
       // Fix Cache-Control for HTML (allow caching with revalidation)
       res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
       res.setHeader("Content-Type", "text/html; charset=utf-8");

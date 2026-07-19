@@ -39,6 +39,10 @@ export default function BlogDetail() {
   if (!match || !slug) {
     return (
       <div className="min-h-screen flex flex-col">
+        <Helmet>
+          <title>Article Not Found | GigitekAI Blog</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -77,6 +81,10 @@ export default function BlogDetail() {
   if (error || !post) {
     return (
       <div className="min-h-screen flex flex-col">
+        <Helmet>
+          <title>Article Not Found | GigitekAI Blog</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <SiteNavBar2024 />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
