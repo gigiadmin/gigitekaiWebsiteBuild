@@ -1,5 +1,5 @@
 /*
-  GigitekAI Services Section — Tampa Bay SMB Focus
+  GigitekAI Services Section — SMB & Enterprise Focus
   4 clear service packages with SMB-friendly language
   Emphasizes security, compliance, and risk reduction
 */
@@ -68,17 +68,17 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
     <div
       id={service.id}
       ref={ref}
-      className={`group relative overflow-hidden rounded-xl border border-gray-700 bg-gradient-to-br from-gray-900 to-black p-8 transition-all duration-500 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 ${
+      className={`group relative overflow-hidden rounded-xl border border-gray-700 bg-gradient-to-br from-gray-900 to-black p-8 transition-[opacity,transform,border-color,box-shadow] duration-500 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
       {/* Background accent */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20 group-hover:from-cyan-500/20 transition-all duration-300" />
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-full blur-3xl -mr-20 -mt-20 group-hover:from-cyan-500/20 transition-opacity duration-300" />
 
       {/* Icon */}
       <div className="relative z-10 mb-6">
-        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center group-hover:from-cyan-500/30 transition-all duration-300">
+        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center group-hover:from-cyan-500/30 transition-[background] duration-300">
           <Icon className="w-7 h-7 text-cyan-400" />
         </div>
       </div>

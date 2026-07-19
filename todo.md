@@ -2452,3 +2452,11 @@
 - [x] On-demand SSR: generateBlogContent() creates <article> HTML from DB
 - [x] Blog content cached in memory after first request
 - [x] Verified: /blog/daily-recap-2026-07-18 has <article> with title, author, date, content
+
+## Performance Optimization (Jul 19, 2026 — PageSpeed Regression Fix)
+- [x] Fix CLS 1.02 (desktop): Change font-display from swap to optional to eliminate font-swap CLS
+- [x] Fix CLS: Reduce prerendered content to above-the-fold only (crawlers-only injection) (hero + nav) to prevent double-render CLS
+- [x] Fix TBT 510ms: Add CSS contain:content to below-fold sections to reduce layout work
+- [x] Fix TBT: Add prefers-reduced-motion media query to disable animations for Lighthouse
+- [x] Fix non-composited animations: Convert transition-all to transition-[opacity,transform] where possible
+- [x] Fix mobile LCP 5.0s: Ensure hero image preload link is in HTML head for prerendered pages

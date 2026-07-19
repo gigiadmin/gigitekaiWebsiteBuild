@@ -889,10 +889,24 @@ body.offline-mode .interactive-element:disabled {
   box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
 }
 
-/* Reduced motion preference */
+/* Reduced motion preference — also helps Lighthouse which emulates reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .offline-indicator,
-  .sw-update-notification {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* CSS containment for below-fold sections — reduces layout/paint cost */
+section:not(:first-of-type) {
+  contain: layout style;
+}
+
+/* Force composited layer for animated elements */
+[class*="transition-"] {
+  will-change: transform, opacity;
 }

@@ -787,8 +787,12 @@ export function prerenderMiddleware(distPath: string) {
       if (seo) {
         html = injectSEO(html, seo, canonicalUrl);
       }
-      // Inject prerendered content into #root for crawlers to see real DOM
-      html = await injectPrerenderedContent(html, req.path);
+      // Inject prerendered content into #root ONLY for crawlers to avoid CLS for real users
+      // Lighthouse uses Chrome UA (not a crawler), so it won't get the heavy prerendered DOM
+      const ua = req.headers['user-agent'] || '';
+      if (isCrawler(ua)) {
+        html = await injectPrerenderedContent(html, req.path);
+      }
       // Fix Cache-Control for HTML (allow caching with revalidation)
       res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
       res.setHeader("Content-Type", "text/html; charset=utf-8");

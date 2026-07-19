@@ -282,7 +282,7 @@ function mountApp() {
     reactRoot.render(appContent);
     // Hide the pre-rendered static hero now that React has mounted
     const staticHero = document.getElementById('static-hero');
-    if (staticHero) staticHero.style.display = 'none';
+    if (staticHero) { staticHero.style.opacity = '0'; staticHero.style.pointerEvents = 'none'; staticHero.style.zIndex = '-1'; }
     console.log('[GigitekAI] React mounted successfully');
   } catch (err) {
     console.error('[GigitekAI] React mount failed, retrying...', err);
@@ -307,7 +307,7 @@ function mountApp() {
 
         retryRoot.render(appContent);
         const sh = document.getElementById('static-hero');
-        if (sh) sh.style.display = 'none';
+        if (sh) { sh.style.opacity = '0'; sh.style.pointerEvents = 'none'; sh.style.zIndex = '-1'; }
         console.log('[GigitekAI] React mounted on retry');
       } catch (retryErr) {
         console.error('[GigitekAI] React mount retry also failed:', retryErr);
