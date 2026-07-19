@@ -10,6 +10,8 @@ import { registerVideoProxy } from "./videoProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { prerenderMiddleware } from "./prerenderMiddleware";
+import path from "path";
 import { setupWebSocket } from "./websocket";
 import { setupWebRTCSignaling } from "./webrtcSignaling";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
@@ -72,6 +74,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // Remove X-Powered-By header (security best practice)
+  app.disable('x-powered-by');
   // Setup WebSocket
   setupWebSocket(server);
   // Setup WebRTC Signaling (PeerChat-style)
@@ -337,8 +342,7 @@ async function startServer() {
   const fs = await import("fs");
   const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
   
-  // Import SSR handler for homepage
-  const { renderHomepageSSR } = await import("../ssrHandler");
+  // Homepage SSR now handled by prerenderMiddleware (covers all routes)
 
   
   app.get("/privacy-policy", (req, res, next) => {
@@ -361,16 +365,13 @@ async function startServer() {
     next();
   });
   
-  // Server-Side Rendering (SSR) for homepage
-  // Serves full HTML content with schema markup so Google and users see complete content
-  app.get("/", (req, res, next) => {
-    if (process.env.NODE_ENV === "production") {
-      renderHomepageSSR(req, res);
-    } else {
-      // Development: pass to Vite
-      next();
-    }
-  });
+  // ── Prerender Middleware (Production Only) ─────────────────────────────────
+  // Injects per-route SEO (title, description, canonical, OG tags) into HTML
+  // Also handles: 301 trailing slash redirects, /insights → /blog, real 404s
+  if (process.env.NODE_ENV === "production") {
+    const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
+    app.use(prerenderMiddleware(distPath));
+  }
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

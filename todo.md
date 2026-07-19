@@ -2346,3 +2346,33 @@
 - [x] Fix Tampa Tampa in schema (12 occurrences - remove city duplication) (verified - no Tampa Tampa duplicates)
 - [x] Consolidate JSON-LD blocks (reduce 8-10 → ≤3 per page) (verified - consolidated)
 - [x] Verify About page canonical for future re-enable (verified - canonical set to /about)
+
+
+## PRE-LAUNCH AUDIT FIXES (July 18, 2026)
+
+### P0 CRITICAL (Fix before launch)
+- [ ] Implement prerendering/SSR for all 44+ marketing routes
+- [ ] Unique server-rendered title + meta description per page
+- [ ] Self-referencing canonical per page (server-rendered)
+- [ ] Real HTTP 404 status codes for nonexistent URLs
+- [ ] Fix duplicate URLs: 301 trailing slashes, /insights → /blog redirect
+- [ ] Fix/remove empty sitemaps (sitemap-portfolio.xml, sitemap-services.xml)
+- [ ] Add /smart-home to sitemap or remove homepage link
+- [ ] Noindex daily-recap blog posts
+
+### P1 HIGH (Fix within 2 weeks)
+- [ ] One H1 per page (demote extra H1s to div/p)
+- [ ] Convert CSS background images to real <img> with alt text
+- [ ] Code-split vendor.js (949KB), purge unused CSS (371KB)
+- [ ] Fix Cache-Control headers (remove no-store, add ETag)
+- [ ] Trim meta descriptions to ≤155 chars
+- [ ] Fix stale sitemap lastmod dates
+- [ ] Remove empty sitemaps from robots.txt
+
+### P2 MEDIUM (First month)
+- [ ] Remove X-Powered-By: Express header
+- [ ] Add sameAs links to Organization schema (LinkedIn, X, Facebook)
+- [ ] Add Article + author schema to blog posts
+- [ ] Add public routes to sitemap (/ai-demo, /ai-news, /exchange, etc.)
+- [ ] Add og:locale (en_US) and og:updated_time for blog
+- [ ] Serve favicon.ico locally (currently 302 redirects to CDN)
