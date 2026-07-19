@@ -177,10 +177,8 @@ export function serveStatic(app: Express) {
     if (req.path.startsWith("/manus-storage/") || req.path.startsWith("/api/video/")) {
       return next();
     }
-    // Prevent caching of HTML pages to ensure users always get the latest version
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
+    // Allow revalidation but always check for fresh content (enables bfcache + ETag)
+    res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
     // Serve redirect.html for MSAL redirect bridge page
     if (req.path === "/redirect.html" || req.path === "/redirect") {
       const redirectPath = path.resolve(distPath, "redirect.html");

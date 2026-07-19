@@ -131,8 +131,8 @@ async function startServer() {
       // Cache static assets for 1 year (immutable)
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (isHtml) {
-      // Don't cache HTML (always check for updates)
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      // Allow revalidation but always check for updates (enables bfcache + ETag)
+      res.setHeader('Cache-Control', 'no-cache, max-age=0, must-revalidate');
     } else if (isApi) {
       // Never cache API responses — auth endpoints set cookies that must not be cached
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');

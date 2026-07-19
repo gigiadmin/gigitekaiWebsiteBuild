@@ -29,7 +29,7 @@ const DEFAULT_OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/3105196635091638
 const ROUTE_SEO: Record<string, RouteSEO> = {
   "/": {
     title: "GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation",
-    description: "GigitekAI delivers enterprise-grade cloud infrastructure, AI automation, and managed IT services. 99.9% uptime SLA, 24/7 support, 40% cost reduction for SMBs.",
+    description: "GigitekAI delivers enterprise cloud, AI automation & managed IT for Tampa Bay SMBs. 99.9% uptime SLA, 24/7 support, 40% cost reduction.",
     h1: "AI-First Managed IT & Cloud Solutions for SMBs",
   },
   "/services": {
@@ -46,7 +46,7 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
   },
   "/helpdesk-pricing": {
     title: "Helpdesk & IT Support Pricing | Per-User Plans | GigitekAI",
-    description: "24/7 AI-powered helpdesk support. Essential $69, Professional $119, Elite $189 per user/month. Includes ticket management, remote support, and SLA guarantees.",
+    description: "24/7 AI-powered helpdesk: Essential $69, Professional $119, Elite $189/user/mo. Ticket management, remote support & SLA guarantees.",
   },
   "/contact": {
     title: "Contact GigitekAI | Get a Free IT Consultation",
