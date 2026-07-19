@@ -618,16 +618,94 @@ function loadPrerenderedContent(distPath: string): void {
   console.log(`[Prerender] Loaded ${prerenderedCache.size} prerendered routes`);
 }
 
-function injectPrerenderedContent(html: string, route: string): string {
-  const content = prerenderedCache.get(route);
+// ─── On-Demand Blog Content Generation ──────────────────────────────────────
+// For blog posts not in the prerender cache (published after last prerender run),
+// generate a lightweight HTML representation from the DB content.
+async function generateBlogContent(slug: string): Promise<string | null> {
+  try {
+    const { getDb } = await import("../db");
+    const { blogPosts } = await import("../../drizzle/schema");
+    const { eq, and } = await import("drizzle-orm");
+    const db = await getDb();
+    if (!db) return null;
+    
+    const [post] = await db
+      .select({
+        title: blogPosts.title,
+        content: blogPosts.content,
+        authorName: blogPosts.authorName,
+        category: blogPosts.category,
+        publishedAt: blogPosts.publishedAt,
+        excerpt: blogPosts.excerpt,
+        readTime: blogPosts.readTime,
+      })
+      .from(blogPosts)
+      .where(and(eq(blogPosts.slug, slug), eq(blogPosts.published, 1)))
+      .limit(1);
+    
+    if (!post) return null;
+    
+    const date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    
+    // Generate minimal semantic HTML for crawlers
+    return `<article style="max-width:800px;margin:0 auto;padding:2rem;font-family:'DM Sans',sans-serif;color:#E8EAED;background:#0A0E1A;">
+      <header>
+        <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.5rem;color:#fff;margin-bottom:1rem;">${escapeHtml(post.title)}</h1>
+        <div style="color:#9CA3AF;margin-bottom:2rem;">
+          ${post.authorName ? `<span>By ${escapeHtml(post.authorName)}</span>` : ''}
+          ${date ? ` • <time>${date}</time>` : ''}
+          ${post.readTime ? ` • ${post.readTime} min read` : ''}
+          ${post.category ? ` • <span>${escapeHtml(post.category)}</span>` : ''}
+        </div>
+      </header>
+      <div class="blog-content">${post.content || escapeHtml(post.excerpt || '')}</div>
+    </article>`;
+  } catch {
+    return null;
+  }
+}
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function injectPrerenderedContent(html: string, route: string): Promise<string> {
+  let content = prerenderedCache.get(route);
+  
+  // On-demand: if no prerendered content for a blog post, generate from DB
+  if (!content && route.startsWith('/blog/') && route !== '/blog') {
+    const slug = route.replace('/blog/', '');
+    content = await generateBlogContent(slug) || undefined;
+    // Cache it for subsequent requests
+    if (content) {
+      prerenderedCache.set(route, content);
+    }
+  }
+  
   if (!content) return html;
   
   // Inject the prerendered content inside #root so crawlers see real DOM
   // React will clear #root on mount anyway, so this doesn't affect UX
-  return html.replace(
+  let result = html.replace(
     '<div id="root"></div>',
     `<div id="root"><div id="gigitekai-app" style="min-height:100vh;">${content}</div></div>`
   );
+  
+  // Strip the static-hero fallback block — it contains Tampa Bay-specific content
+  // that conflicts with non-homepage pages (e.g., Miami landing page) and adds a
+  // duplicate H1. The prerendered content already has the full page content.
+  result = result.replace(
+    /<!-- PRE-RENDERED HERO[\s\S]*?<div id="root">/,
+    '<div id="root">'
+  );
+  
+  // Strip the noscript fallback — prerendered content IS the no-JS fallback now
+  result = result.replace(
+    /<!-- Noscript fallback[\s\S]*?<\/noscript>/,
+    ''
+  );
+  
+  return result;
 }
 
 // ─── Middleware Export ────────────────────────────────────────────────────────
@@ -688,7 +766,7 @@ export function prerenderMiddleware(distPath: string) {
         html = injectSEO(html, seo, canonicalUrl);
       }
       // Inject prerendered content into #root for crawlers to see real DOM
-      html = injectPrerenderedContent(html, req.path);
+      html = await injectPrerenderedContent(html, req.path);
       // Fix Cache-Control for HTML (allow caching with revalidation)
       res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
       res.setHeader("Content-Type", "text/html; charset=utf-8");

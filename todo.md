@@ -2432,3 +2432,23 @@
 - [x] Ensure Daily Recap posts have noindex (already done) AND use actual headline as title
 - [x] Changed scheduler to use top story headline instead of generic 'Daily Recap' pattern
 - [x] Server-side getRouteSEO now fetches actual post title from DB for blog pages
+
+## RE-AUDIT V4 FIXES (July 18, 2026 — 3 Remaining Issues)
+
+### Task 1: Strip fallback/noscript block from prerendered HTML
+- [x] Removed static-hero div (brand fallback H1 + Tampa Bay text) from prerendered pages
+- [x] Removed noscript fallback block ("Loading your experience..." + reload button)
+- [x] Verified: /about has 0 "static-hero" mentions, 0 Tampa Bay content
+- [x] Only Vite CSS noscript remains (harmless)
+
+### Task 2: Real HTTP 404 statuses on live site
+- [x] Removed serveStatic catch-all — middleware now handles ALL HTML serving
+- [x] HTTP 404 confirmed locally for unknown routes and bad blog slugs
+- [x] CDN limitation: platform edge may still cache 200 for never-seen routes
+- [x] Client-side noindex in NotFound/BlogDetail/AINewsDetail as mitigation
+
+### Task 3: Prerender blog posts + on-demand SSR
+- [x] Fixed prerender script blog slug fetching (removed wrong tRPC input)
+- [x] On-demand SSR: generateBlogContent() creates <article> HTML from DB
+- [x] Blog content cached in memory after first request
+- [x] Verified: /blog/daily-recap-2026-07-18 has <article> with title, author, date, content

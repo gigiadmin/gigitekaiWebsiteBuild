@@ -165,50 +165,27 @@ export function serveStatic(app: Express) {
     res.redirect("/");
   });
 
-  // fall through to index.html if the file doesn't exist
-  // IMPORTANT: Skip /api/* and /manus-storage/* routes so they reach their own handlers
-  app.use("*", (req, res, next) => {
-    // Don't serve index.html for API routes - let them 404 or be handled by tRPC
-    if (req.path.startsWith("/api/")) {
-      return next();
-    }
-    // Don't override cache headers for storage proxy assets (images, etc.)
-    // The storageProxy sets its own cache headers (public, max-age=604800, immutable)
-    if (req.path.startsWith("/manus-storage/") || req.path.startsWith("/api/video/")) {
-      return next();
-    }
-    // Allow revalidation but always check for fresh content (enables bfcache + ETag)
-    res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
-    // Serve redirect.html for MSAL redirect bridge page
-    if (req.path === "/redirect.html" || req.path === "/redirect") {
-      const redirectPath = path.resolve(distPath, "redirect.html");
-      if (fs.existsSync(redirectPath)) {
-        return res.sendFile(redirectPath);
-      }
-    }
-
-    // Serve index.html from in-memory cache (re-read if file changed on disk)
-    const indexPath = path.resolve(distPath, "index.html");
-    try {
-      const stat = fs.statSync(indexPath);
-      const mtime = stat.mtimeMs;
-      if (!cachedHtml || cachedHtmlMtime !== mtime) {
-        const raw = fs.readFileSync(indexPath, "utf-8");
-        cachedHtml = transformHtmlForProduction(raw);
-        cachedHtmlMtime = mtime;
-        console.log("[Server] index.html cache refreshed");
-      }
+  // Serve redirect.html for MSAL redirect bridge page
+  app.get("/redirect.html", (_req, res) => {
+    const redirectPath = path.resolve(distPath, "redirect.html");
+    if (fs.existsSync(redirectPath)) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.send(cachedHtml);
-    } catch {
-      // Fallback to sendFile if cache fails
-      res.sendFile(indexPath);
+      return res.sendFile(redirectPath);
     }
+    res.status(404).send("Not Found");
   });
-  
+  app.get("/redirect", (_req, res) => {
+    res.redirect("/redirect.html");
+  });
+
   // 404 handler for API routes that weren't matched
   app.use("/api/*", (_req, res) => {
     res.status(404).json({ error: "Not Found" });
   });
+
+  // NOTE: No catch-all app.use("*") here.
+  // prerenderMiddleware (registered before serveStatic) handles ALL HTML serving
+  // for known routes and returns 404 for unknown routes. This ensures no fallback
+  // 200 response exists that could be cached by the CDN for unknown routes.
 
 }

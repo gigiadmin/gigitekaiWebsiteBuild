@@ -147,12 +147,18 @@ function startServer(port) {
 // Fetch published blog slugs from the running server
 async function fetchBlogSlugs(baseUrl) {
   try {
-    const res = await fetch(`${baseUrl}/api/trpc/blog.listPosts?input=${encodeURIComponent(JSON.stringify({ json: { page: 1, limit: 500 } }))}`);
-    if (!res.ok) return [];
+    // blog.listPosts is a no-input public query that returns an array of posts directly
+    const res = await fetch(`${baseUrl}/api/trpc/blog.listPosts`);
+    if (!res.ok) {
+      console.log(`[Prerender] blog.listPosts returned ${res.status}`);
+      return [];
+    }
     const data = await res.json();
-    // tRPC batch response format
-    const posts = data?.result?.data?.json?.posts || data?.result?.data?.posts || [];
-    return posts.map(p => p.slug).filter(Boolean);
+    // tRPC response format: { result: { data: { json: [...] } } }
+    const posts = data?.result?.data?.json || data?.result?.data || [];
+    const slugs = (Array.isArray(posts) ? posts : []).map(p => p.slug).filter(Boolean);
+    console.log(`[Prerender] Found ${slugs.length} published blog slugs`);
+    return slugs;
   } catch (err) {
     console.log(`[Prerender] Could not fetch blog slugs: ${err.message}`);
     return [];
