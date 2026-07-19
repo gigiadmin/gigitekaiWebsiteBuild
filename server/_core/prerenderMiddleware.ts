@@ -8,6 +8,13 @@
  * 
  * For human visitors, the SPA still works normally (client JS overwrites meta).
  * For crawlers, they get proper SEO signals in the initial HTML response.
+ * 
+ * Also handles:
+ * - Real HTTP 404 status codes for unknown routes
+ * - Blog slug validation against DB (cached 5 min)
+ * - AI news ID validation against DB (cached 5 min)
+ * - 301 trailing slash redirects
+ * - /insights → /blog redirect
  */
 
 import { Request, Response, NextFunction } from "express";
@@ -21,6 +28,7 @@ interface RouteSEO {
   description: string;
   h1?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const BASE_URL = "https://gigitekai.com";
@@ -104,6 +112,10 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
     title: "IT Compliance Scorecard | Free Assessment | GigitekAI",
     description: "Rate your IT compliance posture across email security, backup, access control, and more. Get a personalized remediation roadmap in minutes.",
   },
+  "/compliance-benchmark": {
+    title: "Compliance Benchmark | Industry Comparison | GigitekAI",
+    description: "Compare your IT compliance posture against industry benchmarks. See how your organization stacks up in security, backup, and access control.",
+  },
   "/industries": {
     title: "Industries We Serve | Healthcare, Finance, Legal & More | GigitekAI",
     description: "Specialized IT solutions for healthcare, finance, legal, manufacturing, and professional services. Industry-specific compliance and security expertise.",
@@ -152,6 +164,18 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
     title: "Microsoft 365 Health Status | Service Dashboard | GigitekAI",
     description: "Real-time Microsoft 365 service health. Monitor Exchange, Teams, SharePoint, and other M365 services for your organization.",
   },
+  "/about": {
+    title: "About GigitekAI | AI-First MSP in Tampa, FL",
+    description: "GigitekAI is an AI-first managed services provider founded by a 25+ year IT veteran. We deliver enterprise cloud, AI automation & managed IT for SMBs.",
+  },
+  "/about-us": {
+    title: "About GigitekAI | AI-First MSP in Tampa, FL",
+    description: "GigitekAI is an AI-first managed services provider founded by a 25+ year IT veteran. We deliver enterprise cloud, AI automation & managed IT for SMBs.",
+  },
+  "/roadmap-generator": {
+    title: "IT Roadmap Generator | Strategic Planning Tool | GigitekAI",
+    description: "Generate a customized IT roadmap for your business. AI-powered strategic planning tool for cloud migration, security, and digital transformation.",
+  },
 };
 
 // Service detail pages
@@ -196,11 +220,19 @@ const INDUSTRY_SLUGS: Record<string, RouteSEO> = {
     title: "Financial Services IT | SOC 2 & PCI-DSS | GigitekAI",
     description: "Secure IT for financial services. SOC 2 and PCI-DSS compliance, encrypted communications, audit-ready infrastructure, and fraud prevention.",
   },
+  "financial-services": {
+    title: "Financial Services IT | SOC 2 & PCI-DSS | GigitekAI",
+    description: "Secure IT for financial services. SOC 2 and PCI-DSS compliance, encrypted communications, audit-ready infrastructure, and fraud prevention.",
+  },
   "manufacturing": {
     title: "Manufacturing IT Services | OT/IT Convergence | GigitekAI",
     description: "IT solutions for manufacturers. OT/IT convergence, SCADA security, supply chain visibility, and Industry 4.0 digital transformation.",
   },
   "retail": {
+    title: "Retail & E-Commerce IT | PCI Compliant | GigitekAI",
+    description: "IT solutions for retail and e-commerce. PCI-DSS compliance, POS security, inventory systems, and omnichannel infrastructure.",
+  },
+  "retail-ecommerce": {
     title: "Retail & E-Commerce IT | PCI Compliant | GigitekAI",
     description: "IT solutions for retail and e-commerce. PCI-DSS compliance, POS security, inventory systems, and omnichannel infrastructure.",
   },
@@ -213,6 +245,12 @@ const INDUSTRY_SLUGS: Record<string, RouteSEO> = {
     description: "IT solutions for education. LMS integration, campus networking, student data protection, and FERPA-compliant cloud infrastructure.",
   },
 };
+
+// Valid portfolio demo slugs (from App.tsx routes)
+const VALID_PORTFOLIO_SLUGS = new Set([
+  "finance", "legal", "insurance", "vc", "health",
+  "consulting", "tech", "gigitekai", "divinesounds", "ecommerce",
+]);
 
 // ─── Crawler Detection ───────────────────────────────────────────────────────
 const CRAWLER_USER_AGENTS = [
@@ -278,6 +316,14 @@ function injectSEO(html: string, seo: RouteSEO, canonicalUrl: string): string {
     );
   }
 
+  // Add noindex for thin/auto-generated content
+  if (seo.noindex) {
+    result = result.replace(
+      '</head>',
+      `<meta name="robots" content="noindex, follow">\n</head>`
+    );
+  }
+
   return result;
 }
 
@@ -303,9 +349,9 @@ function getRouteSEO(pathname: string): RouteSEO | null {
     return INDUSTRY_SLUGS[industryMatch[1]];
   }
 
-  // Portfolio demo pages
+  // Portfolio demo pages (only valid slugs)
   const portfolioMatch = normalized.match(/^\/(websites|portfolio)\/(.+)$/);
-  if (portfolioMatch) {
+  if (portfolioMatch && VALID_PORTFOLIO_SLUGS.has(portfolioMatch[2])) {
     const slug = portfolioMatch[2];
     return {
       title: `${slug.charAt(0).toUpperCase() + slug.slice(1)} Website Demo | GigitekAI Portfolio`,
@@ -313,14 +359,18 @@ function getRouteSEO(pathname: string): RouteSEO | null {
     };
   }
 
-  // Blog detail pages: /blog/:slug
+  // Blog detail pages: /blog/:slug — SEO data generated from slug
+  // (actual existence check is done in isKnownRouteAsync)
   const blogMatch = normalized.match(/^\/blog\/(.+)$/);
   if (blogMatch) {
     const slug = blogMatch[1];
     const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    // Noindex auto-generated "Daily Recap" posts — thin content
+    const isDailyRecap = slug.includes('daily-recap') || slug.includes('daily-ai-recap');
     return {
       title: `${title} | GigitekAI Blog`,
       description: `Read ${title} on the GigitekAI blog. Expert insights on managed IT, cloud, AI, and cybersecurity.`,
+      noindex: isDailyRecap,
     };
   }
 
@@ -332,11 +382,20 @@ function getRouteSEO(pathname: string): RouteSEO | null {
     };
   }
 
+  // AI News detail: /ai-news/:id
+  if (normalized.match(/^\/ai-news\/\d+$/)) {
+    return {
+      title: "AI News Article | Latest AI Technology Updates | GigitekAI",
+      description: "AI news article with analysis and GigitekAI perspective. Stay current with AI breakthroughs and enterprise AI trends.",
+    };
+  }
+
   return null;
 }
 
 // ─── Known Routes (for 404 detection) ────────────────────────────────────────
-const KNOWN_ROUTE_PREFIXES = [
+// These are EXACT static routes from App.tsx that should always return 200
+const KNOWN_STATIC_ROUTES = new Set([
   "/", "/services", "/pricing", "/web-pricing", "/helpdesk-pricing",
   "/contact", "/free-audit", "/audit-results", "/blog", "/insights",
   "/websites", "/portfolio", "/kb", "/case-studies", "/security",
@@ -346,29 +405,208 @@ const KNOWN_ROUTE_PREFIXES = [
   "/industries", "/our-team", "/partners", "/support", "/status",
   "/privacy-policy", "/privacy", "/terms-of-service", "/ai-demo",
   "/ai-news", "/web-discovery-intake", "/exchange", "/m365-status",
-  "/m365-notifications", "/helpdesk", "/admin", "/investor-portal",
-  "/accept-invite", "/logout", "/cancel-meeting", "/reschedule-meeting",
-  "/remote-session", "/scripts", "/call-transcripts", "/contact-card",
-  "/AIStrategicBriefing", "/404",
+  "/m365-notifications", "/helpdesk", "/investor-portal",
+  "/accept-invite", "/logout", "/contact-card", "/search",
+  "/AIStrategicBriefing", "/404", "/about", "/about-us",
+  "/scripts", "/call-transcripts",
+]);
+
+// Route prefixes that accept any sub-path (token-based or app routes)
+// These always return 200 regardless of the sub-path value
+const ALWAYS_200_PREFIXES = [
+  "/admin",           // Admin portal (has its own auth)
+  "/helpdesk",        // Helpdesk app (ticket IDs, dashboard, etc.)
+  "/cancel-meeting",  // Token-based meeting cancellation
+  "/reschedule-meeting", // Token-based meeting reschedule
+  "/remote-session",  // Room-based remote sessions
+  "/support",         // Support portal (ticket lookup, etc.)
+  "/kb",              // Knowledge base articles (any ID)
 ];
 
-function isKnownRoute(pathname: string): boolean {
+// ─── Blog Slug Cache ─────────────────────────────────────────────────────────
+// Cache published blog slugs in memory for 5 minutes to avoid DB hit on every request
+let blogSlugCache: Set<string> = new Set();
+let blogSlugCacheTime: number = 0;
+const BLOG_SLUG_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function loadBlogSlugs(): Promise<Set<string>> {
+  const now = Date.now();
+  if (blogSlugCache.size > 0 && (now - blogSlugCacheTime) < BLOG_SLUG_CACHE_TTL) {
+    return blogSlugCache;
+  }
+  
+  try {
+    const { getDb } = await import("../db");
+    const { blogPosts } = await import("../../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+    const db = await getDb();
+    if (!db) return blogSlugCache;
+    
+    const posts = await db
+      .select({ slug: blogPosts.slug })
+      .from(blogPosts)
+      .where(eq(blogPosts.published, 1));
+    
+    blogSlugCache = new Set(posts.map(p => p.slug));
+    blogSlugCacheTime = now;
+    console.log(`[Prerender] Blog slug cache refreshed: ${blogSlugCache.size} slugs`);
+  } catch (err) {
+    console.error("[Prerender] Failed to load blog slugs:", err);
+    // Keep stale cache if DB fails
+  }
+  
+  return blogSlugCache;
+}
+
+// ─── AI News ID Cache ────────────────────────────────────────────────────────
+let aiNewsIdCache: Set<number> = new Set();
+let aiNewsIdCacheTime: number = 0;
+const AI_NEWS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function loadAiNewsIds(): Promise<Set<number>> {
+  const now = Date.now();
+  if (aiNewsIdCache.size > 0 && (now - aiNewsIdCacheTime) < AI_NEWS_CACHE_TTL) {
+    return aiNewsIdCache;
+  }
+  
+  try {
+    const { getDb } = await import("../db");
+    const { aiNewsArticles } = await import("../../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+    const db = await getDb();
+    if (!db) return aiNewsIdCache;
+    
+    const articles = await db
+      .select({ id: aiNewsArticles.id })
+      .from(aiNewsArticles)
+      .where(eq(aiNewsArticles.isArchived, 0));
+    
+    aiNewsIdCache = new Set(articles.map(a => a.id));
+    aiNewsIdCacheTime = now;
+    console.log(`[Prerender] AI News ID cache refreshed: ${aiNewsIdCache.size} articles`);
+  } catch (err) {
+    console.error("[Prerender] Failed to load AI news IDs:", err);
+  }
+  
+  return aiNewsIdCache;
+}
+
+// ─── Async Route Validation ──────────────────────────────────────────────────
+async function isKnownRouteAsync(pathname: string): Promise<boolean> {
   const normalized = pathname.replace(/\/$/, "") || "/";
   
-  // Exact match
-  if (KNOWN_ROUTE_PREFIXES.includes(normalized)) return true;
+  // 1. Exact static route match
+  if (KNOWN_STATIC_ROUTES.has(normalized)) return true;
   
-  // Prefix match for dynamic routes
-  for (const prefix of KNOWN_ROUTE_PREFIXES) {
-    if (normalized.startsWith(prefix + "/")) return true;
+  // 2. Always-200 prefix match (admin, helpdesk, meeting tokens, etc.)
+  for (const prefix of ALWAYS_200_PREFIXES) {
+    if (normalized === prefix || normalized.startsWith(prefix + "/")) return true;
+  }
+  
+  // 3. Service detail: /services/:slug — validate against known service slugs
+  const serviceMatch = normalized.match(/^\/services\/(.+)$/);
+  if (serviceMatch) {
+    return serviceMatch[1] in SERVICE_SLUGS;
+  }
+  
+  // 4. Industry pages: /industries/:slug — validate against known industry slugs
+  const industryMatch = normalized.match(/^\/industries\/(.+)$/);
+  if (industryMatch) {
+    return industryMatch[1] in INDUSTRY_SLUGS;
+  }
+  
+  // 5. Portfolio demos: /websites/:slug or /portfolio/:slug — validate against known demos
+  const portfolioMatch = normalized.match(/^\/(websites|portfolio)\/(.+)$/);
+  if (portfolioMatch) {
+    return VALID_PORTFOLIO_SLUGS.has(portfolioMatch[2]);
+  }
+  
+  // 6. Blog posts: /blog/:slug — validate against published slugs in DB
+  const blogMatch = normalized.match(/^\/blog\/(.+)$/);
+  if (blogMatch) {
+    const slugs = await loadBlogSlugs();
+    return slugs.has(blogMatch[1]);
+  }
+  
+  // 7. AI News: /ai-news/:id — validate against non-archived article IDs
+  const aiNewsMatch = normalized.match(/^\/ai-news\/(\d+)$/);
+  if (aiNewsMatch) {
+    const ids = await loadAiNewsIds();
+    return ids.has(parseInt(aiNewsMatch[1], 10));
+  }
+  
+  // 8. Non-numeric /ai-news sub-paths are invalid
+  if (normalized.match(/^\/ai-news\/.+$/)) {
+    return false;
   }
   
   return false;
 }
 
+// Legacy sync version for backward compatibility
+function isKnownRoute(pathname: string): boolean {
+  const normalized = pathname.replace(/\/$/, "") || "/";
+  if (KNOWN_STATIC_ROUTES.has(normalized)) return true;
+  for (const prefix of ALWAYS_200_PREFIXES) {
+    if (normalized === prefix || normalized.startsWith(prefix + "/")) return true;
+  }
+  // For sync checks, allow blog/ai-news/portfolio/services/industries sub-paths
+  // (the async version does the real DB validation)
+  const serviceMatch = normalized.match(/^\/services\/(.+)$/);
+  if (serviceMatch) return serviceMatch[1] in SERVICE_SLUGS;
+  const industryMatch = normalized.match(/^\/industries\/(.+)$/);
+  if (industryMatch) return industryMatch[1] in INDUSTRY_SLUGS;
+  const portfolioMatch = normalized.match(/^\/(websites|portfolio)\/(.+)$/);
+  if (portfolioMatch) return VALID_PORTFOLIO_SLUGS.has(portfolioMatch[2]);
+  // Blog and AI news — sync version can't check DB, so return true (async will validate)
+  if (normalized.match(/^\/blog\/.+$/)) return true;
+  if (normalized.match(/^\/ai-news\/\d+$/)) return true;
+  return false;
+}
+
+// ─── Prerendered Content Cache ───────────────────────────────────────────────
+// Load prerendered route content from __prerendered/ directory at startup
+const prerenderedCache: Map<string, string> = new Map();
+
+function loadPrerenderedContent(distPath: string): void {
+  const prerenderDir = path.resolve(distPath, '__prerendered');
+  if (!fs.existsSync(prerenderDir)) {
+    console.log('[Prerender] No __prerendered directory found — skipping content injection');
+    return;
+  }
+  
+  const files = fs.readdirSync(prerenderDir).filter(f => f.endsWith('.json'));
+  for (const file of files) {
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(prerenderDir, file), 'utf-8'));
+      if (data.route && data.content) {
+        prerenderedCache.set(data.route, data.content);
+      }
+    } catch {
+      // Skip malformed files
+    }
+  }
+  console.log(`[Prerender] Loaded ${prerenderedCache.size} prerendered routes`);
+}
+
+function injectPrerenderedContent(html: string, route: string): string {
+  const content = prerenderedCache.get(route);
+  if (!content) return html;
+  
+  // Inject the prerendered content inside #root so crawlers see real DOM
+  // React will clear #root on mount anyway, so this doesn't affect UX
+  return html.replace(
+    '<div id="root"></div>',
+    `<div id="root"><div id="gigitekai-app" style="min-height:100vh;">${content}</div></div>`
+  );
+}
+
 // ─── Middleware Export ────────────────────────────────────────────────────────
 export function prerenderMiddleware(distPath: string) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  // Load prerendered content on startup
+  loadPrerenderedContent(distPath);
+  
+  return async (req: Request, res: Response, next: NextFunction) => {
     // Skip API routes, static assets, and storage proxy
     if (
       req.path.startsWith("/api/") ||
@@ -389,8 +627,9 @@ export function prerenderMiddleware(distPath: string) {
       return res.redirect(301, "/blog");
     }
 
-    // ─── 404 Detection ───────────────────────────────────────────────────
-    if (!isKnownRoute(req.path)) {
+    // ─── 404 Detection (async — validates blog slugs & AI news IDs) ─────
+    const known = await isKnownRouteAsync(req.path);
+    if (!known) {
       // Serve 404 page with proper HTTP status
       const indexPath = path.resolve(distPath, "index.html");
       try {
@@ -419,6 +658,9 @@ export function prerenderMiddleware(distPath: string) {
     try {
       let html = fs.readFileSync(indexPath, "utf-8");
       html = injectSEO(html, seo, canonicalUrl);
+      
+      // Inject prerendered content into #root for crawlers to see real DOM
+      html = injectPrerenderedContent(html, req.path);
 
       // Fix Cache-Control for HTML (allow caching with revalidation)
       res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
@@ -430,4 +672,4 @@ export function prerenderMiddleware(distPath: string) {
   };
 }
 
-export { ROUTE_SEO, SERVICE_SLUGS, INDUSTRY_SLUGS, isKnownRoute, getRouteSEO };
+export { ROUTE_SEO, SERVICE_SLUGS, INDUSTRY_SLUGS, isKnownRoute, isKnownRouteAsync, getRouteSEO };

@@ -2376,3 +2376,32 @@
 - [ ] Add public routes to sitemap (/ai-demo, /ai-news, /exchange, etc.)
 - [ ] Add og:locale (en_US) and og:updated_time for blog
 - [ ] Serve favicon.ico locally (currently 302 redirects to CDN)
+
+
+## RE-AUDIT V2 FIXES (July 18, 2026 — 4 Remaining Issues)
+
+### Task 1: Real HTTP 404 Status Codes (HIGH)
+- [x] Fix soft 404s: unknown routes return 200 instead of 404
+- [x] Validate /blog/:slug against DB — return 404 for nonexistent slugs
+- [x] Validate /ai-news/:id against DB — return 404 for nonexistent IDs
+- [x] Never 404: /api/*, /assets/*, /fonts/*, robots.txt, sitemap.xml, manifest.json
+- [x] Token routes (/helpdesk/ticket/:id, /cancel-meeting/:token) keep 200
+
+### Task 2: Fix /about Metadata & Sitemap (MEDIUM)
+- [x] Add /about to prerender metadata map (title, canonical, description)
+- [x] Re-add /about to sitemap.xml
+- [x] Re-add 6 industry pages to sitemap (healthcare, financial, manufacturing, retail, government, education)
+
+### Task 3: Prerender Marketing Routes into #root (HIGH — BIG TASK)
+- [x] Install puppeteer-core for build-time headless rendering
+- [x] Create scripts/prerender-routes.mjs (51 marketing URLs)
+- [x] Wait for React mount (#gigitekai-app) before capturing
+- [x] Preserve per-route metadata (not overwrite with homepage title)
+- [x] Exclude admin/private routes from prerendering
+- [x] Server loads __prerendered/*.json and injects into #root on response
+- [ ] Run prerender after first production deploy (requires DB for blog/ai-news pages)
+
+### Task 4: Small Cleanups (MEDIUM)
+- [x] Reduce H1 tags from 2 to 1 per page (demoted static-hero H1 to div[role=heading])
+- [x] Add real <img> tag with alt text to static-hero (logo image, 64x64)
+- [x] Add noindex to "Daily Recap" blog posts (client-side Helmet + server-side middleware)

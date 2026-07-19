@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/prerender-legal-pages.mjs && NODE_ENV=development tsx watch server/_core/index.ts",
     "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build:prerender": "node scripts/prerender-routes.mjs",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -142,6 +143,7 @@
     "pnpm": "^10.15.1",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
+    "puppeteer-core": "^25.3.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "supertest": "^7.2.2",
     "tailwindcss": "^4.1.14",

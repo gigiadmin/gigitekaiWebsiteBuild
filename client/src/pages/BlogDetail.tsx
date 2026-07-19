@@ -157,6 +157,10 @@ export default function BlogDetail() {
         <title>{post.title} | GigitekAI</title>
         <meta name="description" content={ogDescription} />
         <link rel="canonical" href={articleUrl} />
+        {/* Noindex auto-generated Daily Recap posts — thin content not worth indexing */}
+        {post.title.toLowerCase().includes('daily recap') && (
+          <meta name="robots" content="noindex, follow" />
+        )}
         {/* Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:title" content={post.title} />
