@@ -114,6 +114,26 @@ async function startServer() {
   });
 
   // ── Security Middleware ──────────────────────────────────────────────────
+  // ── Trailing Slash & Redirect Normalization ─────────────────────────────────────────
+  app.use((req, res, next) => {
+    // Skip API, assets, and file-like paths
+    if (req.path.startsWith('/api/') || req.path.includes('.')) return next();
+    
+    // 301 redirect trailing slashes (except root)
+    if (req.path.length > 1 && req.path.endsWith('/')) {
+      const clean = req.path.slice(0, -1);
+      const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+      return res.redirect(301, clean + qs);
+    }
+    
+    // 301 redirect /insights to /blog
+    if (req.path === '/insights') {
+      return res.redirect(301, '/blog');
+    }
+    
+    next();
+  });
+
   app.use(securityHeaders);
 
   // ── Cloudflare WAF Bypass for Mobile ────────────────────────────────────────

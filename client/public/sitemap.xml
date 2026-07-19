@@ -368,6 +368,13 @@
     <priority>0.5</priority>
   </url>
 
+  <url>
+    <loc>https://gigitekai.com/exchange</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
   <!-- ===== M365 Status ===== -->
   <url>
     <loc>https://gigitekai.com/m365-status</loc>

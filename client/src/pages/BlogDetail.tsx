@@ -176,8 +176,12 @@ export default function BlogDetail() {
         <meta property="og:url" content={articleUrl} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:site_name" content="GigitekAI" />
+        <meta property="og:locale" content="en_US" />
         {post.publishedAt && (
           <meta property="article:published_time" content={new Date(post.publishedAt).toISOString()} />
+        )}
+        {post.updatedAt && (
+          <meta property="og:updated_time" content={new Date(post.updatedAt).toISOString()} />
         )}
         <meta property="article:author" content={post.authorName} />
         {/* Twitter / X card */}
@@ -197,6 +201,18 @@ export default function BlogDetail() {
             "author": {
               "@type": "Person",
               "name": post.authorName
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "GigitekAI",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://gigitekai.com/logo.png"
+              }
+            },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": articleUrl
             },
             "url": articleUrl
           })}
