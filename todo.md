@@ -2405,3 +2405,28 @@
 - [x] Reduce H1 tags from 2 to 1 per page (demoted static-hero H1 to div[role=heading])
 - [x] Add real <img> tag with alt text to static-hero (logo image, 64x64)
 - [x] Add noindex to "Daily Recap" blog posts (client-side Helmet + server-side middleware)
+
+## RE-AUDIT V3 FIXES (July 18 Pass-3 Findings)
+
+### Task 1: Extend prerendering to missing routes
+- [ ] Diagnose why homepage /, /about, /managed-it-services-tampa, /managed-it-services-miami, and blog posts are not prerendered
+- [ ] Fix prerender script to cover homepage and all missing routes
+- [ ] Ensure every published blog post gets prerendered content
+- [ ] Verify all sitemap URLs return unique content without JS
+
+### Task 2: Eliminate "Loading..." placeholders from prerendered HTML
+- [ ] Fix prerenderer to wait for async data (pricing table, etc.)
+- [ ] Audit all prerendered pages for leftover loading states
+- [ ] Ensure grep -ci "loading" returns 0 for all prerendered routes
+
+### Task 3: Confirm previous-pass items via curl
+- [ ] Verify /this-page-should-not-exist-xyz123 returns HTTP 404
+- [ ] Verify /blog/this-post-does-not-exist-xyz returns HTTP 404
+- [ ] Verify /about canonical is https://gigitekai.com/about
+- [ ] Verify sitemap.xml has >= 54 <loc> entries
+- [ ] Verify sitemap.xml has 7 industries/ entries
+
+### Task 4: Blog recap titles
+- [x] Ensure Daily Recap posts have noindex (already done) AND use actual headline as title
+- [x] Changed scheduler to use top story headline instead of generic 'Daily Recap' pattern
+- [x] Server-side getRouteSEO now fetches actual post title from DB for blog pages

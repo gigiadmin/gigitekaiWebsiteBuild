@@ -413,7 +413,10 @@ export async function runAiNewsRecap(): Promise<void> {
       day: "numeric",
       year: "numeric",
     });
-    const subject = `🚀 GigitekAI Daily Recap: AI, Business & Tech — ${dateStr}`;
+    // Use the top story's title to create a descriptive, unique subject line
+    // instead of a generic "Daily Recap" pattern (which Google flags as thin content)
+    const topStoryTitle = newsItems[0]?.title || "AI & Tech";
+    const subject = `🚀 ${topStoryTitle} — Plus More in Today's AI & Tech Briefing (${dateStr})`;
 
     // Call the auto-post endpoint (creates blog post + sends newsletter)
     const apiKey = process.env.NEWSLETTER_AUTO_POST_KEY;

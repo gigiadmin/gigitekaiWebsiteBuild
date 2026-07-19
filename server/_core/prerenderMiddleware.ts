@@ -328,7 +328,7 @@ function injectSEO(html: string, seo: RouteSEO, canonicalUrl: string): string {
 }
 
 // ─── Route Matching ──────────────────────────────────────────────────────────
-function getRouteSEO(pathname: string): RouteSEO | null {
+async function getRouteSEO(pathname: string): Promise<RouteSEO | null> {
   // Normalize: remove trailing slash (except root)
   const normalized = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
 
@@ -364,9 +364,30 @@ function getRouteSEO(pathname: string): RouteSEO | null {
   const blogMatch = normalized.match(/^\/blog\/(.+)$/);
   if (blogMatch) {
     const slug = blogMatch[1];
-    const title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     // Noindex auto-generated "Daily Recap" posts — thin content
     const isDailyRecap = slug.includes('daily-recap') || slug.includes('daily-ai-recap');
+    
+    // Try to get the actual post title from the blog slug cache
+    let title = slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    try {
+      const { getDb } = await import("../db");
+      const { blogPosts } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      if (db) {
+        const [post] = await db
+          .select({ title: blogPosts.title })
+          .from(blogPosts)
+          .where(eq(blogPosts.slug, slug))
+          .limit(1);
+        if (post?.title) {
+          title = post.title;
+        }
+      }
+    } catch {
+      // Fall back to slug-derived title
+    }
+    
     return {
       title: `${title} | GigitekAI Blog`,
       description: `Read ${title} on the GigitekAI blog. Expert insights on managed IT, cloud, AI, and cybersecurity.`,
@@ -647,7 +668,7 @@ export function prerenderMiddleware(distPath: string) {
 
     // ─── SEO Injection (for ALL requests, not just crawlers) ─────────────
     // This ensures Google sees correct meta even if it renders the page
-    const seo = getRouteSEO(req.path);
+    const seo = await getRouteSEO(req.path);
     if (!seo) {
       return next();
     }

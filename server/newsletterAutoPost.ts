@@ -145,7 +145,8 @@ router.post("/auto-post", async (req, res) => {
       const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
       // Use a short, clean slug: daily-recap-YYYY-MM-DD
       // For non-recap posts, use a truncated subject slug
-      const isRecap = subject.toLowerCase().includes('recap') || subject.toLowerCase().includes('daily');
+      // Detect recap posts by category OR by the legacy subject pattern
+      const isRecap = category?.toLowerCase() === 'ai news' || subject.toLowerCase().includes('recap') || subject.toLowerCase().includes('briefing');
       let slug = isRecap
         ? `daily-recap-${dateStr}`
         : `${slugify(subject).slice(0, 60)}-${dateStr}`;
