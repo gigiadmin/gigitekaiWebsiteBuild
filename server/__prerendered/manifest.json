@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-07-19T06:27:06.090Z",
-  "totalRoutes": 52,
-  "successCount": 51,
-  "failCount": 1,
+  "generatedAt": "2026-07-19T07:55:46.344Z",
+  "totalRoutes": 68,
+  "successCount": 68,
+  "failCount": 0,
   "routes": [
     {
       "route": "/",
@@ -262,7 +262,87 @@
     {
       "route": "/m365-status",
       "file": "m365-status.json",
-      "prerendered": false
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-18",
+      "file": "blog--daily-recap-2026-07-18.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-17",
+      "file": "blog--daily-recap-2026-07-17.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-16",
+      "file": "blog--daily-recap-2026-07-16.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-15",
+      "file": "blog--daily-recap-2026-07-15.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-14",
+      "file": "blog--daily-recap-2026-07-14.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-13-17",
+      "file": "blog--daily-recap-2026-07-13-17.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-11",
+      "file": "blog--daily-recap-2026-07-11.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-10",
+      "file": "blog--daily-recap-2026-07-10.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-09",
+      "file": "blog--daily-recap-2026-07-09.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-08",
+      "file": "blog--daily-recap-2026-07-08.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-07",
+      "file": "blog--daily-recap-2026-07-07.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-06",
+      "file": "blog--daily-recap-2026-07-06.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-05",
+      "file": "blog--daily-recap-2026-07-05.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-04",
+      "file": "blog--daily-recap-2026-07-04.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/daily-recap-2026-07-03",
+      "file": "blog--daily-recap-2026-07-03.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog/the-synthetic-organization",
+      "file": "blog--the-synthetic-organization.json",
+      "prerendered": true
     }
   ]
 }

@@ -104,7 +104,7 @@ export default function HeroSection() {
               Governed AI
             </span>
             <br />
-            for Tampa Bay SMBs
+            for SMBs &amp; Enterprises
           </h1>
 
           {/* Subtitle */}
@@ -123,7 +123,7 @@ export default function HeroSection() {
             }`}
           >
             <a href="/contact" className="btn-cyan text-base px-6 py-3">
-              Get Started in Tampa Bay
+              Get Started Today
               <ArrowRight size={18} />
             </a>
             <a

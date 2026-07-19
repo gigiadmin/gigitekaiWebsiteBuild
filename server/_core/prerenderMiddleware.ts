@@ -37,12 +37,12 @@ const DEFAULT_OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/3105196635091638
 const ROUTE_SEO: Record<string, RouteSEO> = {
   "/": {
     title: "GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation",
-    description: "GigitekAI delivers enterprise cloud, AI automation & managed IT for Tampa Bay SMBs. 99.9% uptime SLA, 24/7 support, 40% cost reduction.",
+    description: "GigitekAI delivers enterprise cloud, AI automation & managed IT for SMBs and enterprises. 99.9% uptime SLA, 24/7 support, 40% cost reduction.",
     h1: "AI-First Managed IT & Cloud Solutions for SMBs",
   },
   "/services": {
     title: "IT Services | Cloud, AI, Cybersecurity & Microsoft 365 | GigitekAI",
-    description: "Enterprise cloud infrastructure, AI automation, cybersecurity, and Microsoft 365 architecture. Managed IT services with 99.9% uptime for Florida SMBs.",
+    description: "Enterprise cloud infrastructure, AI automation, cybersecurity, and Microsoft 365 architecture. Managed IT services with 99.9% uptime for SMBs and enterprises.",
   },
   "/pricing": {
     title: "IT Services Pricing | Managed IT & Helpdesk Plans | GigitekAI",
@@ -609,7 +609,23 @@ function loadPrerenderedContent(distPath: string): void {
     try {
       const data = JSON.parse(fs.readFileSync(path.join(prerenderDir, file), 'utf-8'));
       if (data.route && data.content) {
-        prerenderedCache.set(data.route, data.content);
+        let content: string = data.content;
+        // Sanitize: if the content has multiple H1s, demote all but the first to H2.
+        // This handles blog posts whose body content contains an <h1> heading.
+        const h1Count = (content.match(/<h1[\s>]/gi) || []).length;
+        if (h1Count > 1) {
+          let h1Seen = 0;
+          content = content.replace(/<(\/?)(h1)(\b[^>]*)?>?/gi, (match: string, slash: string, _tag: string, attrs: string) => {
+            const isClosing = slash === '/';
+            if (!isClosing) {
+              h1Seen++;
+              return h1Seen <= 1 ? match : `<h2${attrs || ''}>`;
+            } else {
+              return h1Seen <= 1 ? match : '</h2>';
+            }
+          });
+        }
+        prerenderedCache.set(data.route, content);
       }
     } catch {
       // Skip malformed files
@@ -647,6 +663,12 @@ async function generateBlogContent(slug: string): Promise<string | null> {
     
     const date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     
+    // Sanitize body content: demote any <h1> tags in the body to <h2>
+    // (the page already has its own H1 from the article title above)
+    const sanitizedContent = (post.content || escapeHtml(post.excerpt || ''))
+      .replace(/<h1(\s[^>]*)?>/gi, '<h2$1>')
+      .replace(/<\/h1>/gi, '</h2>');
+    
     // Generate minimal semantic HTML for crawlers
     return `<article style="max-width:800px;margin:0 auto;padding:2rem;font-family:'DM Sans',sans-serif;color:#E8EAED;background:#0A0E1A;">
       <header>
@@ -658,7 +680,7 @@ async function generateBlogContent(slug: string): Promise<string | null> {
           ${post.category ? ` • <span>${escapeHtml(post.category)}</span>` : ''}
         </div>
       </header>
-      <div class="blog-content">${post.content || escapeHtml(post.excerpt || '')}</div>
+      <div class="blog-content">${sanitizedContent}</div>
     </article>`;
   } catch {
     return null;

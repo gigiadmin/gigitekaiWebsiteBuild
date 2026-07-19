@@ -433,7 +433,7 @@ export default function ServiceDetail() {
 
         {/* Pricing Section - Only show for Managed IT Services */}
         {slug === 'managed' && (
-          <HelpdeskPricing />
+          <HelpdeskPricing asH1={false} />
         )}
 
         {/* Technologies Section */}

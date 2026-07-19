@@ -67,7 +67,7 @@ export default function Footer() {
               />
             </a>
             <p className="text-gray-300 text-sm leading-relaxed mb-4 max-w-xs">
-              Security-first managed IT + governed AI for Tampa Bay SMBs. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations.
+              AI-first managed IT services for SMBs and enterprises. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations.
             </p>
             <div className="space-y-2 mb-6">
               <a href="tel:+1727-382-6909" className="flex items-center gap-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors">

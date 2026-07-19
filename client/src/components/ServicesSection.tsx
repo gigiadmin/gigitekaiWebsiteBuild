@@ -152,7 +152,7 @@ export default function ServicesSection() {
             </span>
           </h2>
           <p className="text-lg text-gray-300">
-            Four service tiers designed for Tampa Bay businesses. From essential security to full-stack managed IT with AI. Pick what you need, scale as you grow.
+            Four service tiers designed for SMBs and enterprises. From essential security to full-stack managed IT with AI. Pick what you need, scale as you grow.
           </p>
         </div>
 

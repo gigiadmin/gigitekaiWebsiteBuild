@@ -52,8 +52,9 @@ export function GigitekMarkdown({ children, className = "", theme = "dark" }: Gi
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          // Render markdown H1 as H2 — page already has an H1 from the post title
           h1: ({ children }: { children?: ReactNode }) => (
-            <h1 className={`text-2xl font-bold ${colors.h1} mb-4 mt-6 leading-tight`}>{children}</h1>
+            <h2 className={`text-2xl font-bold ${colors.h1} mb-4 mt-6 leading-tight`}>{children}</h2>
           ),
           h2: ({ children }: { children?: ReactNode }) => (
             <h2 className={`text-xl font-bold ${colors.h2} mb-3 mt-5 leading-snug`}>{children}</h2>
