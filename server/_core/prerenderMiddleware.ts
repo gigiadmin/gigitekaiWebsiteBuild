@@ -628,6 +628,9 @@ export function prerenderMiddleware(distPath: string) {
   loadPrerenderedContent(distPath);
   
   return async (req: Request, res: Response, next: NextFunction) => {
+    // Add debug header to ALL responses processed by this middleware
+    res.setHeader("X-GG-Middleware", "prerender");
+    
     // Skip API routes, static assets, and storage proxy
     if (
       req.path.startsWith("/api/") ||
@@ -658,8 +661,10 @@ export function prerenderMiddleware(distPath: string) {
         html = injectSEO(html, {
           title: "Page Not Found | GigitekAI",
           description: "The page you're looking for doesn't exist. Return to GigitekAI homepage for managed IT, cloud, and AI services.",
+          noindex: true,
         }, `${BASE_URL}/404`);
         res.status(404).setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("X-GG-404", "true");
         return res.send(html);
       } catch {
         return res.status(404).send("Not Found");
