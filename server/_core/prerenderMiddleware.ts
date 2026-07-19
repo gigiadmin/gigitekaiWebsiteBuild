@@ -590,11 +590,19 @@ function isKnownRoute(pathname: string): boolean {
 const prerenderedCache: Map<string, string> = new Map();
 
 function loadPrerenderedContent(distPath: string): void {
-  const prerenderDir = path.resolve(distPath, '__prerendered');
-  if (!fs.existsSync(prerenderDir)) {
+  // Check both dist/public/__prerendered (build output) and server/__prerendered (source tree)
+  const distPrerenderDir = path.resolve(distPath, '__prerendered');
+  const srcPrerenderDir = path.resolve(import.meta.dirname, '__prerendered');
+  
+  const prerenderDir = fs.existsSync(distPrerenderDir) ? distPrerenderDir 
+    : fs.existsSync(srcPrerenderDir) ? srcPrerenderDir 
+    : null;
+  
+  if (!prerenderDir) {
     console.log('[Prerender] No __prerendered directory found — skipping content injection');
     return;
   }
+  console.log(`[Prerender] Loading from: ${prerenderDir}`);
   
   const files = fs.readdirSync(prerenderDir).filter(f => f.endsWith('.json'));
   for (const file of files) {

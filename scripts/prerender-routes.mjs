@@ -25,7 +25,9 @@ import puppeteer from 'puppeteer-core';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const DIST_DIR = path.join(PROJECT_ROOT, 'dist', 'public');
-const PRERENDER_DIR = path.join(DIST_DIR, '__prerendered');
+// Store prerendered content in source tree so it gets deployed with the build
+// The server loads these at startup from the server/__prerendered directory
+const PRERENDER_DIR = path.join(PROJECT_ROOT, 'server', '__prerendered');
 
 // Static marketing routes to prerender (public-facing, SEO-critical)
 const STATIC_ROUTES = [

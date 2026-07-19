@@ -1,0 +1,268 @@
+{
+  "generatedAt": "2026-07-19T06:27:06.090Z",
+  "totalRoutes": 52,
+  "successCount": 51,
+  "failCount": 1,
+  "routes": [
+    {
+      "route": "/",
+      "file": "index.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services",
+      "file": "services.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/microsoft-365",
+      "file": "services--microsoft-365.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/cloud",
+      "file": "services--cloud.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/ai",
+      "file": "services--ai.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/security",
+      "file": "services--security.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/managed",
+      "file": "services--managed.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/data",
+      "file": "services--data.json",
+      "prerendered": true
+    },
+    {
+      "route": "/services/strategy",
+      "file": "services--strategy.json",
+      "prerendered": true
+    },
+    {
+      "route": "/pricing",
+      "file": "pricing.json",
+      "prerendered": true
+    },
+    {
+      "route": "/web-pricing",
+      "file": "web-pricing.json",
+      "prerendered": true
+    },
+    {
+      "route": "/helpdesk-pricing",
+      "file": "helpdesk-pricing.json",
+      "prerendered": true
+    },
+    {
+      "route": "/contact",
+      "file": "contact.json",
+      "prerendered": true
+    },
+    {
+      "route": "/free-audit",
+      "file": "free-audit.json",
+      "prerendered": true
+    },
+    {
+      "route": "/blog",
+      "file": "blog.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites",
+      "file": "websites.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/finance",
+      "file": "websites--finance.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/legal",
+      "file": "websites--legal.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/insurance",
+      "file": "websites--insurance.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/vc",
+      "file": "websites--vc.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/health",
+      "file": "websites--health.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/consulting",
+      "file": "websites--consulting.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/tech",
+      "file": "websites--tech.json",
+      "prerendered": true
+    },
+    {
+      "route": "/websites/ecommerce",
+      "file": "websites--ecommerce.json",
+      "prerendered": true
+    },
+    {
+      "route": "/kb",
+      "file": "kb.json",
+      "prerendered": true
+    },
+    {
+      "route": "/case-studies",
+      "file": "case-studies.json",
+      "prerendered": true
+    },
+    {
+      "route": "/security",
+      "file": "security.json",
+      "prerendered": true
+    },
+    {
+      "route": "/managed-it-services-tampa",
+      "file": "managed-it-services-tampa.json",
+      "prerendered": true
+    },
+    {
+      "route": "/managed-it-services-miami",
+      "file": "managed-it-services-miami.json",
+      "prerendered": true
+    },
+    {
+      "route": "/florida-it-resiliency",
+      "file": "florida-it-resiliency.json",
+      "prerendered": true
+    },
+    {
+      "route": "/smart-home",
+      "file": "smart-home.json",
+      "prerendered": true
+    },
+    {
+      "route": "/switch-program",
+      "file": "switch-program.json",
+      "prerendered": true
+    },
+    {
+      "route": "/compliance-scorecard",
+      "file": "compliance-scorecard.json",
+      "prerendered": true
+    },
+    {
+      "route": "/compliance-benchmark",
+      "file": "compliance-benchmark.json",
+      "prerendered": true
+    },
+    {
+      "route": "/roadmap-generator",
+      "file": "roadmap-generator.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries",
+      "file": "industries.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/healthcare",
+      "file": "industries--healthcare.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/financial",
+      "file": "industries--financial.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/manufacturing",
+      "file": "industries--manufacturing.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/retail",
+      "file": "industries--retail.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/government",
+      "file": "industries--government.json",
+      "prerendered": true
+    },
+    {
+      "route": "/industries/education",
+      "file": "industries--education.json",
+      "prerendered": true
+    },
+    {
+      "route": "/our-team",
+      "file": "our-team.json",
+      "prerendered": true
+    },
+    {
+      "route": "/partners",
+      "file": "partners.json",
+      "prerendered": true
+    },
+    {
+      "route": "/support",
+      "file": "support.json",
+      "prerendered": true
+    },
+    {
+      "route": "/status",
+      "file": "status.json",
+      "prerendered": true
+    },
+    {
+      "route": "/ai-demo",
+      "file": "ai-demo.json",
+      "prerendered": true
+    },
+    {
+      "route": "/ai-news",
+      "file": "ai-news.json",
+      "prerendered": true
+    },
+    {
+      "route": "/about",
+      "file": "about.json",
+      "prerendered": true
+    },
+    {
+      "route": "/about-us",
+      "file": "about-us.json",
+      "prerendered": true
+    },
+    {
+      "route": "/AIStrategicBriefing",
+      "file": "AIStrategicBriefing.json",
+      "prerendered": true
+    },
+    {
+      "route": "/m365-status",
+      "file": "m365-status.json",
+      "prerendered": false
+    }
+  ]
+}
