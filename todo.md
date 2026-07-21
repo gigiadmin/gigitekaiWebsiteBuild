@@ -2460,3 +2460,11 @@
 - [x] Fix TBT: Add prefers-reduced-motion media query to disable animations for Lighthouse
 - [x] Fix non-composited animations: Convert transition-all to transition-[opacity,transform] where possible
 - [x] Fix mobile LCP 5.0s: Ensure hero image preload link is in HTML head for prerendered pages
+
+
+## Meridian/OpenClaw Service Endpoint (July 2026)
+- [x] Add MERIDIAN_API_TOKEN secret to production
+- [x] Create meridian service router with helpdeskStats, copilotAgentStatus, integrationStatus, ping
+- [x] Register meridian router in appRouter
+- [x] Write vitest test for meridian endpoints (11 tests passing)
+- [ ] Verify endpoint works on deployed site

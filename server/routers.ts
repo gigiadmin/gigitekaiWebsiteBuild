@@ -33,6 +33,7 @@ import { kbFeedbackRouter } from "./routers/kbFeedback";
 import { contactFormRouter } from "./routers/contact-form";
 import { emailDripRouter } from "./routers/emailDrip";
 import { smsCampaignRouter } from "./routers/sms-campaigns";
+import { meridianServiceRouter } from "./routers/meridian-service";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
@@ -836,5 +837,6 @@ export const appRouter = router({
       }),
    }),
   smsCampaign: smsCampaignRouter,
+  meridian: meridianServiceRouter,
 });
 export type AppRouter = typeof appRouter;

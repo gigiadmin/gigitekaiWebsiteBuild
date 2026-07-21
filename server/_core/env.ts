@@ -19,4 +19,5 @@ export const ENV = {
   xeroClientSecret: process.env.XERO_CLIENT_SECRET ?? "",
   godaddyApiKey: process.env.GODADDY_API_KEY ?? "",
   godaddyApiSecret: process.env.GODADDY_API_SECRET ?? "",
+  meridianApiToken: process.env.MERIDIAN_API_TOKEN ?? "",
 };
