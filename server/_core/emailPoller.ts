@@ -198,6 +198,14 @@ async function classifyEmail(
 /**
  * Find or create user from email sender
  */
+// Whitelist of approved email addresses that can be auto-created as users
+const APPROVED_USER_EMAILS = new Set([
+  'harry@gigitekai.com',
+  'nas@gigitekai.com',
+  'support@gigitekai.com',
+  'hhenry23@gmail.com',
+]);
+
 async function findOrCreateUser(
   email: string,
   name: string
@@ -223,6 +231,12 @@ async function findOrCreateUser(
         email: existingEmail,
         name: existingName,
       };
+    }
+
+    // SECURITY CHECK: Only create users for approved email addresses
+    if (!APPROVED_USER_EMAILS.has(email)) {
+      console.warn(`[Email Poller] Attempted to create unauthorized user: ${email}. This email is not in the whitelist.`);
+      return null;
     }
 
     // Create new user
