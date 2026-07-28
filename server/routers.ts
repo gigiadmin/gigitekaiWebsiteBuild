@@ -34,6 +34,7 @@ import { contactFormRouter } from "./routers/contact-form";
 import { emailDripRouter } from "./routers/emailDrip";
 import { smsCampaignRouter } from "./routers/sms-campaigns";
 import { meridianServiceRouter } from "./routers/meridian-service";
+import { integrationConfigRouter } from "./routers/integration-config";
 import { cannedResponsesRouter } from "./routers/cannedResponses";
 import { socialRouter } from "./routers/social";
 import { copilotRouter } from "./routers/copilot";
@@ -158,6 +159,8 @@ export const appRouter = router({
   support: supportRouter,
   uptime: uptimeRouter,
   videoPresign: videoPresignRouter,
+  integrationConfig: integrationConfigRouter,
+  meridianService: meridianServiceRouter,
   roiMetrics: roiMetricsRouter,
   search: searchRouter,
   adminSearchIndex: adminSearchIndexRouter,
