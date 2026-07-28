@@ -152,8 +152,10 @@ import { ariaSessionsRouter } from "./routers/ariaSessions";
 import { ariaIntentsRouter } from "./routers/ariaIntents";
 import { errorLoggingRouter } from "./routers/errorLogging";
 import { portalAccessRouter } from "./routers/portal-access";
+import { intakeTicketsRouter } from "./routers/intakeTickets";
 
 export const appRouter = router({
+  intake: intakeTicketsRouter,
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   support: supportRouter,

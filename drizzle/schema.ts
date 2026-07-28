@@ -2686,3 +2686,16 @@ export const ariaTtsCache = mysqlTable("aria_tts_cache", {
 
 export type AriaTtsCache = typeof ariaTtsCache.$inferSelect;
 export type InsertAriaTtsCache = typeof ariaTtsCache.$inferInsert;
+
+export const intakeTickets = mysqlTable("intakeTickets", {
+  id: int().autoincrement().primaryKey(),
+  creatorName: varchar({ length: 255 }).notNull(),
+  creatorEmail: varchar({ length: 320 }).notNull(),
+  subject: varchar({ length: 500 }).notNull(),
+  description: text(),
+  status: mysqlEnum(["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  priority: mysqlEnum(["low", "medium", "high"]).default("medium").notNull(),
+  intakeData: json(),
+  createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp({ mode: "string" }).defaultNow().onUpdateNow().notNull(),
+});
