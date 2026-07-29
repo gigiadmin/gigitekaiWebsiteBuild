@@ -12,8 +12,8 @@ import { SchemaMarkup } from "./components/SchemaMarkup";
 // Toaster must be eagerly loaded — lazy-loading causes React hooks crash in dev
 import { Toaster as ToasterComponent } from "@/components/ui/sonner";
 // make sure to consider if you need authentication for certain routes
-// ── Critical pages — loaded eagerly (part of initial bundle) ────────────
-import Home from "./pages/Home";
+// ── Home page — lazy loaded to prevent flash during admin login transition ────────────
+const Home = lazy(() => import("./pages/Home"));
 // SiteNavBar2024, Footer lazy-loaded to reduce initial bundle on mobile
 const SiteNavBar2024 = lazy(() => import("@/components/SiteNavBar2024"));
 const FooterLazy = lazy(() => import("@/components/Footer"));
