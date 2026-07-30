@@ -50,6 +50,7 @@ import { registerAcsRecordingWebhook } from "../acsRecordingWebhook";
 import { voicemailRouter } from "../voicemailRoute";
 import uptimeWebhookRouter from "../uptimeWebhook";
 import ariaTtsRouter from "../ariaTtsRouter";
+import { handleMeridianHelpdeskExport } from "../meridian-helpdesk-export";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -278,6 +279,8 @@ async function startServer() {
 
   // Aria TTS — Azure AI Speech Service (stable neural voice)
   app.use("/api/aria", ariaTtsRouter);
+  // Meridian aggregate helpdesk export (Stage C governance — no PII)
+  app.get("/api/integrations/meridian/helpdesk-export", handleMeridianHelpdeskExport);
   
   // Social OAuth connect/callback routes
   app.get("/api/social/linkedin/connect", linkedinConnect);

@@ -20,4 +20,5 @@ export const ENV = {
   godaddyApiKey: process.env.GODADDY_API_KEY ?? "",
   godaddyApiSecret: process.env.GODADDY_API_SECRET ?? "",
   meridianApiToken: process.env.MERIDIAN_API_TOKEN ?? "",
+  meridianHelpdeskReadToken: process.env.MERIDIAN_HELPDESK_READ_TOKEN ?? "",
 };
