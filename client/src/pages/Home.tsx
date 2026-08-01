@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Zap, Brain, Shield, Cpu, Mail, ArrowRight } from "lucide-react";
+import AriaAssistant from "@/components/AriaAssistant";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -19,6 +20,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden">
+      {/* Aria AI Assistant Widget */}
+      <AriaAssistant />
       {/* Animated background grid */}
       <div className="fixed inset-0 opacity-10 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#00D4FF_1px,transparent_1px),linear-gradient(#00D4FF_1px,transparent_1px)] bg-[size:50px_50px]"></div>
