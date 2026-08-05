@@ -344,8 +344,10 @@ function App() {
   const isHelpdeskPage = location.startsWith("/helpdesk");
   // Hide global widgets on portfolio demo pages so they look like standalone sites
   const isPortfolioDemoPage = /^\/(portfolio|websites)\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds|ecommerce)/.test(location);
+  // Hide global widgets on the landing page (Under Construction) — no links to hidden main site
+  const isLandingPage = location === "/" || location === "";
   // Note: /web-pricing shows AI chat widget but hides other global widgets
-  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage;
+  const hideWidgets = isMeetingPage || isAdminPage || isHelpdeskPage || isPortfolioDemoPage || isLandingPage;
 
   return (
     <ErrorBoundary level="global">

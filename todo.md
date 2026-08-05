@@ -2468,3 +2468,9 @@
 - [x] Register meridian router in appRouter
 - [x] Write vitest test for meridian endpoints (11 tests passing)
 - [ ] Verify endpoint works on deployed site
+
+- [x] Landing page "Get Access" form: send notification email to support@gigitekai.com via ACS
+- [x] Landing page "Get Access" form: send Teams webhook notification
+- [x] Landing page "Get Access" form: send confirmation email back to subscriber
+- [x] Landing page "Get Early Access" button: wire to scroll to email form
+- [x] Landing page: remove/disable security assessment CTA that links to hidden main site

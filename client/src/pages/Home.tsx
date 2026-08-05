@@ -1,21 +1,36 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Zap, Brain, Shield, Cpu, Mail, ArrowRight } from "lucide-react";
+import { Zap, Brain, Shield, Cpu, Mail, ArrowRight, Loader2 } from "lucide-react";
 import AriaAssistant from "@/components/AriaAssistant";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [demoActive, setDemoActive] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const earlyAccessSection = useRef<HTMLDivElement>(null);
+
+  const signupMutation = trpc.earlyAccess.signup.useMutation({
+    onSuccess: () => {
+      toast.success("You're in! Check your email for confirmation.");
+      setEmail("");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again.");
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      setSubmitted(true);
-      setEmail("");
-      setTimeout(() => setSubmitted(false), 3000);
+      signupMutation.mutate({ email });
     }
+  };
+
+  const scrollToSignup = () => {
+    earlyAccessSection.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -73,6 +88,7 @@ export default function Home() {
               </Button>
               <Button
                 variant="outline"
+                onClick={scrollToSignup}
                 className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg rounded-lg"
               >
                 Get Early Access
@@ -280,7 +296,7 @@ export default function Home() {
         </section>
 
         {/* Early Access Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-cyan-500/20">
+        <section ref={earlyAccessSection} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-cyan-500/20">
           <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-lg p-12 text-center space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold">
               Be First to Experience GigitekAI
@@ -290,7 +306,7 @@ export default function Home() {
               agentic AI. Get early access to our platform and exclusive insights.
             </p>
 
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -298,19 +314,30 @@ export default function Home() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-slate-950 border-slate-700 text-white placeholder:text-slate-500 rounded-lg"
                 required
+                disabled={signupMutation.isPending}
               />
               <Button
                 type="submit"
+                disabled={signupMutation.isPending}
                 className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-6 rounded-lg whitespace-nowrap flex items-center justify-center gap-2"
               >
-                {submitted ? "✓ Sent!" : "Get Access"}
-                {!submitted && <ArrowRight className="w-4 h-4" />}
+                {signupMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Get Access
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </Button>
             </form>
 
-            {submitted && (
+            {signupMutation.isSuccess && (
               <p className="text-green-400 text-sm">
-                Thank you! We'll be in touch soon.
+                Thank you! Check your inbox for a confirmation from GigitekAI.
               </p>
             )}
           </div>
