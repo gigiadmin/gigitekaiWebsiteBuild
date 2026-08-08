@@ -305,6 +305,9 @@ function Router() {
           <Route path={"call-transcripts"} component={CallTranscriptSearch} />
           {/* Admin Search Index */}
           <Route path={"admin/search-index"} component={AdminSearchIndexPage} />
+          {/* ── Private Main Site (mainx.gigitekai.com) ── */}
+          <Route path={"/mainx/*"} component={AdminApp} />
+          <Route path={"/mainx"} component={AdminApp} />
           {/* ── Fallback ── */}
           <Route path={"/404"} component={NotFound} />
           {/* Home page (MUST be after all specific routes) */}
