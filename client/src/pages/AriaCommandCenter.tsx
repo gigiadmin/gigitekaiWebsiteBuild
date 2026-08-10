@@ -85,8 +85,12 @@ async function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => voi
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
     currentAudio = new Audio(audioUrl);
-    // Ensure audio is not muted on mobile
+    
+    // Force audio to play on mobile
     currentAudio.volume = 1.0;
+    currentAudio.muted = false;
+    currentAudio.autoplay = true;
+    
     currentAudio.onended = () => {
       URL.revokeObjectURL(audioUrl);
       currentAudio = null;
@@ -97,19 +101,26 @@ async function speakAsAria(text: string, speed: number = 0.95, onEnd?: () => voi
       URL.revokeObjectURL(audioUrl);
       currentAudio = null;
     };
-    try {
-      await currentAudio.play();
-      console.log("[Aria TTS] Playing via Azure AI Speech (en-US-JennyNeural)");
-    } catch (playErr) {
-      console.warn("[Aria TTS] Play failed (mobile audio policy?):", playErr);
-      // On mobile, audio.play() might fail due to autoplay policy
-      // Retry with a small delay
-      setTimeout(() => {
-        if (currentAudio) {
-          currentAudio.play().catch(e => console.error("[Aria TTS] Retry play failed:", e));
+    
+    // Attempt to play with multiple retries for mobile compatibility
+    const playWithRetry = async (attempt = 0) => {
+      if (!currentAudio) return;
+      try {
+        await currentAudio.play();
+        console.log("[Aria TTS] Playing via Azure AI Speech (en-US-JennyNeural)");
+      } catch (playErr) {
+        console.warn(`[Aria TTS] Play failed (attempt ${attempt + 1}):`, playErr);
+        // Retry up to 3 times with increasing delays
+        if (attempt < 3) {
+          const delay = [100, 300, 500][attempt];
+          setTimeout(() => playWithRetry(attempt + 1), delay);
+        } else {
+          console.error("[Aria TTS] Failed to play after 3 attempts");
         }
-      }, 100);
-    }
+      }
+    };
+    
+    await playWithRetry();
   } catch (err) {
     console.error("[Aria TTS] Error:", err);
   }
