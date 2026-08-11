@@ -2474,3 +2474,4 @@
 - [x] Landing page "Get Access" form: send confirmation email back to subscriber
 - [x] Landing page "Get Early Access" button: wire to scroll to email form
 - [x] Landing page: remove/disable security assessment CTA that links to hidden main site
+- [x] Launch readiness: expose the full main GigitekAI website at gigitekai.com and retire the under-construction landing page — verified in preview; ready for production publish

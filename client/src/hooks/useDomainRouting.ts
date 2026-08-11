@@ -5,7 +5,7 @@ import { useLocation, useRoute } from 'wouter';
  * Hook to detect current domain and redirect to appropriate route
  * - gginfo.net → /investor-portal
  * - mainx.gigitekai.com → /mainx (private main site, requires auth)
- * - gigitekai.com → / (home/landing page)
+ * - gigitekai.com → / (full public main website)
  */
 export function useDomainRouting() {
   const [location, setLocation] = useLocation();
