@@ -30,6 +30,11 @@ vi.mock("./_core/email", () => ({
   sendEmail: vi.fn().mockResolvedValue(true),
 }));
 
+vi.mock("./_core/teamsWebhookUtils", () => ({
+  resolveWebhookUrl: vi.fn(() => undefined),
+  sendToTeamsWithRetry: vi.fn().mockResolvedValue(true),
+}));
+
 describe("contact.submit with email", () => {
   it("should accept valid contact form submission", async () => {
     const caller = appRouter.createCaller({

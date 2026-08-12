@@ -67,6 +67,27 @@ export const buildFormSubmissionSupportEmail = (
   `;
 };
 
+export const buildFormSubmissionConfirmationEmail = (
+  input: { name: string; company?: string; category: string },
+  submissionId: number | string
+): string => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #00D4FF;">Thank You for Your Submission</h2>
+    <p>Hi ${escapeHtml(input.name)},</p>
+    <p>We've received your IT Discovery intake form and appreciate you taking the time to share details about your business needs.</p>
+    <h3>What's Next?</h3>
+    <p>Our team will review your submission and reach out within 24 business hours to discuss your specific requirements and how GigitekAI can help transform your IT infrastructure.</p>
+    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+      <p><strong>Submission Details:</strong></p>
+      <p>Company: ${escapeHtml(input.company || "Not provided")}</p>
+      <p>Category: ${escapeHtml(input.category)}</p>
+      <p>Reference ID: ${escapeHtml(String(submissionId))}</p>
+    </div>
+    <p>If you have any immediate questions, feel free to contact us at <strong>support@gigitekai.com</strong> or call <strong>+1 727-382-6909</strong>.</p>
+    <p>Best regards,<br/>The GigitekAI Team</p>
+  </div>
+`;
+
 export const buildFormSubmissionOwnerAlert = (
   input: { name: string; email: string; phone: string; company?: string; category: string; source: string; message: string },
   submissionId: number | string
@@ -150,23 +171,7 @@ export const formSubmissionsRouter = router({
         const confirmationSent = await sendEmail({
           to: input.email,
           subject: "We Received Your IT Discovery Request",
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #00D4FF;">Thank You for Your Submission</h2>
-              <p>Hi ${escapeHtml(input.name)},</p>
-              <p>We've received your IT Discovery intake form and appreciate you taking the time to share details about your business needs.</p>
-              <h3>What's Next?</h3>
-              <p>Our team will review your submission and reach out within 24 business hours to discuss your specific requirements and how GigitekAI can help transform your IT infrastructure.</p>
-              <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Submission Details:</strong></p>
-                <p>Company: ${escapeHtml(input.company || "Not provided")}</p>
-                <p>Category: ${escapeHtml(input.category)}</p>
-                <p>Reference ID: ${escapeHtml(String(submissionId))}</p>
-              </div>
-              <p>If you have any immediate questions, feel free to contact us at <strong>support@gigitekai.com</strong> or call <strong>+1 727-382-6909</strong>.</p>
-              <p>Best regards,<br/>The GigitekAI Team</p>
-            </div>
-          `,
+          html: buildFormSubmissionConfirmationEmail(input, submissionId),
         });
         if (!confirmationSent) {
           console.error("[Form Submission] Confirmation email was not accepted by Microsoft Graph");
