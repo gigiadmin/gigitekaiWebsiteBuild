@@ -346,11 +346,13 @@ function App() {
   const isAdminPage = location.startsWith("/admin");
   const isMainxPage = location.startsWith("/mainx");
   const isHelpdeskPage = location.startsWith("/helpdesk");
+  const isPublicHome = location === "/" || location === "";
   // Hide global widgets on portfolio demo pages so they look like standalone sites
   const isPortfolioDemoPage = /^\/(portfolio|websites)\/(finance|legal|insurance|vc|health|consulting|tech|gigitekai|divinesounds|ecommerce)/.test(location);
   // Public homepage is now the full main GigitekAI website; preserve widgets for launch CTAs.
   // Note: /web-pricing shows AI chat widget but hides other global widgets.
   const hideWidgets = isMeetingPage || isAdminPage || isMainxPage || isHelpdeskPage || isPortfolioDemoPage;
+  const hidePromotionalWidgets = hideWidgets || isPublicHome;
 
   return (
     <ErrorBoundary level="global">
@@ -377,9 +379,9 @@ function App() {
           {/* Defer heavy widgets until after LCP to improve performance */}
           {widgetsReady && (
             <Suspense fallback={null}>
-              {!hideWidgets && <AnnouncementBar />}
-              {!hideWidgets && <FloatingContactDial />}
-              {!hideWidgets && <MobileAIDemoCTA />}
+              {!hidePromotionalWidgets && <AnnouncementBar />}
+              {!hidePromotionalWidgets && <FloatingContactDial />}
+              {!hidePromotionalWidgets && <MobileAIDemoCTA />}
               {!hideWidgets && <AIChatWidget />}
               {!isAdminPage && !isMeetingPage && <PWAInstallPrompt />}
             </Suspense>

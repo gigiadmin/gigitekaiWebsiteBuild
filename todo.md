@@ -2497,3 +2497,7 @@
 - [x] Validate the five QR code payloads and deliver a packaged branded asset set
 - [x] Create five GigitekAI-branded, scan-safe QR codes for website, virtual contact card, discovery intake, free audit, and AI automation
 - [x] Validate the five QR code payloads and deliver a packaged branded asset set — all five decoded successfully with zbar
+- [x] Redesign the GigitekAI homepage and primary navigation for a cleaner premium enterprise experience
+- [x] Simplify homepage information architecture while preserving lead forms, audit tools, support access, and conversion paths
+- [x] Establish a restrained dark-cyan design system with clearer typography, spacing, and mobile navigation
+- [x] Validate the redesign for accessibility, responsiveness, performance, SEO, and public lead workflows — focused 2/2 regression tests, production frontend build, route checks, and preview performance sanity check passed

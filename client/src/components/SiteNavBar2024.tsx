@@ -29,13 +29,12 @@ export default function SiteNavBar2024() {
   };
 
   const services = [
-    { label: "Cloud Infrastructure", href: "/services/cloud" },
-    { label: "AI & Machine Learning", href: "/services/ai" },
-    { label: "Managed IT Services", href: "/services/managed" },
+    { label: "Managed IT", href: "/services/managed" },
+    { label: "Microsoft 365 & Cloud", href: "/services/cloud" },
+    { label: "Governed AI Automation", href: "/services/ai" },
     { label: "Cybersecurity", href: "/services/security" },
-    { label: "Data Analytics", href: "/services/data" },
-    { label: "IT Strategy", href: "/services/strategy" },
-    { label: "Smart Home & Automation", href: "/smart-home" },
+    { label: "Data & Strategy", href: "/services/strategy" },
+    { label: "All Solutions", href: "/services" },
   ];
 
   useEffect(() => {
@@ -79,8 +78,8 @@ export default function SiteNavBar2024() {
       <div className="w-full bg-[#050810] dark:bg-[#050810] border-b border-[rgba(0,212,255,0.1)] text-xs text-gray-200 dark:text-gray-200 py-2 hidden md:block">
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
-            <a href="/blog" className="hover:text-[#00D4FF] transition-colors">News & Updates</a>
-            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>🤖 Watch AI Work Live</a>
+            <a href="/helpdesk" className="hover:text-[#00D4FF] transition-colors">Client Support</a>
+            <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>Explore AI in Action</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
@@ -140,7 +139,7 @@ export default function SiteNavBar2024() {
                 aria-expanded={servicesOpen}
                 aria-haspopup="true"
               >
-                Services
+                Solutions
                 <ChevronDown size={14} className={`transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
               </button>
               {servicesOpen && (
@@ -163,19 +162,14 @@ export default function SiteNavBar2024() {
             </div>
 
             {[
-              { label: "Websites", href: "/websites", show: 'always' },
-              { label: "Industries", href: "/industries", show: 'always' },
-              // { label: "About Us", href: "/about-us", show: 'always' }, // HIDDEN
-              { label: "Free Audit", href: "/free-audit", show: 'always' },
-              { label: "Managed IT Services", href: "/helpdesk-pricing", show: 'always' },
-              // { label: "ROI Calculator", href: "/roi-calculator", show: 'always' }, // REMOVED: too complex for now
-              { label: "Insights", href: "/blog", show: 'always' },
-              { label: "Knowledge Base", href: "/kb", show: 'always' },
+              { label: "Industries", href: "/industries" },
+              { label: "Insights", href: "/blog" },
+              { label: "Company", href: "/about" },
             ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap${ (item as any).show === '2xl' ? ' hidden 2xl:inline-flex' : ''}`}
+                className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5 whitespace-nowrap"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 
               >
@@ -209,14 +203,14 @@ export default function SiteNavBar2024() {
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
                 <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
-              <span>Request Access</span>
+              <span>Client Access</span>
             </a>
 
             <a
-              href="/contact"
+              href="/free-audit"
               className="btn-cyan text-sm"
             >
-              Get In Touch
+              Start IT Assessment
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-label="Arrow icon">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -248,7 +242,6 @@ export default function SiteNavBar2024() {
             <div className="fixed left-0 right-0 overflow-y-auto z-50 lg:hidden"
               style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)`, backgroundColor: '#0F1629', borderTop: '1px solid rgba(0,212,255,0.1)', colorScheme: 'dark' }}
             >
-              {/* Aria Command Center — Admin only, removed from public mobile menu */}
               {/* Home link */}
               <div className="px-4 pb-2">
                 <a
@@ -261,7 +254,9 @@ export default function SiteNavBar2024() {
                   Home
                 </a>
               </div>
-              <div className="px-4 pb-2 space-y-1">
+              <div className="px-4 pb-2 pt-4">
+                <p className="pb-2 text-xs font-semibold tracking-[0.18em] text-[#00D4FF]">SOLUTIONS</p>
+                <div className="space-y-1">
               {services.map((s) => (
                 <a
                   key={s.href}
@@ -273,17 +268,13 @@ export default function SiteNavBar2024() {
                   {s.label}
                 </a>
               ))}
+                </div>
               </div>
               <div className="px-4 pb-2 space-y-2 pt-2" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
               {[
-                { label: "Websites", href: "/websites", id: "nav-websites" },
                 { label: "Industries", href: "/industries", id: "nav-industries" },
-                // { label: "About Us", href: "/about", id: "nav-about" }, // HIDDEN — re-enable at production launch
-                { label: "Free Audit", href: "/free-audit", id: "nav-audit" },
-                { label: "Managed IT Services", href: "/helpdesk-pricing", id: "nav-pricing" },
-                // { label: "ROI Calculator", href: "/roi-calculator", id: "nav-roi" }, // REMOVED: too complex for now
                 { label: "Insights", href: "/blog", id: "nav-insights" },
-                { label: "Knowledge Base", href: "/kb", id: "nav-kb" },
+                { label: "Company", href: "/about", id: "nav-company" },
               ].map((item) => (
                 <a
                   key={item.href}
@@ -302,13 +293,13 @@ export default function SiteNavBar2024() {
               <button
                 onClick={() => {
                   setMobileOpen(false);
-                  window.location.href = "/contact";
+                  window.location.href = "/free-audit";
                 }}
                 className="flex items-center gap-2 w-full py-3 text-sm transition-colors min-h-[48px]"
                 style={{ color: '#00D4FF' }}
               >
                 <Calendar size={14} color="#00D4FF" />
-                <span>Book a Consultation</span>
+                <span>Start Your IT Assessment</span>
               </button>
 
               {/* Mobile Support - Standout */}
@@ -332,7 +323,7 @@ export default function SiteNavBar2024() {
                 <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
                   <path d="M7 1v12M1 7h12" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round"/>
                 </svg>
-                <span>Request Portal Access</span>
+                <span>Client Access</span>
               </a>
 
               {/* Mobile Search Bar - DISABLED - removed due to poor UX */}
@@ -341,11 +332,11 @@ export default function SiteNavBar2024() {
               </div>
               <div className="px-4 pt-2 pb-6">
                 <a
-                  href="/contact"
+                  href="/free-audit"
                   className="btn-cyan w-full justify-center text-sm"
                   onClick={() => setMobileOpen(false)}
                 >
-                  Get In Touch
+                  Start Your IT Assessment
                 </a>
               </div>
             </div>

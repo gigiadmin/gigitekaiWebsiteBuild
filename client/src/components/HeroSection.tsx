@@ -5,7 +5,7 @@
 */
 
 import { useEffect, useState } from "react";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 // PERF: Import hero images as Vite assets — served from /assets/ with content hash.
 // This bypasses the /manus-storage/ proxy which adds a 307 redirect through Cloudflare edge,
 // adding ~1-3s latency to LCP. Static /assets/ files are served directly with immutable cache.
@@ -27,7 +27,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section data-hero-mounted="" className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
+    <section data-hero-mounted="" className="relative min-h-[82vh] flex flex-col justify-center overflow-hidden bg-[#0A0E1A]">
 
       {/* ── Background layer ── */}
       <div className="absolute inset-0 z-0">
@@ -80,12 +80,12 @@ export default function HeroSection() {
       />
 
       {/* ── Main content ── */}
-      <div className="container relative z-10 py-20">
+      <div className="container relative z-10 py-24 sm:py-32">
         <div className="max-w-3xl">
 
           {/* Label */}
           <div className="section-label mb-6">
-            SECURITY-FIRST MANAGED IT FOR TAMPA BAY
+            MANAGED IT + GOVERNED AI FOR TAMPA BAY
           </div>
 
           {/* Headline — visible immediately (no fade-in) to make it the LCP element */}
@@ -93,7 +93,7 @@ export default function HeroSection() {
             className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] mb-6"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            Managed IT +{" "}
+            Managed IT + Governed AI,{" "}
             <span
               style={{
                 background: "linear-gradient(90deg, #00D4FF, #00EEFF)",
@@ -101,10 +101,8 @@ export default function HeroSection() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Governed AI
+              without the complexity.
             </span>
-            <br />
-            for SMBs &amp; Enterprises
           </h1>
 
           {/* Subtitle */}
@@ -113,7 +111,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Security-first managed IT with AI done safely. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations—without the complexity.
+            A calmer, more capable technology operation for organizations that need stronger security, Microsoft 365 expertise, and practical AI automation.
           </p>
 
           {/* CTA Buttons */}
@@ -122,8 +120,8 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <a href="/contact" className="btn-cyan text-base px-6 py-3">
-              Get Started Today
+            <a href="/free-audit" className="btn-cyan text-base px-6 py-3">
+              Start Your IT Assessment
               <ArrowRight size={18} />
             </a>
             <a
@@ -143,30 +141,9 @@ export default function HeroSection() {
             >
               Explore AI Automation
             </a>
-            <a
-              href="/contact"
-              className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-[opacity,transform] duration-200"
-              style={{
-                background: "rgba(0,212,255,0.08)",
-                border: "1.5px solid rgba(0,212,255,0.45)",
-                color: "#00D4FF",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.18)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.08)";
-              }}
-            >
-              <Calendar size={18} />
-              Schedule Free Audit
-            </a>
-            <a href="#services" className="btn-outline-cyan text-base px-6 py-3">
-              See Our Services
-            </a>
           </div>
 
-          {/* Quick contact info */}
+          {/* Quiet client access paths */}
           <div
             className={`flex flex-wrap items-center gap-4 text-sm mb-6 transition-[opacity,transform] duration-700 delay-[350ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
@@ -177,7 +154,7 @@ export default function HeroSection() {
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              (727) 382-6909
+              Speak with GigitekAI
             </a>
             <span className="text-gray-300 hidden sm:block">|</span>
             <a
@@ -185,27 +162,27 @@ export default function HeroSection() {
               className="flex items-center gap-2 text-gray-300 hover:text-[#00D4FF] transition-colors font-medium"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              support@gigitekai.com
+              Existing client support
             </a>
           </div>
 
-          {/* Stats row */}
+          {/* Operating signals */}
           <div
             className={`flex flex-wrap gap-8 transition-[opacity,transform] duration-700 delay-[400ms] ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
             <div>
-              <div className="text-3xl font-bold text-[#00D4FF]">30+</div>
-              <div className="text-sm text-gray-200">Clients Served</div>
+              <div className="text-sm font-semibold tracking-[0.12em] text-[#00D4FF]">SECURE</div>
+              <div className="mt-1 text-sm text-gray-200">Zero Trust mindset</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#00D4FF]">99.9%</div>
-              <div className="text-sm text-gray-200">Uptime SLA</div>
+              <div className="text-sm font-semibold tracking-[0.12em] text-[#00D4FF]">GOVERNED</div>
+              <div className="mt-1 text-sm text-gray-200">AI built for control</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#00D4FF]">24/7</div>
-              <div className="text-sm text-gray-200">Local Support</div>
+              <div className="text-sm font-semibold tracking-[0.12em] text-[#00D4FF]">ACCOUNTABLE</div>
+              <div className="mt-1 text-sm text-gray-200">Human expertise, always</div>
             </div>
           </div>
         </div>
