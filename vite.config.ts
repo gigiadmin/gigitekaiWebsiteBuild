@@ -456,7 +456,7 @@ function vitePluginBootstrapFallback(): Plugin {
           if (retries >= MAX_RETRIES) {
             var root = document.getElementById('root');
             if (root && !root.children.length) {
-              root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0E1A;color:white;font-family:sans-serif;text-align:center;padding:2rem;"><div><h1 style="color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;">GigitekAI</h1><p style="font-size:1.2rem;margin-bottom:2rem;">Loading your experience...</p><button onclick="location.reload()" style="background:#00D4FF;color:#0A0E1A;border:none;padding:12px 32px;font-size:1rem;border-radius:8px;cursor:pointer;font-weight:600;">Refresh Page</button></div></div>';
+              root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0E1A;color:white;font-family:sans-serif;text-align:center;padding:2rem;"><div><div role="heading" aria-level="1" style="color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;font-weight:700;">GigitekAI</div><p style="font-size:1.2rem;margin-bottom:2rem;">Loading your experience...</p><button onclick="location.reload()" style="background:#00D4FF;color:#0A0E1A;border:none;padding:12px 32px;font-size:1rem;border-radius:8px;cursor:pointer;font-weight:600;">Refresh Page</button></div></div>';
             }
             return;
           }
