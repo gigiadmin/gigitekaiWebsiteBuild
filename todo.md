@@ -2475,3 +2475,6 @@
 - [x] Landing page "Get Early Access" button: wire to scroll to email form
 - [x] Landing page: remove/disable security assessment CTA that links to hidden main site
 - [x] Launch readiness: expose the full main GigitekAI website at gigitekai.com and retire the under-construction landing page — verified in preview; ready for production publish
+- [x] Investigate Shameika KELLY / SPUNK COSMETICS web-intake submission and verify the complete record was captured — submission #240001 was stored with complete intake data
+- [x] Update web-intake support@gigitekai.com alert emails to include complete submitted details in a privacy-conscious format — full form payload now delivered through Azure Graph and owner notifications
+- [x] Add and run regression tests covering detailed web-intake notification content — 3/3 passed
