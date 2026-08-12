@@ -2501,3 +2501,4 @@
 - [x] Simplify homepage information architecture while preserving lead forms, audit tools, support access, and conversion paths
 - [x] Establish a restrained dark-cyan design system with clearer typography, spacing, and mobile navigation
 - [x] Validate the redesign for accessibility, responsiveness, performance, SEO, and public lead workflows — focused 2/2 regression tests, production frontend build, route checks, and preview performance sanity check passed
+- [x] Make the primary Solutions navigation explicitly click-expandable for desktop keyboard and pointer users

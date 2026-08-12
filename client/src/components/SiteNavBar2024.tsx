@@ -126,6 +126,7 @@ export default function SiteNavBar2024() {
               <button
                 className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-300 hover:text-[#00D4FF] transition-colors rounded-md hover:bg-white/5"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                onClick={() => setServicesOpen(!servicesOpen)}
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
                 onKeyDown={(e) => {

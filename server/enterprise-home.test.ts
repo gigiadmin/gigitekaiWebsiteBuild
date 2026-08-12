@@ -28,6 +28,7 @@ describe("Enterprise homepage redesign", () => {
     });
 
     expect(nav).toContain('href="/free-audit"');
+    expect(nav).toContain("onClick={() => setServicesOpen(!servicesOpen)}");
     expect(nav).not.toContain('label: "Smart Home & Automation"');
   });
 });
