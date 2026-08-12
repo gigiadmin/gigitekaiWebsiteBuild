@@ -317,7 +317,9 @@ function mountApp() {
         
         const errorContent = document.createElement('div');
         
-        const heading = document.createElement('h1');
+        const heading = document.createElement('div');
+        heading.setAttribute('role', 'heading');
+        heading.setAttribute('aria-level', '1');
         heading.style.cssText = 'color:#00D4FF;font-size:2.5rem;margin-bottom:1rem;';
         heading.textContent = 'GigitekAI';
         errorContent.appendChild(heading);

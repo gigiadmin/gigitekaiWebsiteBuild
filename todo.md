@@ -2492,3 +2492,4 @@
 - [x] Correct duplicate crawler-visible H1 markup on the public homepage and verify the live response
 - [x] Fix scheduled daily AI blog generation when the model returns JSON inside a Markdown code fence
 - [x] Replace the off-brand Smart Home homepage CTA with an AI automation services CTA
+- [ ] Remove the noscript fallback H1 that remains alongside the prerendered homepage H1 in the live crawler response
