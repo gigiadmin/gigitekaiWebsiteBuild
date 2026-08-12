@@ -2481,3 +2481,14 @@
 - [x] Create a GitHub-first portability architecture for moving the GigitekAI website and portal off Manus — documented in docs/architecture/Portable_Hosting_Architecture.md
 - [x] Document a portable container, database, storage, secrets, backup, and disaster-recovery design — includes Azure-first target, Docker portability rules, recovery objectives, and restore drills
 - [x] Define a staged migration and domain cutover plan that preserves existing client-facing services — includes staging, parallel validation, DNS rollback, and a no-big-bang cutover
+- [x] Launch QA: inventory every public route, navigation link, CTA, and client-facing form — documented in docs/launch/GigitekAI_Launch_Readiness_Audit_2026-08-12.md
+- [x] Launch QA: test public pages, links, CTAs, and mobile-critical journeys against production — primary routes passed production checks; unknown routes returned HTTP 404
+- [x] Launch QA: verify every client-facing form stores data, creates the required ticket/workflow, and sends confirmation plus support alerts — public lead workflows reviewed and repaired where needed
+- [x] Launch QA: verify critical backend processes, webhooks, scheduled jobs, and admin operational paths — Teams HTTP 202 verification, daily-blog repair, and targeted operational tests completed
+- [x] Launch SEO: audit crawlability, indexation, sitemap, robots, canonical URLs, metadata, schema, and page performance — PageSpeed data unavailable due public API quota; limitation documented
+- [x] Launch QA: fix confirmed blockers, add regression tests, and publish an evidence-based launch report — report completed; full-platform legacy test failures are transparently listed
+- [x] Fix web-discovery intake navigation so required fields cannot be skipped and final submission validates the complete intake
+- [x] Add automated regression tests for web-discovery required-field and email/phone validation
+- [x] Correct duplicate crawler-visible H1 markup on the public homepage and verify the live response
+- [x] Fix scheduled daily AI blog generation when the model returns JSON inside a Markdown code fence
+- [x] Replace the off-brand Smart Home homepage CTA with an AI automation services CTA

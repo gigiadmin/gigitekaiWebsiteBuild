@@ -110,45 +110,45 @@ describe("prerenderMiddleware SEO", () => {
   });
 
   describe("getRouteSEO", () => {
-    it("should return noindex for daily-recap blog slugs", () => {
-      const seo = getRouteSEO("/blog/daily-recap-july-18-2026");
+    it("should return noindex for daily-recap blog slugs", async () => {
+      const seo = await getRouteSEO("/blog/daily-recap-july-18-2026");
       expect(seo).toBeDefined();
       expect(seo!.noindex).toBe(true);
     });
 
-    it("should return noindex for daily-ai-recap blog slugs", () => {
-      const seo = getRouteSEO("/blog/daily-ai-recap-2026-07-18");
+    it("should return noindex for daily-ai-recap blog slugs", async () => {
+      const seo = await getRouteSEO("/blog/daily-ai-recap-2026-07-18");
       expect(seo).toBeDefined();
       expect(seo!.noindex).toBe(true);
     });
 
-    it("should NOT set noindex for regular blog slugs", () => {
-      const seo = getRouteSEO("/blog/how-to-secure-microsoft-365");
+    it("should NOT set noindex for regular blog slugs", async () => {
+      const seo = await getRouteSEO("/blog/how-to-secure-microsoft-365");
       expect(seo).toBeDefined();
       expect(seo!.noindex).toBeFalsy();
     });
 
-    it("should generate title from blog slug", () => {
-      const seo = getRouteSEO("/blog/managed-it-services-guide");
+    it("should generate title from blog slug", async () => {
+      const seo = await getRouteSEO("/blog/managed-it-services-guide");
       expect(seo).toBeDefined();
       expect(seo!.title).toContain("Managed It Services Guide");
       expect(seo!.title).toContain("GigitekAI Blog");
     });
 
-    it("should return SEO for service detail pages", () => {
-      const seo = getRouteSEO("/services/ai");
+    it("should return SEO for service detail pages", async () => {
+      const seo = await getRouteSEO("/services/ai");
       expect(seo).toBeDefined();
       expect(seo!.title).toContain("AI");
     });
 
-    it("should return SEO for industry pages", () => {
-      const seo = getRouteSEO("/industries/healthcare");
+    it("should return SEO for industry pages", async () => {
+      const seo = await getRouteSEO("/industries/healthcare");
       expect(seo).toBeDefined();
       expect(seo!.title).toContain("Healthcare");
     });
 
-    it("should return null for unknown routes", () => {
-      const seo = getRouteSEO("/completely-unknown-page");
+    it("should return null for unknown routes", async () => {
+      const seo = await getRouteSEO("/completely-unknown-page");
       expect(seo).toBeNull();
     });
   });

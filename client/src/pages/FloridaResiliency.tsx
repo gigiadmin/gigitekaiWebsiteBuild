@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
 import { useSEO } from "@/hooks/useSEO";
+import { trpc } from "@/lib/trpc";
 
 const COMPARISON_DATA = [
   { metric: "Recovery Time Objective (RTO)", standard: "4 – 24 Hours", elite: "< 15 Minutes (Instant Failover)", eliteWins: true },
@@ -54,24 +55,25 @@ export default function FloridaResiliency() {
   const [pdfName, setPdfName] = useState("");
   const [pdfSubmitted, setPdfSubmitted] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState("");
+  const captureChecklistLead = trpc.contact.submit.useMutation();
 
   const handlePdfDownload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pdfEmail || !pdfName) return;
     
     setPdfLoading(true);
+    setPdfError("");
     try {
-      // Send email capture to backend
-      await fetch("/api/trpc/contact.submitContact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: pdfName,
-          email: pdfEmail,
-          company: "Not provided",
-          message: "Downloaded Florida IT Audit Checklist",
-          source: "florida-it-resiliency-pdf",
-        }),
+      // Create a stored contact submission, draft ticket, confirmation, support alert, and Teams alert
+      // through the established public contact workflow before releasing the checklist.
+      await captureChecklistLead.mutateAsync({
+        name: pdfName,
+        email: pdfEmail,
+        company: "Not provided",
+        phone: "",
+        subject: "Florida IT Resiliency Audit Checklist Download",
+        message: "Downloaded the Florida IT Resiliency Audit Checklist from the public website.",
       });
       
       // Trigger PDF download
@@ -90,6 +92,7 @@ export default function FloridaResiliency() {
       }, 3000);
     } catch (err) {
       console.error("Error:", err);
+      setPdfError("We could not record your request. Please try again or email support@gigitekai.com.");
     } finally {
       setPdfLoading(false);
     }
@@ -397,6 +400,7 @@ export default function FloridaResiliency() {
                   {pdfLoading ? "Sending..." : pdfSubmitted ? "✓ Check Your Email" : "Download PDF (Free)"}
                   {!pdfSubmitted && <ArrowRight size={18} />}
                 </button>
+                {pdfError && <p role="alert" className="text-sm text-red-300">{pdfError}</p>}
               </form>
             </div>
             <div className="flex-shrink-0 w-32 h-40 bg-gradient-to-br from-[#00D4FF]/20 to-[#00D4FF]/5 rounded-lg border border-[#00D4FF]/30 flex items-center justify-center">

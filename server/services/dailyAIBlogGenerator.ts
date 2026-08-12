@@ -57,6 +57,27 @@ function generateContentHash(content: string): string {
   return crypto.createHash("sha256").update(content).digest("hex");
 }
 
+export function parseGeneratedBlogJson(content: unknown): {
+  title: string;
+  excerpt: string;
+  content: string;
+} {
+  const contentStr = typeof content === "string" ? content.trim() : JSON.stringify(content);
+  const fencedJson = contentStr.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  const parsed = JSON.parse(fencedJson?.[1] ?? contentStr);
+
+  if (
+    !parsed ||
+    typeof parsed.title !== "string" ||
+    typeof parsed.excerpt !== "string" ||
+    typeof parsed.content !== "string"
+  ) {
+    throw new Error("Generated blog response is missing title, excerpt, or content");
+  }
+
+  return parsed;
+}
+
 /**
  * Check if this content was already sent today
  */
@@ -159,9 +180,8 @@ Emphasize that AI is a TOOL, not a replacement for humans.`;
     const content = response.choices?.[0]?.message?.content;
     if (!content) throw new Error("No content generated");
 
-    // Parse JSON response
-    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
-    const parsed = JSON.parse(contentStr);
+    // Some models wrap requested JSON in a Markdown code fence; accept either response shape.
+    const parsed = parseGeneratedBlogJson(content);
     
     // Generate slug from title
     const slug = parsed.title

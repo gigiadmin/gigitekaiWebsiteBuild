@@ -3,10 +3,11 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, adminProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "./_core/notification";
 import { sendEmail } from "./_core/email";
 import { saveContactSubmission, getAllUsers, approveUser, revokeUser, getDb, logUserActivity, getUserActivityByUserId, getLastLoginByUserId, submitCustomerFeedback, getCustomerFeedbackByTicket, getAverageRating, recordWebsiteTraffic, getWebsiteTrafficByDate, getWebsiteTrafficSummary, softDeleteUser, restoreUser, listDeletedUsers, purgeExpiredDeletedUsers, createTicket } from "./db";
-import { users, contactSubmissions, emailMessages, agentMetrics } from "../drizzle/schema";
+import { users, contactSubmissions, emailMessages, agentMetrics, callDraftTickets } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { helpdeskRouter } from "./routers/helpdesk";
 import { gigitekAITicketClassifierRouter } from "./routers/gigitekai-ticket-classifier";
@@ -429,11 +430,58 @@ export const appRouter = router({
       )
       .mutation(async ({ input }) => {
         try {
-          // Notify owner in Manus dashboard
-          await notifyOwner({
-            title: `🔄 Switch Program Lead: ${input.name} @ ${input.company}`,
-            content: `**New Switch Program IT Audit Request**\n\n**Name:** ${input.name}\n**Email:** ${input.email}\n**Company:** ${input.company}\n**Current MSP:** ${input.currentMsp || "Not provided"}\n**User Count:** ${input.userCount || "Not provided"}\n**Phone:** ${input.phone || "Not provided"}\n**Main Pain Point:** ${input.painPoint || "Not provided"}\n\n---\nSubmitted from gigitekai.com/switch-program`,
-          });
+          const db = await getDb();
+          if (!db) {
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+          }
+
+          const [submissionResult] = await db.insert(contactSubmissions).values({
+            name: input.name,
+            email: input.email,
+            company: input.company,
+            phone: input.phone || null,
+            subject: "Switch Program — Free IT Audit Request",
+            message: [
+              "Switch Program IT Audit Request",
+              `Current MSP: ${input.currentMsp || "Not provided"}`,
+              `User Count: ${input.userCount || "Not provided"}`,
+              `Main Pain Point: ${input.painPoint || "Not provided"}`,
+            ].join("\n"),
+          } as any);
+          const submissionId = (submissionResult as any).insertId || submissionResult;
+
+          try {
+            await db.insert(callDraftTickets).values({
+              callLogId: 0,
+              title: `Switch Program Audit — ${input.company}`,
+              description: [
+                `Switch Program lead #${submissionId}`,
+                `Current MSP: ${input.currentMsp || "Not provided"}`,
+                `User Count: ${input.userCount || "Not provided"}`,
+                `Main Pain Point: ${input.painPoint || "Not provided"}`,
+              ].join("\n"),
+              category: "general_support",
+              priority: "medium",
+              reviewStatus: "pending",
+              callerName: input.name,
+              callerEmail: input.email,
+              callerPhone: input.phone || null,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            } as any);
+          } catch (ticketError) {
+            console.error("[Switch Program] Draft ticket creation failed:", ticketError);
+          }
+
+          // Notify owner in Manus dashboard without preventing a persisted lead from succeeding.
+          try {
+            await notifyOwner({
+              title: `🔄 Switch Program Lead: ${input.name} @ ${input.company}`,
+              content: `New Switch Program IT Audit Request\n\nName: ${input.name}\nEmail: ${input.email}\nCompany: ${input.company}\nCurrent MSP: ${input.currentMsp || "Not provided"}\nUser Count: ${input.userCount || "Not provided"}\nPhone: ${input.phone || "Not provided"}\nMain Pain Point: ${input.painPoint || "Not provided"}\nSubmission ID: ${String(submissionId)}\n\nSubmitted from gigitekai.com/switch-program`,
+            });
+          } catch (notifyError) {
+            console.error("[Switch Program] Owner notification failed:", notifyError);
+          }
 
           // Send email notification to support team
           try {
@@ -493,10 +541,13 @@ export const appRouter = router({
             console.error("[Switch Program] Confirmation email failed:", confirmError);
           }
 
-          return { success: true, message: "Thank you! We'll contact you within 24 hours to schedule your free IT audit." };
+          return { success: true, id: String(submissionId), message: "Thank you! We'll contact you within 24 hours to schedule your free IT audit." };
         } catch (error) {
           console.error("[Switch Program] Submission failed:", error);
-          return { success: true, message: "Thank you! We'll contact you within 24 hours to schedule your free IT audit." };
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "We could not submit your request. Please try again or contact support@gigitekai.com.",
+          });
         }
       }),
   }),

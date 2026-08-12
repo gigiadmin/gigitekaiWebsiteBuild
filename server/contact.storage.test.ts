@@ -84,7 +84,7 @@ describe("contact.submit with database storage", () => {
       });
       expect.fail("Should have thrown validation error");
     } catch (error: any) {
-      expect(error.message).toContain("Invalid email");
+      expect(error.message).toContain("Please enter a valid email address");
     }
   });
 

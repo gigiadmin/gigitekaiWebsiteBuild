@@ -59,6 +59,26 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Power Automate trigger URLs must preserve `&` query delimiters. Connectors and
+ * copied configuration sometimes store those delimiters as `%26`, `&amp;`, or
+ * literal `\u0026`, which makes Azure interpret the remaining query string as
+ * part of the api-version value and returns HTTP 400.
+ */
+export function normalizeTeamsWebhookUrl(webhookUrl: string): string {
+  if (!webhookUrl) return webhookUrl;
+  const queryIndex = webhookUrl.indexOf("?");
+  if (queryIndex < 0) return webhookUrl;
+
+  const base = webhookUrl.slice(0, queryIndex);
+  const query = webhookUrl
+    .slice(queryIndex + 1)
+    .replace(/\\u0026/gi, "&")
+    .replace(/&amp;/gi, "&")
+    .replace(/%26/gi, "&");
+  return `${base}?${query}`;
+}
+
+/**
  * Send a payload to a Teams webhook URL with exponential backoff retry.
  * On permanent failure, logs to dead-letter queue and notifies owner.
  *
@@ -76,10 +96,11 @@ export async function sendToTeamsWithRetry(
     return { success: false, attempts: 0, error: "TEAMS_WEBHOOK_URL not configured" };
   }
 
+  const normalizedWebhookUrl = normalizeTeamsWebhookUrl(webhookUrl);
   let lastError = "";
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const response = await fetch(webhookUrl, {
+      const response = await fetch(normalizedWebhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -115,7 +136,7 @@ export async function sendToTeamsWithRetry(
   // All retries exhausted — add to dead-letter queue and notify owner
   addToDeadLetter({
     timestamp: new Date(),
-    webhookUrl,
+    webhookUrl: normalizedWebhookUrl,
     payload,
     error: lastError,
     attempts: MAX_RETRIES,
@@ -188,7 +209,7 @@ const FAILURE_NOTIFY_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
  * Sends a minimal invisible payload (1x1 transparent card) to verify connectivity.
  */
 export async function pingTeamsWebhook(): Promise<boolean> {
-  const url = process.env.TEAMS_WEBHOOK_URL;
+  const url = normalizeTeamsWebhookUrl(process.env.TEAMS_WEBHOOK_URL ?? "");
   console.log("[Teams Health] Starting webhook ping...");
   if (!url) {
     console.warn("[Teams Health] No webhook URL configured");

@@ -13,6 +13,14 @@ import { notifyOwner } from "../_core/notification";
 import { sendToTeamsWithRetry, resolveWebhookUrl } from "../_core/teamsWebhookUtils";
 import { sql } from "drizzle-orm";
 
+const escapeHtml = (value: string | null | undefined): string =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 // ─── Rate Limiting ──────────────────────────────────────────────────────────
 // Prevent spam and Purview alerts by limiting submissions per email/IP
 const submissionRateLimit = new Map<string, { count: number; resetAt: number }>();
@@ -84,6 +92,31 @@ export const contactFormRouter = router({
 
         const submissionId = result[0]?.insertId || result[0];
 
+        // Keep a durable operational ticket for every client-facing pricing inquiry.
+        try {
+          await db.insert(callDraftTickets).values({
+            callLogId: 0,
+            title: `Website Pricing Inquiry — ${input.businessName}`,
+            description: [
+              `Industry: ${input.industry}`,
+              `Pricing tier: ${input.pricingTier || "Not specified"}`,
+              `Business description: ${input.description}`,
+              `Target audience: ${input.targetAudience || "Not specified"}`,
+              `Current website: ${input.currentWebsite || "Not provided"}`,
+            ].join("\n\n"),
+            category: "general_support",
+            priority: "medium",
+            reviewStatus: "pending",
+            callerName: input.businessName,
+            callerEmail: input.email,
+            callerPhone: input.phone || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as any);
+        } catch (ticketError) {
+          console.error(`[Website Pricing Inquiry] Failed to create draft ticket for submission #${submissionId}:`, ticketError);
+        }
+
         // Send confirmation email to customer
         try {
           await sendEmail({
@@ -115,6 +148,43 @@ export const contactFormRouter = router({
           });
         } catch (notifyErr) {
           console.warn("[Website Pricing Inquiry] Failed to notify owner", notifyErr);
+        }
+
+        try {
+          await sendEmail({
+            to: "support@gigitekai.com",
+            subject: `New Website Pricing Inquiry: ${input.businessName}`,
+            replyTo: input.email,
+            html: `
+              <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;color:#0f172a;">
+                <h2 style="color:#0891b2;">New Website Pricing Inquiry</h2>
+                <p><strong>Business:</strong> ${escapeHtml(input.businessName)}</p>
+                <p><strong>Email:</strong> <a href="mailto:${escapeHtml(input.email)}">${escapeHtml(input.email)}</a></p>
+                <p><strong>Phone:</strong> ${escapeHtml(input.phone || "Not provided")}</p>
+                <p><strong>Industry:</strong> ${escapeHtml(input.industry)}</p>
+                <p><strong>Pricing tier:</strong> ${escapeHtml(input.pricingTier || "Not specified")}</p>
+                <h3>Business description</h3>
+                <pre style="white-space:pre-wrap;background:#f1f5f9;border:1px solid #cbd5e1;padding:14px;border-radius:6px;">${escapeHtml(input.description)}</pre>
+                <p><strong>Target audience:</strong> ${escapeHtml(input.targetAudience || "Not specified")}</p>
+                <p><strong>Current website:</strong> ${escapeHtml(input.currentWebsite || "Not provided")}</p>
+                <p><strong>Submission ID:</strong> ${escapeHtml(String(submissionId))}</p>
+              </div>`,
+          });
+        } catch (supportEmailError) {
+          console.warn("[Website Pricing Inquiry] Failed to send support email", supportEmailError);
+        }
+
+        try {
+          const webhookUrl = resolveWebhookUrl("general_support");
+          if (webhookUrl) {
+            await sendToTeamsWithRetry(webhookUrl, {
+              title: `New Website Pricing Inquiry: ${input.businessName}`,
+              text: `Email: ${input.email}\nPhone: ${input.phone || "Not provided"}\nIndustry: ${input.industry}\nTier: ${input.pricingTier || "Not specified"}`,
+              themeColor: "00D4FF",
+            }, `Website pricing inquiry from ${input.email}`);
+          }
+        } catch (teamsError) {
+          console.warn("[Website Pricing Inquiry] Failed to send Teams notification", teamsError);
         }
 
         return {

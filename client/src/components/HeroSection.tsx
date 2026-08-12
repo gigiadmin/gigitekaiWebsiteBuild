@@ -127,7 +127,7 @@ export default function HeroSection() {
               <ArrowRight size={18} />
             </a>
             <a
-              href="/smart-home"
+              href="/services/ai"
               className="flex items-center gap-2 text-base px-6 py-3 rounded-lg font-semibold transition-[opacity,transform] duration-200"
               style={{
                 background: "rgba(0,212,255,0.08)",
@@ -141,7 +141,7 @@ export default function HeroSection() {
                 (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,212,255,0.08)";
               }}
             >
-              Explore Smart Home
+              Explore AI Automation
             </a>
             <a
               href="/contact"

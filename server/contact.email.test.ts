@@ -86,7 +86,7 @@ describe("contact.submit with email", () => {
       });
       expect.fail("Should have thrown error");
     } catch (error: any) {
-      expect(error.message).toContain("Invalid email");
+      expect(error.message).toContain("Please enter a valid email address");
     }
   });
 

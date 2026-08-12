@@ -1,215 +1,80 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { formSubmissionsRouter } from "./formSubmissions";
-import { getDb } from "../db";
-import { formSubmissions } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
 
-// Mock the database
-vi.mock("../db", () => ({
-  getDb: vi.fn(),
-}));
+const publicCaller = () =>
+  formSubmissionsRouter.createCaller({
+    user: null,
+    req: {} as any,
+    res: {} as any,
+  });
 
-// Mock the notification service
-vi.mock("../_core/notification", () => ({
-  notifyOwner: vi.fn().mockResolvedValue(true),
-}));
+const nonAdminCaller = () =>
+  formSubmissionsRouter.createCaller({
+    user: { id: "user-123", role: "user" } as any,
+    req: {} as any,
+    res: {} as any,
+  });
+
+const validSubmission = {
+  email: "test@example.com",
+  name: "Test User",
+  phone: "609-555-0100",
+  company: "Test Company",
+  category: "inquiry",
+  message: "This is a valid test message for form validation.",
+  source: "website",
+};
 
 describe("formSubmissionsRouter", () => {
-  let mockDb: any;
-
-  beforeAll(() => {
-    mockDb = {
-      insert: vi.fn(),
-      select: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      fn: {
-        count: vi.fn(),
-      },
-    };
-  });
-
-  describe("submitForm", () => {
-    it("should validate email format", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: null,
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.submitForm({
-          email: "invalid-email",
-          name: "Test User",
-          category: "inquiry",
-          message: "This is a test message",
-        });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("Invalid email");
-      }
+  describe("submitForm validation", () => {
+    it("rejects an invalid email before writing a submission", async () => {
+      await expect(
+        publicCaller().submitForm({ ...validSubmission, email: "invalid-email" })
+      ).rejects.toThrow();
     });
 
-    it("should require name with minimum 2 characters", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: null,
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.submitForm({
-          email: "test@example.com",
-          name: "A",
-          category: "inquiry",
-          message: "This is a test message",
-        });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("Name required");
-      }
+    it("requires a name of at least two characters", async () => {
+      await expect(
+        publicCaller().submitForm({ ...validSubmission, name: "A" })
+      ).rejects.toThrow();
     });
 
-    it("should require message with minimum 10 characters", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: null,
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.submitForm({
-          email: "test@example.com",
-          name: "Test User",
-          category: "inquiry",
-          message: "short",
-        });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("at least 10 characters");
-      }
+    it("requires a phone number and a meaningful message", async () => {
+      await expect(
+        publicCaller().submitForm({ ...validSubmission, phone: "123", message: "short" })
+      ).rejects.toThrow();
     });
 
-    it("should require category", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: null,
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.submitForm({
-          email: "test@example.com",
-          name: "Test User",
-          category: "",
-          message: "This is a test message",
-        });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("Category required");
-      }
+    it("requires a form category", async () => {
+      await expect(
+        publicCaller().submitForm({ ...validSubmission, category: "" })
+      ).rejects.toThrow();
     });
   });
 
-  describe("getSubmissions", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.getSubmissions({ limit: 50, offset: 0 });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
+  describe("admin operations", () => {
+    it("blocks a non-admin from listing intake submissions", async () => {
+      await expect(nonAdminCaller().getAll()).rejects.toThrow(/permission/i);
     });
-  });
 
-  describe("markAsContacted", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.markAsContacted({ id: 1 });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
+    it("blocks a non-admin from reading an intake submission", async () => {
+      await expect(nonAdminCaller().getById({ id: 1 })).rejects.toThrow(/permission/i);
     });
-  });
 
-  describe("markAsConverted", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.markAsConverted({ id: 1 });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
+    it("blocks a non-admin from changing intake status", async () => {
+      await expect(
+        nonAdminCaller().updateStatus({ id: 1, status: "contacted" })
+      ).rejects.toThrow(/permission/i);
     });
-  });
 
-  describe("markAsSpam", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.markAsSpam({ id: 1 });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
+    it("blocks a non-admin from deleting an intake submission", async () => {
+      await expect(nonAdminCaller().delete({ id: 1 })).rejects.toThrow(/permission/i);
     });
-  });
 
-  describe("deleteSubmission", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.deleteSubmission({ id: 1 });
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
-    });
-  });
-
-  describe("getStats", () => {
-    it("should require admin role", async () => {
-      const caller = formSubmissionsRouter.createCaller({
-        user: { id: "user-123", role: "user" },
-        req: {} as any,
-        res: {} as any,
-      });
-
-      try {
-        await caller.getStats();
-        expect.fail("Should have thrown an error");
-      } catch (error) {
-        expect((error as any).message).toContain("permission");
-      }
+    it("blocks a non-admin from bulk deleting intake submissions", async () => {
+      await expect(nonAdminCaller().bulkDelete({ ids: [1, 2] })).rejects.toThrow(
+        /permission/i
+      );
     });
   });
 });

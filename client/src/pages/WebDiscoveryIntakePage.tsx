@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import {
+  validateWebDiscoverySection,
+  validateWebDiscoverySubmission,
+} from "@/lib/webDiscoveryValidation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,6 +80,7 @@ export default function WebDiscoveryIntakePage() {
   const [submitted, setSubmitted] = useState(false);
   const [currentSection, setCurrentSection] = useState(getInitialSection());
   const [formData, setFormData] = useState(getInitialFormData());
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {
@@ -122,18 +127,31 @@ export default function WebDiscoveryIntakePage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev: typeof formData) => ({ ...prev, [name]: value }));
+    setFieldErrors(prev => {
+      if (!prev[name]) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
   };
 
   const handleClearForm = () => {
     if (confirm("Are you sure you want to clear all form data? This cannot be undone.")) {
       setFormData(getDefaultFormData());
       setCurrentSection(0);
+      setFieldErrors({});
       clearSavedData();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validation = validateWebDiscoverySubmission(formData);
+    if (validation.firstInvalidSection !== null) {
+      setFieldErrors(validation.errors);
+      setCurrentSection(validation.firstInvalidSection);
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -189,6 +207,17 @@ ${formData.additionalInfo}
     } catch (error) {
       // Error is handled by onError callback
     }
+  };
+
+  const handleNextSection = () => {
+    const sectionErrors = validateWebDiscoverySection(formData, currentSection);
+    if (Object.keys(sectionErrors).length > 0) {
+      setFieldErrors(sectionErrors);
+      return;
+    }
+
+    setFieldErrors({});
+    setCurrentSection(Math.min(sections.length - 1, currentSection + 1));
   };
 
   const sections = [
@@ -379,6 +408,8 @@ ${formData.additionalInfo}
                     name={field.name}
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
+                    aria-invalid={Boolean(fieldErrors[field.name])}
+                    aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   >
                     {(field.options || []).map((option) => (
@@ -393,6 +424,8 @@ ${formData.additionalInfo}
                     name={field.name}
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
+                    aria-invalid={Boolean(fieldErrors[field.name])}
+                    aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
                     placeholder={"placeholder" in field ? field.placeholder : ""}
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none h-24"
                   />
@@ -403,9 +436,16 @@ ${formData.additionalInfo}
                     name={field.name}
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
+                    aria-invalid={Boolean(fieldErrors[field.name])}
+                    aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
                     placeholder={"placeholder" in field ? field.placeholder : ""}
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                   />
+                )}
+                {fieldErrors[field.name] && (
+                  <p id={`${field.name}-error`} role="alert" className="mt-2 text-sm text-red-300">
+                    {fieldErrors[field.name]}
+                  </p>
                 )}
               </div>
             ))}
@@ -433,7 +473,7 @@ ${formData.additionalInfo}
             {currentSection < sections.length - 1 ? (
               <Button
                 type="button"
-                onClick={() => setCurrentSection(Math.min(sections.length - 1, currentSection + 1))}
+                onClick={handleNextSection}
                 className="bg-cyan-500 hover:bg-cyan-600 text-slate-950"
               >
                 Next →

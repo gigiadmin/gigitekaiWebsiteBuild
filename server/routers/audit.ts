@@ -7,11 +7,54 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { freeAuditSubmissions } from "../../drizzle/schema";
+import { callDraftTickets, freeAuditSubmissions } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import { resolveWebhookUrl, sendToTeamsWithRetry } from "../_core/teamsWebhookUtils";
+
+const escapeHtml = (value: string | null | undefined): string =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+export const buildFreeAuditSupportEmail = (
+  input: {
+    companyName: string;
+    industry: string;
+    description?: string;
+    contactName: string;
+    contactEmail: string;
+    contactPhone?: string;
+    auditType?: string;
+    currentChallenges?: string;
+    goals?: string;
+  },
+  submissionId: number | string
+) => `
+  <div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;color:#0f172a;">
+    <h2 style="color:#0891b2;">New Free Audit Request — Complete Details</h2>
+    <table role="presentation" style="border-collapse:collapse;width:100%;margin:0 0 18px;">
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;width:34%;">Contact</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(input.contactName)}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Email</td><td style="padding:8px;border:1px solid #cbd5e1;"><a href="mailto:${escapeHtml(input.contactEmail)}">${escapeHtml(input.contactEmail)}</a></td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Phone</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(input.contactPhone || "Not provided")}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Company</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(input.companyName)}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Industry</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(input.industry)}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Audit type</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(input.auditType || "General IT audit")}</td></tr>
+      <tr><td style="padding:8px;border:1px solid #cbd5e1;font-weight:700;">Submission ID</td><td style="padding:8px;border:1px solid #cbd5e1;">${escapeHtml(String(submissionId))}</td></tr>
+    </table>
+    <h3>Business Description</h3>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;background:#f1f5f9;border:1px solid #cbd5e1;padding:14px;border-radius:6px;font-family:Arial,sans-serif;line-height:1.55;">${escapeHtml(input.description || "Not provided")}</pre>
+    <h3>Current Challenges</h3>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;background:#f1f5f9;border:1px solid #cbd5e1;padding:14px;border-radius:6px;font-family:Arial,sans-serif;line-height:1.55;">${escapeHtml(input.currentChallenges || "Not provided")}</pre>
+    <h3>Goals</h3>
+    <pre style="white-space:pre-wrap;word-wrap:break-word;background:#f1f5f9;border:1px solid #cbd5e1;padding:14px;border-radius:6px;font-family:Arial,sans-serif;line-height:1.55;">${escapeHtml(input.goals || "Not provided")}</pre>
+    <p><a href="https://gigitekai.com/admin/free-audits" style="background:#00D4FF;color:#0A0E1A;padding:10px 18px;text-decoration:none;border-radius:5px;display:inline-block;font-weight:700;">Review Free Audit Request</a></p>
+  </div>`;
 
 function requireAdmin(role: string | undefined) {
   if (role !== "admin") {
@@ -56,6 +99,33 @@ export const auditRouter = router({
         });
 
         const submissionId = (result as any).insertId;
+
+        // Create a draft helpdesk ticket so every client-facing audit request has an operational follow-up record.
+        try {
+          await db.insert(callDraftTickets).values({
+            callLogId: 0,
+            title: `Free Audit Request — ${input.companyName}`,
+            description: [
+              `Free audit request #${submissionId}`,
+              `Company: ${input.companyName}`,
+              `Industry: ${input.industry}`,
+              `Audit Type: ${input.auditType || "General IT audit"}`,
+              `Description: ${input.description || "Not provided"}`,
+              `Challenges: ${input.currentChallenges || "Not provided"}`,
+              `Goals: ${input.goals || "Not provided"}`,
+            ].join("\n"),
+            category: "general_support",
+            priority: "medium",
+            reviewStatus: "pending",
+            callerName: input.contactName,
+            callerEmail: input.contactEmail,
+            callerPhone: input.contactPhone || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as any);
+        } catch (ticketErr) {
+          console.error("[Audit] Draft ticket creation failed:", ticketErr);
+        }
 
         // Send confirmation email to user
         const confirmationHtml = `<!DOCTYPE html>
@@ -113,6 +183,28 @@ export const auditRouter = router({
         }).catch((err) => {
           console.error("[Audit] Confirmation email failed:", err);
         });
+
+        await sendEmail({
+          to: "support@gigitekai.com",
+          subject: `New Free Audit Request: ${input.companyName} — ${input.contactName}`,
+          html: buildFreeAuditSupportEmail(input, submissionId),
+          replyTo: input.contactEmail,
+        }).catch((err) => {
+          console.error("[Audit] Support notification email failed:", err);
+        });
+
+        try {
+          const webhookUrl = resolveWebhookUrl("general_support");
+          if (webhookUrl) {
+            await sendToTeamsWithRetry(webhookUrl, {
+              title: `New Free Audit Request: ${input.companyName}`,
+              text: `Contact: ${input.contactName}\nEmail: ${input.contactEmail}\nIndustry: ${input.industry}\nAudit type: ${input.auditType || "General IT audit"}`,
+              themeColor: "00D4FF",
+            });
+          }
+        } catch (teamsErr) {
+          console.error("[Audit] Teams notification failed:", teamsErr);
+        }
 
         // Notify owner of new submission
         await notifyOwner({
