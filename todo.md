@@ -2513,3 +2513,5 @@
 - [x] Run client-facing form validation and workflow tests for web intake, free audit, contact/pricing, access, and Switch Program flows — 72/72 targeted form and mobile tests passed
 - [x] Fix confirmed link or form failures, add regression coverage, and publish an evidence-based validation summary — documented in docs/launch/GigitekAI_Link_and_Form_Validation_2026-08-12.md
 - [x] Replace stale mock-only web-intake email assertions with payload tests that validate the production notification content
+- [x] Eliminate the landing-page or lazy-loading flash visible behind public-page loads and navigation
+- [x] Verify direct and client-side public-route transitions show no stale fallback content — first-paint regression tests, production build checks, and direct route checks passed
