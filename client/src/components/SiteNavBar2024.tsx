@@ -6,12 +6,13 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Calendar, Bot } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Bot } from "lucide-react";
 
 
 export default function SiteNavBar2024() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [menuTop, setMenuTop] = useState(72);
   const navRef = useRef<HTMLElement>(null);
@@ -222,7 +223,11 @@ export default function SiteNavBar2024() {
           <button
             className="lg:hidden p-3 min-w-[48px] min-h-[48px] flex items-center justify-center"
             style={{ color: '#ffffff' }}
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => {
+              const nextOpen = !mobileOpen;
+              setMobileOpen(nextOpen);
+              if (!nextOpen) setMobileSolutionsOpen(false);
+            }}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -243,35 +248,35 @@ export default function SiteNavBar2024() {
             <div className="fixed left-0 right-0 overflow-y-auto z-50 lg:hidden"
               style={{ top: `${menuTop}px`, height: `calc(100dvh - ${menuTop}px)`, backgroundColor: '#0F1629', borderTop: '1px solid rgba(0,212,255,0.1)', colorScheme: 'dark' }}
             >
-              {/* Home link */}
-              <div className="px-4 pb-2">
-                <a
-                  href="/"
-                  className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold rounded-lg"
-                  style={{ color: '#ffffff', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                  Home
+              <div className="px-5 pb-4 pt-6">
+                <p className="text-xs font-semibold tracking-[0.2em] text-[#00D4FF]">EXPLORE GIGITEKAI</p>
+                <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">Secure IT operations, Microsoft 365 expertise, and governed AI automation.</p>
+                <a href="/free-audit" className="btn-cyan mt-5 w-full justify-center py-3 text-sm" onClick={() => setMobileOpen(false)}>
+                  Start Your IT Assessment
                 </a>
               </div>
-              <div className="px-4 pb-2 pt-4">
-                <p className="pb-2 text-xs font-semibold tracking-[0.18em] text-[#00D4FF]">SOLUTIONS</p>
-                <div className="space-y-1">
-              {services.map((s) => (
-                <a
-                  key={s.href}
-                  href={s.href}
-                  className="block py-3 text-sm transition-colors min-h-[48px] flex items-center"
-                  style={{ color: '#e5e7eb' }}
-                  onClick={() => setMobileOpen(false)}
+              <div className="border-y border-white/10 px-5 py-2">
+                <button
+                  type="button"
+                  className="flex min-h-[56px] w-full items-center justify-between text-left text-base font-semibold text-white"
+                  onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
+                  aria-expanded={mobileSolutionsOpen}
+                  aria-controls="mobile-solutions"
                 >
-                  {s.label}
-                </a>
-              ))}
-                </div>
+                  Solutions
+                  <ChevronDown size={18} className={`text-[#00D4FF] transition-transform ${mobileSolutionsOpen ? "rotate-180" : ""}`} />
+                </button>
+                {mobileSolutionsOpen && (
+                  <div id="mobile-solutions" className="border-l border-[#00D4FF]/50 pb-3 pl-4">
+                    {services.map((s) => (
+                      <a key={s.href} href={s.href} className="flex min-h-[44px] items-center text-sm text-slate-300" onClick={() => setMobileOpen(false)}>
+                        {s.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="px-4 pb-2 space-y-2 pt-2" style={{ borderTop: '1px solid rgba(0,212,255,0.1)' }}>
+              <div className="space-y-1 px-5 py-3">
               {[
                 { label: "Industries", href: "/industries", id: "nav-industries" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
@@ -281,7 +286,7 @@ export default function SiteNavBar2024() {
                   key={item.href}
                   href={item.href}
                   data-nav-id={item.id}
-                  className="block py-3 text-sm transition-colors min-h-[48px] flex items-center"
+                  className="flex min-h-[52px] items-center text-base font-medium text-white transition-colors"
                   style={{ color: item.id === "nav-ai-demo" ? '#00D4FF' : '#ffffff', fontWeight: item.id === "nav-ai-demo" ? '600' : 'normal' }}
                   onClick={() => {
                     setMobileOpen(false);
@@ -291,22 +296,10 @@ export default function SiteNavBar2024() {
                   {item.label}
                 </a>
               ))}
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  window.location.href = "/free-audit";
-                }}
-                className="flex items-center gap-2 w-full py-3 text-sm transition-colors min-h-[48px]"
-                style={{ color: '#00D4FF' }}
-              >
-                <Calendar size={14} color="#00D4FF" />
-                <span>Start Your IT Assessment</span>
-              </button>
-
               {/* Mobile Support - Standout */}
               <a
                 href="/helpdesk"
-                className="flex items-center gap-2 py-2.5 px-3 text-sm font-bold rounded-lg mt-2"
+                className="mt-3 flex min-h-[52px] items-center gap-2 px-3 py-2.5 text-sm font-bold rounded-lg"
                 style={{ color: '#00D4FF', backgroundColor: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)' }}
                 onClick={() => setMobileOpen(false)}
               >
@@ -317,7 +310,7 @@ export default function SiteNavBar2024() {
               {/* Mobile Request Access */}
               <a
                 href="/helpdesk/request-access"
-                className="flex items-center gap-2 py-2.5 px-3 text-sm font-semibold rounded-lg mt-1"
+                className="mt-2 flex min-h-[52px] items-center gap-2 px-3 py-2.5 text-sm font-semibold rounded-lg"
                 style={{ color: '#00D4FF', border: '1px solid rgba(0,212,255,0.2)' }}
                 onClick={() => setMobileOpen(false)}
               >
@@ -327,18 +320,6 @@ export default function SiteNavBar2024() {
                 <span>Client Access</span>
               </a>
 
-              {/* Mobile Search Bar - DISABLED - removed due to poor UX */}
-
-
-              </div>
-              <div className="px-4 pt-2 pb-6">
-                <a
-                  href="/free-audit"
-                  className="btn-cyan w-full justify-center text-sm"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Start Your IT Assessment
-                </a>
               </div>
             </div>
           </>

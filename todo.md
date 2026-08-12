@@ -2502,3 +2502,6 @@
 - [x] Establish a restrained dark-cyan design system with clearer typography, spacing, and mobile navigation
 - [x] Validate the redesign for accessibility, responsiveness, performance, SEO, and public lead workflows — focused 2/2 regression tests, production frontend build, route checks, and preview performance sanity check passed
 - [x] Make the primary Solutions navigation explicitly click-expandable for desktop keyboard and pointer users
+- [x] Audit the live mobile homepage and document why the prior redesign did not materially change the mobile experience
+- [x] Redesign the mobile header, menu, hero, CTA stack, and proof points so the homepage has a visibly mobile-first experience
+- [x] Validate the redesigned mobile homepage at phone viewport widths and publish the corrected mobile experience — focused 3/3 regression tests and the production frontend build passed

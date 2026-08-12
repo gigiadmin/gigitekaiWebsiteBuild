@@ -76,7 +76,7 @@ export default function EnterpriseHomeSections() {
         </div>
       </section>
 
-      <section id="solutions" className="bg-[#0A0E1A] py-24 sm:py-32">
+      <section id="solutions" className="bg-[#0A0E1A] py-16 sm:py-32">
         <div className="container">
           <div className="grid gap-10 border-b border-white/10 pb-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end lg:gap-20">
             <div>
@@ -111,7 +111,7 @@ export default function EnterpriseHomeSections() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-[#050810] py-24 sm:py-32">
+      <section className="border-y border-white/10 bg-[#050810] py-16 sm:py-32">
         <div className="container grid gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-[#00D4FF]">HOW WE WORK</p>
@@ -142,7 +142,7 @@ export default function EnterpriseHomeSections() {
         </div>
       </section>
 
-      <section className="bg-[#0A0E1A] py-24 sm:py-32">
+      <section className="bg-[#0A0E1A] py-16 sm:py-32">
         <div className="container">
           <div className="grid overflow-hidden border border-[#00D4FF]/25 bg-[linear-gradient(120deg,rgba(0,212,255,0.1),rgba(10,14,26,0)_54%)] lg:grid-cols-[1.1fr_0.9fr]">
             <div className="p-8 sm:p-12 lg:p-16">
@@ -184,7 +184,7 @@ export default function EnterpriseHomeSections() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-[#050810] py-24 sm:py-32">
+      <section className="border-y border-white/10 bg-[#050810] py-16 sm:py-32">
         <div className="container">
           <div className="flex flex-col justify-between gap-8 border-b border-white/10 pb-10 sm:flex-row sm:items-end">
             <div>
@@ -210,7 +210,7 @@ export default function EnterpriseHomeSections() {
         </div>
       </section>
 
-      <section className="bg-[#0A0E1A] py-24 sm:py-32">
+      <section className="bg-[#0A0E1A] py-16 sm:py-32">
         <div className="container grid gap-10 border-y border-white/10 py-12 lg:grid-cols-[1fr_auto] lg:items-center lg:py-16">
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-[#00D4FF]">START WITH CLARITY</p>

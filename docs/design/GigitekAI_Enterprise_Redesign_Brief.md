@@ -72,3 +72,9 @@ The homepage now follows the planned progression: focused hero, trust strip, thr
 The public header now centers on **Solutions**, **Industries**, **Insights**, and **Company**, while **Support** and **Client Access** remain utility actions. The sole primary header conversion action routes to `/free-audit`. Promotional overlays are suppressed on the homepage so the hero and primary conversion path remain clear.
 
 Validation completed: focused Vitest regression coverage passed 2/2; the Vite production frontend build completed successfully; public navigation destinations were confirmed in the router; and the active preview returned HTTP 200 with approximately 97 ms TTFB and 110 ms total response time in the local preview environment. These preview timings are a smoke check, not a substitute for post-publish field performance measurement.
+
+## Mobile-Specific Correction — August 12, 2026
+
+The first redesign pass improved structure but did not visibly depart far enough from the prior mobile experience. The mobile correction now makes the hierarchy intentional rather than compressed: the hero uses a full small-viewport canvas, a tighter mobile type scale, stacked primary and secondary actions, purpose-built **Watch AI Work Live** and **Client Support** action tiles, and a compact three-signal proof row.
+
+The mobile menu now begins with a clear assessment action and summary, treats **Solutions** as an explicit expandable group, and separates the Industry, Insights, and Company routes from support and client access utilities. Homepage content bands now use a reduced mobile vertical rhythm while retaining the more spacious desktop treatment. Focused regression coverage passed 3/3 and the production frontend build completed successfully after this correction.

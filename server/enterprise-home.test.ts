@@ -29,6 +29,17 @@ describe("Enterprise homepage redesign", () => {
 
     expect(nav).toContain('href="/free-audit"');
     expect(nav).toContain("onClick={() => setServicesOpen(!servicesOpen)}");
+    expect(nav).toContain("mobileSolutionsOpen");
+    expect(nav).toContain('aria-controls="mobile-solutions"');
     expect(nav).not.toContain('label: "Smart Home & Automation"');
+  });
+
+  it("provides mobile-first hero actions instead of relying on compressed desktop utilities", () => {
+    const hero = readProjectFile("client/src/components/HeroSection.tsx");
+
+    expect(hero).toContain("Watch AI Work Live");
+    expect(hero).toContain("Client Support");
+    expect(hero).toContain("sm:hidden");
+    expect(hero).toContain("min-h-[100svh]");
   });
 });
