@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   validateWebDiscoverySection,
@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, Save } from "lucide-react";
 
 const STORAGE_KEY = "web-discovery-form-data";
 const STORAGE_SECTION_KEY = "web-discovery-current-section";
@@ -81,6 +81,8 @@ export default function WebDiscoveryIntakePage() {
   const [currentSection, setCurrentSection] = useState(getInitialSection());
   const [formData, setFormData] = useState(getInitialFormData());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const formTopRef = useRef<HTMLDivElement>(null);
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {
@@ -115,10 +117,11 @@ export default function WebDiscoveryIntakePage() {
       clearSavedData();
       setSubmitted(true);
       setIsSubmitting(false);
+      setSubmissionError(null);
     },
     onError: (error) => {
       setIsSubmitting(false);
-      alert(error.message || "Failed to submit form. Please try again.");
+      setSubmissionError(error.message || "We could not submit your discovery form. Please try again or contact support.");
     },
   });
 
@@ -213,11 +216,18 @@ ${formData.additionalInfo}
     const sectionErrors = validateWebDiscoverySection(formData, currentSection);
     if (Object.keys(sectionErrors).length > 0) {
       setFieldErrors(sectionErrors);
+      requestAnimationFrame(() => document.getElementById(Object.keys(sectionErrors)[0])?.focus());
       return;
     }
 
     setFieldErrors({});
     setCurrentSection(Math.min(sections.length - 1, currentSection + 1));
+    requestAnimationFrame(() => formTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
+  const handlePreviousSection = () => {
+    setCurrentSection(Math.max(0, currentSection - 1));
+    requestAnimationFrame(() => formTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   const sections = [
@@ -342,7 +352,7 @@ ${formData.additionalInfo}
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center px-4">
+      <div className="flex min-h-[100svh] items-center justify-center bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-4">
         <div className="text-center max-w-md">
           <CheckCircle className="w-16 h-16 text-cyan-400 mx-auto mb-6" />
           <h1 className="text-3xl font-bold text-white mb-4">Thank You!</h1>
@@ -363,39 +373,43 @@ ${formData.additionalInfo}
   const currentSectionData = sections[currentSection];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
+      <div className="min-h-[100svh] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-4 py-6 sm:py-12">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-3">IT Discovery Intake</h1>
-          <p className="text-slate-400 text-lg">
+        <div className="mb-7 text-center sm:mb-12">
+          <p className="mb-3 text-xs font-semibold tracking-[0.18em] text-cyan-400">GIGITEKAI DISCOVERY</p>
+          <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">IT Discovery Intake</h1>
+          <p className="text-base text-slate-400 sm:text-lg">
             Tell us about your business and IT needs. We'll use this to create a personalized transformation plan.
           </p>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="sticky top-0 z-10 -mx-4 mb-6 border-y border-cyan-400/10 bg-slate-950/95 px-4 py-4 backdrop-blur sm:static sm:mx-0 sm:mb-8 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
           <div className="flex justify-between mb-3">
             <span className="text-sm font-medium text-cyan-400">Section {currentSection + 1} of {sections.length}</span>
             <span className="text-sm font-medium text-slate-400">{Math.round(((currentSection + 1) / sections.length) * 100)}%</span>
           </div>
-          <div className="w-full bg-slate-800 rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-slate-800" role="progressbar" aria-label="Discovery intake progress" aria-valuemin={1} aria-valuemax={sections.length} aria-valuenow={currentSection + 1}>
             <div
               className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
             />
           </div>
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-400 sm:hidden">
+            <Save className="h-3.5 w-3.5 text-cyan-400" aria-hidden="true" /> Your progress is saved privately on this device.
+          </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg p-8 mb-8">
+        <form ref={formTopRef} onSubmit={handleSubmit} className="mb-5 border border-slate-700 bg-slate-800/50 p-5 backdrop-blur-sm sm:mb-8 sm:rounded-lg sm:p-8">
           {/* Section Title */}
-          <h2 className="text-2xl font-bold text-white mb-8 pb-4 border-b border-slate-700">
+          <h2 className="mb-6 border-b border-slate-700 pb-4 text-xl font-bold text-white sm:mb-8 sm:text-2xl">
             {currentSectionData.title}
           </h2>
 
           {/* Form Fields */}
-          <div className="space-y-6 mb-8">
+          <div className="mb-6 space-y-6 sm:mb-8">
             {currentSectionData.fields.map((field) => (
               <div key={field.name}>
                 <label htmlFor={field.name} className="block text-sm font-medium text-slate-200 mb-2">
@@ -410,7 +424,7 @@ ${formData.additionalInfo}
                     onChange={handleChange}
                     aria-invalid={Boolean(fieldErrors[field.name])}
                     aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="min-h-[52px] w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-2 text-base text-white placeholder-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   >
                     {(field.options || []).map((option) => (
                       <option key={option.value} value={option.value}>
@@ -427,19 +441,21 @@ ${formData.additionalInfo}
                     aria-invalid={Boolean(fieldErrors[field.name])}
                     aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
                     placeholder={"placeholder" in field ? field.placeholder : ""}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none h-24"
+                    className="min-h-[132px] w-full resize-none rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-base text-white placeholder-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 ) : (
                   <Input
                     id={field.name}
                     type={field.type}
                     name={field.name}
+                    inputMode={field.name === "contactPhone" ? "tel" : undefined}
+                    autoComplete={field.name === "contactName" ? "name" : field.name === "contactEmail" ? "email" : field.name === "contactPhone" ? "tel" : field.name === "companyName" ? "organization" : undefined}
                     value={formData[field.name as keyof typeof formData]}
                     onChange={handleChange}
                     aria-invalid={Boolean(fieldErrors[field.name])}
                     aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}
                     placeholder={"placeholder" in field ? field.placeholder : ""}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    className="min-h-[52px] w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-2 text-base text-white placeholder-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 )}
                 {fieldErrors[field.name] && (
@@ -457,32 +473,38 @@ ${formData.additionalInfo}
           </p>
         </form>
 
+        {submissionError && (
+          <p role="alert" className="mb-4 border border-red-400/40 bg-red-950/30 p-4 text-sm leading-6 text-red-100">
+            {submissionError}
+          </p>
+        )}
+
         {/* Navigation Buttons */}
-        <div className="flex gap-4 justify-between items-center">
+        <div className="sticky bottom-3 z-10 flex flex-col-reverse gap-3 border border-slate-700 bg-slate-950/95 p-3 backdrop-blur sm:static sm:flex-row sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0">
           <div className="flex gap-3">
             <Button
               type="button"
-              onClick={() => setCurrentSection(Math.max(0, currentSection - 1))}
+              onClick={handlePreviousSection}
               disabled={currentSection === 0}
               variant="outline"
-              className="border-slate-600 text-slate-300 hover:bg-slate-800"
+              className="min-h-[50px] flex-1 border-slate-600 text-slate-300 hover:bg-slate-800 sm:flex-none"
             >
-              ← Previous
+              <ArrowLeft className="mr-1 h-4 w-4" /> Previous
             </Button>
 
             {currentSection < sections.length - 1 ? (
               <Button
                 type="button"
                 onClick={handleNextSection}
-                className="bg-cyan-500 hover:bg-cyan-600 text-slate-950"
+                className="min-h-[50px] flex-1 bg-cyan-500 text-slate-950 hover:bg-cyan-600 sm:flex-none"
               >
-                Next →
+                Next <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             ) : (
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="bg-green-500 hover:bg-green-600 text-white"
+                className="min-h-[50px] flex-1 bg-green-500 text-white hover:bg-green-600 sm:flex-none"
               >
                 {isSubmitting ? (
                   <>
@@ -500,7 +522,7 @@ ${formData.additionalInfo}
             type="button"
             onClick={handleClearForm}
             variant="ghost"
-            className="text-slate-400 hover:text-red-400 hover:bg-red-950/20"
+            className="min-h-[48px] w-full text-slate-400 hover:bg-red-950/20 hover:text-red-400 sm:w-auto"
           >
             Clear Form
           </Button>

@@ -2505,3 +2505,7 @@
 - [x] Audit the live mobile homepage and document why the prior redesign did not materially change the mobile experience
 - [x] Redesign the mobile header, menu, hero, CTA stack, and proof points so the homepage has a visibly mobile-first experience
 - [x] Validate the redesigned mobile homepage at phone viewport widths and publish the corrected mobile experience — focused 3/3 regression tests and the production frontend build passed
+- [x] Add smooth, low-overhead, reduced-motion-safe animation to the mobile homepage sections
+- [x] Optimize the web-discovery intake for phone keyboards, touch targets, step progress, and mobile submission clarity
+- [x] Refine the new mobile homepage sections for scanability, visual rhythm, and conversion clarity
+- [x] Test and publish the mobile motion and web-intake optimization upgrade — focused 9/9 regression tests and production frontend build passed
