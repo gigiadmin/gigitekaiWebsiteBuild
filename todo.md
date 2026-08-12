@@ -2467,7 +2467,7 @@
 - [x] Create meridian service router with helpdeskStats, copilotAgentStatus, integrationStatus, ping
 - [x] Register meridian router in appRouter
 - [x] Write vitest test for meridian endpoints (11 tests passing)
-- [ ] Verify endpoint works on deployed site
+- [x] Verify endpoint works on deployed site — authenticated Meridian ping returned HTTP 200 with database connectivity
 
 - [x] Landing page "Get Access" form: send notification email to support@gigitekai.com via ACS
 - [x] Landing page "Get Access" form: send Teams webhook notification
