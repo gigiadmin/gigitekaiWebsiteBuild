@@ -1,0 +1,99 @@
+direction: right
+
+title: "GigitekAI — Portable GitHub-First Architecture" {
+  shape: text
+  style.font-size: 30
+  style.bold: true
+}
+
+github: "GitHub Control Plane" {
+  style.fill: "#0A0E1A"
+  style.stroke: "#00D4FF"
+  style.font-color: "#E6F6FF"
+  source: "Private source repositories\nPR protection · tags · runbooks" {
+    shape: document
+  }
+  ci: "GitHub Actions\nOIDC · test · build · deploy" {
+    shape: hexagon
+  }
+  image: "GHCR\nimmutable Docker images\nSHA + digest" {
+    shape: cylinder
+  }
+  source -> ci
+  ci -> image
+}
+
+edge: "GoDaddy DNS + Azure Front Door" {
+  style.fill: "#0F172A"
+  style.stroke: "#22D3EE"
+  style.font-color: "#E6F6FF"
+  label: "DNS · TLS · WAF · routing"
+  shape: cloud
+}
+
+runtime: "Azure Container Apps Environment" {
+  style.fill: "#0A0E1A"
+  style.stroke: "#00D4FF"
+  style.font-color: "#E6F6FF"
+  web: "gigitekai-web-api\nReact + Express + tRPC\nwebhooks + portal" {
+    style.fill: "#10283A"
+  }
+  jobs: "Scheduled / event jobs\nemail · KB/blog · reporting\nbackup validation" {
+    style.fill: "#10283A"
+  }
+}
+
+state: "Durable State and Security" {
+  style.fill: "#0A0E1A"
+  style.stroke: "#00D4FF"
+  style.font-color: "#E6F6FF"
+  mysql: "Azure Database for MySQL\nPITR + encrypted backups" {
+    shape: cylinder
+  }
+  blobs: "Azure Blob Storage\nfiles · recordings · exports" {
+    shape: cylinder
+  }
+  bus: "Service Bus + Redis\ndurable jobs + ephemeral cache" {
+    shape: queue
+  }
+  vault: "Key Vault\nmanaged identity\nsecrets + certificates" {
+    shape: hexagon
+  }
+}
+
+integrations: "Owned Integrations" {
+  style.fill: "#0F172A"
+  style.stroke: "#22D3EE"
+  style.font-color: "#E6F6FF"
+  m365: "Entra ID · Graph · M365 · Teams" { shape: cloud }
+  comms: "Azure Communication Services\nTwilio · Stripe · UptimeRobot" { shape: cloud }
+  ai: "Azure AI / OpenAI\nAnthropic · Gemini · Ollama" { shape: cloud }
+}
+
+recovery: "Independent Recovery Copies" {
+  style.fill: "#0A0E1A"
+  style.stroke: "#8B5CF6"
+  style.font-color: "#E6F6FF"
+  backups: "Encrypted DB dumps\nobject manifest + files\nIaC state + runbooks" {
+    shape: document
+  }
+}
+
+github.image -> runtime.web: "deploy by image digest"
+edge -> runtime.web: "HTTPS traffic"
+runtime.web -> state.mysql
+runtime.web -> state.blobs
+runtime.web -> state.bus
+runtime.web -> state.vault
+runtime.jobs -> state.mysql
+runtime.jobs -> state.blobs
+runtime.jobs -> state.bus
+runtime.jobs -> state.vault
+runtime.web -> integrations.m365
+runtime.web -> integrations.comms
+runtime.web -> integrations.ai
+runtime.jobs -> integrations.m365
+runtime.jobs -> integrations.ai
+state.mysql -> recovery.backups: "nightly encrypted export"
+state.blobs -> recovery.backups: "manifest + second copy"
+github.source -> recovery.backups: "source + IaC mirror"

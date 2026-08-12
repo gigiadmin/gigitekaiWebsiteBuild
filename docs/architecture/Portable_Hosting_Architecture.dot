@@ -1,0 +1,78 @@
+digraph GigitekAIPortable {
+  graph [
+    rankdir=LR,
+    bgcolor="#0A0E1A",
+    pad="0.35",
+    nodesep="0.45",
+    ranksep="0.7",
+    fontname="Arial",
+    fontcolor="#E6F6FF",
+    label="GigitekAI — Portable GitHub-First Architecture",
+    labelloc="t",
+    fontsize="26",
+    fontcolor="#00D4FF"
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    color="#00D4FF",
+    fillcolor="#10283A",
+    fontcolor="#F8FAFC",
+    fontname="Arial",
+    fontsize="14",
+    margin="0.18,0.12"
+  ];
+  edge [color="#22D3EE", fontcolor="#CBD5E1", fontname="Arial", fontsize="11", penwidth="1.4"];
+
+  subgraph cluster_github {
+    label="GitHub control plane";
+    color="#00D4FF";
+    fontcolor="#00D4FF";
+    style="rounded";
+    source [label="Private GitHub repositories\nSource · IaC · runbooks"];
+    actions [label="GitHub Actions\nOIDC · test · build · deploy", shape=hexagon];
+    registry [label="GHCR + ACR\nImmutable Docker images", shape=cylinder];
+    source -> actions -> registry;
+  }
+
+  edgecdn [label="GoDaddy DNS + Azure Front Door\nTLS · WAF · health routing", shape=cloud, fillcolor="#14283A"];
+
+  subgraph cluster_runtime {
+    label="Portable Docker runtime";
+    color="#00D4FF";
+    fontcolor="#00D4FF";
+    style="rounded";
+    api [label="gigitekai-web-api\nReact + Express + tRPC\nPublic site · admin · webhooks"];
+    workers [label="Container Apps Jobs\nEmail · reports · KB/blog\nbackup validation"];
+  }
+
+  subgraph cluster_state {
+    label="Durable state + security";
+    color="#00D4FF";
+    fontcolor="#00D4FF";
+    style="rounded";
+    mysql [label="Azure Database for MySQL\nPITR · encrypted backups", shape=cylinder];
+    blobs [label="Azure Blob Storage\nFiles · recordings · exports", shape=cylinder];
+    queue [label="Service Bus + Redis\nDurable async work · cache", shape=component];
+    vault [label="Key Vault\nManaged identity · secrets", shape=hexagon];
+  }
+
+  integrations [label="Owned integrations\nEntra ID · Graph · Teams · ACS\nStripe · Twilio · UptimeRobot\nAzure AI / OpenAI · Anthropic · Gemini · Ollama", fillcolor="#14283A"];
+  recovery [label="Independent recovery copies\nEncrypted DB dumps · object manifest\nIaC state · image digests · runbooks", fillcolor="#24193D", color="#A78BFA"];
+
+  registry -> api [label="deploy by SHA / digest"];
+  edgecdn -> api [label="HTTPS traffic"];
+  api -> mysql;
+  api -> blobs;
+  api -> queue;
+  api -> vault;
+  workers -> mysql;
+  workers -> blobs;
+  workers -> queue;
+  workers -> vault;
+  api -> integrations;
+  workers -> integrations;
+  mysql -> recovery [label="nightly export"];
+  blobs -> recovery [label="manifest + second copy"];
+  source -> recovery [label="mirror"];
+}

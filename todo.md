@@ -2478,3 +2478,6 @@
 - [x] Investigate Shameika KELLY / SPUNK COSMETICS web-intake submission and verify the complete record was captured — submission #240001 was stored with complete intake data
 - [x] Update web-intake support@gigitekai.com alert emails to include complete submitted details in a privacy-conscious format — full form payload now delivered through Azure Graph and owner notifications
 - [x] Add and run regression tests covering detailed web-intake notification content — 3/3 passed
+- [x] Create a GitHub-first portability architecture for moving the GigitekAI website and portal off Manus — documented in docs/architecture/Portable_Hosting_Architecture.md
+- [x] Document a portable container, database, storage, secrets, backup, and disaster-recovery design — includes Azure-first target, Docker portability rules, recovery objectives, and restore drills
+- [x] Define a staged migration and domain cutover plan that preserves existing client-facing services — includes staging, parallel validation, DNS rollback, and a no-big-bang cutover
