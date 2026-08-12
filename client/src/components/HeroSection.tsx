@@ -111,7 +111,7 @@ export default function HeroSection() {
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            A calmer, more capable technology operation for organizations that need stronger security, Microsoft 365 expertise, and practical AI automation.
+            Build a more secure, efficient technology foundation with Microsoft 365 expertise, practical AI automation, and managed support that scales with your business.
           </p>
 
           {/* CTA Buttons */}

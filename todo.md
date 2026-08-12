@@ -2515,3 +2515,4 @@
 - [x] Replace stale mock-only web-intake email assertions with payload tests that validate the production notification content
 - [x] Eliminate the landing-page or lazy-loading flash visible behind public-page loads and navigation
 - [x] Verify direct and client-side public-route transitions show no stale fallback content — first-paint regression tests, production build checks, and direct route checks passed
+- [x] Replace the homepage hero supporting sentence with clearer enterprise-ready GigitekAI positioning
