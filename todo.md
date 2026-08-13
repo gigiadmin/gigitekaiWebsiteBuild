@@ -2519,3 +2519,4 @@
 - [x] Create a mobile-friendly QR hub for GigitekAI website, virtual card, discovery intake, audit, and AI automation codes
 - [x] Add tap-to-open, copy-link, and share-friendly QR hub interactions for prospect use
 - [x] Validate the QR hub destinations and publish the mobile page — all five destination URLs and all five hosted QR assets returned HTTP 200
+- [x] Add Harry’s LinkedIn profile as a sixth branded QR code and shareable card in the GigitekAI QR hub — canonical profile payload scanned successfully; destination returned HTTP 200; hub test and production build passed

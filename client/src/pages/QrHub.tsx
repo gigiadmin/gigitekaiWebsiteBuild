@@ -6,6 +6,7 @@ import {
   Copy,
   ExternalLink,
   Globe2,
+  Linkedin,
   QrCode,
   ScanLine,
   Share2,
@@ -68,6 +69,15 @@ const destinations: QrDestination[] = [
     image: "/manus-storage/05_ai_automation_7b206e25.png",
     icon: Bot,
     accent: "#A78BFA",
+  },
+  {
+    title: "Connect on LinkedIn",
+    eyebrow: "Professional profile",
+    description: "Connect with GigitekAI on LinkedIn for updates, technical insight, and business conversations.",
+    href: "https://www.linkedin.com/in/gigitekinc",
+    image: "/manus-storage/06_linkedin_gigitekai_be6f179e.png",
+    icon: Linkedin,
+    accent: "#60A5FA",
   },
 ];
 
