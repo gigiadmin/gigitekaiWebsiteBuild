@@ -2516,3 +2516,6 @@
 - [x] Eliminate the landing-page or lazy-loading flash visible behind public-page loads and navigation
 - [x] Verify direct and client-side public-route transitions show no stale fallback content — first-paint regression tests, production build checks, and direct route checks passed
 - [x] Replace the homepage hero supporting sentence with clearer enterprise-ready GigitekAI positioning
+- [x] Create a mobile-friendly QR hub for GigitekAI website, virtual card, discovery intake, audit, and AI automation codes
+- [x] Add tap-to-open, copy-link, and share-friendly QR hub interactions for prospect use
+- [x] Validate the QR hub destinations and publish the mobile page — all five destination URLs and all five hosted QR assets returned HTTP 200
