@@ -2520,3 +2520,6 @@
 - [x] Add tap-to-open, copy-link, and share-friendly QR hub interactions for prospect use
 - [x] Validate the QR hub destinations and publish the mobile page — all five destination URLs and all five hosted QR assets returned HTTP 200
 - [x] Add Harry’s LinkedIn profile as a sixth branded QR code and shareable card in the GigitekAI QR hub — canonical profile payload scanned successfully; destination returned HTTP 200; hub test and production build passed
+- [x] Create a public Connect with GigitekAI page that lets QR visitors reach Harry without LinkedIn credentials
+- [x] Retarget the LinkedIn-labeled QR code and QR hub card to the no-login public contact page
+- [x] Regenerate, scan-validate, and publish the updated no-login LinkedIn QR experience — QR payload, page route, image asset, hub tests, and production build passed

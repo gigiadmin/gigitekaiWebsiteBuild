@@ -11,8 +11,8 @@ describe("GigitekAI QR hub", () => {
     expect(hub).toContain("https://gigitekai.com/web-discovery-intake");
     expect(hub).toContain("https://gigitekai.com/free-audit");
     expect(hub).toContain("https://gigitekai.com/services/ai");
-    expect(hub).toContain("https://www.linkedin.com/in/gigitekinc");
-    expect(hub).toContain("06_linkedin_gigitekai_be6f179e.png");
+    expect(hub).toContain("https://gigitekai.com/connect");
+    expect(hub).toContain("06_connect_gigitekai_b614065a.png");
     expect(hub).toContain("navigator.clipboard.writeText");
     expect(hub).toContain("navigator.share");
     expect(hub).toContain("Tap code to open");
@@ -20,5 +20,6 @@ describe("GigitekAI QR hub", () => {
 
   it("registers the QR hub as a public route", () => {
     expect(app).toContain('<Route path={"/qr"} component={QrHub} />');
+    expect(app).toContain('<Route path={"/connect"} component={ConnectGigitekAI} />');
   });
 });

@@ -93,6 +93,7 @@ const StatusPage = lazy(() => import("./pages/StatusPage"));
 const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
 const SmartHomeServices = lazy(() => import("./pages/SmartHomeServices"));
 const QrHub = lazy(() => import("./pages/QrHub"));
+const ConnectGigitekAI = lazy(() => import("./pages/ConnectGigitekAI"));
 
 // ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
@@ -240,6 +241,7 @@ function Router() {
           <Route path={"/services/:slug"} component={ServiceDetail} />
           <Route path={"/smart-home"} component={SmartHomeServices} />
           <Route path={"/qr"} component={QrHub} />
+          <Route path={"/connect"} component={ConnectGigitekAI} />
           <Route path={"/managed-it-services-tampa"} component={ManagedITTampa} />
           <Route path={"/managed-it-services-miami"} component={ManagedITMiami} />
           <Route path={"/florida-it-resiliency"} component={FloridaResiliency} />
