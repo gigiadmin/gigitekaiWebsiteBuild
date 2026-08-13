@@ -6,7 +6,7 @@
 */
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Phone, LifeBuoy, Bot } from "lucide-react";
+import { Menu, X, ChevronDown, Phone, LifeBuoy, Bot, BookOpen } from "lucide-react";
 
 
 export default function SiteNavBar2024() {
@@ -80,6 +80,7 @@ export default function SiteNavBar2024() {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/helpdesk" className="hover:text-[#00D4FF] transition-colors">Client Support</a>
+            <a href="/kb" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors"><BookOpen size={12} aria-hidden="true" /> Knowledge Base</a>
             <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>Explore AI in Action</a>
             <div className="flex items-center gap-4">
               <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
@@ -166,6 +167,7 @@ export default function SiteNavBar2024() {
             {[
               { label: "Industries", href: "/industries" },
               { label: "Insights", href: "/blog" },
+              { label: "Knowledge Base", href: "/kb" },
               { label: "Company", href: "/about" },
             ].map((item) => (
               <a
@@ -280,6 +282,7 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Industries", href: "/industries", id: "nav-industries" },
                 { label: "Insights", href: "/blog", id: "nav-insights" },
+                { label: "Knowledge Base", href: "/kb", id: "nav-kb" },
                 { label: "Company", href: "/about", id: "nav-company" },
               ].map((item) => (
                 <a

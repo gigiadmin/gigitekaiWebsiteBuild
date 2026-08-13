@@ -2523,3 +2523,5 @@
 - [x] Create a public Connect with GigitekAI page that lets QR visitors reach Harry without LinkedIn credentials
 - [x] Retarget the LinkedIn-labeled QR code and QR hub card to the no-login public contact page
 - [x] Regenerate, scan-validate, and publish the updated no-login LinkedIn QR experience — QR payload, page route, image asset, hub tests, and production build passed
+- [x] Add clear public Knowledge Base access from the GigitekAI main site on desktop and mobile
+- [x] Validate the public Knowledge Base route and its new navigation entry points — navigation regression test and production build passed; /kb preview returned HTTP 200
