@@ -2530,3 +2530,4 @@
 - [x] Create one self-contained, exhaustive master prompt that authorizes and instructs Hermes to complete the full off-Manus migration without relying on earlier chat context — included as HERMES_MASTER_BUILD_PROMPT.md in the refreshed transfer bundle
 - [x] Create a portable conversation and project handoff memory document for the full GigitekAI workstream — created GigitekAI_Chat_Project_Handoff_Memory.md with architecture, decisions, artifacts, risks, and next actions
 - [x] Create a reusable developer prompt for migrating other Manus-hosted websites to independent infrastructure — created Reusable_Manus_Website_Migration_Developer_Prompt.md
+- [x] Verify public versus admin OAuth dependencies and prepare a secure Azure/GitHub/secrets response for the independent-hosting developer — public routes are not OAuth-gated; admin has independent JWT/Entra paths; GitHub repo verified private; Actions visibility could not be confirmed with available scope
