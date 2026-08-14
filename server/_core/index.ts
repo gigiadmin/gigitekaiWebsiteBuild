@@ -52,6 +52,7 @@ import uptimeWebhookRouter from "../uptimeWebhook";
 import ariaTtsRouter from "../ariaTtsRouter";
 import { handleMeridianHelpdeskExport } from "../meridian-helpdesk-export";
 import { initializeTelemetry, flushTelemetry } from "./telemetry";
+import { sql } from "drizzle-orm";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -408,18 +409,23 @@ async function startServer() {
     try {
       const { getDb } = await import("../db");
       const db = await getDb();
-      await db?.select(1).execute();
-      checks.database = "ok";
+      if (db) {
+        await db.execute(sql`select 1 as one`);
+        checks.database = "ok";
+      } else {
+        checks.database = "fail";
+      }
     } catch (err) {
       checks.database = "fail";
     }
     try {
       const { getStorageProvider } = await import("../adapters/storage/createStorageProvider");
-      await getStorageProvider().headObject("__readyz_probe__");
+      const provider = getStorageProvider();
+      // Connection test: list the first object (most providers support this as a connectivity probe)
+      await provider.listObjects({ prefix: "__readyz_probe__", maxKeys: 1 });
       checks.storage = "ok";
     } catch (err: any) {
-      // A 404 probe is acceptable; connection error is not
-      checks.storage = err.statusCode === 404 ? "ok" : "fail";
+      checks.storage = "fail";
     }
     const ready = checks.database === "ok" && checks.storage === "ok";
     res.status(ready ? 200 : 503).json({ status: ready ? "ok" : "not ready", checks });
