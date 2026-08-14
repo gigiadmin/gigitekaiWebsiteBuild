@@ -1,16 +1,12 @@
-// v2 — streaming proxy with range support
+// v2 — streaming proxy with range support, backed by the independent storage adapter
 import type { Express } from "express";
-import { ENV } from "./env";
+import { storageGet } from "../storage";
 
 // In-memory cache for small non-video assets
 const assetCache = new Map<string, { data: Buffer; contentType: string; expiresAt: number }>();
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const MAX_CACHE_SIZE = 100;
 const MAX_ASSET_SIZE = 2 * 1024 * 1024; // 2MB max per cached asset
-
-// Presigned URL cache — avoids hitting Forge API on every request
-const urlCache = new Map<string, { url: string; expiresAt: number }>();
-const URL_CACHE_TTL_MS = 50 * 60 * 1000; // 50 minutes
 
 function evictExpiredEntries() {
   const now = Date.now();
@@ -19,30 +15,10 @@ function evictExpiredEntries() {
   }
 }
 
-async function getPresignedUrl(key: string): Promise<string> {
-  const cached = urlCache.get(key);
-  if (cached && cached.expiresAt > Date.now()) return cached.url;
-
-  const forgeUrl = new URL(
-    "v1/storage/presign/get",
-    ENV.forgeApiUrl!.replace(/\/+$/, "") + "/",
-  );
-  forgeUrl.searchParams.set("path", key);
-  const resp = await fetch(forgeUrl, {
-    headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
-  });
-  if (!resp.ok) throw new Error(`Forge API error: ${resp.status}`);
-  const { url } = (await resp.json()) as { url: string };
-  if (!url) throw new Error("Empty presigned URL from Forge");
-  urlCache.set(key, { url, expiresAt: Date.now() + URL_CACHE_TTL_MS });
-  return url;
-}
-
 export function registerStorageProxy(app: Express) {
   app.get("/manus-storage/*", async (req, res) => {
     const key = (req.params as any)[0] as string;
     if (!key) { res.status(400).send("Missing storage key"); return; }
-    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) { res.status(500).send("Storage proxy not configured"); return; }
 
     const rangeHeader = req.headers.range;
     const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(key);
@@ -60,7 +36,7 @@ export function registerStorageProxy(app: Express) {
         return;
       }
       try {
-        const url = await getPresignedUrl(key);
+        const { url } = await storageGet(key);
         const assetResp = await fetch(url);
         if (!assetResp.ok) { res.status(502).send("Storage fetch error"); return; }
         const contentType = assetResp.headers.get("content-type") || "application/octet-stream";
@@ -86,18 +62,18 @@ export function registerStorageProxy(app: Express) {
     }
 
     // ── Video files: stream with proper range support ──
-    // NEVER load full video into memory — always proxy range requests to S3
+    // NEVER load full video into memory — always proxy range requests
     try {
-      const presignedUrl = await getPresignedUrl(key);
+      const { url: presignedUrl } = await storageGet(key);
 
-      // Build headers to forward to S3
+      // Build headers to forward to storage
       const forwardHeaders: Record<string, string> = {};
       if (rangeHeader) forwardHeaders["Range"] = rangeHeader;
 
       const s3Resp = await fetch(presignedUrl, { headers: forwardHeaders });
 
       if (!s3Resp.ok && s3Resp.status !== 206) {
-        console.error(`[StorageProxy] S3 video error: ${s3Resp.status}`);
+        console.error(`[StorageProxy] video error: ${s3Resp.status}`);
         res.status(502).send("Video fetch error");
         return;
       }
@@ -107,9 +83,8 @@ export function registerStorageProxy(app: Express) {
       const contentRange = s3Resp.headers.get("content-range");
       const acceptRanges = s3Resp.headers.get("accept-ranges") || "bytes";
 
-      // If client sent a Range header and S3 returned 200 (not 206), we need to slice manually
+      // If client sent a Range header and storage returned 200 (not 206), slice manually
       if (rangeHeader && s3Resp.status === 200) {
-        // S3 returned full content — parse range and slice
         const totalSize = contentLength ? parseInt(contentLength, 10) : 0;
         const parts = rangeHeader.replace(/bytes=/, "").split("-");
         const start = parseInt(parts[0], 10);
@@ -127,7 +102,7 @@ export function registerStorageProxy(app: Express) {
         return;
       }
 
-      // S3 returned 206 or no range was requested — stream directly
+      // Storage returned 206 or no range was requested — stream directly
       const statusCode = s3Resp.status === 206 ? 206 : 200;
       res.status(statusCode);
       res.set("Content-Type", contentType);

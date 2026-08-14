@@ -1,9 +1,9 @@
 // Video streaming proxy — serves video files through /api/video/ path
 // This bypasses Cloudflare's edge interception of /manus-storage/ routes
 import type { Express } from "express";
-import { ENV } from "./env";
+import { storageGet } from "../storage";
 
-// Presigned URL cache — avoids hitting Forge API on every request
+// Presigned URL cache — avoids hitting the storage provider on every request
 const urlCache = new Map<string, { url: string; expiresAt: number }>();
 const URL_CACHE_TTL_MS = 50 * 60 * 1000; // 50 minutes
 
@@ -11,17 +11,8 @@ async function getPresignedUrl(key: string): Promise<string> {
   const cached = urlCache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached.url;
 
-  const forgeUrl = new URL(
-    "v1/storage/presign/get",
-    ENV.forgeApiUrl!.replace(/\/+$/, "") + "/",
-  );
-  forgeUrl.searchParams.set("path", key);
-  const resp = await fetch(forgeUrl, {
-    headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
-  });
-  if (!resp.ok) throw new Error(`Forge API error: ${resp.status}`);
-  const { url } = (await resp.json()) as { url: string };
-  if (!url) throw new Error("Empty presigned URL from Forge");
+  const { url } = await storageGet(key);
+  if (!url) throw new Error("Empty presigned URL from storage provider");
   urlCache.set(key, { url, expiresAt: Date.now() + URL_CACHE_TTL_MS });
   return url;
 }
@@ -42,17 +33,12 @@ export function registerVideoProxy(app: Express) {
       return;
     }
 
-    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-      res.status(500).send("Storage proxy not configured");
-      return;
-    }
-
     const rangeHeader = req.headers.range;
 
     try {
       const presignedUrl = await getPresignedUrl(filename);
 
-      // Build headers to forward to S3
+      // Build headers to forward to storage
       const forwardHeaders: Record<string, string> = {
         "User-Agent": "GigitekAI-VideoProxy/1.0",
       };
@@ -61,7 +47,7 @@ export function registerVideoProxy(app: Express) {
       const s3Resp = await fetch(presignedUrl, { headers: forwardHeaders });
 
       if (!s3Resp.ok && s3Resp.status !== 206) {
-        console.error(`[VideoProxy] S3 error: ${s3Resp.status} for ${filename}`);
+        console.error(`[VideoProxy] storage error: ${s3Resp.status} for ${filename}`);
         res.status(502).send("Video fetch error");
         return;
       }
@@ -71,7 +57,7 @@ export function registerVideoProxy(app: Express) {
       const contentRange = s3Resp.headers.get("content-range");
       const acceptRanges = s3Resp.headers.get("accept-ranges") || "bytes";
 
-      // If client sent a Range header and S3 returned 200 (not 206), slice manually
+      // If client sent a Range header and storage returned 200 (not 206), slice manually
       if (rangeHeader && s3Resp.status === 200) {
         const totalSize = contentLength ? parseInt(contentLength, 10) : 0;
         const parts = rangeHeader.replace(/bytes=/, "").split("-");
@@ -90,7 +76,7 @@ export function registerVideoProxy(app: Express) {
         return;
       }
 
-      // S3 returned 206 or no range was requested — stream directly
+      // Storage returned 206 or no range was requested — stream directly
       const statusCode = s3Resp.status === 206 ? 206 : 200;
       res.status(statusCode);
       res.set("Content-Type", contentType);
