@@ -4,11 +4,10 @@ import {
   generateBlobSASQueryParameters,
   BlobSASPermissions,
   BlockBlobClient,
-  BlobClient,
   ContainerClient,
 } from "@azure/storage-blob";
 import { DefaultAzureCredential } from "@azure/identity";
-import type { Readable } from "stream";
+import { Readable } from "stream";
 import {
   StorageProvider,
   PutObjectInput,
@@ -27,23 +26,23 @@ export interface AzureBlobStorageConfig {
 }
 
 export class AzureBlobStorageProvider implements StorageProvider {
+  private blobServiceClient: BlobServiceClient;
   private containerClient: ContainerClient;
   private accountName: string;
   private accountKey?: string;
 
   constructor(private config: AzureBlobStorageConfig) {
     this.accountName = config.accountName;
-    let blobServiceClient: BlobServiceClient;
 
     if (config.useManagedIdentity && !config.connectionString && !config.accountKey) {
       const endpoint = `https://${config.accountName}.blob.core.windows.net`;
-      blobServiceClient = new BlobServiceClient(endpoint, new DefaultAzureCredential());
+      this.blobServiceClient = new BlobServiceClient(endpoint, new DefaultAzureCredential());
     } else if (config.connectionString) {
-      blobServiceClient = BlobServiceClient.fromConnectionString(config.connectionString);
+      this.blobServiceClient = BlobServiceClient.fromConnectionString(config.connectionString);
     } else if (config.accountKey) {
       const credential = new StorageSharedKeyCredential(config.accountName, config.accountKey);
       const endpoint = `https://${config.accountName}.blob.core.windows.net`;
-      blobServiceClient = new BlobServiceClient(endpoint, credential);
+      this.blobServiceClient = new BlobServiceClient(endpoint, credential);
       this.accountKey = config.accountKey;
     } else {
       throw new Error(
@@ -51,7 +50,7 @@ export class AzureBlobStorageProvider implements StorageProvider {
       );
     }
 
-    this.containerClient = blobServiceClient.getContainerClient(config.containerName);
+    this.containerClient = this.blobServiceClient.getContainerClient(config.containerName);
   }
 
   async ensureContainerExists(): Promise<void> {
@@ -74,7 +73,7 @@ export class AzureBlobStorageProvider implements StorageProvider {
     if (Buffer.isBuffer(input.body)) {
       uploadPromise = blockBlob.upload(input.body, input.body.length, options);
     } else if (input.body instanceof Readable) {
-      uploadPromise = blockBlob.uploadStream(input.body as unknown as NodeJS.ReadableStream, undefined, undefined, options);
+      uploadPromise = blockBlob.uploadStream(input.body, undefined, undefined, options);
     } else if (typeof input.body === "string") {
       const buf = Buffer.from(input.body, "utf-8");
       uploadPromise = blockBlob.upload(buf, buf.length, options);
@@ -107,13 +106,10 @@ export class AzureBlobStorageProvider implements StorageProvider {
     }
 
     // For managed identity / connection string, use User Delegation Key SAS
-    const userDelegationKey = await blobClient
-      .getContainerClient()
-      .getBlobServiceClient()
-      .getUserDelegationKey(
-        new Date(Date.now() - 60 * 1000),
-        new Date(Date.now() + expiresInSeconds * 1000)
-      );
+    const userDelegationKey = await this.blobServiceClient.getUserDelegationKey(
+      new Date(Date.now() - 60 * 1000),
+      new Date(Date.now() + expiresInSeconds * 1000)
+    );
     const sas = generateBlobSASQueryParameters(
       {
         containerName: this.config.containerName,

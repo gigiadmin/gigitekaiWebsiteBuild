@@ -51,7 +51,8 @@ export function captureMessage(message: string, level: "info" | "warning" | "err
     Sentry.captureMessage(message, level);
   }
   if (ENV.applicationInsightsConnectionString) {
-    appInsights.defaultClient?.trackTrace({ message, severity: appInsights.Contracts.Severity[level] });
+    const severityMap: Record<typeof level, number> = { info: 1, warning: 2, error: 4 };
+    appInsights.defaultClient?.trackTrace({ message, severity: severityMap[level] });
   }
 }
 

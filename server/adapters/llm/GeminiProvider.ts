@@ -38,7 +38,7 @@ export class GeminiProvider implements LLMProvider {
 
       const result = await model.generateContent({
         contents,
-        systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
+        systemInstruction: systemInstruction || undefined,
         generationConfig: {
           temperature: input.temperature ?? 0.7,
           maxOutputTokens: input.maxTokens ?? 1024,

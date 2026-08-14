@@ -26,4 +26,8 @@ export const ENV = {
   sentryDsn: process.env.SENTRY_DSN ?? "",
   applicationInsightsConnectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING ?? "",
   baseUrl: process.env.BASE_URL ?? (process.env.NODE_ENV === "production" ? "https://gigitekai.com" : "http://localhost:3000"),
+  // Legacy Manus/Forge platform values (optional, for controlled cutover only)
+  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
+  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
 };
