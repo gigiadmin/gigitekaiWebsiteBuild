@@ -2525,3 +2525,4 @@
 - [x] Regenerate, scan-validate, and publish the updated no-login LinkedIn QR experience — QR payload, page route, image asset, hub tests, and production build passed
 - [x] Add clear public Knowledge Base access from the GigitekAI main site on desktop and mobile
 - [x] Validate the public Knowledge Base route and its new navigation entry points — navigation regression test and production build passed; /kb preview returned HTTP 200
+- [x] Produce an exhaustive senior full-stack developer handoff for the off-Manus GigitekAI migration, including Aria, integrations, cutover, and recovery requirements — created docs/operations/Hermes_Exhaustive_Developer_Handoff.md
