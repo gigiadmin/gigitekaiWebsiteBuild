@@ -2526,3 +2526,4 @@
 - [x] Add clear public Knowledge Base access from the GigitekAI main site on desktop and mobile
 - [x] Validate the public Knowledge Base route and its new navigation entry points — navigation regression test and production build passed; /kb preview returned HTTP 200
 - [x] Produce an exhaustive senior full-stack developer handoff for the off-Manus GigitekAI migration, including Aria, integrations, cutover, and recovery requirements — created docs/operations/Hermes_Exhaustive_Developer_Handoff.md
+- [x] Create and deliver one complete downloadable Hermes transfer bundle with source, database export, file inventory, configuration inventory, and migration documentation — full 114,524-row database export, 1,328-file source snapshot, Git history bundle, migration docs, manifests, and checksum-validated archive created
