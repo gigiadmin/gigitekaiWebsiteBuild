@@ -4,7 +4,6 @@ import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
-import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { visualizer } from "rollup-plugin-visualizer";
 
 // =============================================================================
@@ -567,19 +566,19 @@ function vitePluginCacheBustImports(): Plugin {
   return { name: 'vite-plugin-cache-bust-imports-noop' };
 }
 
+// Manus-specific debug collector and runtime plugins removed.
+// The remaining plugins below are independent of the Manus platform.
+
 const plugins = [
   vitePluginNoCacheNodeModules(),
   vitePluginCacheBustImports(),
   react(),
   tailwindcss(),
   jsxLocPlugin(),
-  vitePluginManusRuntime(),
-  vitePluginManusDebugCollector(),
   vitePluginNonBlockingCSS(),
   vitePluginHeroPreload(),
   vitePluginCriticalPreload(),
   vitePluginBootstrapFallback(),
-  // RE-ENABLED: Now uses safe replacement (const X=(fn)=>fn()) instead of removal
   vitePluginStripMsalStaticImport(),
   visualizer({
     open: false,
@@ -606,7 +605,8 @@ export default defineConfig({
       "react-dom": path.resolve(import.meta.dirname, "node_modules", "react-dom"),
       "react-dom/client": path.resolve(import.meta.dirname, "node_modules", "react-dom", "client.js"),
     },
-    // Deduplicate React to prevent multiple instances when MSAL chunk or manus-runtime loads separately.
+    // Deduplicate React to prevent multiple instances when MSAL chunk or other isolated
+    // library bundles load separately. Keeps React singleton across the app.
     dedupe: ["react", "react-dom", "react-dom/client", "@trpc/react-query", "@tanstack/react-query"],
   },
   envDir: path.resolve(import.meta.dirname),
@@ -723,18 +723,16 @@ export default defineConfig({
     host: true,
     ...(isAnalyze && { middlewareMode: true }),
     allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
       "localhost",
       "127.0.0.1",
+      "staging.gigitekai.com",
+      "gigitekai.com",
+      "www.gigitekai.com",
     ],
     hmr: {
       protocol: "wss",
-      host: "3000-ie0hnrz4rdwwc1gm5ns3l-f6eb3fab.us2.manus.computer",
-      port: 443,
+      host: "localhost",
+      port: 3000,
     },
     fs: {
       strict: true,

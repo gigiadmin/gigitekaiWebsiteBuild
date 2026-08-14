@@ -9,7 +9,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { registerVideoProxy } from "./videoProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./serveStatic";
 import { prerenderMiddleware } from "./prerenderMiddleware";
 import path from "path";
 import { setupWebSocket } from "./websocket";
@@ -408,6 +408,7 @@ async function startServer() {
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     serveStatic(app);

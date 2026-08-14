@@ -9,8 +9,9 @@ WORKDIR /app
 ENV COREPACK_ENABLE_AUTO_PIN=0
 RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
-# Copy dependency manifests first for layer caching
+# Copy dependency manifests and patches first for layer caching
 COPY package.json pnpm-lock.yaml .npmrc* ./
+COPY patches ./patches
 
 # Install all dependencies (including devDeps for build)
 RUN pnpm install --frozen-lockfile
@@ -32,6 +33,7 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
 # Copy only production manifests and install production deps
 COPY package.json pnpm-lock.yaml .npmrc* ./
+COPY patches ./patches
 RUN pnpm install --frozen-lockfile --prod
 
 # Copy compiled artifacts from builder
