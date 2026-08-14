@@ -17,25 +17,13 @@ import { setupWebRTCSignaling } from "./webrtcSignaling";
 import { apiLimiter, chatLimiter, formLimiter, authLimiter } from "./rateLimiter";
 import { securityHeaders } from "./securityHeaders";
 import { comprehensiveWAFBypass } from "./cloudflare-waf-bypass";
-import { startDigestScheduler } from "./digestScheduler";
-import { startTeamsDigestScheduler } from "./teamsDigest";
-import { startSlaAlertScheduler } from "./teamsSlaAlerts";
-import { startNewsletterScheduler } from "../routers/newsletter";
-import { startSocialScheduler } from "./socialScheduler";
-import { startEngagementPoller } from "./socialEngagementPoller";
-import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
-import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
-import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
-import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
-import { startAiNewsScheduler } from "../schedulers/aiNewsScheduler";
-import { startDailyBlogScheduler } from "../schedulers/dailyBlogScheduler";
-import { startWebhookHealthMonitor } from "./teamsWebhookUtils";
 import { startEmailPoller } from "./emailPoller";
+import { stopEmailPoller } from "./emailPoller";
 import { startCallPoller } from "./callPoller";
+import { startSchedulers } from "./startSchedulers";
 import { handleTeamsWebhook, handleTeamsHealthCheck } from "./teamsWebhook";
 import { handleEmailIngest } from "../emailIngest";
 import { handleMailManusWebhook, handleMailManusHealthCheck } from "../mailManusWebhook";
-import { stopEmailPoller } from "./emailPoller";
 import { initializeTeamsForwarding } from "./teamsForwardingSetup";
 import {
   linkedinConnect, linkedinCallback,
@@ -464,40 +452,9 @@ async function startServer() {
     console.log(`Server running on http://0.0.0.0:${port}/`);
 
     if (runSchedulers) {
-      // Start email digest scheduler
-      startDigestScheduler();
-      startNewsletterScheduler();
-      // Start Teams daily digest scheduler (8 AM EST)
-      startTeamsDigestScheduler();
-      // Start Teams SLA breach alert scheduler (every 30 minutes)
-      // DISABLED: SLA alerts were posting too frequently
-      // startSlaAlertScheduler();
-      // Start Social post scheduler (every 5 minutes)
-      startSocialScheduler();
-      // Start Social engagement poller (every hour)
-      startEngagementPoller();
-      // Start invite expiry scheduler (every hour)
-      startInviteExpiryScheduler();
-      // Start health check scheduler (every 5 minutes)
-      startHealthCheckScheduler(5 * 60 * 1000);
-      // Start daily E2E email flow check (8:00 AM ET)
-      startEmailFlowE2EScheduler();
-      // Start nightly MS Learn catalog sync (2:00 AM ET)
-      startMsLearnSyncScheduler();
-      // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
-      startAiNewsScheduler();
-      // Start daily AI blog post generation (1:00 PM ET, Mon-Fri only)
-      startDailyBlogScheduler();
-      // Start Teams webhook health monitor (hourly checks)
-      startWebhookHealthMonitor();
-      // Start M365 Graph email poller (every 5 minutes)
-      startEmailPoller();
-      // Start Teams PSTN call poller (every 5 minutes)
-      startCallPoller();
-      // M365 Group voicemail poller
-      import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
-        startVoicemailGroupPoller();
-      }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+      startSchedulers().catch(err => {
+        console.error("[Server] Failed to start schedulers:", err);
+      });
     } else {
       console.log("[Server] RUN_SCHEDULERS=false — background schedulers disabled in this process");
     }
