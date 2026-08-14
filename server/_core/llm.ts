@@ -1,3 +1,5 @@
+import { getLLMProvider, resetLLMProvider } from "../adapters/llm/createLLMProvider";
+import { LLMProviderError } from "../adapters/llm/LLMProvider";
 import { ENV } from "./env";
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
@@ -19,7 +21,7 @@ export type FileContent = {
   type: "file_url";
   file_url: {
     url: string;
-    mime_type?: "audio/mpeg" | "audio/wav" | "application/pdf" | "audio/mp4" | "video/mp4" ;
+    mime_type?: "audio/mpeg" | "audio/wav" | "application/pdf" | "audio/mp4" | "video/mp4";
   };
 };
 
@@ -147,14 +149,12 @@ const normalizeMessage = (message: Message) => {
     return {
       role,
       name,
-      tool_call_id,
       content,
     };
   }
 
   const contentParts = ensureArray(message.content).map(normalizeContentPart);
 
-  // If there's only text content, collapse to a single string for compatibility
   if (contentParts.length === 1 && contentParts[0].type === "text") {
     return {
       role,
@@ -209,17 +209,6 @@ const normalizeToolChoice = (
   return toolChoice;
 };
 
-const resolveApiUrl = () =>
-  ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://forge.manus.im/v1/chat/completions";
-
-const assertApiKey = () => {
-  if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
-  }
-};
-
 const normalizeResponseFormat = ({
   responseFormat,
   response_format,
@@ -266,67 +255,70 @@ const normalizeResponseFormat = ({
 };
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  assertApiKey();
+  try {
+    const provider = getLLMProvider();
+    const normalizedMessages = params.messages.map(normalizeMessage);
 
-  const {
-    messages,
-    tools,
-    toolChoice,
-    tool_choice,
-    outputSchema,
-    output_schema,
-    responseFormat,
-    response_format,
-  } = params;
+    const tools = params.tools?.map(t => ({
+      type: t.type as "function",
+      function: {
+        name: t.function.name,
+        description: t.function.description ?? "",
+        parameters: t.function.parameters ?? {},
+      },
+    }));
 
-  const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
-    messages: messages.map(normalizeMessage),
-  };
-
-  if (tools && tools.length > 0) {
-    payload.tools = tools;
-  }
-
-  const normalizedToolChoice = normalizeToolChoice(
-    toolChoice || tool_choice,
-    tools
-  );
-  if (normalizedToolChoice) {
-    payload.tool_choice = normalizedToolChoice;
-  }
-
-  payload.max_tokens = 32768
-  payload.thinking = {
-    "budget_tokens": 128
-  }
-
-  const normalizedResponseFormat = normalizeResponseFormat({
-    responseFormat,
-    response_format,
-    outputSchema,
-    output_schema,
-  });
-
-  if (normalizedResponseFormat) {
-    payload.response_format = normalizedResponseFormat;
-  }
-
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+    const toolChoice = normalizeToolChoice(
+      params.toolChoice || params.tool_choice,
+      params.tools
     );
-  }
 
-  return (await response.json()) as InvokeResult;
+    const responseFormat = normalizeResponseFormat({
+      responseFormat: params.responseFormat,
+      response_format: params.response_format,
+      outputSchema: params.outputSchema,
+      output_schema: params.output_schema,
+    });
+
+    const result = await provider.complete({
+      messages: normalizedMessages as any,
+      maxTokens: params.maxTokens || params.max_tokens || 4096,
+      tools: tools as any,
+      toolChoice: toolChoice as any,
+      model: ENV.llmPrimaryProvider === "gemini" ? "gemini-1.5-flash" : undefined,
+    });
+
+    const normalizedChoices: InvokeResult["choices"] = [
+      {
+        index: 0,
+        message: {
+          role: "assistant",
+          content: result.content,
+          tool_calls: result.toolCalls,
+        },
+        finish_reason: result.finishReason || "stop",
+      },
+    ];
+
+    return {
+      id: crypto.randomUUID(),
+      created: Math.floor(Date.now() / 1000),
+      model: result.model,
+      choices: normalizedChoices,
+      usage: {
+        prompt_tokens: result.usage?.promptTokens ?? 0,
+        completion_tokens: result.usage?.completionTokens ?? 0,
+        total_tokens: result.usage?.totalTokens ?? 0,
+      },
+    };
+  } catch (err: any) {
+    if (err instanceof LLMProviderError) {
+      throw new Error(`LLM provider failed (${err.provider}): ${err.message}`);
+    }
+    throw err;
+  }
+}
+
+export function resetLLM(): void {
+  resetLLMProvider();
 }

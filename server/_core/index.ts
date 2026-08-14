@@ -51,6 +51,7 @@ import { voicemailRouter } from "../voicemailRoute";
 import uptimeWebhookRouter from "../uptimeWebhook";
 import ariaTtsRouter from "../ariaTtsRouter";
 import { handleMeridianHelpdeskExport } from "../meridian-helpdesk-export";
+import { initializeTelemetry, flushTelemetry } from "./telemetry";
 // Using Microsoft Graph (Azure) for all email operations
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -72,9 +73,18 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+// In production, honor the injected PORT exactly. Port scanning is for local dev only.
+function resolvePort(): number {
+  const envPort = parseInt(process.env.PORT || "3000", 10);
+  if (process.env.NODE_ENV === "production") return envPort;
+  return envPort;
+}
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  initializeTelemetry();
 
   // Remove X-Powered-By header (security best practice)
   app.disable('x-powered-by');
@@ -403,50 +413,83 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  const preferredPort = resolvePort();
+  const port = process.env.NODE_ENV === "production" ? preferredPort : await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
-    // Start email digest scheduler
-    startDigestScheduler();
-    startNewsletterScheduler();
-    // Start Teams daily digest scheduler (8 AM EST)
-    startTeamsDigestScheduler();
-    // Start Teams SLA breach alert scheduler (every 30 minutes)
-    // DISABLED: SLA alerts were posting too frequently
-    // startSlaAlertScheduler();
-    // Start Social post scheduler (every 5 minutes)
-    startSocialScheduler();
-    // Start Social engagement poller (every hour)
-    startEngagementPoller();
-    // Start invite expiry scheduler (every hour)
-    startInviteExpiryScheduler();
-    // Start health check scheduler (every 5 minutes)
-    startHealthCheckScheduler(5 * 60 * 1000);
-    // Start daily E2E email flow check (8:00 AM ET)
-    startEmailFlowE2EScheduler();
-    // Start nightly MS Learn catalog sync (2:00 AM ET)
-    startMsLearnSyncScheduler();
-    // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
-    startAiNewsScheduler();
-    // Start daily AI blog post generation (1:00 PM ET, Mon-Fri only)
-    startDailyBlogScheduler();
-    // Start Teams webhook health monitor (hourly checks)
-    startWebhookHealthMonitor();
-    // Start M365 Graph email poller (every 5 minutes)
-    startEmailPoller();
-    // Start Teams PSTN call poller (every 5 minutes)
-    startCallPoller();
-    // M365 Group voicemail poller — polls voicemail@gigitekai.com group for new voicemails
-    // Transcribes audio via Whisper and creates draft tickets for admin review
-    import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
-      startVoicemailGroupPoller();
-    }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+  // Health/readiness endpoints (no secrets, no DB detail)
+  app.get("/healthz", (_req, res) => {
+    res.status(200).json({ status: "ok", time: new Date().toISOString() });
+  });
+
+  app.get("/readyz", async (_req, res) => {
+    const checks: { database?: "ok" | "fail"; storage?: "ok" | "fail" } = {};
+    try {
+      const { getDb } = await import("../db");
+      const db = await getDb();
+      await db?.select(1).execute();
+      checks.database = "ok";
+    } catch (err) {
+      checks.database = "fail";
+    }
+    try {
+      const { getStorageProvider } = await import("../adapters/storage/createStorageProvider");
+      await getStorageProvider().headObject("__readyz_probe__");
+      checks.storage = "ok";
+    } catch (err: any) {
+      // A 404 probe is acceptable; connection error is not
+      checks.storage = err.statusCode === 404 ? "ok" : "fail";
+    }
+    const ready = checks.database === "ok" && checks.storage === "ok";
+    res.status(ready ? 200 : 503).json({ status: ready ? "ok" : "not ready", checks });
+  });
+
+  const runSchedulers = process.env.RUN_SCHEDULERS !== "false";
+
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`Server running on http://0.0.0.0:${port}/`);
+
+    if (runSchedulers) {
+      // Start email digest scheduler
+      startDigestScheduler();
+      startNewsletterScheduler();
+      // Start Teams daily digest scheduler (8 AM EST)
+      startTeamsDigestScheduler();
+      // Start Teams SLA breach alert scheduler (every 30 minutes)
+      // DISABLED: SLA alerts were posting too frequently
+      // startSlaAlertScheduler();
+      // Start Social post scheduler (every 5 minutes)
+      startSocialScheduler();
+      // Start Social engagement poller (every hour)
+      startEngagementPoller();
+      // Start invite expiry scheduler (every hour)
+      startInviteExpiryScheduler();
+      // Start health check scheduler (every 5 minutes)
+      startHealthCheckScheduler(5 * 60 * 1000);
+      // Start daily E2E email flow check (8:00 AM ET)
+      startEmailFlowE2EScheduler();
+      // Start nightly MS Learn catalog sync (2:00 AM ET)
+      startMsLearnSyncScheduler();
+      // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
+      startAiNewsScheduler();
+      // Start daily AI blog post generation (1:00 PM ET, Mon-Fri only)
+      startDailyBlogScheduler();
+      // Start Teams webhook health monitor (hourly checks)
+      startWebhookHealthMonitor();
+      // Start M365 Graph email poller (every 5 minutes)
+      startEmailPoller();
+      // Start Teams PSTN call poller (every 5 minutes)
+      startCallPoller();
+      // M365 Group voicemail poller
+      import("./voicemailGroupPoller").then(({ startVoicemailGroupPoller }) => {
+        startVoicemailGroupPoller();
+      }).catch(err => console.error("[Voicemail Poller] Failed to start:", err));
+    } else {
+      console.log("[Server] RUN_SCHEDULERS=false — background schedulers disabled in this process");
+    }
 
 
     // Teams forwarding disabled - requires Mail.ReadWrite permission in Azure AD
@@ -483,14 +526,16 @@ async function startServer() {
 startServer().catch(console.error);
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("[Server] SIGTERM received, shutting down gracefully");
   stopEmailPoller();
+  await flushTelemetry();
   process.exit(0);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   console.log("[Server] SIGINT received, shutting down gracefully");
   stopEmailPoller();
+  await flushTelemetry();
   process.exit(0);
 });

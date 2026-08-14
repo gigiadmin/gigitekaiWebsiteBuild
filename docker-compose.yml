@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: gigitekai-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: local-root-password
+      MYSQL_DATABASE: gigitekai
+      MYSQL_USER: gigitekai_app
+      MYSQL_PASSWORD: local-app-password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: gigitekai-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gigitekai-web
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      RUN_SCHEDULERS: "false"
+      DATABASE_URL: mysql://gigitekai_app:local-app-password@mysql:3306/gigitekai
+      REDIS_URL: redis://redis:6379
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/healthz').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gigitekai-worker
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      RUN_SCHEDULERS: "true"
+      DATABASE_URL: mysql://gigitekai_app:local-app-password@mysql:3306/gigitekai
+      REDIS_URL: redis://redis:6379
+    command: ["node", "dist/index.js"]
+    # No public ingress; worker runs background jobs only
+
+volumes:
+  mysql-data:

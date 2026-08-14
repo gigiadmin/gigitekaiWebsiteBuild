@@ -1,0 +1,77 @@
+name: Deploy Production
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag (commit SHA or release tag) to deploy'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: gigiadmin/gigitekai
+  RESOURCE_GROUP: rg-gigitekai-production
+  WEB_APP: ca-gigitekai-web-production
+  WORKER_APP: ca-gigitekai-worker-production
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine image tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy web container (keep prior revision)
+        run: |
+          az containerapp update \
+            --name ${{ env.WEB_APP }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }} \
+            --output none
+
+      - name: Deploy worker container
+        run: |
+          az containerapp update \
+            --name ${{ env.WORKER_APP }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }} \
+            --output none
+
+      - name: Wait and smoke test
+        env:
+          PROD_URL: https://gigitekai.com
+        run: |
+          sleep 60
+          curl -fsS "$PROD_URL/healthz" | jq .
+          curl -fsS "$PROD_URL/readyz" | jq .
+          echo "Production deployment complete: $PROD_URL"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Initiating revision rollback."
+          az containerapp revision list --name ${{ env.WEB_APP }} --resource-group ${{ env.RESOURCE_GROUP }} --query "[?active].name" -o tsv
+          # Manual: select the last known-good revision and run `az containerapp revision activate`
