@@ -736,10 +736,11 @@ export function prerenderMiddleware(distPath: string) {
   loadPrerenderedContent(distPath);
   
   return async (req: Request, res: Response, next: NextFunction) => {
-    // Skip API routes, static assets, and storage proxy
+    // Skip API routes, health checks, static assets, and storage proxy
     if (
       req.path.startsWith("/api/") ||
-      req.path.startsWith("/manus-storage/") ||
+      req.path === "/healthz" ||
+      req.path === "/readyz" ||
       req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot|map|json|xml|txt)$/)
     ) {
       return next();

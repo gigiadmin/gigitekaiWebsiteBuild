@@ -398,30 +398,7 @@ async function startServer() {
     next();
   });
   
-  // ── Prerender Middleware (Production Only) ─────────────────────────────────
-  // Injects per-route SEO (title, description, canonical, OG tags) into HTML
-  // Also handles: 301 trailing slash redirects, /insights → /blog, real 404s
-  if (process.env.NODE_ENV === "production") {
-    const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
-    app.use(prerenderMiddleware(distPath));
-  }
-
-  // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
-    const { setupVite } = await import("./vite");
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  const preferredPort = resolvePort();
-  const port = process.env.NODE_ENV === "production" ? preferredPort : await findAvailablePort(preferredPort);
-
-  if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
-  }
-
-  // Health/readiness endpoints (no secrets, no DB detail)
+  // Health/readiness endpoints (no secrets, no DB detail) — must be BEFORE prerender / static SPA catch-all
   app.get("/healthz", (_req, res) => {
     res.status(200).json({ status: "ok", time: new Date().toISOString() });
   });
@@ -447,6 +424,29 @@ async function startServer() {
     const ready = checks.database === "ok" && checks.storage === "ok";
     res.status(ready ? 200 : 503).json({ status: ready ? "ok" : "not ready", checks });
   });
+
+  // ── Prerender Middleware (Production Only) ─────────────────────────────────
+  // Injects per-route SEO (title, description, canonical, OG tags) into HTML
+  // Also handles: 301 trailing slash redirects, /insights → /blog, real 404s
+  if (process.env.NODE_ENV === "production") {
+    const distPath = path.resolve(import.meta.dirname, "../", "dist", "public");
+    app.use(prerenderMiddleware(distPath));
+  }
+
+  // development mode uses Vite, production mode uses static files
+  if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  const preferredPort = resolvePort();
+  const port = process.env.NODE_ENV === "production" ? preferredPort : await findAvailablePort(preferredPort);
+
+  if (port !== preferredPort) {
+    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
+  }
 
   const runSchedulers = process.env.RUN_SCHEDULERS !== "false";
 
