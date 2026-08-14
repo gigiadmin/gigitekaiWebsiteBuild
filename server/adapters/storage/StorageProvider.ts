@@ -25,6 +25,7 @@ export interface StorageProvider {
   deleteObject(key: string): Promise<void>;
   headObject(key: string): Promise<HeadObjectResult | null>;
   getPublicReadUrl?(key: string): Promise<string>;
+  listObjects(opts?: { prefix?: string; maxKeys?: number }): Promise<{ key: string; size: number; lastModified?: Date }[]>;
 }
 
 export function normalizeStorageKey(key: string): string {

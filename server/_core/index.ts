@@ -421,10 +421,9 @@ async function startServer() {
     try {
       const { getStorageProvider } = await import("../adapters/storage/createStorageProvider");
       const provider = getStorageProvider();
-      // Connection test: list the first object (most providers support this as a connectivity probe)
       await provider.listObjects({ prefix: "__readyz_probe__", maxKeys: 1 });
       checks.storage = "ok";
-    } catch (err: any) {
+    } catch (err) {
       checks.storage = "fail";
     }
     const ready = checks.database === "ok" && checks.storage === "ok";

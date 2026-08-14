@@ -147,6 +147,15 @@ export class AzureBlobStorageProvider implements StorageProvider {
     }
   }
 
+  async listObjects(opts?: { prefix?: string; maxKeys?: number }): Promise<{ key: string; size: number; lastModified?: Date }[]> {
+    const results: { key: string; size: number; lastModified?: Date }[] = [];
+    for await (const blob of this.containerClient.listBlobsFlat({ prefix: opts?.prefix })) {
+      results.push({ key: blob.name, size: blob.properties.contentLength ?? 0, lastModified: blob.properties.lastModified });
+      if (opts?.maxKeys && results.length >= opts.maxKeys) break;
+    }
+    return results;
+  }
+
   async getPublicReadUrl(key: string): Promise<string> {
     return this.getBlockBlobClient(key).url;
   }
