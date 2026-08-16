@@ -2532,4 +2532,15 @@
 - [x] Create a reusable developer prompt for migrating other Manus-hosted websites to independent infrastructure — created Reusable_Manus_Website_Migration_Developer_Prompt.md
 - [x] Verify public versus admin OAuth dependencies and prepare a secure Azure/GitHub/secrets response for the independent-hosting developer — public routes are not OAuth-gated; admin has independent JWT/Entra paths; GitHub repo verified private; Actions visibility could not be confirmed with available scope
 - [x] Create a GotPrint-ready GigitekAI business card package with separate front/back PDFs, bleed, safe margins, and printer specifications — validated 3.75 × 2.25 inch one-page front/back PDF files with 0.125 inch bleed and upload notes
-- [x] Correct the GotPrint business card with Harry Henry Santiago’s name, harry@gigitek.com, and a sharper Microsoft 365/managed IT/AI service line — regenerated QR, front/back PDFs, and validated the final reverse-card preview
+- [x] Correct the GotPrint business card with Harry Henry Santiago's name, harry@gigitek.com, and a sharper Microsoft 365/managed IT/AI service line — regenerated QR, front/back PDFs, and validated the final reverse-card preview
+- [x] REBRAND: Update global CSS theme (pure black base, cyan accent, Space Grotesk + DM Sans fonts)
+- [x] REBRAND: Redesign navigation (sticky black bar, minimal links, "Book a Call" CTA)
+- [x] REBRAND: Rebuild homepage hero ("Architect your AI advantage" + fractional CTO positioning)
+- [x] REBRAND: Implement 4-pillar services section (Fractional CTO, M365, AI Helpdesk, Secure Infrastructure)
+- [x] REBRAND: Add Blackstone-style oversized stats section (40%, 3.4s, 280+, 99.9%)
+- [x] REBRAND: Add insights/thought-leadership grid connected to KB articles
+- [x] REBRAND: Redesign contact/CTA section with clean form
+- [x] REBRAND: Update footer (minimal, premium)
+- [ ] REBRAND: Mobile responsive across all breakpoints
+- [ ] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations
+- [ ] REBRAND: Production build passing with zero errors
