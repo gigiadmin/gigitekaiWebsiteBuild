@@ -1365,20 +1365,21 @@ When asked to take action on tickets, confirm the action and execute:
 - You understand the MSP business model and client impact of decisions`;
 
   const claudeKey = process.env.CLAUDE_API_KEY;
-  if (claudeKey) {
+  // Primary: DeepSeek API (OpenAI-compatible)
+  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  if (deepseekKey) {
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': claudeKey,
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${deepseekKey}`,
         },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5',
+          model: 'deepseek-chat',
           max_tokens: 2000,
-          system: SYSTEM_PROMPT,
           messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
             ...(history || []).slice(-5).map(h => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content.substring(0, 500) })),
             { role: 'user', content: question }
           ]
@@ -1386,17 +1387,17 @@ When asked to take action on tickets, confirm the action and execute:
       });
       if (res.ok) {
         const data = await res.json() as any;
-        const text = data.content?.[0]?.text;
+        const text = data.choices?.[0]?.message?.content;
         if (text) {
-          console.log('[Aria] Claude success, length:', text.length);
+          console.log('[Aria] DeepSeek success, length:', text.length);
           return text;
         }
       } else {
         const errBody = await res.text().catch(() => 'unreadable');
-        console.error('[Aria] Claude API failed:', res.status, errBody.substring(0, 200));
+        console.error('[Aria] DeepSeek API failed:', res.status, errBody.substring(0, 200));
       }
     } catch (e) {
-      console.error('[Aria] Claude error:', e);
+      console.error('[Aria] DeepSeek error:', e);
     }
   }
 

@@ -2541,6 +2541,7 @@
 - [x] REBRAND: Add insights/thought-leadership grid connected to KB articles
 - [x] REBRAND: Redesign contact/CTA section with clean form
 - [x] REBRAND: Update footer (minimal, premium)
+- [x] Switch Aria AI backend from Claude/Manus to DeepSeek as primary LLM
 - [ ] REBRAND: Mobile responsive across all breakpoints
 - [ ] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations
 - [ ] REBRAND: Production build passing with zero errors
