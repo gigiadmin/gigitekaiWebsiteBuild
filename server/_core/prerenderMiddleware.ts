@@ -768,9 +768,16 @@ export function prerenderMiddleware(distPath: string) {
           description: "The page you're looking for doesn't exist. Return to GigitekAI homepage for managed IT, cloud, and AI services.",
           noindex: true,
         }, `${BASE_URL}/404`);
+        // Never retain route 404s at an intermediary cache. A stale negative
+        // response can otherwise survive a successful deployment that adds the route.
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Surrogate-Control", "no-store");
         res.status(404).setHeader("Content-Type", "text/html; charset=utf-8");
         return res.send(html);
       } catch {
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+        res.setHeader("Surrogate-Control", "no-store");
         return res.status(404).send("Not Found");
       }
     }

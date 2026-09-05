@@ -159,8 +159,9 @@ async function startServer() {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.setHeader('Pragma', 'no-cache');
     } else {
-      // Default: cache for 1 hour
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      // Extensionless SPA routes and error pages must revalidate. Caching these for
+      // an hour can preserve a stale 404 after a route is added or restored.
+      res.setHeader('Cache-Control', 'no-cache, max-age=0, must-revalidate');
     }
     next();
   });

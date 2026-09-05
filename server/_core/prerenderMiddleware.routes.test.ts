@@ -16,4 +16,10 @@ describe("production SPA route allowlist", () => {
   it("continues to reject unknown paths", () => {
     expect(isKnownRoute("/this-route-does-not-exist")).toBe(false);
   });
+
+  it("keeps current lead-generation entry points in the production allowlist", () => {
+    expect(isKnownRoute("/web-discovery-intake")).toBe(true);
+    expect(isKnownRoute("/free-audit")).toBe(true);
+    expect(isKnownRoute("/contact")).toBe(true);
+  });
 });
