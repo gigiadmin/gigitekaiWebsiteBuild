@@ -2542,6 +2542,7 @@
 - [x] REBRAND: Redesign contact/CTA section with clean form
 - [x] REBRAND: Update footer (minimal, premium)
 - [x] Switch Aria AI backend from Claude/Manus to DeepSeek as primary LLM
+- [ ] Diagnose and fix the reported GigitekAI website 404 across production domains and key public routes
 - [ ] REBRAND: Mobile responsive across all breakpoints
 - [ ] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations
 - [ ] REBRAND: Production build passing with zero errors

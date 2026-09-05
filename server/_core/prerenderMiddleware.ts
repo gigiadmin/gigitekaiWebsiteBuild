@@ -429,7 +429,7 @@ const KNOWN_STATIC_ROUTES = new Set([
   "/m365-notifications", "/helpdesk", "/investor-portal",
   "/accept-invite", "/logout", "/contact-card", "/search",
   "/AIStrategicBriefing", "/404", "/about", "/about-us",
-  "/scripts", "/call-transcripts",
+  "/scripts", "/call-transcripts", "/qr", "/connect",
 ]);
 
 // Route prefixes that accept any sub-path (token-based or app routes)
