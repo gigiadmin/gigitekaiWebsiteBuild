@@ -2547,4 +2547,4 @@
 - [x] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations — superseded by restoration; focused homepage, navigation, Aria, intake, and route tests passed
 - [x] REBRAND: Production build passing with zero errors — superseded by restoration; restored build and TypeScript validation passed
 - [x] Restore the pre-rebrand full-service public website while preserving DeepSeek and production routing fixes — exact pre-rebrand homepage/theme restored, rebrand-only components removed, desktop/mobile previews validated, 69 focused tests passed, TypeScript passed, and production build passed
-- [ ] Restore daily GigitekAI Insights generation and publishing after the Manus outage, with duplicate prevention and public-feed verification
+- [x] Restore daily GigitekAI Insights generation and publishing after the Manus outage, with duplicate prevention and public-feed verification — durable authenticated job created, immediate recovery run published daily-recap-2026-09-05, public API/detail route verified, and next daily run scheduled for 13:00 UTC
