@@ -12,6 +12,7 @@ import { BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
 import { ChatCategoryForms } from "@/components/ChatCategoryForms";
+import { getDeterministicChatResponse } from "@/lib/deterministicChatResponses";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -257,6 +258,13 @@ export default function AIChatWidget() {
     setMessages((prev) => [...prev, { role: "user", message: quickMessage, timestamp: Date.now() }]);
     setIsLoading(true);
 
+    const deterministicResponse = getDeterministicChatResponse(quickMessage);
+    if (deterministicResponse) {
+      setMessages((prev) => [...prev, { role: "assistant", message: deterministicResponse, timestamp: Date.now() }]);
+      setIsLoading(false);
+      return;
+    }
+
     // Ensure session exists (same pattern as handleSendMessage)
     let ensuredSessionId = sessionId;
     if (!ensuredSessionId) {
@@ -472,6 +480,13 @@ export default function AIChatWidget() {
     setInputValue("");
     setHasInteracted(true);
     setMessages((prev) => [...prev, { role: "user", message: userMessage, timestamp: Date.now() }]);
+
+    const deterministicResponse = getDeterministicChatResponse(userMessage);
+    if (deterministicResponse) {
+      setMessages((prev) => [...prev, { role: "assistant", message: deterministicResponse, timestamp: Date.now() }]);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       console.log("[Chat] Calling sendMessage mutation with ensuredSessionId:", ensuredSessionId);
