@@ -1,7 +1,7 @@
 // Enterprise features for AIBot: Sentiment Analysis, Intent Routing, Summarization, Ratings, Teams Integration
 // This module extends the base aibot router with advanced capabilities
 
-import { invokeLLM } from "../_core/llm";
+import { callDeepSeek } from "../services/deepseek";
 import { 
   saveChatAnalytic,
   saveResponseRating,
@@ -16,7 +16,7 @@ import {
  */
 export async function analyzeSentimentAndIntent(message: string) {
   try {
-    const response = await invokeLLM({
+    const responseText = await callDeepSeek({
       messages: [
         {
           role: "system",
@@ -48,11 +48,12 @@ Routing:
 - all other intents → support@gigitekai.com`
         },
         { role: "user", content: message }
-      ]
+      ],
+      maxTokens: 220,
+      temperature: 0,
+      jsonMode: true,
     });
 
-    const responseContent = response.choices[0]?.message?.content;
-    const responseText = typeof responseContent === 'string' ? responseContent : '';
     if (!responseText) throw new Error("No response from LLM");
 
     // Strip markdown code fences that LLMs sometimes wrap JSON in (e.g. ```json ... ```)
@@ -93,7 +94,7 @@ export async function generateConversationSummary(sessionId: string, recentMessa
       .map(m => `${m.role === 'user' ? 'Customer' : 'Bot'}: ${m.message}`)
       .join('\n');
 
-    const response = await invokeLLM({
+    const responseText = await callDeepSeek({
       messages: [
         {
           role: "system",
@@ -103,11 +104,12 @@ Respond with JSON only (no markdown):
 {"summary": "2-3 sentence summary", "keyPoints": ["point1", "point2"], "suggestedActions": ["action1", "action2"]}`
         },
         { role: "user", content: `Summarize this conversation:\n\n${conversationText}` }
-      ]
+      ],
+      maxTokens: 350,
+      temperature: 0,
+      jsonMode: true,
     });
 
-    const responseContent = response.choices[0]?.message?.content;
-    const responseText = typeof responseContent === 'string' ? responseContent : '';
     if (!responseText) throw new Error("No response from LLM");
 
     // Strip markdown code fences that LLMs sometimes wrap JSON in (e.g. ```json ... ```)

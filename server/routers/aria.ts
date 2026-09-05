@@ -1,6 +1,6 @@
 import { router, publicProcedure, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { invokeLLM } from "../_core/llm";
+import { callDeepSeek } from "../services/deepseek";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { getCachedResponse, setCachedResponse } from "../_core/llmCache";
 import { getDb } from "../db";
@@ -1258,12 +1258,12 @@ async function askClaudeWithContext(question: string, liveCtx: any, focus?: stri
     ? `${contextBlock}${kbBlock}\n\n---\n\nUser question: ${question}`
     : question;
 
-  const response = await askClaude(enrichedQuestion, history);
+  const response = await askAriaModel(enrichedQuestion, history);
   await setCachedResponse(question, response, 'context_query', cacheKey);
   return response;
 }
 
-async function askClaude(question: string, history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
+export async function askAriaModel(question: string, history?: Array<{role: 'user' | 'assistant'; content: string}>): Promise<string> {
   const SYSTEM_PROMPT = `You are Aria, the GigitekAI Command Center AI — a senior Microsoft 365 Architect, Azure Solutions Architect, and enterprise IT operations expert. You are the brain behind GigitekAI's admin portal and Microsoft environment.
 
 GigitekAI is an AI-first MSP (Managed Service Provider) serving 50+ clients across North America and Canada. Founded by Harry, a Microsoft 365 Architect with 25+ years of enterprise IT experience. You have FULL visibility into the live system data provided in the context block above.
@@ -1364,56 +1364,19 @@ When asked to take action on tickets, confirm the action and execute:
 - You prioritize security and best practices in every recommendation
 - You understand the MSP business model and client impact of decisions`;
 
-  const claudeKey = process.env.CLAUDE_API_KEY;
-  if (claudeKey) {
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': claudeKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5',
-          max_tokens: 2000,
-          system: SYSTEM_PROMPT,
-          messages: [
-            ...(history || []).slice(-5).map(h => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.content.substring(0, 500) })),
-            { role: 'user', content: question }
-          ]
-        })
-      });
-      if (res.ok) {
-        const data = await res.json() as any;
-        const text = data.content?.[0]?.text;
-        if (text) {
-          console.log('[Aria] Claude success, length:', text.length);
-          return text;
-        }
-      } else {
-        const errBody = await res.text().catch(() => 'unreadable');
-        console.error('[Aria] Claude API failed:', res.status, errBody.substring(0, 200));
-      }
-    } catch (e) {
-      console.error('[Aria] Claude error:', e);
-    }
-  }
-
-  // Fallback: built-in LLM
   try {
-    const response = await invokeLLM({
+    return await callDeepSeek({
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...(history || []).slice(-5).map(h => ({ role: h.role === 'assistant' ? 'assistant' as const : 'user' as const, content: h.content.substring(0, 500) })),
         { role: "user", content: question },
       ],
+      maxTokens: 2000,
+      temperature: 0.2,
     });
-    const content = response.choices[0]?.message?.content;
-    return typeof content === "string" ? content : "Unable to generate response. Please try again.";
   } catch (e) {
-    console.error("[Aria] LLM fallback error:", e);
-    return "I encountered an error. Please try again or contact GigitekAI support.";
+    console.error("[Aria] DeepSeek error:", e);
+    return "I couldn't reach the AI service. Please try again or contact GigitekAI support.";
   }
 }
 

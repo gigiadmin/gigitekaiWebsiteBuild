@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { aibotRouter } from "./routers/aibot";
 import type { TrpcContext } from "./_core/context";
 import { invokeLLM } from "./_core/llm";
+import { callDeepSeek } from "./services/deepseek";
 
 // Mock the database module to prevent real DB writes
 vi.mock("./db", () => {
@@ -80,6 +81,19 @@ vi.mock("./_core/llm", () => ({
   })),
 }));
 
+vi.mock("./services/deepseek", () => ({
+  callDeepSeek: vi.fn(async ({ messages }: any) => {
+    const system = String(messages?.find((message: any) => message.role === "system")?.content || "");
+    if (system.includes("Analyze the sentiment and intent")) {
+      return JSON.stringify({ sentiment: "neutral", sentimentScore: 0.5, intent: "general", intentConfidence: 0.5 });
+    }
+    if (system.includes("Summarize this customer conversation")) {
+      return JSON.stringify({ summary: "Customer requested assistance.", keyPoints: [], suggestedActions: [] });
+    }
+    return "I'd be happy to help you with that. Could you provide more details about your issue?";
+  }),
+}));
+
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createPublicContext(): TrpcContext {
@@ -117,6 +131,7 @@ describe("aibot router", () => {
     const caller = aibotRouter.createCaller(ctx);
     const session = await caller.getOrCreateSession({});
     vi.mocked(invokeLLM).mockClear();
+    vi.mocked(callDeepSeek).mockClear();
 
     const result = await caller.sendMessage({
       sessionId: session.sessionId,
@@ -127,6 +142,7 @@ describe("aibot router", () => {
     expect(result.message).not.toContain("technical difficulties");
     expect(result.shouldEscalate).toBe(false);
     expect(invokeLLM).not.toHaveBeenCalled();
+    expect(callDeepSeek).not.toHaveBeenCalled();
   });
 
   it("retrieves existing chat session", async () => {
