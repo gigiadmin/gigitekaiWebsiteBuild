@@ -27,8 +27,6 @@ import { startInviteExpiryScheduler } from "./inviteExpiryScheduler";
 import { startHealthCheckScheduler } from "../schedulers/healthCheckScheduler";
 import { startEmailFlowE2EScheduler } from "../schedulers/emailFlowE2ECheck";
 import { startMsLearnSyncScheduler } from "../schedulers/msLearnSyncScheduler";
-import { startAiNewsScheduler } from "../schedulers/aiNewsScheduler";
-import { startDailyBlogScheduler } from "../schedulers/dailyBlogScheduler";
 import { startWebhookHealthMonitor } from "./teamsWebhookUtils";
 import { startEmailPoller } from "./emailPoller";
 import { startCallPoller } from "./callPoller";
@@ -433,10 +431,8 @@ async function startServer() {
     startEmailFlowE2EScheduler();
     // Start nightly MS Learn catalog sync (2:00 AM ET)
     startMsLearnSyncScheduler();
-    // Start daily AI news recap (9:00 AM ET → newsletter + blog post)
-    startAiNewsScheduler();
-    // Start daily AI blog post generation (1:00 PM ET, Mon-Fri only)
-    startDailyBlogScheduler();
+    // Daily Insights now runs through the durable authenticated
+    // /api/scheduled/daily-insights callback instead of in-process timers.
     // Start Teams webhook health monitor (hourly checks)
     startWebhookHealthMonitor();
     // Start M365 Graph email poller (every 5 minutes)

@@ -357,7 +357,16 @@ async function saveLastRunDateToDb(date: string): Promise<void> {
   }
 }
 
-export async function runAiNewsRecap(): Promise<void> {
+export type AiNewsRecapResult = {
+  ok: true;
+  date: string;
+  skipped?: "already-ran-today";
+  blogUrl?: string;
+  newsletterSent?: number;
+  newsletterRecipients?: number;
+};
+
+export async function runAiNewsRecap(): Promise<AiNewsRecapResult> {
   // Get today's date in ET
   const now = new Date();
   const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
@@ -366,14 +375,14 @@ export async function runAiNewsRecap(): Promise<void> {
   // Check if already ran today (from memory or database)
   if (lastRunDate === todayET) {
     console.log(`[AI News Scheduler] Already ran today (${todayET}) in memory — skipping duplicate`);
-    return;
+    return { ok: true, date: todayET, skipped: "already-ran-today" };
   }
 
   const dbLastRunDate = await getLastRunDateFromDb();
   if (dbLastRunDate === todayET) {
     lastRunDate = todayET;
     console.log(`[AI News Scheduler] Already ran today (${todayET}) per database — skipping duplicate`);
-    return;
+    return { ok: true, date: todayET, skipped: "already-ran-today" };
   }
 
   console.log("[AI News Scheduler] Starting daily mixed news recap generation...");
@@ -421,8 +430,7 @@ export async function runAiNewsRecap(): Promise<void> {
     // Call the auto-post endpoint (creates blog post + sends newsletter)
     const apiKey = process.env.NEWSLETTER_AUTO_POST_KEY;
     if (!apiKey) {
-      console.error("[AI News Scheduler] NEWSLETTER_AUTO_POST_KEY not set — cannot auto-post");
-      return;
+      throw new Error("NEWSLETTER_AUTO_POST_KEY not set — cannot auto-post");
     }
 
     const baseUrl = process.env.INTERNAL_API_URL ?? "http://localhost:3000";
@@ -449,8 +457,7 @@ export async function runAiNewsRecap(): Promise<void> {
     };
 
     if (!result.success) {
-      console.error("[AI News Scheduler] Auto-post failed:", result.error);
-      return;
+      throw new Error(result.error || "Daily Insights auto-post failed");
     }
 
     // Persist articles to database for admin dashboard
@@ -490,9 +497,17 @@ export async function runAiNewsRecap(): Promise<void> {
     console.log(
       `[AI News Scheduler] ✅ Done — Blog: ${result.blog?.url ?? "skipped"} | Newsletter: ${result.newsletter?.sentCount ?? 0}/${result.newsletter?.recipientCount ?? 0} delivered`
     );
+    return {
+      ok: true,
+      date: todayET,
+      blogUrl: result.blog?.url,
+      newsletterSent: result.newsletter?.sentCount ?? 0,
+      newsletterRecipients: result.newsletter?.recipientCount ?? 0,
+    };
   } catch (err) {
     console.error("[AI News Scheduler] Unexpected error:", err);
-    // Don't mark as run on error — allow retry
+    // Don't mark as run on error — allow the durable scheduler to retry.
+    throw err;
   }
 }
 

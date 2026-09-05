@@ -2,6 +2,7 @@ import { Express } from "express";
 import { auditAgentAccountsHandler } from "./audit-agent-accounts-handler";
 import { syncAiNewsToBlogHandler } from "../_core/handlers/syncAiNewsToBlogHandler";
 import { ariaWeeklyDigestHandler } from "./aria-weekly-digest-handler";
+import { dailyInsightsHandler } from "./daily-insights-handler";
 
 /**
  * Register all scheduled handlers
@@ -15,6 +16,9 @@ export function registerScheduledHandlers(app: Express) {
 
   // Daily AI News to Blog sync
   app.post("/api/scheduled/sync-ai-news-to-blog", syncAiNewsToBlogHandler);
+
+  // Daily published Insights recap
+  app.post("/api/scheduled/daily-insights", dailyInsightsHandler);
 
   // Weekly Aria digest email
   app.post("/api/scheduled/aria-weekly-digest", ariaWeeklyDigestHandler);
