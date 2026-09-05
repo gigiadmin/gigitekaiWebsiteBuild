@@ -79,6 +79,13 @@ vi.mock("./_core/llm", () => ({
   })),
 }));
 
+vi.mock("./services/ariaLLM", () => ({
+  callAriaLLM: vi.fn(async () => ({
+    content: "I'd be happy to help you with that. Could you provide more details about your issue?",
+    model: "deepseek",
+  })),
+}));
+
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
 function createPublicContext(): TrpcContext {

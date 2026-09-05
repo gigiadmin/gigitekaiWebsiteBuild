@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router, adminProcedure } from "../_core/trpc";
-import { invokeLLM } from "../_core/llm";
+import { callAriaLLM } from "../services/ariaLLM";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { isSupportAvailable, getNextAvailableTime } from "../business-hours";
@@ -505,12 +505,10 @@ export const aibotRouter = router({
       // Call LLM with context
       try {
         // Add timeout to prevent hanging
-        const llmPromise = invokeLLM({
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT + (context ? `\n\nRelevant documentation:\n${context}` : "") },
-            ...conversationHistory,
-          ],
-        });
+        const llmPromise = callAriaLLM([
+          { role: "system", content: SYSTEM_PROMPT + (context ? `\n\nRelevant documentation:\n${context}` : "") },
+          ...conversationHistory,
+        ]);
 
         // 30 second timeout for LLM response
         const timeoutPromise = new Promise((_, reject) => 
@@ -519,9 +517,9 @@ export const aibotRouter = router({
 
         const response = await Promise.race([llmPromise, timeoutPromise]);
 
-        const assistantMessageContent = (response as any).choices[0]?.message?.content;
-        let assistantMessage = typeof assistantMessageContent === 'string' 
-          ? assistantMessageContent 
+        const assistantMessageContent = (response as any).content;
+        let assistantMessage = typeof assistantMessageContent === 'string'
+          ? assistantMessageContent
           : "I apologize, I'm having trouble responding. Please try again.";
 
         // Append KB article recommendations if found

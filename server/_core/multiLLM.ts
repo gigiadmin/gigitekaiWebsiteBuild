@@ -166,7 +166,8 @@ async function callManus(messages: LLMMessage[]): Promise<LLMResponse> {
  */
 export async function callLLM(
   model: LLMModel,
-  messages: LLMMessage[]
+  messages: LLMMessage[],
+  options: { fallbackToManus?: boolean } = {}
 ): Promise<LLMResponse> {
   try {
     switch (model) {
@@ -181,8 +182,11 @@ export async function callLLM(
         return await callManus(messages);
     }
   } catch (error) {
+    if (model === "manus" || options.fallbackToManus === false) {
+      throw error;
+    }
+
     console.error(`[MultiLLM] ${model} failed, falling back to Manus:`, error);
-    // Fallback to Manus LLM
     return await callManus(messages);
   }
 }
