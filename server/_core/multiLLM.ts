@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { invokeLLM } from "./llm";
 
-export type LLMModel = "claude" | "manus" | "gemini" | "deepseek";
+export type LLMModel = "claude" | "manus" | "gemini";
 
 export interface LLMMessage {
   role: "system" | "user" | "assistant";
@@ -101,44 +101,6 @@ async function callGemini(messages: LLMMessage[]): Promise<LLMResponse> {
 }
 
 /**
- * Call DeepSeek (OpenAI-compatible API)
- */
-async function callDeepSeek(messages: LLMMessage[]): Promise<LLMResponse> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) throw new Error("DEEPSEEK_API_KEY not configured");
-
-  const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "deepseek-chat",
-      max_tokens: 1024,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text().catch(() => "");
-    throw new Error(`DeepSeek API error ${response.status}: ${errText.substring(0, 200)}`);
-  }
-
-  const data = await response.json() as any;
-  const content = data.choices?.[0]?.message?.content || "No response";
-
-  return {
-    content,
-    model: "deepseek",
-    usage: {
-      inputTokens: data.usage?.prompt_tokens,
-      outputTokens: data.usage?.completion_tokens,
-    },
-  };
-}
-
-/**
  * Call Manus built-in LLM
  */
 async function callManus(messages: LLMMessage[]): Promise<LLMResponse> {
@@ -166,8 +128,7 @@ async function callManus(messages: LLMMessage[]): Promise<LLMResponse> {
  */
 export async function callLLM(
   model: LLMModel,
-  messages: LLMMessage[],
-  options: { fallbackToManus?: boolean } = {}
+  messages: LLMMessage[]
 ): Promise<LLMResponse> {
   try {
     switch (model) {
@@ -175,18 +136,13 @@ export async function callLLM(
         return await callClaude(messages);
       case "gemini":
         return await callGemini(messages);
-      case "deepseek":
-        return await callDeepSeek(messages);
       case "manus":
       default:
         return await callManus(messages);
     }
   } catch (error) {
-    if (model === "manus" || options.fallbackToManus === false) {
-      throw error;
-    }
-
     console.error(`[MultiLLM] ${model} failed, falling back to Manus:`, error);
+    // Fallback to Manus LLM
     return await callManus(messages);
   }
 }
@@ -203,18 +159,11 @@ export function getAvailableModels(): Array<{
 }> {
   return [
     {
-      id: "deepseek",
-      name: "DeepSeek Chat",
-      description: "Fast, cost-effective reasoning. Great for IT operations and code.",
-      available: !!process.env.DEEPSEEK_API_KEY,
-      badge: "Primary",
-    },
-    {
       id: "claude",
       name: "Claude 3.5 Sonnet",
       description: "Best reasoning and analysis. Ideal for complex queries.",
       available: !!process.env.CLAUDE_API_KEY,
-      badge: "Premium",
+      badge: "Best",
     },
     {
       id: "gemini",

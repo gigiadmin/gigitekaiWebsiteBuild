@@ -2549,3 +2549,4 @@
 - [x] Restore the pre-rebrand full-service public website while preserving DeepSeek and production routing fixes — exact pre-rebrand homepage/theme restored, rebrand-only components removed, desktop/mobile previews validated, 69 focused tests passed, TypeScript passed, and production build passed
 - [x] Restore daily GigitekAI Insights generation and publishing after the Manus outage, with duplicate prevention and public-feed verification — durable authenticated job created, immediate recovery run published daily-recap-2026-09-05, public API/detail route verified, and next daily run scheduled for 13:00 UTC
 - [ ] Diagnose and fix Aria chat returning the technical-difficulties fallback after the DeepSeek integration
+- [ ] Restore Aria to the previous Manus-hosted AI implementation while preserving chat history and current website fixes
