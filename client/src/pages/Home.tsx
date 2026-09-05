@@ -1,32 +1,31 @@
 /*
-  GigitekAI Home Page — Premium Institutional Rebrand
-  Design: Blackstone/Ode-inspired. Pure black. Extreme whitespace.
-  Positioning: Fractional CTO & AI Strategy
+  GigitekAI Home Page — Assembles all sections
+  Design: Cyberpunk Minimalism meets Enterprise Precision
+  Colors: Deep navy-black (#0A0E1A) + Electric cyan (#00D4FF)
+  Fonts: Space Grotesk (display) + DM Sans (body)
 */
 import { useSEO } from "@/hooks/useSEO";
 import { SEO_CONFIG } from "@/lib/seoConfig";
-import PremiumNav from "@/components/PremiumNav";
-import PremiumHero from "@/components/PremiumHero";
-import PremiumServices from "@/components/PremiumServices";
-import PremiumStats from "@/components/PremiumStats";
+import SiteNavBar2024 from "@/components/SiteNavBar2024";
+import HeroSection from "@/components/HeroSection";
 import InsightsSection from "@/components/InsightsSection";
-import PremiumContact from "@/components/PremiumContact";
-import PremiumFooter from "@/components/PremiumFooter";
+import EnterpriseHomeSections from "@/components/EnterpriseHomeSections";
+import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Home() {
   useSEO({ ...SEO_CONFIG["/"], path: "/" });
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
-      <PremiumNav />
+    <div className="min-h-screen flex flex-col">
+      <SiteNavBar2024 />
       <main className="flex-1">
-        <PremiumHero />
-        <PremiumServices />
-        <PremiumStats />
+        <HeroSection />
+        <EnterpriseHomeSections />
         <InsightsSection />
-        <PremiumContact />
       </main>
-      <PremiumFooter />
+      <Footer />
+      <ScrollToTop />
     </div>
   );
 }

@@ -2543,6 +2543,7 @@
 - [x] REBRAND: Update footer (minimal, premium)
 - [x] Switch Aria AI backend from Claude/Manus to DeepSeek as primary LLM
 - [x] Diagnose and fix the reported GigitekAI website 404 across production domains and key public routes — corrected the production route allowlist and stale-404 caching; live homepage, /qr, /connect, /kb, www, and Manus URLs all return HTTP 200
-- [ ] REBRAND: Mobile responsive across all breakpoints
-- [ ] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations
-- [ ] REBRAND: Production build passing with zero errors
+- [x] REBRAND: Mobile responsive across all breakpoints — superseded by the user-directed restoration of the previously validated full-service design
+- [x] REBRAND: Preserve Aria widget, all forms, routes, and backend integrations — superseded by restoration; focused homepage, navigation, Aria, intake, and route tests passed
+- [x] REBRAND: Production build passing with zero errors — superseded by restoration; restored build and TypeScript validation passed
+- [x] Restore the pre-rebrand full-service public website while preserving DeepSeek and production routing fixes — exact pre-rebrand homepage/theme restored, rebrand-only components removed, desktop/mobile previews validated, 69 focused tests passed, TypeScript passed, and production build passed

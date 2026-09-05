@@ -82,7 +82,7 @@ export default function WebDiscoveryIntakePage() {
   const [formData, setFormData] = useState(getInitialFormData());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submissionError, setSubmissionError] = useState<string | null>(null);
-  const formTopRef = useRef<HTMLDivElement>(null);
+  const formTopRef = useRef<HTMLFormElement>(null);
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {

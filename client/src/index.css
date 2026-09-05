@@ -3,12 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
-  GigitekAI Design System — Premium Institutional
-  Primary canvas: Pure black (#000000)
-  Accent: Electric cyan (#00D4FF) — used sparingly
+/* 
+  GigitekAI Design System — Cyberpunk Minimalism meets Enterprise Precision
+  Primary canvas: Deep navy-black (#0A0E1A)
+  Accent: Electric cyan (#00D4FF)
+  CTA: Bright cyan-green (#00E5CC)
   Typography: Space Grotesk (display) + DM Sans (body)
-  Philosophy: Extreme whitespace, understated confidence, institutional authority
+  Philosophy: Dark-first, asymmetric layouts, glowing accents, data-driven aesthetic
 */
 
 @theme inline {
@@ -54,11 +55,11 @@
   --radius: 0.5rem;
   /* GigitekAI Brand Colors */
   --cyan-accent: #00D4FF;
-  --cyan-glow: rgba(0, 212, 255, 0.08);
-  --navy-deep: #000000;
-  --navy-mid: #0A0A0A;
-  --navy-card: #111111;
-  --navy-border: rgba(255, 255, 255, 0.08);
+  --cyan-glow: rgba(0, 212, 255, 0.15);
+  --navy-deep: #0A0E1A;
+  --navy-mid: #0F1629;
+  --navy-card: #141B2D;
+  --navy-border: rgba(0, 212, 255, 0.2);
 
   /* Light mode (used for content sections) */
   --background: oklch(1 0 0);
@@ -96,38 +97,38 @@
 }
 
 .dark {
-  --background: oklch(0 0 0);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.07 0 0);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.07 0 0);
-  --popover-foreground: oklch(0.96 0 0);
-  --primary: oklch(0.78 0.14 200);
-  --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.1 0 0);
-  --secondary-foreground: oklch(0.92 0 0);
-  --muted: oklch(0.12 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.78 0.14 200);
-  --accent-foreground: oklch(0 0 0);
+  --background: oklch(0.08 0.02 250);
+  --foreground: oklch(0.95 0.005 250);
+  --card: oklch(0.12 0.025 250);
+  --card-foreground: oklch(0.95 0.005 250);
+  --popover: oklch(0.12 0.025 250);
+  --popover-foreground: oklch(0.95 0.005 250);
+  --primary: oklch(0.75 0.2 200);
+  --primary-foreground: oklch(0.05 0.01 250);
+  --secondary: oklch(0.15 0.025 250);
+  --secondary-foreground: oklch(0.90 0.01 250);
+  --muted: oklch(0.18 0.02 250);
+  --muted-foreground: oklch(0.70 0.01 250);
+  --accent: oklch(0.75 0.2 200);
+  --accent-foreground: oklch(0.05 0.01 250);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.78 0.14 200);
-  --chart-1: oklch(0.78 0.14 200);
-  --chart-2: oklch(0.65 0.12 210);
-  --chart-3: oklch(0.55 0.1 220);
-  --chart-4: oklch(0.45 0.08 230);
-  --chart-5: oklch(0.35 0.06 240);
-  --sidebar: oklch(0.07 0 0);
-  --sidebar-foreground: oklch(0.96 0 0);
-  --sidebar-primary: oklch(0.78 0.14 200);
-  --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.12 0 0);
-  --sidebar-accent-foreground: oklch(0.92 0 0);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.78 0.14 200);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.75 0.2 200);
+  --chart-1: oklch(0.75 0.2 200);
+  --chart-2: oklch(0.65 0.18 220);
+  --chart-3: oklch(0.55 0.15 240);
+  --chart-4: oklch(0.45 0.12 260);
+  --chart-5: oklch(0.35 0.1 280);
+  --sidebar: oklch(0.12 0.025 250);
+  --sidebar-foreground: oklch(0.95 0.005 250);
+  --sidebar-primary: oklch(0.75 0.2 200);
+  --sidebar-primary-foreground: oklch(0.05 0.01 250);
+  --sidebar-accent: oklch(0.18 0.02 250);
+  --sidebar-accent-foreground: oklch(0.90 0.01 250);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.75 0.2 200);
 }
 
 @layer base {
@@ -194,15 +195,15 @@
   /* GigitekAI Custom Components */
   .section-label {
     font-family: 'Space Grotesk', 'Space Grotesk Fallback', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: #00D4FF;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .section-label::before {
@@ -215,33 +216,37 @@
   }
 
   .dark-section {
-    background-color: #000000;
+    background-color: #0A0E1A;
     color: white;
   }
 
   .mid-section {
-    background-color: #0A0A0A;
+    background-color: #0F1629;
     color: white;
   }
 
   .cyan-glow-card {
-    background: #111111;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: border-color 0.3s ease;
+    background: #141B2D;
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
   }
 
   .cyan-glow-card:hover {
-    border-color: rgba(0, 212, 255, 0.25);
+    border-color: rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    transform: translateY(-2px);
   }
 
   .btn-cyan {
     background: #00D4FF;
-    color: #000000;
+    color: #0A0E1A;
     font-family: 'Space Grotesk', 'Space Grotesk Fallback', sans-serif;
     font-weight: 700;
     padding: 0.75rem 1.75rem;
-    border-radius: 0;
-    transition: background 0.2s ease;
+    border-radius: 0.375rem;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -249,18 +254,21 @@
   }
 
   .btn-cyan:hover {
-    background: #33DDFF;
+    background: #00EEFF;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    transform: translateY(-1px);
   }
 
   .btn-outline-cyan {
     background: transparent;
     color: #00D4FF;
-    border: 1px solid #00D4FF;
+    border: 2px solid #00D4FF;
     font-family: 'Space Grotesk', 'Space Grotesk Fallback', sans-serif;
     font-weight: 700;
     padding: 0.75rem 1.75rem;
-    border-radius: 0;
-    transition: background 0.2s ease;
+    border-radius: 0.375rem;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -269,6 +277,7 @@
 
   .btn-outline-cyan:hover {
     background: rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
   }
 
   /* Ticket modal loading step fade-in */
