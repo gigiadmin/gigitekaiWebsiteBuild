@@ -689,10 +689,21 @@ export const aibotRouter = router({
           shouldEscalate,
           messageCount: (updatedSession?.messageCount || 0) + 1,
           openSpecialistForm,
+          provider: "deepseek" as const,
         };
       } catch (error) {
         console.error("[AIBot] LLM error:", error);
         const errorMessage = "I'm experiencing technical difficulties. Let me connect you with our support team.";
+        const errorText = error instanceof Error ? error.message.toLowerCase() : "";
+        const providerStatus = errorText.includes("not configured")
+          ? "deepseek_not_configured"
+          : errorText.includes("authentication") || errorText.includes("unauthorized") || errorText.includes("401")
+            ? "deepseek_authentication_failed"
+            : errorText.includes("insufficient") || errorText.includes("balance") || errorText.includes("402")
+              ? "deepseek_billing_blocked"
+              : errorText.includes("abort") || errorText.includes("timeout")
+                ? "deepseek_timeout"
+                : "deepseek_request_failed";
         
         await saveChatMessage({
           sessionId,
@@ -705,6 +716,7 @@ export const aibotRouter = router({
           message: errorMessage,
           shouldEscalate: true,
           error: true,
+          providerStatus,
         };
       }
     }),
