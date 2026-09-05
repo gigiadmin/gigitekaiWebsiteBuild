@@ -99,6 +99,16 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+  app.get("/api/health/aria-provider", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store, max-age=0");
+    res.json({
+      service: "aria",
+      provider: "deepseek",
+      configured: Boolean(process.env.DEEPSEEK_API_KEY),
+      build: "aria-deepseek-2026-09-05",
+    });
+  });
+
   // ── HTTP → HTTPS Redirect ──────────────────────────────────────────────
   // In production, redirect plain HTTP requests to HTTPS.
   // Cloudflare/reverse-proxies forward the original protocol via x-forwarded-proto.
