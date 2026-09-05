@@ -392,6 +392,25 @@ When interacting with Florida-based prospects or clients, prioritize these theme
 - Direct prospects to: gigitekai.com/switch-program
 `;
 
+export function getDeterministicSupportResponse(message: string): string | null {
+  const normalized = message.toLowerCase().trim().replace(/[.!]+$/g, "");
+  const asksForBusinessHours =
+    /\b(?:business|support|office)\s+hours?\b/.test(normalized) ||
+    /\bwhat\s+(?:are|is)\s+(?:you|your)\s+hours?\b/.test(normalized) ||
+    /\bwhen\s+are\s+you\s+open\b/.test(normalized) ||
+    /\bare\s+you\s+open\b/.test(normalized) ||
+    /^(?:business\s+)?hours\??$/.test(normalized);
+
+  if (!asksForBusinessHours) return null;
+
+  const supportStatus = isSupportAvailable();
+  const currentStatus = supportStatus.available
+    ? "Our support team is currently available."
+    : supportStatus.reason || "Our support team is currently offline.";
+
+  return `**GigitekAI business hours are Monday–Friday, 8:00 AM–6:00 PM Eastern Time.** We are closed on weekends and U.S. federal holidays. ${currentStatus} You can leave a message at any time, and our team will follow up during the next business window.`;
+}
+
 export const aibotRouter = router({
   // Start or get chat session
   getOrCreateSession: publicProcedure
@@ -459,6 +478,28 @@ export const aibotRouter = router({
         message,
       });
       const userMessageId = (userMsgResult as any)?.[0]?.insertId || 1;
+
+      const deterministicResponse = getDeterministicSupportResponse(message);
+      if (deterministicResponse) {
+        await saveChatMessage({
+          sessionId,
+          role: "assistant",
+          message: deterministicResponse,
+          metadata: JSON.stringify({
+            source: "deterministic_business_hours",
+            shouldEscalate: false,
+          }),
+        });
+
+        const updatedSession = await getChatSession(sessionId);
+        return {
+          sessionId,
+          message: deterministicResponse,
+          shouldEscalate: false,
+          messageCount: (updatedSession?.messageCount || 0) + 1,
+          openSpecialistForm: false,
+        };
+      }
 
       // Analyze sentiment and intent (import from aibot-enterprise)
       const { analyzeSentimentAndIntent, shouldAutoEscalate } = await import('./aibot-enterprise');

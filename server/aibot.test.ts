@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { aibotRouter } from "./routers/aibot";
 import type { TrpcContext } from "./_core/context";
+import { invokeLLM } from "./_core/llm";
 
 // Mock the database module to prevent real DB writes
 vi.mock("./db", () => {
@@ -104,6 +105,28 @@ describe("aibot router", () => {
     expect(result.sessionId).toBeDefined();
     expect(result.sessionId).toMatch(/^[a-zA-Z0-9_-]+$/);
     expect(result.session).toBeDefined();
+  });
+
+  it.each([
+    "what are business hours",
+    "what are you business hours",
+    "business hours?",
+    "When are you open?",
+  ])("answers business-hours question without calling the LLM: %s", async (question) => {
+    const ctx = createPublicContext();
+    const caller = aibotRouter.createCaller(ctx);
+    const session = await caller.getOrCreateSession({});
+    vi.mocked(invokeLLM).mockClear();
+
+    const result = await caller.sendMessage({
+      sessionId: session.sessionId,
+      message: question,
+    });
+
+    expect(result.message).toContain("Monday–Friday, 8:00 AM–6:00 PM Eastern Time");
+    expect(result.message).not.toContain("technical difficulties");
+    expect(result.shouldEscalate).toBe(false);
+    expect(invokeLLM).not.toHaveBeenCalled();
   });
 
   it("retrieves existing chat session", async () => {

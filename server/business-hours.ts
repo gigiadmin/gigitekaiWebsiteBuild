@@ -17,7 +17,7 @@ const US_HOLIDAYS_2026 = [
   { month: 12, day: 25, name: "Christmas" },
 ];
 
-// Business hours: 8 AM - 6 PM EST, Monday-Friday
+// Business hours: 8 AM - 6 PM Eastern Time, Monday-Friday
 const BUSINESS_HOURS_START = 8; // 8 AM
 const BUSINESS_HOURS_END = 18; // 6 PM
 const TIMEZONE = "America/New_York";
@@ -78,13 +78,13 @@ export function isSupportAvailable(date: Date = new Date()): {
     if (isWeekend) {
       return {
         available: false,
-        reason: "We're closed on weekends. Our team will be available Monday-Friday, 8 AM - 6 PM EST.",
+        reason: "We're closed on weekends. Our team will be available Monday-Friday, 8 AM - 6 PM Eastern Time.",
       };
     }
 
     return {
       available: false,
-      reason: "Our team is currently offline (8 AM - 6 PM EST, Mon-Fri). Leave a message and we'll get back to you!",
+      reason: "Our team is currently offline (8 AM - 6 PM Eastern Time, Mon-Fri). Leave a message and we'll get back to you!",
     };
   }
 
@@ -110,7 +110,7 @@ export function getNextAvailableTime(date: Date = new Date()): string {
 
   // If it's before 8 AM, next available is today at 8 AM
   if (hour < 8) {
-    return "today at 8 AM EST";
+    return "today at 8 AM Eastern Time";
   }
 
   // If it's a weekend, find next Monday
