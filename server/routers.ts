@@ -155,8 +155,10 @@ import { errorLoggingRouter } from "./routers/errorLogging";
 import { portalAccessRouter } from "./routers/portal-access";
 import { intakeTicketsRouter } from "./routers/intakeTickets";
 import { earlyAccessRouter } from "./routers/earlyAccess";
+import { websiteExpansionRouter } from "./routers/website-expansion";
 
 export const appRouter = router({
+  websiteExpansion: websiteExpansionRouter,
   intake: intakeTicketsRouter,
   earlyAccess: earlyAccessRouter,
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly

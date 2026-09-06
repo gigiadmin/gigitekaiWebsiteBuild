@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Streamdown } from "@/components/GigitekMarkdown";
 import { ChatCategoryForms } from "@/components/ChatCategoryForms";
 import { getDeterministicChatResponse } from "@/lib/deterministicChatResponses";
+import { useConversionTracking } from "@/hooks/useConversionTracking";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -21,6 +22,7 @@ interface ChatMessage {
 }
 
 export default function AIChatWidget() {
+  const trackConversion = useConversionTracking();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -269,6 +271,7 @@ export default function AIChatWidget() {
   // ─── Message Handlers ────────────────────────────────────────────────────────
 
   const sendQuickMessage = async (quickMessage: string) => {
+    trackConversion("aria_message_sent", "aria-suggested-prompt", { messageLength: quickMessage.length });
     setHasInteracted(true);
     setMessages((prev) => [...prev, { role: "user", message: quickMessage, timestamp: Date.now() }]);
     setIsLoading(true);
@@ -492,6 +495,7 @@ export default function AIChatWidget() {
     
     console.log("[Chat] Sending message:", inputValue);
     const userMessage = inputValue.trim();
+    trackConversion("aria_message_sent", "aria-composer", { messageLength: userMessage.length });
     setInputValue("");
     setHasInteracted(true);
     setMessages((prev) => [...prev, { role: "user", message: userMessage, timestamp: Date.now() }]);
@@ -636,7 +640,10 @@ export default function AIChatWidget() {
       {/* Chat Widget Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            trackConversion("aria_opened", "aria-launcher");
+            setIsOpen(true);
+          }}
           className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-[opacity,transform] hover:scale-110 flex items-center justify-center text-white z-40"
           aria-label="Open chat"
         >

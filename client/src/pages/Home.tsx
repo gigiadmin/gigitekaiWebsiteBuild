@@ -9,8 +9,7 @@ import { SEO_CONFIG } from "@/lib/seoConfig";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import HeroSection from "@/components/HeroSection";
 import InsightsSection from "@/components/InsightsSection";
-import EnterpriseHomeSections from "@/components/EnterpriseHomeSections";
-import GrowthExperienceSections from "@/components/GrowthExperienceSections";
+import HomeDecisionGateway from "@/components/HomeDecisionGateway";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MobileConversionBar from "@/components/MobileConversionBar";
@@ -23,8 +22,7 @@ export default function Home() {
       <SiteNavBar2024 />
       <main className="flex-1">
         <HeroSection />
-        <EnterpriseHomeSections />
-        <GrowthExperienceSections />
+        <HomeDecisionGateway />
         <InsightsSection />
       </main>
       <Footer />

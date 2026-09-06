@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { publicProcedure, adminProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { contactSubmissions, callDraftTickets } from "../../drizzle/schema";
+import { contactSubmissions, callDraftTickets, conversionEvents } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
@@ -132,7 +132,7 @@ export const contactFormRouter = router({
                 <li>Provide a customized proposal</li>
                 <li>Schedule a discovery call if needed</li>
               </ul>
-              <p>In the meantime, feel free to reach out to us at <strong>support@gigitekai.com</strong> or <strong>(727) 382-6909</strong>.</p>
+              <p>In the meantime, feel free to reach out to us at <strong>support@gigitek.com</strong> or <strong>609-676-4483</strong>.</p>
               <p>Best regards,<br/>GigitekAI Team</p>
             `,
           });
@@ -186,6 +186,13 @@ export const contactFormRouter = router({
         } catch (teamsError) {
           console.warn("[Website Pricing Inquiry] Failed to send Teams notification", teamsError);
         }
+
+        await db.insert(conversionEvents).values({
+          eventName: "website_pricing_inquiry_submitted",
+          pageUrl: "/web-pricing",
+          elementId: "website-pricing-form",
+          metadata: { industry: input.industry, pricingTier: input.pricingTier || "unspecified" },
+        });
 
         return {
           success: true,
@@ -292,12 +299,12 @@ export const contactFormRouter = router({
                     ${input.message.replace(/\n/g, '<br/>')}
                   </p>
                   <p style="color: #666; font-size: 14px; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 12px;">
-                    If you need immediate assistance, please call us at <a href="tel:+17273826909" style="color: #0099CC; text-decoration: none;">+1 (727) 382-6909</a>
+                    If you need immediate assistance, please call us at <a href="tel:+16096764483" style="color: #0099CC; text-decoration: none;">609-676-4483</a>
                   </p>
                 </div>
                 <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0;">
                   <p style="margin: 0;">GigitekAI • Enterprise Cloud & AI Solutions</p>
-                  <p style="margin: 4px 0 0;">support@gigitekai.com • +1 (727) 382-6909</p>
+                  <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
                 </div>
               </div>
             `,
@@ -389,10 +396,10 @@ Time: ${new Date().toISOString()}
           console.warn("[Contact Form] Failed to notify owner:", notifyError);
         }
 
-        // Send email to support@gigitekai.com
+        // Send email to the established GigitekAI support address
         try {
           await sendEmail({
-            to: "support@gigitekai.com",
+            to: "support@gigitek.com",
             subject: `New Contact Form Submission: ${input.subject || "Website Contact Form"} - ${input.name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -417,14 +424,21 @@ Time: ${new Date().toISOString()}
                 </div>
                 <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0;">
                   <p style="margin: 0;">GigitekAI • Enterprise Cloud & AI Solutions</p>
-                  <p style="margin: 4px 0 0;">support@gigitekai.com • +1 (727) 382-6909</p>
+                  <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
                 </div>
               </div>
             `,
           });
         } catch (supportEmailError) {
-          console.warn("[Contact Form] Failed to send email to support@gigitekai.com:", supportEmailError);
+          console.warn("[Contact Form] Failed to send email to support@gigitek.com:", supportEmailError);
         }
+
+        await db.insert(conversionEvents).values({
+          eventName: "contact_form_submitted",
+          pageUrl: "/contact",
+          elementId: "contact-form",
+          metadata: { subject: input.subject || "Website Contact Form", companyProvided: Boolean(input.company) },
+        });
 
         return {
           success: true,

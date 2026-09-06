@@ -4,8 +4,8 @@ import { ENV } from "../_core/env";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { getDb } from "../db";
-import { clients, clientTimeline } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { clients, clientOnboardingTasks, clientTimeline } from "../../drizzle/schema";
+import { and, asc, eq, desc } from "drizzle-orm";
 import axios from "axios";
 
 // ============================================================================
@@ -170,6 +170,26 @@ async function addTimelineEvent(clientId: number, event: string, description: st
     description,
     metadata: metadata || null,
   });
+}
+
+const defaultOnboardingTasks = [
+  { category: "Company", title: "Confirm primary contacts", description: "Verify business, technical, billing, and escalation contacts.", sortOrder: 10 },
+  { category: "Access", title: "Provide tenant and domain inventory", description: "List Microsoft 365 tenants, domains, registrars, and current administrators. Never place passwords in notes.", sortOrder: 20 },
+  { category: "Environment", title: "Complete technology discovery", description: "Document users, devices, networks, applications, vendors, and business-critical workflows.", sortOrder: 30 },
+  { category: "Security", title: "Review security and recovery requirements", description: "Confirm compliance needs, backup coverage, incident contacts, and recovery objectives.", sortOrder: 40 },
+  { category: "Launch", title: "Approve implementation plan", description: "Review scope, milestones, responsibilities, communications, and change controls.", sortOrder: 50 },
+];
+
+async function ensureDefaultTasks(clientId: number) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db
+    .select({ id: clientOnboardingTasks.id })
+    .from(clientOnboardingTasks)
+    .where(eq(clientOnboardingTasks.clientId, clientId))
+    .limit(1);
+  if (existing.length) return;
+  await db.insert(clientOnboardingTasks).values(defaultOnboardingTasks.map((task) => ({ clientId, ...task })));
 }
 
 // ============================================================================
@@ -465,6 +485,8 @@ export const clientOnboardingRouter = router({
         const clientId = await createClientRecord(input);
         console.log("Client record created in DB, id:", clientId);
 
+        await ensureDefaultTasks(clientId);
+
         await addTimelineEvent(clientId, "onboarding_started", `Client onboarding initiated for ${input.companyName}`);
 
         // Step 2: Get Graph access token for calendar + email
@@ -603,7 +625,14 @@ export const clientOnboardingRouter = router({
         .where(eq(clientTimeline.clientId, input.id))
         .orderBy(desc(clientTimeline.createdAt));
 
-      return { ...client, timeline };
+      await ensureDefaultTasks(input.id);
+      const tasks = await db
+        .select()
+        .from(clientOnboardingTasks)
+        .where(eq(clientOnboardingTasks.clientId, input.id))
+        .orderBy(asc(clientOnboardingTasks.sortOrder));
+
+      return { ...client, timeline, tasks };
     }),
 
   // Update client status
@@ -685,4 +714,74 @@ export const clientOnboardingRouter = router({
       lastUpdated: new Date().toISOString(),
     };
   }),
+
+  getMyPortal: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database unavailable");
+    const email = ctx.user.email?.toLowerCase();
+    if (!email) throw new Error("Your account does not have an email address");
+
+    const [client] = await db
+      .select()
+      .from(clients)
+      .where(eq(clients.contactEmail, email))
+      .orderBy(desc(clients.createdAt))
+      .limit(1);
+    if (!client) return null;
+
+    await ensureDefaultTasks(client.id);
+    const [tasks, timeline] = await Promise.all([
+      db.select().from(clientOnboardingTasks)
+        .where(and(eq(clientOnboardingTasks.clientId, client.id), eq(clientOnboardingTasks.clientVisible, 1)))
+        .orderBy(asc(clientOnboardingTasks.sortOrder)),
+      db.select().from(clientTimeline)
+        .where(eq(clientTimeline.clientId, client.id))
+        .orderBy(desc(clientTimeline.createdAt))
+        .limit(25),
+    ]);
+
+    return { client, tasks, timeline };
+  }),
+
+  updateMyTask: protectedProcedure
+    .input(z.object({
+      taskId: z.number().int().positive(),
+      status: z.enum(["pending", "in_progress", "completed"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const email = ctx.user.email?.toLowerCase();
+      if (!email) throw new Error("Your account does not have an email address");
+
+      const [ownedTask] = await db
+        .select({ id: clientOnboardingTasks.id, clientId: clientOnboardingTasks.clientId })
+        .from(clientOnboardingTasks)
+        .innerJoin(clients, eq(clients.id, clientOnboardingTasks.clientId))
+        .where(and(eq(clientOnboardingTasks.id, input.taskId), eq(clients.contactEmail, email)))
+        .limit(1);
+      if (!ownedTask) throw new Error("Onboarding task not found");
+
+      await db.update(clientOnboardingTasks).set({
+        status: input.status,
+        completedAt: input.status === "completed" ? new Date().toISOString().slice(0, 19).replace("T", " ") : null,
+      }).where(eq(clientOnboardingTasks.id, ownedTask.id));
+      await addTimelineEvent(ownedTask.clientId, "client_task_updated", `Client updated onboarding task ${ownedTask.id} to ${input.status}`);
+      return { success: true };
+    }),
+
+  updateTask: adminProcedure
+    .input(z.object({
+      taskId: z.number().int().positive(),
+      status: z.enum(["pending", "in_progress", "completed", "blocked"]),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.update(clientOnboardingTasks).set({
+        status: input.status,
+        completedAt: input.status === "completed" ? new Date().toISOString().slice(0, 19).replace("T", " ") : null,
+      }).where(eq(clientOnboardingTasks.id, input.taskId));
+      return { success: true };
+    }),
 });

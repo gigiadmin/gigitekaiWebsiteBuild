@@ -176,6 +176,38 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
     title: "IT Roadmap Generator | Strategic Planning Tool | GigitekAI",
     description: "Generate a customized IT roadmap for your business. AI-powered strategic planning tool for cloud migration, security, and digital transformation.",
   },
+  "/fractional-cto-ai-strategy": {
+    title: "Fractional CTO & AI Strategy | GigitekAI",
+    description: "Senior technology leadership for Microsoft 365, cybersecurity, cloud modernization, responsible AI, and implementation governance.",
+  },
+  "/business-technology-launch": {
+    title: "New Business Technology Setup | GigitekAI",
+    description: "Launch your domain, Microsoft 365, website, cybersecurity, backup, devices, and support with one accountable technology partner.",
+  },
+  "/service-comparison": {
+    title: "Compare Managed IT, Microsoft 365, Security & AI Services | GigitekAI",
+    description: "Compare GigitekAI managed IT, Microsoft 365 architecture, cybersecurity, AI automation, and Fractional CTO services.",
+  },
+  "/roi-calculator": {
+    title: "Managed IT & AI ROI Scenario Calculator | GigitekAI",
+    description: "Build a transparent managed IT and AI automation scenario using your own workload, labor, automation, and investment assumptions.",
+  },
+  "/technology-assessment": {
+    title: "Technology Maturity Assessment | GigitekAI",
+    description: "Assess identity, security, resilience, IT service management, and AI automation maturity and receive prioritized recommendations.",
+  },
+  "/trust-center": {
+    title: "Security, Privacy & Responsible AI Trust Center | GigitekAI",
+    description: "Review GigitekAI security, privacy, resilience, Zero Trust, responsible AI, and compliance-readiness principles.",
+  },
+  "/ai-workflows": {
+    title: "AI Workflow Automation Examples | GigitekAI",
+    description: "Explore governed AI workflows for helpdesk triage, onboarding, security response, and client provisioning.",
+  },
+  "/resources": {
+    title: "IT, Microsoft 365 & AI Resource Center | GigitekAI",
+    description: "Access GigitekAI Insights, Knowledge Base guidance, planning tools, assessments, scripts, and security resources.",
+  },
 };
 
 // Service detail pages
@@ -243,6 +275,26 @@ const INDUSTRY_SLUGS: Record<string, RouteSEO> = {
   "education": {
     title: "Education IT Services | K-12 & Higher Ed | GigitekAI",
     description: "IT solutions for education. LMS integration, campus networking, student data protection, and FERPA-compliant cloud infrastructure.",
+  },
+  "legal": {
+    title: "Managed IT, Microsoft 365 & AI for Legal Firms | GigitekAI",
+    description: "Secure Microsoft 365, managed IT, matter-centric workflows, resilience, and governed AI automation for law firms and legal teams.",
+  },
+  "construction": {
+    title: "Managed IT & Microsoft 365 for Construction Firms | GigitekAI",
+    description: "Secure field collaboration, Microsoft 365, device management, resilient access, and practical AI workflows for construction companies.",
+  },
+  "nonprofits": {
+    title: "Managed IT, Security & AI for Nonprofits | GigitekAI",
+    description: "Microsoft 365 governance, managed support, cybersecurity, resilience, and cost-conscious AI automation for nonprofit organizations.",
+  },
+  "professional-services": {
+    title: "Managed IT & AI for Professional Services | GigitekAI",
+    description: "Secure collaboration, Microsoft 365 architecture, managed support, client-service automation, and responsible AI for professional firms.",
+  },
+  "tampa-small-business": {
+    title: "Managed IT & AI Services for Tampa Small Businesses | GigitekAI",
+    description: "Local technology strategy, Microsoft 365, cybersecurity, managed support, websites, and AI automation for Tampa Bay small businesses.",
   },
 };
 
@@ -430,6 +482,9 @@ const KNOWN_STATIC_ROUTES = new Set([
   "/accept-invite", "/logout", "/contact-card", "/search",
   "/AIStrategicBriefing", "/404", "/about", "/about-us",
   "/scripts", "/call-transcripts", "/qr", "/connect",
+  "/fractional-cto-ai-strategy", "/business-technology-launch",
+  "/service-comparison", "/roi-calculator", "/technology-assessment",
+  "/trust-center", "/ai-workflows", "/resources", "/client/onboarding",
 ]);
 
 // Route prefixes that accept any sub-path (token-based or app routes)
@@ -442,6 +497,7 @@ const ALWAYS_200_PREFIXES = [
   "/remote-session",  // Room-based remote sessions
   "/support",         // Support portal (ticket lookup, etc.)
   "/kb",              // Knowledge base articles (any ID)
+  "/assessment",      // High-entropy public assessment report links
 ];
 
 // ─── Blog Slug Cache ─────────────────────────────────────────────────────────

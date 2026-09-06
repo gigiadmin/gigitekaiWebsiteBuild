@@ -34,7 +34,9 @@ export default function SiteNavBar2024() {
     { label: "Microsoft 365 & Cloud", href: "/services/cloud" },
     { label: "Governed AI Automation", href: "/services/ai" },
     { label: "Cybersecurity", href: "/services/security" },
-    { label: "Data & Strategy", href: "/services/strategy" },
+    { label: "Fractional CTO & AI Strategy", href: "/fractional-cto-ai-strategy" },
+    { label: "New Business Technology Launch", href: "/business-technology-launch" },
+    { label: "Compare Services", href: "/service-comparison" },
     { label: "All Solutions", href: "/services" },
   ];
 
@@ -80,6 +82,7 @@ export default function SiteNavBar2024() {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-6 w-full justify-end">
             <a href="/helpdesk" className="hover:text-[#00D4FF] transition-colors">Client Support</a>
+            <a href="/client/onboarding" className="hover:text-[#00D4FF] transition-colors">Client Onboarding</a>
             <a href="/kb" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors"><BookOpen size={12} aria-hidden="true" /> Knowledge Base</a>
             <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>Explore AI in Action</a>
             <div className="flex items-center gap-4">
@@ -166,7 +169,7 @@ export default function SiteNavBar2024() {
 
             {[
               { label: "Industries", href: "/industries" },
-              { label: "Insights", href: "/blog" },
+              { label: "Resources", href: "/resources" },
               { label: "Company", href: "/about" },
               { label: "Contact", href: "/contact" },
             ].map((item) => (
@@ -207,14 +210,14 @@ export default function SiteNavBar2024() {
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
                 <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
-              <span>Client Access</span>
+              <span>Portal Access</span>
             </a>
 
             <a
-              href="/free-audit"
+              href="/technology-assessment"
               className="btn-cyan text-sm"
             >
-              Start IT Assessment
+              Assess Readiness
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-label="Arrow icon">
                 <path d="M1 7H13M7 1L13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -253,8 +256,8 @@ export default function SiteNavBar2024() {
               <div className="px-5 pb-4 pt-6">
                 <p className="text-xs font-semibold tracking-[0.2em] text-[#00D4FF]">EXPLORE GIGITEKAI</p>
                 <p className="mt-2 max-w-xs text-sm leading-6 text-slate-300">Secure IT operations, Microsoft 365 expertise, and governed AI automation.</p>
-                <a href="/free-audit" className="btn-cyan mt-5 w-full justify-center py-3 text-sm" onClick={() => setMobileOpen(false)}>
-                  Start Your IT Assessment
+                <a href="/technology-assessment" className="btn-cyan mt-5 w-full justify-center py-3 text-sm" onClick={() => setMobileOpen(false)}>
+                  Assess Technology Readiness
                 </a>
               </div>
               <div className="border-y border-white/10 px-5 py-2">
@@ -281,7 +284,8 @@ export default function SiteNavBar2024() {
               <div className="space-y-1 px-5 py-3">
               {[
                 { label: "Industries", href: "/industries", id: "nav-industries" },
-                { label: "Insights", href: "/blog", id: "nav-insights" },
+                { label: "Resources", href: "/resources", id: "nav-resources" },
+                { label: "Trust Center", href: "/trust-center", id: "nav-trust" },
                 { label: "Company", href: "/about", id: "nav-company" },
                 { label: "Contact", href: "/contact", id: "nav-contact" },
               ].map((item) => (
@@ -320,7 +324,16 @@ export default function SiteNavBar2024() {
                 <svg width="16" height="16" viewBox="0 0 14 14" fill="none" aria-label="Request access icon">
                   <path d="M7 1v12M1 7h12" stroke="#00D4FF" strokeWidth="2.5" strokeLinecap="round"/>
                 </svg>
-                <span>Client Access</span>
+                <span>Request Portal Access</span>
+              </a>
+              <a
+                href="/client/onboarding"
+                className="mt-2 flex min-h-[52px] items-center gap-2 px-3 py-2.5 text-sm font-semibold rounded-lg"
+                style={{ color: '#ffffff', border: '1px solid rgba(255,255,255,0.12)' }}
+                onClick={() => setMobileOpen(false)}
+              >
+                <BookOpen size={16} />
+                <span>Client Onboarding</span>
               </a>
 
               </div>

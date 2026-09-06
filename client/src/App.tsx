@@ -94,6 +94,18 @@ const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
 const SmartHomeServices = lazy(() => import("./pages/SmartHomeServices"));
 const QrHub = lazy(() => import("./pages/QrHub"));
 const ConnectGigitekAI = lazy(() => import("./pages/ConnectGigitekAI"));
+const FractionalCTO = lazy(() => import("./pages/FractionalCTO"));
+const SMBLaunchPackage = lazy(() => import("./pages/SMBLaunchPackage"));
+const ServiceComparison = lazy(() => import("./pages/ServiceComparison"));
+const ROICalculatorPage = lazy(() => import("./pages/ROICalculatorPage"));
+const TechnologyAssessmentPage = lazy(() => import("./pages/TechnologyAssessmentPage"));
+const AssessmentReportPage = lazy(() => import("./pages/AssessmentReportPage"));
+const TrustCenter = lazy(() => import("./pages/TrustCenter"));
+const WorkflowGallery = lazy(() => import("./pages/WorkflowGallery"));
+const ResourceCenter = lazy(() => import("./pages/ResourceCenter"));
+const IndustryGrowthPage = lazy(() => import("./pages/IndustryGrowthPage"));
+const ClientOnboardingPortal = lazy(() => import("./pages/ClientOnboardingPortal"));
+const ConversionAnalyticsDashboard = lazy(() => import("./pages/ConversionAnalyticsDashboard"));
 
 // ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
@@ -188,6 +200,7 @@ function Router() {
           <Route path="/admin/login" component={AdminLoginAzure} />
           <Route path="/admin/unlock" component={AdminUnlock} />
           <Route path="/admin/aria" component={AriaCommandCenter} />
+          <Route path="/admin/conversion-analytics" component={ConversionAnalyticsDashboard} />
           <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
           {/* ── Public ── */}
@@ -201,7 +214,15 @@ function Router() {
           <Route path={"/web-discovery-intake"} component={WebDiscoveryIntakePage} />
           <Route path={"/security"} component={SecurityPage} />
           <Route path={"/helpdesk-pricing"} component={HelpdeskPricingPage} />
-          {/* <Route path={"/roi-calculator"} component={ROICalculatorPage} /> */} {/* REMOVED: ROI page too complex for now */}
+          <Route path={"/roi-calculator"} component={ROICalculatorPage} />
+          <Route path={"/technology-assessment"} component={TechnologyAssessmentPage} />
+          <Route path={"/assessment/report/:publicId"} component={AssessmentReportPage} />
+          <Route path={"/fractional-cto-ai-strategy"} component={FractionalCTO} />
+          <Route path={"/business-technology-launch"} component={SMBLaunchPackage} />
+          <Route path={"/service-comparison"} component={ServiceComparison} />
+          <Route path={"/trust-center"} component={TrustCenter} />
+          <Route path={"/ai-workflows"} component={WorkflowGallery} />
+          <Route path={"/resources"} component={ResourceCenter} />
           <Route path={"/AIStrategicBriefing"} component={AIStrategicBriefingPage} />
           <Route path={"/ai-demo"} component={AIDemoPage} />
           <Route path={"/exchange"} component={ClientExchangePage} />
@@ -257,6 +278,11 @@ function Router() {
           <Route path={"/industries/retail"} component={IndustryRetail} />
           <Route path={"/industries/government"} component={IndustryGovernment} />
           <Route path={"/industries/education"} component={IndustryEducation} />
+          <Route path={"/industries/legal"} component={IndustryGrowthPage} />
+          <Route path={"/industries/construction"} component={IndustryGrowthPage} />
+          <Route path={"/industries/nonprofits"} component={IndustryGrowthPage} />
+          <Route path={"/industries/professional-services"} component={IndustryGrowthPage} />
+          <Route path={"/industries/tampa-small-business"} component={IndustryGrowthPage} />
           {/* Legal */}
           <Route path={"/privacy"} component={PrivacyPolicy} />
           <Route path={"/privacy-policy"} component={PrivacyPolicy} />
@@ -305,6 +331,7 @@ function Router() {
           {/* Stripe payment routes removed */}
           {/* Client Session History */}
           <Route path={"/helpdesk/session-history"} component={ClientSessionHistory} />
+          <Route path={"/client/onboarding"} component={ClientOnboardingPortal} />
           {/* Call Transcript Search */}
           <Route path={"call-transcripts"} component={CallTranscriptSearch} />
           {/* Admin Search Index */}

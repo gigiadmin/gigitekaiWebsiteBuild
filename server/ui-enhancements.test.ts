@@ -6,31 +6,31 @@ const root = resolve(process.cwd(), "client/src");
 const read = (path: string) => readFileSync(resolve(root, path), "utf8");
 
 describe("public UI enhancement release", () => {
-  it("mounts the growth experience and mobile conversion bar on the homepage", () => {
+  it("mounts the focused decision gateway and mobile conversion bar on the homepage", () => {
     const home = read("pages/Home.tsx");
-    expect(home).toContain("<GrowthExperienceSections />");
+    expect(home).toContain("<HomeDecisionGateway />");
     expect(home).toContain("<MobileConversionBar />");
   });
 
-  it("includes every approved conversion and trust module", () => {
-    const sections = read("components/GrowthExperienceSections.tsx");
-    expect(sections).toContain("START WITH THE OUTCOME");
-    expect(sections).toContain("AI + IT READINESS CHECK");
-    expect(sections).toContain("ENGAGEMENT PATHS");
-    expect(sections).toContain("OPERATING MODEL");
-    expect(sections).toContain("BUILT AROUND YOUR OPERATING REALITY");
-    expect(sections).toContain("CLIENT JOURNEY");
-    expect(sections).toContain("OPERATIONAL PROOF");
-    expect(sections).toContain("trpc.contact.submit.useMutation");
+  it("routes homepage visitors into assessments, ROI, workflows, trust, and service comparison", () => {
+    const gateway = read("components/HomeDecisionGateway.tsx");
+    expect(gateway).toContain("What needs to work better?");
+    expect(gateway).toContain('/technology-assessment');
+    expect(gateway).toContain('/roi-calculator');
+    expect(gateway).toContain('/ai-workflows');
+    expect(gateway).toContain('/trust-center');
+    expect(gateway).toContain('/service-comparison');
   });
 
-  it("uses only established public destinations for new homepage links", () => {
-    const sections = read("components/GrowthExperienceSections.tsx");
-    expect(sections).not.toContain('/industries/professional-services');
-    expect(sections).not.toContain('/industries/nonprofits');
-    expect(sections).not.toContain('/industries/smb');
-    expect(sections).toContain('href: "/industries/healthcare"');
-    expect(sections).toContain('href: "/industries"');
+  it("includes the approved expansion pages and secure operational tools", () => {
+    expect(read("pages/FractionalCTO.tsx")).toContain("Fractional CTO");
+    expect(read("pages/SMBLaunchPackage.tsx")).toContain("Business Technology Launch");
+    expect(read("pages/ServiceComparison.tsx")).toContain("Compare GigitekAI services");
+    expect(read("pages/TrustCenter.tsx")).toContain("Responsible AI");
+    expect(read("pages/WorkflowGallery.tsx")).toContain("Human control");
+    expect(read("pages/ResourceCenter.tsx")).toContain("GigitekAI Resource Center");
+    expect(read("pages/ConversionAnalyticsDashboard.tsx")).toContain("Real first-party events");
+    expect(read("pages/ClientOnboardingPortal.tsx")).toContain("Never place passwords");
   });
 
   it("provides mobile call, assessment, and support actions", () => {

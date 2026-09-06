@@ -111,6 +111,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Free Audits", icon: <FileCheck size={16} />, href: "/admin/audit" },
       { label: "Client Onboarding", icon: <Sparkles size={16} />, href: "/admin/client-onboarding" },
+      { label: "Conversion Analytics", icon: <TrendingUp size={16} />, href: "/admin/conversion-analytics" },
       { label: "Form Submissions", icon: <FileText size={16} />, href: "/admin/form-submissions" },
       { label: "Leads", icon: <TrendingUp size={16} />, href: "/admin/leads" },
       { label: "Contacts", icon: <Inbox size={16} />, href: "/admin/contacts" },

@@ -1775,6 +1775,42 @@ export const websiteTraffic = mysqlTable("websiteTraffic", {
 	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
 });
 
+export const conversionEvents = mysqlTable("conversionEvents", {
+	id: int().autoincrement().primaryKey(),
+	eventName: varchar({ length: 120 }).notNull(),
+	pageUrl: varchar({ length: 500 }).notNull(),
+	elementId: varchar({ length: 180 }),
+	sessionId: varchar({ length: 120 }),
+	userId: int(),
+	metadata: json(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	index("conversionEvents_event_idx").on(table.eventName),
+	index("conversionEvents_created_idx").on(table.createdAt),
+	index("conversionEvents_session_idx").on(table.sessionId),
+]);
+
+export const websiteAssessments = mysqlTable("websiteAssessments", {
+	id: int().autoincrement().primaryKey(),
+	publicId: varchar({ length: 64 }).notNull(),
+	name: varchar({ length: 180 }).notNull(),
+	company: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 320 }).notNull(),
+	employees: int().notNull(),
+	priority: varchar({ length: 120 }).notNull(),
+	overallScore: int().notNull(),
+	maturityLevel: varchar({ length: 80 }).notNull(),
+	recommendations: json().notNull(),
+	inputs: json().notNull(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	uniqueIndex("websiteAssessments_publicId_unique").on(table.publicId),
+	index("websiteAssessments_email_idx").on(table.email),
+	index("websiteAssessments_created_idx").on(table.createdAt),
+]);
+
 export const xeroTokens = mysqlTable("xeroTokens", {
 	id: int().autoincrement().primaryKey(),
 	tenantId: varchar({ length: 255 }).notNull(),
@@ -2255,10 +2291,31 @@ export const clientTimeline = mysqlTable("clientTimeline", {
 	index("clientTimeline_client_idx").on(table.clientId),
 ]);
 
+export const clientOnboardingTasks = mysqlTable("clientOnboardingTasks", {
+	id: int().autoincrement().primaryKey(),
+	clientId: int().notNull().references(() => clients.id, { onDelete: "cascade" }),
+	category: varchar({ length: 100 }).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	status: mysqlEnum(['pending', 'in_progress', 'completed', 'blocked']).default('pending').notNull(),
+	clientVisible: tinyint().default(1).notNull(),
+	sortOrder: int().default(0).notNull(),
+	dueDate: timestamp({ mode: 'string' }),
+	completedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("clientOnboardingTasks_client_idx").on(table.clientId),
+	index("clientOnboardingTasks_status_idx").on(table.status),
+]);
+
 export type Client = typeof clients.$inferSelect;
 export type InsertClient = typeof clients.$inferInsert;
 export type ClientTimelineEntry = typeof clientTimeline.$inferSelect;
 export type InsertClientTimelineEntry = typeof clientTimeline.$inferInsert;
+export type ClientOnboardingTask = typeof clientOnboardingTasks.$inferSelect;
+export type InsertClientOnboardingTask = typeof clientOnboardingTasks.$inferInsert;
 
 
 // ============================================================================

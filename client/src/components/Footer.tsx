@@ -15,16 +15,24 @@ const footerLinks = {
     "Cybersecurity",
     "Data Analytics",
     "IT Strategy",
+    "Fractional CTO",
   ],
   Company: [
     "Partners",
     "Contact Us",
   ],
   Resources: [
+    "Resource Center",
     "Insights Blog",
+    "Knowledge Base",
+    "Trust Center",
     "Support Portal",
   ],
   Tools: [
+    "Technology Assessment",
+    "ROI Calculator",
+    "Service Comparison",
+    "Client Onboarding",
     "Compliance Scorecard",
     "Florida IT Resiliency",
     "The Switch Program",
@@ -110,6 +118,9 @@ export default function Footer() {
                   if (link === "Partners") href = "/partners";
                   if (link === "Contact Us") href = "/contact";
                   if (link === "Insights Blog") href = "/blog";
+                  if (link === "Resource Center") href = "/resources";
+                  if (link === "Knowledge Base") href = "/kb";
+                  if (link === "Trust Center") href = "/trust-center";
                   if (link === "Support Portal") href = "/helpdesk";
                   if (link === "Cloud Infrastructure") href = "/services/cloud";
                   if (link === "AI & Machine Learning") href = "/services/ai";
@@ -118,6 +129,7 @@ export default function Footer() {
                   if (link === "Cybersecurity") href = "/services/security";
                   if (link === "Data Analytics") href = "/services/data";
                   if (link === "IT Strategy") href = "/services/strategy";
+                  if (link === "Fractional CTO") href = "/fractional-cto-ai-strategy";
                   if (link === "Healthcare") href = "/industries/healthcare";
                   if (link === "Financial Services") href = "/industries/financial";
                   if (link === "Manufacturing") href = "/industries/manufacturing";
@@ -125,6 +137,10 @@ export default function Footer() {
                   if (link === "Government") href = "/industries/government";
                   if (link === "Education") href = "/industries/education";
                   if (link === "Compliance Scorecard") href = "/compliance-scorecard";
+                  if (link === "Technology Assessment") href = "/technology-assessment";
+                  if (link === "ROI Calculator") href = "/roi-calculator";
+                  if (link === "Service Comparison") href = "/service-comparison";
+                  if (link === "Client Onboarding") href = "/client/onboarding";
                   if (link === "Florida IT Resiliency") href = "/florida-it-resiliency";
                   if (link === "The Switch Program") href = "/switch-program";
                   return (

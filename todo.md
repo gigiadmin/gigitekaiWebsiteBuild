@@ -2563,3 +2563,16 @@
 - [x] UI ENHANCEMENT: Simplify and clarify the public navigation hierarchy
 - [x] UI ENHANCEMENT: Add a Discover–Secure–Modernize–Automate–Manage client journey section
 - [x] UI ENHANCEMENT: Validate all enhanced UI paths, forms, Aria, accessibility, mobile behavior, and production build — 51 focused tests, TypeScript, build, desktop/mobile previews, live routes, required-field validation, final contact identity, and DeepSeek-connected Aria verified
+- [x] WEBSITE EXPANSION: Shorten and restructure the homepage around primary conversion paths
+- [x] WEBSITE EXPANSION: Add a Fractional CTO and AI Strategy landing page
+- [x] WEBSITE EXPANSION: Add an interactive managed IT and AI ROI calculator
+- [x] WEBSITE EXPANSION: Add personalized assessment scoring and an executive summary report
+- [x] WEBSITE EXPANSION: Add a public security, compliance, and responsible AI Trust Center
+- [x] WEBSITE EXPANSION: Add a dedicated SMB technology launch package
+- [x] WEBSITE EXPANSION: Add a service comparison experience across core GigitekAI offers
+- [x] WEBSITE EXPANSION: Add an AI workflow demonstration gallery
+- [x] WEBSITE EXPANSION: Add dedicated industry landing pages for legal, construction, nonprofits, professional services, and Tampa-area SMBs
+- [x] WEBSITE EXPANSION: Add conversion analytics for CTAs, assessments, forms, and Aria engagement
+- [x] WEBSITE EXPANSION: Add an organized resource center for Insights, KB articles, checklists, architecture guides, and whitepapers
+- [x] WEBSITE EXPANSION: Add a secure client onboarding portal with checklist and progress tracking
+- [ ] WEBSITE EXPANSION: Validate new pages, calculators, reports, analytics, onboarding, accessibility, mobile behavior, forms, routes, and production build

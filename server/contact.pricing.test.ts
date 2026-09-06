@@ -56,7 +56,8 @@ describe("contact.submitWebsitePricingInquiry", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(mocks.values).toHaveBeenCalledTimes(2);
+    // Inquiry, draft ticket, and conversion event are persisted separately.
+    expect(mocks.values).toHaveBeenCalledTimes(3);
     expect(mocks.sendEmail).toHaveBeenCalledTimes(2);
     expect(mocks.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "lead@northstar.example" }));
     expect(mocks.sendEmail).toHaveBeenCalledWith(expect.objectContaining({
