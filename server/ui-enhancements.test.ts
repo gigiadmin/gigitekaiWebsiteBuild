@@ -53,9 +53,20 @@ describe("public UI enhancement release", () => {
 
   it("uses the approved public contact details in navigation", () => {
     const nav = read("components/SiteNavBar2024.tsx");
+    const hero = read("components/HeroSection.tsx");
+    const footer = read("components/Footer.tsx");
+    const contactDial = read("components/FloatingContactDial.tsx");
     expect(nav).toContain("support@gigitek.com");
     expect(nav).toContain("609-676-4483");
     expect(nav).toMatch(/\bServices\b/);
     expect(nav).toContain('label: "Contact"');
+    expect(hero).toContain("tel:+16096764483");
+    expect(hero).toContain("mailto:support@gigitek.com");
+    expect(footer).toContain("609-676-4483");
+    expect(footer).toContain("support@gigitek.com");
+    expect(footer).not.toContain("financial-services");
+    expect(footer).not.toContain("retail-ecommerce");
+    expect(contactDial).toContain("609-676-4483");
+    expect(contactDial).toContain("support@gigitek.com");
   });
 });

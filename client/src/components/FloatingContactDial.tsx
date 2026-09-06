@@ -21,19 +21,19 @@ const actions = [
   {
     label: "Send an Email",
     icon: Mail,
-    href: "mailto:support@gigitekai.com",
+    href: "mailto:support@gigitek.com",
     color: "bg-[#0F1629] text-[#00D4FF] border border-[#00D4FF]/30",
     hoverColor: "hover:bg-[#00D4FF]/10",
-    description: "support@gigitekai.com",
+    description: "support@gigitek.com",
     external: true,
   },
   {
     label: "Call Us",
     icon: Phone,
-    href: "tel:+1727-382-6909",
+    href: "tel:+16096764483",
     color: "bg-[#0F1629] text-[#00D4FF] border border-[#00D4FF]/30",
     hoverColor: "hover:bg-[#00D4FF]/10",
-    description: "(727) 382-6909",
+    description: "609-676-4483",
     external: true,
   },
 ];

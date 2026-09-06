@@ -70,13 +70,13 @@ export default function Footer() {
               AI-first managed IT services for SMBs and enterprises. We help healthcare, legal, and construction firms reduce risk, ensure compliance, and automate operations.
             </p>
             <div className="space-y-2 mb-6">
-              <a href="tel:+1727-382-6909" className="flex items-center gap-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors">
+              <a href="tel:+16096764483" className="flex items-center gap-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                (727) 382-6909
+                609-676-4483
               </a>
-              <a href="mailto:support@gigitekai.com" className="flex items-center gap-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors">
+              <a href="mailto:support@gigitek.com" className="flex items-center gap-2 text-sm text-gray-300 hover:text-[#00D4FF] transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                support@gigitekai.com
+                support@gigitek.com
               </a>
             </div>
             <div className="flex items-center gap-3">
@@ -119,9 +119,9 @@ export default function Footer() {
                   if (link === "Data Analytics") href = "/services/data";
                   if (link === "IT Strategy") href = "/services/strategy";
                   if (link === "Healthcare") href = "/industries/healthcare";
-                  if (link === "Financial Services") href = "/industries/financial-services";
+                  if (link === "Financial Services") href = "/industries/financial";
                   if (link === "Manufacturing") href = "/industries/manufacturing";
-                  if (link === "Retail & eCommerce") href = "/industries/retail-ecommerce";
+                  if (link === "Retail & eCommerce") href = "/industries/retail";
                   if (link === "Government") href = "/industries/government";
                   if (link === "Education") href = "/industries/education";
                   if (link === "Compliance Scorecard") href = "/compliance-scorecard";
@@ -155,14 +155,14 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Contact Info */}
             <div className="flex items-center gap-4 text-xs text-gray-300">
-              <a href="tel:+1727-382-6909" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors font-medium">
+              <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors font-medium">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                (727) 382-6909
+                609-676-4483
               </a>
               <span className="text-gray-300">|</span>
-              <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors font-medium">
+              <a href="mailto:support@gigitek.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors font-medium">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                support@gigitekai.com
+                support@gigitek.com
               </a>
             </div>
             
