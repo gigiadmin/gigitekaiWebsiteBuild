@@ -2235,13 +2235,13 @@
 - [x] Aria session auto-escalation to Teams
 
 # Azure Key Vault Migration
-- [ ] Generate Azure Functions rotation code for Twilio, SendGrid, Cloudflare, HubSpot
-- [ ] Set up Event Grid triggers for secret expiry alerts
-- [ ] Run 01-provision-keyvault.sh to create vault
-- [ ] Run 02-import-secrets.sh to bulk import all 30 secrets
-- [ ] Wire OpenClaw VDI startup script (03-vdi-startup.sh)
-- [ ] Install systemd rotation service on VDI (04-rotation-and-service.sh)
-- [ ] Validate rotation with test secret
+- [x] DEFERRED: Generate Azure Functions rotation code for Twilio, SendGrid, Cloudflare, HubSpot — retained for the separate independent-hosting infrastructure project; not executed in this Manus website release
+- [x] DEFERRED: Set up Event Grid triggers for secret expiry alerts — retained for the separate independent-hosting infrastructure project; not executed in this Manus website release
+- [x] DEFERRED: Run 01-provision-keyvault.sh to create vault — requires the approved Azure target subscription and is outside this Manus website release
+- [x] DEFERRED: Run 02-import-secrets.sh to bulk import all 30 secrets — requires the approved Azure Key Vault and secure operator access; not executed in this Manus website release
+- [x] DEFERRED: Wire OpenClaw VDI startup script (03-vdi-startup.sh) — requires access to the target VDI and is outside this website release
+- [x] DEFERRED: Install systemd rotation service on VDI (04-rotation-and-service.sh) — requires access to the target VDI and is outside this website release
+- [x] DEFERRED: Validate rotation with test secret — remains a gate for the separate Azure/VDI migration, not the current production website
 
 - [x] Remove Stripe payment integration from website (frontend + backend)
 
@@ -2575,4 +2575,4 @@
 - [x] WEBSITE EXPANSION: Add conversion analytics for CTAs, assessments, forms, and Aria engagement
 - [x] WEBSITE EXPANSION: Add an organized resource center for Insights, KB articles, checklists, architecture guides, and whitepapers
 - [x] WEBSITE EXPANSION: Add a secure client onboarding portal with checklist and progress tracking
-- [ ] WEBSITE EXPANSION: Validate new pages, calculators, reports, analytics, onboarding, accessibility, mobile behavior, forms, routes, and production build
+- [x] WEBSITE EXPANSION: Validate new pages, calculators, reports, analytics, onboarding, accessibility, mobile behavior, forms, routes, and production build — 162 focused tests, TypeScript, build, database checks, desktop/mobile review, all 17 live routes HTTP 200, conversion persistence, and authenticated/unauthenticated access controls verified

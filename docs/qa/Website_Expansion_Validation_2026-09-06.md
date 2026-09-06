@@ -31,6 +31,10 @@ The broader legacy test collection contains unrelated existing failures in exter
 
 Desktop full-page review covered the homepage, Fractional CTO, ROI Calculator, Technology Assessment, Trust Center, Workflow Gallery, Resource Center, and Client Onboarding Portal. Mobile full-page review covered the homepage, Service Comparison, SMB Technology Launch, Tampa Small Business, ROI Calculator, Technology Assessment, Trust Center, and Workflow Gallery. The service comparison received a dedicated mobile card layout after review found the desktop comparison table too wide for a phone viewport.
 
-## Production Checks Required After Publication
+## Production Validation
 
-Verify HTTP 200 responses for every new public route, confirm the Aria provider health endpoint remains available, confirm one privacy-safe conversion event reaches the analytics dashboard, and verify the custom domain serves the new client bundle. Do not submit a synthetic public assessment or contact form because those actions persist lead data and trigger operational notifications.
+The forced clean backend rollout resolved the initial stale allowlist response. The homepage, nine principal expansion destinations, all five new industry pages, Client Onboarding, Conversion Analytics, and the Aria provider-health endpoint returned HTTP 200 on `gigitekai.com`.
+
+A privacy-safe `trust_center_opened` event was submitted through the live conversion endpoint and persisted successfully. Anonymous calls to Conversion Analytics and Client Onboarding data procedures returned HTTP 401. A short-lived local administrator session validated that the live analytics procedure returned both totals and recent events and included the production validation event; no session token or secret value was printed or retained.
+
+No synthetic public assessment or contact form was submitted because those actions persist lead data and trigger operational notifications. Input validation, persistence behavior, form notification behavior, report scoring, and protected access were covered by the focused automated suites.
