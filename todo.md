@@ -2552,3 +2552,14 @@
 - [x] Restore Aria to the previous Manus-hosted AI implementation while preserving chat history and current website fixes — exact pre-DeepSeek model-routing files restored; 34 tests, TypeScript, and production build passed; live request reached the restored path but the Manus model service is still account-blocked
 - [x] Make Aria answer business-hours questions deterministically without requiring an external AI model — server and browser fallback implemented; 43 focused tests, TypeScript, and build passed; live GigitekAI.com chat returned the configured Monday–Friday, 8:00 AM–6:00 PM Eastern schedule
 - [x] Restore both public-site and admin-portal Aria chat using a securely configured replacement DeepSeek API credential — key validated, shared provider deployed, public chat returned a normal Microsoft 365 answer, authenticated portal returned live command-center status, and 46 focused tests plus TypeScript/build passed
+- [x] UI ENHANCEMENT: Add an outcome-based service selector for managed IT, Microsoft 365 security, AI automation, and new-business setup
+- [x] UI ENHANCEMENT: Add an interactive AI/IT assessment with personalized recommendations and existing lead-capture routing
+- [x] UI ENHANCEMENT: Add industry-specific pathways for professional services, healthcare, nonprofits, and small businesses
+- [x] UI ENHANCEMENT: Add service-package previews with clear scope and no fabricated pricing
+- [x] UI ENHANCEMENT: Add Aria suggested prompts, save/clear controls, and a non-sensitive DeepSeek provider status
+- [x] UI ENHANCEMENT: Add an operational-proof section for platforms, service standards, security frameworks, and automation capabilities
+- [x] UI ENHANCEMENT: Add a mobile sticky conversion bar for Call, Assessment, and Support
+- [x] UI ENHANCEMENT: Add a before/after agentic workflow visualization
+- [x] UI ENHANCEMENT: Simplify and clarify the public navigation hierarchy
+- [x] UI ENHANCEMENT: Add a Discover–Secure–Modernize–Automate–Manage client journey section
+- [ ] UI ENHANCEMENT: Validate all enhanced UI paths, forms, Aria, accessibility, mobile behavior, and production build

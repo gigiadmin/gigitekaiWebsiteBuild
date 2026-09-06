@@ -29,6 +29,7 @@ export default function AIChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
+  const [providerReady, setProviderReady] = useState<boolean | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", phone: "", company: "", preferredDate: "", preferredTime: "", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York", notes: "" });
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -103,6 +104,20 @@ export default function AIChatWidget() {
     },
   });
   const { user: authUser, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    fetch("/api/health/aria-provider", { credentials: "same-origin" })
+      .then(response => response.ok ? response.json() : Promise.reject(new Error("Provider health unavailable")))
+      .then(data => {
+        if (active) setProviderReady(data?.provider === "deepseek" && data?.configured === true);
+      })
+      .catch(() => {
+        if (active) setProviderReady(false);
+      });
+    return () => { active = false; };
+  }, [isOpen]);
 
   // Proactive KB suggestions while user is typing
   const { data: kbSuggestionsData } = trpc.aibot.getProactiveKBSuggestions.useQuery(
@@ -287,7 +302,7 @@ export default function AIChatWidget() {
       const response = await sendMessageMutation.mutateAsync({ sessionId: ensuredSessionId, message: quickMessage });
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitekai.com or call (727) 382-6909.", timestamp: Date.now() }]);
+      setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitek.com or call 609-676-4483.", timestamp: Date.now() }]);
     } finally {
       setIsLoading(false);
     }
@@ -622,7 +637,7 @@ export default function AIChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-[opacity,transform] hover:scale-110 flex items-center justify-center text-white z-40"
+          className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full shadow-lg hover:shadow-xl transition-[opacity,transform] hover:scale-110 flex items-center justify-center text-white z-40"
           aria-label="Open chat"
         >
           <MessageSquare className="w-6 h-6" />
@@ -632,7 +647,7 @@ export default function AIChatWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className={`fixed bottom-6 right-6 ${isMinimized ? 'w-72 sm:w-80 h-16' : 'w-[95vw] sm:w-[500px] h-[90vh] sm:h-[700px] max-h-[90vh]'} bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20 transition-all duration-300`}>
+        <div className={`fixed bottom-20 right-2 sm:bottom-6 sm:right-6 ${isMinimized ? 'w-72 sm:w-80 h-16' : 'w-[calc(100vw-1rem)] sm:w-[500px] h-[calc(100dvh-6rem)] sm:h-[700px] max-h-[calc(100dvh-6rem)] sm:max-h-[90vh]'} bg-gradient-to-b from-slate-900 to-slate-950 rounded-lg shadow-2xl flex flex-col z-50 border border-cyan-500/20 transition-all duration-300`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-4 rounded-t-lg border-b border-cyan-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -641,7 +656,9 @@ export default function AIChatWidget() {
               </div>
               <div>
                 <h3 className="text-white font-semibold">GigitekAI Assistant</h3>
-                <p className="text-xs text-cyan-400">AI-powered support • Always online</p>
+                <p className="text-xs text-cyan-400">
+                  {providerReady === true ? "DeepSeek connected" : providerReady === false ? "Support tools available" : "Checking AI service…"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -664,6 +681,7 @@ export default function AIChatWidget() {
                     }}
                     className="text-gray-400 hover:text-white transition-colors p-1"
                     title="Save chat as file"
+                    aria-label="Save chat as a text file"
                     disabled={messages.length === 0}
                   >
                     <Download className="w-4 h-4" />
@@ -682,6 +700,7 @@ export default function AIChatWidget() {
                     }}
                     className="text-gray-400 hover:text-white transition-colors p-1"
                     title="Clear chat"
+                    aria-label="Clear chat history"
                     disabled={messages.length === 0}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -782,12 +801,33 @@ export default function AIChatWidget() {
                     General Help
                   </button>
                   <a
-                    href="tel:727-382-6909"
+                    href="tel:+16096764483"
                     className="p-2 sm:p-3 bg-gradient-to-br from-indigo-600/30 to-indigo-700/30 hover:from-indigo-600/50 hover:to-indigo-700/50 rounded-lg border border-indigo-500/30 text-white text-[10px] sm:text-xs font-medium transition-[opacity,transform] flex flex-col items-center justify-center"
                   >
                     <div className="text-lg mb-1">📞</div>
                     Call Now
                   </a>
+                </div>
+                <div className="mt-4 w-full border-t border-white/10 pt-4">
+                  <p className="mb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Try asking Aria</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "What can GigitekAI automate?",
+                      "How can you secure Microsoft 365?",
+                      "What are your business hours?",
+                      "Which service should I start with?",
+                    ].map(prompt => (
+                      <button
+                        key={prompt}
+                        type="button"
+                        onClick={() => sendQuickMessage(prompt)}
+                        disabled={isLoading}
+                        className="min-h-[36px] rounded-full border border-cyan-500/25 bg-cyan-500/5 px-3 py-1.5 text-left text-[11px] text-cyan-100 transition-colors hover:border-cyan-400/60 hover:bg-cyan-500/10 disabled:opacity-50"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
