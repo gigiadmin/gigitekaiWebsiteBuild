@@ -816,13 +816,16 @@ export default function AIChatWidget() {
                   </a>
                 </div>
                 <div className="mt-4 w-full border-t border-white/10 pt-4">
-                  <p className="mb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Try asking Aria</p>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Microsoft Copilot guidance</p>
+                    <a href="/kb/copilot" className="text-[11px] font-semibold text-cyan-300 hover:text-cyan-200">Browse 100 guides →</a>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      "What can GigitekAI automate?",
-                      "How can you secure Microsoft 365?",
-                      "What are your business hours?",
-                      "Which service should I start with?",
+                      "Help me assess Microsoft Copilot readiness",
+                      "Show me how to secure Microsoft Copilot",
+                      "Which Copilot license should we evaluate?",
+                      "Help me troubleshoot Microsoft Copilot",
                     ].map(prompt => (
                       <button
                         key={prompt}

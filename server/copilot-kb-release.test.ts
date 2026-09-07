@@ -7,6 +7,11 @@ const topics = JSON.parse(fs.readFileSync(path.join(root, "content/kb/copilot-10
 const nav = fs.readFileSync(path.join(root, "client/src/components/SiteNavBar2024.tsx"), "utf8");
 const gateway = fs.readFileSync(path.join(root, "client/src/components/HomeDecisionGateway.tsx"), "utf8");
 const index = fs.readFileSync(path.join(root, "docs/content/Copilot_KB_Article_Index_2026-09.md"), "utf8");
+const publicAria = fs.readFileSync(path.join(root, "client/src/components/AIChatWidget.tsx"), "utf8");
+const portalAria = fs.readFileSync(path.join(root, "client/src/pages/AriaCommandCenter.tsx"), "utf8");
+const app = fs.readFileSync(path.join(root, "client/src/App.tsx"), "utf8");
+const adminLayout = fs.readFileSync(path.join(root, "client/src/components/AdminLayout.tsx"), "utf8");
+const scheduledHandlers = fs.readFileSync(path.join(root, "server/scheduled-handlers/register-handlers.ts"), "utf8");
 
 describe("Copilot Knowledge Base release", () => {
   it("defines exactly 100 unique approved topics across ten balanced categories", () => {
@@ -35,5 +40,19 @@ describe("Copilot Knowledge Base release", () => {
     expect(gateway).toContain('"Insights"');
     expect(gateway).toContain('"/insights"');
     expect(gateway).toContain('"insights_opened"');
+  });
+
+  it("exposes the dedicated Copilot Knowledge Center and connects both Aria experiences", () => {
+    expect(app).toMatch(/path=\{?"\/kb\/copilot"\}?/);
+    expect(publicAria).toContain("Browse 100 guides");
+    expect(publicAria).toContain("Microsoft Copilot readiness");
+    expect(portalAria).toContain("Copilot Intelligence");
+    expect(portalAria).toContain("Copilot governance and rollout checklist");
+  });
+
+  it("registers the monthly audit endpoint and protected admin dashboard", () => {
+    expect(scheduledHandlers).toContain('"/api/scheduled/monthly-kb-audit"');
+    expect(app).toContain('path="/admin/kb-audit"');
+    expect(adminLayout).toContain('label: "KB Quality Audit"');
   });
 });

@@ -3,6 +3,7 @@ import { auditAgentAccountsHandler } from "./audit-agent-accounts-handler";
 import { syncAiNewsToBlogHandler } from "../_core/handlers/syncAiNewsToBlogHandler";
 import { ariaWeeklyDigestHandler } from "./aria-weekly-digest-handler";
 import { dailyInsightsHandler } from "./daily-insights-handler";
+import { monthlyKbAuditHandler } from "./monthly-kb-audit-handler";
 
 /**
  * Register all scheduled handlers
@@ -22,6 +23,9 @@ export function registerScheduledHandlers(app: Express) {
 
   // Weekly Aria digest email
   app.post("/api/scheduled/aria-weekly-digest", ariaWeeklyDigestHandler);
+
+  // Monthly Knowledge Base quality, freshness, duplicate, and reference audit
+  app.post("/api/scheduled/monthly-kb-audit", monthlyKbAuditHandler);
 
   console.log("[Scheduled] Scheduled handlers registered");
 }

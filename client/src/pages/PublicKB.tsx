@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Loader2, Search, Lock, Printer, Mail, Zap, Wifi, Cloud,
-  ArrowRight, TrendingUp, BookOpen, ChevronLeft, ChevronRight, X
+  ArrowRight, TrendingUp, BookOpen, ChevronLeft, ChevronRight, X, Sparkles
 } from "lucide-react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useEffect } from "react";
 import SiteNavBar2024 from "@/components/SiteNavBar2024";
 import Footer from "@/components/Footer";
@@ -246,6 +246,29 @@ export default function PublicKB() {
             </form>
           </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8">
+        <Link
+          href="/kb/copilot"
+          className="grid gap-5 border border-cyan-400/30 bg-cyan-400/[0.06] p-5 transition-colors hover:border-cyan-300/60 md:grid-cols-[1fr_auto] md:items-center md:p-7"
+        >
+          <div className="flex gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-cyan-400/30 bg-cyan-400/10 text-cyan-300">
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Featured learning path</p>
+              <h2 className="text-xl font-semibold text-white md:text-2xl">Microsoft Copilot Knowledge Center</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+                Explore 100 practical guides covering readiness, prompting, Microsoft 365 apps, security, administration, Copilot Studio, agents, and troubleshooting.
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300">
+            Explore Copilot guides <ArrowRight className="h-4 w-4" />
+          </span>
+        </Link>
       </div>
 
       {/* ── Search Results ── */}

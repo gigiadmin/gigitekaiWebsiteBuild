@@ -7,6 +7,29 @@ import { sendEmail } from "../_core/email";
 import { seedKBArticles } from "../kb-seeder";
 
 export const kbRouter = router({
+  /** Dedicated, validated Microsoft Copilot collection published in September 2026. */
+  getCopilotCollection: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { articles: [], categoryCounts: [] };
+    const articles = await db
+      .select()
+      .from(kbArticles)
+      .where(and(
+        eq(kbArticles.isPublished, 1),
+        eq(kbArticles.syncSource, "gigitekai-copilot-2026-09"),
+      ))
+      .orderBy(asc(kbArticles.articleCode));
+
+    const categoryCounts = Array.from(
+      articles.reduce((counts, article) => {
+        counts.set(article.category, (counts.get(article.category) ?? 0) + 1);
+        return counts;
+      }, new Map<string, number>()),
+    ).map(([category, count]) => ({ category, count }));
+
+    return { articles, categoryCounts };
+  }),
+
   /** List all KB articles (admin: all; public: published only) */
   list: publicProcedure
     .input(z.object({ includeUnpublished: z.boolean().optional().default(false) }).optional())

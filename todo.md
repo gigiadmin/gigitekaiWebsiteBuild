@@ -2582,3 +2582,8 @@
 - [x] Validate the 100-article batch for title, slug, semantic, content, formatting, and internal-link duplication before publication — zero structural failures, duplicate warnings, or broken links across 200 unique official references
 - [x] Publish all 100 validated Copilot articles through the existing Knowledge Base data model and verify each live route and search entry — 100 unique published/Aria-enabled rows; all 100 public routes and all 100 search checks passed
 - [x] Restore prominent Insights access in desktop navigation, mobile navigation, the homepage, and the Resource Center, then verify the feed and article routes — live utility/primary navigation, homepage card/feed, Resource Center card, canonical `/blog` redirect/feed, current article listings, mobile captures, and route tests verified
+- [x] Build a Microsoft Copilot topic-cluster landing page connected to the validated 100-article Knowledge Base collection
+- [x] Add Copilot-focused suggested prompts and Knowledge Base discovery paths to public and portal Aria experiences
+- [x] Implement a durable monthly Knowledge Base audit for broken references, aging content, duplicate risk, and publication health without automatic article deletion or rewriting
+- [x] Add admin-visible Knowledge Base audit history, findings, and operational alerts
+- [ ] Validate Copilot hub routes, Aria prompts, audit idempotency, alerts, mobile behavior, access controls, and production build

@@ -103,6 +103,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Blog", icon: <FileText size={16} />, href: "/admin/blog" },
       { label: "Newsletter", icon: <Mail size={16} />, href: "/admin/newsletter" },
       { label: "Knowledge Base", icon: <BookOpen size={16} />, href: "/admin/kb" },
+      { label: "KB Quality Audit", icon: <FileCheck size={16} />, href: "/admin/kb-audit" },
     ],
   },
 

@@ -10,6 +10,7 @@ import { publicProcedure, router } from "../_core/trpc";
 import { getAdminFromRequest } from "./admin-auth";
 import { scoreTechnologyAssessment } from "../../shared/technologyAssessment";
 import { sendEmail } from "../_core/email";
+import { getKbAuditHistory, runMonthlyKbQualityAudit } from "../services/kbQualityAudit";
 
 const assessmentDimensions = z.object({
   identity: z.number().int().min(0).max(4),
@@ -175,5 +176,20 @@ export const websiteExpansionRouter = router({
         .orderBy(desc(conversionEvents.createdAt))
         .limit(100);
       return { totals, recent };
+    }),
+
+  getKbAuditHistory: publicProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(24).default(12) }))
+    .query(async ({ input, ctx }) => {
+      const admin = ctx.req ? await getAdminFromRequest(ctx.req) : null;
+      if (!admin) throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin access required" });
+      return getKbAuditHistory(input.limit);
+    }),
+
+  runKbAuditNow: publicProcedure
+    .mutation(async ({ ctx }) => {
+      const admin = ctx.req ? await getAdminFromRequest(ctx.req) : null;
+      if (!admin) throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin access required" });
+      return runMonthlyKbQualityAudit({ source: "manual" });
     }),
 });

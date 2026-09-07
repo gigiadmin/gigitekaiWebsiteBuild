@@ -944,9 +944,11 @@ export default function AriaCommandCenter() {
               { label: "System Status", query: "What is the current system status across all GigitekAI services?" },
               { label: "Open Tickets", query: "Show me all open tickets with priority levels" },
               { label: "M365 Health", query: "What is the current Microsoft 365 service health status?" },
-              { label: "PowerShell", query: "Give me the top 10 PowerShell commands for M365 admin" },
+              { label: "Copilot Readiness", query: "Use the validated Copilot Knowledge Base to build a Microsoft Copilot readiness checklist for a small business." },
+              { label: "Copilot Security", query: "Use the validated Copilot Knowledge Base to summarize the Zero Trust, Purview, DLP, and oversharing controls required before a Copilot rollout." },
+              { label: "Copilot Studio", query: "Use the validated Copilot Knowledge Base to outline a governed Copilot Studio agent build, test, and deployment lifecycle." },
+              { label: "Copilot Troubleshooting", query: "Use the validated Copilot Knowledge Base to give me a Microsoft Copilot troubleshooting triage checklist." },
               { label: "Uptime", query: "What is our current website and service uptime?" },
-              { label: "All Pages", query: "Show me all admin portal pages and their functions" },
             ].map((chip) => (
               <button
                 key={chip.label}
@@ -1215,6 +1217,24 @@ export default function AriaCommandCenter() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Copilot Intelligence</h3>
+              <a href="/kb/copilot" className="text-[10px] font-semibold text-cyan-300 hover:text-cyan-200">100 guides →</a>
+            </div>
+            <div className="space-y-2">
+              {[
+                "Assess Microsoft Copilot readiness across identity, data, licensing, and adoption",
+                "Create a Microsoft Copilot governance and rollout checklist",
+                "Show the most relevant Copilot security and Purview guidance",
+              ].map(prompt => (
+                <button key={prompt} type="button" onClick={() => { setInput(prompt); inputRef.current?.focus(); }} className="w-full border border-white/5 bg-slate-800/45 px-3 py-2 text-left text-[11px] leading-4 text-slate-300 transition-colors hover:border-cyan-400/30 hover:text-white">
+                  {prompt}
+                </button>
+              ))}
             </div>
           </div>
 

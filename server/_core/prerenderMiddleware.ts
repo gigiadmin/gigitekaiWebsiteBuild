@@ -80,6 +80,10 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
     title: "Knowledge Base | IT Support Articles | GigitekAI",
     description: "Browse 2,000+ IT support articles covering Microsoft 365, Azure, Windows, networking, security, and more. Self-service solutions for common IT issues.",
   },
+  "/kb/copilot": {
+    title: "Microsoft Copilot Knowledge Center | GigitekAI",
+    description: "Explore 100 practical Microsoft Copilot guides covering readiness, licensing, Microsoft 365 apps, prompting, security, governance, Copilot Studio, agents, and troubleshooting.",
+  },
   "/case-studies": {
     title: "Case Studies | IT Success Stories | GigitekAI",
     description: "Real results from real clients. See how GigitekAI helped SMBs reduce costs by 40%, improve uptime to 99.9%, and automate IT workflows with AI.",
@@ -471,7 +475,7 @@ async function getRouteSEO(pathname: string): Promise<RouteSEO | null> {
 const KNOWN_STATIC_ROUTES = new Set([
   "/", "/services", "/pricing", "/web-pricing", "/helpdesk-pricing",
   "/contact", "/free-audit", "/audit-results", "/blog", "/insights",
-  "/websites", "/portfolio", "/kb", "/case-studies", "/security",
+  "/websites", "/portfolio", "/kb", "/kb/copilot", "/case-studies", "/security",
   "/managed-it-services-tampa", "/managed-it-services-miami",
   "/florida-it-resiliency", "/smart-home", "/switch-program",
   "/compliance-scorecard", "/compliance-benchmark", "/roadmap-generator",

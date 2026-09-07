@@ -881,6 +881,34 @@ export const kbArticles = mysqlTable("kbArticles", {
 	articleCode: varchar({ length: 20 }),
 });
 
+export const kbAuditRuns = mysqlTable("kbAuditRuns", {
+	id: int().autoincrement().primaryKey(),
+	periodKey: varchar({ length: 7 }).notNull(),
+	status: mysqlEnum(['running','completed','failed']).default('running').notNull(),
+	source: mysqlEnum(['scheduled','manual']).default('scheduled').notNull(),
+	taskUid: varchar({ length: 65 }),
+	totalArticles: int().default(0).notNull(),
+	publishedArticles: int().default(0).notNull(),
+	copilotArticles: int().default(0).notNull(),
+	unpublishedArticles: int().default(0).notNull(),
+	ariaDisabledArticles: int().default(0).notNull(),
+	staleArticles: int().default(0).notNull(),
+	duplicateGroups: int().default(0).notNull(),
+	checkedReferences: int().default(0).notNull(),
+	brokenReferences: int().default(0).notNull(),
+	blockedReferences: int().default(0).notNull(),
+	findings: json(),
+	errorMessage: text(),
+	startedAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	completedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+},
+(table) => [
+	uniqueIndex("kbAuditRuns_periodKey_unique").on(table.periodKey),
+	index("kbAuditRuns_taskUid_idx").on(table.taskUid),
+	index("kbAuditRuns_createdAt_idx").on(table.createdAt),
+]);
+
 export const kbGenerationMetrics = mysqlTable("kbGenerationMetrics", {
 	id: int().autoincrement().primaryKey(),
 	// you can use { mode: 'date' }, if you want to have Date as type for this column

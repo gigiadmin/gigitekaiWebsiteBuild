@@ -89,6 +89,7 @@ const ContactCard = lazy(() => import("./pages/ContactCard"));
 const KBPublic = lazy(() => import("./pages/KBPublic"));
 const PublicKB = lazy(() => import("./pages/PublicKB"));
 const KBArticleViewer = lazy(() => import("./pages/KBArticleViewer"));
+const CopilotKnowledgeHub = lazy(() => import("./pages/CopilotKnowledgeHub"));
 const StatusPage = lazy(() => import("./pages/StatusPage"));
 const ScriptsPortal = lazy(() => import("./pages/ScriptsPortal"));
 const SmartHomeServices = lazy(() => import("./pages/SmartHomeServices"));
@@ -106,6 +107,7 @@ const ResourceCenter = lazy(() => import("./pages/ResourceCenter"));
 const IndustryGrowthPage = lazy(() => import("./pages/IndustryGrowthPage"));
 const ClientOnboardingPortal = lazy(() => import("./pages/ClientOnboardingPortal"));
 const ConversionAnalyticsDashboard = lazy(() => import("./pages/ConversionAnalyticsDashboard"));
+const KnowledgeBaseAudit = lazy(() => import("./pages/KnowledgeBaseAudit"));
 
 // ── Scripts Portal — lazy loaded ───────────────────────────────────────────
 
@@ -201,6 +203,7 @@ function Router() {
           <Route path="/admin/unlock" component={AdminUnlock} />
           <Route path="/admin/aria" component={AriaCommandCenter} />
           <Route path="/admin/conversion-analytics" component={ConversionAnalyticsDashboard} />
+          <Route path="/admin/kb-audit" component={KnowledgeBaseAudit} />
           <Route path="/admin/*" component={AdminApp} />
           <Route path="/admin" component={AdminApp} />
           {/* ── Public ── */}
@@ -295,6 +298,7 @@ function Router() {
           <Route path={"/contact-card"} component={ContactCard} />
           {/* KB Public */}
           <Route path={"/kb"} component={PublicKB} />
+          <Route path={"/kb/copilot"} component={CopilotKnowledgeHub} />
           <Route path={"/kb/:id"} component={KBArticleViewer} />
           {/* Status Page */}
           <Route path={"/status"} component={StatusPage} />

@@ -5,6 +5,7 @@ describe("production SPA route allowlist", () => {
   it.each([
     "/",
     "/kb",
+    "/kb/copilot",
     "/qr",
     "/qr/",
     "/connect",
