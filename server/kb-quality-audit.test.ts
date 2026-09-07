@@ -28,4 +28,30 @@ describe("Knowledge Base quality audit", () => {
       "https://support.microsoft.com/copilot",
     ]);
   });
+
+  it("ignores operational endpoints inside inline and fenced code while preserving real prose links", () => {
+    const urls = extractKbReferenceUrls([{
+      sourceUrl: null,
+      content: [
+        "Use `https://token.botframework.com/.auth/web/redirect` as the redirect URI.",
+        "```powershell",
+        "$site = 'https://yourtenant.sharepoint.com/sites/legal'",
+        "```",
+        "Read [Microsoft guidance](https://learn.microsoft.com/en-us/intune/app-management/protection/create-data-transfer-exceptions).",
+        "Plain-text reference: https://support.microsoft.com/windows/bitlocker",
+      ].join("\n"),
+    }]);
+
+    expect(urls).toEqual([
+      "https://learn.microsoft.com/en-us/intune/app-management/protection/create-data-transfer-exceptions",
+      "https://support.microsoft.com/windows/bitlocker",
+    ]);
+  });
+
+  it("always includes an explicit source URL even when the same URL appears in code", () => {
+    expect(extractKbReferenceUrls([{
+      sourceUrl: "https://learn.microsoft.com/source",
+      content: "`https://learn.microsoft.com/source`",
+    }])).toEqual(["https://learn.microsoft.com/source"]);
+  });
 });

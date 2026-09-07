@@ -1,0 +1,17 @@
+{
+  "mode": "apply",
+  "affectedArticleCount": 131,
+  "referenceArticleUpdateCount": 6,
+  "mergeCanonicalIds": [
+    1740001,
+    210068
+  ],
+  "archiveMappingCount": 62,
+  "preexistingRedirectCount": 62,
+  "backupPath": "/home/ubuntu/gigitekai-kb-remediation/kb-article-backup-before-remediation.json",
+  "completedAt": "2026-09-07T15:50:22.759Z",
+  "archivedArticleCount": 62,
+  "redirectCount": 62,
+  "publishedCanonicalCount": 61,
+  "hardDeletedArticleCount": 0
+}

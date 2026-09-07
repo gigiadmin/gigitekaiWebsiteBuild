@@ -113,7 +113,11 @@ export function extractKbReferenceUrls(articles: Array<{ content: string; source
   const urlPattern = /https?:\/\/[^\s)\]}>"']+/g;
   for (const article of articles) {
     if (article.sourceUrl?.startsWith("http")) urls.add(article.sourceUrl);
-    for (const match of article.content.match(urlPattern) ?? []) {
+    const proseOnly = article.content
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/~~~[\s\S]*?~~~/g, " ")
+      .replace(/`[^`\n]*`/g, " ");
+    for (const match of proseOnly.match(urlPattern) ?? []) {
       urls.add(match.replace(/[.,;:!?]+$/, ""));
     }
   }
@@ -152,13 +156,13 @@ function monthKey(date = new Date()) {
   return date.toISOString().slice(0, 7);
 }
 
-export async function runMonthlyKbQualityAudit(options?: { taskUid?: string; source?: "scheduled" | "manual"; now?: Date }) {
+export async function runMonthlyKbQualityAudit(options?: { taskUid?: string; source?: "scheduled" | "manual"; now?: Date; force?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("Knowledge Base database is unavailable");
   const now = options?.now ?? new Date();
   const periodKey = monthKey(now);
   const [existing] = await db.select().from(kbAuditRuns).where(eq(kbAuditRuns.periodKey, periodKey)).limit(1);
-  if (existing?.status === "completed") {
+  if (existing?.status === "completed" && !options?.force) {
     return { skipped: true, reason: "period-already-completed", audit: existing };
   }
 

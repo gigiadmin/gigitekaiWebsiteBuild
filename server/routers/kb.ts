@@ -1,10 +1,11 @@
 import z from "zod";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { kbArticles, kbCommonIssues } from "../../drizzle/schema";
+import { kbArticleRedirects, kbArticles, kbCommonIssues } from "../../drizzle/schema";
 import { eq, like, or, desc, and, sql, asc, ne } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { seedKBArticles } from "../kb-seeder";
+import { resolveKbArticlePayload, resolveKbViewTarget } from "../services/kbArticleRedirectResolution";
 
 export const kbRouter = router({
   /** Dedicated, validated Microsoft Copilot collection published in September 2026. */
@@ -57,7 +58,24 @@ export const kbRouter = router({
         .from(kbArticles)
         .where(eq(kbArticles.id, input.id))
         .limit(1);
-      return article ?? null;
+      if (article?.isPublished === 1) return resolveKbArticlePayload(input.id, article, null, null);
+
+      const [redirect] = await db
+        .select()
+        .from(kbArticleRedirects)
+        .where(eq(kbArticleRedirects.archivedArticleId, input.id))
+        .limit(1);
+      if (!redirect) return resolveKbArticlePayload(input.id, article, null, null);
+
+      const [canonical] = await db
+        .select()
+        .from(kbArticles)
+        .where(and(
+          eq(kbArticles.id, redirect.canonicalArticleId),
+          eq(kbArticles.isPublished, 1),
+        ))
+        .limit(1);
+      return resolveKbArticlePayload(input.id, article, redirect, canonical);
     }),
 
   /** Search published KB articles with improved phrase-based relevance ranking */
@@ -438,11 +456,17 @@ export const kbRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) return { success: false };
+      const [redirect] = await db
+        .select({ canonicalArticleId: kbArticleRedirects.canonicalArticleId })
+        .from(kbArticleRedirects)
+        .where(eq(kbArticleRedirects.archivedArticleId, input.id))
+        .limit(1);
+      const targetId = resolveKbViewTarget(input.id, redirect?.canonicalArticleId);
       await db
         .update(kbArticles)
         .set({ viewCount: sql`COALESCE(${kbArticles.viewCount}, 0) + 1` })
-        .where(and(eq(kbArticles.id, input.id), eq(kbArticles.isPublished, 1)));
-      return { success: true };
+        .where(and(eq(kbArticles.id, targetId), eq(kbArticles.isPublished, 1)));
+      return { success: true, canonicalId: targetId, redirected: targetId !== input.id };
     }),
 
   /** Bulk create KB articles (admin only) — alias for bulkInsert, accepts syncSource field */

@@ -881,6 +881,22 @@ export const kbArticles = mysqlTable("kbArticles", {
 	articleCode: varchar({ length: 20 }),
 });
 
+export const kbArticleRedirects = mysqlTable("kbArticleRedirects", {
+	id: int().autoincrement().primaryKey(),
+	archivedArticleId: int().notNull(),
+	canonicalArticleId: int().notNull(),
+	disposition: mysqlEnum(['duplicate','merged']).notNull(),
+	reason: text().notNull(),
+	candidateNumbers: json(),
+	sourceSnapshot: json().notNull(),
+	createdAt: timestamp({ mode: 'string' }).defaultNow().notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	uniqueIndex("kbArticleRedirects_archived_unique").on(table.archivedArticleId),
+	index("kbArticleRedirects_canonical_idx").on(table.canonicalArticleId),
+]);
+
 export const kbAuditRuns = mysqlTable("kbAuditRuns", {
 	id: int().autoincrement().primaryKey(),
 	periodKey: varchar({ length: 7 }).notNull(),

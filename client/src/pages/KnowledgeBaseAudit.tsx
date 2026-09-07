@@ -4,6 +4,17 @@ import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { buildKbAuditTrendData } from "@/lib/kbAuditTrends";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 type AuditFindings = {
   stale?: Array<{ id: number; title: string; updatedAt: string; ageDays: number }>;
@@ -21,6 +32,20 @@ function formatDate(value: string | null | undefined) {
   return new Date(value).toLocaleString();
 }
 
+function AuditTrendTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="border border-white/10 bg-slate-900 px-3 py-2 text-xs shadow-xl">
+      <p className="font-semibold text-white">{label}</p>
+      {payload.map((item: any) => (
+        <p key={item.dataKey} className="mt-1" style={{ color: item.color }}>
+          {item.name}: {item.value}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export default function KnowledgeBaseAudit() {
   const utils = trpc.useUtils();
   const historyQuery = trpc.websiteExpansion.getKbAuditHistory.useQuery({ limit: 12 });
@@ -35,6 +60,7 @@ export default function KnowledgeBaseAudit() {
   const history = historyQuery.data ?? [];
   const latest = history[0];
   const findings = useMemo(() => asFindings(latest?.findings), [latest?.findings]);
+  const trendData = useMemo(() => buildKbAuditTrendData(history), [history]);
   const healthy = latest?.status === "completed" && (latest.brokenReferences ?? 0) === 0 && (latest.duplicateGroups ?? 0) === 0;
 
   return (
@@ -86,6 +112,60 @@ export default function KnowledgeBaseAudit() {
                   <p className="mt-1 text-xs text-slate-500">{description}</p>
                 </div>
               ))}
+            </section>
+
+            <section className="border border-white/10 bg-slate-950 p-5" aria-labelledby="audit-trends-title">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 id="audit-trends-title" className="font-semibold text-white">Historical audit trends</h2>
+                  <p className="mt-1 text-sm text-slate-400">Actual persisted monthly audit values only; no estimated or backfilled history.</p>
+                </div>
+                <span className="text-xs uppercase tracking-[0.14em] text-slate-500">{trendData.length} completed run{trendData.length === 1 ? "" : "s"}</span>
+              </div>
+
+              {trendData.length === 1 && (
+                <div className="mt-5 border border-cyan-400/20 bg-cyan-400/[0.05] px-4 py-3 text-sm text-slate-300">
+                  September is the current baseline. Trend lines will grow automatically as future monthly audits are persisted.
+                </div>
+              )}
+
+              <div className="mt-6 grid gap-8 xl:grid-cols-2">
+                <figure className="min-w-0" aria-label="Knowledge Base publication trend chart">
+                  <figcaption className="mb-3 text-sm font-medium text-slate-200">Published coverage</figcaption>
+                  <div className="h-[280px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={trendData} margin={{ top: 10, right: 12, left: -18, bottom: 4 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
+                        <XAxis dataKey="period" tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                        <Tooltip content={<AuditTrendTooltip />} />
+                        <Legend wrapperStyle={{ color: "#CBD5E1", fontSize: 11, paddingTop: 8 }} />
+                        <Line type="linear" dataKey="published" name="Published" stroke="#22D3EE" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="linear" dataKey="copilot" name="Copilot" stroke="#818CF8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="linear" dataKey="stale" name="Aging" stroke="#F59E0B" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </figure>
+
+                <figure className="min-w-0" aria-label="Knowledge Base quality findings trend chart">
+                  <figcaption className="mb-3 text-sm font-medium text-slate-200">Reference and duplicate findings</figcaption>
+                  <div className="h-[280px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={trendData} margin={{ top: 10, right: 12, left: -18, bottom: 4 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
+                        <XAxis dataKey="period" tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fill: "#94A3B8", fontSize: 11 }} />
+                        <Tooltip content={<AuditTrendTooltip />} />
+                        <Legend wrapperStyle={{ color: "#CBD5E1", fontSize: 11, paddingTop: 8 }} />
+                        <Line type="linear" dataKey="broken" name="Broken" stroke="#FB7185" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="linear" dataKey="blocked" name="Blocked" stroke="#FBBF24" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="linear" dataKey="duplicates" name="Duplicate risk" stroke="#A78BFA" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </figure>
+              </div>
             </section>
 
             <section className="grid gap-6 xl:grid-cols-3">

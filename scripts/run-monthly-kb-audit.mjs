@@ -1,6 +1,6 @@
 import { runMonthlyKbQualityAudit } from "../server/services/kbQualityAudit";
 
-const result = await runMonthlyKbQualityAudit({ source: "manual" });
+const result = await runMonthlyKbQualityAudit({ source: "manual", force: true });
 const audit = result.audit;
 console.log(JSON.stringify({
   skipped: result.skipped,
@@ -17,3 +17,4 @@ console.log(JSON.stringify({
   staleArticles: audit?.staleArticles,
   duplicateGroups: audit?.duplicateGroups,
 }));
+process.exit(0);

@@ -1,0 +1,1693 @@
+{
+  "generatedAt": "2026-09-07T15:32:50.426Z",
+  "sourceCandidateCount": 63,
+  "validatedDecisionCount": 63,
+  "componentCount": 61,
+  "archiveMappingCount": 62,
+  "mergeComponentCount": 2,
+  "keepBothComponentCount": 0,
+  "components": [
+    {
+      "candidateNumbers": [
+        1
+      ],
+      "ids": [
+        1740056,
+        1770056
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740056,
+      "subordinateIds": [
+        1770056
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are exact duplicates with materially identical content, titles, and metadata, sharing the same article code (TMS-076). Neither article has any engagement metrics to prioritize. The first article (ID 1770056) is selected as canonical because it has a more recent update timestamp. The older duplicate should be archived with a redirect to the canonical version."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        2
+      ],
+      "ids": [
+        1740057,
+        1770057
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740057,
+      "subordinateIds": [
+        1770057
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are exact duplicates with materially identical content and titles (TMS-077: Teams Live Events Setup and Streaming Issues). Both articles have 0 views and 0 ratings. Therefore, the canonical record is chosen based on the newer update time, making the first article (ID 1770057, updated 2026-07-05 22:49:48) the canonical one, while the second article (ID 1740057, updated 2026-07-05 21:40:08) should be archived with a redirect. Note that the article codes (TMS-077) are duplicates."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        3
+      ],
+      "ids": [
+        1740058,
+        1770058
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740058,
+      "subordinateIds": [
+        1770058
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have the exact same title (\"TMS-078: Teams Meeting Breakout Rooms Not Working\"), article code, and content length (8647). A diff comparison confirms their contents are identical. Neither article has any view counts, so the newer updated article (ID 1770058, updated at 2026-07-05 22:49:48) is selected as canonical over the older one (ID 1740058, updated at 2026-07-05 21:40:08). Both share the same article code (TMS-078)."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        4
+      ],
+      "ids": [
+        1740050,
+        1770050
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740050,
+      "subordinateIds": [
+        1770050
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are identical except that the first article (ID 1770050) is missing backslashes in its file paths and registry keys, likely due to an escaping error. The second article (ID 1740050) contains the correct syntax and was created earlier. Therefore, the second article should be kept as canonical and the first article archived as redundant."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        5
+      ],
+      "ids": [
+        1740049,
+        1770049
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740049,
+      "subordinateIds": [
+        1770049
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are exact duplicates with identical titles ('TMS-069: Teams App Installation Blocked or Failing') and identical bodies. Both have zero engagement (0 views, ratings, comments). The first article (ID 1770049) is selected as canonical because it is the newer updated article (created at 2026-07-05 22:49:47 vs 2026-07-05 21:40:06). Note that the article codes (TMS-069) are also duplicated."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        6
+      ],
+      "ids": [
+        1740046,
+        1770046
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740046,
+      "subordinateIds": [
+        1770046
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The second article contains the correct file paths with backslashes for clearing the Teams cache, whereas the first article is missing these backslashes due to a formatting error. The first article is otherwise identical and contains no unique operational guidance. Therefore, the older, correct second article is retained as canonical, and the broken first article is safely archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        7
+      ],
+      "ids": [
+        1740051,
+        1770051
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740051,
+      "subordinateIds": [
+        1770051
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Candidate 7 consists of two articles with the exact same title (\"TMS-071: Teams Direct Message Not Delivering\") and perfectly identical content. Both articles also share the same article code (TMS-071) and have zero views. Since neither has engagement data, the first article (ID: 1770051) is selected as canonical because it has a more recent updatedAt timestamp (2026-07-05 22:49:47 vs 2026-07-05 21:40:07). The older duplicate should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        8
+      ],
+      "ids": [
+        1740047,
+        1770047
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740047,
+      "subordinateIds": [
+        1770047
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are nearly identical in content, with a 1-byte difference in content length ('RecordingsView only' vs 'Recordings\\\\View only'). The older article (1740047) is chosen as the canonical record. The newer article (1770047) is a strict subset or duplicate of the older one, so it can be safely archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        9
+      ],
+      "ids": [
+        1740048,
+        1770048
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740048,
+      "subordinateIds": [
+        1770048
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are materially identical with exact matching content, titles, and article codes (TMS-068). Neither article has any engagement (0 views). The first article (ID 1770048) is selected as canonical because it was updated more recently (2026-07-05 22:49:47 vs 2026-07-05 21:40:06). The older duplicate should be archived with a redirect to prevent confusion."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        10
+      ],
+      "ids": [
+        1740052,
+        1770052
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740052,
+      "subordinateIds": [
+        1770052
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The complete titles and article bodies are materially identical. Neither article has any real engagement (viewCount, ratingCount, commentCount are all 0). The metadata is identical except for timestamps. Since there is no difference in engagement or metadata richness, the newer updated article (ID 1770052, created 22:49:47) would normally be preferred, but both articles share the exact same article code (TMS-072), indicating they are duplicates. However, the instruction states \"otherwise prefer the newer updated article, while explicitly noting if IDs/article codes are duplicates.\" Actually, ID 1770052 is newer (22:49:47 vs 21:40:07). I will set canonical_id to 1770052 and subordinate_id to 1740052, as 1770052 is newer. Wait, let me check the instruction again. \"preserve the record with real engagement; otherwise prefer the record with richer metadata; otherwise prefer the newer updated article, while explicitly noting if IDs/article codes are duplicates.\" So canonical_id is 1770052, subordinate_id is 1740052. The rationale should note the duplicate article code."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        11
+      ],
+      "ids": [
+        1740053,
+        1770053
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740053,
+      "subordinateIds": [
+        1770053
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are nearly identical copies, with the only difference being that the newer article (1770053) is missing necessary backslashes in the file paths. The older article (1740053) retains the correct formatting and should be kept as the canonical record. The subordinate article contains no unique guidance and can be safely archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        12
+      ],
+      "ids": [
+        1740054,
+        1770054
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740054,
+      "subordinateIds": [
+        1770054
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are materially identical, sharing the exact same content, titles, and tags. Neither article has any recorded views or engagement, and their metadata is identical. They also share the same article code (TMS-074). Following the selection criteria, the newer article (ID 1770054) is chosen as canonical, and the older duplicate (ID 1740054) should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        13
+      ],
+      "ids": [
+        1740055,
+        1770055
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740055,
+      "subordinateIds": [
+        1770055
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are identical except that the newer version (1770055) is missing backslashes in its Windows directory paths. The older version (1740055) contains the correctly formatted paths and should be retained as canonical."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        14
+      ],
+      "ids": [
+        1740043,
+        1770043
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740043,
+      "subordinateIds": [
+        1770043
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The titles, article codes (SPO-017), and article bodies are materially identical. Neither article has engagement metrics (0 views, 0 ratings). According to the rules, the newer article (ID 1770043) is chosen as the canonical record. The older article (ID 1740043) will be archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        15
+      ],
+      "ids": [
+        1740038,
+        1770038
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740038,
+      "subordinateIds": [
+        1770038
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have exactly the same content, length, and title regarding SharePoint version history missing or restore problems. They also have identical engagement metrics with 0 views, ratings, and comments. Article 1740038 has the oldest stable ID and creation date, making it the preferred canonical record. Therefore, article 1770038 should be archived and redirected to 1740038."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        16
+      ],
+      "ids": [
+        1740045,
+        1770045
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740045,
+      "subordinateIds": [
+        1770045
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles have identical titles (SPO-019: SharePoint Site Slow Performance) and exactly identical content bodies. Both articles have 0 views and identical metadata. Since there is no engagement or metadata difference, the newer article (ID 1770045, created at 22:49:46) is chosen as the canonical record over the older one (ID 1740045, created at 21:40:06). The older article will be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        17
+      ],
+      "ids": [
+        1740039,
+        1770039
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740039,
+      "subordinateIds": [
+        1770039
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are an exact match in both title and content, and share the same article code (SPO-012). Neither article has any engagement metrics (view count is 0 for both). The first article (ID 1770039) is chosen as the canonical record because it has a newer updatedAt timestamp (2026-07-05 22:49:46 vs 2026-07-05 21:40:05). The older duplicate should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        18
+      ],
+      "ids": [
+        1740040,
+        1770040
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740040,
+      "subordinateIds": [
+        1770040
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are identical except for a formatting corruption in the newer article where backslashes were incorrectly parsed (e.g., '\\\\t' became a tab character). The older article (ID 1740040) contains the correct formatting and is selected as canonical, while the corrupted newer article is safely archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        19
+      ],
+      "ids": [
+        1740041,
+        1770041
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740041,
+      "subordinateIds": [
+        1770041
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are exact duplicates with identical titles (\"SPO-015: SharePoint Alerts Not Sending\") and identical body content. Both have 0 view counts and identical metadata richness. The first article (ID 1770041) is chosen as the canonical article because it is the newer updated article (created/updated at 2026-07-05 22:49:46 compared to 2026-07-05 21:40:05). The IDs are distinct but the article code SPO-015 is a duplicate. The recommended action is to archive the older duplicate with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        20
+      ],
+      "ids": [
+        1740042,
+        1770042
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740042,
+      "subordinateIds": [
+        1770042
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have the exact same title (\"SPO-016: SharePoint Content Types Not Applying or Syncing\") and their bodies are identical (MD5 hashes match). Neither article has any views (viewCount: 0). The first article (ID 1770042) was created later (2026-07-05 22:49:46) than the second article (ID 1740042, created at 2026-07-05 21:40:05). Since metadata is identical, the newer updated article is chosen as the canonical one. The IDs are duplicates."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        21
+      ],
+      "ids": [
+        1740044,
+        1770044
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740044,
+      "subordinateIds": [
+        1770044
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have identical content, titles, and article codes (SPO-018), with identical content lengths (13718). Neither article has engagement data (views, ratings, comments are all 0). The newer article (ID 1770044, created at 2026-07-05 22:49:46) is selected as canonical over the older one (ID 1740044, created at 2026-07-05 21:40:06)."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        22
+      ],
+      "ids": [
+        1740037,
+        1770037
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740037,
+      "subordinateIds": [
+        1770037
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles have exactly the same title ('SPO-007: SharePoint Search Not Indexing New Content') and completely identical body content (15310 characters). Neither article has any views (viewCount: 0). The first article (ID 1770037) was created more recently (2026-07-05 22:49:46 vs 2026-07-05 21:40:04), so it is selected as the canonical version. The older article (ID 1740037) will be archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        23
+      ],
+      "ids": [
+        1740029,
+        1770029
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740029,
+      "subordinateIds": [
+        1770029
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have identical titles and content, and share the exact same article code (INT-005). Neither article has any views or real engagement metadata. Since they are exact duplicates, the first article (ID 1770029) is chosen as canonical because it has a newer updatedAt timestamp. The older duplicate (ID 1740029) should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        24
+      ],
+      "ids": [
+        1740036,
+        1770036
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740036,
+      "subordinateIds": [
+        1770036
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles provide identical operational guidance for troubleshooting SharePoint library sync issues with the OneDrive client. Article 1740036 is chosen as the canonical record because it is the stable older ID and contains correctly escaped Windows command paths, whereas the newer duplicate has formatting errors. The newer duplicate can be safely archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        25
+      ],
+      "ids": [
+        1740035,
+        1770035
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740035,
+      "subordinateIds": [
+        1770035
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles share the exact same title, body content, and article code (SPO-004), confirming they are exact duplicates. Neither article has any engagement metrics (0 views, 0 ratings, 0 comments) and both have identical metadata richness. Following the resolution hierarchy, the first article (ID 1770035) is selected as canonical because it is the newer updated article (22:49:45 vs 21:40:04). The older duplicate (ID 1740035) should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        26
+      ],
+      "ids": [
+        1740034,
+        1770034
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740034,
+      "subordinateIds": [
+        1770034
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles contain materially identical content and have identical titles and article codes (ODV-075). Neither article has any recorded engagement metrics (views, ratings, comments are all 0). Therefore, the newer article (ID 1770034, updated at 2026-07-05 22:49:45) is selected as the canonical record. The older duplicate (ID 1740034) should be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        27
+      ],
+      "ids": [
+        1740033,
+        1770033
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740033,
+      "subordinateIds": [
+        1770033
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have the exact same title (\"ODV-074: OneDrive Recycle Bin Recovery\") and their body contents are identical. Neither article has any engagement metrics (0 views, 0 ratings). The first article (ID 1770033) is selected as the canonical record because it has a more recent updatedAt timestamp (2026-07-05 22:49:45 vs 2026-07-05 21:40:04). The subordinate article (ID 1740033) should be archived with a redirect to the canonical article."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        28
+      ],
+      "ids": [
+        1740032,
+        1770032
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740032,
+      "subordinateIds": [
+        1770032
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are identical except that the newer version (1770032) lost all backslashes in its file paths and registry keys due to a formatting error. The older version (1740032) retains the correct paths. Therefore, the corrupted newer version can be safely archived and redirected to the intact older version without losing any unique guidance."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        29
+      ],
+      "ids": [
+        1740031,
+        1770031
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740031,
+      "subordinateIds": [
+        1770031
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are identical except that the subordinate article is missing backslashes in file paths and invalid character lists, which breaks the commands. The canonical article contains the correct formatting. Archiving the broken duplicate prevents users from running invalid commands."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        30
+      ],
+      "ids": [
+        1740030,
+        1770030
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740030,
+      "subordinateIds": [
+        1770030
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are exact duplicates with materially identical content and matching article codes (INT-006). Since neither article has any view count or engagement metadata, the newer updated article (ID 1770030) is chosen as the canonical record. The older article (ID 1740030) will be archived with a redirect to the canonical version."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        31
+      ],
+      "ids": [
+        1740028,
+        1770028
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740028,
+      "subordinateIds": [
+        1770028
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are identical except that the newer version (1770028) is missing backslashes in its registry paths. The older version (1740028) contains the correct paths and is retained as canonical. No unique guidance is lost by archiving the broken newer record."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        32
+      ],
+      "ids": [
+        1740027,
+        1770027
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740027,
+      "subordinateIds": [
+        1770027
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles share the exact same title (\"INT-003: Intune Device Not Compliant — Diagnosing Compliance Policy Failures\") and identical body content regarding Intune compliance policy failures. Neither article has unique guidance. They are exact duplicates. Since both have 0 views, the newer article (ID 1770027, updated 2026-07-05 22:49:45) is selected as canonical over the older one (ID 1740027, updated 2026-07-05 21:40:03)."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        33
+      ],
+      "ids": [
+        1740026,
+        1770026
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740026,
+      "subordinateIds": [
+        1770026
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The second article (ID 1740026) is identical to the first article (ID 1770026) except that it contains properly formatted registry paths with backslashes (e.g., HKCU\\\\Software\\\\...). The first article is missing the backslashes in its registry paths, making them invalid. Therefore, the second article is strictly better and should be the canonical one. The first article can be safely archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        34
+      ],
+      "ids": [
+        1740024,
+        1770024
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740024,
+      "subordinateIds": [
+        1770024
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Candidate 34 consists of two articles with identical titles (\"EML-069: Mail Forwarding Rules Not Working or Blocked\") and identical article codes (EML-069). A comparison of the complete content confirms they are an exact duplicate. Both articles have 0 view counts. The first article (ID 1770024) is selected as canonical because it has a newer updated timestamp (2026-07-05 22:49:44) compared to the second article (2026-07-05 21:40:02). The second article should be archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        35
+      ],
+      "ids": [
+        1740025,
+        1770025
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740025,
+      "subordinateIds": [
+        1770025
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The titles, article codes, and article bodies are materially identical with exact matching content length (5495). The articles are exact duplicates of EML-070. Since neither article has engagement metrics (viewCount=0), the newer article (first_id: 1770025, created at 22:49:44) is chosen as canonical over the older one (second_id: 1740025, created at 21:40:03)."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        36
+      ],
+      "ids": [
+        1740023,
+        1770023
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740023,
+      "subordinateIds": [
+        1770023
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are exact duplicates with materially identical content and titles (EML-068: Automatic Replies (Out-of-Office) Not Working). Both articles have 0 view counts and identical body lengths. The first article (ID 1770023) is chosen as canonical because it is the newer updated article (created/updated at 22:49:44 vs 21:40:02). The article codes are identical."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        37
+      ],
+      "ids": [
+        1740022,
+        1770022
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740022,
+      "subordinateIds": [
+        1770022
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are identical except that the newer article (1770022) is missing backslashes in file paths and PowerShell commands, likely due to an escaping error during import. Archiving the defective newer article and retaining the correctly formatted older article (1740022) as canonical safely preserves all information."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        38
+      ],
+      "ids": [
+        1740021,
+        1770021
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740021,
+      "subordinateIds": [
+        1770021
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are virtually identical, with the only differences being the correct escaping of backslashes in PowerShell paths and user identities (e.g., NT AUTHORITY\\\\SELF and :\\\\Calendar) in the older article (1740021). The newer article (1770021) has stripped these backslashes, breaking the commands. Therefore, the older article (1740021) is technically correct and should be kept as canonical, while the newer one (1770021) can be archived with a redirect."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        39
+      ],
+      "ids": [
+        1740020,
+        1770020
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740020,
+      "subordinateIds": [
+        1770020
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have identical titles, content, and metadata (viewCount, ratingCount, etc. are 0 for both). The first article (ID 1770020) is chosen as canonical because it has a newer updated/created date (2026-07-05 22:49:44 vs 2026-07-05 21:40:02). The article codes (EML-065) are also identical duplicates. The older duplicate will be archived and redirected to the newer one."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        40
+      ],
+      "ids": [
+        1740018,
+        1770018
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740018,
+      "subordinateIds": [
+        1770018
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are identical except for a minor typographical difference in the folder path syntax (`:Calendar` vs `:\\Calendar`). They contain the exact same troubleshooting steps and PowerShell commands. Archiving the newer duplicate as redundant preserves all operational guidance in the older canonical record."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        41
+      ],
+      "ids": [
+        1740019,
+        1770019
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740019,
+      "subordinateIds": [
+        1770019
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles contain identical diagnostic steps and troubleshooting information for Exchange Online MRM retention policies. The only difference is a minor formatting variation in a PowerShell export path (backslash vs no backslash). The older record (1740019) is retained as canonical, while the newer duplicate is safely archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        42
+      ],
+      "ids": [
+        1740009,
+        1770009
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740009,
+      "subordinateIds": [
+        1770009
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are virtually identical, with the only difference being that the second article includes proper line continuation characters (backslashes) in the bash code snippets, making it more accurate and functional. Since one is just a corrected version of the other, we can safely archive the less accurate one (first_id 1770009) and keep the one with correct bash syntax (second_id 1740009) as the canonical record."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        43
+      ],
+      "ids": [
+        1740017,
+        1770017
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740017,
+      "subordinateIds": [
+        1770017
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are nearly identical in content and cover the exact same guidance on Exchange Online shared mailbox permissions and troubleshooting. The only difference is a minor formatting change in a PowerShell snippet path ('Sales Department:Inbox' vs 'Sales Department:\\\\Inbox'). Since the content is essentially the same, one can be safely archived. The older record (1740017) is kept as canonical."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        44
+      ],
+      "ids": [
+        1740015,
+        1770015
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740015,
+      "subordinateIds": [
+        1770015
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are functionally identical, but the first article has missing backslashes in its file paths due to a formatting error. The older, correctly formatted article is preserved as canonical while the duplicate is archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        45
+      ],
+      "ids": [
+        1740014,
+        1770014
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740014,
+      "subordinateIds": [
+        1770014
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are nearly identical, with the only difference being a typo in a file path. The second article (1740014) correctly includes backslashes in the file path (`C:\\\\Program Files\\\\Microsoft Azure AD Sync\\\\UIShell\\\\miisclient.exe`), while the first article (1770014) is missing them. Since the second article is older and contains the correct file path, it should be the canonical version, and the first article should be archived as redundant."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        46
+      ],
+      "ids": [
+        1740012,
+        1770012
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740012,
+      "subordinateIds": [
+        1770012
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are exact duplicates with identical titles, content, and article codes (EID-003). Neither article has any views. I chose the first article (ID 1770012) as canonical because it was created more recently (July 5, 2026 at 22:49:43 vs 21:40:00). Both have the exact same content, so they can be merged."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        47
+      ],
+      "ids": [
+        1740013,
+        1770013
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740013,
+      "subordinateIds": [
+        1770013
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles are nearly identical in content (content length 10571 vs 10577) with minor formatting or typo differences. They both cover Entra ID Self-Service Password Reset (SSPR) issues comprehensively. The older article (ID 1740013, created at 21:40:01) is chosen as canonical, and the newer one (ID 1770013, created at 22:49:43) will be archived and redirected. No unique content needs merging."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        48
+      ],
+      "ids": [
+        1740011,
+        1770011
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740011,
+      "subordinateIds": [
+        1770011
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are virtually identical, with the only difference being that the second article includes backslashes (\\) at the end of lines in bash code blocks for proper multi-line command formatting. The second article (ID 1740011) has better code formatting and an older creation date, making it the better canonical choice. The first article can be safely archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        49
+      ],
+      "ids": [
+        1740010,
+        1770010
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740010,
+      "subordinateIds": [
+        1770010
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are nearly identical, differing only in the use of backslashes for line continuation in bash code snippets. The older article (ID 1740010) includes the correct bash line continuations, making it the preferred canonical version. The newer article can be safely archived and redirected without losing any unique operational guidance."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        50
+      ],
+      "ids": [
+        1740016,
+        1770016
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740016,
+      "subordinateIds": [
+        1770016
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles have identical titles, content, and article codes (EML-061). Neither article has any engagement metrics (0 views). The first article (ID 1770016) is selected as canonical because it has a more recent updatedAt timestamp (2026-07-05 22:49:43 vs 2026-07-05 21:40:01). The older article (ID 1740016) should be archived with a redirect to the canonical article."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        51
+      ],
+      "ids": [
+        1740004,
+        1770005
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740004,
+      "subordinateIds": [
+        1770005
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles contain identical operational guidance for troubleshooting Azure Load Balancer health probes. The only difference is that the older article contains correctly escaped line continuations and newlines in its shell commands. The newer article is a redundant copy and can be safely archived without losing any unique content."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        52
+      ],
+      "ids": [
+        1740006,
+        1770007
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740006,
+      "subordinateIds": [
+        1770007
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are virtually identical in content, with the only difference being the formatting of Azure CLI commands (one uses backslashes for line continuation, the other does not). There is no unique operational guidance in either that needs to be preserved over the other. The older article (ID 1740006) should be kept as canonical, and the newer one (ID 1770007) should be archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        53
+      ],
+      "ids": [
+        1740005,
+        1770006
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740005,
+      "subordinateIds": [
+        1770006
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are virtually identical in content. The only difference is the presence of backslash line continuations (`\\`) in the Azure CLI commands in the second article (ID 1740005), which makes the code blocks syntactically correct for bash scripts, while the first article (ID 1770006) lacks them. Since ID 1740005 has the correct syntax and is older, it should be kept as canonical, and 1770006 archived as redundant."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        54
+      ],
+      "ids": [
+        1740007,
+        1770008
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740007,
+      "subordinateIds": [
+        1770008
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "Both articles contain the exact same content, structure, and guidance for troubleshooting Azure Cosmos DB 429 errors. The slight difference in content length is due to formatting (e.g., shell line-continuation backslashes in the second article). Since the content is identical in meaning and guidance, the older article (ID 1740007) is retained as the canonical version, and the newer one (ID 1770008) is archived to remove redundancy."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        55
+      ],
+      "ids": [
+        1740003,
+        1770004
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740003,
+      "subordinateIds": [
+        1770004
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are nearly identical in content. The only difference is the presence of line continuation characters (\\) in bash code blocks in the second article, making it more accurate and easier to copy-paste. Therefore, the second article (ID 1740003) is chosen as the canonical record. The first article (ID 1770004) can be safely archived and redirected."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        56,
+        57,
+        59
+      ],
+      "ids": [
+        1740001,
+        1770001,
+        1770002
+      ],
+      "action": "merge_then_archive_with_redirect",
+      "canonicalId": 1740001,
+      "subordinateIds": [
+        1770001,
+        1770002
+      ],
+      "mergeSources": [
+        {
+          "sourceId": 1770001,
+          "uniqueContentToPreserve": "Add-data-disk provisioning plus Windows/Linux initialization and formatting procedures.",
+          "mergePlan": "Append the unique data-disk expansion procedures from article 1770001 to canonical article 1740001.",
+          "candidateNumber": 59
+        }
+      ],
+      "rationale": [
+        "Both articles address Azure VM disk space exhaustion but provide complementary solutions. The older record (1770001) details PowerShell and Portal resizing along with adding new data disks. The newer record (1770002) provides valuable OS-level space reclamation commands and Azure CLI methods. Merging these distinct approaches into a single comprehensive guide ensures users have all remediation options (reclaim, resize, or add disk) without maintaining duplicate articles.",
+        "The two articles are nearly identical, but the first article (ID 1770002) is missing backslashes in file paths and PowerShell commands, likely due to an escaping error. The second article (ID 1740001) is older, has correct formatting, and contains the exact same information. Therefore, the second article should be kept as canonical and the first archived as a redundant copy.",
+        "Both articles address the same issue with identical titles and article codes. The older canonical article provides superior troubleshooting and a critical step for reclaiming space. Merging the unique steps for adding and formatting a new data disk from the subordinate article ensures all operational guidance is preserved in a single comprehensive guide."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        58
+      ],
+      "ids": [
+        1740002,
+        1770003
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1740002,
+      "subordinateIds": [
+        1770003
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The articles are virtually identical. The only difference is the escape characters in the path for `Import-Module ADSync` in the Troubleshooting section. Article 1740002 has proper escaping (`C:\\\\Program Files\\\\Microsoft Azure AD Sync\\\\Bin\\\\ADSync\\\\ADSync.psd1`) whereas 1770003 has lost the backslashes (`C:Program FilesMicrosoft Azure AD SyncBinADSyncADSync.psd1`). Therefore, 1740002 is correct and older, making it the canonical choice. 1770003 should be archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        60
+      ],
+      "ids": [
+        1650016,
+        1680006
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1680006,
+      "subordinateIds": [
+        1650016
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The content of both articles is exactly identical byte-for-byte, making them an exact duplicate. Both articles have zero engagement (views, ratings, comments). The second article (1680006) has richer metadata as it includes an article code (\"AZR-016\"), whereas the first article lacks one. Therefore, the second article is chosen as the canonical record and the first will be archived."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        61
+      ],
+      "ids": [
+        1650002,
+        1680001
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1680001,
+      "subordinateIds": [
+        1650002
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The two articles are exact duplicates with identical content length and perfectly matching bodies. Neither article has recorded views or ratings. The second article (ID 1680001) is chosen as canonical because it possesses richer metadata, specifically an assigned Article Code (AZR-002), whereas the first article lacks one. The first article (ID 1650002) should be archived with a redirect to the second."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        62
+      ],
+      "ids": [
+        1650001,
+        1710001
+      ],
+      "action": "archive_redundant_with_redirect",
+      "canonicalId": 1710001,
+      "subordinateIds": [
+        1650001
+      ],
+      "mergeSources": [],
+      "rationale": [
+        "The complete titles and article bodies of both articles are materially identical. Since neither record has engagement data (view count and rating count are both 0), the canonical record was chosen based on the most recent updated date. The first article (ID 1650001) was updated later (2026-07-05 18:36:04) compared to the second article (ID 1710001) updated at 2026-07-05 18:28:44. Therefore, the first article is preserved as canonical, and the second article should be archived and redirected. Both articles share the same article code (AZR-001)."
+      ]
+    },
+    {
+      "candidateNumbers": [
+        63
+      ],
+      "ids": [
+        210068,
+        330003
+      ],
+      "action": "merge_then_archive_with_redirect",
+      "canonicalId": 210068,
+      "subordinateIds": [
+        330003
+      ],
+      "mergeSources": [
+        {
+          "sourceId": 330003,
+          "uniqueContentToPreserve": "Escalation conditions for Security info page access, repeated QR failures, and missing verification methods.",
+          "mergePlan": "Append the escalation conditions to the canonical MFA guide and update legacy support contact details.",
+          "candidateNumber": 63
+        }
+      ],
+      "rationale": [
+        "The second article is older, significantly more detailed, and provides comprehensive instructions for MFA setup. The first article is largely redundant but contains unique escalation conditions regarding QR code failures and missing verification methods. Merging these specific escalation points into the canonical article before archiving the subordinate record ensures no operational guidance is lost while removing the duplicate."
+      ]
+    }
+  ],
+  "archiveMappings": [
+    {
+      "archivedArticleId": 1770056,
+      "canonicalArticleId": 1740056,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        1
+      ]
+    },
+    {
+      "archivedArticleId": 1770057,
+      "canonicalArticleId": 1740057,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        2
+      ]
+    },
+    {
+      "archivedArticleId": 1770058,
+      "canonicalArticleId": 1740058,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        3
+      ]
+    },
+    {
+      "archivedArticleId": 1770050,
+      "canonicalArticleId": 1740050,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        4
+      ]
+    },
+    {
+      "archivedArticleId": 1770049,
+      "canonicalArticleId": 1740049,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        5
+      ]
+    },
+    {
+      "archivedArticleId": 1770046,
+      "canonicalArticleId": 1740046,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        6
+      ]
+    },
+    {
+      "archivedArticleId": 1770051,
+      "canonicalArticleId": 1740051,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        7
+      ]
+    },
+    {
+      "archivedArticleId": 1770047,
+      "canonicalArticleId": 1740047,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        8
+      ]
+    },
+    {
+      "archivedArticleId": 1770048,
+      "canonicalArticleId": 1740048,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        9
+      ]
+    },
+    {
+      "archivedArticleId": 1770052,
+      "canonicalArticleId": 1740052,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        10
+      ]
+    },
+    {
+      "archivedArticleId": 1770053,
+      "canonicalArticleId": 1740053,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        11
+      ]
+    },
+    {
+      "archivedArticleId": 1770054,
+      "canonicalArticleId": 1740054,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        12
+      ]
+    },
+    {
+      "archivedArticleId": 1770055,
+      "canonicalArticleId": 1740055,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        13
+      ]
+    },
+    {
+      "archivedArticleId": 1770043,
+      "canonicalArticleId": 1740043,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        14
+      ]
+    },
+    {
+      "archivedArticleId": 1770038,
+      "canonicalArticleId": 1740038,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        15
+      ]
+    },
+    {
+      "archivedArticleId": 1770045,
+      "canonicalArticleId": 1740045,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        16
+      ]
+    },
+    {
+      "archivedArticleId": 1770039,
+      "canonicalArticleId": 1740039,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        17
+      ]
+    },
+    {
+      "archivedArticleId": 1770040,
+      "canonicalArticleId": 1740040,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        18
+      ]
+    },
+    {
+      "archivedArticleId": 1770041,
+      "canonicalArticleId": 1740041,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        19
+      ]
+    },
+    {
+      "archivedArticleId": 1770042,
+      "canonicalArticleId": 1740042,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        20
+      ]
+    },
+    {
+      "archivedArticleId": 1770044,
+      "canonicalArticleId": 1740044,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        21
+      ]
+    },
+    {
+      "archivedArticleId": 1770037,
+      "canonicalArticleId": 1740037,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        22
+      ]
+    },
+    {
+      "archivedArticleId": 1770029,
+      "canonicalArticleId": 1740029,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        23
+      ]
+    },
+    {
+      "archivedArticleId": 1770036,
+      "canonicalArticleId": 1740036,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        24
+      ]
+    },
+    {
+      "archivedArticleId": 1770035,
+      "canonicalArticleId": 1740035,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        25
+      ]
+    },
+    {
+      "archivedArticleId": 1770034,
+      "canonicalArticleId": 1740034,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        26
+      ]
+    },
+    {
+      "archivedArticleId": 1770033,
+      "canonicalArticleId": 1740033,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        27
+      ]
+    },
+    {
+      "archivedArticleId": 1770032,
+      "canonicalArticleId": 1740032,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        28
+      ]
+    },
+    {
+      "archivedArticleId": 1770031,
+      "canonicalArticleId": 1740031,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        29
+      ]
+    },
+    {
+      "archivedArticleId": 1770030,
+      "canonicalArticleId": 1740030,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        30
+      ]
+    },
+    {
+      "archivedArticleId": 1770028,
+      "canonicalArticleId": 1740028,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        31
+      ]
+    },
+    {
+      "archivedArticleId": 1770027,
+      "canonicalArticleId": 1740027,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        32
+      ]
+    },
+    {
+      "archivedArticleId": 1770026,
+      "canonicalArticleId": 1740026,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        33
+      ]
+    },
+    {
+      "archivedArticleId": 1770024,
+      "canonicalArticleId": 1740024,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        34
+      ]
+    },
+    {
+      "archivedArticleId": 1770025,
+      "canonicalArticleId": 1740025,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        35
+      ]
+    },
+    {
+      "archivedArticleId": 1770023,
+      "canonicalArticleId": 1740023,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        36
+      ]
+    },
+    {
+      "archivedArticleId": 1770022,
+      "canonicalArticleId": 1740022,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        37
+      ]
+    },
+    {
+      "archivedArticleId": 1770021,
+      "canonicalArticleId": 1740021,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        38
+      ]
+    },
+    {
+      "archivedArticleId": 1770020,
+      "canonicalArticleId": 1740020,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        39
+      ]
+    },
+    {
+      "archivedArticleId": 1770018,
+      "canonicalArticleId": 1740018,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        40
+      ]
+    },
+    {
+      "archivedArticleId": 1770019,
+      "canonicalArticleId": 1740019,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        41
+      ]
+    },
+    {
+      "archivedArticleId": 1770009,
+      "canonicalArticleId": 1740009,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        42
+      ]
+    },
+    {
+      "archivedArticleId": 1770017,
+      "canonicalArticleId": 1740017,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        43
+      ]
+    },
+    {
+      "archivedArticleId": 1770015,
+      "canonicalArticleId": 1740015,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        44
+      ]
+    },
+    {
+      "archivedArticleId": 1770014,
+      "canonicalArticleId": 1740014,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        45
+      ]
+    },
+    {
+      "archivedArticleId": 1770012,
+      "canonicalArticleId": 1740012,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        46
+      ]
+    },
+    {
+      "archivedArticleId": 1770013,
+      "canonicalArticleId": 1740013,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        47
+      ]
+    },
+    {
+      "archivedArticleId": 1770011,
+      "canonicalArticleId": 1740011,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        48
+      ]
+    },
+    {
+      "archivedArticleId": 1770010,
+      "canonicalArticleId": 1740010,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        49
+      ]
+    },
+    {
+      "archivedArticleId": 1770016,
+      "canonicalArticleId": 1740016,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        50
+      ]
+    },
+    {
+      "archivedArticleId": 1770005,
+      "canonicalArticleId": 1740004,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        51
+      ]
+    },
+    {
+      "archivedArticleId": 1770007,
+      "canonicalArticleId": 1740006,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        52
+      ]
+    },
+    {
+      "archivedArticleId": 1770006,
+      "canonicalArticleId": 1740005,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        53
+      ]
+    },
+    {
+      "archivedArticleId": 1770008,
+      "canonicalArticleId": 1740007,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        54
+      ]
+    },
+    {
+      "archivedArticleId": 1770004,
+      "canonicalArticleId": 1740003,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        55
+      ]
+    },
+    {
+      "archivedArticleId": 1770001,
+      "canonicalArticleId": 1740001,
+      "disposition": "merged",
+      "reason": "Unique guidance preserved in the canonical article before archival.",
+      "candidateNumbers": [
+        56,
+        57,
+        59
+      ]
+    },
+    {
+      "archivedArticleId": 1770002,
+      "canonicalArticleId": 1740001,
+      "disposition": "merged",
+      "reason": "Unique guidance preserved in the canonical article before archival.",
+      "candidateNumbers": [
+        56,
+        57,
+        59
+      ]
+    },
+    {
+      "archivedArticleId": 1770003,
+      "canonicalArticleId": 1740002,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        58
+      ]
+    },
+    {
+      "archivedArticleId": 1650016,
+      "canonicalArticleId": 1680006,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        60
+      ]
+    },
+    {
+      "archivedArticleId": 1650002,
+      "canonicalArticleId": 1680001,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        61
+      ]
+    },
+    {
+      "archivedArticleId": 1650001,
+      "canonicalArticleId": 1710001,
+      "disposition": "duplicate",
+      "reason": "Redundant content retained through a canonical redirect; original source is backed up.",
+      "candidateNumbers": [
+        62
+      ]
+    },
+    {
+      "archivedArticleId": 330003,
+      "canonicalArticleId": 210068,
+      "disposition": "merged",
+      "reason": "Unique guidance preserved in the canonical article before archival.",
+      "candidateNumbers": [
+        63
+      ]
+    }
+  ]
+}

@@ -26,17 +26,22 @@ export default function KBArticleViewer() {
     { enabled: !!articleId && !isNaN(articleId!) }
   );
 
+  useEffect(() => {
+    if (!article?.redirectedFromId || !article.canonicalId) return;
+    window.history.replaceState(window.history.state, "", `/kb/${article.canonicalId}`);
+  }, [article?.redirectedFromId, article?.canonicalId]);
+
   // Track view — fire once when article data first loads, fully silent (never shows error)
   const trackView = trpc.kb.trackView.useMutation({
     onError: () => { /* silent — view tracking failures must never surface to the user */ },
   });
   const viewTracked = useRef(false);
   useEffect(() => {
-    if (article && articleId && !viewTracked.current) {
+    if (article && !viewTracked.current) {
       viewTracked.current = true;
-      try { trackView.mutate({ id: articleId }); } catch { /* silent */ }
+      try { trackView.mutate({ id: article.id }); } catch { /* silent */ }
     }
-  }, [article, articleId]);
+  }, [article]);
 
   // Fetch related articles
   const { data: relatedArticles = [] } = trpc.kb.getTrendingArticles.useQuery(
@@ -250,6 +255,11 @@ export default function KBArticleViewer() {
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
+            {article.redirectedFromId && (
+              <div className="mb-6 border border-cyan-400/25 bg-cyan-400/[0.06] px-4 py-3 text-sm text-slate-300" role="status">
+                This archived Knowledge Base link now opens the maintained canonical article.
+              </div>
+            )}
             {/* Article Header */}
             <div className="mb-8">
               <div className="flex flex-wrap items-center gap-2 mb-4">

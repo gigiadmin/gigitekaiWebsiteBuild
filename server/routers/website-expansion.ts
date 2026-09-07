@@ -190,6 +190,6 @@ export const websiteExpansionRouter = router({
     .mutation(async ({ ctx }) => {
       const admin = ctx.req ? await getAdminFromRequest(ctx.req) : null;
       if (!admin) throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin access required" });
-      return runMonthlyKbQualityAudit({ source: "manual" });
+      return runMonthlyKbQualityAudit({ source: "manual", force: true });
     }),
 });
