@@ -33,6 +33,7 @@ export default function HomeDecisionGateway() {
               ["ROI scenario calculator", "Model operational value using your own assumptions.", "/roi-calculator", "roi_opened"],
               ["AI workflow gallery", "Inspect agent actions, human approvals, and intended outcomes.", "/ai-workflows", "workflow_gallery_opened"],
               ["Trust Center", "Review security, resilience, privacy, and responsible AI principles.", "/trust-center", "trust_center_opened"],
+              ["Insights", "Read daily AI, Microsoft 365, cybersecurity, and managed-service analysis.", "/insights", "insights_opened"],
             ].map(([title, copy, href, event]) => <a key={title} href={href} onClick={() => track(event as ConversionEventName, title)} className="group grid min-h-24 grid-cols-[1fr_auto] items-center gap-5 py-5"><div><h3 className="font-semibold text-white">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-400">{copy}</p></div><ArrowRight className="h-5 w-5 text-[#00D4FF] transition-transform group-hover:translate-x-1" /></a>)}
           </div>
         </div>

@@ -7,6 +7,7 @@ export type ConversionEventName =
   | "roi_opened"
   | "workflow_gallery_opened"
   | "trust_center_opened"
+  | "insights_opened"
   | "workflow_demo_viewed"
   | "roi_scenario_calculated"
   | "roi_scenario_printed"

@@ -84,6 +84,7 @@ export default function SiteNavBar2024() {
             <a href="/helpdesk" className="hover:text-[#00D4FF] transition-colors">Client Support</a>
             <a href="/client/onboarding" className="hover:text-[#00D4FF] transition-colors">Client Onboarding</a>
             <a href="/kb" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors"><BookOpen size={12} aria-hidden="true" /> Knowledge Base</a>
+            <a href="/insights" className="hover:text-[#00D4FF] transition-colors">Insights</a>
             <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>Explore AI in Action</a>
             <div className="flex items-center gap-4">
             <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
@@ -170,6 +171,7 @@ export default function SiteNavBar2024() {
             {[
               { label: "Industries", href: "/industries" },
               { label: "Resources", href: "/resources" },
+              { label: "Insights", href: "/insights" },
               { label: "Company", href: "/about" },
               { label: "Contact", href: "/contact" },
             ].map((item) => (
@@ -285,6 +287,7 @@ export default function SiteNavBar2024() {
               {[
                 { label: "Industries", href: "/industries", id: "nav-industries" },
                 { label: "Resources", href: "/resources", id: "nav-resources" },
+                { label: "Insights", href: "/insights", id: "nav-insights" },
                 { label: "Trust Center", href: "/trust-center", id: "nav-trust" },
                 { label: "Company", href: "/about", id: "nav-company" },
                 { label: "Contact", href: "/contact", id: "nav-contact" },
