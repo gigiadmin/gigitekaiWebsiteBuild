@@ -1,6 +1,8 @@
 import { router, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { notifyOwner } from "../_core/notification";
+import { sendEmail } from "../_core/email";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 /**
  * Free Audit Router
@@ -46,6 +48,24 @@ export const freeAuditRouter = router({
         if (!notificationSent) {
           console.warn("[Free Audit] Notification failed, but submission recorded");
         }
+
+        await sendPublicFormSupportNotification({
+          formName: "Free Website Audit Request",
+          submitterName: input.name,
+          submitterEmail: input.email,
+          fields: {
+            Website: input.website,
+            Offer: "Free audit request",
+            Source: "GigitekAI website",
+          },
+        });
+
+        await sendEmail({
+          to: input.email,
+          subject: "We received your GigitekAI audit request",
+          replyTo: "support@gigitekai.com",
+          html: `<p>Hi ${input.name},</p><p>We received your request to review ${input.website}. Our team will follow up within one business day.</p><p>GigitekAI Support<br/>support@gigitekai.com<br/>609-676-4483</p>`,
+        });
 
         return {
           success: true,

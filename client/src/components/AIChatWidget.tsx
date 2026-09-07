@@ -305,7 +305,7 @@ export default function AIChatWidget() {
       const response = await sendMessageMutation.mutateAsync({ sessionId: ensuredSessionId, message: quickMessage });
       setMessages((prev) => [...prev, { role: "assistant", message: response.message, timestamp: Date.now() }]);
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitek.com or call 609-676-4483.", timestamp: Date.now() }]);
+      setMessages((prev) => [...prev, { role: "assistant", message: "I'm having trouble connecting right now. Please try again in a moment, or reach us at support@gigitekai.com or call 609-676-4483.", timestamp: Date.now() }]);
     } finally {
       setIsLoading(false);
     }

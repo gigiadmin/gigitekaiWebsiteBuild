@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { ticketSurveys, tickets } from "../../drizzle/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 export const helpdeskSurveyRouter = router({
   /**
@@ -49,6 +50,17 @@ export const helpdeskSurveyRouter = router({
         comment: input.comment || null,
         submittedAt: new Date().toISOString(),
         submittedBy: ctx.user?.id || null,
+      });
+
+      await sendPublicFormSupportNotification({
+        formName: "Helpdesk Ticket Survey",
+        submitterName: ctx.user?.name || undefined,
+        submitterEmail: ctx.user?.email || undefined,
+        fields: {
+          "Ticket ID": input.ticketId,
+          Rating: `${input.rating}/5`,
+          Comment: input.comment,
+        },
       });
 
       return {

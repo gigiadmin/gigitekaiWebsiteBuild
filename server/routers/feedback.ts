@@ -2,6 +2,7 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { submitTicketFeedback, getTicketFeedback, getUserTicketFeedback, getAllTicketFeedback } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 export const feedbackRouter = router({
   submitFeedback: protectedProcedure
@@ -34,6 +35,17 @@ export const feedbackRouter = router({
           await notifyOwner({
             title: "New Ticket Feedback Received",
             content: `Customer ${ctx.user.name} left feedback on ticket #${input.ticketId}.\n\n**Rating:** ${ratingLabel}\n**Would Recommend:** ${input.wouldRecommend ? "Yes" : "No"}\n**Comment:** ${input.comment || "No comment provided"}`,
+          });
+          await sendPublicFormSupportNotification({
+            formName: "Ticket Feedback",
+            submitterName: ctx.user.name || undefined,
+            submitterEmail: ctx.user.email || undefined,
+            fields: {
+              "Ticket ID": input.ticketId,
+              Rating: ratingLabel,
+              "Would recommend": input.wouldRecommend,
+              Comment: input.comment,
+            },
           });
         }
 

@@ -86,9 +86,9 @@ export default function SiteNavBar2024() {
             <a href="/kb" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors"><BookOpen size={12} aria-hidden="true" /> Knowledge Base</a>
             <a href="/ai-demo" className="hover:text-[#00D4FF] transition-colors font-semibold text-cyan-400" onClick={() => trackAIDemoClick('utility_bar')}>Explore AI in Action</a>
             <div className="flex items-center gap-4">
-            <a href="mailto:support@gigitek.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
+            <a href="mailto:support@gigitekai.com" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Email GigitekAI">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                support@gigitek.com
+                support@gigitekai.com
               </a>
               <a href="tel:+16096764483" className="flex items-center gap-1 hover:text-[#00D4FF] transition-colors" aria-label="Call GigitekAI at 609-676-4483">
                 <Phone size={12} aria-hidden="true" />

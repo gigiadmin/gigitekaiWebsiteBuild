@@ -16,6 +16,7 @@ import { getDb } from "../db";
 import { serviceStatusSubscriptions, serviceStatusChanges } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 import crypto from "crypto";
 
 /**
@@ -125,6 +126,19 @@ export const serviceStatusSubscriptionRouter = router({
           console.error("[ServiceStatusSubscription] Failed to send confirmation email:", emailError);
           // Don't fail the subscription if email fails
         }
+
+        await sendPublicFormSupportNotification({
+          formName: "Service Status Subscription",
+          submitterEmail: input.email,
+          fields: {
+            Email: input.email,
+            Services: input.services.join(", "),
+            "Notify when healthy": input.notifyOnHealthy,
+            "Notify when degraded": input.notifyOnDegraded,
+            "Notify when critical": input.notifyOnCritical,
+            "Notify when offline": input.notifyOnOffline,
+          },
+        });
 
         return {
           success: true,

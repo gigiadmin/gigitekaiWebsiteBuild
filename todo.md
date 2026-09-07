@@ -2576,3 +2576,9 @@
 - [x] WEBSITE EXPANSION: Add an organized resource center for Insights, KB articles, checklists, architecture guides, and whitepapers
 - [x] WEBSITE EXPANSION: Add a secure client onboarding portal with checklist and progress tracking
 - [x] WEBSITE EXPANSION: Validate new pages, calculators, reports, analytics, onboarding, accessibility, mobile behavior, forms, routes, and production build — 162 focused tests, TypeScript, build, database checks, desktop/mobile review, all 17 live routes HTTP 200, conversion persistence, and authenticated/unauthenticated access controls verified
+- [x] Ensure every public form sends a support notification exclusively to support@gigitekai.com while preserving requester confirmations, support-ticket creation, Teams alerts, storage, and anti-spam controls — shared helper applied across lead, assessment, portal-access, subscription, survey, audit, demo, Aria escalation, and contact paths; 43 focused tests, TypeScript, and production build passed
+- [ ] Audit the existing Knowledge Base inventory and define a non-duplicative 100-article Microsoft Copilot topic architecture
+- [ ] Generate 100 original Microsoft Copilot Knowledge Base articles with consistent metadata, citations, support steps, and GigitekAI positioning
+- [ ] Validate the 100-article batch for title, slug, semantic, content, formatting, and internal-link duplication before publication
+- [ ] Publish all 100 validated Copilot articles through the existing Knowledge Base data model and verify each live route and search entry
+- [ ] Restore prominent Insights access in desktop navigation, mobile navigation, the homepage, and the Resource Center, then verify the feed and article routes

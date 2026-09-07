@@ -10,6 +10,7 @@ import { portalAccessRequests, users } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 export const portalAccessRouter = router({
   /** Public: submit a portal access request */
@@ -58,6 +59,18 @@ export const portalAccessRouter = router({
       } catch (e) {
         console.error("[PortalAccess] Owner notify failed:", e);
       }
+
+      await sendPublicFormSupportNotification({
+        formName: "Support Portal Access Request",
+        submitterName: input.name,
+        submitterEmail: input.email,
+        fields: {
+          Company: input.company,
+          Phone: input.phone,
+          Reason: input.reason,
+          Status: "Pending review",
+        },
+      });
 
       // Send confirmation email to requester
       try {

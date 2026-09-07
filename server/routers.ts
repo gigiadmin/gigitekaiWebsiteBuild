@@ -858,6 +858,17 @@ export const appRouter = router({
             console.error("[Demo Lead] Failed to send email notification:", emailError);
           }
 
+          try {
+            await sendEmail({
+              to: input.email,
+              subject: "We received your GigitekAI AI demo request",
+              replyTo: "support@gigitekai.com",
+              html: `<p>Hi ${input.name},</p><p>Thank you for exploring the GigitekAI AI demo. We received your request and will follow up within one business day.</p><p>GigitekAI Support<br/>support@gigitekai.com<br/>609-676-4483</p>`,
+            });
+          } catch (confirmationError) {
+            console.error("[Demo Lead] Failed to send requester confirmation:", confirmationError);
+          }
+
           return { success: true, message: "Thank you! We'll be in touch within 1 business day." };
         } catch (error) {
           console.error("[Demo Lead] Submission failed:", error);

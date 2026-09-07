@@ -9,6 +9,7 @@ import { z } from "zod";
 import { sendEmail } from "../_core/email";
 import { getDb } from "../db";
 import { sql } from "drizzle-orm";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 // Survey token expiry (7 days)
 const SURVEY_TOKEN_EXPIRY_HOURS = 168;
@@ -83,7 +84,7 @@ async function sendSatisfactionSurvey(
 
     <!-- Footer -->
     <p style="color:#334155;font-size:12px;text-align:center">
-      GigitekAI Support Team · support@gigitek.com · (727) 382-6909
+      GigitekAI Support Team · support@gigitekai.com · 609-676-4483
     </p>
   </div>
 </body>
@@ -222,6 +223,16 @@ export const clientSatisfactionSurveyRouter = router({
           WHERE id = ${survey.id}
         `
       );
+
+      await sendPublicFormSupportNotification({
+        formName: "Client Satisfaction Survey Response",
+        fields: {
+          "Ticket ID": survey.ticket_id,
+          Rating: `${input.rating}/5`,
+          Comment: input.comment,
+          "Would recommend": input.wouldRecommend,
+        },
+      });
 
       return {
         success: true,

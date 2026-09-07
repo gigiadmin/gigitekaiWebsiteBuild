@@ -14,6 +14,7 @@ import { newsletterSubscribers, newsletterCampaigns } from "../../drizzle/schema
 import { eq, desc, and, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 import { sendEmail } from "../_core/email";
 import crypto from "crypto";
 
@@ -224,6 +225,16 @@ export const newsletterRouter = router({
           message: "Failed to send welcome email. Please check your email address and try again.",
         });
       }
+
+      await sendPublicFormSupportNotification({
+        formName: "Insights Newsletter Subscription",
+        submitterEmail: input.email.toLowerCase(),
+        fields: {
+          Email: input.email.toLowerCase(),
+          Source: input.source,
+          Status: "Subscribed",
+        },
+      });
 
       await notifyOwner({
         title: "New Newsletter Subscriber",

@@ -15,7 +15,7 @@ export default function ClientOnboardingPortal() {
   if (!isAuthenticated) return <PortalStatus message="Sign in with the email address assigned to your GigitekAI client profile." actionLabel="Sign in securely" actionHref={getLoginUrl("/client/onboarding")} />;
   if (query.isLoading) return <PortalStatus message="Loading your onboarding workspace…" />;
   if (query.error) return <PortalStatus message={query.error.message} />;
-  if (!query.data) return <PortalStatus message="No onboarding workspace is assigned to this account yet. Contact support@gigitek.com or 609-676-4483 for assistance." actionLabel="Contact support" actionHref="/support" />;
+  if (!query.data) return <PortalStatus message="No onboarding workspace is assigned to this account yet. Contact support@gigitekai.com or 609-676-4483 for assistance." actionLabel="Contact support" actionHref="/support" />;
 
   const { client, tasks, timeline } = query.data;
   const completed = tasks.filter((task) => task.status === "completed").length;

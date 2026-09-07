@@ -132,7 +132,7 @@ export const contactFormRouter = router({
                 <li>Provide a customized proposal</li>
                 <li>Schedule a discovery call if needed</li>
               </ul>
-              <p>In the meantime, feel free to reach out to us at <strong>support@gigitek.com</strong> or <strong>609-676-4483</strong>.</p>
+              <p>In the meantime, feel free to reach out to us at <strong>support@gigitekai.com</strong> or <strong>609-676-4483</strong>.</p>
               <p>Best regards,<br/>GigitekAI Team</p>
             `,
           });
@@ -299,12 +299,12 @@ export const contactFormRouter = router({
                     ${input.message.replace(/\n/g, '<br/>')}
                   </p>
                   <p style="color: #666; font-size: 14px; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 12px;">
-                    If you need immediate assistance, please call us at <a href="tel:+16096764483" style="color: #0099CC; text-decoration: none;">609-676-4483</a>
+                    For immediate assistance, call us at <a href="tel:+16096764483" style="color: #0099CC; text-decoration: none;">609-676-4483</a>
                   </p>
                 </div>
                 <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0;">
                   <p style="margin: 0;">GigitekAI • Enterprise Cloud & AI Solutions</p>
-                  <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+                  <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
                 </div>
               </div>
             `,
@@ -399,7 +399,7 @@ Time: ${new Date().toISOString()}
         // Send email to the established GigitekAI support address
         try {
           await sendEmail({
-            to: "support@gigitek.com",
+            to: "support@gigitekai.com",
             subject: `New Contact Form Submission: ${input.subject || "Website Contact Form"} - ${input.name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -419,18 +419,18 @@ Time: ${new Date().toISOString()}
                   <p style="color: #666; font-size: 14px; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 12px;">
                     <strong>Submission ID:</strong> #${String(submissionId)}<br/>
                     <strong>Received:</strong> ${new Date().toLocaleString()}<br/>
-                    <strong>Status:</strong> Draft ticket created in helpdesk system
+                    <strong>Helpdesk status:</strong> Draft ticket created for review
                   </p>
                 </div>
                 <div style="background: #f5f5f5; padding: 16px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0;">
                   <p style="margin: 0;">GigitekAI • Enterprise Cloud & AI Solutions</p>
-                  <p style="margin: 4px 0 0;">support@gigitek.com • 609-676-4483</p>
+                  <p style="margin: 4px 0 0;">support@gigitekai.com • 609-676-4483</p>
                 </div>
               </div>
             `,
           });
         } catch (supportEmailError) {
-          console.warn("[Contact Form] Failed to send email to support@gigitek.com:", supportEmailError);
+          console.warn("[Contact Form] Failed to send email to support@gigitekai.com:", supportEmailError);
         }
 
         await db.insert(conversionEvents).values({

@@ -163,8 +163,8 @@ export const GIGITEKAI_TRAINING_DATA = {
     targetMarket: 'Small to mid-size businesses (SMBs)',
     mission: 'Replace manual IT support with AI-powered intelligent agents',
     website: 'https://gigitekai.com',
-    email: 'support@gigitek.com',
-    phone: '+1 727 382 6909',
+    email: 'support@gigitekai.com',
+    phone: '+1 609 676 4483',
   },
 
   services: [
@@ -195,7 +195,7 @@ export const GIGITEKAI_TRAINING_DATA = {
 
   supportHours: {
     aiSupport: '24/7 (AI agents)',
-    humanSupport: '9am-6pm EST (Business hours)',
+    humanSupport: '8am-6pm Eastern (Business hours)',
     critical: 'On-call for critical incidents',
   },
 

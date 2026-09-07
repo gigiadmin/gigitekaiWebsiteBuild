@@ -19,6 +19,7 @@ import { eq, desc, gte, lte, and, or } from "drizzle-orm";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 
 export const leadgenRouter = router({
   // ── Cybersecurity Risk Assessment ────────────────────────────────────────────
@@ -127,6 +128,24 @@ export const leadgenRouter = router({
           replyTo: "support@gigitekai.com",
         });
 
+        await sendPublicFormSupportNotification({
+          formName: "Cybersecurity Risk Assessment",
+          submitterName: `${input.firstName} ${input.lastName}`,
+          submitterEmail: input.email,
+          fields: {
+            Company: input.companyName,
+            Phone: input.phone,
+            "Overall score": `${overallScore}/50`,
+            "Risk level": riskLevel,
+            "Email security": `${input.emailSecurityScore}/10`,
+            "Endpoint protection": `${input.endpointProtectionScore}/10`,
+            "Backup and recovery": `${input.backupRecoveryScore}/10`,
+            "Identity management": `${input.identityManagementScore}/10`,
+            Compliance: `${input.complianceScore}/10`,
+            "Assessment ID": assessmentId,
+          },
+        });
+
         // Notify admin
         await notifyOwner({
           title: `New Security Assessment: ${input.companyName}`,
@@ -217,6 +236,19 @@ export const leadgenRouter = router({
           subject: `Your Free Guide: ${input.leadMagnetDownloaded}`,
           html: emailHtml,
           replyTo: "support@gigitekai.com",
+        });
+
+        await sendPublicFormSupportNotification({
+          formName: "Lead Magnet Request",
+          submitterName: `${input.firstName} ${input.lastName}`,
+          submitterEmail: input.email,
+          fields: {
+            Company: input.companyName,
+            Phone: input.phone,
+            "Requested guide": input.leadMagnetDownloaded,
+            "Source page": input.pageUrl,
+            "Lead ID": popupLeadId,
+          },
         });
 
         // Notify admin
@@ -354,6 +386,26 @@ export const leadgenRouter = router({
           subject: "Thank You for Contacting GigitekAI",
           html: emailHtml,
           replyTo: "support@gigitekai.com",
+        });
+
+        await sendPublicFormSupportNotification({
+          formName: "Multi-Step IT Services Inquiry",
+          submitterName: `${input.firstName} ${input.lastName}`,
+          submitterEmail: input.email,
+          fields: {
+            Company: input.companyName,
+            Phone: input.phone,
+            Employees: input.employeeCount,
+            "Current IT setup": input.currentITSetup,
+            Cybersecurity: input.needsCybersecurity ? "Requested" : "Not selected",
+            Cloud: input.needsCloud ? "Requested" : "Not selected",
+            Helpdesk: input.needsHelpdesk ? "Requested" : "Not selected",
+            "AI and automation": input.needsAI ? "Requested" : "Not selected",
+            "Other needs": input.otherNeeds,
+            "Lead quality": leadQuality,
+            "Submission ID": formSubmissionId,
+            Attachment: fileUrl,
+          },
         });
 
         // Notify admin with lead quality

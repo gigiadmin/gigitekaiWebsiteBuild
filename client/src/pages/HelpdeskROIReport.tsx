@@ -499,7 +499,7 @@ export default function HelpdeskROIReport() {
               </div>
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 <a
-                  href="mailto:support@gigitek.com"
+                  href="mailto:support@gigitekai.com"
                   style={{
                     padding: "10px 20px",
                     background: `${CYAN}20`,

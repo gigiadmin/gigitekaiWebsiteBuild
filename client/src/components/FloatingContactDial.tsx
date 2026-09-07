@@ -21,10 +21,10 @@ const actions = [
   {
     label: "Send an Email",
     icon: Mail,
-    href: "mailto:support@gigitek.com",
+    href: "mailto:support@gigitekai.com",
     color: "bg-[#0F1629] text-[#00D4FF] border border-[#00D4FF]/30",
     hoverColor: "hover:bg-[#00D4FF]/10",
-    description: "support@gigitek.com",
+    description: "support@gigitekai.com",
     external: true,
   },
   {

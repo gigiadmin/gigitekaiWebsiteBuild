@@ -266,13 +266,13 @@ router.post("/nps-digest", async (req, res) => {
     </div>
 
     <!-- Footer -->
-    <p style="color:#334155;font-size:12px;text-align:center">GigitekAI Admin Portal · support@gigitek.com · (727) 382-6909</p>
+    <p style="color:#334155;font-size:12px;text-align:center">GigitekAI Admin Portal · support@gigitekai.com · 609-676-4483</p>
   </div>
 </body>
 </html>`;
 
     // Send to owner
-    const ownerEmail = process.env.OWNER_EMAIL || "support@gigitek.com";
+    const ownerEmail = process.env.OWNER_EMAIL || "support@gigitekai.com";
     const sent = await sendEmail({
       to: ownerEmail,
       subject: `📊 Weekly NPS Digest — ${weekStart} to ${weekEnd} | GigitekAI`,

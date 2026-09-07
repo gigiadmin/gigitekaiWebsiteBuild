@@ -5,9 +5,11 @@ import { TRPCError } from "@trpc/server";
 import { conversionEvents, websiteAssessments } from "../../drizzle/schema";
 import { getDb } from "../db";
 import { notifyOwner } from "../_core/notification";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 import { publicProcedure, router } from "../_core/trpc";
 import { getAdminFromRequest } from "./admin-auth";
 import { scoreTechnologyAssessment } from "../../shared/technologyAssessment";
+import { sendEmail } from "../_core/email";
 
 const assessmentDimensions = z.object({
   identity: z.number().int().min(0).max(4),
@@ -104,6 +106,26 @@ export const websiteExpansionRouter = router({
         title: `Technology assessment completed: ${input.company}`,
         content: `${input.name} (${input.email}) completed the assessment with a score of ${score}/100 and priority ${input.priority}.`,
       }).catch((error) => console.warn("[Website Expansion] Owner notification failed", error));
+      await sendPublicFormSupportNotification({
+        formName: "Technology Maturity Assessment",
+        submitterName: input.name,
+        submitterEmail: input.email,
+        fields: {
+          Company: input.company,
+          Employees: input.employees,
+          Priority: input.priority,
+          Score: `${score}/100`,
+          "Maturity level": maturityLevel,
+          Recommendations: recommendations.join("\n"),
+          "Report ID": publicId,
+        },
+      });
+      await sendEmail({
+        to: input.email,
+        subject: `Your GigitekAI technology assessment — ${maturityLevel}`,
+        replyTo: "support@gigitekai.com",
+        html: `<p>Hi ${input.name},</p><p>Your technology maturity assessment is complete. Your score is <strong>${score}/100</strong> with a maturity level of <strong>${maturityLevel}</strong>.</p><p><a href="https://gigitekai.com/assessment/report/${publicId}">View and print your executive report</a></p><p>Questions? Contact support@gigitekai.com or call 609-676-4483.</p>`,
+      });
       return { publicId, score, maturityLevel, recommendations };
     }),
 

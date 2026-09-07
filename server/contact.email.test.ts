@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
+import { sendEmail } from "./_core/email";
 
 // Mock the database module to prevent real DB writes
 const mockInsert = vi.fn().mockReturnValue({
@@ -37,6 +38,7 @@ vi.mock("./_core/teamsWebhookUtils", () => ({
 
 describe("contact.submit with email", () => {
   it("should accept valid contact form submission", async () => {
+    vi.mocked(sendEmail).mockClear();
     const caller = appRouter.createCaller({
       user: null,
       req: {} as any,
@@ -52,6 +54,9 @@ describe("contact.submit with email", () => {
 
     expect(result.success).toBe(true);
     expect(result.message).toContain("Thank you");
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "support@gigitekai.com" })
+    );
   });
 
   it("should reject submission without name", async () => {

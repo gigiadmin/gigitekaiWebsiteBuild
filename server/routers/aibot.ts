@@ -4,6 +4,7 @@ import { callDeepSeek } from "../services/deepseek";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { isSupportAvailable, getNextAvailableTime } from "../business-hours";
+import { sendPublicFormSupportNotification } from "../_core/publicFormSupportNotification";
 import {
   buildTicketConfirmationEmail,
   formatCategory,
@@ -851,6 +852,19 @@ export const aibotRouter = router({
           console.error("[AIBot] Exception sending escalation confirmation:", emailError);
         }
       }
+
+      await sendPublicFormSupportNotification({
+        formName: "Aria Support Escalation",
+        submitterName: session?.visitorName || "Anonymous visitor",
+        submitterEmail: session?.visitorEmail || undefined,
+        fields: {
+          "Ticket ID": ticketId,
+          Priority: priority,
+          Reason: reason,
+          Company: session?.visitorCompany,
+          Transcript: transcript,
+        },
+      });
 
       // Log escalation pattern for analytics (Phase 2)
       try {
