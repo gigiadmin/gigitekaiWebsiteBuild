@@ -1,7 +1,7 @@
 # Copilot Hub, Aria Prompts, and Knowledge Base Audit — Validation Record
 
 **Date:** September 7, 2026  
-**Status:** Implementation and first audit validated; production scheduling pending
+**Status:** Live production validation complete
 
 ## Visual Review
 
@@ -19,4 +19,12 @@ The first deterministic audit completed for period `2026-09` and persisted one r
 
 A summary email was delivered successfully to `support@gigitekai.com` through Microsoft Graph. Re-running the same period returned `period-already-completed`, proving monthly idempotency and preventing duplicate findings or alerts. The audit does not automatically rewrite, unpublish, or delete articles.
 
-Final production route, authenticated dashboard, and durable schedule checks remain pending.
+## Production Validation
+
+The homepage, main Knowledge Base, Microsoft Copilot Knowledge Center, and protected Knowledge Base Audit route return HTTP 200. The scheduled callback rejects unauthenticated requests with HTTP 403, confirming the cron-cookie boundary remains active.
+
+The live Copilot Knowledge Center displays all ten learning tracks, the validated 100-guide count, search and category controls, a 30-guide initial grid, and progressive disclosure for the remaining 70 guides. Public Aria displays the direct “Browse 100 guides” path plus Copilot readiness, security, licensing, and troubleshooting prompts. The authenticated Aria command center displays Copilot readiness, governance, and Purview/security prompt controls.
+
+An authenticated production request to the Knowledge Base Audit history procedure returned HTTP 200 and the persisted September run with 622 total articles, 100 Copilot articles, 318 checked references, 9 broken references, 92 access-blocked references, zero stale articles, and 63 potential duplicate groups.
+
+The durable scheduler executed the production callback successfully on September 7, 2026. Because the September audit already existed, the callback completed idempotently without creating duplicate findings or sending another support alert. The job was then restored to its permanent schedule: the first day of every month at **14:00 UTC**. The next scheduled execution is **October 1, 2026 at 14:00 UTC**.

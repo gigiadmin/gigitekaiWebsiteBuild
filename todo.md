@@ -2586,4 +2586,4 @@
 - [x] Add Copilot-focused suggested prompts and Knowledge Base discovery paths to public and portal Aria experiences
 - [x] Implement a durable monthly Knowledge Base audit for broken references, aging content, duplicate risk, and publication health without automatic article deletion or rewriting
 - [x] Add admin-visible Knowledge Base audit history, findings, and operational alerts
-- [ ] Validate Copilot hub routes, Aria prompts, audit idempotency, alerts, mobile behavior, access controls, and production build
+- [x] Validate Copilot hub routes, Aria prompts, audit idempotency, alerts, mobile behavior, access controls, and production build — 74 focused tests, TypeScript, build, desktop/mobile review, live public and portal Aria prompts, authenticated admin history, successful scheduled callback, and permanent monthly cadence verified
