@@ -22,7 +22,7 @@ export default function KBArticleViewer() {
 
   // Fetch article
   const { data: article, isLoading, error } = trpc.kb.get.useQuery(
-    { id: articleId || 0 },
+    { id: articleId || 0, cacheVersion: 2 },
     { enabled: !!articleId && !isNaN(articleId!) }
   );
 

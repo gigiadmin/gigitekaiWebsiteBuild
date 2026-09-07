@@ -49,7 +49,7 @@ export const kbRouter = router({
 
   /** Get a single KB article by ID */
   get: publicProcedure
-    .input(z.object({ id: z.number().int().positive() }))
+    .input(z.object({ id: z.number().int().positive(), cacheVersion: z.number().int().min(2).optional() }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return null;

@@ -59,6 +59,7 @@ Blocked or unreachable checks are reported separately from confirmed broken link
 | Canonical integrity | Zero redirect targets are unpublished |
 | Public routes | `/kb`, `/kb/copilot`, canonical article IDs, and archived article IDs returned HTTP 200 |
 | Archived-ID behavior | Archived article `1770056` resolved to canonical article `1740056` |
+| Custom-domain cache safety | Public article-detail requests use a versioned query key so pre-remediation edge-cache entries cannot expose archived responses after rollout |
 | Admin authorization | Unauthenticated audit-history RPC returned HTTP 401 and the page redirected to Microsoft admin sign-in |
 | Authenticated audit data | In-memory signed active-admin validation returned HTTP 200 with the single persisted September run and aggregate metrics only; no session token was logged |
 | Automated tests | 32 tests passed across 7 focused files |
