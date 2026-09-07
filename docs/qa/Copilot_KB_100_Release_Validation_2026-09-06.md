@@ -33,3 +33,11 @@ Articles use official Microsoft sources from Microsoft Learn, Microsoft Support,
 ## Live verification
 
 The live verifier confirmed that all 100 records appear through the public Knowledge Base list API, every article route from `https://gigitekai.com/kb/2100001` through `https://gigitekai.com/kb/2100100` returns HTTP 200, and each article can be retrieved through the existing public KB search procedure using its title terms. The full index is available in `docs/content/Copilot_KB_Article_Index_2026-09.md`.
+
+## Insights visibility restoration
+
+After the forced client rollout completed, the live `gigitekai.com` homepage showed Insights in the desktop utility bar and primary navigation. The homepage decision gateway also displayed a dedicated Insights card linking to `/insights`, and the existing latest-Insights feed and footer link remained available. The remaining responsive and Resource Center checks are recorded with the final release validation.
+
+The live Resource Center displays Insights as its first learning resource and links to `/insights`. The `/insights` alias redirects to the canonical `/blog` feed, whose navigation, title, newsletter control, and footer all rendered on the live domain. This preserves one canonical article-feed URL while making Insights visible under the user-facing name across the site.
+
+The live canonical feed completed its data query and rendered current posts beginning with the September 6 and September 5 daily briefings. Final 390 × 844 mobile captures confirmed the shortened homepage and Resource Center remain readable without horizontal clipping; the homepage presents the latest Insights feed and the Resource Center presents Insights as its first resource card. Source-level regression tests confirm the mobile menu contains the `/insights` entry.
