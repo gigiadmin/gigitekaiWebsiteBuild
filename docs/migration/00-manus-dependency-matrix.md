@@ -105,7 +105,23 @@ Full inventory captured from `server/`. Grouped by owner:
 
 ## 7. Assessment
 
-The migration is **materially smaller than the plan assumes**. The plan was written defensively ("not a direct rewrite on day one"), which remains correct for compute — but the *code coupling* is bounded to roughly a dozen modules behind an existing internal interface, and the AI provider port is already complete.
+**BUILD PORTABILITY VERIFIED 2026-09-11** — the application builds outside Manus
+with no platform involvement:
+
+| Step | Command | Result |
+|---|---|---|
+| Dependencies | `pnpm install --frozen-lockfile` | **PASS** (137 deps, lockfile unmodified) |
+| Typecheck | `tsc --noEmit` | **PASS** — no type errors |
+| Bundle | `vite build && esbuild server/_core/index.ts …` | **PASS** — 17 MB `dist/` (`index.js` + `public/`) |
+
+Run on Harry's PC: node v22.23.2, pnpm 10.4.1 (pinned via `packageManager`).
+
+**What this proves:** there is no Manus-proprietary build step, no private
+package required, and no platform gate in the build. The application is
+**portable as-is**. This is a hosting migration, not a rewrite — the residual
+work is the ~11 `server/_core/` modules and the database, not the codebase.
+
+The migration is **materially smaller than the plan assumes**. The plan was written defensively ("not a direct rewrite on day one"), which remains correct for compute — but the *code* is proven portable and the *coupling* is bounded to roughly a dozen modules behind an existing internal interface, with the AI provider port already complete.
 
 Recommended first moves, unchanged from the plan:
 1. Export the database — **the only irreversible risk**
