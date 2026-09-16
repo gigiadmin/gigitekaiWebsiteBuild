@@ -2592,3 +2592,17 @@
 - [x] Apply safe duplicate remediation with canonical retention, redirects or archival state, and no loss of unique troubleshooting guidance — 62 records archived, 62 durable redirects created, 2 content-preserving merges completed, 0 hard deletes
 - [x] Add historical Knowledge Base audit trend charts to the protected admin dashboard — two responsive persisted-data charts with a truthful single-period baseline state
 - [x] Rerun the Knowledge Base audit and validate repaired references, duplicate outcomes, trend data, routes, tests, access controls, and production build — September run refreshed in place: 0 broken references, 0 duplicate groups; 32 focused tests, TypeScript, build, routes, redirects, and HTTP 401 admin protection passed
+
+- [x] Expand the GigitekAI-only portability plan to include all protected /admin pages, admin authentication, admin APIs, dashboards, scheduled jobs, integrations, and admin-only data.
+- [x] Document the replacement architecture for the public site and /admin portal outside Manus, including Azure authentication and secure secret management.
+
+- [x] Review the Hermes migration prompt against the actual GigitekAI public site, protected admin portal, data, storage, integrations, authentication, scheduled jobs, and deployment requirements.
+- [x] Produce a secure Hermes transition handoff that identifies available artifacts, required exports, owner-supplied cloud inputs, secret-handling boundaries, validation gates, cutover, rollback, and final Manus-decommission criteria.
+
+- [x] Create a beginner-friendly GigitekAI database migration walkthrough covering the Manus safety backup, portable MySQL-compatible export, encrypted handling, and Azure MySQL staging import.
+- [x] Define validation gates for all 150 tables and 125,646 source rows, application testing, final write freeze, production cutover, and rollback without changing live DNS or data.
+
+- [x] Define the secure Telegram-to-Hermes bridge architecture, specialist-agent command routing, user/group allowlists, approval gates, audit logging, and secret boundaries.
+- [x] Build a portable Telegram webhook bridge with pluggable Hermes and optional Manus provider adapters, replay protection, rate limiting, and safe error handling.
+- [x] Add automated tests, deployment guidance, health checks, setup documentation, and a red-team validation checklist for the bridge.
+- [x] Add a private runtime `.env`, Git-safe `.env.example`, `.gitignore` protection, file-permission guidance, secret generation, and rotation instructions for the Telegram bot and Hermes profiles.
