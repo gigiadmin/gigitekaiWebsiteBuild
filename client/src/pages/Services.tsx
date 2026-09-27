@@ -17,6 +17,7 @@ import {
   Cpu,
   ArrowRight,
   Monitor,
+  FileCheck2,
   CheckCircle2,
   Phone,
 } from "lucide-react";
@@ -78,6 +79,15 @@ const services = [
     href: "/services/microsoft-365",
     cta: "Explore M365 Services",
   },
+  {
+    icon: FileCheck2,
+    title: "Fortress — CMMC Readiness",
+    description:
+      "A CMMC readiness and evidence-operations solution designed to help organizations organize scope, controls, evidence, and assessment preparation.",
+    href: "/contact",
+    cta: "Ask About Fortress",
+    badge: "Coming Soon",
+  },
 ];
 
 const differentiators = [
@@ -93,7 +103,7 @@ export default function Services() {
   useSEO({
     title: "Enterprise Cloud & AI Services | GigitekAI",
     description:
-      "Explore GigitekAI's full suite of enterprise services: cloud infrastructure, AI, cybersecurity, managed IT, Microsoft 365, and data analytics.",
+      "Explore GigitekAI's enterprise services, including cloud, AI, cybersecurity, managed IT, Microsoft 365, data analytics, and the coming-soon Fortress CMMC readiness solution.",
     path: "/services",
   });
 
@@ -174,6 +184,11 @@ export default function Services() {
                     >
                       {service.title}
                     </h2>
+                    {service.badge && (
+                      <span className="inline-flex rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-300 mb-3">
+                        {service.badge}
+                      </span>
+                    )}
                     <p className="text-gray-400 text-sm leading-relaxed mb-4">
                       {service.description}
                     </p>
