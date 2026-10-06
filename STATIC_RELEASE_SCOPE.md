@@ -4,6 +4,10 @@
 
 This repository is an **independent static public marketing site**. It deliberately does not attempt to export or imitate application functions that need a backend, user data, authentication, or credentials.
 
+## Current GitHub placement
+
+The release is committed to the isolated, protected `static-public-site` branch of the private `gigiadmin/gigitekaiWebsiteBuild` repository. The existing application `main` and migration branches are not modified. The branch contains only the credential-free static release files listed in this document and is suitable as the Cloudflare Pages production branch.
+
 ## Included public pages
 
 | Public path | Purpose |
