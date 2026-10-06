@@ -1,0 +1,14 @@
+# Local visual-review artifacts
+*-review.png
+
+# Local servers and logs
+*.log
+
+# Environment files must never enter this static repository
+.env
+.env.*
+!.env.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
