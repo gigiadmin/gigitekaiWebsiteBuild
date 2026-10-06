@@ -35,17 +35,26 @@ Open `http://localhost:8080`.
 
 ## Cloudflare Pages deployment — no credentials in GitHub
 
+### Current protected source location
+
+The static public release lives on the isolated, protected `static-public-site` branch in the existing private repository: `gigiadmin/gigitekaiWebsiteBuild`.
+
+- The existing `main` and `migration/off-manus-foundation` branches are not changed by this release.
+- The static branch contains only the files in this folder—no original full-stack app, API logic, credentials, database data, or admin portal source.
+- Pull requests are required for future updates to the static branch; branch deletion and force pushes are blocked.
+
+You can later move this branch to a dedicated private repository if desired. The Cloudflare Pages configuration is the same.
+
 ### Recommended: Git integration from the Cloudflare dashboard
 
-1. Create a **private** GitHub repository named `gigitekai-static-public-site`.
-2. Push this repository to GitHub.
-3. In Cloudflare Dashboard, open **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
-4. Select the private GitHub repository.
+1. In Cloudflare Dashboard, open **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
+2. Select the private `gigiadmin/gigitekaiWebsiteBuild` repository.
+3. Select **`static-public-site`** as the production branch.
 5. Configure:
 
 | Field | Value |
 |---|---|
-| Production branch | `main` |
+| Production branch | `static-public-site` |
 | Framework preset | `None` |
 | Build command | `python3 scripts/build.py` |
 | Build output directory | `dist` |
