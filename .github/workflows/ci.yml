@@ -118,14 +118,14 @@ jobs:
           BASE="https://gigitekai.com"
           ROUTES=(
             "/"
-            "/ai-demo"
+            "/services/ai"
             "/helpdesk"
             "/admin"
             "/blog"
             "/contact"
             "/pricing"
             "/kb"
-            "/about-us"
+            "/about"
             "/services"
           )
           FAILED=0

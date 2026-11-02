@@ -20,6 +20,7 @@
 import { Request, Response, NextFunction } from "express";
 import fs from "fs";
 import path from "path";
+import { getPublicRedirect, isPublicSiteRoute, PAGE_SEO, readPublicSiteHtml } from "./publicSite";
 
 // ─── Route SEO Data ──────────────────────────────────────────────────────────
 // Each marketing route gets unique title, description, and canonical
@@ -36,13 +37,13 @@ const DEFAULT_OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/3105196635091638
 
 const ROUTE_SEO: Record<string, RouteSEO> = {
   "/": {
-    title: "GigitekAI — AI-First MSP | Microsoft 365, Managed IT & AI Automation",
-    description: "GigitekAI delivers enterprise cloud, AI automation & managed IT for SMBs and enterprises. 99.9% uptime SLA, 24/7 support, 40% cost reduction.",
+    title: "GigitekAI — AI-First Managed IT, Microsoft 365, Security & Cloud",
+    description: "GigitekAI helps businesses run dependable IT, strengthen security, and automate repetitive work. Managed IT, Microsoft 365, AI agents, cybersecurity, and cloud from one accountable partner.",
     h1: "AI-First Managed IT & Cloud Solutions for SMBs",
   },
   "/services": {
-    title: "IT Services | Cloud, AI, Cybersecurity & Microsoft 365 | GigitekAI",
-    description: "Enterprise cloud infrastructure, AI automation, cybersecurity, and Microsoft 365 architecture. Managed IT services with 99.9% uptime for SMBs and enterprises.",
+    title: "Services | Managed IT, Microsoft 365, AI, Security, Cloud | GigitekAI",
+    description: "Managed IT services, Microsoft 365 architecture and migration, AI agents and automation, cybersecurity and backup, and cloud infrastructure — planned together by one partner.",
   },
   "/pricing": {
     title: "IT Services Pricing | Managed IT & Helpdesk Plans | GigitekAI",
@@ -57,20 +58,20 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
     description: "24/7 AI-powered helpdesk: Essential $69, Professional $119, Elite $189/user/mo. Ticket management, remote support & SLA guarantees.",
   },
   "/contact": {
-    title: "Contact GigitekAI | Get a Free IT Consultation",
-    description: "Contact GigitekAI for a free IT consultation. Call (727) 382-6909 or email support@gigitekai.com. Serving SMBs across Florida and North America.",
+    title: "Contact GigitekAI",
+    description: "Talk to GigitekAI about managed IT, Microsoft 365, AI automation, security, or cloud. Email support@gigitekai.com or call 609-676-4483.",
   },
   "/free-audit": {
     title: "Free IT Security Audit | Compliance Assessment | GigitekAI",
     description: "Get a free IT security and compliance audit. Identify vulnerabilities, assess M365 configuration, and receive a prioritized remediation roadmap.",
   },
   "/blog": {
-    title: "IT Insights & Blog | Cloud, AI & Cybersecurity | GigitekAI",
-    description: "Expert insights on managed IT, Microsoft 365, AI automation, cybersecurity, and cloud infrastructure for SMBs. Stay informed with GigitekAI.",
+    title: "Insights | GigitekAI",
+    description: "Articles on managed IT, Microsoft 365, AI automation, cybersecurity, and cloud for business owners and IT leaders.",
   },
   "/insights": {
-    title: "IT Insights & Blog | Cloud, AI & Cybersecurity | GigitekAI",
-    description: "Expert insights on managed IT, Microsoft 365, AI automation, cybersecurity, and cloud infrastructure for SMBs. Stay informed with GigitekAI.",
+    title: "Insights | GigitekAI",
+    description: "Articles on managed IT, Microsoft 365, AI automation, cybersecurity, and cloud for business owners and IT leaders.",
   },
   "/websites": {
     title: "Website Portfolio | Professional Web Design | GigitekAI",
@@ -217,24 +218,24 @@ const ROUTE_SEO: Record<string, RouteSEO> = {
 // Service detail pages
 const SERVICE_SLUGS: Record<string, RouteSEO> = {
   "microsoft-365": {
-    title: "Microsoft 365 Services | Licensing & Architecture | GigitekAI",
-    description: "Expert Microsoft 365 architecture, licensing optimization, Teams deployment, SharePoint, Exchange, Intune, and Copilot configuration for SMBs.",
+    title: "Microsoft 365 Architecture, Migration & Administration | GigitekAI",
+    description: "Microsoft 365 identity, collaboration, migration, governance, security, and cost optimization for businesses — designed and run by an experienced M365 architect.",
   },
   "cloud": {
-    title: "Cloud Infrastructure | AWS, Azure & Google Cloud | GigitekAI",
-    description: "Enterprise cloud architecture on AWS, Azure, and Google Cloud. Migration, optimization, and 24/7 management with 99.9% uptime SLA.",
+    title: "Cloud Infrastructure & Modernization — Azure, AWS, Google Cloud | GigitekAI",
+    description: "Cloud architecture, migration, operations, resilience, and cost management across Azure, AWS, and Google Cloud, planned around your workloads.",
   },
   "security": {
-    title: "Cybersecurity Services | Zero Trust & Compliance | GigitekAI",
-    description: "Enterprise cybersecurity for SMBs. Zero Trust, SIEM/SOC, endpoint protection, email security. HIPAA, SOC 2, PCI-DSS compliant.",
+    title: "Cybersecurity, Identity & Backup Services | GigitekAI",
+    description: "Layered security for identity, email, endpoints, and backup with a Zero Trust approach and NIST-aligned practices. Tested recovery, practical policy.",
   },
   "ai": {
-    title: "AI & Automation Services | Custom AI Agents | GigitekAI",
-    description: "Custom AI agents, LLM integration, workflow automation, and Copilot Studio deployment. Transform operations with intelligent automation.",
+    title: "AI Agents & Workflow Automation for Business | GigitekAI",
+    description: "Practical AI agents and connected workflows designed around real business processes, with access controls, approvals, and human accountability.",
   },
   "managed": {
-    title: "Managed IT Services | 24/7 Support & Monitoring | GigitekAI",
-    description: "Fully managed IT with 24/7 helpdesk, endpoint management, monitoring, patching, and proactive maintenance. 99.9% uptime guaranteed.",
+    title: "Managed IT Services | GigitekAI",
+    description: "Managed IT with helpdesk, device management, patching, monitoring, and vendor coordination — one accountable team for your business technology.",
   },
   "data": {
     title: "Data & Analytics | Power BI & Business Intelligence | GigitekAI",
@@ -816,13 +817,23 @@ export function prerenderMiddleware(distPath: string) {
       return res.redirect(301, "/blog");
     }
 
+    // ─── Retired public marketing URLs → permanent redirect ─────────────
+    // Exact-path map only (server/_core/publicSite.ts). Admin, API, auth and
+    // operational prefixes are excluded inside getPublicRedirect().
+    const publicRedirect = getPublicRedirect(req.path);
+    if (publicRedirect) {
+      const qs = req.url.includes("?") ? "?" + req.url.split("?")[1] : "";
+      return res.redirect(301, publicRedirect + qs);
+    }
+
     // ─── 404 Detection (async — validates blog slugs & AI news IDs) ─────
     const known = await isKnownRouteAsync(req.path);
     if (!known) {
       // Serve 404 page with proper HTTP status
       const indexPath = path.resolve(distPath, "index.html");
       try {
-        let html = fs.readFileSync(indexPath, "utf-8");
+        // Prefer the lightweight public shell for 404s (renders the public NotFound page).
+        let html = readPublicSiteHtml(distPath, "/__404__") ?? fs.readFileSync(indexPath, "utf-8");
         html = injectSEO(html, {
           title: "Page Not Found | GigitekAI",
           description: "The page you're looking for doesn't exist. Return to GigitekAI homepage for managed IT, cloud, and AI services.",
@@ -850,6 +861,25 @@ export function prerenderMiddleware(distPath: string) {
     const canonicalUrl = req.path === "/" ? `${BASE_URL}/` : `${BASE_URL}${req.path}`;
     const indexPath = path.resolve(distPath, "index.html");
     try {
+      // ── Public marketing site (separate bundle) ──────────────────────────
+      // Marketing routes are served from the public site build (prerendered
+      // HTML where available). The application entry (index.html) is untouched
+      // and still serves admin, helpdesk, support, KB and legacy routes.
+      const publicHtml = isPublicSiteRoute(req.path) ? readPublicSiteHtml(distPath, req.path) : null;
+      if (publicHtml) {
+        const normalized = req.path.replace(/\/$/, "") || "/";
+        const pageSeo = PAGE_SEO[normalized] ?? seo;
+        let html = pageSeo ? injectSEO(publicHtml, pageSeo, canonicalUrl) : publicHtml;
+        // Blog posts are client-rendered; give crawlers the article HTML from the DB.
+        const ua = req.headers["user-agent"] || "";
+        if (normalized.startsWith("/blog/") && isCrawler(ua)) {
+          html = await injectPrerenderedContent(html, normalized);
+        }
+        res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(html);
+      }
+
       let html = fs.readFileSync(indexPath, "utf-8");
       if (seo) {
         html = injectSEO(html, seo, canonicalUrl);

@@ -9,6 +9,9 @@ Disallow: /helpdesk/profile
 Disallow: /helpdesk/create-ticket
 Disallow: /404
 Disallow: /api/
+Disallow: /mainx
+Disallow: /mainx/
+Disallow: /redirect.html
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

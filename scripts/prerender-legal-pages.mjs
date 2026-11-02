@@ -22,24 +22,48 @@ const privacyPolicyHTML = `<!DOCTYPE html>
     <meta name="description" content="GigitekAI Privacy Policy - Learn how we protect your data and privacy.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://gigitekai.com/privacy-policy">
+    <meta name="theme-color" content="#0b0b0c">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0A0E1A; color: #e0e0e0; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        h1 { font-size: 3rem; font-weight: bold; margin-bottom: 1rem; color: #fff; }
-        h2 { font-size: 1.5rem; font-weight: bold; margin-top: 2rem; margin-bottom: 1rem; color: #fff; }
-        h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #e0e0e0; }
-        p { margin-bottom: 1rem; color: #b0b0b0; }
-        ul, ol { margin-left: 2rem; margin-bottom: 1rem; }
-        li { margin-bottom: 0.5rem; color: #b0b0b0; }
-        .meta { color: #808080; font-size: 0.9rem; margin-bottom: 2rem; }
-        a { color: #00D4FF; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        section { margin-bottom: 2rem; }
+        /* Public-site legal page styling (matches client/src/public/site.css) */
+        @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2"); }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: #0b0b0c; color: #a1a1a6; line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+        a { color: #5ec8f4; text-decoration: none; } a:hover { color: #8ed9f8; }
+        .site-header { position: sticky; top: 0; z-index: 50; background: rgba(11,11,12,0.86); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .site-nav { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .site-nav img { width: 110px; height: auto; display: block; }
+        .site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 28px; }
+        .site-nav ul a { color: #d2d2d7; font-size: 14px; min-height: 44px; display: inline-flex; align-items: center; }
+        .site-nav ul a:hover { color: #f5f5f7; }
+        .container { max-width: 760px; margin: 0 auto; padding: 96px 24px 112px; }
+        h1 { font-size: clamp(36px, 4vw, 52px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.08; margin: 0 0 12px; color: #f5f5f7; }
+        h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; margin: 48px 0 12px; color: #f5f5f7; }
+        h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; color: #f5f5f7; }
+        p { margin: 0 0 16px; }
+        ul, ol { margin: 0 0 16px 24px; padding: 0; }
+        li { margin-bottom: 8px; }
+        .meta { color: #86868b; font-size: 15px; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        section { margin-bottom: 8px; }
+        .site-footer { border-top: 1px solid rgba(255,255,255,0.12); padding: 40px 24px; }
+        .site-footer div { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; font-size: 12px; color: #86868b; }
+        .site-footer a { color: #86868b; margin-right: 20px; } .site-footer a:hover { color: #f5f5f7; }
+        @media (max-width: 640px) { .site-nav ul { gap: 18px; } .container { padding: 64px 20px 80px; } }
     </style>
 </head>
 <body>
-    <div class="container">
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Main">
+            <a href="/" aria-label="GigitekAI home"><img src="/gigitekai-wordmark.png" alt="GigitekAI" width="490" height="124"></a>
+            <ul>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
         <div class="mb-12">
             <h1>Privacy Policy</h1>
             <p class="meta">Last updated: April 2026</p>
@@ -173,11 +197,17 @@ const privacyPolicyHTML = `<!DOCTYPE html>
             <p>If you have questions about this Privacy Policy or our privacy practices, please contact us:</p>
             <ul>
                 <li><strong>Email:</strong> <a href="mailto:privacy@gigitekai.com">privacy@gigitekai.com</a></li>
-                <li><strong>Phone:</strong> (727) 382-5776</li>
+                <li><strong>Phone:</strong> <a href="tel:+16096764483">609-676-4483</a></li>
                 <li><strong>Address:</strong> GigitekAI LLC, Egg Harbor City, NJ 08215</li>
             </ul>
         </section>
-    </div>
+    </main>
+    <footer class="site-footer">
+        <div>
+            <span>&copy; 2026 GigitekAI LLC. All rights reserved.</span>
+            <span><a href="/privacy-policy">Privacy Policy</a><a href="/terms-of-service">Terms of Service</a><a href="/contact">Contact</a></span>
+        </div>
+    </footer>
 </body>
 </html>`;
 
@@ -191,25 +221,48 @@ const termsOfServiceHTML = `<!DOCTYPE html>
     <meta name="description" content="GigitekAI Terms of Service - Read our terms and conditions for using our services.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://gigitekai.com/terms-of-service">
+    <meta name="theme-color" content="#0b0b0c">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0A0E1A; color: #e0e0e0; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        h1 { font-size: 3rem; font-weight: bold; margin-bottom: 1rem; color: #fff; }
-        h2 { font-size: 1.5rem; font-weight: bold; margin-top: 2rem; margin-bottom: 1rem; color: #fff; }
-        h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #e0e0e0; }
-        p { margin-bottom: 1rem; color: #b0b0b0; }
-        ul, ol { margin-left: 2rem; margin-bottom: 1rem; }
-        li { margin-bottom: 0.5rem; color: #b0b0b0; }
-        .meta { color: #808080; font-size: 0.9rem; margin-bottom: 2rem; }
-        a { color: #00D4FF; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        section { margin-bottom: 2rem; }
-        strong { color: #fff; }
+        /* Public-site legal page styling (matches client/src/public/site.css) */
+        @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2"); }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: #0b0b0c; color: #a1a1a6; line-height: 1.6; font-size: 17px; -webkit-font-smoothing: antialiased; }
+        a { color: #5ec8f4; text-decoration: none; } a:hover { color: #8ed9f8; }
+        .site-header { position: sticky; top: 0; z-index: 50; background: rgba(11,11,12,0.86); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .site-nav { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .site-nav img { width: 110px; height: auto; display: block; }
+        .site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 28px; }
+        .site-nav ul a { color: #d2d2d7; font-size: 14px; min-height: 44px; display: inline-flex; align-items: center; }
+        .site-nav ul a:hover { color: #f5f5f7; }
+        .container { max-width: 760px; margin: 0 auto; padding: 96px 24px 112px; }
+        h1 { font-size: clamp(36px, 4vw, 52px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.08; margin: 0 0 12px; color: #f5f5f7; }
+        h2 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; margin: 48px 0 12px; color: #f5f5f7; }
+        h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; color: #f5f5f7; }
+        p { margin: 0 0 16px; }
+        ul, ol { margin: 0 0 16px 24px; padding: 0; }
+        li { margin-bottom: 8px; }
+        .meta { color: #86868b; font-size: 15px; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        section { margin-bottom: 8px; }
+        .site-footer { border-top: 1px solid rgba(255,255,255,0.12); padding: 40px 24px; }
+        .site-footer div { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; font-size: 12px; color: #86868b; }
+        .site-footer a { color: #86868b; margin-right: 20px; } .site-footer a:hover { color: #f5f5f7; }
+        @media (max-width: 640px) { .site-nav ul { gap: 18px; } .container { padding: 64px 20px 80px; } }
     </style>
 </head>
 <body>
-    <div class="container">
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Main">
+            <a href="/" aria-label="GigitekAI home"><img src="/gigitekai-wordmark.png" alt="GigitekAI" width="490" height="124"></a>
+            <ul>
+                <li><a href="/services">Services</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
         <div class="mb-12">
             <h1>Terms of Service</h1>
             <p class="meta">Last updated: April 2026</p>
@@ -300,11 +353,17 @@ const termsOfServiceHTML = `<!DOCTYPE html>
             <p>If you have any questions about these Terms of Service, please contact us:</p>
             <ul>
                 <li><strong>Email:</strong> <a href="mailto:legal@gigitekai.com">legal@gigitekai.com</a></li>
-                <li><strong>Phone:</strong> (727) 382-5776</li>
+                <li><strong>Phone:</strong> <a href="tel:+16096764483">609-676-4483</a></li>
                 <li><strong>Address:</strong> GigitekAI LLC, Egg Harbor City, NJ 08215</li>
             </ul>
         </section>
-    </div>
+    </main>
+    <footer class="site-footer">
+        <div>
+            <span>&copy; 2026 GigitekAI LLC. All rights reserved.</span>
+            <span><a href="/privacy-policy">Privacy Policy</a><a href="/terms-of-service">Terms of Service</a><a href="/contact">Contact</a></span>
+        </div>
+    </footer>
 </body>
 </html>`;
 
