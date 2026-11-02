@@ -40,7 +40,9 @@ export default function Contact() {
             <div className="contact-card">
               <span className="caption">Location</span>
               <span className="title-lg">{SITE.region}</span>
-              <span className="small">{SITE.serviceArea}.</span>
+              <span className="small">
+                {SITE.legalName}, {SITE.address.street}, {SITE.address.city}, {SITE.address.state} {SITE.address.zip}. {SITE.serviceArea}.
+              </span>
             </div>
           </div>
           <div className="stack stack-24">

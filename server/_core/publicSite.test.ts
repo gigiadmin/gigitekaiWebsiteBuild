@@ -26,9 +26,8 @@ describe("public site routing", () => {
       "/accept-invite",
       "/logout",
       "/redirect.html",
-      "/pricing",
-      "/industries/healthcare",
-      "/websites/finance",
+      "/smart-home",
+      "/ai-news",
     ]) {
       expect(isPublicSiteRoute(p), p).toBe(false);
     }
@@ -39,6 +38,10 @@ describe("public site routing", () => {
     expect(getPublicRedirect("/about-us")).toBe("/about");
     expect(getPublicRedirect("/services/data")).toBe("/services");
     expect(getPublicRedirect("/technology-assessment/")).toBe("/contact");
+    expect(getPublicRedirect("/pricing")).toBe("/services");
+    expect(getPublicRedirect("/websites/finance")).toBe("/services");
+    expect(getPublicRedirect("/industries/healthcare")).toBe("/services");
+    expect(getPublicRedirect("/managed-it-services-tampa")).toBe("/services/managed");
     for (const target of Object.values(PUBLIC_REDIRECTS)) {
       expect(target).not.toBe("/");
       expect(getPublicRedirect(target), `redirect loop for ${target}`).toBeNull();
@@ -46,7 +49,7 @@ describe("public site routing", () => {
   });
 
   it("does not redirect protected or retained routes", () => {
-    for (const p of ["/admin", "/api/health", "/helpdesk", "/support", "/kb", "/pricing", "/websites", "/blog", "/"]) {
+    for (const p of ["/admin", "/api/health", "/helpdesk", "/support", "/kb", "/smart-home", "/ai-news", "/blog", "/"]) {
       expect(getPublicRedirect(p), p).toBeNull();
     }
     expect(isProtectedPath("/admin/anything")).toBe(true);

@@ -41,11 +41,15 @@ Design: near-black ground (`#0b0b0c` / `#141416`), Inter (self-hosted, SIL OFL, 
 | `/service-comparison`, `/fractional-cto-ai-strategy`, `/business-technology-launch`, `/services/data`, `/services/strategy` | `/services` |
 | `/resources` | `/blog` |
 | `/insights` | `/blog` (pre-existing) |
+| `/pricing`, `/web-pricing`, `/websites`, `/websites/*`, `/portfolio`, `/portfolio/*`, `/case-studies`, `/industries`, `/industries/*` | `/services` |
+| `/helpdesk-pricing`, `/managed-it-services-tampa`, `/managed-it-services-miami` | `/services/managed` |
+| `/florida-it-resiliency` | `/services/security` |
+| `/web-discovery-intake` | `/contact` |
 
 **Preserved, served by the existing application, removed from navigation and sitemap (decision 6/7A)**
 Operational: `/helpdesk/*`, `/support/*`, `/kb/*`, `/status`, `/m365-status`, `/m365-notifications`, `/client/onboarding`, `/accept-invite`, `/logout`, `/cancel-meeting/*`, `/reschedule-meeting/*`, `/remote-session/*`, `/assessment/report/*`, `/exchange`, `/scripts`, `/search`, `/qr`, `/connect`, `/contact-card`, `/hh`, `/investor-portal`, `/call-transcripts`.
-Legacy marketing content left live but unlinked: `/pricing`, `/helpdesk-pricing`, `/web-pricing`, `/web-discovery-intake`, `/websites` + 10 portfolio demos (`/websites/*`, `/portfolio/*`), `/industries` + 11 industry pages, `/managed-it-services-tampa`, `/managed-it-services-miami`, `/florida-it-resiliency`, `/case-studies`, `/smart-home`, `/ai-news/*`.
-These still load the legacy bundle with its widgets (chat, cookie banner, Umami). See owner decisions.
+Legacy marketing content left live but unlinked (owner chose to retire the pricing/claims/industry/location/website pages — now 301s above): `/smart-home`, `/ai-news/*`.
+These still load the legacy bundle with its widgets (chat, cookie banner, Umami).
 
 **Retired with real 404 (no meaningful replacement)**: none beyond what already 404'd. `/redirect.html` returns 404 — pre-existing on the live site; MSAL no longer uses it (`client/src/lib/msalConfig.ts`).
 
@@ -90,12 +94,13 @@ Not tested (needs real credentials/DB): authenticated admin sessions, password r
 ## 6. Owner decisions still needed
 
 1. **Rotate credentials.** `.project-config.json` (removed from the branch and gitignored) held live secrets for the database, Anthropic, Azure/Graph, SendGrid, Twilio, Stripe, Cloudflare, GoDaddy, HubSpot, Atlassian/Jira, LinkedIn, Facebook, Gemini, DeepSeek, UptimeRobot, Xero, JWT and VAPID keys. It is still in git history on `main`; purge history (or treat every key as compromised and rotate).
-2. **Legacy pricing/claims pages** (`/pricing`, `/helpdesk-pricing`, `/web-pricing`, `/case-studies`, industry/location pages) are still live with the old "$69/user", "99.9% uptime", "50+ clients", "40% cost reduction" and compliance claims. Recommend retiring them (301 to `/services` or `/contact`) or rewriting; they are already out of the sitemap and navigation.
-3. **Legal pages**: contact block lists `legal@gigitekai.com` / `privacy@gigitekai.com` and an Egg Harbor City, NJ address. Confirm the mailboxes exist and whether the address should be Tampa Bay. The phone was corrected to `609-676-4483`. Policy text still references contact forms, cookies and third-party analytics — accurate for the legacy pages, worth a legal pass now that the marketing pages collect nothing.
-4. **About page**: now says veteran- and family-owned, founded by Harry and Brenda Henry, Harry a U.S. Army veteran with 25+ years' enterprise IT experience. Dropped (conflicting/unsupported on old pages): "20+ years", "45 years combined", "40 years combined", employer names, certification counts, "50+ clients". Confirm Brenda's mention is still wanted.
-5. **Social links**: footer keeps LinkedIn and YouTube. Twitter/X and Facebook links from the old footer were dropped — restore in `site.config.ts` → `SOCIAL` if those accounts are active.
+2. ~~Legacy pricing/claims pages~~ — **decided (Nov 2): retired with 301s** (table above). Only `/smart-home` and `/ai-news/*` remain live from the legacy marketing set.
+3. **Legal pages**: address updated to 6008 River Terrace, Tampa, FL 33604 (owner-confirmed) and phone to `609-676-4483`. Contact block still lists `legal@gigitekai.com` / `privacy@gigitekai.com` — confirm those mailboxes exist. Policy text still references contact forms, cookies and third-party analytics — accurate for the legacy/operational pages; worth a legal pass now that the marketing pages collect nothing.
+4. ~~About page / social links~~ — **decided (Nov 2)**: Brenda/co-founder and "family-owned" removed (now "veteran-owned, founded and led by Harry Henry"); Twitter/X and Facebook stay dropped. Also dropped from the old page as unsupported: "20+ years", "45/40 years combined", employer names, certification counts, "50+ clients".
+5. **Street address** now appears on `/contact` and in the Organization schema (`client/site.html`).
 6. **Umami analytics** still runs on admin and legacy pages (from `client/index.html`). Decide whether to keep it there.
-7. **Deployment**: nothing has been deployed. Deploy from this branch via the existing Manus/staging flow (`hh.gigitekai.com` first). `pnpm build` produces everything; no new environment variables.
+7. **Deployment**: nothing has been deployed — there is no deploy pipeline in this repo (CI only; `smoke-test.yml` probes `hh.gigitekai.com` after a deploy). Deploy from this branch via the existing Manus flow to `hh.gigitekai.com`, run the smoke test, then merge/promote. `pnpm build` produces everything; no new environment variables.
+8. **Secrets to rotate** (names only; values were in the removed `.project-config.json`): DATABASE_URL / DRIZZLE_DATABASE_URL (TiDB password), ACS_CONNECTION_STRING, ATLASSIAN_API_TOKEN, AZURE_CLIENT_SECRET, MS_GRAPH_CLIENT_SECRET, AZURE_SPEECH_KEY, BUILT_IN_FORGE_API_KEY, VITE_FRONTEND_FORGE_API_KEY, CLAUDE_API_KEY, CLOUDFLARE_API_TOKEN, DEEPSEEK_API_KEY, FACEBOOK_APP_SECRET, GEMINI_API_KEY, GODADDY_API_KEY + GODADDY_API_SECRET, HUBSPOT_API_KEY, JIRA_API_TOKEN, JIRA_API_TOKEN_ADMIN, JWT_SECRET, JWT_RESET_SECRET, LINKEDIN_CLIENT_SECRET, MERIDIAN_API_TOKEN, MERIDIAN_HELPDESK_READ_TOKEN, NEWSLETTER_AUTO_POST_KEY, NEWS_API_KEY, POWER_AUTOMATE_WEBHOOK_URL / TEAMS_WEBHOOK_URL (signed URLs — regenerate), RECAPTCHA_SECRET_KEY, SENDGRID_API_KEY, STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET (test keys), TEAMS_BOT_CLIENT_SECRET, TWILIO_AUTH_TOKEN, TWITTER_API_SECRET, UPTIMEROBOT_API_KEY, VAPID_PRIVATE_KEY (re-subscribe push clients), XERO_CLIENT_SECRET, and the Manus git-remote AWS access key/secret/session token (already expired Sep 2026). Public/site keys (VITE_* IDs, reCAPTCHA site key, Stripe publishable key, tenant/client IDs) are not secrets but note they were exposed alongside.
 
 ## 7. How to edit without adding plugins
 

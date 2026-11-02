@@ -27,6 +27,7 @@ export const SITE = {
     alt: "GigitekAI",
   },
   region: "Tampa Bay, Florida",
+  address: { street: "6008 River Terrace", city: "Tampa", state: "FL", zip: "33604" },
   serviceArea: "Businesses across North America and Canada",
 } as const;
 
@@ -391,7 +392,7 @@ export const HOME_FAQ: ServiceFaq[] = [
 export const ABOUT = {
   headline: "Enterprise-quality IT, for businesses that don't have an enterprise IT department.",
   intro:
-    "GigitekAI is a veteran- and family-owned managed services provider based in Tampa Bay, founded by Harry Henry and Brenda Henry.",
+    "GigitekAI is a veteran-owned managed services provider based in Tampa Bay, founded and led by Harry Henry.",
   paragraphs: [
     "Harry is a U.S. Army veteran and Microsoft 365 architect with more than 25 years of hands-on enterprise IT experience, including large-scale Exchange and Microsoft 365 migrations for global organizations. GigitekAI exists to bring that level of engineering discipline to small and mid-sized businesses.",
     "Our focus is practical technology that helps businesses operate more reliably, reduce risk, and automate repetitive work. When we use AI, it performs useful operational tasks with appropriate approvals, access controls, monitoring, and human accountability. We are not selling an unsupervised black box.",
@@ -405,7 +406,7 @@ export const ABOUT = {
   ],
   seo: {
     title: "About GigitekAI | Veteran-Owned, AI-First Managed IT",
-    description: "GigitekAI is a veteran- and family-owned managed services provider in Tampa Bay led by a Microsoft 365 architect with 25+ years of enterprise IT experience.",
+    description: "GigitekAI is a veteran-owned managed services provider in Tampa Bay led by a Microsoft 365 architect with 25+ years of enterprise IT experience.",
   },
 } as const;
 

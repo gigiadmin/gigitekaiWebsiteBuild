@@ -89,12 +89,35 @@ export const PUBLIC_REDIRECTS: Record<string, string> = {
   "/business-technology-launch": "/services",
   "/services/data": "/services",
   "/services/strategy": "/services",
+  // Legacy pricing, claims, website-services and location pages (retired Nov 2026)
+  "/pricing": "/services",
+  "/helpdesk-pricing": "/services/managed",
+  "/web-pricing": "/services",
+  "/web-discovery-intake": "/contact",
+  "/websites": "/services",
+  "/portfolio": "/services",
+  "/case-studies": "/services",
+  "/industries": "/services",
+  "/managed-it-services-tampa": "/services/managed",
+  "/managed-it-services-miami": "/services/managed",
+  "/florida-it-resiliency": "/services/security",
+};
+
+/** Retired route families: any sub-path redirects to the target. */
+export const PUBLIC_REDIRECT_PREFIXES: Record<string, string> = {
+  "/websites": "/services",
+  "/portfolio": "/services",
+  "/industries": "/services",
 };
 
 export function getPublicRedirect(pathname: string): string | null {
   const p = normalize(pathname);
   if (isProtectedPath(p)) return null;
-  return PUBLIC_REDIRECTS[p] ?? null;
+  if (PUBLIC_REDIRECTS[p]) return PUBLIC_REDIRECTS[p];
+  for (const [prefix, target] of Object.entries(PUBLIC_REDIRECT_PREFIXES)) {
+    if (p.startsWith(prefix + "/")) return target;
+  }
+  return null;
 }
 
 /** Map a public route to its prerendered file name (mirrors scripts/prerender-public-site.mjs). */

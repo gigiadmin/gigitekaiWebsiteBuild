@@ -198,7 +198,7 @@ const privacyPolicyHTML = `<!DOCTYPE html>
             <ul>
                 <li><strong>Email:</strong> <a href="mailto:privacy@gigitekai.com">privacy@gigitekai.com</a></li>
                 <li><strong>Phone:</strong> <a href="tel:+16096764483">609-676-4483</a></li>
-                <li><strong>Address:</strong> GigitekAI LLC, Egg Harbor City, NJ 08215</li>
+                <li><strong>Address:</strong> GigitekAI LLC, 6008 River Terrace, Tampa, FL 33604</li>
             </ul>
         </section>
     </main>
@@ -354,7 +354,7 @@ const termsOfServiceHTML = `<!DOCTYPE html>
             <ul>
                 <li><strong>Email:</strong> <a href="mailto:legal@gigitekai.com">legal@gigitekai.com</a></li>
                 <li><strong>Phone:</strong> <a href="tel:+16096764483">609-676-4483</a></li>
-                <li><strong>Address:</strong> GigitekAI LLC, Egg Harbor City, NJ 08215</li>
+                <li><strong>Address:</strong> GigitekAI LLC, 6008 River Terrace, Tampa, FL 33604</li>
             </ul>
         </section>
     </main>
