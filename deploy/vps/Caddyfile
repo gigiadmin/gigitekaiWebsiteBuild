@@ -1,0 +1,89 @@
+# GigitekAI — Caddy config for the Hostinger VPS (Phase 1: static public site
+# on the VPS, everything else proxied to the existing application).
+#
+# Install to /etc/caddy/Caddyfile. Caddy obtains/renews TLS automatically once
+# DNS for gigitekai.com points at this VPS.
+#
+# Required environment (set in /etc/caddy/gigitekai.env, loaded by systemd):
+#   APP_ORIGIN   - where the existing application (admin, API, helpdesk, KB,
+#                  blog data) lives. Phase 1: the Manus deployment, e.g.
+#                  https://<project>.manus.space  Phase 2: http://127.0.0.1:3000
+#   APP_HOST     - Host header to send upstream. Phase 1: the Manus hostname
+#                  (same as APP_ORIGIN without scheme). Phase 2: gigitekai.com
+
+{
+	email support@gigitekai.com
+}
+
+www.gigitekai.com {
+	redir https://gigitekai.com{uri} permanent
+}
+
+gigitekai.com {
+	encode zstd gzip
+
+	# ── Retired marketing URLs → permanent redirects ───────────────────────
+	# Mirrors server/_core/publicSite.ts. Keep the two lists in sync.
+	@r_about path /about-us /our-team /partners
+	redir @r_about /about permanent
+	redir /privacy /privacy-policy permanent
+	@r_security path /security /compliance-scorecard /compliance-benchmark /trust-center /florida-it-resiliency
+	redir @r_security /services/security permanent
+	@r_ai path /ai-demo /ai-workflows /AIStrategicBriefing
+	redir @r_ai /services/ai permanent
+	@r_contact path /roi-calculator /technology-assessment /roadmap-generator /free-audit /audit-results /switch-program /web-discovery-intake
+	redir @r_contact /contact permanent
+	@r_services path /service-comparison /fractional-cto-ai-strategy /business-technology-launch /services/data /services/strategy /pricing /web-pricing /websites /websites/* /portfolio /portfolio/* /case-studies /industries /industries/*
+	redir @r_services /services permanent
+	@r_managed path /helpdesk-pricing /managed-it-services-tampa /managed-it-services-miami
+	redir @r_managed /services/managed permanent
+	@r_blog path /resources /insights
+	redir @r_blog /blog permanent
+
+	# ── Public marketing site: static files built by deploy/vps/build-static.sh
+	@public path / /services /services/managed /services/microsoft-365 /services/ai /services/security /services/cloud /about /contact /privacy-policy /terms-of-service /site-assets/* /fonts/* /gigitekai-wordmark.png /gigitekai-wordmark.webp /gigitekai-logo.png /favicon.ico /icon-72.png /icon-192.png /robots.txt /sitemap.xml
+	handle @public {
+		root * /var/www/gigitekai/public
+		# trailing-slash variants → canonical
+		@slash path_regexp slash ^(.+)/$
+		redir @slash {re.slash.1} permanent
+		try_files {path} {path}/index.html
+		header /site-assets/* Cache-Control "public, max-age=31536000, immutable"
+		header /fonts/* Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Blog reader: static shell, data comes from /api/trpc (proxied below)
+	@blog path /blog /blog/*
+	handle @blog {
+		root * /var/www/gigitekai/public
+		rewrite * /blog/index.html
+		file_server
+	}
+
+	# ── Everything else → the existing application (admin, API, helpdesk, KB,
+	#    support, webhooks, websockets). Unchanged behaviour.
+	handle {
+		reverse_proxy {$APP_ORIGIN} {
+			header_up Host {$APP_HOST}
+			header_up X-Forwarded-Proto https
+		}
+	}
+
+	# Security headers for the static pages
+	header @public {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	}
+
+	handle_errors {
+		@404 expression {http.error.status_code} == 404
+		handle @404 {
+			root * /var/www/gigitekai/public
+			rewrite * /404.html
+			file_server
+		}
+	}
+}
