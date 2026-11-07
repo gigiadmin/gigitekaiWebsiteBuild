@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
+import { getPublicRedirect, isPublicSiteRoute } from "./publicSite";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -85,11 +86,19 @@ export async function setupVite(app: Express, server: Server) {
         return;
       }
 
+      // Public marketing site (dev): retired URLs redirect, marketing routes use site.html
+      const pathname = url.split("?")[0];
+      const publicRedirect = getPublicRedirect(pathname);
+      if (publicRedirect) {
+        return res.redirect(301, publicRedirect);
+      }
+      const usePublicSite = isPublicSiteRoute(pathname);
+
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "../..",
         "client",
-        "index.html"
+        usePublicSite ? "site.html" : "index.html"
       );
 
       // always reload the index.html file from disk incase it changes
