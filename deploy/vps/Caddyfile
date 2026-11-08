@@ -1,19 +1,16 @@
-# GigitekAI — Caddy config for the Hostinger VPS (Phase 1: static public site
-# on the VPS, everything else proxied to the existing application).
+# GigitekAI — Caddy site file (Phase 1: static public site on the VPS, everything
+# else proxied to the existing application).
 #
-# deploy.sh installs it as /etc/caddy/sites-enabled/gigitekai.caddy and makes the
-# main Caddyfile import it, so existing sites on the box (n8n, Gitea, ...) are kept.
-# Caddy obtains/renews TLS automatically once DNS for gigitekai.com points here.
+# deploy/vps/deploy.sh substitutes the __PLACEHOLDERS__ and installs the result as
+#   systemd Caddy : /etc/caddy/sites-enabled/gigitekai.caddy
+#   Docker Caddy  : <caddy config dir>/sites-enabled/gigitekai.caddy (mounted read-only)
+# and makes the main Caddyfile import it, so the other sites on the box keep running.
 #
-# Required environment (set in /etc/caddy/gigitekai.env, loaded by systemd):
-#   APP_ORIGIN   - where the existing application (admin, API, helpdesk, KB,
-#                  blog data) lives. Phase 1: the Manus deployment, e.g.
-#                  https://<project>.manus.space  Phase 2: http://127.0.0.1:3000
-#   APP_HOST     - Host header to send upstream. Phase 1: the Manus hostname
-#                  (same as APP_ORIGIN without scheme). Phase 2: gigitekai.com
-
-# NOTE: no global options block here — this file is imported by the server's
-# main Caddyfile (deploy.sh installs it as /etc/caddy/sites-enabled/gigitekai.caddy).
+#   __SITE_ROOT__  static files (host: /var/www/gigitekai/public; container: /srv/gigitekai)
+#   __APP_ORIGIN__ existing application, e.g. https://<project>.manus.space (Phase 2: http://127.0.0.1:3000)
+#   __APP_HOST__   Host header sent upstream (Phase 2: gigitekai.com)
+#
+# No global options block here (imported file).
 
 www.gigitekai.com {
 	redir https://gigitekai.com{uri} permanent
@@ -43,7 +40,7 @@ gigitekai.com {
 	# ── Public marketing site: static files built by deploy/vps/build-static.sh
 	@public path / /services /services/managed /services/microsoft-365 /services/ai /services/security /services/cloud /about /contact /privacy-policy /terms-of-service /site-assets/* /fonts/* /gigitekai-wordmark.png /gigitekai-wordmark.webp /gigitekai-logo.png /favicon.ico /icon-72.png /icon-192.png /robots.txt /sitemap.xml
 	handle @public {
-		root * /var/www/gigitekai/public
+		root * __SITE_ROOT__
 		# trailing-slash variants → canonical
 		@slash path_regexp slash ^(.+)/$
 		redir @slash {re.slash.1} permanent
@@ -56,7 +53,7 @@ gigitekai.com {
 	# Blog reader: static shell, data comes from /api/trpc (proxied below)
 	@blog path /blog /blog/*
 	handle @blog {
-		root * /var/www/gigitekai/public
+		root * __SITE_ROOT__
 		rewrite * /blog/index.html
 		file_server
 	}
@@ -64,8 +61,8 @@ gigitekai.com {
 	# ── Everything else → the existing application (admin, API, helpdesk, KB,
 	#    support, webhooks, websockets). Unchanged behaviour.
 	handle {
-		reverse_proxy {$APP_ORIGIN} {
-			header_up Host {$APP_HOST}
+		reverse_proxy __APP_ORIGIN__ {
+			header_up Host __APP_HOST__
 			header_up X-Forwarded-Proto https
 		}
 	}
@@ -81,7 +78,7 @@ gigitekai.com {
 	handle_errors {
 		@404 expression {http.error.status_code} == 404
 		handle @404 {
-			root * /var/www/gigitekai/public
+			root * __SITE_ROOT__
 			rewrite * /404.html
 			file_server
 		}

@@ -22,17 +22,17 @@ You are deploying the GigitekAI public website to a Hostinger VPS (Ubuntu). Work
 
 ## Known state of this VPS (checked 2026-11-07)
 - `srv2098629.hstgr.cloud`, 179.197.82.146, Ubuntu 24.04, KVM 4.
-- **Caddy is already running** and fronts n8n, Gitea, Beszel, Portainer, Nextcloud etc. on `*.ggbot.tech`. `deploy.sh` does NOT replace `/etc/caddy/Caddyfile`; it installs `/etc/caddy/sites-enabled/gigitekai.caddy` and appends one `import` line (backup kept). If Caddy turns out to run inside Docker, the script stops and tells you what to mount — do that, don't improvise.
-- Hostinger firewall group `cmmc-fortress-web` allows 22/80/443 only but is **not synced** to the VM. Do not change firewall rules; Harry decides that separately.
+- **Caddy is already running** and fronts n8n, Gitea, Beszel, Portainer, Nextcloud etc. on `*.ggbot.tech`. Caddy runs as the Docker compose container `caddy`. `deploy.sh` detects that: it writes the site file into the Caddy config dir's `sites-enabled/`, appends one `import` line to the main Caddyfile (backup kept), adds a `docker-compose.override.yml` with two read-only bind mounts, runs `docker compose up -d caddy` (a few seconds of restart) and reloads. If it stops with a message, do what the message says and re-run; don't improvise.
+- Hostinger edge firewall is synced: 80/443 TCP, 443/41641 UDP only. **Public SSH is closed** — reach the box over Tailscale (`ssh root@100.115.132.50`). Do not change firewall rules.
 - `gigitekai.com` is being transferred to Hostinger; DNS will be set in Hostinger once the transfer completes. Nothing changes at GoDaddy.
 
 ## Steps
 
 ### 1. Prepare the VPS
 ```bash
-ssh root@<VPS_IP>
+ssh root@100.115.132.50     # Tailscale address; public port 22 is closed
 apt-get update && apt-get upgrade -y
-ufw allow OpenSSH && ufw allow 80/tcp && ufw allow 443/tcp && ufw --force enable
+# ufw is already configured (22/80/443, 443/udp); leave it.
 timedatectl set-timezone America/New_York
 ```
 Report the VPS public IP (`curl -4 ifconfig.me`).
