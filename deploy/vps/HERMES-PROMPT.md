@@ -20,6 +20,12 @@ You are deploying the GigitekAI public website to a Hostinger VPS (Ubuntu). Work
 3. SSH access to the VPS as root (or sudo).
 4. Confirmation that DNS for `gigitekai.com` may be changed (Harry does this at GoDaddy; you provide the IP).
 
+## Known state of this VPS (checked 2026-11-07)
+- `srv2098629.hstgr.cloud`, 179.197.82.146, Ubuntu 24.04, KVM 4.
+- **Caddy is already running** and fronts n8n, Gitea, Beszel, Portainer, Nextcloud etc. on `*.ggbot.tech`. `deploy.sh` does NOT replace `/etc/caddy/Caddyfile`; it installs `/etc/caddy/sites-enabled/gigitekai.caddy` and appends one `import` line (backup kept). If Caddy turns out to run inside Docker, the script stops and tells you what to mount — do that, don't improvise.
+- Hostinger firewall group `cmmc-fortress-web` allows 22/80/443 only but is **not synced** to the VM. Do not change firewall rules; Harry decides that separately.
+- `gigitekai.com` is being transferred to Hostinger; DNS will be set in Hostinger once the transfer completes. Nothing changes at GoDaddy.
+
 ## Steps
 
 ### 1. Prepare the VPS
@@ -55,10 +61,10 @@ curl -sk -H 'Host: gigitekai.com' --resolve gigitekai.com:443:127.0.0.1 https://
 ```
 From a laptop, test with a hosts-file override (`<VPS_IP> gigitekai.com`) and open `/`, `/services/ai`, `/admin` (should show the Azure sign-in), `/kb`. Caddy will serve a self-signed/placeholder cert until DNS points here — that is expected.
 
-### 4. DNS cutover (Harry, at GoDaddy)
-- `gigitekai.com` A record → `<VPS_IP>` (TTL 600)
+### 4. DNS cutover (in Hostinger DNS, once the domain transfer completes)
+- `gigitekai.com` A record → `<VPS_IP>` (TTL 300)
 - `www` CNAME → `gigitekai.com`
-- Leave MX, TXT (SPF/DKIM/DMARC), and every other record untouched.
+- Leave MX, TXT (SPF/DKIM/DMARC), and every other record untouched. Nothing is changed at GoDaddy during the transfer.
 Caddy issues the Let's Encrypt certificate automatically within a minute of DNS resolving. Verify: `curl -sI https://gigitekai.com | head -5` shows `server: Caddy` and a valid cert; `https://gigitekai.com/admin` loads the sign-in page.
 
 ### 5. Post-cutover checks

@@ -69,22 +69,38 @@ chown -R caddy:caddy "$(dirname "$WEB_ROOT")"
 log "synced to $WEB_ROOT"
 
 # ── 5. Caddy ─────────────────────────────────────────────────────────────────
-install -m 644 deploy/vps/Caddyfile /etc/caddy/Caddyfile
-cat > /etc/caddy/gigitekai.env <<EOF
-APP_ORIGIN=$APP_ORIGIN
-APP_HOST=$APP_HOST
-EOF
+# The VPS may already run Caddy for other services (n8n, Gitea, Beszel, ...).
+# Never overwrite the main Caddyfile: install our site as an imported file.
+SITE_FILE=/etc/caddy/sites-enabled/gigitekai.caddy
+MAIN=/etc/caddy/Caddyfile
+if docker ps --format '{{.Names}} {{.Image}}' 2>/dev/null | grep -qi caddy && ! systemctl is-active --quiet caddy; then
+  echo "[deploy] Caddy is running in Docker, not systemd. Stopping before touching it."
+  echo "         Mount deploy/vps/Caddyfile into that container's config (import it), set"
+  echo "         APP_ORIGIN=$APP_ORIGIN APP_HOST=$APP_HOST in its environment, mount $WEB_ROOT, then reload."
+  exit 2
+fi
+mkdir -p /etc/caddy/sites-enabled
+install -m 644 deploy/vps/Caddyfile "$SITE_FILE"
+if [ ! -f "$MAIN" ]; then
+  printf '{\n\temail support@gigitekai.com\n}\n\nimport /etc/caddy/sites-enabled/*.caddy\n' > "$MAIN"
+  log "created $MAIN"
+elif ! grep -q 'sites-enabled/\*.caddy' "$MAIN"; then
+  cp -a "$MAIN" "$MAIN.bak.$(date +%s)"
+  printf '\n# gigitekai.com public site (deploy/vps/deploy.sh)\nimport /etc/caddy/sites-enabled/*.caddy\n' >> "$MAIN"
+  log "appended import line to $MAIN (backup kept)"
+fi
+if grep -qE '^\s*(www\.)?gigitekai\.com\b' "$MAIN"; then
+  echo "[deploy] $MAIN already defines a gigitekai.com site block; remove it so the imported file is authoritative."; exit 2
+fi
+printf 'APP_ORIGIN=%s\nAPP_HOST=%s\n' "$APP_ORIGIN" "$APP_HOST" > /etc/caddy/gigitekai.env
 chmod 600 /etc/caddy/gigitekai.env
 mkdir -p /etc/systemd/system/caddy.service.d
-cat > /etc/systemd/system/caddy.service.d/env.conf <<'EOF'
-[Service]
-EnvironmentFile=/etc/caddy/gigitekai.env
-EOF
+printf '[Service]\nEnvironmentFile=/etc/caddy/gigitekai.env\n' > /etc/systemd/system/caddy.service.d/gigitekai-env.conf
 systemctl daemon-reload
-caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+caddy validate --config "$MAIN" --adapter caddyfile
 systemctl enable --now caddy
 systemctl reload caddy || systemctl restart caddy
-log "Caddy reloaded"
+log "Caddy reloaded (site file: $SITE_FILE)"
 
 # ── 6. Smoke test (local, pre-DNS) ───────────────────────────────────────────
 sleep 2

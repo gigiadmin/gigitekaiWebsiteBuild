@@ -1,8 +1,9 @@
 # GigitekAI — Caddy config for the Hostinger VPS (Phase 1: static public site
 # on the VPS, everything else proxied to the existing application).
 #
-# Install to /etc/caddy/Caddyfile. Caddy obtains/renews TLS automatically once
-# DNS for gigitekai.com points at this VPS.
+# deploy.sh installs it as /etc/caddy/sites-enabled/gigitekai.caddy and makes the
+# main Caddyfile import it, so existing sites on the box (n8n, Gitea, ...) are kept.
+# Caddy obtains/renews TLS automatically once DNS for gigitekai.com points here.
 #
 # Required environment (set in /etc/caddy/gigitekai.env, loaded by systemd):
 #   APP_ORIGIN   - where the existing application (admin, API, helpdesk, KB,
@@ -11,9 +12,8 @@
 #   APP_HOST     - Host header to send upstream. Phase 1: the Manus hostname
 #                  (same as APP_ORIGIN without scheme). Phase 2: gigitekai.com
 
-{
-	email support@gigitekai.com
-}
+# NOTE: no global options block here — this file is imported by the server's
+# main Caddyfile (deploy.sh installs it as /etc/caddy/sites-enabled/gigitekai.caddy).
 
 www.gigitekai.com {
 	redir https://gigitekai.com{uri} permanent
